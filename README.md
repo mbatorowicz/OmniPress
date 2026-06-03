@@ -11,31 +11,23 @@ Headless CMS do przygotowania treści przez redaktorów i publikacji na wielu pl
 - Supabase (Auth, PostgreSQL, RLS)
 - Deploy: Vercel (`@astrojs/vercel`)
 
-## Szybki start
+## Wdrożenie (dla Ciebie)
 
-### 1. Supabase
+**Prosta instrukcja krok po kroku:** [docs/WDROZENIE.md](./docs/WDROZENIE.md)
 
-1. Utwórz projekt na [supabase.com](https://supabase.com).
-2. W **SQL Editor** wklej i uruchom całą migrację z `supabase/migrations/20250603000000_initial_schema.sql`.
-3. W **Authentication → Providers** włącz Email (hasło).
-4. Utwórz użytkownika (e-mail/hasło).
-5. Nadaj rolę admina i stronę — wzór w `supabase/seed.example.sql`.
+Integracja Vercel ↔ Supabase: zostaw **pusty** Custom Prefix. Kod sam mapuje `SUPABASE_URL` / `SUPABASE_ANON_KEY` — nie trzeba ręcznie tworzyć `PUBLIC_*` w panelu Vercel.
 
-### 2. Lokalnie
+### Lokalnie (opcjonalnie)
 
 ```bash
 cp .env.example .env
-# uzupełnij PUBLIC_SUPABASE_URL i PUBLIC_SUPABASE_ANON_KEY
+# uzupełnij PUBLIC_SUPABASE_URL i PUBLIC_SUPABASE_ANON_KEY z Supabase → Settings → API
 
 npm install
 npm run dev
 ```
 
 Aplikacja: http://localhost:4321
-
-### 3. Vercel
-
-Dodaj te same zmienne środowiskowe w ustawieniach projektu. Połącz repozytorium [OmniPress](https://github.com/mbatorowicz/OmniPress).
 
 ## Struktura
 

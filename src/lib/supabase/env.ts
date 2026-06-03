@@ -1,10 +1,15 @@
+import {
+	resolveSupabaseAnonKey,
+	resolveSupabaseUrl,
+} from './resolve-env';
+
 export function getSupabaseEnv() {
-	const url = import.meta.env.PUBLIC_SUPABASE_URL;
-	const anonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+	const url = resolveSupabaseUrl();
+	const anonKey = resolveSupabaseAnonKey();
 
 	if (!url || !anonKey) {
 		throw new Error(
-			'Brak PUBLIC_SUPABASE_URL lub PUBLIC_SUPABASE_ANON_KEY. Skopiuj .env.example do .env',
+			'Brak URL lub klucza Supabase. Podłącz integrację Vercel ↔ Supabase (bez prefiksu STORAGE) lub uzupełnij PUBLIC_SUPABASE_URL i PUBLIC_SUPABASE_ANON_KEY w .env',
 		);
 	}
 
@@ -12,7 +17,5 @@ export function getSupabaseEnv() {
 }
 
 export function isSupabaseConfigured(): boolean {
-	return Boolean(
-		import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
-	);
+	return Boolean(resolveSupabaseUrl() && resolveSupabaseAnonKey());
 }
