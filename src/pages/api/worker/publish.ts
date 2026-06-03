@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import { runPublishWorker } from '@/lib/publish';
-import { createServiceSupabase, isServiceSupabaseConfigured } from '@/lib/supabase/service';
+import { runPublishWorkerJob } from '@/lib/publish/trigger-worker';
+import { isServiceSupabaseConfigured } from '@/lib/supabase/service';
 
 function isAuthorized(request: Request): boolean {
 	const secret = import.meta.env.CRON_SECRET;
@@ -21,8 +21,7 @@ export const GET: APIRoute = async ({ request }) => {
 	}
 
 	try {
-		const supabase = createServiceSupabase();
-		const result = await runPublishWorker(supabase);
+		const result = await runPublishWorkerJob();
 		return new Response(JSON.stringify({ ok: true, ...result }), {
 			status: 200,
 			headers: { 'Content-Type': 'application/json' },

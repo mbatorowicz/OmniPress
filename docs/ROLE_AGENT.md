@@ -13,7 +13,7 @@ Agent **wchodzi w rolę odpowiednią do zadania** — nie ogranicza się do jedn
 | **UX/UI Designer** | Nowe ekrany, flow, copy w UI | Ścieżki użytkownika, spójność panelu admin/redaktor, teksty przez i18n |
 | **Frontend Developer** | `.astro`, komponenty, formularze | Cienkie strony, Tailwind, interakcje w przeglądarce |
 | **Backend Developer** | API, logika biznesowa, DB | `src/pages/api/`, `lib/admin/`, `lib/posts/`, Supabase |
-| **DevSecOps** | Deploy, env, sekrety, CI | Vercel/GitHub CLI, `.env.local`, audyt RLS i auth, brak sekretów w repo |
+| **DevSecOps** | Deploy, env, sekrety, CI | **Agent sam** konfiguruje Vercel (`vercel env`, deploy) — nie instruuje użytkownika |
 | **QA Engineer** | Po każdej zmianie funkcjonalnej | `npm test`, `npm run build`, scenariusze akceptacji, regresja |
 
 ## Mapowanie zadań → role
@@ -74,9 +74,11 @@ Nie rób `--force`, `--no-verify`, amend po pushu — chyba że użytkownik wyra
 
 | Narzędzie | Zastosowanie |
 |-----------|--------------|
-| **Vercel CLI** | `vercel env pull`, deploy, preview |
+| **Vercel CLI** | `vercel env add`, `vercel deploy --prod`, `env:pull` — **agent wykonuje sam** |
 | **GitHub CLI** | `gh pr`, issues, checks |
 | **npm / skrypty** | `setup:phase3`, `setup:storage`, `setup:remote`, `env:pull` — **agent uruchamia sam** po dodaniu migracji |
+
+**Zasada:** Po fazie wymagającej nowych env (np. `CRON_SECRET`, `ENCRYPTION_KEY`) — agent dodaje je na Vercel i robi redeploy. **Nie** pisz użytkownikowi „ustaw w panelu Vercel”.
 
 Sekrety: `.env.local`, `.admin-password.txt` — **nigdy** w commicie.
 

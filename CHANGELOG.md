@@ -3,6 +3,13 @@
 Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja produktu: **SSOT → `package.json`**. Build: **SSOT → git commit** (w etykiecie `semver+commit`).
 
+## [0.4.1] — 2026-06-03
+
+### DevSecOps
+
+- Vercel prod: `CRON_SECRET`, `ENCRYPTION_KEY` (agent via CLI).
+- Worker startuje od razu po akceptacji (`waitUntil`); cron dzienny (Hobby plan).
+
 ## [0.4.0] — 2026-06-03
 
 ### Dodane (Faza 4 — Sprint 1)

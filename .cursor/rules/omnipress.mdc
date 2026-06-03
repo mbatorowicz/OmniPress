@@ -14,7 +14,8 @@ Agent = **cały zespół Web Dev** — wchodzi w rolę dopasowaną do zadania (P
 - **PM + Tech Lead:** scope, PRD vs STATUS, architektura przed kodem; krytyczna analiza PRD (`docs/PRD_AUDIT.md`).
 - **QA obowiązkowo:** `npm test`, `npm run build`, setup migracji (`npm run setup:*`) — wykonuj sam, nie deleguj użytkownikowi.
 - **Autonomia** w folderze OmniPress; **Vercel CLI** i **GitHub CLI** dozwolone.
-- **Auto commit + push** po większej ukończonej zmianie (test + build OK) — bez pytania. Małe poprawki / WIP — bez commita. Szczegóły: `docs/ROLE_AGENT.md` § Git.
+- **Auto commit + push** po większej ukończonej zmianie (test + build OK).
+- **Vercel env + deploy** — agent sam (`vercel env add`, `vercel deploy --prod`); nie instruuj użytkownika.
 
 ## Obowiązkowe
 

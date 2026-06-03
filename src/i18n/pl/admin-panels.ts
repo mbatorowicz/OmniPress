@@ -72,7 +72,7 @@ export const adminReview = {
 	reject: 'Odrzuć',
 	rejectionNote: 'Uwagi dla redaktora (wymagane przy odrzuceniu)',
 	destinations: 'Destynacje do publikacji',
-	approved: 'Wpis zaakceptowany — publikacja w tle (worker co 5 min).',
+	approved: 'Wpis zaakceptowany — publikacja w tle (start natychmiast).',
 	rejected: 'Wpis odrzucony.',
 	publishLogs: {
 		heading: 'Status publikacji',

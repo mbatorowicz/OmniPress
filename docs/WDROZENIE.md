@@ -81,7 +81,7 @@ Na Vercel (Production):
 | `SUPABASE_SERVICE_ROLE_KEY` | Tylko worker — **nie** eksponować w UI |
 | `ENCRYPTION_KEY` | Odszyfrowanie credentials destynacji |
 
-Cron: `vercel.json` → `/api/worker/publish` co 5 min.
+Cron: `vercel.json` → `/api/worker/publish` raz dziennie (backup retry; Hobby plan). Publikacja startuje **od razu po akceptacji** (`waitUntil`).
 
 ### ENCRYPTION_KEY (destynacje produkcyjne)
 
