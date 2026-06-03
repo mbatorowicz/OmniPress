@@ -35,6 +35,34 @@ export const adminSites = {
 		delete_confirm: 'Zaznacz potwierdzenie przed usunięciem.',
 	},
 	deleted: 'Jednostka usunięta.',
+	wizardLink: 'Kreator: jednostka + WP + Astro',
+} as const;
+
+export const adminUnit = {
+	title: 'Nowa jednostka organizacyjna',
+	lead: 'Jednym krokiem: strona logiczna, destynacje WordPress i Astro oraz mapowanie.',
+	sections: {
+		unit: 'Jednostka',
+		wordpress: 'WordPress',
+		astro: 'GitHub → Astro',
+		defaultChannel: 'Domyślny kanał przy akceptacji',
+	},
+	fields: {
+		enableWordpress: 'Dodaj kanał WordPress',
+		enableAstro: 'Dodaj kanał Astro',
+	},
+	actions: { create: 'Utwórz jednostkę' },
+	errors: {
+		name_required: 'Podaj nazwę jednostki.',
+		invalid_slug: 'Nieprawidłowy slug (min. 2 znaki, a-z, 0-9, myślnik).',
+		no_channel: 'Włącz co najmniej jeden kanał publikacji.',
+		config_wp_rest_base: 'Podaj URL REST API WordPress.',
+		config_repo: 'Podaj repozytorium w formacie owner/repo.',
+		site_failed: 'Nie udało się utworzyć strony.',
+		destination_failed: 'Nie udało się utworzyć destynacji.',
+		mapping_failed: 'Nie udało się powiązać destynacji ze stroną.',
+	},
+	credentialsNote: 'Tokeny WP/GitHub opcjonalne — możesz dodać później w edycji destynacji.',
 } as const;
 
 export const adminDestinations = {

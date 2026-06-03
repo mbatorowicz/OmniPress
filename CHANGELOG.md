@@ -3,6 +3,12 @@
 Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja produktu: **SSOT → `package.json`**. Build: **SSOT → git commit** (w etykiecie `semver+commit`).
 
+## [0.4.4] — 2026-06-03
+
+### Dodane
+
+- Kreator **Nowa jednostka** (`/admin/units/new`): strona + WP + Astro + mapowanie domyślne.
+
 ## [0.4.3] — 2026-06-03
 
 ### Naprawione

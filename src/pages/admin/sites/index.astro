@@ -10,12 +10,20 @@ const deleted = Astro.url.searchParams.get('deleted') === '1';
 <AppLayout title={adminSites.title} heading={adminSites.title}>
 	<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
 		<a href="/admin" class="text-sm text-brand hover:underline">{admin.preview.back}</a>
-		<a
-			href="/admin/sites/new"
-			class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
-		>
-			{adminSites.newSite}
-		</a>
+		<div class="flex flex-wrap gap-2">
+			<a
+				href="/admin/units/new"
+				class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
+			>
+				{adminSites.wizardLink}
+			</a>
+			<a
+				href="/admin/sites/new"
+				class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:border-brand"
+			>
+				{adminSites.newSite}
+			</a>
+		</div>
 	</div>
 
 	{deleted && (

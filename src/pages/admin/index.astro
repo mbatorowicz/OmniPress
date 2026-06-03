@@ -1,6 +1,6 @@
 ---
 import AppLayout from '../../layouts/AppLayout.astro';
-import { admin, common } from '@/i18n';
+import { admin, adminSites, common } from '@/i18n';
 import { listDestinations, listSites } from '@/lib/admin';
 
 const supabase = Astro.locals.supabase;
@@ -22,6 +22,9 @@ const { data: publishing } = await supabase
 
 <AppLayout title={admin.title} heading={admin.title}>
 	<nav class="mb-8 flex flex-wrap gap-3 text-sm">
+		<a href="/admin/units/new" class="rounded-lg border border-brand bg-brand/5 px-4 py-2 font-medium text-brand hover:bg-brand/10">
+			{adminSites.wizardLink}
+		</a>
 		<a href="/admin/sites" class="rounded-lg border border-slate-200 bg-white px-4 py-2 hover:border-brand">
 			{admin.sites.manage}
 		</a>
