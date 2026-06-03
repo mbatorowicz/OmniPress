@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import VersionBadge from '@/components/layout/VersionBadge.astro';
 import { isSupabaseConfigured } from '../lib/supabase/env';
 
 const configured = isSupabaseConfigured();
@@ -58,7 +59,7 @@ const showReset = mode === 'reset';
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>Logowanie · OmniPress</title>
 	</head>
-	<body class="flex min-h-screen items-center justify-center bg-slate-100 p-6">
+	<body class="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-100 p-6">
 		<div class="w-full max-w-sm rounded-xl bg-white p-8 shadow-sm">
 			<h1 class="text-xl font-semibold text-brand">OmniPress</h1>
 			<p class="mt-1 text-sm text-slate-600">
@@ -150,5 +151,6 @@ const showReset = mode === 'reset';
 				)
 			}
 		</div>
+		<VersionBadge />
 	</body>
 </html>

@@ -1,0 +1,18 @@
+---
+import { getBuildInfo, getCommitUrl } from '@/config/app';
+
+const { versionLabel, commit } = getBuildInfo();
+const commitHref = commit !== 'unknown' ? getCommitUrl(commit) : null;
+---
+
+<p class="text-center font-mono text-xs text-slate-400">
+	{
+		commitHref ? (
+			<a href={commitHref} target="_blank" rel="noopener noreferrer" class="hover:text-brand">
+				{versionLabel}
+			</a>
+		) : (
+			versionLabel
+		)
+	}
+</p>

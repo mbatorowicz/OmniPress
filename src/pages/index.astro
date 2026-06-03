@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import VersionBadge from '@/components/layout/VersionBadge.astro';
 import { isSupabaseConfigured } from '../lib/supabase/env';
 
 const setup = Astro.url.searchParams.get('setup') === '1';
@@ -13,8 +14,8 @@ const configured = isSupabaseConfigured();
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>OmniPress</title>
 	</head>
-	<body class="flex min-h-screen items-center justify-center bg-slate-100 p-6 font-sans">
-		<div class="max-w-md rounded-xl bg-white p-8 shadow-sm">
+	<body class="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-100 p-6 font-sans">
+		<div class="w-full max-w-md rounded-xl bg-white p-8 shadow-sm">
 			<h1 class="text-2xl font-semibold text-brand">OmniPress</h1>
 			<p class="mt-2 text-slate-600">Headless CMS do publikacji na WordPress i Astro.</p>
 			{
@@ -36,5 +37,6 @@ const configured = isSupabaseConfigured();
 				)
 			}
 		</div>
+		<VersionBadge />
 	</body>
 </html>

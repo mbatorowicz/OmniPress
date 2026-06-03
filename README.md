@@ -29,19 +29,23 @@ npm run dev
 
 Aplikacja: http://localhost:4321
 
+## Wersja
+
+Etykieta **`semver+commit`** (np. `0.1.0+d7f8740`) — semver z `package.json`, commit z Gita/Vercel.  
+Szczegóły: [docs/VERSIONING.md](./docs/VERSIONING.md) · `npm run version`
+
 ## Struktura
 
 ```
 src/
-  layouts/       — wspólny układ panelu
-  lib/           — Supabase, auth, typy, szyfrowanie (stub)
-  middleware.ts  — sesja, ochrona tras /admin i /dashboard
-  pages/
-    login.astro
-    dashboard/   — redaktor
-    admin/       — administrator
-supabase/
-  migrations/    — schemat PostgreSQL + RLS
+  config/        — metadane aplikacji (odczyt buildu)
+  components/    — UI (stopka, badge wersji)
+  layouts/       — AppLayout
+  lib/           — Supabase, auth, typy
+  pages/         — trasy Astro
+scripts/lib/     — git-info.mjs (SSOT commit przy buildzie)
+supabase/        — migracje SQL
+docs/            — wdrożenie, wersjonowanie
 ```
 
 ## Kamienie milowe

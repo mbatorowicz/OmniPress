@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import AppFooter from '@/components/layout/AppFooter.astro';
 
 interface Props {
 	title: string;
@@ -19,7 +20,7 @@ const profile = Astro.locals.profile;
 		<meta name="generator" content={Astro.generator} />
 		<title>{title} · OmniPress</title>
 	</head>
-	<body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+	<body class="flex min-h-screen flex-col bg-slate-50 text-slate-900 antialiased">
 		<header class="border-b border-slate-200 bg-white">
 			<div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
 				<a href="/" class="text-lg font-semibold text-brand">OmniPress</a>
@@ -42,9 +43,10 @@ const profile = Astro.locals.profile;
 				</nav>
 			</div>
 		</header>
-		<main class="mx-auto max-w-5xl px-4 py-8">
+		<main class="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
 			{heading && <h1 class="mb-6 text-2xl font-semibold text-slate-800">{heading}</h1>}
 			<slot />
 		</main>
+		<AppFooter />
 	</body>
 </html>

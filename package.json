@@ -1,7 +1,7 @@
 {
   "name": "omnipress",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -13,7 +13,8 @@
     "setup:remote": "node scripts/setup-remote.mjs",
     "setup:password": "node scripts/set-admin-password.mjs",
     "setup:auth-urls": "node scripts/fix-auth-config.mjs",
-    "env:pull": "vercel env pull .env.local --yes"
+    "env:pull": "vercel env pull .env.local --yes",
+    "version": "node -e \"import('./scripts/lib/git-info.mjs').then(m=>console.log(m.getVersionLabel()))\""
   },
   "dependencies": {
     "@astrojs/vercel": "^10.0.8",
