@@ -39,4 +39,8 @@ export function roleHomePath(role: UserRole): string {
 	return role === 'admin' ? '/admin' : '/dashboard';
 }
 
-export const PUBLIC_PATHS = new Set(['/login', '/auth/callback']);
+export const PUBLIC_PATHS = new Set([
+	'/login',
+	'/auth/callback',
+	'/auth/reset-password',
+]);

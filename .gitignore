@@ -28,5 +28,8 @@ pnpm-debug.log*
 .env.*
 !.env.example
 
+# Lokalne hasło bootstrap (generowane przez scripts/set-admin-password.mjs)
+.admin-password.txt
+
 .vercel
 .env*

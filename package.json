@@ -11,6 +11,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "setup:remote": "node scripts/setup-remote.mjs",
+    "setup:password": "node scripts/set-admin-password.mjs",
+    "setup:auth-urls": "node scripts/fix-auth-config.mjs",
     "env:pull": "vercel env pull .env.local --yes"
   },
   "dependencies": {
