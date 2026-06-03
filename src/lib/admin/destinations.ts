@@ -41,6 +41,9 @@ export function buildConfig(type: DestinationType, form: FormData): Record<strin
 		branch: String(form.get('branch') ?? 'main').trim() || 'main',
 		content_path: String(form.get('content_path') ?? 'src/content').trim() || 'src/content',
 		content_layout: String(form.get('content_layout') ?? 'flat').trim() === 'folder' ? 'folder' : 'flat',
+		categories_path:
+			String(form.get('categories_path') ?? 'src/config/omnipress-categories.json').trim() ||
+			'src/config/omnipress-categories.json',
 	};
 }
 

@@ -61,6 +61,12 @@ const preview = admin.preview;
 
 	<article class="rounded-xl border border-slate-200 bg-white p-6">
 		<h2 class="text-xl font-semibold">{post.title || common.untitled}</h2>
+		{post.category_name && (
+			<p class="mt-1 text-sm text-slate-600">
+				Kategoria: <strong>{post.category_name}</strong>
+				{post.category_slug && <span class="font-mono text-slate-500"> ({post.category_slug})</span>}
+			</p>
+		)}
 		{post.slug && <p class="mt-1 font-mono text-sm text-slate-500">/{post.slug}</p>}
 		<pre class="mt-6 whitespace-pre-wrap rounded-lg bg-slate-50 p-4 text-sm">{post.content_md}</pre>
 	</article>

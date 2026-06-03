@@ -41,6 +41,9 @@ export async function publishToWordPress(
 		status: 'publish',
 	};
 	if (post.slug) body.slug = post.slug;
+	if (post.wp_category_id) {
+		body.categories = [post.wp_category_id];
+	}
 
 	const res = await fetch(`${base}/posts`, {
 		method: 'POST',

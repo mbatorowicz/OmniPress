@@ -10,6 +10,9 @@ export type PostRow = {
 	slug: string | null;
 	status: PostStatus;
 	rejection_note: string | null;
+	category_slug: string | null;
+	category_name: string | null;
+	wp_category_id: number | null;
 };
 
 export async function getPostById(
@@ -18,7 +21,9 @@ export async function getPostById(
 ): Promise<PostRow | null> {
 	const { data, error } = await supabase
 		.from('posts')
-		.select('id, author_id, site_id, title, content_md, slug, status, rejection_note')
+		.select(
+			'id, author_id, site_id, title, content_md, slug, status, rejection_note, category_slug, category_name, wp_category_id',
+		)
 		.eq('id', postId)
 		.maybeSingle();
 

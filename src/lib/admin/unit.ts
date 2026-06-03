@@ -42,6 +42,7 @@ export type UnitFormInitial = {
 		branch: string;
 		content_path: string;
 		content_layout: 'flat' | 'folder';
+		categories_path: string;
 	};
 };
 
@@ -139,6 +140,10 @@ export async function loadUnitFormInitial(
 				branch: cfg.branch ?? 'main',
 				content_path: cfg.content_path ?? 'src/content/news',
 				content_layout: cfg.content_layout === 'folder' ? 'folder' : 'flat',
+				categories_path:
+					typeof cfg.categories_path === 'string' && cfg.categories_path.trim()
+						? cfg.categories_path.trim()
+						: 'src/config/omnipress-categories.json',
 			};
 		}
 	}

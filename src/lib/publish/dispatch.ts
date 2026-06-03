@@ -24,7 +24,9 @@ export async function loadPostForPublish(
 ): Promise<PostForPublish | null> {
 	const { data } = await supabase
 		.from('posts')
-		.select('id, site_id, title, slug, content_md, status, updated_at')
+		.select(
+			'id, site_id, title, slug, content_md, status, updated_at, category_slug, category_name, wp_category_id',
+		)
 		.eq('id', postId)
 		.maybeSingle();
 	return (data as PostForPublish | null) ?? null;

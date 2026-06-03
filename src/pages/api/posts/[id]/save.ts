@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { requireAuth } from '@/lib/auth';
-import { canEditPost, getPostById, slugFromTitle } from '@/lib/posts';
+import { canEditPost, getPostById, resolvePostCategoryFields, slugFromTitle } from '@/lib/posts';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const postId = params.id;
@@ -20,6 +20,11 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const content_md = String(form.get('content_md') ?? '');
 	const slugInput = String(form.get('slug') ?? '').trim();
 	const slug = slugInput || (title ? slugFromTitle(title) : post.slug);
+	const categorySlug = String(form.get('category_slug') ?? '').trim();
+	const categoryFields = await resolvePostCategoryFields(supabase, post.site_id, categorySlug);
+	if (!categoryFields) {
+		return redirect(`/dashboard/posts/${postId}?error=category_required`);
+	}
 
 	const { error } = await supabase
 		.from('posts')
@@ -27,6 +32,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 			title,
 			content_md,
 			slug: slug || null,
+			...categoryFields,
 		})
 		.eq('id', postId);
 

@@ -141,6 +141,15 @@ const i = initial;
 				/>
 			</label>
 			<label class="block text-sm">
+				<span>Plik kategorii Astro (w repo)</span>
+				<input
+					name="categories_path"
+					value={i?.astro?.categories_path ?? 'src/config/omnipress-categories.json'}
+					class="mt-1 w-full rounded-lg border px-3 py-2 font-mono text-sm"
+				/>
+			</label>
+			<p class="text-xs text-slate-500">JSON z listą slug/name — OmniPress pobiera przy edycji wpisu.</p>
+			<label class="block text-sm">
 				<span>{adminDestinations.fields.contentLayout}</span>
 				<select name="content_layout" class="mt-1 w-full rounded-lg border px-3 py-2">
 					<option value="flat" selected={!i || i.astro?.content_layout !== 'folder'}>

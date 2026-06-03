@@ -19,6 +19,10 @@ export const POST: APIRoute = async ({ params, redirect, locals }) => {
 		return redirect(`/dashboard/posts/${postId}?error=title_required`);
 	}
 
+	if (!post.category_slug?.trim()) {
+		return redirect(`/dashboard/posts/${postId}?error=category_required`);
+	}
+
 	const { error } = await supabase
 		.from('posts')
 		.update({ status: 'pending', rejection_note: null })

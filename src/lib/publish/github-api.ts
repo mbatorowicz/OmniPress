@@ -64,6 +64,24 @@ export async function getGitHubFile(
 	return { sha: json.sha, path: json.path };
 }
 
+/** Odczyt treści pliku tekstowego/JSON z repozytorium (Contents API, base64). */
+export async function getGitHubFileText(
+	cfg: GitHubConfig,
+	token: string,
+	filePath: string,
+): Promise<string | null> {
+	const url = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeGitHubPath(filePath)}?ref=${encodeURIComponent(cfg.branch)}`;
+	const res = await fetch(url, { headers: ghHeaders(token) });
+	if (res.status === 404) return null;
+	if (!res.ok) {
+		const text = await res.text();
+		throw new Error(`GitHub GET ${res.status}: ${text.slice(0, 200)}`);
+	}
+	const json = (await res.json()) as { content?: string; encoding?: string };
+	if (json.encoding !== 'base64' || !json.content) return null;
+	return Buffer.from(json.content.replace(/\n/g, ''), 'base64').toString('utf8');
+}
+
 export async function putGitHubFile(
 	cfg: GitHubConfig,
 	token: string,

@@ -15,6 +15,8 @@ export const posts = {
 		save_failed: 'Zapis nie powiódł się.',
 		submit_failed: 'Wysłanie do akceptacji nie powiodło się.',
 		title_required: 'Podaj tytuł przed wysłaniem do akceptacji.',
+		category_required: 'Wybierz kategorię wpisu (lista z WordPress / Astro).',
+		categories_unavailable: 'Nie udało się pobrać kategorii — sprawdź kanały publikacji.',
 		not_found: 'Wpis nie istnieje.',
 	},
 	upload: {
