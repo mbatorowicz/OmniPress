@@ -1,7 +1,6 @@
 ---
 import '../styles/global.css';
 import VersionBadge from '@/components/layout/VersionBadge.astro';
-import { mapAuthError } from '@/lib/auth/messages';
 import { isSupabaseConfigured } from '../lib/supabase/env';
 
 const configured = isSupabaseConfigured();
@@ -10,6 +9,7 @@ let infoMessage: string | null = null;
 
 const mode = Astro.url.searchParams.get('mode');
 const errorParam = Astro.url.searchParams.get('error');
+const successParam = Astro.url.searchParams.get('success');
 const sent = Astro.url.searchParams.get('sent') === '1';
 
 if (errorParam === 'missing') {
@@ -22,7 +22,18 @@ if (errorParam === 'session') {
 	errorMessage = 'Logowanie nie powiodło się — spróbuj ponownie.';
 }
 if (errorParam && !['missing', 'missing_email', 'session'].includes(errorParam)) {
-	errorMessage = decodeURIComponent(errorParam);
+	try {
+		errorMessage = decodeURIComponent(errorParam);
+	} catch {
+		errorMessage = errorParam;
+	}
+}
+if (successParam) {
+	try {
+		infoMessage = decodeURIComponent(successParam);
+	} catch {
+		infoMessage = successParam;
+	}
 }
 if (sent) {
 	infoMessage =

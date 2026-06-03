@@ -3,6 +3,7 @@
 Headless CMS do przygotowania treści przez redaktorów i publikacji na wielu platformach (WordPress, Astro/GitHub) z jednego panelu.
 
 - Wymagania produktowe: [PRD.md](./PRD.md)
+- Autoryzacja: [docs/AUTH.md](./docs/AUTH.md)
 - Schemat bazy: [supabase/migrations/20250603000000_initial_schema.sql](./supabase/migrations/20250603000000_initial_schema.sql)
 
 ## Stack (Faza 1)

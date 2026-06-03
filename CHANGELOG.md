@@ -3,6 +3,13 @@
 Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja produktu: **SSOT → `package.json`**. Build: **SSOT → git commit** (w etykiecie `semver+commit`).
 
+## [0.1.2] — 2026-06-03
+
+### Naprawione
+
+- Auth: adapter ciasteczek z merge w żądaniu, logowanie z `data.user`, reset hasła w pełni po SSR.
+- `/api/auth/set-password`, `/api/auth/establish-session`; dokumentacja `docs/AUTH.md`.
+
 ## [0.1.1] — 2026-06-03
 
 ### Naprawione

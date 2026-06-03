@@ -1,16 +1,19 @@
 import { defineMiddleware } from 'astro:middleware';
-import { getProfile, getSessionUser, PUBLIC_PATHS, roleHomePath } from './lib/auth';
+import {
+	getProfile,
+	getSessionUser,
+	isProtectedPath,
+	isPublicPath,
+	roleHomePath,
+} from './lib/auth';
 import { isSupabaseConfigured } from './lib/supabase/env';
 import { createSupabaseServerClient } from './lib/supabase/server';
-
-const PROTECTED_PREFIXES = ['/dashboard', '/admin'];
 
 export const onRequest = defineMiddleware(async (context, next) => {
 	const { url, cookies, redirect, locals } = context;
 	const pathname = url.pathname;
 	const authCode = url.searchParams.get('code');
 
-	// Supabase recovery PKCE: często ląduje na Site URL (/) z ?code= — przekieruj na właściwą stronę
 	if (
 		authCode &&
 		(pathname === '/' || pathname === '/login' || pathname === '/auth/callback')
@@ -19,7 +22,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	}
 
 	if (!isSupabaseConfigured()) {
-		if (pathname === '/' || PUBLIC_PATHS.has(pathname)) {
+		if (pathname === '/' || isPublicPath(pathname)) {
 			return next();
 		}
 		return redirect('/?setup=1');
@@ -32,14 +35,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	locals.user = user;
 	locals.profile = user ? await getProfile(supabase, user.id) : null;
 
-	const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
-
 	if (user && (pathname === '/login' || pathname === '/auth/callback')) {
-		const role = locals.profile?.role ?? 'editor';
-		return redirect(roleHomePath(role));
+		return redirect(roleHomePath(locals.profile?.role ?? 'editor'));
 	}
 
-	if (!user && (isProtected || (pathname === '/' && !authCode))) {
+	if (!user && isProtectedPath(pathname)) {
+		return redirect('/login');
+	}
+
+	if (!user && pathname === '/' && !authCode) {
 		return redirect('/login');
 	}
 
@@ -48,8 +52,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	}
 
 	if (user && pathname === '/') {
-		const role = locals.profile?.role ?? 'editor';
-		return redirect(roleHomePath(role));
+		return redirect(roleHomePath(locals.profile?.role ?? 'editor'));
 	}
 
 	if (user && pathname.startsWith('/admin') && locals.profile?.role !== 'admin') {

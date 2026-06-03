@@ -1,11 +1,10 @@
 import type { APIRoute } from 'astro';
-import { mapAuthError } from '@/lib/auth/messages';
-import { getProfile, roleHomePath } from '@/lib/auth';
+import { mapAuthError, getProfile, roleHomePath } from '@/lib/auth';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	const form = await request.formData();
-	const email = String(form.get('email') ?? '').trim();
+	const email = String(form.get('email') ?? '').trim().toLowerCase();
 	const password = String(form.get('password') ?? '');
 
 	if (!email || !password) {
@@ -13,7 +12,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	}
 
 	const supabase = createSupabaseServerClient(cookies, request);
-	const { error } = await supabase.auth.signInWithPassword({ email, password });
+	const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
 	if (error) {
 		return redirect(
@@ -21,10 +20,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 		);
 	}
 
-	const {
-		data: { user },
-	} = await supabase.auth.getUser();
-
+	const user = data.user ?? data.session?.user;
 	if (!user) {
 		return redirect('/login?error=session');
 	}
