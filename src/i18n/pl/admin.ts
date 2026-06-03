@@ -19,6 +19,11 @@ export const admin = {
 	editors: {
 		manage: 'Redaktorzy',
 	},
+	content: {
+		heading: 'Treści i publikacja',
+		lead: 'Jako administrator możesz pisać szkice w panelu redaktora, potem zaakceptować je tutaj.',
+		openDashboard: 'Panel treści — nowy artykuł',
+	},
 	pending: {
 		heading: (n: number) => `Do akceptacji (${n})`,
 		empty: 'Brak wpisów oczekujących.',

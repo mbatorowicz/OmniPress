@@ -28,3 +28,4 @@ export {
 	type EditorRow,
 } from './user-sites';
 export { testWordPressChannel, testGitHubAstroChannel, type ChannelTestResult } from './channel-test';
+export { createEditorAccount, type CreateEditorResult } from './create-editor';

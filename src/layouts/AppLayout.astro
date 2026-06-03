@@ -34,7 +34,7 @@ const profile = Astro.locals.profile;
 						)
 					}
 					<a href="/dashboard" class="hover:text-brand">
-						{layout.navPanel}
+						{profile?.role === 'admin' ? layout.navEditorPanel : layout.navPanel}
 					</a>
 					<form method="post" action="/api/auth/signout">
 						<button type="submit" class="text-slate-600 hover:text-brand">

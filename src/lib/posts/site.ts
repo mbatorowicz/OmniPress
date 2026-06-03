@@ -23,12 +23,21 @@ export function collectAllowedSites(profile: Profile, userSites: SiteRow[]): All
 	return [...map.values()];
 }
 
-/** Jedna funkcja dla UI i API — ładuje default_site_id z bazy gdy brak user_sites. */
+/** Jedna funkcja dla UI i API — ładuje strony redaktora lub wszystkie aktywne (admin). */
 export async function loadAllowedSites(
 	supabase: SupabaseClient,
 	profile: Profile,
 	userSites: SiteRow[],
 ): Promise<AllowedSite[]> {
+	if (profile.role === 'admin') {
+		const { data: sites } = await supabase
+			.from('sites')
+			.select('id, name, slug')
+			.eq('is_active', true)
+			.order('name');
+		return (sites ?? []).map((s) => ({ id: s.id, name: s.name, slug: s.slug }));
+	}
+
 	let allowed = collectAllowedSites(profile, userSites);
 
 	if (allowed.length === 0 && profile.default_site_id) {

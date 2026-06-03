@@ -1,24 +1,97 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
-import { admin, adminEditors } from '@/i18n';
-import { listEditors } from '@/lib/admin';
+import { admin, adminEditors, common } from '@/i18n';
+import { listEditors, listSites } from '@/lib/admin';
 
 const editors = await listEditors(Astro.locals.supabase);
+const sites = await listSites(Astro.locals.supabase);
+
+const errorCode = Astro.url.searchParams.get('error');
+const editorErrors = adminEditors.errors;
+const errorMessage =
+	errorCode && errorCode in editorErrors
+		? editorErrors[errorCode as keyof typeof editorErrors]
+		: null;
 ---
 
 <AppLayout title={adminEditors.title} heading={adminEditors.title}>
 	<a href="/admin" class="mb-4 inline-block text-sm text-brand hover:underline">{admin.preview.back}</a>
 	<p class="mb-4 text-sm text-slate-600">{adminEditors.lead}</p>
 
-	<ul class="divide-y divide-slate-100 rounded-xl border bg-white">
+	{errorMessage && (
+		<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{errorMessage}</p>
+	)}
+
+	<section class="mb-8 rounded-xl border bg-white p-6">
+		<h2 class="text-lg font-medium">{adminEditors.invite.heading}</h2>
+		<p class="mt-1 text-sm text-slate-600">{adminEditors.invite.lead}</p>
+		<form method="post" action="/api/admin/editors/create" class="mt-4 max-w-lg space-y-4">
+			<label class="block text-sm">
+				<span class="font-medium">{adminEditors.invite.email}</span>
+				<input name="email" type="email" required class="mt-1 w-full rounded-lg border px-3 py-2" />
+			</label>
+			<label class="block text-sm">
+				<span>{adminEditors.invite.displayName}</span>
+				<input name="display_name" class="mt-1 w-full rounded-lg border px-3 py-2" />
+			</label>
+			<label class="block text-sm">
+				<span class="font-medium">{adminEditors.invite.password}</span>
+				<input name="password" type="password" required minlength={8} autocomplete="new-password" class="mt-1 w-full rounded-lg border px-3 py-2" />
+			</label>
+			{
+				sites.length > 0 ? (
+					<fieldset class="text-sm">
+						<legend class="mb-2 font-medium">{adminEditors.invite.sites}</legend>
+						<ul class="space-y-2">
+							{sites.map((s) => (
+								<li>
+									<label class="flex items-center gap-2">
+										<input type="checkbox" name="site_ids" value={s.id} />
+										{s.name}
+									</label>
+								</li>
+							))}
+						</ul>
+					</fieldset>
+				) : (
+					<p class="text-sm text-amber-800">Najpierw utwórz jednostkę organizacyjną (stronę).</p>
+				)
+			}
+			{
+				sites.length > 0 && (
+					<label class="block text-sm">
+						<span>{adminEditors.invite.defaultSite}</span>
+						<select name="default_site_id" class="mt-1 w-full rounded-lg border px-3 py-2">
+							<option value="">— pierwsza zaznaczona —</option>
+							{sites.map((s) => (
+								<option value={s.id}>{s.name}</option>
+							))}
+						</select>
+					</label>
+				)
+			}
+			<button type="submit" class="rounded-lg bg-brand px-4 py-2 text-sm text-white">
+				{adminEditors.invite.submit}
+			</button>
+		</form>
+	</section>
+
+	<section class="rounded-xl border bg-white p-6">
+		<h2 class="text-lg font-medium">Konta redaktorów</h2>
 		{
-			editors.map((e) => (
-				<li class="px-4 py-3 text-sm">
-					<a href={`/admin/editors/${e.id}`} class="font-medium text-brand hover:underline">
-						{e.display_name || e.id.slice(0, 8)}
-					</a>
-				</li>
-			))
+			editors.length === 0 ? (
+				<p class="mt-2 text-sm text-slate-600">Brak redaktorów — utwórz konto powyżej.</p>
+			) : (
+				<ul class="mt-4 divide-y divide-slate-100">
+					{editors.map((e) => (
+						<li class="py-3 text-sm">
+							<a href={`/admin/editors/${e.id}`} class="font-medium text-brand hover:underline">
+								{e.display_name || e.id.slice(0, 8)}
+							</a>
+						</li>
+					))}
+				</ul>
+			)
 		}
-	</ul>
+	</section>
 </AppLayout>

@@ -123,13 +123,29 @@ export const adminDestinations = {
 
 export const adminEditors = {
 	title: 'Redaktorzy',
-	lead: 'Przypisz strony i domyślną stronę redaktora.',
+	lead: 'Utwórz konto redaktora lub przypisz mu strony do publikacji szkiców.',
+	invite: {
+		heading: 'Nowy redaktor',
+		lead: 'Konto loguje się na /login (e-mail + hasło). Hasło przekaż redaktorowi bezpiecznym kanałem.',
+		email: 'E-mail',
+		displayName: 'Imię i nazwisko (opcjonalnie)',
+		password: 'Hasło startowe (min. 8 znaków)',
+		sites: 'Dostępne strony',
+		defaultSite: 'Domyślna strona',
+		submit: 'Utwórz redaktora',
+	},
+	errors: {
+		not_configured: 'Brak SUPABASE_SERVICE_ROLE_KEY — utwórz redaktora skryptem lub ustaw zmienną na Vercel.',
+		email_required: 'Podaj e-mail redaktora.',
+		password_required: 'Hasło musi mieć co najmniej 8 znaków.',
+		create_failed: 'Nie udało się utworzyć konta (e-mail może już istnieć).',
+		save_failed: 'Zapis przypisania nie powiódł się.',
+	},
 	fields: {
 		sites: 'Dostępne strony',
 		defaultSite: 'Domyślna strona',
 	},
 	actions: { save: 'Zapisz przypisanie' },
-	errors: { save_failed: 'Zapis przypisania nie powiódł się.' },
 } as const;
 
 export const adminReview = {
