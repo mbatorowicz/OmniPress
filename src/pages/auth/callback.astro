@@ -1,0 +1,110 @@
+---
+import '../../styles/global.css';
+import { getSupabaseEnv } from '../../lib/supabase/env';
+import { getProfile, roleHomePath } from '../../lib/auth';
+
+const code = Astro.url.searchParams.get('code');
+const errorParam = Astro.url.searchParams.get('error_description');
+
+let supabaseUrl = '';
+let supabaseAnonKey = '';
+
+try {
+	const env = getSupabaseEnv();
+	supabaseUrl = env.url;
+	supabaseAnonKey = env.anonKey;
+} catch {
+	// env wstrzyknięte przy SSR na Vercel
+}
+
+// Przepływ PKCE (?code=) — sesja w ciasteczkach po stronie serwera
+if (code && Astro.locals.supabase) {
+	const { error } = await Astro.locals.supabase.auth.exchangeCodeForSession(code);
+	if (!error) {
+		const {
+			data: { user },
+		} = await Astro.locals.supabase.auth.getUser();
+		const profile = user ? await getProfile(Astro.locals.supabase, user.id) : null;
+		const role = profile?.role ?? 'editor';
+		return Astro.redirect(roleHomePath(role));
+	}
+}
+
+const hasCode = Boolean(code);
+const authError = errorParam ?? (Astro.url.searchParams.get('error') ? 'Logowanie nie powiodło się.' : null);
+---
+
+<!doctype html>
+<html lang="pl">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Logowanie… · OmniPress</title>
+	</head>
+	<body
+		class="flex min-h-screen items-center justify-center bg-slate-100 p-6 font-sans"
+		data-supabase-url={supabaseUrl}
+		data-supabase-key={supabaseAnonKey}
+		data-has-code={hasCode ? '1' : '0'}
+	>
+		<div class="max-w-sm rounded-xl bg-white p-8 text-center shadow-sm">
+			{
+				authError ? (
+					<>
+						<p class="text-red-700">{authError}</p>
+						<a href="/login" class="mt-4 inline-block text-brand hover:underline">
+							Wróć do logowania
+						</a>
+					</>
+				) : (
+					<>
+						<p class="text-slate-700">Kończę logowanie…</p>
+						<p class="mt-2 text-sm text-slate-500">Za chwilę przekierujemy Cię do panelu.</p>
+					</>
+				)
+			}
+		</div>
+		{
+			!authError && !hasCode && supabaseUrl && supabaseAnonKey && (
+				<script>
+					import { createBrowserClient } from '@supabase/ssr';
+
+					const body = document.body;
+					const url = body.dataset.supabaseUrl!;
+					const key = body.dataset.supabaseKey!;
+
+					const supabase = createBrowserClient(url, key);
+
+					async function finishAuth() {
+						const hash = window.location.hash.replace(/^#/, '');
+						if (hash) {
+							const params = new URLSearchParams(hash);
+							const access_token = params.get('access_token');
+							const refresh_token = params.get('refresh_token');
+							if (access_token && refresh_token) {
+								const { error } = await supabase.auth.setSession({
+									access_token,
+									refresh_token,
+								});
+								if (error) {
+									window.location.href = '/login?error=session';
+									return;
+								}
+								window.location.replace('/');
+								return;
+							}
+						}
+						const code = new URL(window.location.href).searchParams.get('code');
+						if (code) {
+							window.location.reload();
+							return;
+						}
+						window.location.href = '/login?error=missing_token';
+					}
+
+					finishAuth();
+				</script>
+			)
+		}
+	</body>
+</html>

@@ -66,10 +66,31 @@ Jeśli widzisz „Konfiguracja wymagana” — w Vercel zrób **Redeploy** (Depl
 
 ---
 
+## Naprawa: przekierowanie na localhost:3000
+
+Supabase ma złą **Site URL**. Ustaw raz ręcznie:
+
+1. Otwórz: [Supabase → Authentication → URL Configuration](https://supabase.com/dashboard/project/tseticasatzviqhthwbr/auth/url-configuration)
+2. **Site URL:** `https://omni-press.vercel.app`
+3. **Redirect URLs** — dodaj (każda linia osobno lub przecinkiem):
+   - `https://omni-press.vercel.app/**`
+   - `https://omni-press.vercel.app/auth/callback`
+   - `http://localhost:4321/**` (opcjonalnie, dev)
+4. **Save**.
+
+**Masz już link z tokenem w pasku adresu?** Zamień tylko początek adresu:
+
+- Było: `http://localhost:3000/#access_token=...`
+- Wklej: `https://omni-press.vercel.app/auth/callback#access_token=...`  
+  (reszta po `#` bez zmian) → Enter.
+
+Potem wyślij nowy link: `node scripts/send-login-link.mjs` (po poprawie Site URL).
+
 ## Gdy coś nie działa
 
 | Problem | Co zrobić |
 |--------|-----------|
+| **localhost:3000** po logowaniu | Sekcja wyżej (Site URL w Supabase) |
 | Biały ekran / błąd po logowaniu | Sprawdź, czy migracja SQL z kroku 3 przeszła bez błędu |
 | „Konfiguracja wymagana” | Integracja Supabase w Vercel + Redeploy |
 | Nie widać /admin | Uruchom SQL z kroku 5 (`role = admin`) |

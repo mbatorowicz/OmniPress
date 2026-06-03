@@ -3,3 +3,13 @@ project_id = "tseticasatzviqhthwbr"
 
 [db]
 major_version = 15
+
+[auth]
+enabled = true
+site_url = "https://omni-press.vercel.app"
+additional_redirect_urls = [
+  "https://omni-press.vercel.app/**",
+  "https://omni-press.vercel.app/auth/callback",
+  "http://localhost:4321/**",
+  "http://localhost:4321/auth/callback",
+]

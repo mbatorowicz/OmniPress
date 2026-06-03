@@ -108,7 +108,7 @@ async function seedSiteAndAdmin() {
 		console.log(`✓ Utworzono użytkownika: ${adminEmail}`);
 	} else if (!userId && adminEmail) {
 		const { data, error } = await supabase.auth.admin.inviteUserByEmail(adminEmail, {
-			redirectTo: 'https://omni-press.vercel.app/login',
+			redirectTo: 'https://omni-press.vercel.app/auth/callback',
 		});
 		if (error) throw error;
 		userId = data.user.id;

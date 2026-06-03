@@ -25,7 +25,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
 
-	if (user && pathname === '/login') {
+	if (user && (pathname === '/login' || pathname === '/auth/callback')) {
 		const role = locals.profile?.role ?? 'editor';
 		return redirect(roleHomePath(role));
 	}
