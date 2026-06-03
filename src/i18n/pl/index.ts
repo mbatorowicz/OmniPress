@@ -9,7 +9,7 @@ export {
 	adminEditors,
 	adminReview,
 	adminSites,
-} from './admin-phase3';
+} from './admin-panels';
 export { api } from './api';
 export { home } from './home';
 export { callbackPage } from './callback';

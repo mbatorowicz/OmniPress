@@ -1,6 +1,6 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
-import { adminSites } from '@/i18n';
+import { adminSites, common } from '@/i18n';
 import { getSiteById } from '@/lib/admin';
 
 const { id } = Astro.params;
@@ -16,7 +16,7 @@ const error = Astro.url.searchParams.get('error');
 <AppLayout title={site.name} heading={adminSites.edit}>
 	<a href="/admin/sites" class="mb-4 inline-block text-sm text-brand hover:underline">← {adminSites.title}</a>
 
-	{saved && <p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">Zapisano.</p>}
+	{saved && <p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{common.saved}</p>}
 	{error === 'invalid_slug' && (
 		<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{adminSites.errors.invalid_slug}</p>
 	)}

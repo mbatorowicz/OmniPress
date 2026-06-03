@@ -1,7 +1,10 @@
 # Product Requirements Document (PRD): OmniPress
 
-> Wcześniejsza nazwa robocza: PressPacker. Produkt docelowy: **OmniPress**.  
-> Audyt wymagań: [docs/PRD_AUDIT.md](docs/PRD_AUDIT.md)
+> Wcześniejsza nazwa robocza: PressPacker. Produkt docelowy: **OmniPress**.
+
+**Ten dokument = kontrakt docelowy.** Co jest już zbudowane w kodzie → [docs/STATUS.md](docs/STATUS.md). Audyt wymagań: [docs/PRD_AUDIT.md](docs/PRD_AUDIT.md).
+
+Rozjazd PRD ↔ kod w trakcie faz jest **oczekiwany**; PRD nie schodzi do poziomu „tylko to, co jest” — STATUS to robi.
 
 ## 0. Zakres MVP vs później
 
@@ -114,7 +117,8 @@ Administrator:
 | `published` | Co najmniej jedna destynacja opublikowana pomyślnie; szczegóły w `publish_logs` |
 
 - UI admina pokazuje status **per destynacja** z `publish_logs`.
-- `posts.status = published` gdy admin zatwierdził publikację i **wszystkie wybrane** logi są `success` lub admin akceptuje stan częściowy (komunikat w UI).
+- **Stan przejściowy (Faza 3):** approve ustawia `published` + `publish_logs.pending` — pełna semantyka poniżej po Fazie 4 (dispatcher).
+- **Docelowo:** `posts.status = published` gdy wszystkie wybrane logi są `success` lub admin akceptuje stan częściowy (komunikat w UI).
 - Częściowy błąd: logi `failed` dozwolone przy `published` tylko z widocznym ostrzeżeniem i możliwością retry.
 
 ### 5.4. Migracja WP → Astro
@@ -127,7 +131,7 @@ Administrator:
 - **Staging Astro:** Vercel Authentication + `noindex` w meta / robots.
 - **Produkcja WP:** canonical na domenę WP do czasu przełączenia DNS.
 - Po przełączeniu na Astro: canonical na Astro; wpis WP dezaktywowany (nie duplikat indeksowany).
-- Procedura przełączenia DNS opisana w runbooku wdrożenia (docs).
+- Procedura przełączenia DNS: [docs/RUNBOOK-MIGRACJA.md](docs/RUNBOOK-MIGRACJA.md).
 
 ## 6. Model danych (PostgreSQL)
 
@@ -144,7 +148,7 @@ Administrator:
 | `assets` | `id`, `post_id`, `storage_path`, `mime_type`, `filename` | Załączniki |
 | `publish_logs` | `id`, `post_id`, `destination_id`, `status`, `external_id`, `response_summary`, `published_at` | Audyt per destynacja |
 
-**Constraints (do migracji Fazy 3+):** `UNIQUE (site_id, slug)` gdzie `slug IS NOT NULL`.
+**Constraints:** `UNIQUE (site_id, slug)` gdzie `slug IS NOT NULL` — migracja Fazy 3 (`setup:phase3`).
 
 Typy: `destinations.type` ∈ `wordpress`, `github_astro`.
 

@@ -1,6 +1,6 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
-import { adminSites } from '@/i18n';
+import { adminSites, common } from '@/i18n';
 import { getSiteById, getSiteDestinations, listDestinations } from '@/lib/admin';
 
 const { id } = Astro.params;
@@ -19,7 +19,7 @@ const saved = Astro.url.searchParams.get('saved') === '1';
 
 <AppLayout title={adminSites.destinations.title} heading={`${adminSites.destinations.title}: ${site.name}`}>
 	<a href={`/admin/sites/${site.id}`} class="mb-4 inline-block text-sm text-brand hover:underline">← {site.name}</a>
-	{saved && <p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">Zapisano.</p>}
+	{saved && <p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{common.saved}</p>}
 
 	<p class="mb-4 text-sm text-slate-600">{adminSites.destinations.lead}</p>
 

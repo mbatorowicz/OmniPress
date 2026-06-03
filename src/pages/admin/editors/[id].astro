@@ -1,6 +1,6 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
-import { adminEditors } from '@/i18n';
+import { adminEditors, common } from '@/i18n';
 import { getEditorSiteIds, listEditors, listSites } from '@/lib/admin';
 
 const { id } = Astro.params;
@@ -17,7 +17,7 @@ const saved = Astro.url.searchParams.get('saved') === '1';
 
 <AppLayout title={adminEditors.title} heading={editor.display_name || adminEditors.title}>
 	<a href="/admin/editors" class="mb-4 inline-block text-sm text-brand hover:underline">← {adminEditors.title}</a>
-	{saved && <p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">Zapisano.</p>}
+	{saved && <p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{common.saved}</p>}
 
 	<form method="post" action={`/api/admin/editors/${id}/sites`} class="space-y-4 rounded-xl border bg-white p-6">
 		<fieldset>

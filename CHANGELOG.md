@@ -3,6 +3,18 @@
 Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja produktu: **SSOT → `package.json`**. Build: **SSOT → git commit** (w etykiecie `semver+commit`).
 
+## [0.3.1] — 2026-06-03
+
+### Dokumentacja
+
+- STATUS, ADMIN, REDAKTOR, RUNBOOK-MIGRACJA; PRD vs kod (warstwy SSOT).
+- Indeks docs/README, aktualizacja WDROZENIE, PRD_AUDIT, ROLE_AGENT.
+
+### Porządki
+
+- Usunięte: deprecated `auth/messages.ts`, zduplikowane skrypty auth, `admin-phase3` → `admin-panels`.
+- i18n: `common.saved`, usunięte martwe re-exporty.
+
 ## [0.3.0] — 2026-06-03
 
 ### Dodane (Faza 3)

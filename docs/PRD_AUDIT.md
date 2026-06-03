@@ -1,58 +1,41 @@
 # Audyt PRD OmniPress
 
-Data: 2025-06-03 · SSOT wyników przeglądu wymagań. Wymagania docelowe: [PRD.md](../PRD.md).
+Data pierwotna: 2025-06-03 · [PRD.md](../PRD.md) · stan kodu: [STATUS.md](./STATUS.md)
 
-## Werdykt
+## Werdykt (aktualizacja)
 
-Stack (Astro SSR + Supabase + Vercel) jest **adekwatny**. Własny produkt ma sens — nisza multi-dest (WP + Astro, wiele `sites`, Zero Trust) nie jest dobrze pokryta przez gotowe CMS-y.
+Stack (Astro SSR + Supabase + Vercel) jest **adekwatny**. Własny produkt ma sens dla multi-dest WP + Astro z Zero Trust.
 
-**PRD wymagał doprecyzowania** przed Fazą 4 (dispatcher). Poprawki wdrożono w PRD §3.1, §5.3.1, §5.4.1, §7, §10–§12.
+**PRD = kontrakt docelowy.** Rozjazdy z kodem są **normalne** w trakcie budowy — nie oznaczają słabej dokumentacji, o ile [STATUS.md](./STATUS.md) je śledzi.
 
-## Luki logiczne (najważniejsze)
+Poprawki PRD z audytu wdrożono w §3.1, §5.3.1, §5.4.1, §7, §10–§13. Faza 3 zrealizowana w kodzie (v0.3.0).
 
-| Luka | Ryzyko | Status w PRD |
-|------|--------|--------------|
-| `post.status` vs `publish_logs` per destynacja | Fałszywe „opublikowany” przy częściowym sukcesie | §5.3.1 |
-| Brak kolejki / retry publikacji | Timeout Vercel, utrata zadań | §3.1 |
-| Slug bez UNIQUE(site_id, slug) | Kolizje WP/Astro | §6.1 |
-| Dual publish bez reguł SEO | Duplikacja w Google | §5.4.1 |
-| Odrzucenie bez wymaganego `rejection_note` | Redaktor bez kontekstu | §4.2 |
-| Zmiana `site_id` po `pending` | Publikacja na złą stronę | §5.2 |
-| Cofnięcie tylko WP | Niesymetria Astro | §5.3 |
-| Powiadomienia e-mail | Redaktor musi odświeżać panel | §0 (poza MVP) |
+## Luki — status
 
-## Bezpieczeństwo — luki zamknięte w PRD
+| Luka | PRD | Kod / docs |
+|------|-----|------------|
+| Maszyna stanów `published` vs logi | §5.3.1 (+ stan przejściowy F3) | 🟡 approve → published + pending logs |
+| Kolejka publish | §3.1 | ⬜ Faza 4 |
+| SEO / DNS runbook | §5.4.1 | 📋 [RUNBOOK-MIGRACJA.md](./RUNBOOK-MIGRACJA.md) |
+| MFA admin | §4.2 | ⬜ przed F4 |
+| Audit log | §7 | ⬜ |
+| Testy RLS integracyjne | §12 | ⬜ |
+| Powiadomienia e-mail | §0 poza MVP | ⬜ |
 
-- Model zagrożeń (§7.1)
-- `SERVICE_ROLE_KEY` tylko skrypty CI, nie runtime UI (§9)
-- MFA admin przed Fazą 4 (§4.2)
-- SSRF allowlist hostów destynacji (§7)
-- Sanitization MD→HTML (§5.3)
-- Audit admin actions (§7)
-- Storage: public read vs signed URL — decyzja w §7
+## Co dodać w dokumentacji (kolejność)
 
-## Alternatywy (kiedy nie rezygnować z OmniPress)
+1. ~~STATUS.md, ADMIN.md, REDAKTOR.md~~ ✅
+2. Po Fazie 4: rozszerzyć ADMIN.md o dispatcher, STATUS, WDROZENIE
+3. Po MFA: AUTH.md + WDROZENIE
 
-| Obszar | Pożycz z gotowca |
-|--------|------------------|
-| Sekrety destynacji | Supabase Vault / Doppler (alternatywa dla własnego AES) |
-| Kolejka publish | Inngest, Trigger.dev, Vercel Cron + worker |
-| MFA / Passkeys admin | Supabase Auth MFA |
-| Edytor WYSIWYG | TipTap (Faza 2.5 — opcjonalnie) |
+## Alternatywy (bez rezygnacji z OmniPress)
 
-**Nie zastępuje OmniPress:** Contentful, Sanity, Decap — nie rozwiązują dispatchera WP+Astro z Zero Trust.
+Supabase Vault / Inngest / MFA Supabase — patrz tabela w pierwotnym audycie; nadal aktualne przed Fazą 4.
 
-## Rozjazdy implementacja vs PRD (stan na audit)
+## Kolejność prac
 
-| PRD (przed) | Kod | Decyzja |
-|-------------|-----|---------|
-| TipTap WYSIWYG | Textarea Markdown | MVP = Markdown; TipTap → Faza 2.5 (PRD §5.1) |
-| Passkeys admin | E-mail/hasło | Bootstrap OK; MFA przed Fazą 4 |
-| §10 Faza 1 `[ ]` | Zrobione | Zaktualizowano §10–§12 |
-
-## Kolejność prac po audycie
-
-1. ~~Aktualizacja PRD~~ (wykonane)
-2. Faza 3: akceptacja/odrzucenie, CRUD sites/destinations
-3. Faza 4: dispatcher z kolejką (§3.1)
-4. Opcjonalnie: TipTap, passkeys, powiadomienia e-mail
+1. ~~PRD + audyt~~ ✅
+2. ~~Faza 3 kod~~ ✅
+3. ~~Docs operacyjne (admin/redaktor/status)~~ ✅
+4. **Faza 4** — dispatcher + docs
+5. Opcjonalnie: TipTap, passkeys, e-mail

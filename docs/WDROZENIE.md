@@ -54,3 +54,31 @@ Otwórz `.admin-password.txt` — tam jest e-mail i hasło.
 | Zły e-mail/hasło | `npm run setup:password` i plik `.admin-password.txt` |
 | Link z maila nie działa | Użyj logowania hasłem na `/login` |
 | Brak /admin | `npm run setup:password` (ustawia rolę admin) |
+
+---
+
+## Faza 3 — admin, destynacje, migracja
+
+### Migracja SQL
+
+```powershell
+npm run setup:phase3
+```
+
+Indeks `UNIQUE(site_id, slug)` na wpisach.
+
+### ENCRYPTION_KEY (destynacje produkcyjne)
+
+1. Wygeneruj 32 bajty losowe, zakoduj base64.
+2. Vercel → Project → Settings → Environment Variables → `ENCRYPTION_KEY`.
+3. Redeploy.
+
+Bez klucza: panel destynacji działa, ale **credentials nie zapiszą się** szyfrowane.
+
+### Podręczniki
+
+- Administrator: [ADMIN.md](./ADMIN.md)
+- Redaktor: [REDAKTOR.md](./REDAKTOR.md)
+- Co jest zbudowane: [STATUS.md](./STATUS.md)
+
+---

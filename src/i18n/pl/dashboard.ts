@@ -45,5 +45,3 @@ export const dashboard = {
 		uploadNetworkError: 'Błąd połączenia przy uploadzie.',
 	},
 } as const;
-
-export { common };

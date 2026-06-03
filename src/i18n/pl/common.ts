@@ -5,4 +5,5 @@ export const common = {
 	password: 'Hasło',
 	untitled: '(bez tytułu)',
 	site: 'Strona',
+	saved: 'Zapisano.',
 } as const;

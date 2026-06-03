@@ -39,19 +39,20 @@ Sekrety: `.env.local`, `.admin-password.txt` — **nigdy** w commicie.
 
 ### Senior Product Manager
 
-- [PRD.md](../PRD.md) jako kontrakt produktowy
+- [PRD.md](../PRD.md) jako **kontrakt docelowy**; [STATUS.md](./STATUS.md) jako stan kodu
 - Fazy i kryteria akceptacji przed implementacją
 - **Krytyczna analiza PRD** — mentor, nie cheerleader
 - Odrzucanie scope creep spoza fazy
 
 ## Przepływ pracy
 
-1. Nowa funkcja → sprawdź PRD + [PRD_AUDIT.md](./PRD_AUDIT.md) (luki znane).
+1. Funkcja docelowa → PRD; implementacja → sprawdź/aktualizuj [STATUS.md](./STATUS.md).
 2. Kod → [KONWENCJE.md](./KONWENCJE.md) (i18n, krótkie pliki, `lib/`).
-3. Zmiana auth / wdrożenia → [AUTH.md](./AUTH.md) / [WDROZENIE.md](./WDROZENIE.md).
-4. Deploy produkcyjny → po potwierdzeniu użytkownika.
+3. Po fazie → STATUS + CHANGELOG + ADMIN/WDROZENIE jeśli dotyczy.
+4. Auth / wdrożenie → [AUTH.md](./AUTH.md) / [WDROZENIE.md](./WDROZENIE.md).
+5. Deploy produkcyjny → po potwierdzeniu użytkownika (push = auto na Vercel).
 
 ## Dokumentacja
 
 - Jedna prawda na temat → jeden plik z [README.md](./README.md).
-- Nie duplikuj zasad w wielu miejscach.
+- **PRD** = docelowość; **STATUS** = implementacja — nie mieszaj w jednym pliku.

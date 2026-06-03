@@ -43,7 +43,8 @@ src/
 ## 5. Dokumentacja
 
 - Jedna prawda na temat → jeden plik z [README.md](./README.md).
-- Po zmianie przepływu auth / wdrożenia — **zaktualizuj** odpowiedni doc w tym samym PR.
+- **PRD** = docelowość; **STATUS.md** = stan kodu — nie mieszaj ról.
+- Po fazie: STATUS + CHANGELOG + checkboxy PRD.
 
 ## 6. Testy
 
@@ -52,4 +53,4 @@ src/
 
 ## 7. Agent AI
 
-Proces i odpowiedzialność: [ROLE_AGENT.md](./ROLE_AGENT.md). Przed nową fazą — [PRD_AUDIT.md](./PRD_AUDIT.md) i [PRD.md](../PRD.md).
+Proces i odpowiedzialność: [ROLE_AGENT.md](./ROLE_AGENT.md). PRD docelowy: [PRD.md](../PRD.md). Stan kodu: [STATUS.md](./STATUS.md).

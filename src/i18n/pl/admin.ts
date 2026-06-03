@@ -32,5 +32,3 @@ export const admin = {
 		back: '← Administracja',
 	},
 } as const;
-
-export { common };

@@ -7,13 +7,15 @@ Headless CMS do przygotowania treści przez redaktorów i publikacji na wielu pl
 - Konwencje kodu i i18n: [docs/KONWENCJE.md](./docs/KONWENCJE.md)
 - Rola agenta / Tech Lead: [docs/ROLE_AGENT.md](./docs/ROLE_AGENT.md)
 - Audyt PRD: [docs/PRD_AUDIT.md](./docs/PRD_AUDIT.md)
+- **Stan implementacji:** [docs/STATUS.md](./docs/STATUS.md)
+- **Admin / redaktor:** [docs/ADMIN.md](./docs/ADMIN.md) · [docs/REDAKTOR.md](./docs/REDAKTOR.md)
 - Autoryzacja: [docs/AUTH.md](./docs/AUTH.md)
 - Schemat bazy: [supabase/migrations/20250603000000_initial_schema.sql](./supabase/migrations/20250603000000_initial_schema.sql)
 
-## Stack (Faza 1)
+## Stack
 
 - Astro 6 SSR + Tailwind CSS v4
-- Supabase (Auth, PostgreSQL, RLS)
+- Supabase (Auth, PostgreSQL, RLS, Storage)
 - Deploy: Vercel (`@astrojs/vercel`)
 
 ## Wdrożenie (dla Ciebie)
@@ -43,15 +45,15 @@ Szczegóły: [docs/VERSIONING.md](./docs/VERSIONING.md) · `npm run version`
 
 ```
 src/
-  config/        — URL, build (bez tekstów UI)
-  i18n/pl/       — SSOT napisów (polski)
-  components/    — UI (stopka, badge wersji)
+  config/        — URL, build
+  i18n/pl/       — napisy UI (SSOT)
+  lib/           — auth, posts, admin, supabase
+  components/    — UI
   layouts/       — AppLayout
-  lib/           — Supabase, auth, typy
-  pages/         — trasy Astro (cienkie)
-scripts/lib/     — git-info.mjs (SSOT commit przy buildzie)
+  pages/         — trasy (dashboard, admin, api)
+scripts/         — bootstrap, migracje, git-info
 supabase/        — migracje SQL
-docs/            — indeks SSOT, konwencje, wdrożenie
+docs/            — indeks SSOT, STATUS, podręczniki
 ```
 
 ## Kamienie milowe

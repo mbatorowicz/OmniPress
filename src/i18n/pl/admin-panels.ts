@@ -1,3 +1,4 @@
+/** Teksty paneli admin CRUD (strony, destynacje, redaktorzy, akceptacja). */
 export const adminSites = {
 	title: 'Strony',
 	newSite: '+ Nowa strona',
@@ -6,6 +7,7 @@ export const adminSites = {
 		name: 'Nazwa',
 		slug: 'Slug',
 		active: 'Aktywna',
+		inactive: 'nieaktywna',
 	},
 	actions: {
 		save: 'Zapisz',
