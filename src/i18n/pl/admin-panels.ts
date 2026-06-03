@@ -75,6 +75,7 @@ export const adminUnit = {
 		token: 'GitHub → Settings → Developer settings → Personal access tokens → token z uprawnieniem repo (zapis do repozytorium).',
 	},
 	layoutLink: 'Layout Astro (menu i komponenty)',
+	changesLink: 'Ogłoś zmianę na stronie',
 } as const;
 
 export const adminLayout = {
@@ -118,6 +119,53 @@ export const adminLayout = {
 		no_astro_destination: 'Brak aktywnego kanału Astro — skonfiguruj go w edycji jednostki.',
 		invalid_repo: 'Nieprawidłowa konfiguracja repozytorium Astro.',
 		no_github_token: 'Brak tokenu GitHub — dodaj PAT w destynacji Astro.',
+	},
+} as const;
+
+export const adminRecentChanges = {
+	title: 'Ostatnie zmiany na stronie',
+	lead: 'Ogłoś odwiedzającym aktualizację treści (np. nowy nr konta na stronie Kontakt). Wpisy trafiają do widgetu w sidebarze strony Astro.',
+	saved: 'Ogłoszenie dodane do rejestru i wysłane do repozytorium GitHub.',
+	noAstroChannel: 'Brak aktywnego kanału Astro — nie można zapisać ogłoszenia na stronie.',
+	currentHeading: 'Aktualny rejestr (z GitHub)',
+	currentEmpty: 'Brak wpisów — pojawią się po publikacji aktualności lub ogłoszeniu zmiany.',
+	announceHeading: 'Nowe ogłoszenie',
+	announceHint: 'Np. „Zaktualizowano numery rachunków bankowych” + link /kontakt',
+	fields: {
+		title: 'Tytuł (widoczny w widgecie)',
+		href: 'Link docelowy (ścieżka)',
+		kind: 'Typ',
+	},
+	kinds: {
+		page: 'Strona informacyjna',
+		manual: 'Inna zmiana',
+		news: 'Aktualność',
+		layout: 'Konfiguracja',
+	},
+	presets: {
+		label: 'Szybki wybór linku',
+		kontakt: 'Kontakt (/kontakt)',
+		home: 'Strona główna (/)',
+	},
+	actions: {
+		announce: 'Dodaj ogłoszenie',
+		backLayout: 'Layout Astro',
+	},
+	table: {
+		title: 'Tytuł',
+		href: 'Link',
+		kind: 'Typ',
+		date: 'Data',
+	},
+	errors: {
+		title_required: 'Podaj tytuł (min. 3 znaki).',
+		invalid_href: 'Link musi zaczynać się od / (np. /kontakt).',
+		invalid_kind: 'Nieprawidłowy typ ogłoszenia.',
+		no_astro_destination: 'Brak aktywnego kanału Astro.',
+		invalid_repo: 'Nieprawidłowa konfiguracja repozytorium.',
+		no_github_token: 'Brak tokenu GitHub.',
+		sync_failed: 'Zapis do GitHub nie powiódł się.',
+		invalid_file: 'Plik rejestru w repo ma nieprawidłowy format.',
 	},
 } as const;
 

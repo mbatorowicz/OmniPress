@@ -1,0 +1,60 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import RecentChangesForm from '@/components/admin/RecentChangesForm.astro';
+import { adminRecentChanges } from '@/i18n';
+import { getSiteDestinations } from '@/lib/admin/sites';
+import { loadRecentChangesFromGitHub } from '@/lib/recent-changes/store';
+import type { RecentChangeEntry } from '@/lib/recent-changes/types';
+
+const { id } = Astro.params;
+if (!id) return Astro.redirect('/admin/sites');
+
+const { data: site } = await Astro.locals.supabase
+	.from('sites')
+	.select('id, name, slug')
+	.eq('id', id)
+	.maybeSingle();
+
+if (!site) return Astro.redirect('/admin/sites');
+
+const links = await getSiteDestinations(Astro.locals.supabase, id);
+const hasAstroChannel = links.some((l) => l.destinations?.type === 'github_astro');
+
+let entries: RecentChangeEntry[] = [];
+if (hasAstroChannel) {
+	const loaded = await loadRecentChangesFromGitHub(Astro.locals.supabase, id);
+	if (loaded.ok) {
+		entries = loaded.file.entries
+			.slice()
+			.sort((a, b) => new Date(b.changedAt).getTime() - new Date(a.changedAt).getTime());
+	}
+}
+
+const errorCode = Astro.url.searchParams.get('error');
+const changeErrors = adminRecentChanges.errors;
+const errorMessage =
+	errorCode && errorCode in changeErrors
+		? changeErrors[errorCode as keyof typeof changeErrors]
+		: null;
+
+const saved = Astro.url.searchParams.get('saved') === '1';
+---
+
+<AppLayout title={adminRecentChanges.title} heading={adminRecentChanges.title}>
+	<div class="mb-4 flex flex-wrap gap-4 text-sm">
+		<a href={`/admin/units/${id}`} class="text-brand hover:underline">← {site.name}</a>
+		<a href={`/admin/sites/${id}/layout`} class="text-brand hover:underline">
+			{adminRecentChanges.actions.backLayout}
+		</a>
+	</div>
+
+	<p class="mb-4 text-sm text-slate-600">{adminRecentChanges.lead}</p>
+
+	<RecentChangesForm
+		siteId={id}
+		entries={entries}
+		hasAstroChannel={hasAstroChannel}
+		errorMessage={errorMessage}
+		saved={saved}
+	/>
+</AppLayout>

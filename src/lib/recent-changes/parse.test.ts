@@ -63,4 +63,20 @@ describe('recent-changes', () => {
 		const payload = buildRecentChangesPayload({ entries: [] });
 		expect(payload).toContain('\t');
 	});
+
+	it('nie deduplikuje ręcznych ogłoszeń po href', () => {
+		const first = upsertRecentChange([], {
+			title: 'Stary nr konta',
+			href: '/kontakt',
+			kind: 'page',
+			changedAt: '2026-06-01T12:00:00.000Z',
+		});
+		const second = upsertRecentChange(first, {
+			title: 'Nowy nr konta',
+			href: '/kontakt',
+			kind: 'page',
+			changedAt: '2026-06-03T12:00:00.000Z',
+		});
+		expect(second).toHaveLength(2);
+	});
 });

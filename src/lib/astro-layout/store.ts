@@ -18,6 +18,8 @@ import {
 	parseNavigationJson,
 } from './parse';
 import { normalizeSiteAstroLayout } from './parse';
+import { appendRecentChangeOnGitHub } from '@/lib/recent-changes/github';
+import { buildLayoutRecentChangeEntry } from '@/lib/recent-changes/layout-entry';
 import type { SiteAstroLayout } from './types';
 import { emptySiteAstroLayout } from './types';
 
@@ -148,6 +150,17 @@ export async function syncSiteAstroLayoutToGitHub(
 		'OmniPress: kategorie i przypisanie do komponentów',
 		existingCat?.sha,
 	);
+
+	try {
+		await appendRecentChangeOnGitHub(
+			cfg,
+			creds.token,
+			dest.config,
+			buildLayoutRecentChangeEntry(),
+		);
+	} catch {
+		// Rejestr zmian nie blokuje sync layoutu
+	}
 
 	return {
 		ok: true,

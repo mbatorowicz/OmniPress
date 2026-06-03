@@ -11,6 +11,7 @@ export {
 	adminSites,
 	adminUnit,
 	adminLayout,
+	adminRecentChanges,
 } from './admin-panels';
 export { api } from './api';
 export { home } from './home';
