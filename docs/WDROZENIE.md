@@ -8,8 +8,14 @@
 
 ### Zapomniałem hasła
 
-1. Na stronie logowania: **„Zapomniałem hasła / pierwsze logowanie”**
+1. **https://omni-press.vercel.app/login?mode=reset**
 2. Podaj e-mail → link w skrzynce → ustaw nowe hasło (min. 8 znaków).
+
+**Link prowadzi na `localhost:3000`?** (błąd Supabase Site URL)
+
+- W pasku adresu zamień `http://localhost:3000/?code=...` na:  
+  **`https://omni-press.vercel.app/auth/reset-password?code=...`** (ten sam `code` po `?`).
+- Trwała naprawa: [Supabase → URL Configuration](https://supabase.com/dashboard/project/tseticasatzviqhthwbr/auth/url-configuration) → **Site URL** = `https://omni-press.vercel.app` → **Save** → wyślij reset ponownie.
 
 ### Nowe hasło od zera (terminal)
 

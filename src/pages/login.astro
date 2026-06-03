@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import VersionBadge from '@/components/layout/VersionBadge.astro';
+import { authResetPasswordUrl } from '@/config/app';
 import { isSupabaseConfigured } from '../lib/supabase/env';
 
 const configured = isSupabaseConfigured();
@@ -30,7 +31,7 @@ if (Astro.request.method === 'POST' && configured) {
 			errorMessage = 'Podaj adres e-mail.';
 		} else {
 			const { error } = await supabase.auth.resetPasswordForEmail(email, {
-				redirectTo: 'https://omni-press.vercel.app/auth/reset-password',
+				redirectTo: authResetPasswordUrl(Astro.url.origin),
 			});
 			if (error) {
 				errorMessage = 'Nie udało się wysłać linku. Spróbuj ponownie.';

@@ -13,6 +13,7 @@
     "setup:remote": "node scripts/setup-remote.mjs",
     "setup:password": "node scripts/set-admin-password.mjs",
     "setup:auth-urls": "node scripts/fix-auth-config.mjs",
+    "setup:auth-site": "node scripts/patch-auth-site-url.mjs",
     "env:pull": "vercel env pull .env.local --yes",
     "version": "node -e \"import('./scripts/lib/git-info.mjs').then(m=>console.log(m.getVersionLabel()))\""
   },

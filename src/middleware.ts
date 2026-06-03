@@ -8,6 +8,15 @@ const PROTECTED_PREFIXES = ['/dashboard', '/admin'];
 export const onRequest = defineMiddleware(async (context, next) => {
 	const { url, cookies, redirect, locals } = context;
 	const pathname = url.pathname;
+	const authCode = url.searchParams.get('code');
+
+	// Supabase recovery PKCE: często ląduje na Site URL (/) z ?code= — przekieruj na właściwą stronę
+	if (
+		authCode &&
+		(pathname === '/' || pathname === '/login' || pathname === '/auth/callback')
+	) {
+		return redirect(`/auth/reset-password?code=${encodeURIComponent(authCode)}`);
+	}
 
 	if (!isSupabaseConfigured()) {
 		if (pathname === '/' || PUBLIC_PATHS.has(pathname)) {
@@ -30,8 +39,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		return redirect(roleHomePath(role));
 	}
 
-	if (!user && (isProtected || pathname === '/')) {
+	if (!user && (isProtected || (pathname === '/' && !authCode))) {
 		return redirect('/login');
+	}
+
+	if (!user && pathname === '/auth/reset-password') {
+		return next();
 	}
 
 	if (user && pathname === '/') {

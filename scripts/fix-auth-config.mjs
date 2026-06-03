@@ -13,7 +13,7 @@ const root = resolve(__dirname, '..');
 const PROJECT_REF = 'tseticasatzviqhthwbr';
 const SITE_URL = 'https://omni-press.vercel.app';
 const REDIRECT_URLS =
-	'https://omni-press.vercel.app/**,https://omni-press.vercel.app/auth/callback,https://omni-press.vercel.app/auth/reset-password,http://localhost:4321/**,http://localhost:4321/auth/callback';
+	'https://omni-press.vercel.app/**,https://omni-press.vercel.app/auth/callback,https://omni-press.vercel.app/auth/reset-password,https://omni-press.vercel.app/auth/recover,http://localhost:4321/**,http://localhost:4321/auth/callback,http://localhost:4321/auth/reset-password';
 
 function loadEnvLocal() {
 	const path = resolve(root, '.env.local');
