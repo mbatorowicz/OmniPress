@@ -3,6 +3,14 @@
 Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja produktu: **SSOT → `package.json`**. Build: **SSOT → git commit** (w etykiecie `semver+commit`).
 
+## [0.1.1] — 2026-06-03
+
+### Naprawione
+
+- Logowanie: zapis sesji w ciasteczkach (`getAll`/`setAll`), endpointy `/api/auth/login` i `/api/auth/reset`.
+- Reset hasła: czytelne komunikaty błędów; poprawny klucz JWT zamiast publishable key.
+- Przekierowanie po logowaniu bez pętli na `/login`.
+
 ## [0.1.0] — 2026-06-03
 
 ### Dodane

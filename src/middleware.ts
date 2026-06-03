@@ -25,7 +25,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		return redirect('/?setup=1');
 	}
 
-	const supabase = createSupabaseServerClient(cookies);
+	const supabase = createSupabaseServerClient(cookies, context.request);
 	locals.supabase = supabase;
 
 	const user = await getSessionUser(supabase);

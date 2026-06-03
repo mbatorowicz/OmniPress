@@ -24,9 +24,8 @@ export function getAuthRedirectOrigin(requestUrl?: URL): string {
 	return APP.productionOrigin;
 }
 
-export function authResetPasswordUrl(origin?: string): string {
-	const base = origin ?? APP.productionOrigin;
-	return `${base}/auth/reset-password`;
+export function authResetPasswordUrl(): string {
+	return `${getAuthRedirectOrigin()}/auth/reset-password`;
 }
 
 export function getBuildInfo() {

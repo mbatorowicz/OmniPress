@@ -43,12 +43,11 @@ export function resolveSupabaseUrl(): string | undefined {
 }
 
 export function resolveSupabaseAnonKey(): string | undefined {
+	// JWT anon key — wymagany przez Auth; publishable key (sb_publishable_*) nie obsługuje signIn
 	const explicit = pickEnv(
 		'PUBLIC_SUPABASE_ANON_KEY',
 		'SUPABASE_ANON_KEY',
 		'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-		'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
-		'SUPABASE_PUBLISHABLE_KEY',
 		'STORAGE_ANON_KEY',
 	);
 

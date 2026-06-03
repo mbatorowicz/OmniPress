@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import VersionBadge from '@/components/layout/VersionBadge.astro';
-import { authResetPasswordUrl } from '@/config/app';
+import { mapAuthError } from '@/lib/auth/messages';
 import { isSupabaseConfigured } from '../lib/supabase/env';
 
 const configured = isSupabaseConfigured();
@@ -9,45 +9,24 @@ let errorMessage: string | null = null;
 let infoMessage: string | null = null;
 
 const mode = Astro.url.searchParams.get('mode');
-const authError = Astro.url.searchParams.get('error');
+const errorParam = Astro.url.searchParams.get('error');
+const sent = Astro.url.searchParams.get('sent') === '1';
 
-if (authError === 'session') {
-	errorMessage = 'Sesja wygasła — zaloguj się ponownie.';
+if (errorParam === 'missing') {
+	errorMessage = 'Podaj e-mail i hasło.';
 }
-if (authError === 'missing_token') {
-	errorMessage = 'Link logowania był niepełny. Użyj logowania hasłem lub wyślij nowy link.';
+if (errorParam === 'missing_email') {
+	errorMessage = 'Podaj adres e-mail.';
 }
-
-if (Astro.request.method === 'POST' && configured) {
-	const form = await Astro.request.formData();
-	const action = String(form.get('action') ?? 'login');
-	const email = String(form.get('email') ?? '').trim();
-	const password = String(form.get('password') ?? '');
-
-	const supabase = Astro.locals.supabase;
-
-	if (action === 'reset') {
-		if (!email) {
-			errorMessage = 'Podaj adres e-mail.';
-		} else {
-			const { error } = await supabase.auth.resetPasswordForEmail(email, {
-				redirectTo: authResetPasswordUrl(Astro.url.origin),
-			});
-			if (error) {
-				errorMessage = 'Nie udało się wysłać linku. Spróbuj ponownie.';
-			} else {
-				infoMessage =
-					'Jeśli konto istnieje, wysłaliśmy link do ustawienia hasła. Sprawdź skrzynkę (także spam).';
-			}
-		}
-	} else {
-		const { error } = await supabase.auth.signInWithPassword({ email, password });
-		if (error) {
-			errorMessage = 'Nieprawidłowy e-mail lub hasło.';
-		} else {
-			return Astro.redirect('/');
-		}
-	}
+if (errorParam === 'session') {
+	errorMessage = 'Logowanie nie powiodło się — spróbuj ponownie.';
+}
+if (errorParam && !['missing', 'missing_email', 'session'].includes(errorParam)) {
+	errorMessage = decodeURIComponent(errorParam);
+}
+if (sent) {
+	infoMessage =
+		'Jeśli konto istnieje, wysłaliśmy link do ustawienia hasła. Sprawdź skrzynkę (także spam).';
 }
 
 const showReset = mode === 'reset';
@@ -87,8 +66,7 @@ const showReset = mode === 'reset';
 
 						{
 							showReset ? (
-								<form method="post" class="mt-6 space-y-4">
-									<input type="hidden" name="action" value="reset" />
+								<form action="/api/auth/reset" method="post" class="mt-6 space-y-4">
 									<label class="block text-sm">
 										<span class="text-slate-700">E-mail</span>
 										<input
@@ -112,8 +90,7 @@ const showReset = mode === 'reset';
 									</p>
 								</form>
 							) : (
-								<form method="post" class="mt-6 space-y-4">
-									<input type="hidden" name="action" value="login" />
+								<form action="/api/auth/login" method="post" class="mt-6 space-y-4">
 									<label class="block text-sm">
 										<span class="text-slate-700">E-mail</span>
 										<input

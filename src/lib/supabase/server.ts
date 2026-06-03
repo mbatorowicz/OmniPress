@@ -2,31 +2,53 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import type { AstroCookies } from 'astro';
 import { getSupabaseEnv } from './env';
 
-type CookieStore = {
-	get: (name: string) => { value: string } | undefined;
-	set: (name: string, value: string, options?: CookieOptions) => void;
-	delete: (name: string, options?: CookieOptions) => void;
-};
+function parseCookieHeader(header: string): { name: string; value: string }[] {
+	if (!header) return [];
+	return header
+		.split(';')
+		.map((part) => {
+			const idx = part.indexOf('=');
+			if (idx === -1) return null;
+			return {
+				name: part.slice(0, idx).trim(),
+				value: part.slice(idx + 1).trim(),
+			};
+		})
+		.filter((c): c is { name: string; value: string } => Boolean(c?.name));
+}
 
-function cookiesFromAstro(cookies: AstroCookies): CookieStore {
+function toAstroCookieOptions(options: CookieOptions): CookieOptions {
 	return {
-		get: (name) => {
-			const value = cookies.get(name)?.value;
-			return value ? { value } : undefined;
-		},
-		set: (name, value, options) => {
-			cookies.set(name, value, options);
-		},
-		delete: (name, options) => {
-			cookies.delete(name, options);
-		},
+		path: options.path ?? '/',
+		sameSite: options.sameSite ?? 'lax',
+		secure: options.secure ?? import.meta.env.PROD,
+		httpOnly: options.httpOnly ?? true,
+		maxAge: options.maxAge,
+		domain: options.domain,
+		expires: options.expires,
 	};
 }
 
-export function createSupabaseServerClient(cookies: AstroCookies) {
+/**
+ * Klient Supabase SSR z getAll/setAll — wymagane do zapisu sesji po logowaniu.
+ */
+export function createSupabaseServerClient(cookies: AstroCookies, request: Request) {
 	const { url, anonKey } = getSupabaseEnv();
 
 	return createServerClient(url, anonKey, {
-		cookies: cookiesFromAstro(cookies),
+		cookies: {
+			getAll() {
+				return parseCookieHeader(request.headers.get('Cookie') ?? '');
+			},
+			setAll(cookiesToSet) {
+				for (const { name, value, options } of cookiesToSet) {
+					if (value === '' || value === undefined) {
+						cookies.delete(name, toAstroCookieOptions(options ?? {}));
+					} else {
+						cookies.set(name, value, toAstroCookieOptions(options ?? {}));
+					}
+				}
+			},
+		},
 	});
 }
