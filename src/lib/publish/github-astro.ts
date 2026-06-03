@@ -18,6 +18,8 @@ import {
 	resolvePostSlug,
 	slugFileCandidates,
 } from './paths';
+import { appendRecentChangeOnGitHub } from '@/lib/recent-changes/github';
+import { buildPostRecentChangeEntry } from '@/lib/recent-changes/post-entry';
 import type { DestinationForPublish, PostForPublish, PublishResult } from './types';
 
 async function pickMarkdownPath(
@@ -132,6 +134,12 @@ export async function publishToGitHubAstro(
 			`OmniPress: ${post.title}`,
 			existingSha,
 		);
+
+		try {
+			await appendRecentChangeOnGitHub(cfg, creds.token, destination.config, buildPostRecentChangeEntry(post, slug));
+		} catch {
+			// Rejestr zmian nie blokuje publikacji wpisu
+		}
 
 		return {
 			ok: true,
