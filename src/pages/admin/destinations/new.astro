@@ -1,10 +1,11 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
 import { adminDestinations } from '@/i18n';
-import { canEncryptCredentials } from '@/lib/crypto';
 
 const error = Astro.url.searchParams.get('error');
-const hasEncryption = canEncryptCredentials();
+const destErrors = adminDestinations.errors;
+const errorMessage =
+	error && error in destErrors ? destErrors[error as keyof typeof destErrors] : null;
 ---
 
 <AppLayout title={adminDestinations.newDestination} heading={adminDestinations.newDestination}>
@@ -12,15 +13,11 @@ const hasEncryption = canEncryptCredentials();
 		← {adminDestinations.title}
 	</a>
 
-	{!hasEncryption && (
-		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
-			{adminDestinations.fields.noEncryption}
-		</p>
-	)}
-	{error === 'credentials_required' && (
-		<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">
-			{adminDestinations.errors.credentials_required}
-		</p>
+	<p class="mb-4 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700">
+		{adminDestinations.fields.credentialsOptional}
+	</p>
+	{errorMessage && (
+		<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{errorMessage}</p>
 	)}
 
 	<form method="post" action="/api/admin/destinations/create" class="max-w-lg space-y-4 rounded-xl border bg-white p-6">
@@ -38,7 +35,13 @@ const hasEncryption = canEncryptCredentials();
 		<div id="fields-wp" class="space-y-3">
 			<label class="block text-sm">
 				<span>{adminDestinations.fields.wpRestBase}</span>
-				<input name="wp_rest_base" placeholder="https://example.pl/wp-json/wp/v2" class="mt-1 w-full rounded-lg border px-3 py-2" />
+				<input
+					name="wp_rest_base"
+					id="input-wp-rest"
+					placeholder="https://example.pl/wp-json/wp/v2"
+					required
+					class="mt-1 w-full rounded-lg border px-3 py-2"
+				/>
 			</label>
 			<label class="block text-sm">
 				<span>{adminDestinations.fields.wpUsername}</span>
@@ -52,7 +55,7 @@ const hasEncryption = canEncryptCredentials();
 		<div id="fields-gh" class="hidden space-y-3">
 			<label class="block text-sm">
 				<span>{adminDestinations.fields.repo}</span>
-				<input name="repo" placeholder="owner/repo" class="mt-1 w-full rounded-lg border px-3 py-2" />
+				<input name="repo" id="input-repo" placeholder="owner/repo" class="mt-1 w-full rounded-lg border px-3 py-2" />
 			</label>
 			<label class="block text-sm">
 				<span>{adminDestinations.fields.branch}</span>
@@ -78,10 +81,17 @@ const hasEncryption = canEncryptCredentials();
 		const sel = document.getElementById('dest-type');
 		const wp = document.getElementById('fields-wp');
 		const gh = document.getElementById('fields-gh');
-		sel?.addEventListener('change', () => {
-			const isWp = sel.value === 'wordpress';
+		const wpRest = document.getElementById('input-wp-rest') as HTMLInputElement | null;
+		const repo = document.getElementById('input-repo') as HTMLInputElement | null;
+
+		function syncFields() {
+			const isWp = sel?.value === 'wordpress';
 			wp?.classList.toggle('hidden', !isWp);
 			gh?.classList.toggle('hidden', isWp);
-		});
+			if (wpRest) wpRest.required = Boolean(isWp);
+			if (repo) repo.required = !isWp;
+		}
+		sel?.addEventListener('change', syncFields);
+		syncFields();
 	</script>
 </AppLayout>

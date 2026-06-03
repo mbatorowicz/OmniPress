@@ -96,6 +96,8 @@ Na podglądzie wpisu: tabela **Status publikacji** per destynacja. Przy błędzi
 | `/api/admin/editors/[id]/sites` | Przypisanie redaktora |
 | `/api/admin/posts/[id]/approve` | Akceptacja |
 | `/api/admin/posts/[id]/reject` | Odrzucenie |
+| `/api/admin/sites/[id]/delete` | Usunięcie jednostki (bez wpisów) |
+| `/api/admin/destinations/[id]/delete` | Usunięcie destynacji (bez logów) |
 
 Wymaga sesji admina (`requireAdmin`).
 

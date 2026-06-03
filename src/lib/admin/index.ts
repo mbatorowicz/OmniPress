@@ -6,9 +6,11 @@ export {
 	getDestinationById,
 	listDestinations,
 	parseDestinationType,
+	validateDestinationConfig,
 	type DestinationRow,
+	type DestinationConfigError,
 } from './destinations';
-export { getSiteById, getSiteDestinations, listSites, type SiteDestinationLink } from './sites';
+export { deleteDestination, getSiteById, getSiteDestinations, listSites, countSitePosts, deleteSite, type SiteDestinationLink } from './sites';
 export { approvePost, rejectPost } from './posts';
 export {
 	getEditorSiteIds,

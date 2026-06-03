@@ -14,6 +14,12 @@ export const adminSites = {
 		create: 'Utwórz',
 		destinations: 'Destynacje',
 		editors: 'Redaktorzy',
+		delete: 'Usuń jednostkę',
+	},
+	delete: {
+		heading: 'Usuń jednostkę organizacyjną',
+		lead: 'Trwale usuwa stronę z OmniPress. Działa tylko gdy nie ma żadnych wpisów przypisanych do tej jednostki.',
+		confirm: 'Rozumiem — usuń trwale',
 	},
 	destinations: {
 		title: 'Destynacje strony',
@@ -24,7 +30,11 @@ export const adminSites = {
 	errors: {
 		invalid_slug: 'Nieprawidłowy slug (min. 2 znaki, a-z, 0-9, myślnik).',
 		save_failed: 'Zapis strony nie powiódł się.',
+		has_posts: 'Nie można usunąć — są wpisy przypisane do tej jednostki. Użyj „nieaktywna” zamiast usuwania.',
+		delete_failed: 'Usunięcie nie powiodło się.',
+		delete_confirm: 'Zaznacz potwierdzenie przed usunięciem.',
 	},
+	deleted: 'Jednostka usunięta.',
 } as const;
 
 export const adminDestinations = {
@@ -43,17 +53,28 @@ export const adminDestinations = {
 		contentPath: 'Ścieżka contentu',
 		githubToken: 'Token GitHub (PAT)',
 		credentialsHint: 'Pozostaw puste, aby zachować obecne credentials.',
-		noEncryption: 'Brak ENCRYPTION_KEY — credentials nie zostaną zapisane.',
+		credentialsOptional: 'Credentials opcjonalne przy tworzeniu — możesz dodać przy edycji przed publikacją.',
+		noEncryption: 'Brak ENCRYPTION_KEY — credentials nie zostaną zapisane (publikacja zablokowana).',
 	},
 	types: {
 		wordpress: 'WordPress',
 		github_astro: 'GitHub → Astro',
 	},
-	actions: { save: 'Zapisz', create: 'Utwórz' },
+	actions: { save: 'Zapisz', create: 'Utwórz', delete: 'Usuń destynację' },
+	delete: {
+		heading: 'Usuń destynację',
+		lead: 'Trwale usuwa kanał publikacji. Niedostępne, gdy istnieją logi publikacji.',
+		confirm: 'Rozumiem — usuń trwale',
+	},
 	errors: {
 		save_failed: 'Zapis destynacji nie powiódł się.',
-		credentials_required: 'Podaj credentials (wymagany ENCRYPTION_KEY).',
+		config_wp_rest_base: 'Podaj URL REST API WordPress.',
+		config_repo: 'Podaj repozytorium w formacie owner/repo.',
+		has_logs: 'Nie można usunąć — są logi publikacji. Ustaw „nieaktywna” zamiast usuwania.',
+		delete_failed: 'Usunięcie nie powiodło się.',
+		delete_confirm: 'Zaznacz potwierdzenie przed usunięciem.',
 	},
+	deleted: 'Destynacja usunięta.',
 } as const;
 
 export const adminEditors = {

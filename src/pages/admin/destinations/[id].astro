@@ -13,6 +13,10 @@ if (!dest) return Astro.redirect('/admin/destinations');
 const cfg = dest.config as Record<string, string>;
 const saved = Astro.url.searchParams.get('saved') === '1';
 const isWp = dest.type === 'wordpress';
+const errorCode = Astro.url.searchParams.get('error');
+const destErrors = adminDestinations.errors;
+const errorMessage =
+	errorCode && errorCode in destErrors ? destErrors[errorCode as keyof typeof destErrors] : null;
 ---
 
 <AppLayout title={dest.name} heading={adminDestinations.edit}>
@@ -20,6 +24,9 @@ const isWp = dest.type === 'wordpress';
 		← {adminDestinations.title}
 	</a>
 	{saved && <p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{common.saved}</p>}
+	{errorMessage && (
+		<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{errorMessage}</p>
+	)}
 	{!canEncryptCredentials() && (
 		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
 			{adminDestinations.fields.noEncryption}
@@ -39,7 +46,7 @@ const isWp = dest.type === 'wordpress';
 				<>
 					<label class="block text-sm">
 						<span>{adminDestinations.fields.wpRestBase}</span>
-						<input name="wp_rest_base" value={cfg.wp_rest_base ?? ''} class="mt-1 w-full rounded-lg border px-3 py-2" />
+						<input name="wp_rest_base" value={cfg.wp_rest_base ?? ''} required class="mt-1 w-full rounded-lg border px-3 py-2" />
 					</label>
 					<p class="text-xs text-slate-500">{adminDestinations.fields.credentialsHint}</p>
 					<label class="block text-sm">
@@ -55,7 +62,7 @@ const isWp = dest.type === 'wordpress';
 				<>
 					<label class="block text-sm">
 						<span>{adminDestinations.fields.repo}</span>
-						<input name="repo" value={cfg.repo ?? ''} class="mt-1 w-full rounded-lg border px-3 py-2" />
+						<input name="repo" value={cfg.repo ?? ''} required class="mt-1 w-full rounded-lg border px-3 py-2" />
 					</label>
 					<label class="block text-sm">
 						<span>{adminDestinations.fields.branch}</span>
@@ -79,4 +86,18 @@ const isWp = dest.type === 'wordpress';
 		</label>
 		<button type="submit" class="rounded-lg bg-brand px-4 py-2 text-sm text-white">{adminDestinations.actions.save}</button>
 	</form>
+
+	<section class="mt-8 max-w-lg rounded-xl border border-red-100 bg-red-50/30 p-6">
+		<h3 class="text-sm font-medium text-red-900">{adminDestinations.delete.heading}</h3>
+		<p class="mt-1 text-sm text-red-800">{adminDestinations.delete.lead}</p>
+		<form method="post" action={`/api/admin/destinations/${dest.id}/delete`} class="mt-4 space-y-3">
+			<label class="flex items-start gap-2 text-sm text-red-900">
+				<input type="checkbox" name="confirm" class="mt-1" />
+				{adminDestinations.delete.confirm}
+			</label>
+			<button type="submit" class="rounded-lg border border-red-300 bg-white px-4 py-2 text-sm text-red-900">
+				{adminDestinations.actions.delete}
+			</button>
+		</form>
+	</section>
 </AppLayout>

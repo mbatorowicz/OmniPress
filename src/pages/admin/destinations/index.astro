@@ -4,6 +4,7 @@ import { admin, adminDestinations } from '@/i18n';
 import { listDestinations } from '@/lib/admin';
 
 const destinations = await listDestinations(Astro.locals.supabase);
+const deleted = Astro.url.searchParams.get('deleted') === '1';
 ---
 
 <AppLayout title={adminDestinations.title} heading={adminDestinations.title}>
@@ -13,6 +14,10 @@ const destinations = await listDestinations(Astro.locals.supabase);
 			{adminDestinations.newDestination}
 		</a>
 	</div>
+
+	{deleted && (
+		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{adminDestinations.deleted}</p>
+	)}
 
 	<ul class="divide-y divide-slate-100 rounded-xl border bg-white">
 		{

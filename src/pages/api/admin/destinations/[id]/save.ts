@@ -5,8 +5,8 @@ import {
 	getDestinationById,
 	parseDestinationType,
 	requireAdmin,
+	validateDestinationConfig,
 } from '@/lib/admin';
-import { canEncryptCredentials } from '@/lib/crypto';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	if (!requireAdmin(locals)) return redirect('/login');
@@ -24,12 +24,13 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	if (!name) return redirect(`/admin/destinations/${destId}?error=save_failed`);
 
 	const config = buildConfig(type, form);
+	const configError = validateDestinationConfig(type, config);
+	if (configError) return redirect(`/admin/destinations/${destId}?error=${configError}`);
+
 	const update: Record<string, unknown> = { name, type, config, is_active };
 
-	if (canEncryptCredentials()) {
-		const encrypted = await encryptCredentialsFromForm(type, form);
-		if (encrypted) update.encrypted_credentials = encrypted;
-	}
+	const encrypted = await encryptCredentialsFromForm(type, form);
+	if (encrypted) update.encrypted_credentials = encrypted;
 
 	const { error } = await locals.supabase.from('destinations').update(update).eq('id', destId);
 	if (error) return redirect(`/admin/destinations/${destId}?error=save_failed`);

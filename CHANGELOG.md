@@ -3,6 +3,17 @@
 Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja produktu: **SSOT → `package.json`**. Build: **SSOT → git commit** (w etykiecie `semver+commit`).
 
+## [0.4.3] — 2026-06-03
+
+### Naprawione
+
+- Tworzenie destynacji: credentials opcjonalne przy create, walidacja config (WP URL / repo).
+
+### Dodane
+
+- Usuwanie jednostek organizacyjnych (`/admin/sites/[id]`) — gdy brak wpisów.
+- Usuwanie destynacji — gdy brak logów publikacji.
+
 ## [0.4.2] — 2026-06-03
 
 ### Dodane (Faza 4 — Sprint 2)

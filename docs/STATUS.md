@@ -35,8 +35,8 @@ Legenda: ✅ zaimplementowane · 🟡 częściowo · ⬜ planowane · 📋 tylko
 
 | Wymaganie PRD | Status | Uwagi |
 |---------------|--------|--------|
-| CRUD `sites` | ✅ | `/admin/sites` |
-| CRUD `destinations` + credentials | 🟡 | UI ✅; AES wymaga `ENCRYPTION_KEY` na Vercel |
+| CRUD `sites` | ✅ | `/admin/sites` + usuwanie gdy brak wpisów |
+| CRUD `destinations` + credentials | ✅ | Create bez wymogu credentials; edycja dodaje tokeny |
 | `site_destinations`, `user_sites` | ✅ | |
 | Odrzucenie + `rejection_note` | ✅ | |
 | Akceptacja + wybór destynacji | ✅ | |

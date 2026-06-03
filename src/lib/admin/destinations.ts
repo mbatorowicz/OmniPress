@@ -36,6 +36,22 @@ export function buildConfig(type: DestinationType, form: FormData): Record<strin
 	};
 }
 
+export type DestinationConfigError = 'config_wp_rest_base' | 'config_repo';
+
+export function validateDestinationConfig(
+	type: DestinationType,
+	config: Record<string, unknown>,
+): DestinationConfigError | null {
+	if (type === 'wordpress') {
+		const base = config.wp_rest_base;
+		if (typeof base !== 'string' || !base.trim()) return 'config_wp_rest_base';
+		return null;
+	}
+	const repo = config.repo;
+	if (typeof repo !== 'string' || !repo.includes('/')) return 'config_repo';
+	return null;
+}
+
 export async function encryptCredentialsFromForm(
 	type: DestinationType,
 	form: FormData,
