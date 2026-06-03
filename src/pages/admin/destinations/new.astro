@@ -38,11 +38,12 @@ const errorMessage =
 				<input
 					name="wp_rest_base"
 					id="input-wp-rest"
-					placeholder="https://example.pl/wp-json/wp/v2"
+					placeholder="https://gmina-miedzna.pl"
 					required
 					class="mt-1 w-full rounded-lg border px-3 py-2"
 				/>
 			</label>
+			<p class="text-xs text-slate-500">{adminDestinations.fields.wpRestBaseHint}</p>
 			<label class="block text-sm">
 				<span>{adminDestinations.fields.wpUsername}</span>
 				<input name="wp_username" autocomplete="off" class="mt-1 w-full rounded-lg border px-3 py-2" />

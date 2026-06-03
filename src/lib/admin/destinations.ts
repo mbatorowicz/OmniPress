@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { DestinationType } from '@/lib/types';
 import { canEncryptCredentials, encryptSecret } from '@/lib/crypto';
+import { resolveWpRestV2Base } from './wordpress-url';
 
 export type DestinationRow = {
 	id: string;
@@ -27,7 +28,12 @@ export function parseDestinationType(raw: string): DestinationType | null {
 
 export function buildConfig(type: DestinationType, form: FormData): Record<string, unknown> {
 	if (type === 'wordpress') {
-		return { wp_rest_base: String(form.get('wp_rest_base') ?? '').trim() };
+		const raw = String(form.get('wp_rest_base') ?? '').trim();
+		const resolved = resolveWpRestV2Base(raw);
+		return {
+			wp_site_url: raw,
+			wp_rest_base: resolved ?? '',
+		};
 	}
 	return {
 		repo: String(form.get('repo') ?? '').trim(),
@@ -43,8 +49,11 @@ export function validateDestinationConfig(
 	config: Record<string, unknown>,
 ): DestinationConfigError | null {
 	if (type === 'wordpress') {
-		const base = config.wp_rest_base;
-		if (typeof base !== 'string' || !base.trim()) return 'config_wp_rest_base';
+		const raw =
+			typeof config.wp_site_url === 'string' && config.wp_site_url.trim()
+				? config.wp_site_url
+				: String(config.wp_rest_base ?? '');
+		if (!resolveWpRestV2Base(raw)) return 'config_wp_rest_base';
 		return null;
 	}
 	const repo = config.repo;

@@ -69,12 +69,12 @@ const i = initial;
 				<input
 					name="wp_rest_base"
 					id="input-wp-rest"
-					value={i?.wp?.wp_rest_base ?? ''}
-					placeholder="https://gmina-miedzna.pl/wp-json/wp/v2"
+					value={i?.wp?.wp_site_url ?? ''}
+					placeholder="https://gmina-miedzna.pl"
 					class="mt-1 w-full rounded-lg border px-3 py-2"
 				/>
 			</label>
-			<p class="text-xs text-slate-500">{adminDestinations.fields.credentialsHint}</p>
+			<p class="text-xs text-slate-500">{adminDestinations.fields.wpRestBaseHint}</p>
 			<label class="block text-sm">
 				<span>{adminDestinations.fields.wpUsername}</span>
 				<input name="wp_username" autocomplete="off" class="mt-1 w-full rounded-lg border px-3 py-2" />
@@ -102,6 +102,15 @@ const i = initial;
 			{adminUnit.fields.enableAstro}
 		</label>
 		<div id="panel-astro" class="space-y-3 border-l-2 border-slate-100 pl-4">
+			<div class="rounded-lg bg-slate-50 p-3 text-xs text-slate-700">
+				<p class="font-medium">{adminUnit.astroHelp.title}</p>
+				<ul class="mt-2 list-inside list-disc space-y-1">
+					<li>{adminUnit.astroHelp.repo}</li>
+					<li>{adminUnit.astroHelp.branch}</li>
+					<li>{adminUnit.astroHelp.contentPath}</li>
+					<li>{adminUnit.astroHelp.token}</li>
+				</ul>
+			</div>
 			<label class="block text-sm">
 				<span>{adminDestinations.fields.repo}</span>
 				<input

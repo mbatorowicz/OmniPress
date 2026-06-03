@@ -2,6 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.astro';
 import { adminDestinations, common } from '@/i18n';
 import { getDestinationById } from '@/lib/admin';
+import { wordpressSiteDisplayUrl } from '@/lib/admin/wordpress-url';
 import { canEncryptCredentials } from '@/lib/crypto';
 
 const { id } = Astro.params;
@@ -10,7 +11,8 @@ if (!id) return Astro.redirect('/admin/destinations');
 const dest = await getDestinationById(Astro.locals.supabase, id);
 if (!dest) return Astro.redirect('/admin/destinations');
 
-const cfg = dest.config as Record<string, string>;
+const cfg = dest.config as Record<string, unknown>;
+const wpSiteUrl = isWp ? wordpressSiteDisplayUrl(cfg) : '';
 const saved = Astro.url.searchParams.get('saved') === '1';
 const isWp = dest.type === 'wordpress';
 const errorCode = Astro.url.searchParams.get('error');
@@ -46,8 +48,9 @@ const errorMessage =
 				<>
 					<label class="block text-sm">
 						<span>{adminDestinations.fields.wpRestBase}</span>
-						<input name="wp_rest_base" value={cfg.wp_rest_base ?? ''} required class="mt-1 w-full rounded-lg border px-3 py-2" />
+						<input name="wp_rest_base" value={wpSiteUrl} required placeholder="https://gmina-miedzna.pl" class="mt-1 w-full rounded-lg border px-3 py-2" />
 					</label>
+					<p class="text-xs text-slate-500">{adminDestinations.fields.wpRestBaseHint}</p>
 					<p class="text-xs text-slate-500">{adminDestinations.fields.credentialsHint}</p>
 					<label class="block text-sm">
 						<span>{adminDestinations.fields.wpUsername}</span>
@@ -62,15 +65,15 @@ const errorMessage =
 				<>
 					<label class="block text-sm">
 						<span>{adminDestinations.fields.repo}</span>
-						<input name="repo" value={cfg.repo ?? ''} required class="mt-1 w-full rounded-lg border px-3 py-2" />
+						<input name="repo" value={String(cfg.repo ?? '')} required class="mt-1 w-full rounded-lg border px-3 py-2" />
 					</label>
 					<label class="block text-sm">
 						<span>{adminDestinations.fields.branch}</span>
-						<input name="branch" value={cfg.branch ?? 'main'} class="mt-1 w-full rounded-lg border px-3 py-2" />
+						<input name="branch" value={String(cfg.branch ?? 'main')} class="mt-1 w-full rounded-lg border px-3 py-2" />
 					</label>
 					<label class="block text-sm">
 						<span>{adminDestinations.fields.contentPath}</span>
-						<input name="content_path" value={cfg.content_path ?? ''} class="mt-1 w-full rounded-lg border px-3 py-2" />
+						<input name="content_path" value={String(cfg.content_path ?? '')} class="mt-1 w-full rounded-lg border px-3 py-2" />
 					</label>
 					<p class="text-xs text-slate-500">{adminDestinations.fields.credentialsHint}</p>
 					<label class="block text-sm">

@@ -7,6 +7,7 @@ import {
 } from './destinations';
 import { getSiteById, getSiteDestinations } from './sites';
 import { isValidSlug, normalizeSlug } from './slug';
+import { wordpressSiteDisplayUrl } from './wordpress-url';
 import { syncSiteDestinations } from './user-sites';
 
 export type UnitError =
@@ -32,7 +33,7 @@ export type UnitFormInitial = {
 	defaultChannel: 'wordpress' | 'github_astro';
 	wp?: {
 		destinationId: string;
-		wp_rest_base: string;
+		wp_site_url: string;
 	};
 	astro?: {
 		destinationId: string;
@@ -121,7 +122,7 @@ export async function loadUnitFormInitial(
 			const cfg = dest.config as Record<string, string>;
 			wp = {
 				destinationId: dest.id,
-				wp_rest_base: cfg.wp_rest_base ?? '',
+				wp_site_url: wordpressSiteDisplayUrl(cfg),
 			};
 		}
 	}

@@ -58,7 +58,7 @@ export const adminUnit = {
 		name_required: 'Podaj nazwę jednostki.',
 		invalid_slug: 'Nieprawidłowy slug (min. 2 znaki, a-z, 0-9, myślnik).',
 		no_channel: 'Włącz co najmniej jeden kanał publikacji.',
-		config_wp_rest_base: 'Podaj URL REST API WordPress.',
+		config_wp_rest_base: 'Podaj adres strony WordPress (np. https://gmina-miedzna.pl).',
 		config_repo: 'Podaj repozytorium w formacie owner/repo.',
 		site_failed: 'Nie udało się utworzyć strony.',
 		destination_failed: 'Nie udało się utworzyć destynacji.',
@@ -66,6 +66,13 @@ export const adminUnit = {
 		not_found: 'Jednostka nie istnieje.',
 	},
 	credentialsNote: 'Tokeny WP/GitHub opcjonalne — możesz dodać później w edycji destynacji.',
+	astroHelp: {
+		title: 'Skąd wziąć dane kanału Astro?',
+		repo: 'GitHub → repozytorium strony w formacie owner/nazwa (np. mbatorowicz/gmina-miedzna.pl).',
+		branch: 'Branch — zwykle main.',
+		contentPath: 'Folder z plikami .md w repo — musi zgadzać się z kolekcją Astro (np. src/content/aktualnosci).',
+		token: 'GitHub → Settings → Developer settings → Personal access tokens → token z uprawnieniem repo (zapis do repozytorium).',
+	},
 } as const;
 
 export const adminDestinations = {
@@ -76,7 +83,8 @@ export const adminDestinations = {
 		name: 'Nazwa',
 		type: 'Typ',
 		active: 'Aktywna',
-		wpRestBase: 'URL REST API WordPress',
+		wpRestBase: 'Adres strony WordPress',
+		wpRestBaseHint: 'Np. https://gmina-miedzna.pl — ścieżkę REST API (/wp-json) ustalamy automatycznie.',
 		wpUsername: 'Login WP',
 		wpAppPassword: 'Hasło aplikacji WP',
 		repo: 'Repozytorium (owner/repo)',
@@ -99,7 +107,7 @@ export const adminDestinations = {
 	},
 	errors: {
 		save_failed: 'Zapis destynacji nie powiódł się.',
-		config_wp_rest_base: 'Podaj URL REST API WordPress.',
+		config_wp_rest_base: 'Podaj adres strony WordPress (np. https://gmina-miedzna.pl).',
 		config_repo: 'Podaj repozytorium w formacie owner/repo.',
 		has_logs: 'Nie można usunąć — są logi publikacji. Ustaw „nieaktywna” zamiast usuwania.',
 		delete_failed: 'Usunięcie nie powiodło się.',
