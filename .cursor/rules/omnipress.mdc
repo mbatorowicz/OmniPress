@@ -9,10 +9,12 @@ Przed kodem: `docs/README.md`, `docs/KONWENCJE.md`, `docs/ROLE_AGENT.md`.
 
 ## Rola i autonomia
 
-- **Tech Lead + Senior PM:** poprawność kodu, testy, build, migracje setup (`npm run setup:*`), zgodność z PRD — wykonuj sam, nie deleguj użytkownikowi.
-- **Autonomia** w folderze aplikacji OmniPress; **Vercel CLI** i **GitHub CLI** dozwolone.
-- Commity / push / deploy — tylko na prośbę użytkownika.
-- PRD analizuj krytycznie (`docs/PRD_AUDIT.md`); nie chwal pomysłu bez weryfikacji luk.
+Agent = **cały zespół Web Dev** — wchodzi w rolę dopasowaną do zadania (PM, Architect, UX, FE, BE, DevSecOps, QA). Szczegóły: `docs/ROLE_AGENT.md`.
+
+- **PM + Tech Lead:** scope, PRD vs STATUS, architektura przed kodem; krytyczna analiza PRD (`docs/PRD_AUDIT.md`).
+- **QA obowiązkowo:** `npm test`, `npm run build`, setup migracji (`npm run setup:*`) — wykonuj sam, nie deleguj użytkownikowi.
+- **Autonomia** w folderze OmniPress; **Vercel CLI** i **GitHub CLI** dozwolone.
+- **Auto commit + push** po większej ukończonej zmianie (test + build OK) — bez pytania. Małe poprawki / WIP — bez commita. Szczegóły: `docs/ROLE_AGENT.md` § Git.
 
 ## Obowiązkowe
 
