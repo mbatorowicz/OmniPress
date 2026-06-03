@@ -1,0 +1,79 @@
+---
+import '../styles/global.css';
+import { isSupabaseConfigured } from '../lib/supabase/env';
+
+const configured = isSupabaseConfigured();
+let errorMessage: string | null = null;
+
+if (Astro.request.method === 'POST' && configured) {
+	const form = await Astro.request.formData();
+	const email = String(form.get('email') ?? '').trim();
+	const password = String(form.get('password') ?? '');
+
+	const supabase = Astro.locals.supabase;
+	const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+	if (error) {
+		errorMessage = 'Nieprawidłowy e-mail lub hasło.';
+	} else {
+		return Astro.redirect('/');
+	}
+}
+---
+
+<!doctype html>
+<html lang="pl">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Logowanie · OmniPress</title>
+	</head>
+	<body class="flex min-h-screen items-center justify-center bg-slate-100 p-6">
+		<div class="w-full max-w-sm rounded-xl bg-white p-8 shadow-sm">
+			<h1 class="text-xl font-semibold text-brand">OmniPress</h1>
+			<p class="mt-1 text-sm text-slate-600">Zaloguj się do panelu</p>
+
+			{
+				!configured ? (
+					<p class="mt-4 text-sm text-amber-800">
+						Uzupełnij zmienne Supabase w pliku <code>.env</code>.
+					</p>
+				) : (
+					<form method="post" class="mt-6 space-y-4">
+						{errorMessage && (
+							<p class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
+								{errorMessage}
+							</p>
+						)}
+						<label class="block text-sm">
+							<span class="text-slate-700">E-mail</span>
+							<input
+								type="email"
+								name="email"
+								required
+								autocomplete="username"
+								class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+							/>
+						</label>
+						<label class="block text-sm">
+							<span class="text-slate-700">Hasło</span>
+							<input
+								type="password"
+								name="password"
+								required
+								autocomplete="current-password"
+								class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+							/>
+						</label>
+						<button
+							type="submit"
+							class="w-full rounded-lg bg-brand px-4 py-2 font-medium text-white hover:bg-brand-dark"
+						>
+							Zaloguj
+						</button>
+					</form>
+				)
+			}
+		</div>
+	</body>
+</html>

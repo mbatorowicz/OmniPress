@@ -1,0 +1,50 @@
+---
+import '../styles/global.css';
+
+interface Props {
+	title: string;
+	heading?: string;
+}
+
+const { title, heading } = Astro.props;
+const profile = Astro.locals.profile;
+---
+
+<!doctype html>
+<html lang="pl">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title} · OmniPress</title>
+	</head>
+	<body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+		<header class="border-b border-slate-200 bg-white">
+			<div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
+				<a href="/" class="text-lg font-semibold text-brand">OmniPress</a>
+				<nav class="flex items-center gap-4 text-sm">
+					{
+						profile?.role === 'admin' && (
+							<a href="/admin" class="hover:text-brand">
+								Administracja
+							</a>
+						)
+					}
+					<a href="/dashboard" class="hover:text-brand">
+						Panel
+					</a>
+					<form method="post" action="/api/auth/signout">
+						<button type="submit" class="text-slate-600 hover:text-brand">
+							Wyloguj
+						</button>
+					</form>
+				</nav>
+			</div>
+		</header>
+		<main class="mx-auto max-w-5xl px-4 py-8">
+			{heading && <h1 class="mb-6 text-2xl font-semibold text-slate-800">{heading}</h1>}
+			<slot />
+		</main>
+	</body>
+</html>
