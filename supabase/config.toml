@@ -1,0 +1,5 @@
+# Projekt Supabase powiązany z integracją Vercel
+project_id = "tseticasatzviqhthwbr"
+
+[db]
+major_version = 15

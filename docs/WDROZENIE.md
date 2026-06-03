@@ -27,40 +27,31 @@ Po każdej zmianie w kodzie na GitHub Vercel zbuduje stronę sam.
 
 ---
 
-## Część B — baza danych (Supabase, ok. 10 minut)
+## Część B — baza danych (automatycznie z terminala)
 
-### 3. Uruchom schemat bazy
+Jeśli masz Vercel CLI (już zalogowane):
 
-1. [supabase.com](https://supabase.com) → Twój projekt.
-2. Menu **SQL Editor** → **New query**.
-3. Otwórz na komputerze plik z repozytorium:  
-   `supabase/migrations/20250603000000_initial_schema.sql`
-4. Skopiuj **całą** zawartość → wklej w SQL Editor → **Run**.
-
-Przy sukcesie zobaczysz komunikat bez czerwonego błędu.
-
-### 4. Włącz logowanie e-mailem
-
-1. Supabase → **Authentication** → **Providers**.
-2. **Email** — włączone (Enable).
-3. Na start możesz wyłączyć „Confirm email”, żeby od razu móc się zalogować (opcjonalnie).
-
-### 5. Twoje konto administratora
-
-1. **Authentication** → **Users** → **Add user** → wpisz swój e-mail i hasło.
-2. Kliknij utworzonego użytkownika i **skopiuj UUID** (długi identyfikator).
-3. Wróć do **SQL Editor** i uruchom (podmień `TWOJ_UUID` i e-mail):
-
-```sql
-insert into public.sites (name, slug)
-values ('UG Miedzna', 'ug-miedzna')
-on conflict (slug) do nothing;
-
-update public.profiles
-set role = 'admin',
-    default_site_id = (select id from public.sites where slug = 'ug-miedzna')
-where id = 'TWOJ_UUID';
+```powershell
+cd "ścieżka\do\OmniPress"
+npm run env:pull
+npm run setup:remote
 ```
+
+Opcjonalnie z własnym hasłem zamiast zaproszenia e-mail:
+
+```powershell
+$env:ADMIN_EMAIL="twoj@email.pl"
+$env:ADMIN_PASSWORD="TwojeSilneHaslo123!"
+npm run setup:remote
+```
+
+Skrypt sam: stosuje migrację SQL, tworzy stronę „UG Miedzna”, ustawia admina.
+
+### Ręcznie (gdy skrypt nie działa)
+
+1. Supabase → **SQL Editor** → wklej `supabase/migrations/20250603000000_initial_schema.sql` → **Run**.
+2. **Authentication** → **Users** → dodaj użytkownika.
+3. SQL z `supabase/seed.example.sql` (rola admin).
 
 ---
 
