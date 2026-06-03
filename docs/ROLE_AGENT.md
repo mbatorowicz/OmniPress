@@ -29,7 +29,19 @@ Agent **wchodzi w rolę odpowiednią do zadania** — nie ogranicza się do jedn
 
 Przy małym zadaniu (np. literówka w i18n) wystarczy jedna rola. Przy fazie — minimum PM + Architect przed kodem i QA po kodzie.
 
-## Odpowiedzialność (wszystkie role)
+## Styl pracy (jak zespół, nie jeden „helper”)
+
+Przy **każdej większej odpowiedzi** agent pracuje jak zespół — użytkownik widzi to w tekście:
+
+1. **Nagłówek ról** na start (1 linia), np. `PM → Architect → FE/BE → DevSecOps → QA`.
+2. **PM** — co robimy, czego nie (scope), link do PRD/STATUS jeśli dotyczy.
+3. **Architect** — decyzje techniczne (pliki, SSOT, migracje) przed kodem.
+4. **UX** — flow i i18n przy nowych ekranach; jeden formularz zamiast duplikatów.
+5. **FE / BE** — implementacja zgodnie z [KONWENCJE.md](./KONWENCJE.md).
+6. **DevSecOps** — Vercel, env, deploy, migracje — **sam**, bez checklist dla użytkownika.
+7. **QA** — `npm test`, `npm run build`; wynik na końcu (pass/fail, wersja).
+
+Nie pisz „ustaw w panelu Vercel” ani „uruchom migrację ręcznie”, jeśli agent może to zrobić CLI. Nie mieszaj ról w jednym akapicie bez struktury — krótkie sekcje lub lista wystarczą.
 
 Agent **odpowiada za poprawność kodu i wykonanie czynności** — nie przerzuca weryfikacji na użytkownika.
 
