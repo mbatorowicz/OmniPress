@@ -1,4 +1,3 @@
-import { resolveSupabaseUrl } from '@/lib/supabase/resolve-env';
 import { markdownToSafeHtml } from './markdown';
 import {
 	decryptDestinationCredentials,
@@ -68,29 +67,4 @@ export async function publishToWordPress(
 	}
 
 	return { ok: true, externalId, summary: `WP post #${externalId}` };
-}
-
-/** Sprint 2: pełny commit frontmatter + obrazy. */
-export async function publishToGitHubAstro(
-	_post: PostForPublish,
-	destination: DestinationForPublish,
-): Promise<PublishResult> {
-	if (!destination.is_active) {
-		return { ok: false, summary: 'Destynacja nieaktywna', retryable: false };
-	}
-	const repo = destination.config.repo;
-	if (typeof repo !== 'string' || !repo.includes('/')) {
-		return { ok: false, summary: 'Brak repo (owner/name) w konfiguracji', retryable: false };
-	}
-	return {
-		ok: false,
-		summary: 'GitHub-Astro: adapter w Sprint 2',
-		retryable: false,
-	};
-}
-
-export function publicAssetUrl(storagePath: string): string | null {
-	const url = resolveSupabaseUrl();
-	if (!url) return null;
-	return `${url.replace(/\/$/, '')}/storage/v1/object/public/post-assets/${storagePath}`;
 }

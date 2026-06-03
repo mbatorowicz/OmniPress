@@ -3,6 +3,13 @@
 Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja produktu: **SSOT → `package.json`**. Build: **SSOT → git commit** (w etykiecie `semver+commit`).
 
+## [0.4.2] — 2026-06-03
+
+### Dodane (Faza 4 — Sprint 2)
+
+- Adapter **GitHub-Astro**: frontmatter, commit `.md`, upload obrazów do repo.
+- **Ponów publikację** — przycisk przy `failed` w podglądzie wpisu admina.
+
 ## [0.4.1] — 2026-06-03
 
 ### DevSecOps

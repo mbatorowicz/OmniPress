@@ -15,7 +15,7 @@ Legenda: ✅ zaimplementowane · 🟡 częściowo · ⬜ planowane · 📋 tylko
 | 1 — Auth, schema | ✅ | ✅ | |
 | 2 — Edytor, Storage | ✅ | ✅ | Markdown textarea; TipTap 📋 |
 | 3 — Admin CRUD, akceptacja | ✅ | ✅ | |
-| 4 — Dispatcher WP + GitHub | 🟡 | 🟡 | Worker + WP adapter; GitHub Sprint 2 |
+| 4 — Dispatcher WP + GitHub | 🟡 | 🟡 | WP + GitHub adapter ✅; retry UI ✅; staging Astro ⬜ |
 
 ---
 
@@ -51,7 +51,7 @@ Legenda: ✅ zaimplementowane · 🟡 częściowo · ⬜ planowane · 📋 tylko
 |---------------|--------|--------|
 | RLS | ✅ | Testy integracyjne ⬜ (PRD §12) |
 | `UNIQUE(site_id, slug)` | ✅ | Migracja Fazy 3 |
-| Kolejka publikacji | 🟡 | Worker + cron ✅; GitHub adapter ⬜ |
+| Kolejka publikacji | ✅ | Worker + GitHub-Astro + retry ręczny |
 | SEO staging / runbook DNS | 📋 | PRD §5.4.1 — runbook ⬜ |
 | Storage public vs signed URL | 🟡 | Bucket publiczny; decyzja docs ⬜ |
 

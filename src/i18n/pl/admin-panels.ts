@@ -80,6 +80,8 @@ export const adminReview = {
 		status: 'Status',
 		summary: 'Podsumowanie',
 		retries: 'Próby',
+		retry: 'Ponów publikację',
+		retryQueued: 'Ponowiono — worker w tle.',
 		empty: 'Brak logów publikacji.',
 	},
 	logStatus: {
@@ -94,5 +96,6 @@ export const adminReview = {
 		no_destinations: 'Wybierz co najmniej jedną destynację.',
 		note_required: 'Podaj uwagi (min. 3 znaki).',
 		invalid_destinations: 'Niedozwolona destynacja dla tej strony.',
+		retry_failed: 'Nie udało się ponowić (log nie jest w stanie failed).',
 	},
 } as const;

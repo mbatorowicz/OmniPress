@@ -58,7 +58,7 @@ export async function runPublishWorker(supabase: SupabaseClient): Promise<Worker
 		}
 
 		try {
-			const outcome = await dispatchPublish(post, destination);
+			const outcome = await dispatchPublish(supabase, post, destination, log.external_id);
 			if (outcome.ok) {
 				await markLogSuccess(supabase, log.id, outcome.externalId, outcome.summary);
 				result.succeeded++;

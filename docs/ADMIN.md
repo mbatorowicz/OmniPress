@@ -80,7 +80,7 @@ Po akceptacji wpisu worker (`/api/worker/publish`, cron co 5 min) publikuje na W
    - Po sukcesie na ≥1 destynacji: `published`.
 3. **Odrzuć:** obowiązkowe uwagi → redaktor widzi `rejection_note` i może poprawić szkic.
 
-Na podglądzie wpisu: tabela **Status publikacji** per destynacja.
+Na podglądzie wpisu: tabela **Status publikacji** per destynacja. Przy błędzie (`failed`): **Ponów publikację**.
 
 ---
 

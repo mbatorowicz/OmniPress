@@ -86,3 +86,17 @@ export async function skipDuplicateSuccess(
 		.maybeSingle();
 	return Boolean(data);
 }
+
+export async function resetPublishLogForRetry(
+	supabase: SupabaseClient,
+	logId: string,
+): Promise<boolean> {
+	const { data } = await supabase
+		.from('publish_logs')
+		.update({ status: 'pending', next_retry_at: null, response_summary: null })
+		.eq('id', logId)
+		.eq('status', 'failed')
+		.select('id')
+		.maybeSingle();
+	return Boolean(data);
+}

@@ -20,6 +20,7 @@ export type PostForPublish = {
 	slug: string | null;
 	content_md: string;
 	status: string;
+	updated_at?: string;
 };
 
 export type DestinationForPublish = {

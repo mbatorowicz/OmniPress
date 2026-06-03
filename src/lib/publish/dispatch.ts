@@ -1,16 +1,19 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { publishToGitHubAstro, publishToWordPress } from './wordpress';
+import { publishToGitHubAstro } from './github-astro';
+import { publishToWordPress } from './wordpress';
 import type { DestinationForPublish, PostForPublish, PublishResult } from './types';
 
 export async function dispatchPublish(
+	supabase: SupabaseClient,
 	post: PostForPublish,
 	destination: DestinationForPublish,
+	existingExternalId?: string | null,
 ): Promise<PublishResult> {
 	if (destination.type === 'wordpress') {
 		return publishToWordPress(post, destination);
 	}
 	if (destination.type === 'github_astro') {
-		return publishToGitHubAstro(post, destination);
+		return publishToGitHubAstro(supabase, post, destination, existingExternalId);
 	}
 	return { ok: false, summary: `Nieznany typ destynacji: ${destination.type}`, retryable: false };
 }
@@ -21,7 +24,7 @@ export async function loadPostForPublish(
 ): Promise<PostForPublish | null> {
 	const { data } = await supabase
 		.from('posts')
-		.select('id, site_id, title, slug, content_md, status')
+		.select('id, site_id, title, slug, content_md, status, updated_at')
 		.eq('id', postId)
 		.maybeSingle();
 	return (data as PostForPublish | null) ?? null;
