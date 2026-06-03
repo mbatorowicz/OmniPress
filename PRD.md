@@ -138,8 +138,8 @@ Dispatcher → publish_logs per wybrana destynacja
 
 | Faza | Zakres | Status |
 |------|--------|--------|
-| **1** | Repo Astro SSR, Supabase schema + RLS, auth (login/session), szkielet layoutów | ✅ (repozytorium) |
-| **2** | Workspace redaktora, edytor MD, upload Storage | Planowane |
+| **1** | Repo Astro SSR, Supabase schema + RLS, auth (login/session), szkielet layoutów | ✅ |
+| **2** | Workspace redaktora, edytor MD, upload Storage | ✅ (repozytorium) |
 | **3** | Panel admin: sites, destinations, akceptacja `pending` | Planowane |
 | **4** | Dispatcher WP + GitHub, publish_logs, cofnięcie WP | Planowane |
 

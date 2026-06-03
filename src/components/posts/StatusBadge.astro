@@ -1,0 +1,27 @@
+---
+import type { PostStatus } from '@/lib/types';
+
+interface Props {
+	status: PostStatus;
+}
+
+const { status } = Astro.props;
+
+const styles: Record<PostStatus, string> = {
+	draft: 'bg-slate-100 text-slate-700',
+	pending: 'bg-amber-100 text-amber-900',
+	published: 'bg-green-100 text-green-800',
+	rejected: 'bg-red-100 text-red-800',
+};
+
+const labels: Record<PostStatus, string> = {
+	draft: 'Szkic',
+	pending: 'Do akceptacji',
+	published: 'Opublikowany',
+	rejected: 'Odrzucony',
+};
+---
+
+<span class:list={['rounded-full px-2 py-0.5 text-xs font-medium', styles[status]]}>
+	{labels[status]}
+</span>

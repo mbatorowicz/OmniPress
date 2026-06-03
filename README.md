@@ -53,8 +53,8 @@ docs/            — wdrożenie, wersjonowanie
 
 | Faza | Status |
 |------|--------|
-| 1 — Auth, schema, szkielet | ✅ w repozytorium |
-| 2 — Edytor, szkice, Storage | planowane |
+| 1 — Auth, schema, szkielet | ✅ |
+| 2 — Edytor, szkice, Storage | ✅ |
 | 3 — CRUD stron/destynacji | planowane |
 | 4 — Dispatcher WP + GitHub | planowane |
 

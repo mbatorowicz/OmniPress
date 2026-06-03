@@ -1,0 +1,198 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import StatusBadge from '@/components/posts/StatusBadge.astro';
+import { canEditPost, canSubmitPost, getPostById } from '@/lib/posts';
+import type { PostStatus } from '@/lib/types';
+
+const { id } = Astro.params;
+const profile = Astro.locals.profile!;
+const user = Astro.locals.user!;
+
+if (!id) {
+	return Astro.redirect('/dashboard');
+}
+
+const post = await getPostById(Astro.locals.supabase, id);
+if (!post) {
+	return Astro.redirect('/dashboard?error=not_found');
+}
+
+const editable = canEditPost(post, user.id, profile.role);
+const submittable = canSubmitPost(post, user.id);
+
+const saved = Astro.url.searchParams.get('saved') === '1';
+const submitted = Astro.url.searchParams.get('submitted') === '1';
+const errorCode = Astro.url.searchParams.get('error');
+
+const errors: Record<string, string> = {
+	forbidden: 'Nie możesz edytować tego wpisu.',
+	save_failed: 'Zapis nie powiódł się.',
+	submit_failed: 'Wysłanie do akceptacji nie powiodło się.',
+	title_required: 'Podaj tytuł przed wysłaniem do akceptacji.',
+};
+const errorMessage = errorCode ? errors[errorCode] ?? 'Wystąpił błąd.' : null;
+
+const { data: site } = await Astro.locals.supabase
+	.from('sites')
+	.select('name')
+	.eq('id', post.site_id)
+	.single();
+---
+
+<AppLayout title={post.title || 'Edytor'} heading={editable ? 'Edytor artykułu' : 'Podgląd artykułu'}>
+	<div class="mb-4 flex flex-wrap items-center gap-3 text-sm text-slate-600">
+		<StatusBadge status={post.status as PostStatus} />
+		{site?.name && <span>Strona: <strong>{site.name}</strong></span>}
+	</div>
+
+	{saved && (
+		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800" role="status">
+			Zapisano szkic.
+		</p>
+	)}
+	{errorMessage && (
+		<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
+			{errorMessage}
+		</p>
+	)}
+
+	{
+		editable ? (
+			<>
+				<form
+					id="post-form"
+					method="post"
+					action={`/api/posts/${post.id}/save`}
+					class="space-y-4 rounded-xl border border-slate-200 bg-white p-6"
+				>
+					<label class="block text-sm">
+						<span class="font-medium text-slate-700">Tytuł</span>
+						<input
+							type="text"
+							name="title"
+							required
+							value={post.title}
+							class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+						/>
+					</label>
+					<label class="block text-sm">
+						<span class="font-medium text-slate-700">Slug (opcjonalnie)</span>
+						<input
+							type="text"
+							name="slug"
+							value={post.slug ?? ''}
+							placeholder="np. komunikat-urzedu"
+							class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm"
+						/>
+					</label>
+					<div>
+						<div class="mb-1 flex flex-wrap items-center justify-between gap-2">
+							<span class="text-sm font-medium text-slate-700">Treść (Markdown)</span>
+							<label class="cursor-pointer rounded-lg border border-slate-300 px-3 py-1 text-sm hover:bg-slate-50">
+								Dodaj zdjęcie
+								<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden" data-upload-input />
+							</label>
+						</div>
+						<textarea
+							id="content_md"
+							name="content_md"
+							rows={16}
+							class="w-full rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm"
+						>
+							{post.content_md}
+						</textarea>
+						<p class="mt-1 text-xs text-slate-500">
+							Nagłówki: ## H2, ### H3. Zdjęcie wstawia się jako ![opis](url).
+						</p>
+					</div>
+					<div class="flex flex-wrap gap-3">
+						<button
+							type="submit"
+							class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
+						>
+							Zapisz szkic
+						</button>
+					</div>
+				</form>
+
+				{submittable && (
+					<form method="post" action={`/api/posts/${post.id}/submit`} class="mt-4">
+						<button
+							type="submit"
+							class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-900 hover:bg-amber-100"
+							onclick="return confirm('Wysłać do akceptacji? Po wysłaniu nie będziesz mógł edytować.');"
+						>
+							Wyślij do akceptacji
+						</button>
+					</form>
+				)}
+			</>
+		) : (
+			<article class="rounded-xl border border-slate-200 bg-white p-6">
+				<h2 class="text-xl font-semibold">{post.title || '(bez tytułu)'}</h2>
+				{post.status === 'pending' && (
+					<p class="mt-2 text-sm text-amber-800">
+						Wpis oczekuje na akceptację administratora — edycja zablokowana.
+					</p>
+				)}
+				{post.rejection_note && (
+					<p class="mt-2 rounded-lg bg-red-50 p-3 text-sm text-red-800">
+						<strong>Uwagi:</strong> {post.rejection_note}
+					</p>
+				)}
+				<pre class="mt-4 whitespace-pre-wrap rounded-lg bg-slate-50 p-4 text-sm text-slate-800">
+					{post.content_md || '(pusta treść)'}
+				</pre>
+			</article>
+		)
+	}
+
+	<p class="mt-6">
+		<a href="/dashboard" class="text-sm text-brand hover:underline">← Wróć do listy</a>
+	</p>
+
+	{
+		editable && (
+			<script define:vars={{ postId: post.id }}>
+				const input = document.querySelector('[data-upload-input]');
+				const textarea = document.getElementById('content_md');
+
+				input?.addEventListener('change', async () => {
+					const file = input.files?.[0];
+					if (!file || !textarea) return;
+
+					const fd = new FormData();
+					fd.append('file', file);
+
+					const btn = input.closest('label');
+					if (btn) btn.classList.add('opacity-50', 'pointer-events-none');
+
+					try {
+						const res = await fetch(`/api/posts/${postId}/upload`, {
+							method: 'POST',
+							body: fd,
+							credentials: 'same-origin',
+						});
+						const data = await res.json();
+						if (!res.ok) {
+							alert(data.error ?? 'Upload nie powiódł się');
+							return;
+						}
+						const insert = data.markdown ?? `![](${data.url})`;
+						const start = textarea.selectionStart;
+						const end = textarea.selectionEnd;
+						const before = textarea.value.slice(0, start);
+						const after = textarea.value.slice(end);
+						textarea.value = `${before}\n\n${insert}\n\n${after}`;
+						textarea.focus();
+					} catch {
+						alert('Błąd połączenia przy uploadzie.');
+					} finally {
+						input.value = '';
+						if (btn) btn.classList.remove('opacity-50', 'pointer-events-none');
+					}
+				});
+			</script>
+		)
+	}
+</AppLayout>

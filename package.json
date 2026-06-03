@@ -1,7 +1,7 @@
 {
   "name": "omnipress",
   "type": "module",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -13,7 +13,7 @@
     "setup:remote": "node scripts/setup-remote.mjs",
     "setup:password": "node scripts/set-admin-password.mjs",
     "setup:auth-urls": "node scripts/fix-auth-config.mjs",
-    "setup:auth-site": "node scripts/patch-auth-site-url.mjs",
+    "setup:storage": "node scripts/apply-migration.mjs supabase/migrations/20250604000000_storage_post_assets.sql",
     "env:pull": "vercel env pull .env.local --yes",
     "version": "node -e \"import('./scripts/lib/git-info.mjs').then(m=>console.log(m.getVersionLabel()))\""
   },

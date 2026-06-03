@@ -71,10 +71,14 @@ const { data: pending } = await supabase
 			) : (
 				<ul class="mt-4 divide-y divide-slate-100 text-sm">
 					{pending.map((p) => (
-						<li class="py-3">
-							<span class="font-medium">{p.title || '(bez tytułu)'}</span>
-							<span class="ml-2 text-slate-500">
-								— {(p.sites as { name: string } | null)?.name}
+						<li class="flex items-center justify-between py-3">
+							<span>
+								<a href={`/admin/posts/${p.id}`} class="font-medium text-brand hover:underline">
+									{p.title || '(bez tytułu)'}
+								</a>
+								<span class="ml-2 text-slate-500">
+									— {(p.sites as { name: string } | null)?.name}
+								</span>
 							</span>
 						</li>
 					))}

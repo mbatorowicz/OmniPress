@@ -3,6 +3,15 @@
 Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja produktu: **SSOT → `package.json`**. Build: **SSOT → git commit** (w etykiecie `semver+commit`).
 
+## [0.2.0] — 2026-06-03
+
+### Dodane (Faza 2)
+
+- Panel redaktora: nowy artykuł, lista wpisów, edytor Markdown.
+- Zapis szkicu, wysłanie do akceptacji (`pending`), upload zdjęć do Supabase Storage.
+- Podgląd wpisu dla admina (`/admin/posts/:id`).
+- Migracja `post-assets` bucket.
+
 ## [0.1.2] — 2026-06-03
 
 ### Naprawione
