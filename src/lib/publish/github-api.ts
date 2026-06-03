@@ -96,3 +96,33 @@ export function httpStatusFromError(message: string): number | null {
 	const m = message.match(/GitHub (?:GET|PUT) (\d+)/);
 	return m ? Number(m[1]) : null;
 }
+
+export async function probeGitHubRepository(
+	cfg: GitHubConfig,
+	token: string,
+): Promise<{ ok: true } | { ok: false; status: number; detail: string }> {
+	const url = `${GH_API}/repos/${cfg.owner}/${cfg.repo}`;
+	const res = await fetch(url, { headers: ghHeaders(token) });
+	if (res.ok) return { ok: true };
+	const text = await res.text();
+	return { ok: false, status: res.status, detail: text.slice(0, 200) };
+}
+
+export async function probeGitHubContentPath(
+	cfg: GitHubConfig,
+	token: string,
+): Promise<{ ok: true } | { ok: false; detail: string }> {
+	const url = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeGitHubPath(cfg.contentPath)}?ref=${encodeURIComponent(cfg.branch)}`;
+	const res = await fetch(url, { headers: ghHeaders(token) });
+	if (res.status === 404) {
+		return {
+			ok: false,
+			detail: `Folder „${cfg.contentPath}” nie istnieje na branchu „${cfg.branch}”.`,
+		};
+	}
+	if (!res.ok) {
+		const text = await res.text();
+		return { ok: false, detail: `GitHub contents: HTTP ${res.status} — ${text.slice(0, 160)}` };
+	}
+	return { ok: true };
+}

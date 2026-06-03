@@ -1,5 +1,6 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
+import ChannelTestButton from '@/components/admin/ChannelTestButton.astro';
 import { adminDestinations, common } from '@/i18n';
 import { getDestinationById } from '@/lib/admin';
 import { wordpressSiteDisplayUrl } from '@/lib/admin/wordpress-url';
@@ -11,10 +12,10 @@ if (!id) return Astro.redirect('/admin/destinations');
 const dest = await getDestinationById(Astro.locals.supabase, id);
 if (!dest) return Astro.redirect('/admin/destinations');
 
+const isWp = dest.type === 'wordpress';
 const cfg = dest.config as Record<string, unknown>;
 const wpSiteUrl = isWp ? wordpressSiteDisplayUrl(cfg) : '';
 const saved = Astro.url.searchParams.get('saved') === '1';
-const isWp = dest.type === 'wordpress';
 const errorCode = Astro.url.searchParams.get('error');
 const destErrors = adminDestinations.errors;
 const errorMessage =
@@ -41,6 +42,7 @@ const errorMessage =
 			<input name="name" value={dest.name} required class="mt-1 w-full rounded-lg border px-3 py-2" />
 		</label>
 		<input type="hidden" name="type" value={dest.type} />
+		<input type="hidden" name="destination_id" value={dest.id} />
 		<p class="text-sm text-slate-600">{adminDestinations.types[dest.type]}</p>
 
 		{
@@ -60,6 +62,7 @@ const errorMessage =
 						<span>{adminDestinations.fields.wpAppPassword}</span>
 						<input name="wp_app_password" type="password" class="mt-1 w-full rounded-lg border px-3 py-2" />
 					</label>
+					<ChannelTestButton kind="wordpress" destinationId={dest.id} />
 				</>
 			) : (
 				<>
@@ -80,6 +83,7 @@ const errorMessage =
 						<span>{adminDestinations.fields.githubToken}</span>
 						<input name="github_token" type="password" class="mt-1 w-full rounded-lg border px-3 py-2" />
 					</label>
+					<ChannelTestButton kind="github_astro" destinationId={dest.id} />
 				</>
 			)
 		}

@@ -27,3 +27,4 @@ export {
 	syncSiteDestinations,
 	type EditorRow,
 } from './user-sites';
+export { testWordPressChannel, testGitHubAstroChannel, type ChannelTestResult } from './channel-test';

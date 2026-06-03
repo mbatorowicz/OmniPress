@@ -1,5 +1,6 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
+import ChannelTestButton from '@/components/admin/ChannelTestButton.astro';
 import { adminDestinations } from '@/i18n';
 
 const error = Astro.url.searchParams.get('error');
@@ -52,6 +53,7 @@ const errorMessage =
 				<span>{adminDestinations.fields.wpAppPassword}</span>
 				<input name="wp_app_password" type="password" autocomplete="new-password" class="mt-1 w-full rounded-lg border px-3 py-2" />
 			</label>
+			<ChannelTestButton kind="wordpress" />
 		</div>
 		<div id="fields-gh" class="hidden space-y-3">
 			<label class="block text-sm">
@@ -70,6 +72,7 @@ const errorMessage =
 				<span>{adminDestinations.fields.githubToken}</span>
 				<input name="github_token" type="password" autocomplete="new-password" class="mt-1 w-full rounded-lg border px-3 py-2" />
 			</label>
+			<ChannelTestButton kind="github_astro" />
 		</div>
 		<label class="flex items-center gap-2 text-sm">
 			<input type="checkbox" name="is_active" checked />

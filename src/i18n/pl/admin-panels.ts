@@ -99,7 +99,7 @@ export const adminDestinations = {
 		wordpress: 'WordPress',
 		github_astro: 'GitHub → Astro',
 	},
-	actions: { save: 'Zapisz', create: 'Utwórz', delete: 'Usuń destynację' },
+	actions: { save: 'Zapisz', create: 'Utwórz', delete: 'Usuń destynację', testChannel: 'Testuj połączenie' },
 	delete: {
 		heading: 'Usuń destynację',
 		lead: 'Trwale usuwa kanał publikacji. Niedostępne, gdy istnieją logi publikacji.',

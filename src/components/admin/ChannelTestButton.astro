@@ -1,0 +1,90 @@
+---
+import { adminDestinations } from '@/i18n';
+
+interface Props {
+	kind: 'wordpress' | 'github_astro';
+	destinationId?: string;
+}
+
+const { kind, destinationId } = Astro.props;
+const api =
+	kind === 'wordpress'
+		? '/api/admin/channels/test-wordpress'
+		: '/api/admin/channels/test-github-astro';
+const destField =
+	kind === 'wordpress' ? 'wp_destination_id' : 'astro_destination_id';
+---
+
+<div
+	class="channel-test mt-2"
+	data-channel-test={kind}
+	data-test-api={api}
+	data-dest-field={destField}
+	data-destination-id={destinationId ?? ''}
+>
+	<button
+		type="button"
+		data-test-btn
+		class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-800 hover:bg-slate-50"
+	>
+		{adminDestinations.actions.testChannel}
+	</button>
+	<p class="mt-2 hidden text-sm" data-test-result role="status"></p>
+</div>
+
+<script>
+	function bindChannelTests() {
+		document.querySelectorAll('[data-channel-test]').forEach((root) => {
+			const el = root as HTMLElement;
+			const btn = el.querySelector('[data-test-btn]') as HTMLButtonElement | null;
+			const result = el.querySelector('[data-test-result]') as HTMLParagraphElement | null;
+			const api = el.dataset.testApi;
+			const destField = el.dataset.destField ?? '';
+			const fallbackDestId = el.dataset.destinationId ?? '';
+			if (!btn || !result || !api) return;
+
+			const labelTest = btn.textContent?.trim() ?? 'Testuj połączenie';
+			const labelTesting = 'Testowanie…';
+
+			btn.addEventListener('click', async () => {
+				const form = el.closest('form');
+				if (!form) return;
+
+				btn.disabled = true;
+				btn.textContent = labelTesting;
+				result.classList.add('hidden');
+				result.classList.remove('text-green-800', 'text-red-800', 'rounded-lg', 'px-3', 'py-2', 'bg-green-50', 'bg-red-50');
+
+				const fd = new FormData(form);
+				if (destField && !fd.get(destField) && fallbackDestId) {
+					fd.set(destField, fallbackDestId);
+				}
+
+				try {
+					const res = await fetch(api, { method: 'POST', body: fd });
+					const data = (await res.json()) as { ok?: boolean; message?: string };
+					const ok = Boolean(data.ok);
+					result.textContent = data.message ?? (ok ? 'OK' : 'Błąd testu');
+					result.classList.toggle('text-green-800', ok);
+					result.classList.toggle('text-red-800', !ok);
+					result.classList.toggle('bg-green-50', ok);
+					result.classList.toggle('bg-red-50', !ok);
+					result.classList.toggle('rounded-lg', true);
+					result.classList.toggle('px-3', true);
+					result.classList.toggle('py-2', true);
+					result.classList.remove('hidden');
+				} catch {
+					result.textContent = 'Błąd sieci — spróbuj ponownie.';
+					result.classList.add('text-red-800', 'bg-red-50', 'rounded-lg', 'px-3', 'py-2');
+					result.classList.remove('hidden');
+				} finally {
+					btn.disabled = false;
+					btn.textContent = labelTest;
+				}
+			});
+		});
+	}
+
+	bindChannelTests();
+	document.addEventListener('astro:page-load', bindChannelTests);
+</script>

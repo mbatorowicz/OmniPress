@@ -42,7 +42,7 @@ export async function publishToWordPress(
 	};
 	if (post.slug) body.slug = post.slug;
 
-	const res = await fetch(`${base}/wp/v2/posts`, {
+	const res = await fetch(`${base}/posts`, {
 		method: 'POST',
 		headers: {
 			Authorization: basicAuthHeader(creds.username, creds.application_password),

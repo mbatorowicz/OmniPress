@@ -1,5 +1,6 @@
 ---
 import { adminDestinations, adminSites, adminUnit } from '@/i18n';
+import ChannelTestButton from '@/components/admin/ChannelTestButton.astro';
 import type { UnitFormInitial } from '@/lib/admin/unit';
 
 interface Props {
@@ -88,6 +89,7 @@ const i = initial;
 					class="mt-1 w-full rounded-lg border px-3 py-2"
 				/>
 			</label>
+			<ChannelTestButton kind="wordpress" destinationId={i?.wp?.destinationId} />
 		</div>
 	</section>
 
@@ -147,6 +149,7 @@ const i = initial;
 					class="mt-1 w-full rounded-lg border px-3 py-2"
 				/>
 			</label>
+			<ChannelTestButton kind="github_astro" destinationId={i?.astro?.destinationId} />
 		</div>
 	</section>
 
