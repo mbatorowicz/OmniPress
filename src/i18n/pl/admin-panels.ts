@@ -89,6 +89,7 @@ export const adminDestinations = {
 		wpUsername: 'Login WP',
 		wpAppPassword: 'Hasło aplikacji WP',
 		repo: 'Repozytorium (owner/repo)',
+		repoHint: 'Bez .git na końcu — np. mbatorowicz/gmina-miedzna.pl',
 		branch: 'Branch',
 		contentPath: 'Folder z plikami .md — dla gminy-miedzna.pl: src/content/news',
 		contentLayout: 'Układ publikacji',

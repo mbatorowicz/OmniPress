@@ -1,5 +1,6 @@
 import { encodeGitHubPath } from './paths';
 import { bytesToBase64, textToBase64 } from './assets';
+import { normalizeGitHubRepo } from '@/lib/admin/github-repo';
 import { parseContentLayout, type ContentLayout } from './content-layout';
 
 export type GitHubConfig = {
@@ -18,8 +19,8 @@ export type GitHubFileMeta = {
 const GH_API = 'https://api.github.com';
 
 export function parseGitHubRepoConfig(config: Record<string, unknown>): GitHubConfig | null {
-	const repoRaw = config.repo;
-	if (typeof repoRaw !== 'string' || !repoRaw.includes('/')) return null;
+	const repoRaw = normalizeGitHubRepo(String(config.repo ?? ''));
+	if (!repoRaw.includes('/')) return null;
 	const [owner, repo] = repoRaw.split('/', 2).map((s) => s.trim());
 	if (!owner || !repo) return null;
 	const branch =

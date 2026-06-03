@@ -119,10 +119,11 @@ const i = initial;
 					name="repo"
 					id="input-repo"
 					value={i?.astro?.repo ?? ''}
-					placeholder="owner/gmina-miedzna.pl"
+					placeholder="mbatorowicz/gmina-miedzna.pl"
 					class="mt-1 w-full rounded-lg border px-3 py-2"
 				/>
 			</label>
+			<p class="text-xs text-slate-500">{adminDestinations.fields.repoHint}</p>
 			<label class="block text-sm">
 				<span>{adminDestinations.fields.branch}</span>
 				<input

@@ -58,8 +58,9 @@ const errorMessage =
 		<div id="fields-gh" class="hidden space-y-3">
 			<label class="block text-sm">
 				<span>{adminDestinations.fields.repo}</span>
-				<input name="repo" id="input-repo" placeholder="owner/repo" class="mt-1 w-full rounded-lg border px-3 py-2" />
+				<input name="repo" id="input-repo" placeholder="mbatorowicz/gmina-miedzna.pl" class="mt-1 w-full rounded-lg border px-3 py-2" />
 			</label>
+			<p class="text-xs text-slate-500">{adminDestinations.fields.repoHint}</p>
 			<label class="block text-sm">
 				<span>{adminDestinations.fields.branch}</span>
 				<input name="branch" value="main" class="mt-1 w-full rounded-lg border px-3 py-2" />

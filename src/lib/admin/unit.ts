@@ -8,6 +8,7 @@ import {
 import { getSiteById, getSiteDestinations } from './sites';
 import { isValidSlug, normalizeSlug } from './slug';
 import { wordpressSiteDisplayUrl } from './wordpress-url';
+import { normalizeGitHubRepo } from './github-repo';
 import { syncSiteDestinations } from './user-sites';
 
 export type UnitError =
@@ -134,7 +135,7 @@ export async function loadUnitFormInitial(
 			const cfg = dest.config as Record<string, string>;
 			astro = {
 				destinationId: dest.id,
-				repo: cfg.repo ?? '',
+				repo: normalizeGitHubRepo(String(cfg.repo ?? '')),
 				branch: cfg.branch ?? 'main',
 				content_path: cfg.content_path ?? 'src/content/news',
 				content_layout: cfg.content_layout === 'folder' ? 'folder' : 'flat',

@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { DestinationType } from '@/lib/types';
 import { canEncryptCredentials, encryptSecret } from '@/lib/crypto';
 import { resolveWpRestV2Base } from './wordpress-url';
+import { normalizeGitHubRepo } from './github-repo';
 
 export type DestinationRow = {
 	id: string;
@@ -36,7 +37,7 @@ export function buildConfig(type: DestinationType, form: FormData): Record<strin
 		};
 	}
 	return {
-		repo: String(form.get('repo') ?? '').trim(),
+		repo: normalizeGitHubRepo(String(form.get('repo') ?? '')),
 		branch: String(form.get('branch') ?? 'main').trim() || 'main',
 		content_path: String(form.get('content_path') ?? 'src/content').trim() || 'src/content',
 		content_layout: String(form.get('content_layout') ?? 'flat').trim() === 'folder' ? 'folder' : 'flat',
@@ -57,8 +58,8 @@ export function validateDestinationConfig(
 		if (!resolveWpRestV2Base(raw)) return 'config_wp_rest_base';
 		return null;
 	}
-	const repo = config.repo;
-	if (typeof repo !== 'string' || !repo.includes('/')) return 'config_repo';
+	const repo = normalizeGitHubRepo(String(config.repo ?? ''));
+	if (!repo.includes('/')) return 'config_repo';
 	return null;
 }
 

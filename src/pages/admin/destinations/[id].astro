@@ -4,6 +4,7 @@ import ChannelTestButton from '@/components/admin/ChannelTestButton.astro';
 import { adminDestinations, common } from '@/i18n';
 import { getDestinationById } from '@/lib/admin';
 import { wordpressSiteDisplayUrl } from '@/lib/admin/wordpress-url';
+import { normalizeGitHubRepo } from '@/lib/admin/github-repo';
 import { canEncryptCredentials } from '@/lib/crypto';
 
 const { id } = Astro.params;
@@ -68,8 +69,9 @@ const errorMessage =
 				<>
 					<label class="block text-sm">
 						<span>{adminDestinations.fields.repo}</span>
-						<input name="repo" value={String(cfg.repo ?? '')} required class="mt-1 w-full rounded-lg border px-3 py-2" />
+						<input name="repo" value={normalizeGitHubRepo(String(cfg.repo ?? ''))} required placeholder="mbatorowicz/gmina-miedzna.pl" class="mt-1 w-full rounded-lg border px-3 py-2" />
 					</label>
+					<p class="text-xs text-slate-500">{adminDestinations.fields.repoHint}</p>
 					<label class="block text-sm">
 						<span>{adminDestinations.fields.branch}</span>
 						<input name="branch" value={String(cfg.branch ?? 'main')} class="mt-1 w-full rounded-lg border px-3 py-2" />
