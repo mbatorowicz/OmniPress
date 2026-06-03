@@ -70,7 +70,7 @@ Publikacja **nie** może polegać wyłącznie na jednym żądaniu HTTP admina (l
 
 - **Auth:** E-mail/hasło (bootstrap). **Przed Fazą 4:** MFA Supabase dla kont `admin`. **Docelowo:** Passkeys / WebAuthn (FIDO2).
 - **Widzi:** Wszystkie posty `pending` i opublikowane; zarządzanie `sites`, `destinations`, `site_destinations`.
-- **Akcje:** Odrzucenie (**wymagane** `rejection_note`), akceptacja, wybór destynacji (checkboxy z `site_destinations` dla `post.site_id`), publikacja, cofnięcie/dezaktywacja per typ destynacji (§5.3).
+- **Akcje:** Odrzucenie (**wymagane** `rejection_note`), akceptacja, wybór destynacji (checkboxy z `site_destinations` dla `post.site_id`), publikacja.
 
 ## 5. Kluczowe funkcjonalności
 
@@ -103,7 +103,8 @@ Administrator:
 
 - Admin wybiera destynacje (domyślnie `is_default` dla strony).
 - Zadania asynchroniczne per destynacja → `publish_logs` (§3.1).
-- **WordPress:** media → WP REST → MD→HTML (sanitized) → publikacja; cofnięcie: draft/trash przez API.
+- **WordPress:** media → WP REST → MD→HTML (sanitized) → publikacja.
+- **Migracja WP → Astro (decyzja produktu):** bez cofania pojedynczych artykułów z WP. Admin **odznacza / dezaktywuje** destynację WP dla strony; nowe wpisy idą tylko na Astro. Starą stronę WP usuwa się poza OmniPress, gdy nie jest potrzebna.
 - **GitHub-Astro:** frontmatter + `.md` + obrazy → commit (strategia ścieżki: `slug` + unikalność przy konflikcie) → build Vercel.
 - **Sanitization:** whitelist tagów HTML przy eksporcie do WP; brak raw script w treści.
 
@@ -199,7 +200,7 @@ Kolejka → publish_logs per destynacja (§3.1)
 | **2** | Workspace redaktora, Markdown, Storage | ✅ |
 | **2.5** | TipTap (opcjonalnie) | Roadmap |
 | **3** | Admin: sites, destinations, akceptacja/odrzucenie | ✅ |
-| **4** | Dispatcher + kolejka + publish_logs + cofnięcie WP | Planowane |
+| **4** | Dispatcher + kolejka + publish_logs | W trakcie |
 
 ## 9. Zmienne środowiskowe
 
@@ -238,9 +239,10 @@ Kolejka → publish_logs per destynacja (§3.1)
 
 - [ ] Dispatcher z kolejką (§3.1); retry i `publish_logs`.
 - [ ] Publikacja WP + GitHub-Astro dla UG Miedzna.
-- [ ] Cofnięcie/dezaktywacja WP z panelu.
 - [ ] Staging Astro: noindex + Vercel Auth.
 - [ ] Alerty / widoczność `publish_logs.failed` dla admina.
+
+~~Cofnięcie/dezaktywacja WP z panelu~~ — **poza scope:** migracja przez wyłączenie destynacji WP (§5.3).
 
 ## 14. NFR i observability
 
