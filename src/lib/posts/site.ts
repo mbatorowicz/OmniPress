@@ -1,12 +1,15 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Profile } from '../types';
 
-type SiteRow = { site_id: string; sites: { id: string; name: string; slug: string } | null };
+export type SiteRow = {
+	site_id: string;
+	sites: { id: string; name: string; slug: string } | null;
+};
 
-export function collectAllowedSites(
-	profile: Profile,
-	userSites: SiteRow[],
-): { id: string; name: string; slug: string }[] {
-	const map = new Map<string, { id: string; name: string; slug: string }>();
+export type AllowedSite = { id: string; name: string; slug: string };
+
+export function collectAllowedSites(profile: Profile, userSites: SiteRow[]): AllowedSite[] {
+	const map = new Map<string, AllowedSite>();
 
 	for (const row of userSites) {
 		if (row.sites) map.set(row.sites.id, row.sites);
@@ -20,9 +23,30 @@ export function collectAllowedSites(
 	return [...map.values()];
 }
 
+/** Jedna funkcja dla UI i API — ładuje default_site_id z bazy gdy brak user_sites. */
+export async function loadAllowedSites(
+	supabase: SupabaseClient,
+	profile: Profile,
+	userSites: SiteRow[],
+): Promise<AllowedSite[]> {
+	let allowed = collectAllowedSites(profile, userSites);
+
+	if (allowed.length === 0 && profile.default_site_id) {
+		const { data: site } = await supabase
+			.from('sites')
+			.select('id, name, slug')
+			.eq('id', profile.default_site_id)
+			.eq('is_active', true)
+			.single();
+		if (site) allowed = [site];
+	}
+
+	return allowed;
+}
+
 export function resolveSiteIdForNewPost(
 	profile: Profile,
-	allowedSites: { id: string }[],
+	allowedSites: AllowedSite[],
 	requestedSiteId?: string | null,
 ): string | null {
 	if (allowedSites.length === 0) return null;

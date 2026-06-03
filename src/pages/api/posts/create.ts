@@ -1,8 +1,8 @@
 import type { APIRoute } from 'astro';
-import { collectAllowedSites, resolveSiteIdForNewPost } from '@/lib/posts';
+import { loadAllowedSites, resolveSiteIdForNewPost } from '@/lib/posts';
 import { getUserSites } from '@/lib/auth';
 
-export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => {
+export const POST: APIRoute = async ({ request, redirect, locals }) => {
 	const profile = locals.profile;
 	const user = locals.user;
 	if (!profile || !user) {
@@ -13,7 +13,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
 	const siteId = String(form.get('site_id') ?? '').trim() || null;
 
 	const userSites = await getUserSites(locals.supabase, user.id);
-	const allowed = collectAllowedSites(profile, userSites);
+	const allowed = await loadAllowedSites(locals.supabase, profile, userSites);
 	const resolvedSiteId = resolveSiteIdForNewPost(profile, allowed, siteId);
 
 	if (!resolvedSiteId) {
@@ -33,6 +33,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
 		.single();
 
 	if (error || !data) {
+		console.error('create post:', error?.message);
 		return redirect('/dashboard?error=create_failed');
 	}
 
