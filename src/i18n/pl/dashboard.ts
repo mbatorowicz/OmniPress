@@ -26,6 +26,7 @@ export const dashboard = {
 		submitted: 'Wysłano do akceptacji.',
 		rejectionNote: 'Uwagi:',
 		pendingLocked: 'Wpis oczekuje na akceptację administratora — edycja zablokowana.',
+		publishingLocked: 'Trwa publikacja wpisu — edycja zablokowana.',
 		emptyContent: '(pusta treść)',
 		backToList: '← Wróć do listy',
 		fields: {

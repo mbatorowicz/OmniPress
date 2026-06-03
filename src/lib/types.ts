@@ -1,10 +1,10 @@
 export type UserRole = 'editor' | 'admin';
 
-export type PostStatus = 'draft' | 'pending' | 'published' | 'rejected';
+export type PostStatus = 'draft' | 'pending' | 'publishing' | 'published' | 'rejected';
 
 export type DestinationType = 'wordpress' | 'github_astro';
 
-export type PublishLogStatus = 'pending' | 'success' | 'failed' | 'withdrawn';
+export type PublishLogStatus = 'pending' | 'processing' | 'success' | 'failed' | 'withdrawn';
 
 export interface Profile {
 	id: string;

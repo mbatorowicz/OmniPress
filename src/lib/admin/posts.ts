@@ -24,13 +24,6 @@ export async function approvePost(
 		return { ok: false, error: 'invalid_destinations' };
 	}
 
-	const { error: updateError } = await supabase
-		.from('posts')
-		.update({ status: 'published', rejection_note: null })
-		.eq('id', post.id);
-
-	if (updateError) return { ok: false, error: 'update_failed' };
-
 	const logs = destinationIds.map((destination_id) => ({
 		post_id: post.id,
 		destination_id,
@@ -39,6 +32,14 @@ export async function approvePost(
 
 	const { error: logError } = await supabase.from('publish_logs').insert(logs);
 	if (logError) return { ok: false, error: 'logs_failed' };
+
+	const { error: updateError } = await supabase
+		.from('posts')
+		.update({ status: 'publishing', rejection_note: null })
+		.eq('id', post.id)
+		.eq('status', 'pending');
+
+	if (updateError) return { ok: false, error: 'update_failed' };
 
 	return { ok: true };
 }

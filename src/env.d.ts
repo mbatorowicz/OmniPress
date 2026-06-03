@@ -15,6 +15,7 @@ interface ImportMetaEnv {
 	readonly STORAGE_ANON_KEY?: string;
 	readonly SUPABASE_SERVICE_ROLE_KEY?: string;
 	readonly ENCRYPTION_KEY?: string;
+	readonly CRON_SECRET?: string;
 }
 
 interface ImportMeta {

@@ -133,6 +133,9 @@ const ed = dashboard.editor;
 				{post.status === 'pending' && (
 					<p class="mt-2 text-sm text-amber-800">{ed.pendingLocked}</p>
 				)}
+				{post.status === 'publishing' && (
+					<p class="mt-2 text-sm text-sky-800">{ed.publishingLocked}</p>
+				)}
 				{post.rejection_note && (
 					<p class="mt-2 rounded-lg bg-red-50 p-3 text-sm text-red-800">
 						<strong>{ed.rejectionNote}</strong> {post.rejection_note}

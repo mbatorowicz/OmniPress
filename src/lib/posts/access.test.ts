@@ -30,8 +30,9 @@ describe('canEditPost', () => {
 		expect(canEditPost(draftPost({ status: 'rejected' }), 'author-1', 'editor')).toBe(true);
 	});
 
-	it('autor nie edytuje pending', () => {
+	it('autor nie edytuje pending i publishing', () => {
 		expect(canEditPost(draftPost({ status: 'pending' }), 'author-1', 'editor')).toBe(false);
+		expect(canEditPost(draftPost({ status: 'publishing' }), 'author-1', 'editor')).toBe(false);
 	});
 
 	it('admin edytuje tylko draft/rejected', () => {

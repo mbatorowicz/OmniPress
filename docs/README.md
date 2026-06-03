@@ -47,7 +47,7 @@ Jeden indeks — **nie duplikuj** tych samych zasad w wielu plikach. Szczegóły
 | `setup-remote.mjs` | `setup:remote` | Bootstrap bazy, strona, admin |
 | `set-admin-password.mjs` | `setup:password` | Hasło admina |
 | `fix-auth-config.mjs` | `setup:auth-urls` | Site URL Supabase Auth |
-| `apply-migration.mjs` | `setup:storage`, `setup:phase3` | Migracje SQL |
+| `apply-migration.mjs` | `setup:storage`, `setup:phase3`, `setup:phase4` | Migracje SQL |
 | `lib/git-info.mjs` | (build) | Etykieta wersji |
 
 ## Zasada zmian

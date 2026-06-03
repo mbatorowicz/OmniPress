@@ -23,6 +23,10 @@ export const admin = {
 		heading: (n: number) => `Do akceptacji (${n})`,
 		empty: 'Brak wpisów oczekujących.',
 	},
+	publishing: {
+		heading: (n: number) => `Publikacja w toku (${n})`,
+		empty: 'Brak wpisów w kolejce.',
+	},
 	preview: {
 		title: 'Podgląd wpisu',
 		heading: 'Podgląd wpisu',

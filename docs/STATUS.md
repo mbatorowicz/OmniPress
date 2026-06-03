@@ -14,8 +14,8 @@ Legenda: ✅ zaimplementowane · 🟡 częściowo · ⬜ planowane · 📋 tylko
 |------|-----|-----|--------|
 | 1 — Auth, schema | ✅ | ✅ | |
 | 2 — Edytor, Storage | ✅ | ✅ | Markdown textarea; TipTap 📋 |
-| 3 — Admin CRUD, akceptacja | ✅ | ✅ | Dispatcher jeszcze ⬜ |
-| 4 — Dispatcher WP + GitHub | 📋 | ⬜ | `publish_logs` tworzone przy approve, worker ⬜ |
+| 3 — Admin CRUD, akceptacja | ✅ | ✅ | |
+| 4 — Dispatcher WP + GitHub | 🟡 | 🟡 | Worker + WP adapter; GitHub Sprint 2; cofnięcie ⬜ |
 
 ---
 
@@ -40,7 +40,7 @@ Legenda: ✅ zaimplementowane · 🟡 częściowo · ⬜ planowane · 📋 tylko
 | `site_destinations`, `user_sites` | ✅ | |
 | Odrzucenie + `rejection_note` | ✅ | |
 | Akceptacja + wybór destynacji | ✅ | |
-| Semantyka `published` vs `publish_logs` | 🟡 | Dziś: approve → `published` + logi `pending`; pełna semantyka §5.3.1 po Fazie 4 |
+| Semantyka `published` vs `publish_logs` | ✅ | approve → `publishing`; `published` po sukcesie workera |
 | Cofnięcie WP / Astro | 📋 | Faza 4 |
 | MFA / Passkeys admin | 📋 | PRD §4.2 — przed Fazą 4 |
 | Audit log akcji admina | 📋 | PRD §7 |
@@ -51,7 +51,7 @@ Legenda: ✅ zaimplementowane · 🟡 częściowo · ⬜ planowane · 📋 tylko
 |---------------|--------|--------|
 | RLS | ✅ | Testy integracyjne ⬜ (PRD §12) |
 | `UNIQUE(site_id, slug)` | ✅ | Migracja Fazy 3 |
-| Kolejka publikacji | 📋 | PRD §3.1 — Faza 4 |
+| Kolejka publikacji | 🟡 | Worker + cron ✅; GitHub adapter ⬜ |
 | SEO staging / runbook DNS | 📋 | PRD §5.4.1 — runbook ⬜ |
 | Storage public vs signed URL | 🟡 | Bucket publiczny; decyzja docs ⬜ |
 
@@ -64,6 +64,7 @@ Legenda: ✅ zaimplementowane · 🟡 częściowo · ⬜ planowane · 📋 tylko
 | `20250603000000_initial_schema.sql` | Faza 1 — `setup:remote` |
 | `20250604000000_storage_post_assets.sql` | Faza 2 — `npm run setup:storage` |
 | `20250605000000_phase3_post_slug_unique.sql` | Faza 3 — `npm run setup:phase3` |
+| `20250606000000_phase4_publish_worker.sql` | Faza 4 — `npm run setup:phase4` |
 
 ---
 
@@ -73,7 +74,8 @@ Legenda: ✅ zaimplementowane · 🟡 częściowo · ⬜ planowane · 📋 tylko
 |---------|----------|--------|
 | `SUPABASE_URL` / anon key | tak | Vercel ↔ Supabase |
 | `ENCRYPTION_KEY` | destynacje prod | opcjonalna lokalnie |
-| `SUPABASE_SERVICE_ROLE_KEY` | skrypty bootstrap | nie w runtime UI |
+| `CRON_SECRET` | worker cron | wymagana na Vercel prod |
+| `SUPABASE_SERVICE_ROLE_KEY` | worker publish | nie w UI; wymagana na Vercel prod |
 
 ---
 

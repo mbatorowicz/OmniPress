@@ -3,6 +3,17 @@
 Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja produktu: **SSOT → `package.json`**. Build: **SSOT → git commit** (w etykiecie `semver+commit`).
 
+## [0.4.0] — 2026-06-03
+
+### Dodane (Faza 4 — Sprint 1)
+
+- Dispatcher: worker `/api/worker/publish` + Vercel Cron (co 5 min).
+- `src/lib/publish/` — kolejka, retry backoff, adapter WordPress, szkielet GitHub-Astro.
+- Status `publishing` — approve nie ustawia od razu `published`.
+- UI admin: tabela `publish_logs`, sekcja „Publikacja w toku”.
+- Migracja: retry_count, next_retry_at, status `processing` na logach.
+- `npm run setup:phase4`; env: `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY` (worker).
+
 ## [0.3.1] — 2026-06-03
 
 ### Dokumentacja

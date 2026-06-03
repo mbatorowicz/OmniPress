@@ -3,8 +3,9 @@ import AppLayout from '@/layouts/AppLayout.astro';
 import StatusBadge from '@/components/posts/StatusBadge.astro';
 import { admin, adminReview, common } from '@/i18n';
 import { getSiteDestinations } from '@/lib/admin';
+import { listPublishLogsForPost } from '@/lib/publish';
 import { getPostById } from '@/lib/posts';
-import type { PostStatus } from '@/lib/types';
+import type { PostStatus, PublishLogStatus } from '@/lib/types';
 
 const { id } = Astro.params;
 if (!id || Astro.locals.profile?.role !== 'admin') return Astro.redirect('/admin');
@@ -20,7 +21,10 @@ const { data: author } = await Astro.locals.supabase
 	.single();
 
 const siteDests = await getSiteDestinations(Astro.locals.supabase, post.site_id);
+const publishLogs = await listPublishLogsForPost(Astro.locals.supabase, post.id);
 const isPending = post.status === 'pending';
+const logLabels = adminReview.logStatus;
+const logsUi = adminReview.publishLogs;
 
 const errorCode = Astro.url.searchParams.get('error');
 const reviewErrors = adminReview.errors;
@@ -56,6 +60,41 @@ const preview = admin.preview;
 		{post.slug && <p class="mt-1 font-mono text-sm text-slate-500">/{post.slug}</p>}
 		<pre class="mt-6 whitespace-pre-wrap rounded-lg bg-slate-50 p-4 text-sm">{post.content_md}</pre>
 	</article>
+
+	{
+		publishLogs.length > 0 && (
+			<section class="mt-6 overflow-x-auto rounded-xl border bg-white p-6">
+				<h3 class="text-sm font-medium">{logsUi.heading}</h3>
+				<table class="mt-4 w-full text-left text-sm">
+					<thead class="border-b text-slate-500">
+						<tr>
+							<th class="pb-2 pr-4">{logsUi.destination}</th>
+							<th class="pb-2 pr-4">{logsUi.status}</th>
+							<th class="pb-2 pr-4">{logsUi.summary}</th>
+							<th class="pb-2">{logsUi.retries}</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y">
+						{publishLogs.map((log) => {
+							const st = log.status as PublishLogStatus;
+							const failed = st === 'failed';
+							return (
+								<tr class={failed ? 'bg-red-50/50' : ''}>
+									<td class="py-2 pr-4">
+										{log.destinations?.name}
+										<span class="ml-1 text-slate-400">({log.destinations?.type})</span>
+									</td>
+									<td class="py-2 pr-4">{logLabels[st]}</td>
+									<td class="py-2 pr-4 text-slate-600">{log.response_summary ?? '—'}</td>
+									<td class="py-2">{log.retry_count}</td>
+								</tr>
+							);
+						})}
+					</tbody>
+				</table>
+			</section>
+		)
+	}
 
 	{
 		isPending && siteDests.length > 0 && (
@@ -95,6 +134,5 @@ const preview = admin.preview;
 		)
 	}
 
-	<p class="mt-6 text-sm text-slate-500">{adminReview.phase4Note}</p>
-	<a href="/admin" class="mt-2 inline-block text-sm text-brand hover:underline">{preview.back}</a>
+	<a href="/admin" class="mt-6 inline-block text-sm text-brand hover:underline">{preview.back}</a>
 </AppLayout>

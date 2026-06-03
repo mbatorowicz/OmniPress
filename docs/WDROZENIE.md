@@ -67,6 +67,22 @@ npm run setup:phase3
 
 Indeks `UNIQUE(site_id, slug)` na wpisach.
 
+### Faza 4 — dispatcher (worker)
+
+```bash
+npm run setup:phase4
+```
+
+Na Vercel (Production):
+
+| Zmienna | Opis |
+|---------|------|
+| `CRON_SECRET` | Losowy string; Vercel Cron wysyła `Authorization: Bearer …` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Tylko worker — **nie** eksponować w UI |
+| `ENCRYPTION_KEY` | Odszyfrowanie credentials destynacji |
+
+Cron: `vercel.json` → `/api/worker/publish` co 5 min.
+
 ### ENCRYPTION_KEY (destynacje produkcyjne)
 
 1. Wygeneruj 32 bajty losowe, zakoduj base64.

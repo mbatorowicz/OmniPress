@@ -59,7 +59,7 @@ Szczegóły wdrożenia technicznego: [WDROZENIE.md](./WDROZENIE.md).
 
 **Credentials** są szyfrowane (`ENCRYPTION_KEY` na Vercel). Bez klucza — zapis konfiguracji bez sekretów (tylko dev).
 
-Publikacja na WP/Astro — **Faza 4** (dispatcher). Po akceptacji wpisu powstają wpisy `publish_logs` ze statusem `pending`.
+Po akceptacji wpisu worker (`/api/worker/publish`, cron co 5 min) publikuje na WordPress. GitHub-Astro — Sprint 2.
 
 ---
 
@@ -75,9 +75,12 @@ Publikacja na WP/Astro — **Faza 4** (dispatcher). Po akceptacji wpisu powstaj�
 
 1. `/admin` → sekcja *Do akceptacji* → wpis.
 2. **Zaakceptuj:** wybierz destynacje → *Zaakceptuj i przygotuj publikację*.
-   - Status wpisu: `published` (wewnętrznie zaakceptowany).
-   - Kolejka: `publish_logs` = `pending` (Faza 4 wykona publikację).
+   - Status wpisu: `publishing` (kolejka w tle).
+   - `publish_logs`: `pending` → worker → `success` / `failed` (retry automatyczny).
+   - Po sukcesie na ≥1 destynacji: `published`.
 3. **Odrzuć:** obowiązkowe uwagi → redaktor widzi `rejection_note` i może poprawić szkic.
+
+Na podglądzie wpisu: tabela **Status publikacji** per destynacja.
 
 ---
 
@@ -105,4 +108,6 @@ Wymaga sesji admina (`requireAdmin`).
 | Brak destynacji przy akceptacji | Mapowanie w `/admin/sites/.../destinations` |
 | Redaktor „Brak strony” | `/admin/editors` — przypisz stronę |
 | Credentials nie zapisują się | Ustaw `ENCRYPTION_KEY` na Vercel |
+| Publikacja utknęła w `publishing` | Sprawdź logi w podglądzie wpisu; `failed` = błąd WP/credentials |
+| Worker nie działa | Vercel: `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, redeploy |
 | Wpis nie w pending | Redaktor musi wysłać do akceptacji |

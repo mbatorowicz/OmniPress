@@ -4,6 +4,7 @@ export const posts = {
 	status: {
 		draft: 'Szkic',
 		pending: 'Do akceptacji',
+		publishing: 'Publikacja w toku',
 		published: 'Opublikowany',
 		rejected: 'Odrzucony',
 	},
