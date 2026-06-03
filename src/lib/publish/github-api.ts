@@ -1,11 +1,13 @@
 import { encodeGitHubPath } from './paths';
 import { bytesToBase64, textToBase64 } from './assets';
+import { parseContentLayout, type ContentLayout } from './content-layout';
 
 export type GitHubConfig = {
 	owner: string;
 	repo: string;
 	branch: string;
 	contentPath: string;
+	contentLayout: ContentLayout;
 };
 
 export type GitHubFileMeta = {
@@ -26,7 +28,13 @@ export function parseGitHubRepoConfig(config: Record<string, unknown>): GitHubCo
 		typeof config.content_path === 'string' && config.content_path.trim()
 			? config.content_path.trim()
 			: 'src/content';
-	return { owner, repo, branch, contentPath };
+	return {
+		owner,
+		repo,
+		branch,
+		contentPath,
+		contentLayout: parseContentLayout(config),
+	};
 }
 
 function ghHeaders(token: string): HeadersInit {

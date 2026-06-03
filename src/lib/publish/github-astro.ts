@@ -31,12 +31,15 @@ async function pickMarkdownPath(
 		return { filePath: preferredPath, existingSha: existing?.sha };
 	}
 
-	for (const fileName of slugFileCandidates(slug)) {
+	for (const fileName of slugFileCandidates(slug, cfg.contentLayout)) {
 		const filePath = joinContentPath(cfg.contentPath, fileName);
 		const existing = await getGitHubFile(cfg, token, filePath);
 		if (!existing) return { filePath };
 	}
-	const fallback = joinContentPath(cfg.contentPath, `${slug}-${Date.now()}.md`);
+	const fallback =
+		cfg.contentLayout === 'folder'
+			? joinContentPath(cfg.contentPath, `${slug}-${Date.now()}`, 'index.md')
+			: joinContentPath(cfg.contentPath, `${slug}-${Date.now()}.md`);
 	return { filePath: fallback };
 }
 
@@ -63,8 +66,12 @@ async function uploadPostAssets(
 		if (!res.ok) continue;
 
 		const assetName = asset.storage_path.split('/').pop() ?? asset.filename;
-		const gitPath = joinContentPath(cfg.contentPath, 'assets', slug, assetName);
-		const relative = `./assets/${slug}/${assetName}`;
+		const gitPath =
+			cfg.contentLayout === 'folder'
+				? joinContentPath(cfg.contentPath, slug, assetName)
+				: joinContentPath(cfg.contentPath, 'assets', slug, assetName);
+		const relative =
+			cfg.contentLayout === 'folder' ? `./${assetName}` : `./assets/${slug}/${assetName}`;
 
 		await putGitHubFile(
 			cfg,
@@ -112,7 +119,7 @@ export async function publishToGitHubAstro(
 		const urlMap = await uploadPostAssets(cfg, creds.token, slug, assets);
 		const bodyMd = rewriteAssetUrls(post.content_md, urlMap);
 		const pubDate = post.updated_at ?? new Date().toISOString();
-		const fileContent = buildAstroMarkdown(post.title, bodyMd, pubDate);
+		const fileContent = buildAstroMarkdown(post.title, bodyMd, pubDate, cfg.contentLayout);
 
 		const { commitSha } = await putGitHubFile(
 			cfg,

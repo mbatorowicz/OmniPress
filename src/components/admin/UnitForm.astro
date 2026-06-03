@@ -135,9 +135,20 @@ const i = initial;
 				<span>{adminDestinations.fields.contentPath}</span>
 				<input
 					name="content_path"
-					value={i?.astro?.content_path ?? 'src/content/aktualnosci'}
+					value={i?.astro?.content_path ?? 'src/content/news'}
 					class="mt-1 w-full rounded-lg border px-3 py-2"
 				/>
+			</label>
+			<label class="block text-sm">
+				<span>{adminDestinations.fields.contentLayout}</span>
+				<select name="content_layout" class="mt-1 w-full rounded-lg border px-3 py-2">
+					<option value="flat" selected={!i || i.astro?.content_layout !== 'folder'}>
+						{adminDestinations.fields.contentLayoutFlat}
+					</option>
+					<option value="folder" selected={i?.astro?.content_layout === 'folder'}>
+						{adminDestinations.fields.contentLayoutFolder}
+					</option>
+				</select>
 			</label>
 			<p class="text-xs text-slate-500">{adminDestinations.fields.credentialsHint}</p>
 			<label class="block text-sm">

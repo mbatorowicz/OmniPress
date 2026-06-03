@@ -1,6 +1,8 @@
 import { normalizeSlug, isValidSlug } from '@/lib/admin/slug';
 import type { PostForPublish } from './types';
 
+import type { ContentLayout } from './content-layout';
+
 export function resolvePostSlug(post: PostForPublish): string {
 	if (post.slug && isValidSlug(post.slug)) return post.slug;
 	const fromTitle = normalizeSlug(post.title);
@@ -18,8 +20,15 @@ export function encodeGitHubPath(path: string): string {
 	return path.split('/').map(encodeURIComponent).join('/');
 }
 
-/** Próbuje slug.md; przy kolizji slug-2.md, slug-3.md… */
-export function slugFileCandidates(slug: string, max = 20): string[] {
+/** Próbuje slug.md lub slug/index.md (layout folder); przy kolizji slug-2… */
+export function slugFileCandidates(slug: string, layout: ContentLayout = 'flat', max = 20): string[] {
+	if (layout === 'folder') {
+		const candidates = [`${slug}/index.md`];
+		for (let i = 2; i <= max; i++) {
+			candidates.push(`${slug}-${i}/index.md`);
+		}
+		return candidates;
+	}
 	const candidates = [`${slug}.md`];
 	for (let i = 2; i <= max; i++) {
 		candidates.push(`${slug}-${i}.md`);

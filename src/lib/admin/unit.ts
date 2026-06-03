@@ -40,6 +40,7 @@ export type UnitFormInitial = {
 		repo: string;
 		branch: string;
 		content_path: string;
+		content_layout: 'flat' | 'folder';
 	};
 };
 
@@ -135,7 +136,8 @@ export async function loadUnitFormInitial(
 				destinationId: dest.id,
 				repo: cfg.repo ?? '',
 				branch: cfg.branch ?? 'main',
-				content_path: cfg.content_path ?? 'src/content',
+				content_path: cfg.content_path ?? 'src/content/news',
+				content_layout: cfg.content_layout === 'folder' ? 'folder' : 'flat',
 			};
 		}
 	}

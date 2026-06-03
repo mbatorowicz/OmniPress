@@ -39,6 +39,7 @@ export function buildConfig(type: DestinationType, form: FormData): Record<strin
 		repo: String(form.get('repo') ?? '').trim(),
 		branch: String(form.get('branch') ?? 'main').trim() || 'main',
 		content_path: String(form.get('content_path') ?? 'src/content').trim() || 'src/content',
+		content_layout: String(form.get('content_layout') ?? 'flat').trim() === 'folder' ? 'folder' : 'flat',
 	};
 }
 

@@ -69,6 +69,13 @@ const errorMessage =
 				<input name="content_path" value="src/content/news" class="mt-1 w-full rounded-lg border px-3 py-2" />
 			</label>
 			<label class="block text-sm">
+				<span>{adminDestinations.fields.contentLayout}</span>
+				<select name="content_layout" class="mt-1 w-full rounded-lg border px-3 py-2">
+					<option value="flat">{adminDestinations.fields.contentLayoutFlat}</option>
+					<option value="folder" selected>{adminDestinations.fields.contentLayoutFolder}</option>
+				</select>
+			</label>
+			<label class="block text-sm">
 				<span>{adminDestinations.fields.githubToken}</span>
 				<input name="github_token" type="password" autocomplete="new-password" class="mt-1 w-full rounded-lg border px-3 py-2" />
 			</label>

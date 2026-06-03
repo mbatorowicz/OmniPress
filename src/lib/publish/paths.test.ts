@@ -31,11 +31,18 @@ describe('joinContentPath', () => {
 });
 
 describe('slugFileCandidates', () => {
-	it('zwraca kolejne nazwy plików', () => {
-		expect(slugFileCandidates('aktualnosc').slice(0, 3)).toEqual([
+	it('zwraca kolejne nazwy plików (flat)', () => {
+		expect(slugFileCandidates('aktualnosc', 'flat').slice(0, 3)).toEqual([
 			'aktualnosc.md',
 			'aktualnosc-2.md',
 			'aktualnosc-3.md',
+		]);
+	});
+
+	it('zwraca ścieżki folder/index.md', () => {
+		expect(slugFileCandidates('informacja', 'folder').slice(0, 2)).toEqual([
+			'informacja/index.md',
+			'informacja-2/index.md',
 		]);
 	});
 });
