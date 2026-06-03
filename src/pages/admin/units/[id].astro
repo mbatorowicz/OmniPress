@@ -1,0 +1,61 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import UnitForm from '@/components/admin/UnitForm.astro';
+import { adminSites, adminUnit, common } from '@/i18n';
+import { countSitePosts, loadUnitFormInitial } from '@/lib/admin';
+
+const { id } = Astro.params;
+if (!id) return Astro.redirect('/admin/sites');
+
+const initial = await loadUnitFormInitial(Astro.locals.supabase, id);
+if (!initial) return Astro.redirect('/admin/sites');
+
+const postCount = await countSitePosts(Astro.locals.supabase, id);
+const saved = Astro.url.searchParams.get('saved') === '1';
+const errorCode = Astro.url.searchParams.get('error');
+const unitErrors = { ...adminUnit.errors, ...adminSites.errors };
+const errorMessage =
+	errorCode && errorCode in unitErrors
+		? unitErrors[errorCode as keyof typeof unitErrors]
+		: null;
+---
+
+<AppLayout title={initial.name} heading={adminUnit.editTitle}>
+	<a href="/admin/sites" class="mb-4 inline-block text-sm text-brand hover:underline">
+		← {adminSites.title}
+	</a>
+
+	{saved && <p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{common.saved}</p>}
+
+	<p class="mb-4 text-sm text-slate-600">{adminUnit.editLead}</p>
+
+	<UnitForm
+		action={`/api/admin/units/${id}/save`}
+		submitLabel={adminUnit.actions.save}
+		initial={initial}
+		errorMessage={errorMessage}
+	/>
+
+	<section class="mt-8 max-w-2xl rounded-xl border border-red-100 bg-red-50/30 p-6">
+		<h3 class="text-sm font-medium text-red-900">{adminSites.delete.heading}</h3>
+		<p class="mt-1 text-sm text-red-800">{adminSites.delete.lead}</p>
+		{postCount > 0 && (
+			<p class="mt-2 text-sm font-medium text-red-900">
+				{adminSites.errors.has_posts} ({postCount} wpisów)
+			</p>
+		)}
+		<form method="post" action={`/api/admin/sites/${id}/delete`} class="mt-4 space-y-3">
+			<label class="flex items-start gap-2 text-sm text-red-900">
+				<input type="checkbox" name="confirm" class="mt-1" disabled={postCount > 0} />
+				{adminSites.delete.confirm}
+			</label>
+			<button
+				type="submit"
+				disabled={postCount > 0}
+				class="rounded-lg border border-red-300 bg-white px-4 py-2 text-sm text-red-900 disabled:cursor-not-allowed disabled:opacity-50"
+			>
+				{adminSites.actions.delete}
+			</button>
+		</form>
+	</section>
+</AppLayout>

@@ -1,6 +1,6 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
-import { admin, adminSites } from '@/i18n';
+import { admin, adminSites, adminUnit } from '@/i18n';
 import { listSites } from '@/lib/admin';
 
 const sites = await listSites(Astro.locals.supabase);
@@ -35,7 +35,7 @@ const deleted = Astro.url.searchParams.get('deleted') === '1';
 			sites.map((s) => (
 				<li class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
 					<div>
-						<a href={`/admin/sites/${s.id}`} class="font-medium text-brand hover:underline">
+						<a href={`/admin/units/${s.id}`} class="font-medium text-brand hover:underline">
 							{s.name}
 						</a>
 						<span class="ml-2 text-slate-500">{s.slug}</span>
@@ -43,9 +43,7 @@ const deleted = Astro.url.searchParams.get('deleted') === '1';
 							<span class="ml-2 rounded bg-slate-100 px-2 py-0.5 text-xs">{adminSites.fields.inactive}</span>
 						)}
 					</div>
-					<a href={`/admin/sites/${s.id}/destinations`} class="text-brand hover:underline">
-						{adminSites.actions.destinations}
-					</a>
+					<span class="text-slate-500 text-xs">{adminUnit.actions.edit}</span>
 				</li>
 			))
 		}

@@ -3,6 +3,17 @@
 Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja produktu: **SSOT → `package.json`**. Build: **SSOT → git commit** (w etykiecie `semver+commit`).
 
+## [0.4.5] — 2026-06-03
+
+### Dodane
+
+- **Edycja jednostki** (`/admin/units/[id]`) — ten sam formularz co kreator (WP + Astro + domyślny kanał).
+- Komponent `UnitForm.astro` — jeden formularz dla create i edit (SSOT).
+
+### Zmienione
+
+- `/admin/sites/[id]` i mapowanie destynacji → przekierowanie na `/admin/units/[id]`.
+
 ## [0.4.4] — 2026-06-03
 
 ### Dodane

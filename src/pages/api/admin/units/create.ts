@@ -10,5 +10,5 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
 	if (!result.ok) {
 		return redirect(`/admin/units/new?error=${result.error}`);
 	}
-	return redirect(`/admin/sites/${result.siteId}?saved=1`);
+	return redirect(`/admin/units/${result.siteId}?saved=1`);
 };

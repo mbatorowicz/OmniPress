@@ -23,9 +23,9 @@ const deleted = Astro.url.searchParams.get('deleted') === '1';
 		{
 			destinations.map((d) => (
 				<li class="flex justify-between px-4 py-3 text-sm">
-					<a href={`/admin/destinations/${d.id}`} class="font-medium text-brand hover:underline">
-						{d.name}
-					</a>
+		<a href={`/admin/destinations/${d.id}`} class="font-medium text-brand hover:underline">
+							{d.name}
+						</a>
 					<span class="text-slate-500">{adminDestinations.types[d.type]}</span>
 				</li>
 			))

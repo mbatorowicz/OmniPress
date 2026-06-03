@@ -1,0 +1,193 @@
+---
+import { adminDestinations, adminSites, adminUnit } from '@/i18n';
+import type { UnitFormInitial } from '@/lib/admin/unit';
+
+interface Props {
+	action: string;
+	submitLabel: string;
+	initial?: UnitFormInitial;
+	errorMessage?: string | null;
+	showCredentialsNote?: boolean;
+}
+
+const { action, submitLabel, initial, errorMessage, showCredentialsNote = true } = Astro.props;
+const i = initial;
+---
+
+{showCredentialsNote && (
+	<p class="mb-4 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700">{adminUnit.credentialsNote}</p>
+)}
+{errorMessage && (
+	<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{errorMessage}</p>
+)}
+
+<form method="post" action={action} class="max-w-2xl space-y-6" data-unit-form>
+	{i && <input type="hidden" name="site_id" value={i.siteId} />}
+	{i?.wp && <input type="hidden" name="wp_destination_id" value={i.wp.destinationId} />}
+	{i?.astro && <input type="hidden" name="astro_destination_id" value={i.astro.destinationId} />}
+
+	<section class="space-y-4 rounded-xl border bg-white p-6">
+		<h2 class="text-sm font-semibold text-slate-800">{adminUnit.sections.unit}</h2>
+		<label class="block text-sm">
+			<span class="font-medium">{adminSites.fields.name}</span>
+			<input
+				name="name"
+				required
+				value={i?.name ?? ''}
+				placeholder="UG Miedzna"
+				class="mt-1 w-full rounded-lg border px-3 py-2"
+			/>
+		</label>
+		<label class="block text-sm">
+			<span class="font-medium">{adminSites.fields.slug}</span>
+			<input
+				name="slug"
+				value={i?.slug ?? ''}
+				placeholder="ug-miedzna"
+				class="mt-1 w-full rounded-lg border px-3 py-2 font-mono"
+			/>
+		</label>
+		<label class="flex items-center gap-2 text-sm">
+			<input type="checkbox" name="is_active" checked={i ? i.is_active : true} />
+			{adminSites.fields.active}
+		</label>
+	</section>
+
+	<section class="space-y-4 rounded-xl border bg-white p-6">
+		<label class="flex items-center gap-2 text-sm font-medium">
+			<input
+				type="checkbox"
+				name="enable_wordpress"
+				id="enable-wp"
+				checked={i ? i.enableWordpress : true}
+			/>
+			{adminUnit.fields.enableWordpress}
+		</label>
+		<div id="panel-wp" class="space-y-3 border-l-2 border-slate-100 pl-4">
+			<label class="block text-sm">
+				<span>{adminDestinations.fields.wpRestBase}</span>
+				<input
+					name="wp_rest_base"
+					id="input-wp-rest"
+					value={i?.wp?.wp_rest_base ?? ''}
+					placeholder="https://gmina-miedzna.pl/wp-json/wp/v2"
+					class="mt-1 w-full rounded-lg border px-3 py-2"
+				/>
+			</label>
+			<p class="text-xs text-slate-500">{adminDestinations.fields.credentialsHint}</p>
+			<label class="block text-sm">
+				<span>{adminDestinations.fields.wpUsername}</span>
+				<input name="wp_username" autocomplete="off" class="mt-1 w-full rounded-lg border px-3 py-2" />
+			</label>
+			<label class="block text-sm">
+				<span>{adminDestinations.fields.wpAppPassword}</span>
+				<input
+					name="wp_app_password"
+					type="password"
+					autocomplete="new-password"
+					class="mt-1 w-full rounded-lg border px-3 py-2"
+				/>
+			</label>
+		</div>
+	</section>
+
+	<section class="space-y-4 rounded-xl border bg-white p-6">
+		<label class="flex items-center gap-2 text-sm font-medium">
+			<input
+				type="checkbox"
+				name="enable_astro"
+				id="enable-astro"
+				checked={i ? i.enableAstro : true}
+			/>
+			{adminUnit.fields.enableAstro}
+		</label>
+		<div id="panel-astro" class="space-y-3 border-l-2 border-slate-100 pl-4">
+			<label class="block text-sm">
+				<span>{adminDestinations.fields.repo}</span>
+				<input
+					name="repo"
+					id="input-repo"
+					value={i?.astro?.repo ?? ''}
+					placeholder="owner/gmina-miedzna.pl"
+					class="mt-1 w-full rounded-lg border px-3 py-2"
+				/>
+			</label>
+			<label class="block text-sm">
+				<span>{adminDestinations.fields.branch}</span>
+				<input
+					name="branch"
+					value={i?.astro?.branch ?? 'main'}
+					class="mt-1 w-full rounded-lg border px-3 py-2"
+				/>
+			</label>
+			<label class="block text-sm">
+				<span>{adminDestinations.fields.contentPath}</span>
+				<input
+					name="content_path"
+					value={i?.astro?.content_path ?? 'src/content/aktualnosci'}
+					class="mt-1 w-full rounded-lg border px-3 py-2"
+				/>
+			</label>
+			<p class="text-xs text-slate-500">{adminDestinations.fields.credentialsHint}</p>
+			<label class="block text-sm">
+				<span>{adminDestinations.fields.githubToken}</span>
+				<input
+					name="github_token"
+					type="password"
+					autocomplete="new-password"
+					class="mt-1 w-full rounded-lg border px-3 py-2"
+				/>
+			</label>
+		</div>
+	</section>
+
+	<section class="rounded-xl border bg-white p-6">
+		<p class="text-sm font-semibold text-slate-800">{adminUnit.sections.defaultChannel}</p>
+		<div class="mt-3 flex flex-wrap gap-4 text-sm">
+			<label class="flex items-center gap-2">
+				<input
+					type="radio"
+					name="default_channel"
+					value="wordpress"
+					checked={!i || i.defaultChannel === 'wordpress'}
+				/>
+				{adminDestinations.types.wordpress}
+			</label>
+			<label class="flex items-center gap-2">
+				<input
+					type="radio"
+					name="default_channel"
+					value="github_astro"
+					checked={i?.defaultChannel === 'github_astro'}
+				/>
+				{adminDestinations.types.github_astro}
+			</label>
+		</div>
+	</section>
+
+	<button type="submit" class="rounded-lg bg-brand px-5 py-2.5 text-sm font-medium text-white">
+		{submitLabel}
+	</button>
+</form>
+
+<script>
+	function syncUnitFormPanels() {
+		const enableWp = document.getElementById('enable-wp') as HTMLInputElement | null;
+		const enableAstro = document.getElementById('enable-astro') as HTMLInputElement | null;
+		const panelWp = document.getElementById('panel-wp');
+		const panelAstro = document.getElementById('panel-astro');
+		const wpRest = document.getElementById('input-wp-rest') as HTMLInputElement | null;
+		const repo = document.getElementById('input-repo') as HTMLInputElement | null;
+		const wpOn = enableWp?.checked ?? false;
+		const astroOn = enableAstro?.checked ?? false;
+		panelWp?.classList.toggle('opacity-50', !wpOn);
+		panelAstro?.classList.toggle('opacity-50', !astroOn);
+		if (wpRest) wpRest.required = wpOn;
+		if (repo) repo.required = astroOn;
+	}
+	document.querySelectorAll('[data-unit-form]').forEach(() => {
+		syncUnitFormPanels();
+		document.getElementById('enable-wp')?.addEventListener('change', syncUnitFormPanels);
+		document.getElementById('enable-astro')?.addEventListener('change', syncUnitFormPanels);
+	});
+</script>

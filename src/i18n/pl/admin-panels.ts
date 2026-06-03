@@ -40,6 +40,8 @@ export const adminSites = {
 
 export const adminUnit = {
 	title: 'Nowa jednostka organizacyjna',
+	editTitle: 'Edytuj jednostkę',
+	editLead: 'Strona logiczna, kanały WordPress i Astro — ten sam formularz co przy tworzeniu.',
 	lead: 'Jednym krokiem: strona logiczna, destynacje WordPress i Astro oraz mapowanie.',
 	sections: {
 		unit: 'Jednostka',
@@ -51,7 +53,7 @@ export const adminUnit = {
 		enableWordpress: 'Dodaj kanał WordPress',
 		enableAstro: 'Dodaj kanał Astro',
 	},
-	actions: { create: 'Utwórz jednostkę' },
+	actions: { create: 'Utwórz jednostkę', save: 'Zapisz zmiany', edit: 'Edytuj' },
 	errors: {
 		name_required: 'Podaj nazwę jednostki.',
 		invalid_slug: 'Nieprawidłowy slug (min. 2 znaki, a-z, 0-9, myślnik).',
@@ -61,6 +63,7 @@ export const adminUnit = {
 		site_failed: 'Nie udało się utworzyć strony.',
 		destination_failed: 'Nie udało się utworzyć destynacji.',
 		mapping_failed: 'Nie udało się powiązać destynacji ze stroną.',
+		not_found: 'Jednostka nie istnieje.',
 	},
 	credentialsNote: 'Tokeny WP/GitHub opcjonalne — możesz dodać później w edycji destynacji.',
 } as const;

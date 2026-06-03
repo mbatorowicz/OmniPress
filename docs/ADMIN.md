@@ -10,6 +10,8 @@ Operacyjny przewodnik po panelu OmniPress. Wymagania produktowe: [PRD.md](../PRD
 
 **Szybko:** [Kreator jednostki](/admin/units/new) — strona + WordPress + Astro + mapowanie w jednym formularzu.
 
+**Edycja:** kliknij jednostkę na liście stron → `/admin/units/[id]` (ten sam formularz).
+
 **Ręcznie:**
 
 ```mermaid
