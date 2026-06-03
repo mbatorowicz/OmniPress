@@ -16,13 +16,7 @@ function categoriesPath(config: Record<string, unknown>): string {
 type RawCategory = { slug?: string; name?: string };
 
 function parseCategoriesJson(text: string): CategoryOption[] {
-	let parsed: unknown;
-	try {
-		parsed = JSON.parse(text);
-	} catch {
-		throw new Error('Plik kategorii Astro: nieprawidłowy JSON');
-	}
-
+	const parsed = JSON.parse(text) as unknown;
 	const rows: RawCategory[] = Array.isArray(parsed)
 		? parsed
 		: parsed && typeof parsed === 'object' && Array.isArray((parsed as { categories?: RawCategory[] }).categories)
@@ -58,5 +52,9 @@ export async function fetchAstroCategories(
 		);
 	}
 
-	return parseCategoriesJson(text);
+	try {
+		return parseCategoriesJson(text);
+	} catch {
+		throw new Error('Plik kategorii Astro: nieprawidłowy JSON');
+	}
 }

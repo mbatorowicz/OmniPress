@@ -1,0 +1,63 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import AstroLayoutForm from '@/components/admin/AstroLayoutForm.astro';
+import { adminLayout } from '@/i18n';
+import { getSiteDestinations } from '@/lib/admin/sites';
+import {
+	importSiteAstroLayoutFromGitHub,
+	loadSiteAstroLayout,
+} from '@/lib/astro-layout/store';
+
+const { id } = Astro.params;
+if (!id) return Astro.redirect('/admin/sites');
+
+const { data: site } = await Astro.locals.supabase
+	.from('sites')
+	.select('id, name, slug')
+	.eq('id', id)
+	.maybeSingle();
+
+if (!site) return Astro.redirect('/admin/sites');
+
+let layout = await loadSiteAstroLayout(Astro.locals.supabase, id);
+const emptyLayout =
+	layout.navigation.length === 0 &&
+	layout.categories.length === 0;
+
+const links = await getSiteDestinations(Astro.locals.supabase, id);
+const hasAstroChannel = links.some((l) => l.destinations?.type === 'github_astro');
+
+if (emptyLayout && hasAstroChannel) {
+	const imported = await importSiteAstroLayoutFromGitHub(Astro.locals.supabase, id);
+	if (imported.ok) layout = imported.layout;
+}
+
+const errorCode = Astro.url.searchParams.get('error');
+const layoutErrors = adminLayout.errors;
+const errorMessage =
+	errorCode && errorCode in layoutErrors
+		? layoutErrors[errorCode as keyof typeof layoutErrors]
+		: null;
+
+const saved = Astro.url.searchParams.get('saved') === '1';
+const synced = Astro.url.searchParams.get('synced') === '1';
+const imported = Astro.url.searchParams.get('imported') === '1';
+---
+
+<AppLayout title={adminLayout.title} heading={adminLayout.title}>
+	<a href={`/admin/units/${id}`} class="mb-4 inline-block text-sm text-brand hover:underline">
+		← {site.name}
+	</a>
+
+	<p class="mb-4 text-sm text-slate-600">{adminLayout.lead}</p>
+
+	<AstroLayoutForm
+		siteId={id}
+		layout={layout}
+		hasAstroChannel={hasAstroChannel}
+		errorMessage={errorMessage}
+		saved={saved}
+		synced={synced}
+		imported={imported}
+	/>
+</AppLayout>

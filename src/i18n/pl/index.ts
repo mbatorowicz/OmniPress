@@ -10,6 +10,7 @@ export {
 	adminReview,
 	adminSites,
 	adminUnit,
+	adminLayout,
 } from './admin-panels';
 export { api } from './api';
 export { home } from './home';

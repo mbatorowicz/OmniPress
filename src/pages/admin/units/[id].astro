@@ -36,6 +36,15 @@ const errorMessage =
 		errorMessage={errorMessage}
 	/>
 
+	<p class="mt-6 max-w-2xl">
+		<a
+			href={`/admin/sites/${id}/layout`}
+			class="inline-flex rounded-lg border border-brand/30 bg-brand/5 px-4 py-2 text-sm font-medium text-brand hover:bg-brand/10"
+		>
+			{adminUnit.layoutLink}
+		</a>
+	</p>
+
 	<section class="mt-8 max-w-2xl rounded-xl border border-red-100 bg-red-50/30 p-6">
 		<h3 class="text-sm font-medium text-red-900">{adminSites.delete.heading}</h3>
 		<p class="mt-1 text-sm text-red-800">{adminSites.delete.lead}</p>

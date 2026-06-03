@@ -74,6 +74,51 @@ export const adminUnit = {
 		contentLayout: 'Układ: folder (slug/index.md) dla gminy-miedzna.pl',
 		token: 'GitHub → Settings → Developer settings → Personal access tokens → token z uprawnieniem repo (zapis do repozytorium).',
 	},
+	layoutLink: 'Layout Astro (menu i komponenty)',
+} as const;
+
+export const adminLayout = {
+	title: 'Layout strony Astro',
+	lead: 'Menu nawigacji, lista kategorii wpisów oraz przypisanie kategorii do sekcji na stronie (sync do repozytorium GitHub).',
+	saved: 'Layout zapisany w OmniPress.',
+	savedSynced: 'Layout zapisany i wysłany do repozytorium GitHub.',
+	imported: 'Zaimportowano layout z repozytorium GitHub.',
+	noAstroChannel: 'Brak aktywnego kanału Astro — zapis tylko w OmniPress (bez sync do GitHub).',
+	menuHint: 'Tablica JSON — pola label, href, opcjonalnie isMegaMenu i zagnieżdżone children (do 3 poziomów).',
+	categoriesHint: 'Slug musi odpowiadać segmentowi URL wpisu (/{category}/{slug}).',
+	displaysHint: 'Zaznacz, które kategorie mają trafiać do danego komponentu na stronie Astro.',
+	displaysRefreshHint: 'Po dodaniu nowej kategorii zapisz formularz — macierz odświeży się przy następnym otwarciu.',
+	sections: {
+		menu: 'Menu główne',
+		categories: 'Kategorie wpisów',
+		displays: 'Kategorie w komponentach',
+	},
+	fields: {
+		navigationJson: 'Menu (JSON)',
+		categorySlug: 'Slug',
+		categoryName: 'Nazwa',
+		category: 'Kategoria',
+		removeRow: '',
+		syncGitHub: 'Wyślij zmiany do repozytorium GitHub (omnipress-navigation.json + omnipress-categories.json)',
+	},
+	paths: {
+		navigation: 'Plik menu w repo',
+		categories: 'Plik kategorii w repo',
+	},
+	actions: {
+		save: 'Zapisz layout',
+		importFromGitHub: 'Importuj z GitHub (nadpisuje dane w OmniPress)',
+		addCategory: '+ Dodaj kategorię',
+		removeCategory: 'Usuń',
+	},
+	errors: {
+		invalid_navigation: 'Menu: nieprawidłowy JSON lub struktura.',
+		no_categories: 'Dodaj co najmniej jedną kategorię (slug + nazwa).',
+		save_failed: 'Zapis layoutu nie powiódł się.',
+		no_astro_destination: 'Brak aktywnego kanału Astro — skonfiguruj go w edycji jednostki.',
+		invalid_repo: 'Nieprawidłowa konfiguracja repozytorium Astro.',
+		no_github_token: 'Brak tokenu GitHub — dodaj PAT w destynacji Astro.',
+	},
 } as const;
 
 export const adminDestinations = {
