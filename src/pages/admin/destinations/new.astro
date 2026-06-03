@@ -1,0 +1,87 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import { adminDestinations } from '@/i18n';
+import { canEncryptCredentials } from '@/lib/crypto';
+
+const error = Astro.url.searchParams.get('error');
+const hasEncryption = canEncryptCredentials();
+---
+
+<AppLayout title={adminDestinations.newDestination} heading={adminDestinations.newDestination}>
+	<a href="/admin/destinations" class="mb-4 inline-block text-sm text-brand hover:underline">
+		← {adminDestinations.title}
+	</a>
+
+	{!hasEncryption && (
+		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+			{adminDestinations.fields.noEncryption}
+		</p>
+	)}
+	{error === 'credentials_required' && (
+		<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">
+			{adminDestinations.errors.credentials_required}
+		</p>
+	)}
+
+	<form method="post" action="/api/admin/destinations/create" class="max-w-lg space-y-4 rounded-xl border bg-white p-6">
+		<label class="block text-sm">
+			<span class="font-medium">{adminDestinations.fields.name}</span>
+			<input name="name" required class="mt-1 w-full rounded-lg border px-3 py-2" />
+		</label>
+		<label class="block text-sm">
+			<span class="font-medium">{adminDestinations.fields.type}</span>
+			<select name="type" id="dest-type" class="mt-1 w-full rounded-lg border px-3 py-2">
+				<option value="wordpress">{adminDestinations.types.wordpress}</option>
+				<option value="github_astro">{adminDestinations.types.github_astro}</option>
+			</select>
+		</label>
+		<div id="fields-wp" class="space-y-3">
+			<label class="block text-sm">
+				<span>{adminDestinations.fields.wpRestBase}</span>
+				<input name="wp_rest_base" placeholder="https://example.pl/wp-json/wp/v2" class="mt-1 w-full rounded-lg border px-3 py-2" />
+			</label>
+			<label class="block text-sm">
+				<span>{adminDestinations.fields.wpUsername}</span>
+				<input name="wp_username" autocomplete="off" class="mt-1 w-full rounded-lg border px-3 py-2" />
+			</label>
+			<label class="block text-sm">
+				<span>{adminDestinations.fields.wpAppPassword}</span>
+				<input name="wp_app_password" type="password" autocomplete="new-password" class="mt-1 w-full rounded-lg border px-3 py-2" />
+			</label>
+		</div>
+		<div id="fields-gh" class="hidden space-y-3">
+			<label class="block text-sm">
+				<span>{adminDestinations.fields.repo}</span>
+				<input name="repo" placeholder="owner/repo" class="mt-1 w-full rounded-lg border px-3 py-2" />
+			</label>
+			<label class="block text-sm">
+				<span>{adminDestinations.fields.branch}</span>
+				<input name="branch" value="main" class="mt-1 w-full rounded-lg border px-3 py-2" />
+			</label>
+			<label class="block text-sm">
+				<span>{adminDestinations.fields.contentPath}</span>
+				<input name="content_path" value="src/content/news" class="mt-1 w-full rounded-lg border px-3 py-2" />
+			</label>
+			<label class="block text-sm">
+				<span>{adminDestinations.fields.githubToken}</span>
+				<input name="github_token" type="password" autocomplete="new-password" class="mt-1 w-full rounded-lg border px-3 py-2" />
+			</label>
+		</div>
+		<label class="flex items-center gap-2 text-sm">
+			<input type="checkbox" name="is_active" checked />
+			{adminDestinations.fields.active}
+		</label>
+		<button type="submit" class="rounded-lg bg-brand px-4 py-2 text-sm text-white">{adminDestinations.actions.create}</button>
+	</form>
+
+	<script>
+		const sel = document.getElementById('dest-type');
+		const wp = document.getElementById('fields-wp');
+		const gh = document.getElementById('fields-gh');
+		sel?.addEventListener('change', () => {
+			const isWp = sel.value === 'wordpress';
+			wp?.classList.toggle('hidden', !isWp);
+			gh?.classList.toggle('hidden', isWp);
+		});
+	</script>
+</AppLayout>

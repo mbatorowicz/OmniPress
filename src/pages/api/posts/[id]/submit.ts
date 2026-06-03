@@ -1,14 +1,16 @@
 import type { APIRoute } from 'astro';
+import { requireAuth } from '@/lib/auth';
 import { canSubmitPost, getPostById } from '@/lib/posts';
 
-export const POST: APIRoute = async ({ params, request, cookies, redirect, locals }) => {
+export const POST: APIRoute = async ({ params, redirect, locals }) => {
 	const postId = params.id;
 	if (!postId) return redirect('/dashboard');
 
-	const user = locals.user;
-	if (!user) return redirect('/login');
+	const auth = requireAuth(locals);
+	if (!auth) return redirect('/login');
+	const { user, supabase } = auth;
 
-	const post = await getPostById(locals.supabase, postId);
+	const post = await getPostById(supabase, postId);
 	if (!post || !canSubmitPost(post, user.id)) {
 		return redirect(`/dashboard/posts/${postId}?error=forbidden`);
 	}
@@ -17,7 +19,7 @@ export const POST: APIRoute = async ({ params, request, cookies, redirect, local
 		return redirect(`/dashboard/posts/${postId}?error=title_required`);
 	}
 
-	const { error } = await locals.supabase
+	const { error } = await supabase
 		.from('posts')
 		.update({ status: 'pending', rejection_note: null })
 		.eq('id', postId);

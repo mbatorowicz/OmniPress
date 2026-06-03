@@ -32,7 +32,10 @@ sequenceDiagram
 | `src/lib/supabase/server.ts` | Klient SSR |
 | `src/lib/auth/session.ts` | `getUser`, profil |
 | `src/lib/auth/routes.ts` | Ścieżki publiczne / chronione |
-| `src/lib/auth/messages.ts` | Komunikaty PL |
+| `src/i18n/pl/auth.ts` | Napisy auth (SSOT) |
+| `src/i18n/map-auth-error.ts` | Mapowanie błędów Supabase |
+| `src/lib/auth/require.ts` | `requireAuth(locals)` dla API |
+| `src/lib/auth/recovery-redirect.ts` | Rozróżnienie `?code=` recovery vs magic link |
 | `src/middleware.ts` | Sesja na każde żądanie, guard tras |
 | `src/pages/api/auth/*` | Mutacje auth (POST only) |
 
@@ -43,6 +46,7 @@ sequenceDiagram
 3. **Reset hasła** — formularz serwerowy → `set-password` → wylogowanie → logowanie nowym hasłem.
 4. **Link z `#access_token`** — skrypt wywołuje `/api/auth/establish-session`, potem formularz SSR.
 5. **Redirect URLs** w Supabase: `https://omni-press.vercel.app/**` (Site URL = ta sama domena).
+6. **`?code=`** — middleware kieruje na `/auth/reset-password` tylko przy recovery (`type=recovery`, `/login?mode=reset`); inaczej na `/auth/callback`. Link resetu powinien mieć `redirectTo` = `/auth/reset-password` (`authResetPasswordUrl()`).
 
 ## Endpointy API
 

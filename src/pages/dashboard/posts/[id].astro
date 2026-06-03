@@ -1,6 +1,7 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
 import StatusBadge from '@/components/posts/StatusBadge.astro';
+import { common, dashboard, postError } from '@/i18n';
 import { canEditPost, canSubmitPost, getPostById } from '@/lib/posts';
 import type { PostStatus } from '@/lib/types';
 
@@ -21,33 +22,34 @@ const editable = canEditPost(post, user.id, profile.role);
 const submittable = canSubmitPost(post, user.id);
 
 const saved = Astro.url.searchParams.get('saved') === '1';
-const submitted = Astro.url.searchParams.get('submitted') === '1';
 const errorCode = Astro.url.searchParams.get('error');
-
-const errors: Record<string, string> = {
-	forbidden: 'Nie możesz edytować tego wpisu.',
-	save_failed: 'Zapis nie powiódł się.',
-	submit_failed: 'Wysłanie do akceptacji nie powiodło się.',
-	title_required: 'Podaj tytuł przed wysłaniem do akceptacji.',
-};
-const errorMessage = errorCode ? errors[errorCode] ?? 'Wystąpił błąd.' : null;
+const errorMessage = errorCode ? postError(errorCode) : null;
 
 const { data: site } = await Astro.locals.supabase
 	.from('sites')
 	.select('name')
 	.eq('id', post.site_id)
 	.single();
+
+const ed = dashboard.editor;
 ---
 
-<AppLayout title={post.title || 'Edytor'} heading={editable ? 'Edytor artykułu' : 'Podgląd artykułu'}>
+<AppLayout
+	title={post.title || ed.titleFallback}
+	heading={editable ? ed.headingEdit : ed.headingView}
+>
 	<div class="mb-4 flex flex-wrap items-center gap-3 text-sm text-slate-600">
 		<StatusBadge status={post.status as PostStatus} />
-		{site?.name && <span>Strona: <strong>{site.name}</strong></span>}
+		{site?.name && (
+			<span>
+				{ed.siteLabel} <strong>{site.name}</strong>
+			</span>
+		)}
 	</div>
 
 	{saved && (
 		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800" role="status">
-			Zapisano szkic.
+			{ed.saved}
 		</p>
 	)}
 	{errorMessage && (
@@ -66,7 +68,7 @@ const { data: site } = await Astro.locals.supabase
 					class="space-y-4 rounded-xl border border-slate-200 bg-white p-6"
 				>
 					<label class="block text-sm">
-						<span class="font-medium text-slate-700">Tytuł</span>
+						<span class="font-medium text-slate-700">{ed.fields.title}</span>
 						<input
 							type="text"
 							name="title"
@@ -76,20 +78,20 @@ const { data: site } = await Astro.locals.supabase
 						/>
 					</label>
 					<label class="block text-sm">
-						<span class="font-medium text-slate-700">Slug (opcjonalnie)</span>
+						<span class="font-medium text-slate-700">{ed.fields.slug}</span>
 						<input
 							type="text"
 							name="slug"
 							value={post.slug ?? ''}
-							placeholder="np. komunikat-urzedu"
+							placeholder={ed.fields.slugPlaceholder}
 							class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm"
 						/>
 					</label>
 					<div>
 						<div class="mb-1 flex flex-wrap items-center justify-between gap-2">
-							<span class="text-sm font-medium text-slate-700">Treść (Markdown)</span>
+							<span class="text-sm font-medium text-slate-700">{ed.fields.content}</span>
 							<label class="cursor-pointer rounded-lg border border-slate-300 px-3 py-1 text-sm hover:bg-slate-50">
-								Dodaj zdjęcie
+								{ed.actions.addImage}
 								<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden" data-upload-input />
 							</label>
 						</div>
@@ -101,16 +103,14 @@ const { data: site } = await Astro.locals.supabase
 						>
 							{post.content_md}
 						</textarea>
-						<p class="mt-1 text-xs text-slate-500">
-							Nagłówki: ## H2, ### H3. Zdjęcie wstawia się jako ![opis](url).
-						</p>
+						<p class="mt-1 text-xs text-slate-500">{ed.fields.contentHint}</p>
 					</div>
 					<div class="flex flex-wrap gap-3">
 						<button
 							type="submit"
 							class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
 						>
-							Zapisz szkic
+							{ed.actions.save}
 						</button>
 					</div>
 				</form>
@@ -120,40 +120,49 @@ const { data: site } = await Astro.locals.supabase
 						<button
 							type="submit"
 							class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-900 hover:bg-amber-100"
-							onclick="return confirm('Wysłać do akceptacji? Po wysłaniu nie będziesz mógł edytować.');"
+							data-confirm={ed.actions.confirmSubmit}
 						>
-							Wyślij do akceptacji
+							{ed.actions.submit}
 						</button>
 					</form>
 				)}
 			</>
 		) : (
 			<article class="rounded-xl border border-slate-200 bg-white p-6">
-				<h2 class="text-xl font-semibold">{post.title || '(bez tytułu)'}</h2>
+				<h2 class="text-xl font-semibold">{post.title || common.untitled}</h2>
 				{post.status === 'pending' && (
-					<p class="mt-2 text-sm text-amber-800">
-						Wpis oczekuje na akceptację administratora — edycja zablokowana.
-					</p>
+					<p class="mt-2 text-sm text-amber-800">{ed.pendingLocked}</p>
 				)}
 				{post.rejection_note && (
 					<p class="mt-2 rounded-lg bg-red-50 p-3 text-sm text-red-800">
-						<strong>Uwagi:</strong> {post.rejection_note}
+						<strong>{ed.rejectionNote}</strong> {post.rejection_note}
 					</p>
 				)}
 				<pre class="mt-4 whitespace-pre-wrap rounded-lg bg-slate-50 p-4 text-sm text-slate-800">
-					{post.content_md || '(pusta treść)'}
+					{post.content_md || ed.emptyContent}
 				</pre>
 			</article>
 		)
 	}
 
 	<p class="mt-6">
-		<a href="/dashboard" class="text-sm text-brand hover:underline">← Wróć do listy</a>
+		<a href="/dashboard" class="text-sm text-brand hover:underline">{ed.backToList}</a>
 	</p>
 
 	{
 		editable && (
-			<script define:vars={{ postId: post.id }}>
+			<script
+				define:vars={{
+					postId: post.id,
+					confirmSubmit: ed.actions.confirmSubmit,
+					uploadFailed: ed.uploadFailed,
+					uploadNetworkError: ed.uploadNetworkError,
+				}}
+			>
+				document.querySelector('[data-confirm]')?.addEventListener('click', (e) => {
+					if (!confirm(confirmSubmit)) e.preventDefault();
+				});
+
 				const input = document.querySelector('[data-upload-input]');
 				const textarea = document.getElementById('content_md');
 
@@ -175,7 +184,7 @@ const { data: site } = await Astro.locals.supabase
 						});
 						const data = await res.json();
 						if (!res.ok) {
-							alert(data.error ?? 'Upload nie powiódł się');
+							alert(data.error ?? uploadFailed);
 							return;
 						}
 						const insert = data.markdown ?? `![](${data.url})`;
@@ -186,7 +195,7 @@ const { data: site } = await Astro.locals.supabase
 						textarea.value = `${before}\n\n${insert}\n\n${after}`;
 						textarea.focus();
 					} catch {
-						alert('Błąd połączenia przy uploadzie.');
+						alert(uploadNetworkError);
 					} finally {
 						input.value = '';
 						if (btn) btn.classList.remove('opacity-50', 'pointer-events-none');

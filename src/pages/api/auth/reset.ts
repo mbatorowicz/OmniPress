@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { mapAuthError } from '@/lib/auth/messages';
+import { mapAuthError } from '@/i18n';
 import { authResetPasswordUrl } from '@/config/app';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 

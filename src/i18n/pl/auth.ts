@@ -1,0 +1,57 @@
+export const auth = {
+	login: {
+		pageTitle: 'Logowanie',
+		headingReset: 'Odzyskaj dostęp do konta',
+		headingSignIn: 'Zaloguj się e-mailem i hasłem',
+		notConfigured: 'Brak połączenia z Supabase — skontaktuj się z administratorem.',
+		submitSignIn: 'Zaloguj',
+		submitReset: 'Wyślij link do ustawienia hasła',
+		backToLogin: '← Wróć do logowania',
+		forgotPassword: 'Zapomniałem hasła / pierwsze logowanie',
+		errors: {
+			missing: 'Podaj e-mail i hasło.',
+			missing_email: 'Podaj adres e-mail.',
+			session: 'Logowanie nie powiodło się — spróbuj ponownie.',
+			invalid_session: 'Nieprawidłowa sesja — wyślij nowy link resetu.',
+			missing_token: 'Brak tokenu w linku — spróbuj zalogować się ponownie.',
+		},
+		resetSent:
+			'Jeśli konto istnieje, wysłaliśmy link do ustawienia hasła. Sprawdź skrzynkę (także spam).',
+		passwordSaved: 'Hasło zapisane. Zaloguj się nowym hasłem.',
+	},
+	resetPassword: {
+		pageTitle: 'Nowe hasło',
+		heading: 'Ustaw hasło',
+		lead: 'Wpisz nowe hasło do konta (min. 8 znaków).',
+		newPassword: 'Nowe hasło',
+		confirmPassword: 'Powtórz hasło',
+		submit: 'Zapisz hasło',
+		requestNew: 'Wyślij nowy link resetu',
+		requestNewShort: 'Wyślij nowy link',
+		activating: 'Aktywacja linku…',
+		noSession: 'Brak aktywnej sesji.',
+		hashNoToken: 'Link nie zawiera tokenu — wyślij nowy reset.',
+		hashInvalid: 'Nieprawidłowy link.',
+		errors: {
+			minLength: 'Hasło musi mieć co najmniej 8 znaków.',
+			mismatch: 'Hasła muszą być takie same.',
+			sessionExpired: 'Sesja wygasła — wyślij nowy link.',
+		},
+	},
+	callback: {
+		failed: 'Logowanie nie powiodło się.',
+	},
+	establishSession: {
+		expired: 'Link wygasł — wyślij nowy.',
+	},
+	supabase: {
+		invalidCredentials: 'Nieprawidłowy e-mail lub hasło.',
+		emailNotConfirmed:
+			'Potwierdź adres e-mail przed logowaniem (Supabase → Auth → Users).',
+		redirectMisconfig:
+			'Błąd konfiguracji Supabase (Redirect URLs). Administrator musi ustawić Site URL na https://omni-press.vercel.app',
+		rateLimit: 'Zbyt wiele prób — odczekaj chwilę i spróbuj ponownie.',
+		userNotFound: 'Jeśli konto istnieje, wysłaliśmy link (sprawdź też spam).',
+		prefix: 'Błąd: ',
+	},
+} as const;

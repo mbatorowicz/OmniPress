@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { mapAuthError } from '@/lib/auth';
+import { auth, mapAuthError } from '@/i18n';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
@@ -9,13 +9,13 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
 	if (!password || password.length < 8) {
 		return redirect(
-			`/auth/reset-password?error=${encodeURIComponent('Hasło musi mieć co najmniej 8 znaków.')}`,
+			`/auth/reset-password?error=${encodeURIComponent(auth.resetPassword.errors.minLength)}`,
 		);
 	}
 
 	if (password !== password2) {
 		return redirect(
-			`/auth/reset-password?error=${encodeURIComponent('Hasła muszą być takie same.')}`,
+			`/auth/reset-password?error=${encodeURIComponent(auth.resetPassword.errors.mismatch)}`,
 		);
 	}
 
@@ -26,7 +26,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
 	if (!user) {
 		return redirect(
-			`/login?mode=reset&error=${encodeURIComponent('Sesja wygasła — wyślij nowy link.')}`,
+			`/login?mode=reset&error=${encodeURIComponent(auth.resetPassword.errors.sessionExpired)}`,
 		);
 	}
 
@@ -41,6 +41,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	await supabase.auth.signOut();
 
 	return redirect(
-		`/login?success=${encodeURIComponent('Hasło zapisane. Zaloguj się nowym hasłem.')}`,
+		`/login?success=${encodeURIComponent(auth.login.passwordSaved)}`,
 	);
 };

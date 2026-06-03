@@ -1,0 +1,44 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import { adminSites } from '@/i18n';
+import { getSiteById } from '@/lib/admin';
+
+const { id } = Astro.params;
+if (!id) return Astro.redirect('/admin/sites');
+
+const site = await getSiteById(Astro.locals.supabase, id);
+if (!site) return Astro.redirect('/admin/sites');
+
+const saved = Astro.url.searchParams.get('saved') === '1';
+const error = Astro.url.searchParams.get('error');
+---
+
+<AppLayout title={site.name} heading={adminSites.edit}>
+	<a href="/admin/sites" class="mb-4 inline-block text-sm text-brand hover:underline">← {adminSites.title}</a>
+
+	{saved && <p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">Zapisano.</p>}
+	{error === 'invalid_slug' && (
+		<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{adminSites.errors.invalid_slug}</p>
+	)}
+
+	<form method="post" action={`/api/admin/sites/${site.id}/save`} class="max-w-md space-y-4 rounded-xl border bg-white p-6">
+		<label class="block text-sm">
+			<span class="font-medium">{adminSites.fields.name}</span>
+			<input name="name" value={site.name} required class="mt-1 w-full rounded-lg border px-3 py-2" />
+		</label>
+		<label class="block text-sm">
+			<span class="font-medium">{adminSites.fields.slug}</span>
+			<input name="slug" value={site.slug} required class="mt-1 w-full rounded-lg border px-3 py-2 font-mono" />
+		</label>
+		<label class="flex items-center gap-2 text-sm">
+			<input type="checkbox" name="is_active" checked={site.is_active} />
+			{adminSites.fields.active}
+		</label>
+		<div class="flex flex-wrap gap-3">
+			<button type="submit" class="rounded-lg bg-brand px-4 py-2 text-sm text-white">{adminSites.actions.save}</button>
+			<a href={`/admin/sites/${site.id}/destinations`} class="rounded-lg border px-4 py-2 text-sm">
+				{adminSites.actions.destinations}
+			</a>
+		</div>
+	</form>
+</AppLayout>

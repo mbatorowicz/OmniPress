@@ -1,5 +1,6 @@
 import { defineMiddleware } from 'astro:middleware';
 import {
+	authCodeRedirectTarget,
 	getProfile,
 	getSessionUser,
 	isProtectedPath,
@@ -12,13 +13,9 @@ import { createSupabaseServerClient } from './lib/supabase/server';
 export const onRequest = defineMiddleware(async (context, next) => {
 	const { url, cookies, redirect, locals } = context;
 	const pathname = url.pathname;
-	const authCode = url.searchParams.get('code');
-
-	if (
-		authCode &&
-		(pathname === '/' || pathname === '/login' || pathname === '/auth/callback')
-	) {
-		return redirect(`/auth/reset-password?code=${encodeURIComponent(authCode)}`);
+	const codeRedirect = authCodeRedirectTarget(url);
+	if (codeRedirect) {
+		return redirect(codeRedirect);
 	}
 
 	if (!isSupabaseConfigured()) {
@@ -43,7 +40,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		return redirect('/login');
 	}
 
-	if (!user && pathname === '/' && !authCode) {
+	if (!user && pathname === '/' && !url.searchParams.get('code')) {
 		return redirect('/login');
 	}
 

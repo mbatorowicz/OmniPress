@@ -1,6 +1,16 @@
 # Product Requirements Document (PRD): OmniPress
 
-> Wcześniejsza nazwa robocza: PressPacker. Produkt docelowy: **OmniPress**.
+> Wcześniejsza nazwa robocza: PressPacker. Produkt docelowy: **OmniPress**.  
+> Audyt wymagań: [docs/PRD_AUDIT.md](docs/PRD_AUDIT.md)
+
+## 0. Zakres MVP vs później
+
+| W zakresie MVP (Fazy 1–4) | Poza MVP (roadmap) |
+|---------------------------|-------------------|
+| Markdown, upload zdjęć, workflow draft→pending→published/rejected | TipTap WYSIWYG (Faza 2.5) |
+| Multi-publish WP + GitHub-Astro z `publish_logs` | Wersjonowanie treści (`post_revisions`) |
+| RLS, szyfrowane credentials, panel admin | Powiadomienia e-mail (akceptacja/odrzucenie) |
+| SEO: noindex staging, canonical przy dual publish | SSO redaktorów |
 
 ## 1. Wstęp
 
@@ -22,7 +32,7 @@ Wyłączenie treści na WP następuje przez **dezaktywację lub usunięcie wpisu
 - **Wydajność operacyjna:** Eliminacja ręcznego pakowania i wysyłki plików ZIP.
 - **Multi-publishing:** Jeden artykuł → wiele destynacji technicznych (np. WP + Astro równolegle w fazie migracji).
 - **Wielu odbiorców organizacyjnych:** Osobne strony (gmina, szkoły, inne jednostki) z automatycznym zakresem publikacji per użytkownik.
-- **Bezpieczna migracja:** Równoległe WP (produkcja) i Astro (staging chroniony przed indeksacją) bez duplikacji SEO w Google.
+- **Bezpieczna migracja:** Równoległe WP (produkcja) i Astro (staging chroniony przed indeksacją) bez duplikacji SEO w Google (patrz §5.4.1).
 
 ## 3. Architektura i stack
 
@@ -32,8 +42,17 @@ Wyłączenie treści na WP następuje przez **dezaktywację lub usunięcie wpisu
 | Hosting OmniPress | Vercel |
 | Baza + Auth | Supabase (PostgreSQL, RLS, Auth) |
 | Pliki redakcyjne | Supabase Storage |
-| Format treści | Markdown (z edytora WYSIWYG, np. TipTap) |
+| Format treści | **Markdown** (MVP); opcjonalnie WYSIWYG → MD (TipTap, Faza 2.5) |
 | Destynacje | WordPress REST API; GitHub API → build Astro na Vercel |
+
+### 3.1. Orkiestracja publikacji (Faza 4)
+
+Publikacja **nie** może polegać wyłącznie na jednym żądaniu HTTP admina (limit czasu Vercel).
+
+- Każda destynacja = osobne zadanie w kolejce (np. Vercel Cron + endpoint worker, Supabase Edge Function, lub Inngest).
+- `publish_logs.status`: `pending` → `success` | `failed` | `withdrawn`.
+- Retry z backoff dla `failed`; idempotencja po `external_id`.
+- Admin widzi postęp per destynacja; błąd jednej nie kasuje sukcesu innej.
 
 ## 4. Role i uprawnienia
 
@@ -41,22 +60,23 @@ Wyłączenie treści na WP następuje przez **dezaktywację lub usunięcie wpisu
 
 - **Auth:** e-mail/hasło (ew. SSO w przyszłości).
 - **Zakres:** Przypisany do jednej lub więcej **stron** (`sites`) — patrz §6.
-- **Widzi:** Własne szkice w ramach dozwolonych stron; **nie** widzi `destinations`, tokenów, szkiców innych autorów (poza współdzieloną stroną — tylko własne posty).
-- **Akcje:** Tworzenie/edycja szkicu (`draft`), upload zdjęć, wysłanie do akceptacji (`pending`) — po `pending` brak edycji.
+- **Widzi:** Wyłącznie **własne** posty w ramach dozwolonych stron; **nie** widzi `destinations`, tokenów, szkiców innych autorów na tej samej stronie.
+- **Akcje:** Tworzenie/edycja szkicu (`draft`), upload zdjęć, wysłanie do akceptacji (`pending`) — po `pending` brak edycji do czasu `rejected`.
 
 ### 4.2. Administrator (publisher)
 
-- **Auth:** Passkeys / WebAuthn (FIDO2) — docelowo; w Fazie 1 dopuszczalne logowanie e-mail dla bootstrapu.
-- **Widzi:** Wszystkie szkice `pending` i opublikowane; zarządzanie `sites`, `destinations`, mapowaniem `site_destinations`.
-- **Akcje:** Odrzucenie, akceptacja, wybór destynacji do publikacji (checkboxy **ograniczone do strony szkicu**), publikacja, cofnięcie/dezaktywacja na WP.
+- **Auth:** E-mail/hasło (bootstrap). **Przed Fazą 4:** MFA Supabase dla kont `admin`. **Docelowo:** Passkeys / WebAuthn (FIDO2).
+- **Widzi:** Wszystkie posty `pending` i opublikowane; zarządzanie `sites`, `destinations`, `site_destinations`.
+- **Akcje:** Odrzucenie (**wymagane** `rejection_note`), akceptacja, wybór destynacji (checkboxy z `site_destinations` dla `post.site_id`), publikacja, cofnięcie/dezaktywacja per typ destynacji (§5.3).
 
 ## 5. Kluczowe funkcjonalności
 
 ### 5.1. Edytor treści (Workspace) — Faza 2
 
-- Edytor WYSIWYG (np. TipTap) → zapis jako Markdown.
-- Drag & drop zdjęć → Supabase Storage; walidacja MIME po stronie serwera.
-- Nowy post automatycznie otrzymuje `site_id` z profilu użytkownika (domyślna strona) lub z wyboru przy wielu stronach.
+- **MVP:** edytor Markdown (textarea) + podgląd składni w UI.
+- **Opcjonalnie (Faza 2.5):** TipTap WYSIWYG → zapis jako Markdown.
+- Drag & drop zdjęć → Supabase Storage; walidacja MIME i rozmiaru (max 10 MB) po stronie serwera.
+- Nowy post: `site_id` z `default_site_id` lub wyboru przy wielu stronach (`user_sites` / `loadAllowedSites`).
 
 ### 5.2. Strony i destynacje — Faza 3
 
@@ -66,28 +86,48 @@ Wyłączenie treści na WP następuje przez **dezaktywację lub usunięcie wpisu
 
 Administrator:
 
-- Dodaje dowolną liczbę destynacji (nazwa, typ, URL API/repo, branch, ścieżka contentu, zaszyfrowane credentials).
-- Przypina destynacje do stron w `site_destinations` (flaga `is_default`, kolejność).
-- Przypisuje użytkowników do stron (`user_sites` lub domyślne `site_id` w profilu).
+- CRUD destynacji (nazwa, typ, `config`, zaszyfrowane credentials).
+- Mapowanie `site_destinations` (`is_default`, `sort_order`).
+- Przypisanie użytkowników (`user_sites`, `default_site_id`).
 
-**Automatyczne rozpoznanie celu** — nie przez analizę tekstu, le przez:
+**Reguły:**
 
-1. `post.site_id` ustawione przy utworzeniu (z profilu redaktora).
-2. Przy publikacji lista checkboxów = tylko destynacje powiązane z `post.site_id`.
-3. RLS uniemożliwia utworzenie posta dla strony, do której użytkownik nie ma dostępu.
+1. `post.site_id` ustawiane przy utworzeniu — **bez zmiany** po przejściu w `pending` (wyjątek: admin w Fazie 3+ — jawna akcja audytowana).
+2. Checkboxy publikacji = tylko destynacje dla `post.site_id`.
+3. RLS + testy: redaktor nie tworzy posta dla niedozwolonej strony; brak SELECT cudzych postów.
 
 ### 5.3. Silnik multi-publishing (Dispatcher) — Faza 4
 
-- Admin zaznacza destynacje (domyślnie zaznaczone `is_default` dla danej strony).
-- Osobne zadania asynchroniczne per destynacja → `publish_logs`.
-- **WordPress:** media z Storage → WP REST → MD→HTML → publikacja; cofnięcie: draft/trash/delete przez API.
-- **GitHub-Astro:** frontmatter + `.md` + obrazy → commit na branch → build Vercel.
+- Admin wybiera destynacje (domyślnie `is_default` dla strony).
+- Zadania asynchroniczne per destynacja → `publish_logs` (§3.1).
+- **WordPress:** media → WP REST → MD→HTML (sanitized) → publikacja; cofnięcie: draft/trash przez API.
+- **GitHub-Astro:** frontmatter + `.md` + obrazy → commit (strategia ścieżki: `slug` + unikalność przy konflikcie) → build Vercel.
+- **Sanitization:** whitelist tagów HTML przy eksporcie do WP; brak raw script w treści.
+
+### 5.3.1. Maszyna stanów `posts` vs `publish_logs`
+
+| `posts.status` | Znaczenie |
+|----------------|-----------|
+| `draft` | Edycja przez autora |
+| `pending` | Oczekuje na admina |
+| `rejected` | Odrzucony, edycja po `rejection_note` |
+| `published` | Co najmniej jedna destynacja opublikowana pomyślnie; szczegóły w `publish_logs` |
+
+- UI admina pokazuje status **per destynacja** z `publish_logs`.
+- `posts.status = published` gdy admin zatwierdził publikację i **wszystkie wybrane** logi są `success` lub admin akceptuje stan częściowy (komunikat w UI).
+- Częściowy błąd: logi `failed` dozwolone przy `published` tylko z widocznym ostrzeżeniem i możliwością retry.
 
 ### 5.4. Migracja WP → Astro
 
-- Faza przejściowa: publikacja na **WP (produkcja)** + opcjonalnie **Astro (staging)**.
-- Faza docelowa: głównie Astro; WP — dezaktywacja/usunięcie wpisu per artykuł.
-- Staging Astro: Vercel Authentication (lub równoważne), brak indeksacji testowych treści.
+- Faza przejściowa: WP (produkcja) + opcjonalnie Astro (staging).
+- Faza docelowa: głównie Astro; WP — dezaktywacja per artykuł.
+
+### 5.4.1. SEO przy dual publish
+
+- **Staging Astro:** Vercel Authentication + `noindex` w meta / robots.
+- **Produkcja WP:** canonical na domenę WP do czasu przełączenia DNS.
+- Po przełączeniu na Astro: canonical na Astro; wpis WP dezaktywowany (nie duplikat indeksowany).
+- Procedura przełączenia DNS opisana w runbooku wdrożenia (docs).
 
 ## 6. Model danych (PostgreSQL)
 
@@ -95,18 +135,18 @@ Administrator:
 
 | Tabela | Główne kolumny | Opis |
 |--------|----------------|------|
-| `profiles` | `id` (FK auth.users), `role`, `display_name`, `default_site_id` | Profil po rejestracji |
-| `sites` | `id`, `name`, `slug`, `is_active` | Strona logiczna (gmina, szkoła…) |
-| `user_sites` | `user_id`, `site_id` | Many-to-many: dostęp redaktora do stron |
-| `destinations` | `id`, `name`, `type`, `config` (JSON), `encrypted_credentials`, `is_active` | WP / github_astro; bez jawnych tokenów w API |
-| `site_destinations` | `site_id`, `destination_id`, `is_default`, `sort_order` | Mapowanie strona → kanały |
-| `posts` | `id`, `site_id`, `author_id`, `title`, `slug`, `content_md`, `status`, `rejection_note` | `draft` \| `pending` \| `published` \| `rejected` |
-| `assets` | `id`, `post_id`, `storage_path`, `mime_type`, `filename` | Załączniki graficzne |
+| `profiles` | `id`, `role`, `display_name`, `default_site_id` | Profil po rejestracji |
+| `sites` | `id`, `name`, `slug`, `is_active` | Strona logiczna |
+| `user_sites` | `user_id`, `site_id` | Dostęp redaktora |
+| `destinations` | `id`, `name`, `type`, `config`, `encrypted_credentials`, `is_active` | WP / github_astro |
+| `site_destinations` | `site_id`, `destination_id`, `is_default`, `sort_order` | Mapowanie |
+| `posts` | `id`, `site_id`, `author_id`, `title`, `slug`, `content_md`, `status`, `rejection_note` | Workflow redakcyjny |
+| `assets` | `id`, `post_id`, `storage_path`, `mime_type`, `filename` | Załączniki |
 | `publish_logs` | `id`, `post_id`, `destination_id`, `status`, `external_id`, `response_summary`, `published_at` | Audyt per destynacja |
 
-Typy destynacji (`destinations.type`): `wordpress`, `github_astro`.
+**Constraints (do migracji Fazy 3+):** `UNIQUE (site_id, slug)` gdzie `slug IS NOT NULL`.
 
-Konfiguracja w `config` (JSON, nieencrypted): np. `repo`, `branch`, `content_path`, `wp_rest_base`.
+Typy: `destinations.type` ∈ `wordpress`, `github_astro`.
 
 ### 6.2. Przepływ przypisania
 
@@ -117,7 +157,7 @@ Nowy post → site_id (automatycznie)
      ↓
 Admin akceptuje → checkboxy z site_destinations WHERE site_id = post.site_id
      ↓
-Dispatcher → publish_logs per wybrana destynacja
+Kolejka → publish_logs per destynacja (§3.1)
 ```
 
 ### 6.3. Przykłady konfiguracji
@@ -125,37 +165,82 @@ Dispatcher → publish_logs per wybrana destynacja
 | Strona | Destynacje typowe |
 |--------|-------------------|
 | UG Miedzna | WP (produkcja, default), GitHub → gmina-miedzna.pl (staging) |
-| Szkoła X | WP szkoły lub osobne repo Astro — tylko destynacje szkoły |
+| Szkoła X | WP szkoły lub osobne repo Astro |
 
 ## 7. Bezpieczeństwo
 
-- **RLS:** Redaktor — `posts` własne + `site_id` ∈ dozwolone; brak SELECT na `destinations`, `encrypted_credentials`.
-- **Szyfrowanie:** Credentials szyfrowane AES (klucz `ENCRYPTION_KEY` tylko na serwerze Vercel); odszyfrowanie wyłącznie w Astro SSR przy publikacji.
-- **Storage:** Polityki bucketu — upload tylko dla własnych postów; ścieżki z `post_id`.
-- **Admin:** Operacje wrażliwe wyłącznie z roli `admin` w `profiles`.
+### 7.1. Model zagrożeń (skrót)
+
+| Zagrożenie | Mitigacja |
+|------------|-----------|
+| Redaktor eskaluje uprawnienia | RLS + brak SERVICE_ROLE w UI |
+| Wyciek credentials | AES / Vault; brak tokenów w logach i API |
+| SSRF z URL destynacji | Allowlist hostów w `config` |
+| XSS w treści | Sanitization MD→HTML |
+| Kompromitacja konta admin | MFA przed Fazą 4; passkeys docelowo |
+
+### 7.2. Wymagania
+
+- **RLS:** Redaktor — własne `posts` + dozwolone `site_id`; brak SELECT na `destinations` / `encrypted_credentials`.
+- **Szyfrowanie:** AES-GCM (`ENCRYPTION_KEY` na Vercel) lub Supabase Vault; odszyfrowanie tylko w workerze publikacji.
+- **Storage:** Upload tylko do własnych postów `draft`; decyzja MVP: public read bucket vs signed URL — dokumentować w [docs/AUTH.md](docs/AUTH.md) / wdrożeniu.
+- **Admin:** Operacje wrażliwe tylko `role = admin`; audit log akcji (akceptacja, publikacja, edycja destynacji) — tabela lub rozszerzone `publish_logs` / `audit_events` (Faza 3+).
+- **Walidacja:** MIME, rozmiar pliku, długość pól; rate limit auth (Supabase).
 
 ## 8. Kamienie milowe
 
 | Faza | Zakres | Status |
 |------|--------|--------|
-| **1** | Repo Astro SSR, Supabase schema + RLS, auth (login/session), szkielet layoutów | ✅ |
-| **2** | Workspace redaktora, edytor MD, upload Storage | ✅ (repozytorium) |
-| **3** | Panel admin: sites, destinations, akceptacja `pending` | Planowane |
-| **4** | Dispatcher WP + GitHub, publish_logs, cofnięcie WP | Planowane |
+| **1** | Astro SSR, schema + RLS, auth, layouty | ✅ |
+| **2** | Workspace redaktora, Markdown, Storage | ✅ |
+| **2.5** | TipTap (opcjonalnie) | Roadmap |
+| **3** | Admin: sites, destinations, akceptacja/odrzucenie | ✅ |
+| **4** | Dispatcher + kolejka + publish_logs + cofnięcie WP | Planowane |
 
 ## 9. Zmienne środowiskowe
 
 | Zmienna | Opis |
 |---------|------|
-| `PUBLIC_SUPABASE_URL` | URL projektu Supabase |
-| `PUBLIC_SUPABASE_ANON_KEY` | Klucz anon (klient) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Tylko serwer (opcjonalnie, operacje admin) |
+| `PUBLIC_SUPABASE_URL` | URL Supabase |
+| `PUBLIC_SUPABASE_ANON_KEY` | Klucz anon (JWT) |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Tylko** skrypty bootstrap/CI — **zakaz** w runtime panelu |
 | `ENCRYPTION_KEY` | 32 bajty base64 — szyfrowanie credentials |
 
-## 10. Kryteria akceptacji Fazy 1
+## 10. Kryteria akceptacji — Faza 1
 
-- [ ] Projekt Astro buduje się z adapterem Vercel (SSR).
-- [ ] Migracja SQL stosuje schemat z §6 w Supabase.
-- [ ] Logowanie e-mail/hasło; sesja w middleware.
-- [ ] Dashboard rozróżnia `editor` / `admin` (placeholder).
-- [ ] README opisuje uruchomienie lokalne i podłączenie Supabase.
+- [x] Astro buduje się z adapterem Vercel (SSR).
+- [x] Migracja SQL stosuje schemat §6.
+- [x] Logowanie e-mail/hasło; sesja w middleware.
+- [x] Dashboard rozróżnia `editor` / `admin`.
+- [x] README + docs wdrożenia.
+
+## 11. Kryteria akceptacji — Faza 2
+
+- [x] Redaktor tworzy szkic z poprawnym `site_id`.
+- [x] Zapis treści i upload obrazów (Storage).
+- [x] Wysłanie do akceptacji (`pending`); brak edycji w `pending`.
+- [x] Admin podgląda wpis `pending`.
+- [x] Teksty UI w `src/i18n/pl/`.
+
+## 12. Kryteria akceptacji — Faza 3
+
+- [x] Admin: CRUD `sites` (UI + RLS).
+- [x] Admin: CRUD `destinations` + szyfrowane credentials (gdy `ENCRYPTION_KEY`).
+- [x] Mapowanie `site_destinations` i `user_sites`.
+- [x] Akceptacja/odrzucenie `pending` z `rejection_note`.
+- [ ] Testy integracyjne RLS (automatyczne).
+
+## 13. Kryteria akceptacji — Faza 4
+
+- [ ] Dispatcher z kolejką (§3.1); retry i `publish_logs`.
+- [ ] Publikacja WP + GitHub-Astro dla UG Miedzna.
+- [ ] Cofnięcie/dezaktywacja WP z panelu.
+- [ ] Staging Astro: noindex + Vercel Auth.
+- [ ] Alerty / widoczność `publish_logs.failed` dla admina.
+
+## 14. NFR i observability
+
+- **Dostępność:** OmniPress na Vercel — SLA zgodnie z planem Vercel.
+- **Backup:** Supabase point-in-time (konfiguracja projektu).
+- **Logi:** `publish_logs.response_summary` bez sekretów; monitoring błędów `failed`.
+- **RODO:** Retencja kont użytkowników — procedura poza MVP (runbook).

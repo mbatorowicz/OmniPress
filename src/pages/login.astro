@@ -1,7 +1,8 @@
 ---
 import '../styles/global.css';
 import VersionBadge from '@/components/layout/VersionBadge.astro';
-import { isSupabaseConfigured } from '../lib/supabase/env';
+import { auth, common } from '@/i18n';
+import { isSupabaseConfigured } from '@/lib/supabase/env';
 
 const configured = isSupabaseConfigured();
 let errorMessage: string | null = null;
@@ -11,17 +12,12 @@ const mode = Astro.url.searchParams.get('mode');
 const errorParam = Astro.url.searchParams.get('error');
 const successParam = Astro.url.searchParams.get('success');
 const sent = Astro.url.searchParams.get('sent') === '1';
+const loginErrors = auth.login.errors;
+const loginErrorKeys = Object.keys(loginErrors) as (keyof typeof loginErrors)[];
 
-if (errorParam === 'missing') {
-	errorMessage = 'Podaj e-mail i hasło.';
-}
-if (errorParam === 'missing_email') {
-	errorMessage = 'Podaj adres e-mail.';
-}
-if (errorParam === 'session') {
-	errorMessage = 'Logowanie nie powiodło się — spróbuj ponownie.';
-}
-if (errorParam && !['missing', 'missing_email', 'session'].includes(errorParam)) {
+if (errorParam && loginErrorKeys.includes(errorParam as keyof typeof loginErrors)) {
+	errorMessage = loginErrors[errorParam as keyof typeof loginErrors];
+} else if (errorParam) {
 	try {
 		errorMessage = decodeURIComponent(errorParam);
 	} catch {
@@ -36,8 +32,7 @@ if (successParam) {
 	}
 }
 if (sent) {
-	infoMessage =
-		'Jeśli konto istnieje, wysłaliśmy link do ustawienia hasła. Sprawdź skrzynkę (także spam).';
+	infoMessage = auth.login.resetSent;
 }
 
 const showReset = mode === 'reset';
@@ -48,20 +43,18 @@ const showReset = mode === 'reset';
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>Logowanie · OmniPress</title>
+		<title>{auth.login.pageTitle} · {common.appName}</title>
 	</head>
 	<body class="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-100 p-6">
 		<div class="w-full max-w-sm rounded-xl bg-white p-8 shadow-sm">
-			<h1 class="text-xl font-semibold text-brand">OmniPress</h1>
+			<h1 class="text-xl font-semibold text-brand">{common.appName}</h1>
 			<p class="mt-1 text-sm text-slate-600">
-				{showReset ? 'Odzyskaj dostęp do konta' : 'Zaloguj się e-mailem i hasłem'}
+				{showReset ? auth.login.headingReset : auth.login.headingSignIn}
 			</p>
 
 			{
 				!configured ? (
-					<p class="mt-4 text-sm text-amber-800">
-						Brak połączenia z Supabase — skontaktuj się z administratorem.
-					</p>
+					<p class="mt-4 text-sm text-amber-800">{auth.login.notConfigured}</p>
 				) : (
 					<>
 						{errorMessage && (
@@ -79,7 +72,7 @@ const showReset = mode === 'reset';
 							showReset ? (
 								<form action="/api/auth/reset" method="post" class="mt-6 space-y-4">
 									<label class="block text-sm">
-										<span class="text-slate-700">E-mail</span>
+										<span class="text-slate-700">{common.email}</span>
 										<input
 											type="email"
 											name="email"
@@ -92,18 +85,18 @@ const showReset = mode === 'reset';
 										type="submit"
 										class="w-full rounded-lg bg-brand px-4 py-2 font-medium text-white hover:bg-brand-dark"
 									>
-										Wyślij link do ustawienia hasła
+										{auth.login.submitReset}
 									</button>
 									<p class="text-center text-sm">
 										<a href="/login" class="text-brand hover:underline">
-											← Wróć do logowania
+											{auth.login.backToLogin}
 										</a>
 									</p>
 								</form>
 							) : (
 								<form action="/api/auth/login" method="post" class="mt-6 space-y-4">
 									<label class="block text-sm">
-										<span class="text-slate-700">E-mail</span>
+										<span class="text-slate-700">{common.email}</span>
 										<input
 											type="email"
 											name="email"
@@ -113,7 +106,7 @@ const showReset = mode === 'reset';
 										/>
 									</label>
 									<label class="block text-sm">
-										<span class="text-slate-700">Hasło</span>
+										<span class="text-slate-700">{common.password}</span>
 										<input
 											type="password"
 											name="password"
@@ -126,11 +119,11 @@ const showReset = mode === 'reset';
 										type="submit"
 										class="w-full rounded-lg bg-brand px-4 py-2 font-medium text-white hover:bg-brand-dark"
 									>
-										Zaloguj
+										{auth.login.submitSignIn}
 									</button>
 									<p class="text-center text-sm">
 										<a href="/login?mode=reset" class="text-slate-600 hover:text-brand">
-											Zapomniałem hasła / pierwsze logowanie
+											{auth.login.forgotPassword}
 										</a>
 									</p>
 								</form>

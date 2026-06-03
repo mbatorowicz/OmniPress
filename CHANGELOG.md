@@ -3,6 +3,16 @@
 Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja produktu: **SSOT → `package.json`**. Build: **SSOT → git commit** (w etykiecie `semver+commit`).
 
+## [0.3.0] — 2026-06-03
+
+### Dodane (Faza 3)
+
+- Panel admin: CRUD stron (`/admin/sites`), destynacji (`/admin/destinations`) z szyfrowanymi credentials.
+- Mapowanie `site_destinations` i przypisanie redaktorów (`/admin/editors`).
+- Akceptacja wpisu: wybór destynacji, `publish_logs` (pending), status `published`.
+- Odrzucenie wpisu z wymaganym `rejection_note`.
+- `src/lib/admin/`, migracja `UNIQUE(site_id, slug)`, `npm run setup:phase3`.
+
 ## [0.2.0] — 2026-06-03
 
 ### Dodane (Faza 2)

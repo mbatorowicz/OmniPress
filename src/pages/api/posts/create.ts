@@ -1,26 +1,24 @@
 import type { APIRoute } from 'astro';
+import { requireAuth, getUserSites } from '@/lib/auth';
 import { loadAllowedSites, resolveSiteIdForNewPost } from '@/lib/posts';
-import { getUserSites } from '@/lib/auth';
 
 export const POST: APIRoute = async ({ request, redirect, locals }) => {
-	const profile = locals.profile;
-	const user = locals.user;
-	if (!profile || !user) {
-		return redirect('/login');
-	}
+	const auth = requireAuth(locals);
+	if (!auth) return redirect('/login');
+	const { user, profile, supabase } = auth;
 
 	const form = await request.formData();
 	const siteId = String(form.get('site_id') ?? '').trim() || null;
 
-	const userSites = await getUserSites(locals.supabase, user.id);
-	const allowed = await loadAllowedSites(locals.supabase, profile, userSites);
+	const userSites = await getUserSites(supabase, user.id);
+	const allowed = await loadAllowedSites(supabase, profile, userSites);
 	const resolvedSiteId = resolveSiteIdForNewPost(profile, allowed, siteId);
 
 	if (!resolvedSiteId) {
 		return redirect('/dashboard?error=no_site');
 	}
 
-	const { data, error } = await locals.supabase
+	const { data, error } = await supabase
 		.from('posts')
 		.insert({
 			author_id: user.id,

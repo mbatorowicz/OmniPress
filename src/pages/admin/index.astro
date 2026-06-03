@@ -1,14 +1,11 @@
 ---
 import AppLayout from '../../layouts/AppLayout.astro';
+import { admin, common } from '@/i18n';
+import { listDestinations, listSites } from '@/lib/admin';
 
 const supabase = Astro.locals.supabase;
-
-const { data: sites } = await supabase.from('sites').select('id, name, slug, is_active').order('name');
-
-const { data: destinations } = await supabase
-	.from('destinations')
-	.select('id, name, type, is_active')
-	.order('name');
+const sites = await listSites(supabase);
+const destinations = await listDestinations(supabase);
 
 const { data: pending } = await supabase
 	.from('posts')
@@ -17,69 +14,66 @@ const { data: pending } = await supabase
 	.order('created_at', { ascending: false });
 ---
 
-<AppLayout title="Administracja" heading="Administracja">
+<AppLayout title={admin.title} heading={admin.title}>
+	<nav class="mb-8 flex flex-wrap gap-3 text-sm">
+		<a href="/admin/sites" class="rounded-lg border border-slate-200 bg-white px-4 py-2 hover:border-brand">
+			{admin.sites.manage}
+		</a>
+		<a href="/admin/destinations" class="rounded-lg border border-slate-200 bg-white px-4 py-2 hover:border-brand">
+			{admin.destinations.manage}
+		</a>
+		<a href="/admin/editors" class="rounded-lg border border-slate-200 bg-white px-4 py-2 hover:border-brand">
+			{admin.editors.manage}
+		</a>
+	</nav>
+
 	<div class="grid gap-6 lg:grid-cols-2">
 		<section class="rounded-xl border border-slate-200 bg-white p-6">
-			<h2 class="text-lg font-medium">Strony ({sites?.length ?? 0})</h2>
-			<p class="mt-1 text-sm text-slate-500">
-				Jednostki organizacyjne — redaktorzy publikują w ramach przypisanej strony.
-			</p>
-			{
-				!sites?.length ? (
-					<p class="mt-4 text-sm text-slate-600">
-						Dodaj stronę w Supabase, np. <code>UG Miedzna</code> / slug{' '}
-						<code>ug-miedzna</code>.
-					</p>
-				) : (
-					<ul class="mt-4 space-y-2 text-sm">
-						{sites.map((s) => (
-							<li class="flex justify-between rounded-lg bg-slate-50 px-3 py-2">
-								<span>{s.name}</span>
-								<span class="text-slate-500">{s.slug}</span>
-							</li>
-						))}
-					</ul>
-				)
-			}
+			<h2 class="text-lg font-medium">{admin.sites.heading(sites.length)}</h2>
+			<p class="mt-1 text-sm text-slate-500">{admin.sites.lead}</p>
+			<ul class="mt-4 space-y-2 text-sm">
+				{
+					sites.slice(0, 5).map((s) => (
+						<li>
+							<a href={`/admin/sites/${s.id}`} class="text-brand hover:underline">
+								{s.name}
+							</a>
+						</li>
+					))
+				}
+			</ul>
 		</section>
 
 		<section class="rounded-xl border border-slate-200 bg-white p-6">
-			<h2 class="text-lg font-medium">Destynacje ({destinations?.length ?? 0})</h2>
-			<p class="mt-1 text-sm text-slate-500">WordPress, GitHub/Astro — konfiguracja w Fazie 3.</p>
-			{
-				!destinations?.length ? (
-					<p class="mt-4 text-sm text-slate-600">Brak destynacji. Dodaj WP gminy i repo Astro.</p>
-				) : (
-					<ul class="mt-4 space-y-2 text-sm">
-						{destinations.map((d) => (
-							<li class="flex justify-between rounded-lg bg-slate-50 px-3 py-2">
-								<span>{d.name}</span>
-								<span class="text-slate-500">{d.type}</span>
-							</li>
-						))}
-					</ul>
-				)
-			}
+			<h2 class="text-lg font-medium">{admin.destinations.heading(destinations.length)}</h2>
+			<p class="mt-1 text-sm text-slate-500">{admin.destinations.lead}</p>
+			<ul class="mt-4 space-y-2 text-sm">
+				{
+					destinations.slice(0, 5).map((d) => (
+						<li>
+							<a href={`/admin/destinations/${d.id}`} class="text-brand hover:underline">
+								{d.name}
+							</a>
+						</li>
+					))
+				}
+			</ul>
 		</section>
 	</div>
 
 	<section class="mt-6 rounded-xl border border-slate-200 bg-white p-6">
-		<h2 class="text-lg font-medium">Do akceptacji ({pending?.length ?? 0})</h2>
+		<h2 class="text-lg font-medium">{admin.pending.heading(pending?.length ?? 0)}</h2>
 		{
 			!pending?.length ? (
-				<p class="mt-2 text-sm text-slate-600">Brak wpisów oczekujących.</p>
+				<p class="mt-2 text-sm text-slate-600">{admin.pending.empty}</p>
 			) : (
 				<ul class="mt-4 divide-y divide-slate-100 text-sm">
 					{pending.map((p) => (
-						<li class="flex items-center justify-between py-3">
-							<span>
-								<a href={`/admin/posts/${p.id}`} class="font-medium text-brand hover:underline">
-									{p.title || '(bez tytułu)'}
-								</a>
-								<span class="ml-2 text-slate-500">
-									— {(p.sites as { name: string } | null)?.name}
-								</span>
-							</span>
+						<li class="py-3">
+							<a href={`/admin/posts/${p.id}`} class="font-medium text-brand hover:underline">
+								{p.title || common.untitled}
+							</a>
+							<span class="ml-2 text-slate-500">— {(p.sites as { name: string } | null)?.name}</span>
 						</li>
 					))}
 				</ul>

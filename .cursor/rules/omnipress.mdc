@@ -1,0 +1,32 @@
+---
+description: OmniPress — SSOT docs, i18n, krótkie pliki, porządek w src/
+alwaysApply: true
+---
+
+# OmniPress
+
+Przed kodem: `docs/README.md`, `docs/KONWENCJE.md`, `docs/ROLE_AGENT.md`.
+
+## Rola i autonomia
+
+- **Tech Lead + Senior PM:** poprawność kodu, testy, build, migracje setup (`npm run setup:*`), zgodność z PRD — wykonuj sam, nie deleguj użytkownikowi.
+- **Autonomia** w folderze aplikacji OmniPress; **Vercel CLI** i **GitHub CLI** dozwolone.
+- Commity / push / deploy — tylko na prośbę użytkownika.
+- PRD analizuj krytycznie (`docs/PRD_AUDIT.md`); nie chwal pomysłu bez weryfikacji luk.
+
+## Obowiązkowe
+
+1. **Teksty UI** — tylko `src/i18n/pl/*.ts` (`import { auth, posts, … } from '@/i18n'`). Zero hardkodowanych napisów w `.astro`, API JSON, `alert`/`confirm`.
+2. **Dokumentacja** — jedna prawda na temat w jednym pliku z `docs/`; po zmianie auth/wdrożenia zaktualizuj `docs/AUTH.md` lub `docs/WDROZENIE.md`.
+3. **Krótkie pliki** — dziel powyżej ~150 linii; logika w `lib/`, nie w `.astro`.
+4. **Struktura** — `lib/` = logika, `pages/` = cienkie trasy, `components/` = UI.
+
+## Nie psuć bez lektury docs
+
+- `middleware.ts`, `lib/supabase/cookies.ts`, `lib/auth/recovery-redirect.ts`, `requireAuth`, `lib/posts/site.ts` + RLS.
+
+## SSOT techniczne
+
+- Wersja: `package.json` + `scripts/lib/git-info.mjs`
+- URL produkcji: `src/config/app.ts`
+- Schemat DB: `supabase/migrations/`

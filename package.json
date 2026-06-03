@@ -1,7 +1,7 @@
 {
   "name": "omnipress",
   "type": "module",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -14,8 +14,11 @@
     "setup:password": "node scripts/set-admin-password.mjs",
     "setup:auth-urls": "node scripts/fix-auth-config.mjs",
     "setup:storage": "node scripts/apply-migration.mjs supabase/migrations/20250604000000_storage_post_assets.sql",
+    "setup:phase3": "node scripts/apply-migration.mjs supabase/migrations/20250605000000_phase3_post_slug_unique.sql",
     "env:pull": "vercel env pull .env.local --yes",
-    "version": "node -e \"import('./scripts/lib/git-info.mjs').then(m=>console.log(m.getVersionLabel()))\""
+    "version": "node -e \"import('./scripts/lib/git-info.mjs').then(m=>console.log(m.getVersionLabel()))\"",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@astrojs/vercel": "^10.0.8",
@@ -26,6 +29,7 @@
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
-    "pg": "^8.21.0"
+    "pg": "^8.21.0",
+    "vitest": "^3.2.4"
   }
 }

@@ -1,9 +1,12 @@
+import { common } from '@/i18n/pl/common';
+
 /**
  * Metadane aplikacji — wartości buildu wstrzykiwane w astro.config.mjs (nie edytuj ręcznie).
  * SSOT semver: package.json | SSOT commit: git / VERCEL_GIT_COMMIT_SHA
+ * SSOT nazwy produktu: src/i18n/pl/common.ts → appName
  */
 export const APP = {
-	name: 'OmniPress',
+	name: common.appName,
 	repositoryUrl: 'https://github.com/mbatorowicz/OmniPress',
 	/** Produkcja — SSOT adresu w linkach Auth (reset, callback) */
 	productionOrigin: 'https://omni-press.vercel.app',

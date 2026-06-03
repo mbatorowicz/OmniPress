@@ -1,0 +1,40 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import { admin, adminSites } from '@/i18n';
+import { listSites } from '@/lib/admin';
+
+const sites = await listSites(Astro.locals.supabase);
+---
+
+<AppLayout title={adminSites.title} heading={adminSites.title}>
+	<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+		<a href="/admin" class="text-sm text-brand hover:underline">{admin.preview.back}</a>
+		<a
+			href="/admin/sites/new"
+			class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
+		>
+			{adminSites.newSite}
+		</a>
+	</div>
+
+	<ul class="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white">
+		{
+			sites.map((s) => (
+				<li class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
+					<div>
+						<a href={`/admin/sites/${s.id}`} class="font-medium text-brand hover:underline">
+							{s.name}
+						</a>
+						<span class="ml-2 text-slate-500">{s.slug}</span>
+						{!s.is_active && (
+							<span class="ml-2 rounded bg-slate-100 px-2 py-0.5 text-xs">nieaktywna</span>
+						)}
+					</div>
+					<a href={`/admin/sites/${s.id}/destinations`} class="text-brand hover:underline">
+						{adminSites.actions.destinations}
+					</a>
+				</li>
+			))
+		}
+	</ul>
+</AppLayout>

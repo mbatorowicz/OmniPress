@@ -1,7 +1,8 @@
 ---
 import '../../styles/global.css';
-import { getSupabaseEnv } from '../../lib/supabase/env';
-import { getProfile, roleHomePath } from '../../lib/auth';
+import { auth, callbackPage, common } from '@/i18n';
+import { getProfile, roleHomePath } from '@/lib/auth';
+import { getSupabaseEnv } from '@/lib/supabase/env';
 
 const code = Astro.url.searchParams.get('code');
 const errorParam = Astro.url.searchParams.get('error_description');
@@ -31,7 +32,8 @@ if (code && Astro.locals.supabase) {
 }
 
 const hasCode = Boolean(code);
-const authError = errorParam ?? (Astro.url.searchParams.get('error') ? 'Logowanie nie powiodło się.' : null);
+const authError =
+	errorParam ?? (Astro.url.searchParams.get('error') ? auth.callback.failed : null);
 ---
 
 <!doctype html>
@@ -39,7 +41,7 @@ const authError = errorParam ?? (Astro.url.searchParams.get('error') ? 'Logowani
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>Logowanie… · OmniPress</title>
+		<title>{callbackPage.pageTitle} · {common.appName}</title>
 	</head>
 	<body
 		class="flex min-h-screen items-center justify-center bg-slate-100 p-6 font-sans"
@@ -53,13 +55,13 @@ const authError = errorParam ?? (Astro.url.searchParams.get('error') ? 'Logowani
 					<>
 						<p class="text-red-700">{authError}</p>
 						<a href="/login" class="mt-4 inline-block text-brand hover:underline">
-							Wróć do logowania
+							{callbackPage.backToLogin}
 						</a>
 					</>
 				) : (
 					<>
-						<p class="text-slate-700">Kończę logowanie…</p>
-						<p class="mt-2 text-sm text-slate-500">Za chwilę przekierujemy Cię do panelu.</p>
+						<p class="text-slate-700">{callbackPage.processing}</p>
+						<p class="mt-2 text-sm text-slate-500">{callbackPage.redirectHint}</p>
 					</>
 				)
 			}

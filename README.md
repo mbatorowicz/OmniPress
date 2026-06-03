@@ -3,6 +3,10 @@
 Headless CMS do przygotowania treści przez redaktorów i publikacji na wielu platformach (WordPress, Astro/GitHub) z jednego panelu.
 
 - Wymagania produktowe: [PRD.md](./PRD.md)
+- **Indeks dokumentacji (SSOT):** [docs/README.md](./docs/README.md)
+- Konwencje kodu i i18n: [docs/KONWENCJE.md](./docs/KONWENCJE.md)
+- Rola agenta / Tech Lead: [docs/ROLE_AGENT.md](./docs/ROLE_AGENT.md)
+- Audyt PRD: [docs/PRD_AUDIT.md](./docs/PRD_AUDIT.md)
 - Autoryzacja: [docs/AUTH.md](./docs/AUTH.md)
 - Schemat bazy: [supabase/migrations/20250603000000_initial_schema.sql](./supabase/migrations/20250603000000_initial_schema.sql)
 
@@ -39,14 +43,15 @@ Szczegóły: [docs/VERSIONING.md](./docs/VERSIONING.md) · `npm run version`
 
 ```
 src/
-  config/        — metadane aplikacji (odczyt buildu)
+  config/        — URL, build (bez tekstów UI)
+  i18n/pl/       — SSOT napisów (polski)
   components/    — UI (stopka, badge wersji)
   layouts/       — AppLayout
   lib/           — Supabase, auth, typy
-  pages/         — trasy Astro
+  pages/         — trasy Astro (cienkie)
 scripts/lib/     — git-info.mjs (SSOT commit przy buildzie)
 supabase/        — migracje SQL
-docs/            — wdrożenie, wersjonowanie
+docs/            — indeks SSOT, konwencje, wdrożenie
 ```
 
 ## Kamienie milowe
@@ -55,7 +60,7 @@ docs/            — wdrożenie, wersjonowanie
 |------|--------|
 | 1 — Auth, schema, szkielet | ✅ |
 | 2 — Edytor, szkice, Storage | ✅ |
-| 3 — CRUD stron/destynacji | planowane |
+| 3 — CRUD stron/destynacji, akceptacja | ✅ |
 | 4 — Dispatcher WP + GitHub | planowane |
 
 ## Model stron (skrót)

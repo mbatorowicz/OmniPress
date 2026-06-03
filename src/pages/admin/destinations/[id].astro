@@ -1,0 +1,82 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import { adminDestinations } from '@/i18n';
+import { getDestinationById } from '@/lib/admin';
+import { canEncryptCredentials } from '@/lib/crypto';
+
+const { id } = Astro.params;
+if (!id) return Astro.redirect('/admin/destinations');
+
+const dest = await getDestinationById(Astro.locals.supabase, id);
+if (!dest) return Astro.redirect('/admin/destinations');
+
+const cfg = dest.config as Record<string, string>;
+const saved = Astro.url.searchParams.get('saved') === '1';
+const isWp = dest.type === 'wordpress';
+---
+
+<AppLayout title={dest.name} heading={adminDestinations.edit}>
+	<a href="/admin/destinations" class="mb-4 inline-block text-sm text-brand hover:underline">
+		← {adminDestinations.title}
+	</a>
+	{saved && <p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">Zapisano.</p>}
+	{!canEncryptCredentials() && (
+		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+			{adminDestinations.fields.noEncryption}
+		</p>
+	)}
+
+	<form method="post" action={`/api/admin/destinations/${dest.id}/save`} class="max-w-lg space-y-4 rounded-xl border bg-white p-6">
+		<label class="block text-sm">
+			<span class="font-medium">{adminDestinations.fields.name}</span>
+			<input name="name" value={dest.name} required class="mt-1 w-full rounded-lg border px-3 py-2" />
+		</label>
+		<input type="hidden" name="type" value={dest.type} />
+		<p class="text-sm text-slate-600">{adminDestinations.types[dest.type]}</p>
+
+		{
+			isWp ? (
+				<>
+					<label class="block text-sm">
+						<span>{adminDestinations.fields.wpRestBase}</span>
+						<input name="wp_rest_base" value={cfg.wp_rest_base ?? ''} class="mt-1 w-full rounded-lg border px-3 py-2" />
+					</label>
+					<p class="text-xs text-slate-500">{adminDestinations.fields.credentialsHint}</p>
+					<label class="block text-sm">
+						<span>{adminDestinations.fields.wpUsername}</span>
+						<input name="wp_username" autocomplete="off" class="mt-1 w-full rounded-lg border px-3 py-2" />
+					</label>
+					<label class="block text-sm">
+						<span>{adminDestinations.fields.wpAppPassword}</span>
+						<input name="wp_app_password" type="password" class="mt-1 w-full rounded-lg border px-3 py-2" />
+					</label>
+				</>
+			) : (
+				<>
+					<label class="block text-sm">
+						<span>{adminDestinations.fields.repo}</span>
+						<input name="repo" value={cfg.repo ?? ''} class="mt-1 w-full rounded-lg border px-3 py-2" />
+					</label>
+					<label class="block text-sm">
+						<span>{adminDestinations.fields.branch}</span>
+						<input name="branch" value={cfg.branch ?? 'main'} class="mt-1 w-full rounded-lg border px-3 py-2" />
+					</label>
+					<label class="block text-sm">
+						<span>{adminDestinations.fields.contentPath}</span>
+						<input name="content_path" value={cfg.content_path ?? ''} class="mt-1 w-full rounded-lg border px-3 py-2" />
+					</label>
+					<p class="text-xs text-slate-500">{adminDestinations.fields.credentialsHint}</p>
+					<label class="block text-sm">
+						<span>{adminDestinations.fields.githubToken}</span>
+						<input name="github_token" type="password" class="mt-1 w-full rounded-lg border px-3 py-2" />
+					</label>
+				</>
+			)
+		}
+		<label class="flex items-center gap-2 text-sm">
+			<input type="checkbox" name="is_active" checked={dest.is_active} />
+			{adminDestinations.fields.active}
+		</label>
+		<button type="submit" class="rounded-lg bg-brand px-4 py-2 text-sm text-white">{adminDestinations.actions.save}</button>
+	</form>
+</AppLayout>

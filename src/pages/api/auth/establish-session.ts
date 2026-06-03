@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { auth } from '@/i18n';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 /**
@@ -10,7 +11,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	const refresh_token = String(form.get('refresh_token') ?? '').trim();
 
 	if (!access_token || !refresh_token) {
-		return redirect('/login?mode=reset&error=invalid_session');
+		return redirect(`/login?mode=reset&error=invalid_session`);
 	}
 
 	const supabase = createSupabaseServerClient(cookies, request);
@@ -18,7 +19,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
 	if (error) {
 		return redirect(
-			`/login?mode=reset&error=${encodeURIComponent('Link wygasł — wyślij nowy.')}`,
+			`/login?mode=reset&error=${encodeURIComponent(auth.establishSession.expired)}`,
 		);
 	}
 
