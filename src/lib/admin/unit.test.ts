@@ -7,7 +7,7 @@ describe('unit form validation', () => {
 		expect(isValidSlug(normalizeSlug('UG Miedzna'))).toBe(true);
 	});
 
-	it('wymaga wp_rest_base dla WordPress', () => {
-		expect(validateDestinationConfig('wordpress', {})).toBe('config_wp_rest_base');
+	it('wymaga repozytorium GitHub', () => {
+		expect(validateDestinationConfig('github_astro', {})).toBe('config_repo');
 	});
 });

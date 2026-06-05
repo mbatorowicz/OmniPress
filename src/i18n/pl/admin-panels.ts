@@ -35,37 +35,30 @@ export const adminSites = {
 		delete_confirm: 'Zaznacz potwierdzenie przed usunięciem.',
 	},
 	deleted: 'Jednostka usunięta.',
-	wizardLink: 'Kreator: jednostka + WP + Astro',
+	wizardLink: 'Kreator: jednostka + Astro',
 } as const;
 
 export const adminUnit = {
 	title: 'Nowa jednostka organizacyjna',
 	editTitle: 'Edytuj jednostkę',
-	editLead: 'Strona logiczna, kanały WordPress i Astro — ten sam formularz co przy tworzeniu.',
-	lead: 'Jednym krokiem: strona logiczna, destynacje WordPress i Astro oraz mapowanie.',
+	editLead: 'Strona logiczna i kanał publikacji Astro — ten sam formularz co przy tworzeniu.',
+	lead: 'Jednym krokiem: strona logiczna i destynacja GitHub → Astro.',
 	sections: {
 		unit: 'Jednostka',
-		wordpress: 'WordPress',
 		astro: 'GitHub → Astro',
-		defaultChannel: 'Domyślny kanał przy akceptacji',
-	},
-	fields: {
-		enableWordpress: 'Dodaj kanał WordPress',
-		enableAstro: 'Dodaj kanał Astro',
 	},
 	actions: { create: 'Utwórz jednostkę', save: 'Zapisz zmiany', edit: 'Edytuj' },
 	errors: {
 		name_required: 'Podaj nazwę jednostki.',
 		invalid_slug: 'Nieprawidłowy slug (min. 2 znaki, a-z, 0-9, myślnik).',
-		no_channel: 'Włącz co najmniej jeden kanał publikacji.',
-		config_wp_rest_base: 'Podaj adres strony WordPress (np. https://gmina-miedzna.pl).',
+		no_channel: 'Skonfiguruj kanał Astro (repozytorium GitHub).',
 		config_repo: 'Podaj repozytorium w formacie owner/repo.',
 		site_failed: 'Nie udało się utworzyć strony.',
 		destination_failed: 'Nie udało się utworzyć destynacji.',
 		mapping_failed: 'Nie udało się powiązać destynacji ze stroną.',
 		not_found: 'Jednostka nie istnieje.',
 	},
-	credentialsNote: 'Tokeny WP/GitHub opcjonalne — możesz dodać później w edycji destynacji.',
+	credentialsNote: 'Token GitHub opcjonalny — możesz dodać później w edycji destynacji.',
 	astroHelp: {
 		title: 'Skąd wziąć dane kanału Astro?',
 		repo: 'GitHub → repozytorium strony w formacie owner/nazwa (np. mbatorowicz/gmina-miedzna.pl).',
@@ -201,10 +194,6 @@ export const adminDestinations = {
 		name: 'Nazwa',
 		type: 'Typ',
 		active: 'Aktywna',
-		wpRestBase: 'Adres strony WordPress',
-		wpRestBaseHint: 'Np. https://gmina-miedzna.pl — ścieżkę REST API (/wp-json) ustalamy automatycznie.',
-		wpUsername: 'Login WP',
-		wpAppPassword: 'Hasło aplikacji WP',
 		repo: 'Repozytorium (owner/repo)',
 		repoHint: 'Bez .git na końcu — np. mbatorowicz/gmina-miedzna.pl',
 		branch: 'Branch',
@@ -218,8 +207,12 @@ export const adminDestinations = {
 		noEncryption: 'Brak ENCRYPTION_KEY — credentials nie zostaną zapisane (publikacja zablokowana).',
 	},
 	types: {
-		wordpress: 'WordPress',
+		wordpress: 'WordPress (nieobsługiwane)',
 		github_astro: 'GitHub → Astro',
+	},
+	legacyWordpress: {
+		heading: 'Stara destynacja WordPress',
+		lead: 'OmniPress publikuje wyłącznie na Astro (GitHub). Usuń tę destynację lub utwórz nową typu GitHub → Astro.',
 	},
 	actions: { save: 'Zapisz', create: 'Utwórz', delete: 'Usuń destynację', testChannel: 'Testuj połączenie' },
 	delete: {
@@ -229,7 +222,6 @@ export const adminDestinations = {
 	},
 	errors: {
 		save_failed: 'Zapis destynacji nie powiódł się.',
-		config_wp_rest_base: 'Podaj adres strony WordPress (np. https://gmina-miedzna.pl).',
 		config_repo: 'Podaj repozytorium w formacie owner/repo.',
 		has_logs: 'Nie można usunąć — są logi publikacji. Ustaw „nieaktywna” zamiast usuwania.',
 		delete_failed: 'Usunięcie nie powiodło się.',
@@ -277,7 +269,7 @@ export const adminReview = {
 	reopenConfirm: 'Wrócić wpis do poprawki? Na stronie zostanie stara wersja do momentu ponownej publikacji.',
 	reopened: 'Wpis wrócił do szkicu — redaktor może go teraz edytować.',
 	deactivate: 'Dezaktywuj ze strony',
-	deactivateHint: 'Usuwa wpis ze strony publicznej (GitHub / WordPress). W OmniPress wraca do szkicu.',
+	deactivateHint: 'Usuwa wpis ze strony publicznej (GitHub). W OmniPress wraca do szkicu.',
 	deactivateConfirm:
 		'Zdjąć wpis ze strony? W CMS zostanie szkicem — można go edytować lub ponownie opublikować.',
 	deactivated: 'Wpis zdezaktywowany.',

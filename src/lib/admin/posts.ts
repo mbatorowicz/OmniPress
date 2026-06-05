@@ -69,6 +69,14 @@ export async function approvePost(
 		return { ok: false, error: 'invalid_destinations' };
 	}
 
+	const { data: destTypes } = await supabase
+		.from('destinations')
+		.select('id, type')
+		.in('id', destinationIds);
+	if (destTypes?.some((d) => d.type !== 'github_astro')) {
+		return { ok: false, error: 'invalid_destinations' };
+	}
+
 	for (const destinationId of destinationIds) {
 		const queued = await queuePublishForDestination(supabase, post.id, destinationId);
 		if (!queued) return { ok: false, error: 'logs_failed' };

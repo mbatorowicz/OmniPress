@@ -31,8 +31,8 @@ export const dashboard = {
 		backToList: '← Wróć do listy',
 		fields: {
 			category: 'Kategoria',
-			categoryHint: 'Lista pobierana z WordPress i repozytorium Astro tej strony.',
-			categoryEmpty: 'Brak kategorii — administrator musi naprawić kanały (WP REST / plik kategorii w repo).',
+			categoryHint: 'Lista pobierana z pliku kategorii w repozytorium Astro tej strony.',
+			categoryEmpty: 'Brak kategorii — administrator musi naprawić kanał Astro (plik kategorii w repo).',
 			title: 'Tytuł',
 			slug: 'Slug (opcjonalnie)',
 			slugPlaceholder: 'np. komunikat-urzedu',

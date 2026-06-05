@@ -3,7 +3,6 @@ import AppLayout from '@/layouts/AppLayout.astro';
 import ChannelTestButton from '@/components/admin/ChannelTestButton.astro';
 import { adminDestinations, common } from '@/i18n';
 import { getDestinationById } from '@/lib/admin';
-import { wordpressSiteDisplayUrl } from '@/lib/admin/wordpress-url';
 import { normalizeGitHubRepo } from '@/lib/admin/github-repo';
 import { canEncryptCredentials } from '@/lib/crypto';
 
@@ -13,9 +12,8 @@ if (!id) return Astro.redirect('/admin/destinations');
 const dest = await getDestinationById(Astro.locals.supabase, id);
 if (!dest) return Astro.redirect('/admin/destinations');
 
-const isWp = dest.type === 'wordpress';
+const isLegacyWp = dest.type === 'wordpress';
 const cfg = dest.config as Record<string, unknown>;
-const wpSiteUrl = isWp ? wordpressSiteDisplayUrl(cfg) : '';
 const saved = Astro.url.searchParams.get('saved') === '1';
 const errorCode = Astro.url.searchParams.get('error');
 const destErrors = adminDestinations.errors;
@@ -31,42 +29,33 @@ const errorMessage =
 	{errorMessage && (
 		<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{errorMessage}</p>
 	)}
-	{!canEncryptCredentials() && (
-		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
-			{adminDestinations.fields.noEncryption}
-		</p>
-	)}
 
-	<form method="post" action={`/api/admin/destinations/${dest.id}/save`} class="max-w-lg space-y-4 rounded-xl border bg-white p-6">
-		<label class="block text-sm">
-			<span class="font-medium">{adminDestinations.fields.name}</span>
-			<input name="name" value={dest.name} required class="mt-1 w-full rounded-lg border px-3 py-2" />
-		</label>
-		<input type="hidden" name="type" value={dest.type} />
-		<input type="hidden" name="destination_id" value={dest.id} />
-		<p class="text-sm text-slate-600">{adminDestinations.types[dest.type]}</p>
+	{
+		isLegacyWp ? (
+			<section class="max-w-lg rounded-xl border border-amber-200 bg-amber-50/50 p-6">
+				<h3 class="text-sm font-medium text-amber-950">{adminDestinations.legacyWordpress.heading}</h3>
+				<p class="mt-2 text-sm text-amber-900">{adminDestinations.legacyWordpress.lead}</p>
+				<p class="mt-3 text-sm text-slate-700">
+					<strong>{dest.name}</strong> — {adminDestinations.types.wordpress}
+				</p>
+			</section>
+		) : (
+			<>
+				{!canEncryptCredentials() && (
+					<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+						{adminDestinations.fields.noEncryption}
+					</p>
+				)}
 
-		{
-			isWp ? (
-				<>
+				<form method="post" action={`/api/admin/destinations/${dest.id}/save`} class="max-w-lg space-y-4 rounded-xl border bg-white p-6">
 					<label class="block text-sm">
-						<span>{adminDestinations.fields.wpRestBase}</span>
-						<input name="wp_rest_base" value={wpSiteUrl} required placeholder="https://gmina-miedzna.pl" class="mt-1 w-full rounded-lg border px-3 py-2" />
+						<span class="font-medium">{adminDestinations.fields.name}</span>
+						<input name="name" value={dest.name} required class="mt-1 w-full rounded-lg border px-3 py-2" />
 					</label>
-					<p class="text-xs text-slate-500">{adminDestinations.fields.wpRestBaseHint}</p>
-					<p class="text-xs text-slate-500">{adminDestinations.fields.credentialsHint}</p>
-					<label class="block text-sm">
-						<span>{adminDestinations.fields.wpUsername}</span>
-						<input name="wp_username" autocomplete="off" class="mt-1 w-full rounded-lg border px-3 py-2" />
-					</label>
-					<label class="block text-sm">
-						<span>{adminDestinations.fields.wpAppPassword}</span>
-						<input name="wp_app_password" type="password" class="mt-1 w-full rounded-lg border px-3 py-2" />
-					</label>
-					<ChannelTestButton kind="wordpress" destinationId={dest.id} />
-				</>
-			) : (
-				<>
+					<input type="hidden" name="type" value={dest.type} />
+					<input type="hidden" name="destination_id" value={dest.id} />
+					<p class="text-sm text-slate-600">{adminDestinations.types.github_astro}</p>
+
 					<label class="block text-sm">
 						<span>{adminDestinations.fields.repo}</span>
 						<input name="repo" value={normalizeGitHubRepo(String(cfg.repo ?? ''))} required placeholder="mbatorowicz/gmina-miedzna.pl" class="mt-1 w-full rounded-lg border px-3 py-2" />
@@ -96,16 +85,16 @@ const errorMessage =
 						<span>{adminDestinations.fields.githubToken}</span>
 						<input name="github_token" type="password" class="mt-1 w-full rounded-lg border px-3 py-2" />
 					</label>
-					<ChannelTestButton kind="github_astro" destinationId={dest.id} />
-				</>
-			)
-		}
-		<label class="flex items-center gap-2 text-sm">
-			<input type="checkbox" name="is_active" checked={dest.is_active} />
-			{adminDestinations.fields.active}
-		</label>
-		<button type="submit" class="rounded-lg bg-brand px-4 py-2 text-sm text-white">{adminDestinations.actions.save}</button>
-	</form>
+					<ChannelTestButton destinationId={dest.id} />
+					<label class="flex items-center gap-2 text-sm">
+						<input type="checkbox" name="is_active" checked={dest.is_active} />
+						{adminDestinations.fields.active}
+					</label>
+					<button type="submit" class="rounded-lg bg-brand px-4 py-2 text-sm text-white">{adminDestinations.actions.save}</button>
+				</form>
+			</>
+		)
+	}
 
 	<section class="mt-8 max-w-lg rounded-xl border border-red-100 bg-red-50/30 p-6">
 		<h3 class="text-sm font-medium text-red-900">{adminDestinations.delete.heading}</h3>

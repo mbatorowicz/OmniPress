@@ -24,8 +24,8 @@ const i = initial;
 
 <form method="post" action={action} class="max-w-2xl space-y-6" data-unit-form>
 	{i && <input type="hidden" name="site_id" value={i.siteId} />}
-	{i?.wp && <input type="hidden" name="wp_destination_id" value={i.wp.destinationId} />}
 	{i?.astro && <input type="hidden" name="astro_destination_id" value={i.astro.destinationId} />}
+	<input type="hidden" name="enable_astro" value="on" />
 
 	<section class="space-y-4 rounded-xl border bg-white p-6">
 		<h2 class="text-sm font-semibold text-slate-800">{adminUnit.sections.unit}</h2>
@@ -55,55 +55,8 @@ const i = initial;
 	</section>
 
 	<section class="space-y-4 rounded-xl border bg-white p-6">
-		<label class="flex items-center gap-2 text-sm font-medium">
-			<input
-				type="checkbox"
-				name="enable_wordpress"
-				id="enable-wp"
-				checked={i ? i.enableWordpress : true}
-			/>
-			{adminUnit.fields.enableWordpress}
-		</label>
-		<div id="panel-wp" class="space-y-3 border-l-2 border-slate-100 pl-4">
-			<label class="block text-sm">
-				<span>{adminDestinations.fields.wpRestBase}</span>
-				<input
-					name="wp_rest_base"
-					id="input-wp-rest"
-					value={i?.wp?.wp_site_url ?? ''}
-					placeholder="https://gmina-miedzna.pl"
-					class="mt-1 w-full rounded-lg border px-3 py-2"
-				/>
-			</label>
-			<p class="text-xs text-slate-500">{adminDestinations.fields.wpRestBaseHint}</p>
-			<label class="block text-sm">
-				<span>{adminDestinations.fields.wpUsername}</span>
-				<input name="wp_username" autocomplete="off" class="mt-1 w-full rounded-lg border px-3 py-2" />
-			</label>
-			<label class="block text-sm">
-				<span>{adminDestinations.fields.wpAppPassword}</span>
-				<input
-					name="wp_app_password"
-					type="password"
-					autocomplete="new-password"
-					class="mt-1 w-full rounded-lg border px-3 py-2"
-				/>
-			</label>
-			<ChannelTestButton kind="wordpress" destinationId={i?.wp?.destinationId} />
-		</div>
-	</section>
-
-	<section class="space-y-4 rounded-xl border bg-white p-6">
-		<label class="flex items-center gap-2 text-sm font-medium">
-			<input
-				type="checkbox"
-				name="enable_astro"
-				id="enable-astro"
-				checked={i ? i.enableAstro : true}
-			/>
-			{adminUnit.fields.enableAstro}
-		</label>
-		<div id="panel-astro" class="space-y-3 border-l-2 border-slate-100 pl-4">
+		<h2 class="text-sm font-semibold text-slate-800">{adminUnit.sections.astro}</h2>
+		<div class="space-y-3 border-l-2 border-slate-100 pl-4">
 			<div class="rounded-lg bg-slate-50 p-3 text-xs text-slate-700">
 				<p class="font-medium">{adminUnit.astroHelp.title}</p>
 				<ul class="mt-2 list-inside list-disc space-y-1">
@@ -118,6 +71,7 @@ const i = initial;
 				<input
 					name="repo"
 					id="input-repo"
+					required
 					value={i?.astro?.repo ?? ''}
 					placeholder="mbatorowicz/gmina-miedzna.pl"
 					class="mt-1 w-full rounded-lg border px-3 py-2"
@@ -170,31 +124,7 @@ const i = initial;
 					class="mt-1 w-full rounded-lg border px-3 py-2"
 				/>
 			</label>
-			<ChannelTestButton kind="github_astro" destinationId={i?.astro?.destinationId} />
-		</div>
-	</section>
-
-	<section class="rounded-xl border bg-white p-6">
-		<p class="text-sm font-semibold text-slate-800">{adminUnit.sections.defaultChannel}</p>
-		<div class="mt-3 flex flex-wrap gap-4 text-sm">
-			<label class="flex items-center gap-2">
-				<input
-					type="radio"
-					name="default_channel"
-					value="wordpress"
-					checked={!i || i.defaultChannel === 'wordpress'}
-				/>
-				{adminDestinations.types.wordpress}
-			</label>
-			<label class="flex items-center gap-2">
-				<input
-					type="radio"
-					name="default_channel"
-					value="github_astro"
-					checked={i?.defaultChannel === 'github_astro'}
-				/>
-				{adminDestinations.types.github_astro}
-			</label>
+			<ChannelTestButton destinationId={i?.astro?.destinationId} />
 		</div>
 	</section>
 
@@ -202,25 +132,3 @@ const i = initial;
 		{submitLabel}
 	</button>
 </form>
-
-<script>
-	function syncUnitFormPanels() {
-		const enableWp = document.getElementById('enable-wp') as HTMLInputElement | null;
-		const enableAstro = document.getElementById('enable-astro') as HTMLInputElement | null;
-		const panelWp = document.getElementById('panel-wp');
-		const panelAstro = document.getElementById('panel-astro');
-		const wpRest = document.getElementById('input-wp-rest') as HTMLInputElement | null;
-		const repo = document.getElementById('input-repo') as HTMLInputElement | null;
-		const wpOn = enableWp?.checked ?? false;
-		const astroOn = enableAstro?.checked ?? false;
-		panelWp?.classList.toggle('opacity-50', !wpOn);
-		panelAstro?.classList.toggle('opacity-50', !astroOn);
-		if (wpRest) wpRest.required = wpOn;
-		if (repo) repo.required = astroOn;
-	}
-	document.querySelectorAll('[data-unit-form]').forEach(() => {
-		syncUnitFormPanels();
-		document.getElementById('enable-wp')?.addEventListener('change', syncUnitFormPanels);
-		document.getElementById('enable-astro')?.addEventListener('change', syncUnitFormPanels);
-	});
-</script>

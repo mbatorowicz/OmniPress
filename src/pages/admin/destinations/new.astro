@@ -22,43 +22,16 @@ const errorMessage =
 	)}
 
 	<form method="post" action="/api/admin/destinations/create" class="max-w-lg space-y-4 rounded-xl border bg-white p-6">
+		<input type="hidden" name="type" value="github_astro" />
 		<label class="block text-sm">
 			<span class="font-medium">{adminDestinations.fields.name}</span>
 			<input name="name" required class="mt-1 w-full rounded-lg border px-3 py-2" />
 		</label>
-		<label class="block text-sm">
-			<span class="font-medium">{adminDestinations.fields.type}</span>
-			<select name="type" id="dest-type" class="mt-1 w-full rounded-lg border px-3 py-2">
-				<option value="wordpress">{adminDestinations.types.wordpress}</option>
-				<option value="github_astro">{adminDestinations.types.github_astro}</option>
-			</select>
-		</label>
-		<div id="fields-wp" class="space-y-3">
-			<label class="block text-sm">
-				<span>{adminDestinations.fields.wpRestBase}</span>
-				<input
-					name="wp_rest_base"
-					id="input-wp-rest"
-					placeholder="https://gmina-miedzna.pl"
-					required
-					class="mt-1 w-full rounded-lg border px-3 py-2"
-				/>
-			</label>
-			<p class="text-xs text-slate-500">{adminDestinations.fields.wpRestBaseHint}</p>
-			<label class="block text-sm">
-				<span>{adminDestinations.fields.wpUsername}</span>
-				<input name="wp_username" autocomplete="off" class="mt-1 w-full rounded-lg border px-3 py-2" />
-			</label>
-			<label class="block text-sm">
-				<span>{adminDestinations.fields.wpAppPassword}</span>
-				<input name="wp_app_password" type="password" autocomplete="new-password" class="mt-1 w-full rounded-lg border px-3 py-2" />
-			</label>
-			<ChannelTestButton kind="wordpress" />
-		</div>
-		<div id="fields-gh" class="hidden space-y-3">
+		<p class="text-sm text-slate-600">{adminDestinations.types.github_astro}</p>
+		<div class="space-y-3">
 			<label class="block text-sm">
 				<span>{adminDestinations.fields.repo}</span>
-				<input name="repo" id="input-repo" placeholder="mbatorowicz/gmina-miedzna.pl" class="mt-1 w-full rounded-lg border px-3 py-2" />
+				<input name="repo" required placeholder="mbatorowicz/gmina-miedzna.pl" class="mt-1 w-full rounded-lg border px-3 py-2" />
 			</label>
 			<p class="text-xs text-slate-500">{adminDestinations.fields.repoHint}</p>
 			<label class="block text-sm">
@@ -80,7 +53,7 @@ const errorMessage =
 				<span>{adminDestinations.fields.githubToken}</span>
 				<input name="github_token" type="password" autocomplete="new-password" class="mt-1 w-full rounded-lg border px-3 py-2" />
 			</label>
-			<ChannelTestButton kind="github_astro" />
+			<ChannelTestButton />
 		</div>
 		<label class="flex items-center gap-2 text-sm">
 			<input type="checkbox" name="is_active" checked />
@@ -88,22 +61,4 @@ const errorMessage =
 		</label>
 		<button type="submit" class="rounded-lg bg-brand px-4 py-2 text-sm text-white">{adminDestinations.actions.create}</button>
 	</form>
-
-	<script>
-		const sel = document.getElementById('dest-type');
-		const wp = document.getElementById('fields-wp');
-		const gh = document.getElementById('fields-gh');
-		const wpRest = document.getElementById('input-wp-rest') as HTMLInputElement | null;
-		const repo = document.getElementById('input-repo') as HTMLInputElement | null;
-
-		function syncFields() {
-			const isWp = sel?.value === 'wordpress';
-			wp?.classList.toggle('hidden', !isWp);
-			gh?.classList.toggle('hidden', isWp);
-			if (wpRest) wpRest.required = Boolean(isWp);
-			if (repo) repo.required = !isWp;
-		}
-		sel?.addEventListener('change', syncFields);
-		syncFields();
-	</script>
 </AppLayout>

@@ -1,28 +1,23 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { testWordPressChannel } from './channel-test';
+import { testGitHubAstroChannel } from './channel-test';
 
-describe('testWordPressChannel', () => {
+describe('testGitHubAstroChannel', () => {
 	afterEach(() => {
 		vi.unstubAllGlobals();
 	});
 
-	it('odrzuca pusty adres', async () => {
+	it('odrzuca puste repozytorium', async () => {
 		const form = new FormData();
-		form.set('wp_rest_base', '');
-		const supabase = {} as never;
-		const result = await testWordPressChannel(supabase, form);
+		form.set('repo', '');
+		const result = await testGitHubAstroChannel({} as never, form);
 		expect(result.ok).toBe(false);
 	});
 
-	it('zgłasza sukces REST bez credentials', async () => {
-		vi.stubGlobal(
-			'fetch',
-			vi.fn().mockResolvedValue({ ok: true, status: 200, text: async () => '[]' }),
-		);
+	it('wymaga tokena GitHub', async () => {
 		const form = new FormData();
-		form.set('wp_rest_base', 'https://gmina-miedzna.pl');
-		const result = await testWordPressChannel({} as never, form);
-		expect(result.ok).toBe(true);
-		if (result.ok) expect(result.message).toContain('REST API');
+		form.set('repo', 'org/site');
+		const result = await testGitHubAstroChannel({} as never, form);
+		expect(result.ok).toBe(false);
+		if (!result.ok) expect(result.message).toContain('token');
 	});
 });

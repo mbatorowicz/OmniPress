@@ -2,24 +2,17 @@
 import { adminDestinations } from '@/i18n';
 
 interface Props {
-	kind: 'wordpress' | 'github_astro';
 	destinationId?: string;
 }
 
-const { kind, destinationId } = Astro.props;
-const api =
-	kind === 'wordpress'
-		? '/api/admin/channels/test-wordpress'
-		: '/api/admin/channels/test-github-astro';
-const destField =
-	kind === 'wordpress' ? 'wp_destination_id' : 'astro_destination_id';
+const { destinationId } = Astro.props;
 ---
 
 <div
 	class="channel-test mt-2"
-	data-channel-test={kind}
-	data-test-api={api}
-	data-dest-field={destField}
+	data-channel-test="github_astro"
+	data-test-api="/api/admin/channels/test-github-astro"
+	data-dest-field="astro_destination_id"
 	data-destination-id={destinationId ?? ''}
 >
 	<button

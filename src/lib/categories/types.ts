@@ -2,7 +2,7 @@ export type CategoryOption = {
 	slug: string;
 	name: string;
 	wpCategoryId: number | null;
-	sources: ('wordpress' | 'github_astro')[];
+	sources: ('github_astro')[];
 };
 
 export type CategoriesFetchResult =

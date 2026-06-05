@@ -1,5 +1,5 @@
 export const home = {
-	tagline: 'Headless CMS do publikacji na WordPress i Astro.',
+	tagline: 'Headless CMS do publikacji na Astro (GitHub).',
 	setup: {
 		heading: 'Konfiguracja wymagana',
 		body:

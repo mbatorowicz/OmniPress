@@ -12,7 +12,7 @@ export const admin = {
 	},
 	destinations: {
 		heading: (n: number) => `Destynacje (${n})`,
-		lead: 'WordPress, GitHub/Astro — konfiguracja w panelu.',
+		lead: 'GitHub/Astro — konfiguracja w panelu.',
 		empty: 'Brak destynacji.',
 		manage: 'Zarządzaj destynacjami',
 	},

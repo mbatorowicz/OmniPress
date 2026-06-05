@@ -25,7 +25,9 @@ const { data: author } = await Astro.locals.supabase
 	.eq('id', post.author_id)
 	.single();
 
-const siteDests = await getSiteDestinations(Astro.locals.supabase, post.site_id);
+const siteDests = (await getSiteDestinations(Astro.locals.supabase, post.site_id)).filter(
+	(link) => link.destinations?.type === 'github_astro',
+);
 const publishLogs = await listPublishLogsForPost(Astro.locals.supabase, post.id);
 const isPending = post.status === 'pending';
 const logLabels = adminReview.logStatus;

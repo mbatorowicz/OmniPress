@@ -1,6 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { publishToGitHubAstro } from './github-astro';
-import { publishToWordPress } from './wordpress';
 import type { DestinationForPublish, PostForPublish, PublishResult } from './types';
 
 export async function dispatchPublish(
@@ -9,13 +8,10 @@ export async function dispatchPublish(
 	destination: DestinationForPublish,
 	existingExternalId?: string | null,
 ): Promise<PublishResult> {
-	if (destination.type === 'wordpress') {
-		return publishToWordPress(supabase, post, destination);
-	}
 	if (destination.type === 'github_astro') {
 		return publishToGitHubAstro(supabase, post, destination, existingExternalId);
 	}
-	return { ok: false, summary: `Nieznany typ destynacji: ${destination.type}`, retryable: false };
+	return { ok: false, summary: `Nieobsługiwany typ destynacji: ${destination.type}`, retryable: false };
 }
 
 export async function loadPostForPublish(
