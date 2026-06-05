@@ -64,6 +64,25 @@ export async function getGitHubFile(
 	return { sha: json.sha, path: json.path };
 }
 
+/** Pobiera plik binarny (PDF, obraz) z repozytorium. */
+export async function getGitHubFileBinary(
+	cfg: GitHubConfig,
+	token: string,
+	filePath: string,
+): Promise<ArrayBuffer | null> {
+	const url = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeGitHubPath(filePath)}?ref=${encodeURIComponent(cfg.branch)}`;
+	const res = await fetch(url, { headers: ghHeaders(token) });
+	if (res.status === 404) return null;
+	if (!res.ok) {
+		const text = await res.text();
+		throw new Error(`GitHub GET ${res.status}: ${text.slice(0, 200)}`);
+	}
+	const json = (await res.json()) as { content?: string; encoding?: string };
+	if (json.encoding !== 'base64' || !json.content) return null;
+	const bytes = Buffer.from(json.content.replace(/\n/g, ''), 'base64');
+	return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+}
+
 /** Odczyt treści pliku tekstowego/JSON z repozytorium (Contents API, base64). */
 export async function getGitHubFileText(
 	cfg: GitHubConfig,
@@ -233,6 +252,81 @@ export function isGitHubRetryable(status: number): boolean {
 export function httpStatusFromError(message: string): number | null {
 	const m = message.match(/GitHub (?:GET|PUT) (\d+)/);
 	return m ? Number(m[1]) : null;
+}
+
+export async function listGitHubTreeBlobPaths(cfg: GitHubConfig, token: string): Promise<string[]> {
+	const refUrl = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/ref/heads/${encodeURIComponent(cfg.branch)}`;
+	const refRes = await fetch(refUrl, { headers: ghHeaders(token) });
+	if (!refRes.ok) {
+		const text = await refRes.text();
+		throw new Error(`GitHub ref ${refRes.status}: ${text.slice(0, 200)}`);
+	}
+	const refJson = (await refRes.json()) as { object: { sha: string } };
+
+	const commitRes = await fetch(
+		`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/commits/${refJson.object.sha}`,
+		{ headers: ghHeaders(token) },
+	);
+	if (!commitRes.ok) {
+		const text = await commitRes.text();
+		throw new Error(`GitHub commit ${commitRes.status}: ${text.slice(0, 200)}`);
+	}
+	const commitJson = (await commitRes.json()) as { tree: { sha: string } };
+
+	const treeRes = await fetch(
+		`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/trees/${commitJson.tree.sha}?recursive=1`,
+		{ headers: ghHeaders(token) },
+	);
+	if (!treeRes.ok) {
+		const text = await treeRes.text();
+		throw new Error(`GitHub tree ${treeRes.status}: ${text.slice(0, 200)}`);
+	}
+	const treeJson = (await treeRes.json()) as { tree?: { path: string; type: string }[] };
+	return (treeJson.tree ?? []).filter((item) => item.type === 'blob').map((item) => item.path);
+}
+
+/** Lista plików .md wpisów w content_path (flat lub folder/index.md). */
+export function filterGitHubMarkdownPosts(cfg: GitHubConfig, blobPaths: string[]): string[] {
+	const prefix = `${cfg.contentPath.replace(/^\/+|\/+$/g, '')}/`;
+	const mdFiles = blobPaths.filter(
+		(path) => path.startsWith(prefix) && path.toLowerCase().endsWith('.md'),
+	);
+
+	if (cfg.contentLayout === 'folder') {
+		return mdFiles.filter((path) => {
+			const rel = path.slice(prefix.length);
+			const parts = rel.split('/');
+			return parts.length === 2 && parts[1]!.toLowerCase() === 'index.md';
+		});
+	}
+
+	return mdFiles.filter((path) => {
+		const rel = path.slice(prefix.length);
+		return rel.length > 0 && !rel.includes('/');
+	});
+}
+
+export async function listGitHubMarkdownPosts(
+	cfg: GitHubConfig,
+	token: string,
+): Promise<string[]> {
+	const blobs = await listGitHubTreeBlobPaths(cfg, token);
+	return filterGitHubMarkdownPosts(cfg, blobs);
+}
+
+/** Pliki w folderze wpisu (PDF, obrazy) — bez podfolderów i bez .md. */
+export function listGitHubSiblingAssets(
+	allBlobPaths: string[],
+	markdownPath: string,
+): string[] {
+	const folder = markdownPath.replace(/\/[^/]+$/i, '');
+	const prefix = `${folder}/`;
+	return allBlobPaths.filter((path) => {
+		if (!path.startsWith(prefix)) return false;
+		const rel = path.slice(prefix.length);
+		if (!rel || rel.includes('/')) return false;
+		return !rel.toLowerCase().endsWith('.md');
+	});
 }
 
 export async function probeGitHubRepository(

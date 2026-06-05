@@ -37,6 +37,18 @@ const bulkDeactivated = Number(Astro.url.searchParams.get('bulk_deactivated') ??
 const bulkDeleted = Number(Astro.url.searchParams.get('bulk_deleted') ?? '0');
 const bulkSkipped = Number(Astro.url.searchParams.get('bulk_skipped') ?? '0');
 const remoteWarning = Astro.url.searchParams.get('remote_warning') === '1';
+const importImported = Number(Astro.url.searchParams.get('imported') ?? '0');
+const importUpdated = Number(Astro.url.searchParams.get('updated') ?? '0');
+const importWarnings = Number(Astro.url.searchParams.get('import_warnings') ?? '0');
+const importErrorCode = Astro.url.searchParams.get('import_error');
+const importSiteId = Astro.url.searchParams.get('site_id');
+const importLabels = admin.importPosts;
+const importErrorMessage =
+	importErrorCode && importErrorCode in importLabels.errors
+		? importLabels.errors[importErrorCode]!
+		: importErrorCode
+			? importErrorCode
+			: null;
 const errorCode = Astro.url.searchParams.get('error');
 const bulkErrors: Record<string, string> = {
 	none_selected: listLabels.noneSelected,
@@ -45,6 +57,8 @@ const bulkErrors: Record<string, string> = {
 	not_found: 'Nie znaleziono wpisów.',
 };
 const errorMessage = errorCode && errorCode in bulkErrors ? bulkErrors[errorCode] : null;
+const defaultImportSiteId =
+	importSiteId && sites.some((s) => s.id === importSiteId) ? importSiteId : (sites[0]?.id ?? '');
 ---
 
 <AppLayout title={admin.title} heading={admin.title}>
@@ -90,6 +104,63 @@ const errorMessage = errorCode && errorCode in bulkErrors ? bulkErrors[errorCode
 	{remoteWarning && (
 		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">{listLabels.remoteWarning}</p>
 	)}
+	{importImported + importUpdated > 0 && (
+		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">
+			{importLabels.success(importImported, importUpdated)}
+		</p>
+	)}
+	{importWarnings > 0 && (
+		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+			{importLabels.warnings(importWarnings)}
+		</p>
+	)}
+	{importErrorMessage && (
+		<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{importErrorMessage}</p>
+	)}
+
+	<section class="mb-8 rounded-xl border border-slate-200 bg-white p-6">
+		<h2 class="text-lg font-medium text-slate-900">{importLabels.heading}</h2>
+		<p class="mt-1 text-sm text-slate-600">{importLabels.lead}</p>
+		{
+			sites.length === 0 ? (
+				<p class="mt-4 text-sm text-slate-500">{admin.sites.empty} {admin.sites.exampleName}.</p>
+			) : (
+				<form
+					method="post"
+					action={`/api/admin/sites/${defaultImportSiteId}/posts/import`}
+					class="mt-4 flex flex-wrap items-end gap-3"
+					id="import-posts-form"
+				>
+					{
+						sites.length > 1 ? (
+							<label class="text-sm">
+								<span class="text-slate-600">{importLabels.siteLabel}</span>
+								<select
+									name="site_id_display"
+									class="ml-2 rounded-lg border border-slate-300 px-2 py-2"
+									id="import-site-select"
+								>
+									{sites.map((s) => (
+										<option value={s.id} selected={s.id === importSiteId}>
+											{s.name}
+										</option>
+									))}
+								</select>
+							</label>
+						) : (
+							<input type="hidden" name="site_id_display" value={sites[0]!.id} />
+						)
+					}
+					<button
+						type="submit"
+						class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
+					>
+						{importLabels.button}
+					</button>
+				</form>
+			)
+		}
+	</section>
 
 	<section class="mb-8 rounded-xl border border-brand/20 bg-brand/5 p-6">
 		<h2 class="text-lg font-medium text-slate-900">{admin.content.heading}</h2>
@@ -101,6 +172,19 @@ const errorMessage = errorCode && errorCode in bulkErrors ? bulkErrors[errorCode
 			{admin.content.openDashboard}
 		</a>
 	</section>
+
+	{sites.length > 1 && (
+		<script is:inline>
+			(() => {
+				const form = document.getElementById('import-posts-form');
+				const select = document.getElementById('import-site-select');
+				if (!form || !select) return;
+				select.addEventListener('change', () => {
+					form.action = `/api/admin/sites/${select.value}/posts/import`;
+				});
+			})();
+		</script>
+	)}
 
 	<div class="grid gap-6 lg:grid-cols-2">
 		<section class="rounded-xl border border-slate-200 bg-white p-6">

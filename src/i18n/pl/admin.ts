@@ -37,6 +37,22 @@ export const admin = {
 		lead: 'Zaznacz wiele wpisów i wykonaj akcję zbiorczo — na GitHubie powstanie jeden commit (jeden deploy).',
 		empty: 'Brak opublikowanych wpisów.',
 	},
+	importPosts: {
+		heading: 'Synchronizacja z GitHub',
+		lead:
+			'Pobierz wpisy już opublikowane na stronie Astro do OmniPress — będziesz mógł je edytować, dezaktywować i usuwać jak wpisy dodane w CMS.',
+		button: 'Importuj opublikowane wpisy',
+		siteLabel: 'Strona',
+		success: (imported: number, updated: number) =>
+			`Synchronizacja zakończona: ${imported} nowych, ${updated} zaktualizowanych.`,
+		warnings: (n: number) => `Uwaga: ${n} problemów przy pobieraniu załączników — sprawdź logi.`,
+		errors: {
+			no_astro_destination: 'Ta strona nie ma aktywnej destynacji GitHub/Astro.',
+			invalid_repo: 'Nieprawidłowa konfiguracja repozytorium.',
+			no_github_token: 'Brak tokenu GitHub w destynacji.',
+			github_tree_failed: 'Nie udało się odczytać drzewa plików z GitHub.',
+		} as Record<string, string>,
+	},
 	postList: {
 		colTitle: 'Tytuł',
 		colCategory: 'Kategoria',
