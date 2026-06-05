@@ -5,6 +5,9 @@ import {
 	getDestinationById,
 	validateDestinationConfig,
 } from './destinations';
+import type { GitHubCredentials } from '@/lib/publish/credentials';
+import { decryptDestinationCredentials } from '@/lib/publish/credentials';
+import type { DestinationForPublish } from '@/lib/publish/types';
 import { getSiteById, getSiteDestinations } from './sites';
 import { isValidSlug, normalizeSlug } from './slug';
 import { normalizeGitHubRepo } from './github-repo';
@@ -35,11 +38,26 @@ export type UnitFormInitial = {
 		content_path: string;
 		content_layout: 'flat' | 'folder';
 		categories_path: string;
+		vercel_project_id: string;
+		vercel_team_id: string;
 	};
 };
 
 function formFlag(form: FormData, key: string): boolean {
 	return form.get(key) === 'on';
+}
+
+async function loadStoredCredentials(
+	supabase: SupabaseClient,
+	destinationId: string,
+): Promise<GitHubCredentials | null> {
+	const { data } = await supabase
+		.from('destinations')
+		.select('id, name, type, config, encrypted_credentials, is_active')
+		.eq('id', destinationId)
+		.maybeSingle();
+	if (!data) return null;
+	return decryptDestinationCredentials(data as DestinationForPublish);
 }
 
 async function upsertDestination(
@@ -51,7 +69,8 @@ async function upsertDestination(
 		credentials: FormData;
 	},
 ): Promise<{ id: string } | null> {
-	const encrypted = await encryptCredentialsFromForm('github_astro', opts.credentials);
+	const existingCreds = opts.id ? await loadStoredCredentials(supabase, opts.id) : null;
+	const encrypted = await encryptCredentialsFromForm('github_astro', opts.credentials, existingCreds);
 	const row: Record<string, unknown> = {
 		name: opts.name,
 		type: 'github_astro',
@@ -96,6 +115,8 @@ export async function loadUnitFormInitial(
 					typeof cfg.categories_path === 'string' && cfg.categories_path.trim()
 						? cfg.categories_path.trim()
 						: 'src/config/omnipress-categories.json',
+				vercel_project_id: String(cfg.vercel_project_id ?? '').trim(),
+				vercel_team_id: String(cfg.vercel_team_id ?? '').trim(),
 			};
 		}
 	}
@@ -148,6 +169,7 @@ export async function createOrganizationalUnit(
 	try {
 		const credForm = new FormData();
 		credForm.set('github_token', String(form.get('github_token') ?? ''));
+		credForm.set('vercel_token', String(form.get('vercel_token') ?? ''));
 
 		const dest = await upsertDestination(supabase, {
 			id: null,
@@ -203,6 +225,7 @@ export async function updateOrganizationalUnit(
 
 	const credForm = new FormData();
 	credForm.set('github_token', String(form.get('github_token') ?? ''));
+	credForm.set('vercel_token', String(form.get('vercel_token') ?? ''));
 
 	const dest = await upsertDestination(supabase, {
 		id: astroId,

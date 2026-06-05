@@ -9,6 +9,7 @@ import {
 import {
 	decryptDestinationCredentials,
 	isGitHubCredentials,
+	resolveVercelTokenForDestination,
 } from './credentials';
 import { buildAstroMarkdown } from './frontmatter';
 import {
@@ -26,6 +27,8 @@ import {
 } from './paths';
 import { appendRecentChangeOnGitHub } from '@/lib/recent-changes/github';
 import { buildPostRecentChangeEntry } from '@/lib/recent-changes/post-entry';
+import { parseVercelConfig } from './vercel-api';
+import { waitForVercelBuild } from './vercel-deploy';
 import type { DestinationForPublish, PostForPublish, PublishResult } from './types';
 
 async function pickMarkdownPath(
@@ -189,11 +192,32 @@ export async function publishToGitHubAstro(
 			// Rejestr zmian nie blokuje publikacji wpisu
 		}
 
-		return {
-			ok: true,
-			externalId: formatExternalGitHubPath(filePath),
-			summary: `GitHub ${cfg.repo}@${cfg.branch} (${commitSha.slice(0, 7)})`,
-		};
+		const externalId = formatExternalGitHubPath(filePath);
+		const githubSummary = `GitHub ${cfg.repo}@${cfg.branch} (${commitSha.slice(0, 7)})`;
+
+		const vercelCfg = parseVercelConfig(destination.config);
+		const vercelToken = resolveVercelTokenForDestination(creds);
+		if (!vercelCfg) {
+			return { ok: true, externalId, summary: githubSummary };
+		}
+		if (!vercelToken) {
+			return {
+				ok: true,
+				externalId,
+				summary: `${githubSummary} | Vercel: brak tokena (VERCEL_TOKEN lub pole w destynacji)`,
+			};
+		}
+
+		const vercel = await waitForVercelBuild({
+			cfg: vercelCfg,
+			token: vercelToken,
+			commitSha,
+		});
+		const summary = `${githubSummary} | ${vercel.summary}`;
+		if (vercel.ok) {
+			return { ok: true, externalId, summary };
+		}
+		return { ok: false, externalId, summary, retryable: vercel.retryable };
 	} catch (err) {
 		const msg = err instanceof Error ? err.message : 'GitHub: nieznany błąd';
 		const status = httpStatusFromError(msg);

@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { DestinationType } from '@/lib/types';
 import { canEncryptCredentials, encryptSecret } from '@/lib/crypto';
 import { normalizeGitHubRepo } from './github-repo';
+import type { GitHubCredentials } from '@/lib/publish/credentials';
 
 export type DestinationRow = {
 	id: string;
@@ -31,6 +32,8 @@ export function buildConfig(_type: DestinationType, form: FormData): Record<stri
 		categories_path:
 			String(form.get('categories_path') ?? 'src/config/omnipress-categories.json').trim() ||
 			'src/config/omnipress-categories.json',
+		vercel_project_id: String(form.get('vercel_project_id') ?? '').trim(),
+		vercel_team_id: String(form.get('vercel_team_id') ?? '').trim(),
 	};
 }
 
@@ -48,12 +51,19 @@ export function validateDestinationConfig(
 export async function encryptCredentialsFromForm(
 	_type: DestinationType,
 	form: FormData,
+	existing?: GitHubCredentials | null,
 ): Promise<string | null> {
 	if (!canEncryptCredentials()) return null;
 
-	const token = String(form.get('github_token') ?? '').trim();
+	const token = String(form.get('github_token') ?? '').trim() || existing?.token?.trim() || '';
+	const vercelToken =
+		String(form.get('vercel_token') ?? '').trim() || existing?.vercel_token?.trim() || '';
+
 	if (!token) return null;
-	return encryptSecret(JSON.stringify({ token }));
+
+	const payload: GitHubCredentials = { token };
+	if (vercelToken) payload.vercel_token = vercelToken;
+	return encryptSecret(JSON.stringify(payload));
 }
 
 export async function getDestinationById(

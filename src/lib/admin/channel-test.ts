@@ -6,13 +6,21 @@ import {
 	probeGitHubContentPath,
 	probeGitHubRepository,
 } from '@/lib/publish/github-api';
+import {
+	deploymentStateLabel,
+	listRecentDeployments,
+	parseVercelConfig,
+	probeVercelProject,
+	resolveVercelToken,
+} from '@/lib/publish/vercel-api';
+import type { GitHubCredentials } from '@/lib/publish/credentials';
 
 export type ChannelTestResult = { ok: true; message: string } | { ok: false; message: string };
 
 async function loadStoredCredentials(
 	supabase: SupabaseClient,
 	destinationId: string,
-): Promise<string | null> {
+): Promise<GitHubCredentials | null> {
 	const { data } = await supabase
 		.from('destinations')
 		.select('encrypted_credentials')
@@ -20,7 +28,8 @@ async function loadStoredCredentials(
 		.maybeSingle();
 	if (!data?.encrypted_credentials) return null;
 	try {
-		return await decryptSecret(data.encrypted_credentials as string);
+		const plain = await decryptSecret(data.encrypted_credentials as string);
+		return JSON.parse(plain) as GitHubCredentials;
 	} catch {
 		return null;
 	}
@@ -38,13 +47,55 @@ async function resolveGitHubToken(
 	).trim();
 	if (!destId) return null;
 
-	const plain = await loadStoredCredentials(supabase, destId);
-	if (!plain) return null;
+	const stored = await loadStoredCredentials(supabase, destId);
+	return stored?.token?.trim() || null;
+}
+
+async function resolveVercelTokenFromForm(
+	supabase: SupabaseClient,
+	form: FormData,
+): Promise<string | null> {
+	const token = String(form.get('vercel_token') ?? '').trim();
+	if (token) return token;
+
+	const destId = String(
+		form.get('astro_destination_id') ?? form.get('destination_id') ?? '',
+	).trim();
+	if (destId) {
+		const stored = await loadStoredCredentials(supabase, destId);
+		const fromStored = resolveVercelToken(stored?.vercel_token);
+		if (fromStored) return fromStored;
+	}
+
+	return resolveVercelToken(null);
+}
+
+async function probeVercelChannel(
+	config: Record<string, unknown>,
+	vercelToken: string,
+): Promise<string> {
+	const vercelCfg = parseVercelConfig(config);
+	if (!vercelCfg) {
+		return 'Vercel: nie skonfigurowano (opcjonalnie: ID projektu w polu poniżej).';
+	}
+
+	const projectProbe = await probeVercelProject(vercelCfg, vercelToken);
+	if (!projectProbe.ok) {
+		return `Vercel: błąd projektu — ${projectProbe.detail}`;
+	}
+
 	try {
-		const parsed = JSON.parse(plain) as { token?: string };
-		return typeof parsed.token === 'string' && parsed.token.trim() ? parsed.token.trim() : null;
-	} catch {
-		return null;
+		const recent = await listRecentDeployments(vercelCfg, vercelToken, 1);
+		const latest = recent[0];
+		if (!latest) {
+			return `Vercel: projekt „${projectProbe.name}” OK (brak deployów).`;
+		}
+		const state = deploymentStateLabel(latest);
+		const sha = latest.meta?.githubCommitSha?.slice(0, 7) ?? '—';
+		return `Vercel: projekt „${projectProbe.name}” OK — ostatni deploy ${state} (commit ${sha}).`;
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : 'nieznany błąd';
+		return `Vercel: projekt OK, ale lista deployów: ${msg.slice(0, 120)}`;
 	}
 }
 
@@ -80,10 +131,22 @@ export async function testGitHubAstroChannel(
 			return { ok: false, message: pathProbe.detail };
 		}
 
-		return {
-			ok: true,
-			message: `Połączenie OK — ${cfg.owner}/${cfg.repo} (${cfg.branch}), folder „${cfg.contentPath}” istnieje.`,
-		};
+		const githubMsg = `GitHub OK — ${cfg.owner}/${cfg.repo} (${cfg.branch}), folder „${cfg.contentPath}”.`;
+		const vercelCfg = parseVercelConfig(config);
+		if (!vercelCfg) {
+			return { ok: true, message: `${githubMsg} Vercel: nie skonfigurowano.` };
+		}
+
+		const vercelToken = await resolveVercelTokenFromForm(supabase, form);
+		if (!vercelToken) {
+			return {
+				ok: true,
+				message: `${githubMsg} Vercel: brak tokena (VERCEL_TOKEN na serwerze lub pole w formularzu).`,
+			};
+		}
+
+		const vercelMsg = await probeVercelChannel(config, vercelToken);
+		return { ok: true, message: `${githubMsg} ${vercelMsg}` };
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : 'nieznany błąd sieci';
 		return { ok: false, message: `Nie udało się połączyć z GitHub: ${msg}` };

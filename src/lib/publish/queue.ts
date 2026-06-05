@@ -56,19 +56,20 @@ export async function markLogFailure(
 	retryCount: number,
 	summary: string,
 	retryable: boolean,
+	externalId?: string | null,
 ): Promise<void> {
 	const canRetry = retryable && shouldRetry(retryCount);
 	const nextRetry = canRetry ? computeNextRetryAt(retryCount) : null;
 
-	await supabase
-		.from('publish_logs')
-		.update({
-			status: canRetry ? 'pending' : 'failed',
-			retry_count: retryCount + 1,
-			response_summary: summary.slice(0, 500),
-			next_retry_at: nextRetry?.toISOString() ?? null,
-		})
-		.eq('id', logId);
+	const update: Record<string, unknown> = {
+		status: canRetry ? 'pending' : 'failed',
+		retry_count: retryCount + 1,
+		response_summary: summary.slice(0, 500),
+		next_retry_at: nextRetry?.toISOString() ?? null,
+	};
+	if (externalId) update.external_id = externalId;
+
+	await supabase.from('publish_logs').update(update).eq('id', logId);
 }
 
 export async function skipDuplicateSuccess(

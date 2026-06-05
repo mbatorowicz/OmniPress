@@ -16,6 +16,7 @@ interface ImportMetaEnv {
 	readonly SUPABASE_SERVICE_ROLE_KEY?: string;
 	readonly ENCRYPTION_KEY?: string;
 	readonly CRON_SECRET?: string;
+	readonly VERCEL_TOKEN?: string;
 }
 
 interface ImportMeta {

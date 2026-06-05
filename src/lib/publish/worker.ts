@@ -69,6 +69,7 @@ export async function runPublishWorker(supabase: SupabaseClient): Promise<Worker
 					log.retry_count,
 					outcome.summary,
 					outcome.retryable,
+					outcome.externalId,
 				);
 				result.failed++;
 			}

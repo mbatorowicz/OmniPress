@@ -37,7 +37,7 @@ export type DestinationForPublish = {
 
 export type PublishResult =
 	| { ok: true; externalId: string; summary: string }
-	| { ok: false; summary: string; retryable: boolean };
+	| { ok: false; summary: string; retryable: boolean; externalId?: string };
 
 export type WorkerRunResult = {
 	processed: number;
