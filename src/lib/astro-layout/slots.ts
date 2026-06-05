@@ -1,34 +1,17 @@
-/** Predefiniowane „sloty” wyświetlania na stronie Astro (mapowanie kategoria → komponent). */
-export const ASTRO_DISPLAY_SLOTS = [
-	{
-		id: 'home_pinned',
-		label: 'Strona główna — przypięte wpisy',
-		component: 'home.pinned',
-	},
-	{
-		id: 'home_latest',
-		label: 'Strona główna — najnowsze wpisy',
-		component: 'home.latest',
-	},
-	{
-		id: 'sidebar_feed',
-		label: 'Sidebar — skróty / feed',
-		component: 'sidebar.feed',
-	},
-	{
-		id: 'sidebar_weather',
-		label: 'Sidebar — ostrzeżenia meteorologiczne',
-		component: 'sidebar.weather',
-	},
-] as const;
+import type { CategoryDisplays, DisplaySlot } from './types';
 
-export type AstroDisplaySlotId = (typeof ASTRO_DISPLAY_SLOTS)[number]['id'];
+export function emptyDisplaysForSlots(slots: DisplaySlot[]): CategoryDisplays {
+	return Object.fromEntries(slots.map((s) => [s.id, []]));
+}
 
-export function defaultCategoryDisplays(): Record<AstroDisplaySlotId, string[]> {
-	return {
-		home_pinned: ['aktualnosci'],
-		home_latest: ['aktualnosci'],
-		sidebar_feed: [],
-		sidebar_weather: ['pogoda'],
-	};
+export function mergeCategoryDisplays(
+	slots: DisplaySlot[],
+	displays: CategoryDisplays,
+): CategoryDisplays {
+	const base = emptyDisplaysForSlots(slots);
+	for (const slot of slots) {
+		const fromFile = displays[slot.id];
+		if (Array.isArray(fromFile)) base[slot.id] = fromFile.filter(Boolean);
+	}
+	return base;
 }

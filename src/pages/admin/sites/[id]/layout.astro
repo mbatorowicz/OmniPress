@@ -22,7 +22,8 @@ if (!site) return Astro.redirect('/admin/sites');
 let layout = await loadSiteAstroLayout(Astro.locals.supabase, id);
 const emptyLayout =
 	layout.navigation.length === 0 &&
-	layout.categories.length === 0;
+	layout.categories.length === 0 &&
+	layout.slots.length === 0;
 
 const links = await getSiteDestinations(Astro.locals.supabase, id);
 const hasAstroChannel = links.some((l) => l.destinations?.type === 'github_astro');

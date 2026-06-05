@@ -122,8 +122,8 @@ export async function publishToGitHubAstro(
 		const bodyMd = rewriteAssetUrls(post.content_md, urlMap);
 		const pubDate = post.updated_at ?? new Date().toISOString();
 		const fileContent = buildAstroMarkdown(post.title, bodyMd, pubDate, cfg.contentLayout, {
-			slug: post.category_slug ?? 'aktualnosci',
-			name: post.category_name ?? 'Aktualności',
+			slug: post.category_slug ?? '',
+			name: post.category_name ?? '',
 		});
 
 		const { commitSha } = await putGitHubFile(

@@ -6,7 +6,10 @@ export function buildPostRecentChangeEntry(
 	post: PostForPublish,
 	slug: string,
 ): RecentChangeEntry {
-	const category = post.category_slug?.trim() || 'aktualnosci';
+		if (!post.category_slug?.trim()) {
+			throw new Error('Brak kategorii wpisu');
+		}
+		const category = post.category_slug.trim();
 	const changedAt = post.updated_at ?? new Date().toISOString();
 	return {
 		title: post.title,

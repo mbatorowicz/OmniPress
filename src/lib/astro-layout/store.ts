@@ -106,6 +106,8 @@ export async function importSiteAstroLayoutFromGitHub(
 		const parsed = parseCategoriesFile(catText);
 		layout.categories = parsed.categories;
 		layout.categoryDisplays = parsed.displays;
+		layout.slots = parsed.slots;
+		layout.widgets = parsed.widgets;
 	}
 
 	await saveSiteAstroLayout(supabase, siteId, layout);

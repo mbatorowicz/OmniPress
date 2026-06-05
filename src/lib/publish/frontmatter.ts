@@ -17,8 +17,11 @@ export function buildAstroMarkdown(
 	const isoDate = pubDate.includes('T') ? pubDate : `${dateOnly}T12:00:00.000Z`;
 
 	if (layout === 'folder') {
-		const catSlug = (category?.slug ?? 'aktualnosci').replace(/"/g, '\\"');
-		const catName = (category?.name ?? 'Aktualności').replace(/"/g, '\\"');
+		if (!category?.slug) {
+			throw new Error('Brak kategorii wpisu (category_slug)');
+		}
+		const catSlug = category.slug.replace(/"/g, '\\"');
+		const catName = (category.name || category.slug).replace(/"/g, '\\"');
 		return `---\ntitle: "${safeTitle}"\ndate: "${isoDate}"\nauthor: "Administrator"\ncategory: "${catSlug}"\ncategoryName: "${catName}"\ndraft: false\n---\n\n${contentMd.trim()}\n`;
 	}
 

@@ -13,10 +13,35 @@ export type CategoryDefinition = {
 /** slotId → lista slugów kategorii widocznych w danym komponencie */
 export type CategoryDisplays = Record<string, string[]>;
 
+export type SlotWidgetConfig = {
+	title?: string;
+	sectionTitle?: string;
+	limit?: number;
+	emptyText?: string;
+	enabled?: boolean;
+	variant?: 'default' | 'alert';
+	moreLink?: string;
+	/** true = tylko przypięte, false = tylko nieprzypięte, brak = wszystkie */
+	pinnedOnly?: boolean;
+};
+
+export type DisplaySlot = {
+	id: string;
+	label: string;
+	component: string;
+	widget?: SlotWidgetConfig;
+};
+
+export type SiteWidgetsConfig = {
+	recent_changes?: SlotWidgetConfig;
+};
+
 export type SiteAstroLayout = {
 	navigation: NavItem[];
 	categoryDisplays: CategoryDisplays;
 	categories: CategoryDefinition[];
+	slots: DisplaySlot[];
+	widgets: SiteWidgetsConfig;
 	navigationPath: string;
 	categoriesPath: string;
 };
@@ -29,6 +54,8 @@ export function emptySiteAstroLayout(): SiteAstroLayout {
 		navigation: [],
 		categoryDisplays: {},
 		categories: [],
+		slots: [],
+		widgets: {},
 		navigationPath: DEFAULT_NAVIGATION_PATH,
 		categoriesPath: DEFAULT_CATEGORIES_PATH,
 	};

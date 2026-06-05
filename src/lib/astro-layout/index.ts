@@ -1,10 +1,17 @@
-export type { NavItem, CategoryDefinition, SiteAstroLayout } from './types';
-export { ASTRO_DISPLAY_SLOTS, defaultCategoryDisplays } from './slots';
+export type {
+	NavItem,
+	CategoryDefinition,
+	DisplaySlot,
+	SlotWidgetConfig,
+	SiteWidgetsConfig,
+	SiteAstroLayout,
+} from './types';
+export { emptyDisplaysForSlots, mergeCategoryDisplays } from './slots';
 export {
-	loadSiteAstroLayout,
-	saveSiteAstroLayout,
-	importSiteAstroLayoutFromGitHub,
-	syncSiteAstroLayoutToGitHub,
-} from './store';
-export { parseNavigationJson, buildCategoriesFilePayload } from './parse';
+	parseNavigationJson,
+	parseCategoriesFile,
+	parseSlots,
+	parseWidgets,
+	buildCategoriesFilePayload,
+} from './parse';
 export { parseLayoutFromFormData } from './parse-form';
