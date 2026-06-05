@@ -1,7 +1,7 @@
 {
   "name": "omnipress",
   "type": "module",
-	"version": "0.6.0",
+	"version": "0.7.0",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -13,12 +13,13 @@
     "setup:remote": "node scripts/setup-remote.mjs",
     "setup:password": "node scripts/set-admin-password.mjs",
     "setup:auth-urls": "node scripts/fix-auth-config.mjs",
-	"setup:storage": "node scripts/apply-migration.mjs supabase/migrations/20250604000000_storage_post_assets.sql",
+    "setup:storage": "node scripts/apply-migration.mjs supabase/migrations/20250604000000_storage_post_assets.sql",
     "setup:storage-pdf": "node scripts/apply-migration.mjs supabase/migrations/20250609000000_storage_post_assets_pdf.sql",
     "setup:asset-display": "node scripts/apply-migration.mjs supabase/migrations/20250610000000_asset_display_mode.sql",
+    "setup:asset-sort": "node scripts/apply-migration.mjs supabase/migrations/20250611000000_asset_sort_order.sql",
     "setup:phase3": "node scripts/apply-migration.mjs supabase/migrations/20250605000000_phase3_post_slug_unique.sql",
     "setup:phase4": "node scripts/apply-migration.mjs supabase/migrations/20250606000000_phase4_publish_worker.sql",
-	"setup:categories": "node scripts/apply-migration.mjs supabase/migrations/20250607000000_post_categories.sql",
+    "setup:categories": "node scripts/apply-migration.mjs supabase/migrations/20250607000000_post_categories.sql",
     "setup:layout": "node scripts/apply-migration.mjs supabase/migrations/20250608000000_site_astro_layout.sql",
     "env:pull": "vercel env pull .env.local --yes",
     "version": "node -e \"import('./scripts/lib/git-info.mjs').then(m=>console.log(m.getVersionLabel()))\"",
@@ -30,10 +31,17 @@
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.107.0",
     "@tailwindcss/vite": "^4.3.0",
+    "@tiptap/core": "^3.26.0",
+    "@tiptap/extension-link": "^3.26.0",
+    "@tiptap/extension-placeholder": "^3.26.0",
+    "@tiptap/starter-kit": "^3.26.0",
     "astro": "^6.4.3",
-    "tailwindcss": "^4.3.0"
+    "marked": "^18.0.5",
+    "tailwindcss": "^4.3.0",
+    "turndown": "^7.2.4"
   },
   "devDependencies": {
+    "@types/turndown": "^5.0.6",
     "pg": "^8.21.0",
     "vitest": "^3.2.4"
   }

@@ -1,7 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { loadPostAssets, publicAssetUrl } from './assets';
 import { applyAssetDisplayToMarkdown, type AssetForDisplay } from './asset-markdown';
-import { prepareAstroPostContent } from './post-content';
+import {
+	buildPublishedBodyMd,
+	galleryUrlsFromAssets,
+	prepareAstroPostFromGallery,
+} from './post-gallery';
 import {
 	decryptDestinationCredentials,
 	isGitHubCredentials,
@@ -45,14 +49,6 @@ async function pickMarkdownPath(
 			? joinContentPath(cfg.contentPath, `${slug}-${Date.now()}`, 'index.md')
 			: joinContentPath(cfg.contentPath, `${slug}-${Date.now()}.md`);
 	return { filePath: fallback };
-}
-
-function rewriteAssetUrls(contentMd: string, replacements: Map<string, string>): string {
-	let out = contentMd;
-	for (const [from, to] of replacements) {
-		out = out.split(from).join(to);
-	}
-	return out;
 }
 
 async function uploadPostAssets(
@@ -121,8 +117,11 @@ export async function publishToGitHubAstro(
 
 		const assets = await loadPostAssets(supabase, post.id);
 		const urlMap = await uploadPostAssets(cfg, creds.token, slug, assets);
-		const bodyMd = rewriteAssetUrls(post.content_md, urlMap);
-		const assetsForDisplay: AssetForDisplay[] = assets.flatMap((asset) => {
+		const imageAssets = assets.filter((a) => a.mime_type.startsWith('image/'));
+		const pdfAssets = assets.filter((a) => a.mime_type === 'application/pdf');
+
+		const bodyWithPdfs = buildPublishedBodyMd(post.content_md, pdfAssets, urlMap);
+		const assetsForDisplay: AssetForDisplay[] = pdfAssets.flatMap((asset) => {
 			const sourceUrl = publicAssetUrl(asset.storage_path);
 			if (!sourceUrl) return [];
 			return [
@@ -135,8 +134,9 @@ export async function publishToGitHubAstro(
 				},
 			];
 		});
-		const publishedBody = applyAssetDisplayToMarkdown(bodyMd, assetsForDisplay);
-		const prepared = prepareAstroPostContent(publishedBody);
+		const publishedBody = applyAssetDisplayToMarkdown(bodyWithPdfs, assetsForDisplay);
+		const galleryUrls = galleryUrlsFromAssets(imageAssets, urlMap);
+		const prepared = prepareAstroPostFromGallery(publishedBody, galleryUrls);
 		const pubDate = post.updated_at ?? new Date().toISOString();
 		const fileContent = buildAstroMarkdown(post.title, prepared.bodyMd, pubDate, cfg.contentLayout, {
 			slug: post.category_slug ?? '',

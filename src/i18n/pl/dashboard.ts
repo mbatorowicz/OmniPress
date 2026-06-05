@@ -36,11 +36,28 @@ export const dashboard = {
 			title: 'Tytuł',
 			slug: 'Slug (opcjonalnie)',
 			slugPlaceholder: 'np. komunikat-urzedu',
-			content: 'Treść (Markdown)',
-			contentHint:
-				'Nagłówki: ## H2, ### H3. Zdjęcia w treści: pierwsze = zajawka na liście wpisów, kolejne = galeria na stronie artykułu. PDF — wybór link/podgląd poniżej.',
+			content: 'Treść artykułu',
+			contentHint: 'Pisz jak w Wordzie — pogrubienie, nagłówki, listy i linki. Zdjęcia dodajesz osobno w galerii poniżej.',
+			contentPlaceholder: 'Wpisz treść artykułu…',
 			amendmentHint:
 				'Poprawka opublikowanego wpisu — zapisz zmiany i wyślij ponownie do akceptacji. Na stronie zostanie stara wersja do ponownej publikacji.',
+		},
+		gallery: {
+			heading: 'Galeria zdjęć',
+			hint: 'Wszystkie zdjęcia pojawią się pod artykułem na stronie. Pierwsze = miniatura (zajawka) na liście wpisów.',
+			empty: 'Brak zdjęć — kliknij „Dodaj zdjęcia”.',
+			add: '+ Dodaj zdjęcia',
+			cover: 'Zajawka',
+			gallery: 'Galeria',
+			moveUp: 'W górę',
+			moveDown: 'W dół',
+		},
+		pdfAttachments: {
+			heading: 'Załączniki PDF',
+			empty: 'Brak plików PDF.',
+			add: '+ Dodaj PDF',
+			displayLink: 'Link do pobrania',
+			displayEmbed: 'Podgląd PDF na stronie',
 		},
 		attachments: {
 			heading: 'Załączniki',

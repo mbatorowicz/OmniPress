@@ -1,0 +1,68 @@
+---
+type Props = {
+	initialMarkdown: string;
+	placeholder: string;
+};
+
+const { initialMarkdown, placeholder } = Astro.props;
+---
+
+<div class="rich-editor rounded-lg border border-slate-300 bg-white" data-rich-editor>
+	<div class="flex flex-wrap gap-1 border-b border-slate-200 bg-slate-50 px-2 py-2">
+		<button type="button" data-editor-cmd="bold" class="rounded px-2 py-1 text-sm font-bold hover:bg-white" title="Pogrubienie">B</button>
+		<button type="button" data-editor-cmd="italic" class="rounded px-2 py-1 text-sm italic hover:bg-white" title="Kursywa">I</button>
+		<button type="button" data-editor-cmd="h2" class="rounded px-2 py-1 text-sm hover:bg-white" title="Nagłówek">H2</button>
+		<button type="button" data-editor-cmd="h3" class="rounded px-2 py-1 text-sm hover:bg-white" title="Podtytuł">H3</button>
+		<button type="button" data-editor-cmd="bullet" class="rounded px-2 py-1 text-sm hover:bg-white" title="Lista">• Lista</button>
+		<button type="button" data-editor-cmd="ordered" class="rounded px-2 py-1 text-sm hover:bg-white" title="Lista numerowana">1. Lista</button>
+		<button type="button" data-editor-cmd="link" class="rounded px-2 py-1 text-sm hover:bg-white" title="Link">🔗</button>
+	</div>
+	<div data-tiptap-mount class="min-h-[280px]"></div>
+	<textarea name="content_md" class="hidden" data-content-md>{initialMarkdown}</textarea>
+</div>
+
+<style is:global>
+	.rich-editor .tiptap {
+		min-height: 280px;
+	}
+
+	.rich-editor .tiptap:focus {
+		outline: none;
+	}
+
+	.rich-editor .tiptap p.is-editor-empty:first-child::before {
+		color: #94a3b8;
+		content: attr(data-placeholder);
+		float: left;
+		height: 0;
+		pointer-events: none;
+	}
+
+	.rich-editor .tiptap h2 {
+		font-size: 1.35rem;
+		font-weight: 600;
+		margin: 1rem 0 0.5rem;
+	}
+
+	.rich-editor .tiptap h3 {
+		font-size: 1.15rem;
+		font-weight: 600;
+		margin: 0.75rem 0 0.5rem;
+	}
+
+	.rich-editor .tiptap ul,
+	.rich-editor .tiptap ol {
+		padding-left: 1.5rem;
+		margin: 0.5rem 0;
+	}
+
+	.rich-editor .tiptap a {
+		color: #1d4ed8;
+		text-decoration: underline;
+	}
+</style>
+
+<script define:vars={{ initialMarkdown, placeholder }}>
+	import { initPostRichEditor } from '@/lib/editor/client-init';
+	initPostRichEditor(initialMarkdown, placeholder);
+</script>

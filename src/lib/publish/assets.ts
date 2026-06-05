@@ -7,6 +7,7 @@ export type PostAsset = {
 	filename: string;
 	mime_type: string;
 	display_mode?: 'link' | 'embed';
+	sort_order?: number;
 };
 
 export function publicAssetUrl(storagePath: string): string | null {
@@ -21,11 +22,14 @@ export async function loadPostAssets(
 ): Promise<PostAsset[]> {
 	const { data } = await supabase
 		.from('assets')
-		.select('id, storage_path, filename, mime_type, display_mode')
-		.eq('post_id', postId);
+		.select('id, storage_path, filename, mime_type, display_mode, sort_order')
+		.eq('post_id', postId)
+		.order('sort_order', { ascending: true })
+		.order('created_at', { ascending: true });
 	return (data ?? []).map((row) => ({
 		...row,
 		display_mode: row.display_mode === 'embed' ? 'embed' : 'link',
+		sort_order: row.sort_order ?? 0,
 	})) as PostAsset[];
 }
 

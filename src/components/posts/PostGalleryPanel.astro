@@ -1,0 +1,64 @@
+---
+import { isGalleryImageAsset, publicUrlForAsset, type PostAssetRow } from '@/lib/posts/assets';
+
+type Props = {
+	postId: string;
+	assets: PostAssetRow[];
+	labels: {
+		heading: string;
+		hint: string;
+		empty: string;
+		add: string;
+		cover: string;
+		gallery: string;
+		moveUp: string;
+		moveDown: string;
+	};
+};
+
+const { postId, assets, labels } = Astro.props;
+const galleryAssets = assets.filter(isGalleryImageAsset).map((a) => ({
+	id: a.id,
+	url: publicUrlForAsset(a.storage_path) ?? '',
+	filename: a.filename,
+}));
+const initialOrder = galleryAssets.map((a) => a.id).join(',');
+---
+
+<div
+	class="mt-4 rounded-lg border border-slate-200 bg-slate-50/80 p-4"
+	data-gallery-panel
+	data-post-id={postId}
+>
+	<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+		<div>
+			<h3 class="text-sm font-medium text-slate-700">{labels.heading}</h3>
+			<p class="mt-0.5 text-xs text-slate-500">{labels.hint}</p>
+		</div>
+		<label
+			class="cursor-pointer rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"
+			data-gallery-upload-label
+		>
+			{labels.add}
+			<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden" data-gallery-upload multiple />
+		</label>
+	</div>
+
+	<p class="text-xs text-slate-500 hidden" data-gallery-empty>{labels.empty}</p>
+
+	<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4" data-gallery-grid></div>
+
+	<input type="hidden" name="gallery_order" value={initialOrder} data-gallery-order />
+</div>
+
+<script define:vars={{ galleryAssets, labels }}>
+	import { initPostGallery } from '@/lib/editor/client-init';
+	initPostGallery(galleryAssets, {
+		cover: labels.cover,
+		gallery: labels.gallery,
+		moveUp: labels.moveUp,
+		moveDown: labels.moveDown,
+		empty: labels.empty,
+		add: labels.add,
+	});
+</script>

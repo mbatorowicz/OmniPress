@@ -1,19 +1,26 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
 import StatusBadge from '@/components/posts/StatusBadge.astro';
-import PostAttachmentsEditor from '@/components/posts/PostAttachmentsEditor.astro';
+import PostRichEditor from '@/components/posts/PostRichEditor.astro';
+import PostGalleryPanel from '@/components/posts/PostGalleryPanel.astro';
+import PostPdfAttachments from '@/components/posts/PostPdfAttachments.astro';
 import PostContentHtml from '@/components/posts/PostContentHtml.astro';
 import PostReopenForm from '@/components/admin/PostReopenForm.astro';
 import { common, dashboard, postError } from '@/i18n';
 import { canReopenPost } from '@/lib/admin';
 import { loadSiteCategories } from '@/lib/categories';
 import { listPublishLogsForPost } from '@/lib/publish';
+import { buildPublishedBodyMd } from '@/lib/publish/post-gallery';
+import type { PostAsset } from '@/lib/publish/assets';
 import {
 	assetsForContentRender,
 	canEditPost,
 	canSubmitPost,
 	getPostById,
+	isGalleryImageAsset,
+	isPdfAsset,
 	loadPostAssetsForPost,
+	publicUrlForAsset,
 	renderPostContentHtml,
 } from '@/lib/posts';
 import type { PostStatus } from '@/lib/types';
@@ -51,7 +58,20 @@ const { categories, warnings: categoryWarnings } = await loadSiteCategories(
 const categoriesUnavailable = categories.length === 0;
 
 const postAssets = await loadPostAssetsForPost(Astro.locals.supabase, post.id);
-const contentHtml = renderPostContentHtml(post.content_md, assetsForContentRender(postAssets));
+const pdfAssets = postAssets.filter(isPdfAsset);
+const pdfUrlMap = new Map(
+	pdfAssets.flatMap((a) => {
+		const u = publicUrlForAsset(a.storage_path);
+		return u ? ([[u, u]] as const) : [];
+	}),
+);
+const previewMd = buildPublishedBodyMd(
+	post.content_md,
+	pdfAssets as PostAsset[],
+	pdfUrlMap,
+);
+const contentHtml = renderPostContentHtml(previewMd, assetsForContentRender(pdfAssets));
+const galleryAssets = postAssets.filter(isGalleryImageAsset);
 const publishLogs = await listPublishLogsForPost(Astro.locals.supabase, post.id);
 const isAmendment =
 	post.status === 'draft' && publishLogs.some((log) => log.external_id || log.status === 'withdrawn');
@@ -59,7 +79,8 @@ const canReopen =
 	profile.role === 'admin' && (await canReopenPost(Astro.locals.supabase, post.id, post.status));
 
 const ed = dashboard.editor;
-const att = ed.attachments;
+const gal = ed.gallery;
+const pdfUi = ed.pdfAttachments;
 ---
 
 <AppLayout
@@ -156,23 +177,16 @@ const att = ed.attachments;
 						/>
 					</label>
 					<div>
-						<div class="mb-1 flex flex-wrap items-center justify-between gap-2">
-							<span class="text-sm font-medium text-slate-700">{ed.fields.content}</span>
-							<label class="cursor-pointer rounded-lg border border-slate-300 px-3 py-1 text-sm hover:bg-slate-50">
-								{ed.actions.addImage}
-								<input type="file" accept="image/jpeg,image/png,image/webp,image/gif,application/pdf" class="hidden" data-upload-input />
-							</label>
+						<span class="text-sm font-medium text-slate-700">{ed.fields.content}</span>
+						<p class="mt-0.5 text-xs text-slate-500">{ed.fields.contentHint}</p>
+						<div class="mt-2">
+							<PostRichEditor
+								initialMarkdown={post.content_md}
+								placeholder={ed.fields.contentPlaceholder}
+							/>
 						</div>
-						<textarea
-							id="content_md"
-							name="content_md"
-							rows={16}
-							class="w-full rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm"
-						>
-							{post.content_md}
-						</textarea>
-						<p class="mt-1 text-xs text-slate-500">{ed.fields.contentHint}</p>
-						<PostAttachmentsEditor assets={postAssets} contentMd={post.content_md} labels={att} />
+						<PostGalleryPanel postId={post.id} assets={postAssets} labels={gal} />
+						<PostPdfAttachments postId={post.id} assets={postAssets} labels={pdfUi} />
 					</div>
 					<div class="flex flex-wrap gap-3">
 						<button
@@ -223,6 +237,29 @@ const att = ed.attachments;
 						<p class="text-sm text-slate-500">{ed.emptyContent}</p>
 					)}
 				</div>
+				{
+					galleryAssets.length > 0 && (
+						<div class="mt-6">
+							<h3 class="text-sm font-medium text-slate-700">{gal.heading}</h3>
+							<div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+								{galleryAssets.map((asset, index) => {
+									const url = publicUrlForAsset(asset.storage_path);
+									if (!url) return null;
+									return (
+										<div class="relative overflow-hidden rounded-lg border border-slate-200">
+											{index === 0 && (
+												<span class="absolute left-2 top-2 z-10 rounded bg-brand px-2 py-0.5 text-xs font-medium text-white">
+													{gal.cover}
+												</span>
+											)}
+											<img src={url} alt={asset.filename} class="aspect-[4/3] w-full object-cover" loading="lazy" />
+										</div>
+									);
+								})}
+							</div>
+						</div>
+					)
+				}
 				{canReopen && <PostReopenForm postId={post.id} />}
 				{profile.role === 'admin' && post.status === 'pending' && (
 					<p class="mt-4 text-sm">
@@ -241,120 +278,9 @@ const att = ed.attachments;
 
 	{
 		editable && (
-			<script
-				define:vars={{
-					postId: post.id,
-					confirmSubmit: ed.actions.confirmSubmit,
-					uploadFailed: ed.uploadFailed,
-					uploadNetworkError: ed.uploadNetworkError,
-					attLabels: att,
-					pdfMime: 'application/pdf',
-					labelCover: att.coverImage,
-					labelGallery: att.galleryImage,
-					labelUnused: att.unusedImage,
-				}}
-			>
+			<script define:vars={{ confirmSubmit: ed.actions.confirmSubmit }}>
 				document.querySelector('[data-confirm]')?.addEventListener('click', (e) => {
 					if (!confirm(confirmSubmit)) e.preventDefault();
-				});
-
-				const input = document.querySelector('[data-upload-input]');
-				const textarea = document.getElementById('content_md');
-				const panel = document.querySelector('[data-attachments-panel]');
-				const list = panel?.querySelector('[data-attachments-list]');
-				const empty = panel?.querySelector('[data-attachments-empty]');
-				const template = document.getElementById('attachment-row-template');
-
-				function countImagesInMarkdown(md) {
-					return (md.match(/!\[[^\]]*\]\([^)]+\)/g) || []).length;
-				}
-
-				function appendAssetRow(asset) {
-					if (!panel || !template) return;
-					empty?.remove();
-					let ul = list;
-					if (!ul) {
-						ul = document.createElement('ul');
-						ul.className = 'mt-3 space-y-2';
-						ul.setAttribute('data-attachments-list', '');
-						panel.appendChild(ul);
-					}
-					const row = template.content.firstElementChild?.cloneNode(true);
-					if (!(row instanceof HTMLElement)) return;
-					row.dataset.assetId = asset.id;
-					const name = row.querySelector('[data-asset-name]');
-					const url = row.querySelector('[data-asset-url]');
-					const pdfOptions = row.querySelector('[data-asset-pdf-options]');
-					const roleEl = row.querySelector('[data-asset-role]');
-					const isPdf = asset.mime_type === pdfMime;
-					if (name) {
-						name.textContent = `${isPdf ? attLabels.pdf : attLabels.image} ${asset.filename}`;
-						name.title = asset.filename;
-					}
-					if (!isPdf && roleEl instanceof HTMLElement && textarea) {
-						const n = countImagesInMarkdown(textarea.value);
-						roleEl.hidden = false;
-						roleEl.textContent = n <= 1 ? labelCover : labelGallery;
-					}
-					if (url instanceof HTMLAnchorElement) {
-						url.href = asset.url;
-						url.textContent = asset.url;
-					}
-					if (isPdf && pdfOptions instanceof HTMLElement) {
-						pdfOptions.hidden = false;
-						const linkInput = row.querySelector('[data-asset-mode-link]');
-						const embedInput = row.querySelector('[data-asset-mode-embed]');
-						if (linkInput instanceof HTMLInputElement) {
-							linkInput.name = `asset_mode_${asset.id}`;
-							linkInput.checked = asset.display_mode !== 'embed';
-						}
-						if (embedInput instanceof HTMLInputElement) {
-							embedInput.name = `asset_mode_${asset.id}`;
-							embedInput.checked = asset.display_mode === 'embed';
-						}
-						const labelLink = row.querySelector('[data-label-link]');
-						const labelEmbed = row.querySelector('[data-label-embed]');
-						if (labelLink) labelLink.textContent = attLabels.displayLink;
-						if (labelEmbed) labelEmbed.textContent = attLabels.displayEmbed;
-					}
-					ul.appendChild(row);
-				}
-
-				input?.addEventListener('change', async () => {
-					const file = input.files?.[0];
-					if (!file || !textarea) return;
-
-					const fd = new FormData();
-					fd.append('file', file);
-
-					const btn = input.closest('label');
-					if (btn) btn.classList.add('opacity-50', 'pointer-events-none');
-
-					try {
-						const res = await fetch(`/api/posts/${postId}/upload`, {
-							method: 'POST',
-							body: fd,
-							credentials: 'same-origin',
-						});
-						const data = await res.json();
-						if (!res.ok) {
-							alert(data.error ?? uploadFailed);
-							return;
-						}
-						const insert = data.markdown ?? `![](${data.url})`;
-						const start = textarea.selectionStart;
-						const end = textarea.selectionEnd;
-						const before = textarea.value.slice(0, start);
-						const after = textarea.value.slice(end);
-						textarea.value = `${before}\n\n${insert}\n\n${after}`;
-						textarea.focus();
-						if (data.asset) appendAssetRow(data.asset);
-					} catch {
-						alert(uploadNetworkError);
-					} finally {
-						input.value = '';
-						if (btn) btn.classList.remove('opacity-50', 'pointer-events-none');
-					}
 				});
 			</script>
 		)

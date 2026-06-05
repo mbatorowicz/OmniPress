@@ -1,0 +1,85 @@
+---
+import { isPdfAsset, publicUrlForAsset, type PostAssetRow } from '@/lib/posts/assets';
+
+type Props = {
+	postId: string;
+	assets: PostAssetRow[];
+	labels: {
+		heading: string;
+		empty: string;
+		add: string;
+		displayLink: string;
+		displayEmbed: string;
+	};
+};
+
+const { postId, assets, labels } = Astro.props;
+const pdfAssets = assets.filter(isPdfAsset);
+---
+
+<div
+	class="mt-4 rounded-lg border border-slate-200 bg-slate-50/80 p-4"
+	data-pdf-attachments
+	data-post-id={postId}
+	data-label-link={labels.displayLink}
+	data-label-embed={labels.displayEmbed}
+>
+	<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+		<h3 class="text-sm font-medium text-slate-700">{labels.heading}</h3>
+		<label class="cursor-pointer rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50">
+			{labels.add}
+			<input type="file" accept="application/pdf" class="hidden" data-pdf-upload />
+		</label>
+	</div>
+
+	<p class:list={['text-xs text-slate-500', pdfAssets.length > 0 && 'hidden']} data-pdf-empty>
+		{labels.empty}
+	</p>
+
+	<ul class="space-y-2" data-pdf-list>
+		{
+			pdfAssets.map((asset) => {
+				const url = publicUrlForAsset(asset.storage_path);
+				return (
+					<li class="flex flex-wrap items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2">
+						<div class="min-w-0 flex-1">
+							<p class="truncate text-sm font-medium text-slate-800">📄 {asset.filename}</p>
+							{url && (
+								<a href={url} target="_blank" rel="noopener noreferrer" class="text-xs text-brand hover:underline">
+									{url}
+								</a>
+							)}
+						</div>
+						<fieldset class="flex shrink-0 flex-col gap-1 text-xs text-slate-600">
+							<label class="flex cursor-pointer items-center gap-2">
+								<input
+									type="radio"
+									name={`asset_mode_${asset.id}`}
+									value="link"
+									checked={asset.display_mode !== 'embed'}
+									class="text-brand"
+								/>
+								{labels.displayLink}
+							</label>
+							<label class="flex cursor-pointer items-center gap-2">
+								<input
+									type="radio"
+									name={`asset_mode_${asset.id}`}
+									value="embed"
+									checked={asset.display_mode === 'embed'}
+									class="text-brand"
+								/>
+								{labels.displayEmbed}
+							</label>
+						</fieldset>
+					</li>
+				);
+			})
+		}
+	</ul>
+</div>
+
+<script>
+	import { initPdfAttachments } from '@/lib/editor/client-init';
+	initPdfAttachments();
+</script>

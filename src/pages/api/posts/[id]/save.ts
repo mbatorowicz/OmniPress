@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { requireAuth } from '@/lib/auth';
-import { canEditPost, getPostById, resolvePostCategoryFields, slugFromTitle, parseAssetDisplayModes, updatePostAssetDisplayModes } from '@/lib/posts';
+import { canEditPost, getPostById, resolvePostCategoryFields, slugFromTitle, parseAssetDisplayModes, parseGalleryOrder, updateGalleryOrder, updatePostAssetDisplayModes } from '@/lib/posts';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const postId = params.id;
@@ -41,6 +41,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	}
 
 	await updatePostAssetDisplayModes(supabase, postId, parseAssetDisplayModes(form));
+	await updateGalleryOrder(supabase, postId, parseGalleryOrder(form));
 
 	return redirect(`/dashboard/posts/${postId}?saved=1`);
 };

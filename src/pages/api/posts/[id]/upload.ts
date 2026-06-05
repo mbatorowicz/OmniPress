@@ -1,7 +1,14 @@
 import type { APIRoute } from 'astro';
 import { api, formatUploadError } from '@/i18n';
 import { requireAuth } from '@/lib/auth';
-import { canEditPost, extensionForMime, getPostById, markdownForUploadedAsset, validatePostAssetFile } from '@/lib/posts';
+import {
+	canEditPost,
+	extensionForMime,
+	getPostById,
+	markdownForUploadedAsset,
+	nextGallerySortOrder,
+	validatePostAssetFile,
+} from '@/lib/posts';
 
 export const POST: APIRoute = async ({ params, request, locals }) => {
 	const postId = params.id;
@@ -26,9 +33,17 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 		return new Response(JSON.stringify({ error: api.posts.missingFile }), { status: 400 });
 	}
 
+	const kind = String(form.get('kind') ?? 'gallery');
 	const validationError = validatePostAssetFile(file);
 	if (validationError) {
 		return new Response(JSON.stringify({ error: validationError }), { status: 400 });
+	}
+
+	if (kind === 'gallery' && !file.type.startsWith('image/')) {
+		return new Response(JSON.stringify({ error: api.posts.missingFile }), { status: 400 });
+	}
+	if (kind === 'pdf' && file.type !== 'application/pdf') {
+		return new Response(JSON.stringify({ error: api.posts.missingFile }), { status: 400 });
 	}
 
 	const ext = extensionForMime(file.type);
@@ -53,6 +68,9 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 		);
 	}
 
+	const sortOrder =
+		kind === 'gallery' ? await nextGallerySortOrder(supabase, postId) : 0;
+
 	const { data: assetRow, error: insertError } = await supabase
 		.from('assets')
 		.insert({
@@ -60,8 +78,9 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 			storage_path: storagePath,
 			filename: file.name,
 			mime_type: file.type,
+			sort_order: sortOrder,
 		})
-		.select('id, filename, mime_type, display_mode')
+		.select('id, filename, mime_type, display_mode, sort_order')
 		.single();
 
 	if (insertError || !assetRow) {
@@ -72,18 +91,21 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 		.from('post-assets')
 		.getPublicUrl(storagePath);
 
-	const markdown = markdownForUploadedAsset(file.name, publicData.publicUrl, file.type);
+	const publicUrl = publicData.publicUrl;
+	const markdown =
+		kind === 'pdf' ? markdownForUploadedAsset(file.name, publicUrl, file.type) : null;
 
 	return new Response(
 		JSON.stringify({
-			url: publicData.publicUrl,
+			url: publicUrl,
 			markdown,
 			asset: {
 				id: assetRow.id,
 				filename: assetRow.filename,
 				mime_type: assetRow.mime_type,
 				display_mode: assetRow.display_mode ?? 'link',
-				url: publicData.publicUrl,
+				sort_order: assetRow.sort_order ?? 0,
+				url: publicUrl,
 			},
 		}),
 		{

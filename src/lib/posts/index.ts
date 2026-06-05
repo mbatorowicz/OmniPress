@@ -19,6 +19,11 @@ export {
 	parseAssetDisplayModes,
 	publicUrlForAsset,
 	updatePostAssetDisplayModes,
+	parseGalleryOrder,
+	updateGalleryOrder,
+	nextGallerySortOrder,
+	isGalleryImageAsset,
+	isPdfAsset,
 	type PostAssetRow,
 } from './assets';
 export { renderPostContentHtml } from './render-content';
