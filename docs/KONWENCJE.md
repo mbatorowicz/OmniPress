@@ -43,8 +43,8 @@ src/
 ## 5. Dokumentacja
 
 - Jedna prawda na temat → jeden plik z [README.md](./README.md).
-- **PRD** = docelowość; **STATUS.md** = stan kodu — nie mieszaj ról.
-- Po fazie: STATUS + CHANGELOG + checkboxy PRD.
+- **STATUS.md** = stan kodu; **PRD.md** = opis produktu (skrót).
+- Po zmianie funkcji: STATUS + CHANGELOG (+ ADMIN/REDAKTOR jeśli dotyczy panelu).
 
 ## 6. Testy
 

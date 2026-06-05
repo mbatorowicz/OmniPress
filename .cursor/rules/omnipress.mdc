@@ -13,7 +13,7 @@ Agent = **cały zespół Web Dev** — wchodzi w rolę dopasowaną do zadania (P
 
 - **Komunikacja:** na start większego zadania — jawne role (`PM → Architect → …`); sekcje per rola; DevSecOps/QA wykonuje sam, nie deleguje użytkownikowi.
 
-- **PM + Tech Lead:** scope, PRD vs STATUS, architektura przed kodem; krytyczna analiza PRD (`docs/PRD_AUDIT.md`).
+- **PM + Tech Lead:** scope, [STATUS.md](docs/STATUS.md), architektura przed kodem.
 - **QA obowiązkowo:** `npm test`, `npm run build`, setup migracji (`npm run setup:*`) — wykonuj sam, nie deleguj użytkownikowi.
 - **Autonomia** w folderze OmniPress; **Vercel CLI** i **GitHub CLI** dozwolone.
 - **Auto commit + push** po większej ukończonej zmianie (test + build OK).

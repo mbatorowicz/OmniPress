@@ -4,20 +4,19 @@
 
 1. Wejdź na **https://omni-press.vercel.app/login**
 2. Wpisz **e-mail** i **hasło** (bez linków z maila).
-3. Hasło administratora jest w pliku **`.admin-password.txt`** w folderze projektu na Twoim komputerze (generowane poleceniem `npm run setup:password`).
+3. Hasło administratora: plik **`.admin-password.txt`** w folderze projektu (po `npm run setup:password`).
 
 ### Zapomniałem hasła
 
 1. **https://omni-press.vercel.app/login?mode=reset**
 2. Podaj e-mail → link w skrzynce → ustaw nowe hasło (min. 8 znaków).
 
-**Link prowadzi na `localhost:3000`?** (błąd Supabase Site URL)
+**Link prowadzi na `localhost:3000`?**
 
-- W pasku adresu zamień `http://localhost:3000/?code=...` na:  
-  **`https://omni-press.vercel.app/auth/reset-password?code=...`** (ten sam `code` po `?`).
-- Trwała naprawa: [Supabase → URL Configuration](https://supabase.com/dashboard/project/tseticasatzviqhthwbr/auth/url-configuration) → **Site URL** = `https://omni-press.vercel.app` → **Save** → wyślij reset ponownie.
+- W pasku adresu zamień na: **`https://omni-press.vercel.app/auth/reset-password?code=...`**
+- Trwała naprawa: Supabase → **Site URL** = `https://omni-press.vercel.app` → `npm run setup:auth-urls`
 
-### Nowe hasło od zera (terminal)
+### Nowe hasło od zera
 
 ```powershell
 cd "ścieżka\do\OmniPress"
@@ -25,7 +24,7 @@ npm run env:pull
 npm run setup:password
 ```
 
-Otwórz `.admin-password.txt` — tam jest e-mail i hasło.
+Hasło w `.admin-password.txt`.
 
 ---
 
@@ -33,16 +32,49 @@ Otwórz `.admin-password.txt` — tam jest e-mail i hasło.
 
 1. Integracja Vercel ↔ Supabase: **pusty** Custom Prefix.
 2. `npm run env:pull` — zmienne lokalnie.
-3. `npm run setup:remote` — baza + strona UG + admin.
+3. `npm run setup:remote` — baza + strona + admin.
 
-### Naprawa przekierowania (localhost:3000)
-
-**Ręcznie (2 min):** [URL Configuration w Supabase](https://supabase.com/dashboard/project/tseticasatzviqhthwbr/auth/url-configuration)
+### Site URL Supabase
 
 - **Site URL:** `https://omni-press.vercel.app`
-- **Redirect URLs:** `https://omni-press.vercel.app/**` oraz `/auth/callback` i `/auth/reset-password`
+- **Redirect URLs:** `https://omni-press.vercel.app/**`, `/auth/callback`, `/auth/reset-password`
 
-**Lub z tokenem:** [Account tokens](https://supabase.com/dashboard/account/tokens) → dodaj `SUPABASE_ACCESS_TOKEN=sbp_...` do `.env.local` → `npm run setup:auth-urls`
+Lub: `SUPABASE_ACCESS_TOKEN` w `.env.local` → `npm run setup:auth-urls`
+
+---
+
+## Migracje SQL (kolejność)
+
+Na istniejącej bazie uruchamiaj tylko brakujące:
+
+```powershell
+npm run setup:storage
+npm run setup:phase3
+npm run setup:phase4
+npm run setup:categories
+npm run setup:layout
+npm run setup:storage-pdf
+npm run setup:asset-display
+npm run setup:asset-sort
+npm run setup:remove-wordpress
+```
+
+Świeża baza: `setup:remote` stosuje schemat początkowy; potem pozostałe migracje w kolejności dat.
+
+---
+
+## Zmienne Vercel (Production)
+
+| Zmienna | Opis |
+|---------|------|
+| `CRON_SECRET` | Losowy string — cron → `/api/worker/publish` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Worker — **nie** w UI |
+| `ENCRYPTION_KEY` | Szyfrowanie tokenów GitHub/Vercel (base64, 32 bajty) |
+| `VERCEL_TOKEN` | Opcjonalnie — weryfikacja buildu strony Astro |
+
+Bez `ENCRYPTION_KEY`: konfiguracja jednostki zapisze się, ale **tokeny nie** (tylko dev).
+
+Cron: `vercel.json` → worker raz dziennie (backup). Publikacja startuje też **od razu po akceptacji**.
 
 ---
 
@@ -50,51 +82,16 @@ Otwórz `.admin-password.txt` — tam jest e-mail i hasło.
 
 | Problem | Rozwiązanie |
 |--------|-------------|
-| localhost:3000 | Popraw Site URL w Supabase (wyżej) |
-| Zły e-mail/hasło | `npm run setup:password` i plik `.admin-password.txt` |
-| Link z maila nie działa | Użyj logowania hasłem na `/login` |
-| Brak /admin | `npm run setup:password` (ustawia rolę admin) |
+| localhost:3000 w mailu | Popraw Site URL w Supabase |
+| Zły e-mail/hasło | `npm run setup:password` |
+| Brak /admin | `npm run setup:password` (rola admin) |
+| Publikacja failed | Logi w podglądzie wpisu → Ponów publikację |
+| Worker nie działa | `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, redeploy |
 
 ---
 
-## Faza 3 — admin, destynacje, migracja
+## Podręczniki
 
-### Migracja SQL
-
-```powershell
-npm run setup:phase3
-```
-
-Indeks `UNIQUE(site_id, slug)` na wpisach.
-
-### Faza 4 — dispatcher (worker)
-
-```bash
-npm run setup:phase4
-```
-
-Na Vercel (Production):
-
-| Zmienna | Opis |
-|---------|------|
-| `CRON_SECRET` | Losowy string; Vercel Cron wysyła `Authorization: Bearer …` |
-| `SUPABASE_SERVICE_ROLE_KEY` | Tylko worker — **nie** eksponować w UI |
-| `ENCRYPTION_KEY` | Odszyfrowanie credentials destynacji |
-
-Cron: `vercel.json` → `/api/worker/publish` raz dziennie (backup retry; Hobby plan). Publikacja startuje **od razu po akceptacji** (`waitUntil`).
-
-### ENCRYPTION_KEY (destynacje produkcyjne)
-
-1. Wygeneruj 32 bajty losowe, zakoduj base64.
-2. Vercel → Project → Settings → Environment Variables → `ENCRYPTION_KEY`.
-3. Redeploy.
-
-Bez klucza: panel destynacji działa, ale **credentials nie zapiszą się** szyfrowane.
-
-### Podręczniki
-
-- Administrator: [ADMIN.md](./ADMIN.md)
-- Redaktor: [REDAKTOR.md](./REDAKTOR.md)
-- Co jest zbudowane: [STATUS.md](./STATUS.md)
-
----
+- [ADMIN.md](./ADMIN.md)
+- [REDAKTOR.md](./REDAKTOR.md)
+- [STATUS.md](./STATUS.md)

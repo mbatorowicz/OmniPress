@@ -98,10 +98,9 @@ Sekrety: `.env.local`, `.admin-password.txt` — **nigdy** w commicie.
 
 ### Product Manager
 
-- [PRD.md](../PRD.md) = **kontrakt docelowy**; [STATUS.md](./STATUS.md) = stan kodu
+- [PRD.md](../PRD.md) = opis produktu; [STATUS.md](./STATUS.md) = stan implementacji (SSOT)
 - Fazy i kryteria akceptacji **przed** implementacją
-- **Krytyczna analiza PRD** — mentor, nie cheerleader ([PRD_AUDIT.md](./PRD_AUDIT.md))
-- Odrzucanie scope creep spoza fazy
+- Odrzucanie scope creep poza uzgodniony zakres
 
 ### Tech Lead
 

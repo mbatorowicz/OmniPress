@@ -1,6 +1,6 @@
 # Podręcznik administratora
 
-Operacyjny przewodnik po panelu OmniPress. Wymagania produktowe: [PRD.md](../PRD.md). Co jest już zbudowane: [STATUS.md](./STATUS.md).
+Operacyjny przewodnik po panelu OmniPress. Stan funkcji: [STATUS.md](./STATUS.md).
 
 **URL produkcji:** https://omni-press.vercel.app/admin
 
@@ -74,11 +74,12 @@ Na podglądzie wpisu: tabela **Status publikacji**. Przy błędzie (`failed`): *
 
 ---
 
-## 6. Layout i import
+## 6. Layout, import i bulk
 
 - **Layout Astro:** `/admin/units/[id]/layout` — menu, kategorie, sloty → sync do GitHub.
 - **Import wpisów z GitHub:** `/admin` → synchronizacja (wpisy już na stronie).
 - **Ostatnie zmiany:** `/admin/units/[id]/changes`.
+- **Bulk:** na liście opublikowanych — zaznacz wiele wpisów → dezaktywuj lub usuń (w tym z GitHub).
 
 ---
 

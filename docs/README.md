@@ -1,36 +1,34 @@
 # Dokumentacja OmniPress (SSOT)
 
-Jeden indeks — **nie duplikuj** tych samych zasad w wielu plikach. Szczegóły tylko w docelowym dokumencie.
+Jeden indeks — szczegóły tylko w docelowym dokumencie.
 
-## Warstwy dokumentacji
+## Warstwy
 
 | Warstwa | Plik | Rola |
 |---------|------|------|
-| **Kontrakt produktu** | [../PRD.md](../PRD.md) | Docelowy produkt — nie schodzi do „tylko to, co jest” |
-| **Stan kodu** | [STATUS.md](./STATUS.md) | ✅ / 🟡 / ⬜ — śledzi implementację vs PRD |
-| **Operacyjne** | [ADMIN.md](./ADMIN.md), [REDAKTOR.md](./REDAKTOR.md) | Dla ludzi w panelu |
+| **Stan produktu** | [STATUS.md](./STATUS.md) | Co jest zbudowane dziś |
+| **Opis produktu** | [../PRD.md](../PRD.md) | Skrót modelu i workflow |
+| **Operacyjne** | [ADMIN.md](./ADMIN.md), [REDAKTOR.md](./REDAKTOR.md) | Dla użytkowników panelu |
 | **Techniczne** | [AUTH.md](./AUTH.md), [WDROZENIE.md](./WDROZENIE.md) | Dev / bootstrap |
-| **Proces** | [KONWENCJE.md](./KONWENCJE.md), [ROLE_AGENT.md](./ROLE_AGENT.md) | Kod i agent AI |
+| **Kod** | [KONWENCJE.md](./KONWENCJE.md), [ROLE_AGENT.md](./ROLE_AGENT.md) | Konwencje i proces agenta |
 
 ## Indeks plików
 
 | Dokument | SSOT dla |
 |----------|----------|
-| [../PRD.md](../PRD.md) | Wymagania docelowe, fazy, model danych |
-| [STATUS.md](./STATUS.md) | **Implementacja vs PRD** (aktualizuj po każdej fazie) |
+| [STATUS.md](./STATUS.md) | **Implementacja** — funkcje, migracje, env |
+| [../PRD.md](../PRD.md) | Opis produktu |
 | [ADMIN.md](./ADMIN.md) | Panel administratora |
 | [REDAKTOR.md](./REDAKTOR.md) | Panel redaktora |
-| [RUNBOOK-MIGRACJA.md](./RUNBOOK-MIGRACJA.md) | WP → Astro, SEO, DNS |
-| [KONWENCJE.md](./KONWENCJE.md) | Kod, i18n, struktura plików |
-| [ROLE_AGENT.md](./ROLE_AGENT.md) | Rola agenta AI |
-| [PRD_AUDIT.md](./PRD_AUDIT.md) | Historia audytu PRD (2025-06) |
 | [AUTH.md](./AUTH.md) | Auth, sesja, endpointy |
 | [WDROZENIE.md](./WDROZENIE.md) | Vercel, Supabase, migracje |
+| [KONWENCJE.md](./KONWENCJE.md) | Kod, i18n, UI SSOT |
 | [VERSIONING.md](./VERSIONING.md) | `semver+commit` |
+| [ROLE_AGENT.md](./ROLE_AGENT.md) | Proces agenta AI |
 | [../CHANGELOG.md](../CHANGELOG.md) | Historia wydań |
 | [../README.md](../README.md) | Wejście do repo |
 
-## Inne SSOT (poza `docs/`)
+## SSOT techniczne (poza `docs/`)
 
 | Ścieżka | SSOT dla |
 |---------|----------|
@@ -38,22 +36,32 @@ Jeden indeks — **nie duplikuj** tych samych zasad w wielu plikach. Szczegóły
 | `scripts/lib/git-info.mjs` | Etykieta `semver+commit` |
 | `src/config/app.ts` | URL produkcji, origin auth |
 | `src/i18n/pl/` | Napisy UI |
+| `src/styles/ui.css` | Klasy UI |
 | `supabase/migrations/` | Schemat bazy i RLS |
 
-## Skrypty (`scripts/`)
+## Skrypty npm
 
-| Skrypt | npm | Opis |
-|--------|-----|------|
-| `setup-remote.mjs` | `setup:remote` | Bootstrap bazy, strona, admin |
-| `set-admin-password.mjs` | `setup:password` | Hasło admina |
-| `fix-auth-config.mjs` | `setup:auth-urls` | Site URL Supabase Auth |
-| `apply-migration.mjs` | `setup:storage`, `setup:phase3`, `setup:phase4` | Migracje SQL |
-| `lib/git-info.mjs` | (build) | Etykieta wersji |
+| npm | Migracja / akcja |
+|-----|-------------------|
+| `setup:remote` | Bootstrap bazy + strona + admin |
+| `setup:password` | Hasło administratora |
+| `setup:auth-urls` | Site URL Supabase Auth |
+| `setup:storage` | Bucket assetów wpisów |
+| `setup:storage-pdf` | PDF w bucket |
+| `setup:asset-display` | Tryb wyświetlania assetów |
+| `setup:asset-sort` | Kolejność galerii |
+| `setup:phase3` | UNIQUE(site_id, slug) |
+| `setup:phase4` | Worker publikacji |
+| `setup:categories` | Kategorie wpisów |
+| `setup:layout` | Layout Astro w bazie |
+| `setup:remove-wordpress` | Usunięcie typu wordpress z enum |
+| `env:pull` | Pobranie env z Vercel |
+| `test` | Vitest |
+| `build` | Astro production build |
 
 ## Zasada zmian
 
-1. **Nowa funkcja docelowa** → PRD (+ ewentualnie PRD_AUDIT przy większej luce).
-2. **Po merge fazy** → STATUS.md + CHANGELOG + checkboxy PRD §10–§13.
+1. **Nowa funkcja** → zaktualizuj [STATUS.md](./STATUS.md) + [CHANGELOG.md](../CHANGELOG.md).
+2. **Nowy flow panelu** → [ADMIN.md](./ADMIN.md) / [REDAKTOR.md](./REDAKTOR.md).
 3. **Nowy tekst UI** → `src/i18n/pl/`.
-4. **Zmiana auth / wdrożenia** → AUTH.md / WDROZENIE.md.
-5. **Nowy flow admin/redaktor** → ADMIN.md / REDAKTOR.md.
+4. **Auth / wdrożenie** → [AUTH.md](./AUTH.md) / [WDROZENIE.md](./WDROZENIE.md).

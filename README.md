@@ -1,70 +1,61 @@
 # OmniPress
 
-Headless CMS do przygotowania treści przez redaktorów i publikacji na stronach Astro (GitHub + Vercel) z jednego panelu.
+Headless CMS do przygotowania treści przez redaktorów i publikacji na stronach **Astro** (GitHub + Vercel).
 
-- Wymagania produktowe: [PRD.md](./PRD.md)
-- **Indeks dokumentacji (SSOT):** [docs/README.md](./docs/README.md)
-- Konwencje kodu i i18n: [docs/KONWENCJE.md](./docs/KONWENCJE.md)
-- Rola agenta / Tech Lead: [docs/ROLE_AGENT.md](./docs/ROLE_AGENT.md)
-- Audyt PRD: [docs/PRD_AUDIT.md](./docs/PRD_AUDIT.md)
-- **Stan implementacji:** [docs/STATUS.md](./docs/STATUS.md)
-- **Admin / redaktor:** [docs/ADMIN.md](./docs/ADMIN.md) · [docs/REDAKTOR.md](./docs/REDAKTOR.md)
-- Autoryzacja: [docs/AUTH.md](./docs/AUTH.md)
-- Schemat bazy: [supabase/migrations/20250603000000_initial_schema.sql](./supabase/migrations/20250603000000_initial_schema.sql)
+**Produkcja:** https://omni-press.vercel.app
+
+## Dokumentacja
+
+| Dokument | Opis |
+|----------|------|
+| [docs/README.md](./docs/README.md) | Indeks dokumentacji |
+| [docs/STATUS.md](./docs/STATUS.md) | **Stan implementacji (SSOT)** |
+| [PRD.md](./PRD.md) | Opis produktu |
+| [docs/ADMIN.md](./docs/ADMIN.md) | Podręcznik administratora |
+| [docs/REDAKTOR.md](./docs/REDAKTOR.md) | Podręcznik redaktora |
+| [docs/WDROZENIE.md](./docs/WDROZENIE.md) | Bootstrap (Vercel, Supabase, migracje) |
+| [docs/AUTH.md](./docs/AUTH.md) | Autoryzacja |
+| [docs/KONWENCJE.md](./docs/KONWENCJE.md) | Konwencje kodu i i18n |
 
 ## Stack
 
 - Astro 6 SSR + Tailwind CSS v4
 - Supabase (Auth, PostgreSQL, RLS, Storage)
 - Deploy: Vercel (`@astrojs/vercel`)
+- Publikacja: GitHub → repo Astro
 
-## Wdrożenie (dla Ciebie)
+## Wdrożenie
 
-**Prosta instrukcja krok po kroku:** [docs/WDROZENIE.md](./docs/WDROZENIE.md)
+Instrukcja krok po kroku: [docs/WDROZENIE.md](./docs/WDROZENIE.md)
 
-Integracja Vercel ↔ Supabase: zostaw **pusty** Custom Prefix. Kod sam mapuje `SUPABASE_URL` / `SUPABASE_ANON_KEY` — nie trzeba ręcznie tworzyć `PUBLIC_*` w panelu Vercel.
+Integracja Vercel ↔ Supabase: **pusty** Custom Prefix. Kod mapuje `SUPABASE_URL` / `SUPABASE_ANON_KEY` automatycznie.
 
-### Lokalnie (opcjonalnie)
+### Lokalnie
 
 ```bash
 cp .env.example .env
-# uzupełnij PUBLIC_SUPABASE_URL i PUBLIC_SUPABASE_ANON_KEY z Supabase → Settings → API
+# uzupełnij PUBLIC_SUPABASE_URL i PUBLIC_SUPABASE_ANON_KEY
 
 npm install
 npm run dev
 ```
 
-Aplikacja: http://localhost:4321
+http://localhost:4321
 
 ## Wersja
 
-Etykieta **`semver+commit`** (np. `0.1.0+d7f8740`) — semver z `package.json`, commit z Gita/Vercel.  
-Szczegóły: [docs/VERSIONING.md](./docs/VERSIONING.md) · `npm run version`
+Etykieta **`semver+commit`** (np. `0.7.13+abc1234`). Szczegóły: [docs/VERSIONING.md](./docs/VERSIONING.md) · `npm run version`
 
-## Struktura
+## Struktura repo
 
 ```
 src/
   config/        — URL, build
-  i18n/pl/       — napisy UI (SSOT)
-  lib/           — auth, posts, admin, supabase
-  components/    — UI
-  layouts/       — AppLayout
-  pages/         — trasy (dashboard, admin, api)
-scripts/         — bootstrap, migracje, git-info
+  i18n/pl/       — napisy UI (SSOT tekstów)
+  lib/           — logika (auth, posts, admin, publish)
+  components/    — UI (ui/, admin/, posts/)
+  pages/         — trasy + API
+scripts/         — bootstrap, migracje
 supabase/        — migracje SQL
-docs/            — indeks SSOT, STATUS, podręczniki
+docs/            — dokumentacja operacyjna i techniczna
 ```
-
-## Kamienie milowe
-
-| Faza | Status |
-|------|--------|
-| 1 — Auth, schema, szkielet | ✅ |
-| 2 — Edytor, szkice, Storage | ✅ |
-| 3 — CRUD stron/destynacji, akceptacja | ✅ |
-| 4 — Dispatcher WP + GitHub | planowane |
-
-## Model stron (skrót)
-
-Redaktor ma przypisaną **stronę** (`sites` / `user_sites`). Nowy post dziedziczy `site_id` → przy publikacji admin widzi tylko destynacje z `site_destinations` dla tej strony.

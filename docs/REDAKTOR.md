@@ -1,6 +1,6 @@
 # Podręcznik redaktora
 
-Krótki przewodnik po panelu redaktora. Status funkcji: [STATUS.md](./STATUS.md).
+Przewodnik po panelu redaktora. Stan funkcji: [STATUS.md](./STATUS.md).
 
 **URL:** https://omni-press.vercel.app/login → po zalogowaniu `/dashboard`
 
@@ -15,8 +15,8 @@ Krótki przewodnik po panelu redaktora. Status funkcji: [STATUS.md](./STATUS.md)
 
 ## Panel (`/dashboard`)
 
-1. **+ Nowy artykuł** — tworzy szkic na przypisanej stronie (gdy masz wiele stron — wybierz z listy).
-2. **Twoje wpisy** — lista z statusem (Szkic, Do akceptacji, itd.).
+1. **+ Nowy artykuł** — tworzy szkic na przypisanej stronie (przy wielu stronach — wybierz z listy).
+2. **Twoje wpisy** — lista ze statusem (Szkic, Do akceptacji, Publikacja, Opublikowany, Odrzucony).
 
 ---
 
@@ -24,14 +24,16 @@ Krótki przewodnik po panelu redaktora. Status funkcji: [STATUS.md](./STATUS.md)
 
 | Pole | Opis |
 |------|------|
-| Tytuł | Wymagany przed wysłaniem do akceptacji |
-| Slug | Opcjonalnie; generowany z tytułu |
-| Treść | Markdown (`##` nagłówki, `![opis](url)` obrazy) |
-| Dodaj zdjęcie | Upload do Supabase (JPEG, PNG, WebP, GIF, max 10 MB) |
+| Kategoria | Wymagana przed wysłaniem — lista z pliku w repo strony |
+| Tytuł | Wymagany przed wysłaniem |
+| Slug | Opcjonalnie; może być generowany z tytułu |
+| Treść | Edytor WYSIWYG (TipTap) — zapis jako Markdown |
+| Galeria | Zdjęcia pod wpisem; pierwsze = zajawka (cover) |
+| PDF | Załączniki jako link lub podgląd osadzony |
 
-**Zapisz szkic** — możesz wracać i edytować.
+**Zapisz szkic** — możesz wracać i edytować (status `draft` lub `rejected`).
 
-**Wyślij do akceptacji** — po wysłaniu **nie edytujesz** do czasu decyzji admina.
+**Wyślij do akceptacji** — po wysłaniu edycja zablokowana do decyzji admina.
 
 ---
 
@@ -40,8 +42,9 @@ Krótki przewodnik po panelu redaktora. Status funkcji: [STATUS.md](./STATUS.md)
 | Status | Co możesz zrobić |
 |--------|------------------|
 | Do akceptacji | Czekaj — edycja zablokowana |
+| Publikacja w toku | Czekaj — worker publikuje na GitHub |
 | Odrzucony | Czytasz uwagi admina, poprawiasz, wysyłasz ponownie |
-| Opublikowany | Treść zaakceptowana; publikacja na stronie gminy — Faza 4 |
+| Opublikowany | Treść na stronie gminy; admin może otworzyć ponowną edycję (poprawka) |
 
 ---
 
@@ -50,5 +53,6 @@ Krótki przewodnik po panelu redaktora. Status funkcji: [STATUS.md](./STATUS.md)
 | Problem | Co zrobić |
 |---------|-----------|
 | „Brak przypisanej strony” | Poproś admina o przypisanie w `/admin/editors` |
-| Nie mogę edytować | Wpis może być w statusie *Do akceptacji* lub *Opublikowany* |
+| Brak kategorii na liście | Admin musi skonfigurować layout i plik kategorii w repo |
+| Nie mogę edytować | Wpis może być w statusie *Do akceptacji* lub *Opublikowany* (bez reopen) |
 | Upload nie działa | Zgłoś adminowi (bucket Storage) |

@@ -1,86 +1,132 @@
-# Status implementacji vs PRD
+# Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane dziś, a co jest tylko w [PRD.md](../PRD.md) (kontrakt docelowy).
+**SSOT:** co jest zbudowane w wersji **0.7.13** (kod + baza + panel).
 
-> PRD opisuje **docelowy produkt**. Rozjazdy z kodem są normalne w trakcie budowy — ten plik je śledzi. Po każdej fazie: zaktualizuj tabelę i checkboxy w PRD §10–§13.
-
-Legenda: ✅ zaimplementowane · 🟡 częściowo · ⬜ planowane · 📋 tylko w PRD
+Produkcja: https://omni-press.vercel.app
 
 ---
 
-## Fazy (skrót)
+## Stack
 
-| Faza | PRD | Kod | Uwagi |
-|------|-----|-----|--------|
-| 1 — Auth, schema | ✅ | ✅ | |
-| 2 — Edytor, Storage | ✅ | ✅ | Markdown textarea; TipTap 📋 |
-| 3 — Admin CRUD, akceptacja | ✅ | ✅ | |
-| 4 — Dispatcher GitHub + Vercel | 🟡 | 🟡 | GitHub adapter ✅; logi Vercel ✅; retry UI ✅ |
+| Warstwa | Technologia |
+|---------|-------------|
+| Aplikacja | Astro 6 SSR, Tailwind CSS v4 |
+| Hosting | Vercel (`@astrojs/vercel`, cron worker) |
+| Baza + Auth | Supabase (PostgreSQL, RLS, Auth, Storage) |
+| Edytor | TipTap → zapis jako Markdown |
+| Publikacja | GitHub API → repo Astro → opcjonalnie deploy Vercel |
+
+Jedyny typ destynacji: **`github_astro`**.
 
 ---
 
-## Funkcje szczegółowe
+## Role i trasy
 
-### Redaktor
+| Rola | Logowanie | Panel |
+|------|-----------|-------|
+| Redaktor | `/login` | `/dashboard`, `/dashboard/posts/[id]` |
+| Administrator | `/login` | `/admin`, `/admin/sites`, `/admin/units/*`, `/admin/editors/*`, `/admin/posts/[id]` |
 
-| Wymaganie PRD | Status | Uwagi |
-|---------------|--------|--------|
-| Logowanie e-mail/hasło | ✅ | |
-| Szkice, upload, submit → `pending` | ✅ | |
-| Edycja tylko `draft` / `rejected` | ✅ | |
-| TipTap / podgląd Markdown | 📋 | MVP = textarea (PRD §5.1) |
-| Powiadomienia e-mail | 📋 | Poza MVP (PRD §0) |
+Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 
-### Administrator
+---
 
-| Wymaganie PRD | Status | Uwagi |
-|---------------|--------|--------|
-| CRUD `sites` | ✅ | `/admin/sites` + usuwanie gdy brak wpisów |
-| CRUD `destinations` + credentials | ✅ | Create bez wymogu credentials; edycja dodaje tokeny |
-| `site_destinations`, `user_sites` | ✅ | |
-| Odrzucenie + `rejection_note` | ✅ | |
-| Akceptacja + wybór destynacji | ✅ | |
-| Semantyka `published` vs `publish_logs` | ✅ | approve → `publishing`; `published` po sukcesie workera |
-| Cofnięcie ze strony (GitHub) | ✅ | Dezaktywacja wpisu — batch delete z repo |
-| MFA / Passkeys admin | 📋 | PRD §4.2 — przed Fazą 4 |
-| Audit log akcji admina | 📋 | PRD §7 |
+## Redaktor
 
-### Infrastruktura / bezpieczeństwo
+| Funkcja | Status |
+|---------|--------|
+| Logowanie e-mail/hasło | ✅ |
+| Przypisanie do stron (`user_sites`, `default_site_id`) | ✅ |
+| Tworzenie szkicu na dozwolonej stronie | ✅ |
+| Edytor WYSIWYG (TipTap) → Markdown | ✅ |
+| Kategoria wpisu (z pliku w repo Astro) | ✅ |
+| Galeria zdjęć (cover + kolejność) | ✅ |
+| Załączniki PDF (link / podgląd) | ✅ |
+| Zapis szkicu, wysłanie do akceptacji | ✅ |
+| Edycja tylko `draft` / `rejected`; poprawki opublikowanych (amendment) | ✅ |
+| Podgląd treści po wysłaniu / odrzuceniu | ✅ |
 
-| Wymaganie PRD | Status | Uwagi |
-|---------------|--------|--------|
-| RLS | ✅ | Testy integracyjne ⬜ (PRD §12) |
-| `UNIQUE(site_id, slug)` | ✅ | Migracja Fazy 3 |
-| Kolejka publikacji | ✅ | Worker + GitHub-Astro + retry ręczny |
-| SEO staging / runbook DNS | 📋 | PRD §5.4.1 — runbook ⬜ |
-| Storage public vs signed URL | 🟡 | Bucket publiczny; decyzja docs ⬜ |
+---
+
+## Administrator
+
+| Funkcja | Status |
+|---------|--------|
+| Jednostki organizacyjne (strona + GitHub w jednym formularzu) | ✅ `/admin/units/new`, `/admin/units/[id]` |
+| Lista stron | ✅ `/admin/sites` |
+| Redaktorzy + przypisanie stron | ✅ `/admin/editors` |
+| Kolejka: do akceptacji, publikacja w toku, opublikowane | ✅ `/admin` |
+| Akceptacja → kolejka publikacji GitHub | ✅ |
+| Odrzucenie z `rejection_note` | ✅ |
+| Ponowne otwarcie wpisu (reopen) | ✅ |
+| Dezaktywacja / usunięcie opublikowanego (withdraw z GitHub) | ✅ |
+| Bulk dezaktywacja / usuwanie opublikowanych | ✅ |
+| Import wpisów z GitHub | ✅ |
+| Layout Astro (menu, kategorie, sloty) + sync do repo | ✅ `/admin/units/[id]/layout` |
+| Ostatnie zmiany (ogłoszenia) | ✅ `/admin/units/[id]/changes` |
+| Test połączenia GitHub | ✅ |
+| Logi publikacji + retry ręczny | ✅ |
+| Weryfikacja logów buildu Vercel po publikacji | ✅ (opcjonalnie token / project id) |
+| Usuwanie jednostki (gdy brak wpisów) | ✅ |
+
+---
+
+## Publikacja (worker)
+
+1. Admin akceptuje wpis → status `publishing`, `publish_logs.pending`.
+2. Worker `/api/worker/publish` (cron dzienny + start po akceptacji).
+3. Commit `.md` + assety do repo GitHub (layout `flat` lub `folder`).
+4. Opcjonalnie: oczekiwanie na deploy Vercel i zapis błędów buildu.
+5. Sukces → `published`; błąd → `failed` (retry automatyczny + przycisk w UI).
+
+Withdraw/deactivate: batch delete plików wpisu z GitHub.
 
 ---
 
 ## Migracje SQL (kolejność)
 
-| Plik | Kiedy |
-|------|--------|
-| `20250603000000_initial_schema.sql` | Faza 1 — `setup:remote` |
-| `20250604000000_storage_post_assets.sql` | Faza 2 — `npm run setup:storage` |
-| `20250605000000_phase3_post_slug_unique.sql` | Faza 3 — `npm run setup:phase3` |
-| `20250606000000_phase4_publish_worker.sql` | Faza 4 — `npm run setup:phase4` |
+| Plik | npm |
+|------|-----|
+| `20250603000000_initial_schema.sql` | `setup:remote` |
+| `20250604000000_storage_post_assets.sql` | `setup:storage` |
+| `20250605000000_phase3_post_slug_unique.sql` | `setup:phase3` |
+| `20250606000000_phase4_publish_worker.sql` | `setup:phase4` |
+| `20250607000000_post_categories.sql` | `setup:categories` |
+| `20250608000000_site_astro_layout.sql` | `setup:layout` |
+| `20250609000000_storage_post_assets_pdf.sql` | `setup:storage-pdf` |
+| `20250610000000_asset_display_mode.sql` | `setup:asset-display` |
+| `20250611000000_asset_sort_order.sql` | `setup:asset-sort` |
+| `20250612000000_remove_wordpress.sql` | `setup:remove-wordpress` |
 
 ---
 
-## Zmienne środowiskowe (stan)
+## Zmienne środowiskowe (Vercel prod)
 
-| Zmienna | Wymagana | Status |
-|---------|----------|--------|
-| `SUPABASE_URL` / anon key | tak | Vercel ↔ Supabase |
-| `ENCRYPTION_KEY` | destynacje prod | opcjonalna lokalnie |
-| `CRON_SECRET` | worker cron | wymagana na Vercel prod |
-| `SUPABASE_SERVICE_ROLE_KEY` | worker publish | nie w UI; wymagana na Vercel prod |
+| Zmienna | Wymagana | Opis |
+|---------|----------|------|
+| `SUPABASE_URL`, anon key | tak | Integracja Vercel ↔ Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | tak (worker) | Worker publikacji — nie w UI |
+| `CRON_SECRET` | tak (worker) | Autoryzacja cron → `/api/worker/publish` |
+| `ENCRYPTION_KEY` | tak (credentials) | Szyfrowanie tokenów GitHub/Vercel w bazie |
+| `VERCEL_TOKEN` | opcjonalnie | Globalny token do weryfikacji buildów (alternatywa: per destynacja) |
 
 ---
 
-## Kiedy aktualizować ten plik
+## Nie zaimplementowane (planowane)
 
-1. Po merge fazy (np. Faza 4).
-2. Gdy PRD dostaje nową sekcję — najpierw PRD, potem tutaj wiersz ⬜.
-3. Gdy zamykamy rozjazd — zmień 🟡/📋 na ✅ i dopisz datę w CHANGELOG.
+| Funkcja | Uwagi |
+|---------|--------|
+| Powiadomienia e-mail (akceptacja/odrzucenie) | — |
+| MFA / Passkeys dla admina | — |
+| Audit log akcji administratora | — |
+| Testy integracyjne RLS | — |
+| SSO redaktorów | — |
+
+---
+
+## Powiązane dokumenty
+
+- [ADMIN.md](./ADMIN.md) — jak używać panelu admina
+- [REDAKTOR.md](./REDAKTOR.md) — jak używać panelu redaktora
+- [WDROZENIE.md](./WDROZENIE.md) — bootstrap techniczny
+- [../PRD.md](../PRD.md) — opis produktu (skrót)
