@@ -8,25 +8,17 @@ Operacyjny przewodnik po panelu OmniPress. Wymagania produktowe: [PRD.md](../PRD
 
 ## 1. Pierwsza konfiguracja (kolejność)
 
-**Szybko:** [Kreator jednostki](/admin/units/new) — strona + WordPress + Astro + mapowanie w jednym formularzu.
-
-**Edycja:** kliknij jednostkę na liście stron → `/admin/units/[id]` (ten sam formularz).
-
-**Ręcznie:**
+**Jednostka organizacyjna:** `/admin/units/new` lub edycja z listy stron — nazwa, slug, repozytorium GitHub (Astro) i opcjonalnie weryfikacja deployu Vercel w jednym formularzu.
 
 ```mermaid
 flowchart LR
-  sites[Strony] --> dest[Destynacje]
-  dest --> map[Mapowanie site_destinations]
-  map --> editors[Redaktorzy user_sites]
+  unit[Jednostka + GitHub] --> editors[Redaktorzy user_sites]
   editors --> ready[Gotowe do treści]
 ```
 
-1. **Strona** (`/admin/sites`) — np. „UG Miedzna”, slug `ug-miedzna`.
-2. **Destynacja** (`/admin/destinations`) — WordPress i/lub GitHub→Astro.
-3. **Mapowanie** — na stronie: *Destynacje* → zaznacz kanały, ustaw domyślną.
-4. **Redaktor** (`/admin/editors`) — przypisz strony + domyślna strona.
-5. Redaktor loguje się na `/login` → `/dashboard`.
+1. **Jednostka** — np. „UG Miedzna”, repo `mbatorowicz/gmina-miedzna.pl`, layout `folder`, ścieżka `src/content/news`.
+2. **Redaktor** (`/admin/editors`) — przypisz strony + domyślna strona.
+3. Redaktor loguje się na `/login` → `/dashboard`.
 
 Szczegóły wdrożenia technicznego: [WDROZENIE.md](./WDROZENIE.md).
 
@@ -40,32 +32,24 @@ Szczegóły wdrożenia technicznego: [WDROZENIE.md](./WDROZENIE.md).
 | Slug | Identyfikator techniczny (`a-z`, `0-9`, myślnik) |
 | Aktywna | Nieaktywna strona — bez nowych wpisów (docelowo) |
 
-**Destynacje strony:** `/admin/sites/[id]/destinations` — tylko powiązane destynacje pojawią się przy akceptacji wpisu.
+Edycja jednostki (GitHub, layout, import): `/admin/units/[id]`.
 
 ---
 
-## 3. Destynacje (`/admin/destinations`)
-
-### WordPress
-
-| Pole | Przykład |
-|------|----------|
-| URL REST API | `https://gmina-miedzna.pl/wp-json/wp/v2` |
-| Login | użytkownik WP |
-| Hasło aplikacji | z WP → Użytkownicy → Hasła aplikacji |
-
-### GitHub → Astro
+## 3. Publikacja GitHub → Astro
 
 | Pole | Przykład |
 |------|----------|
 | Repozytorium | `mbatorowicz/gmina-miedzna.pl` |
 | Branch | `main` |
-| Ścieżka contentu | `src/content/aktualnosci` |
-| Token PAT | uprawnienia `repo` |
+| Ścieżka contentu | `src/content/news` |
+| Układ | folder (`slug/index.md`) |
+| Token PAT GitHub | uprawnienia `repo` |
+| ID projektu Vercel | opcjonalnie — sprawdzanie logu buildu po publikacji |
 
 **Credentials** są szyfrowane (`ENCRYPTION_KEY` na Vercel). Bez klucza — zapis konfiguracji bez sekretów (tylko dev).
 
-Po akceptacji wpisu worker (`/api/worker/publish`, cron co 5 min) publikuje na WordPress. GitHub-Astro — Sprint 2.
+Po akceptacji wpisu worker publikuje na GitHub; opcjonalnie czeka na deploy Vercel i zapisuje błędy buildu w logach.
 
 ---
 
@@ -73,49 +57,44 @@ Po akceptacji wpisu worker (`/api/worker/publish`, cron co 5 min) publikuje na W
 
 - Zaznacz **dostępne strony**.
 - Ustaw **domyślną stronę** (używaną przy „+ Nowy artykuł”).
-- Redaktor widzi **tylko własne** wpisy; nie widzi destynacji ani tokenów.
+- Redaktor widzi **tylko własne** wpisy; nie widzi tokenów.
 
 ---
 
 ## 5. Akceptacja wpisów
 
 1. `/admin` → sekcja *Do akceptacji* → wpis.
-2. **Zaakceptuj:** wybierz destynacje → *Zaakceptuj i przygotuj publikację*.
+2. **Zaakceptuj:** *Zaakceptuj i przygotuj publikację* — publikacja na repozytorium strony.
    - Status wpisu: `publishing` (kolejka w tle).
    - `publish_logs`: `pending` → worker → `success` / `failed` (retry automatyczny).
-   - Po sukcesie na ≥1 destynacji: `published`.
+   - Po sukcesie: `published`.
 3. **Odrzuć:** obowiązkowe uwagi → redaktor widzi `rejection_note` i może poprawić szkic.
 
-Na podglądzie wpisu: tabela **Status publikacji** per destynacja. Przy błędzie (`failed`): **Ponów publikację**.
+Na podglądzie wpisu: tabela **Status publikacji**. Przy błędzie (`failed`): **Ponów publikację**.
 
 ---
 
-## 6. API (admin, POST)
+## 6. Layout i import
 
-| Ścieżka | Akcja |
-|---------|--------|
-| `/api/admin/sites/create` | Nowa strona |
-| `/api/admin/sites/[id]/save` | Zapis strony |
-| `/api/admin/sites/[id]/destinations` | Mapowanie destynacji |
-| `/api/admin/destinations/create` | Nowa destynacja |
-| `/api/admin/destinations/[id]/save` | Zapis destynacji |
-| `/api/admin/editors/[id]/sites` | Przypisanie redaktora |
-| `/api/admin/posts/[id]/approve` | Akceptacja |
-| `/api/admin/posts/[id]/reject` | Odrzucenie |
-| `/api/admin/sites/[id]/delete` | Usunięcie jednostki (bez wpisów) |
-| `/api/admin/destinations/[id]/delete` | Usunięcie destynacji (bez logów) |
-
-Wymaga sesji admina (`requireAdmin`).
+- **Layout Astro:** `/admin/units/[id]/layout` — menu, kategorie, sloty → sync do GitHub.
+- **Import wpisów z GitHub:** `/admin` → synchronizacja (wpisy już na stronie).
+- **Ostatnie zmiany:** `/admin/units/[id]/changes`.
 
 ---
 
-## 7. Typowe problemy
+## 7. Rozwiązywanie problemów
 
-| Problem | Rozwiązanie |
-|---------|-------------|
-| Brak destynacji przy akceptacji | Mapowanie w `/admin/sites/.../destinations` |
-| Redaktor „Brak strony” | `/admin/editors` — przypisz stronę |
+| Problem | Działanie |
+|---------|-----------|
+| Publikacja `failed` | Podgląd wpisu → kolumna podsumowania (GitHub / Vercel) → **Ponów publikację** |
+| Brak kategorii w edytorze | Layout → kategorie + plik `omnipress-categories.json` w repo |
 | Credentials nie zapisują się | Ustaw `ENCRYPTION_KEY` na Vercel |
-| Publikacja utknęła w `publishing` | Sprawdź logi w podglądzie wpisu; `failed` = błąd WP/credentials |
 | Worker nie działa | Vercel: `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, redeploy |
-| Wpis nie w pending | Redaktor musi wysłać do akceptacji |
+
+---
+
+## 8. Powiązane dokumenty
+
+- [REDAKTOR.md](./REDAKTOR.md)
+- [AUTH.md](./AUTH.md)
+- [WDROZENIE.md](./WDROZENIE.md)

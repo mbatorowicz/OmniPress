@@ -12,7 +12,6 @@ const draftPost = (overrides: Partial<PostRow> = {}): PostRow => ({
 	rejection_note: null,
 	category_slug: null,
 	category_name: null,
-	wp_category_id: null,
 	...overrides,
 });
 

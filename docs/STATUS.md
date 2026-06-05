@@ -15,7 +15,7 @@ Legenda: ✅ zaimplementowane · 🟡 częściowo · ⬜ planowane · 📋 tylko
 | 1 — Auth, schema | ✅ | ✅ | |
 | 2 — Edytor, Storage | ✅ | ✅ | Markdown textarea; TipTap 📋 |
 | 3 — Admin CRUD, akceptacja | ✅ | ✅ | |
-| 4 — Dispatcher WP + GitHub | 🟡 | 🟡 | WP + GitHub adapter ✅; retry UI ✅; staging Astro ⬜ |
+| 4 — Dispatcher GitHub + Vercel | 🟡 | 🟡 | GitHub adapter ✅; logi Vercel ✅; retry UI ✅ |
 
 ---
 
@@ -41,7 +41,7 @@ Legenda: ✅ zaimplementowane · 🟡 częściowo · ⬜ planowane · 📋 tylko
 | Odrzucenie + `rejection_note` | ✅ | |
 | Akceptacja + wybór destynacji | ✅ | |
 | Semantyka `published` vs `publish_logs` | ✅ | approve → `publishing`; `published` po sukcesie workera |
-| Cofnięcie WP / Astro z panelu | — | **Poza scope** — migracja: wyłączyć destynację WP, nie wysyłać nowych; stara strona WP poza OmniPress |
+| Cofnięcie ze strony (GitHub) | ✅ | Dezaktywacja wpisu — batch delete z repo |
 | MFA / Passkeys admin | 📋 | PRD §4.2 — przed Fazą 4 |
 | Audit log akcji admina | 📋 | PRD §7 |
 

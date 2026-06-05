@@ -23,7 +23,6 @@ export type PostForPublish = {
 	updated_at?: string;
 	category_slug: string | null;
 	category_name: string | null;
-	wp_category_id: number | null;
 };
 
 export type DestinationForPublish = {

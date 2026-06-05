@@ -5,10 +5,7 @@ export async function resolvePostCategoryFields(
 	supabase: SupabaseClient,
 	siteId: string,
 	categorySlug: string,
-): Promise<
-	| { category_slug: string; category_name: string; wp_category_id: number | null }
-	| null
-> {
+): Promise<{ category_slug: string; category_name: string } | null> {
 	const slug = categorySlug.trim();
 	if (!slug) return null;
 
@@ -19,6 +16,5 @@ export async function resolvePostCategoryFields(
 	return {
 		category_slug: found.slug,
 		category_name: found.name,
-		wp_category_id: found.wpCategoryId,
 	};
 }

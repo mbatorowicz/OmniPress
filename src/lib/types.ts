@@ -2,7 +2,7 @@ export type UserRole = 'editor' | 'admin';
 
 export type PostStatus = 'draft' | 'pending' | 'publishing' | 'published' | 'rejected';
 
-export type DestinationType = 'github_astro' | 'wordpress';
+export type DestinationType = 'github_astro';
 
 export type PublishLogStatus = 'pending' | 'processing' | 'success' | 'failed' | 'withdrawn';
 

@@ -1,6 +1,6 @@
 # OmniPress
 
-Headless CMS do przygotowania treści przez redaktorów i publikacji na wielu platformach (WordPress, Astro/GitHub) z jednego panelu.
+Headless CMS do przygotowania treści przez redaktorów i publikacji na stronach Astro (GitHub + Vercel) z jednego panelu.
 
 - Wymagania produktowe: [PRD.md](./PRD.md)
 - **Indeks dokumentacji (SSOT):** [docs/README.md](./docs/README.md)

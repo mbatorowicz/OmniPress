@@ -28,7 +28,6 @@ function parseCategoriesJson(text: string): CategoryOption[] {
 		.map((r) => ({
 			slug: String(r.slug).trim(),
 			name: String(r.name).trim(),
-			wpCategoryId: null,
 			sources: ['github_astro'] as const,
 		}));
 }

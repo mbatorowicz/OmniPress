@@ -15,7 +15,6 @@ export function mergeCategoryLists(lists: CategoryOption[][]): CategoryOption[] 
 			map.set(key, {
 				slug: existing.slug,
 				name: existing.name || item.name,
-				wpCategoryId: existing.wpCategoryId ?? item.wpCategoryId,
 				sources: [...sources],
 			});
 		}

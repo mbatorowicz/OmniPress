@@ -8,7 +8,6 @@ describe('mergeCategoryLists', () => {
 				{
 					slug: 'aktualnosci',
 					name: 'Aktualności',
-					wpCategoryId: null,
 					sources: ['github_astro'],
 				},
 			],
@@ -16,7 +15,6 @@ describe('mergeCategoryLists', () => {
 				{
 					slug: 'aktualnosci',
 					name: 'Aktualności',
-					wpCategoryId: null,
 					sources: ['github_astro'],
 				},
 			],
@@ -29,7 +27,7 @@ describe('mergeCategoryLists', () => {
 describe('findCategoryBySlug', () => {
 	it('znajduje po slugu', () => {
 		const found = findCategoryBySlug(
-			[{ slug: 'gmina', name: 'Gmina', wpCategoryId: null, sources: ['github_astro'] }],
+			[{ slug: 'gmina', name: 'Gmina', sources: ['github_astro'] }],
 			'gmina',
 		);
 		expect(found?.name).toBe('Gmina');

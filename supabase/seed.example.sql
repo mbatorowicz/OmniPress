@@ -12,10 +12,9 @@
 -- select 'USER_UUID', id from public.sites where slug = 'sp-przyklad';
 
 -- insert into public.destinations (name, type, config) values
---   ('WP — produkcja gminy', 'wordpress', '{"rest_base":"https://gmina.example/wp-json/wp/v2"}'::jsonb),
---   ('Astro — gmina-miedzna.pl', 'github_astro', '{"repo":"mbatorowicz/gmina-miedzna.pl","branch":"main","content_path":"src/content"}'::jsonb);
+--   ('Astro — gmina-miedzna.pl', 'github_astro', '{"repo":"mbatorowicz/gmina-miedzna.pl","branch":"main","content_path":"src/content/news","content_layout":"folder"}'::jsonb);
 
 -- insert into public.site_destinations (site_id, destination_id, is_default, sort_order)
 -- select s.id, d.id, true, 0
 -- from public.sites s, public.destinations d
--- where s.slug = 'ug-miedzna' and d.name = 'WP — produkcja gminy';
+-- where s.slug = 'ug-miedzna' and d.name = 'Astro — gmina-miedzna.pl';

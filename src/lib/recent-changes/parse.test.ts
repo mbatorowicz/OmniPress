@@ -51,7 +51,6 @@ describe('recent-changes', () => {
 				status: 'published',
 				category_slug: 'odpady',
 				category_name: 'Gospodarka odpadami',
-				wp_category_id: null,
 			},
 			'harmonogram',
 		);
