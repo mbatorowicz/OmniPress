@@ -19,7 +19,7 @@ export {
 	type DestinationConfigError,
 } from './destinations';
 export { deleteDestination, getSiteById, getSiteDestinations, listSites, countSitePosts, deleteSite, type SiteDestinationLink } from './sites';
-export { approvePost, rejectPost } from './posts';
+export { approvePost, rejectPost, reopenPostForEditing } from './posts';
 export {
 	getEditorSiteIds,
 	listEditors,

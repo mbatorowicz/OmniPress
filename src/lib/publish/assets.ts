@@ -2,9 +2,11 @@ import { resolveSupabaseUrl } from '@/lib/supabase/resolve-env';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export type PostAsset = {
+	id?: string;
 	storage_path: string;
 	filename: string;
 	mime_type: string;
+	display_mode?: 'link' | 'embed';
 };
 
 export function publicAssetUrl(storagePath: string): string | null {
@@ -19,9 +21,12 @@ export async function loadPostAssets(
 ): Promise<PostAsset[]> {
 	const { data } = await supabase
 		.from('assets')
-		.select('storage_path, filename, mime_type')
+		.select('id, storage_path, filename, mime_type, display_mode')
 		.eq('post_id', postId);
-	return (data ?? []) as PostAsset[];
+	return (data ?? []).map((row) => ({
+		...row,
+		display_mode: row.display_mode === 'embed' ? 'embed' : 'link',
+	})) as PostAsset[];
 }
 
 export function bytesToBase64(bytes: ArrayBuffer): string {

@@ -1,10 +1,11 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
 import StatusBadge from '@/components/posts/StatusBadge.astro';
+import PostContentHtml from '@/components/posts/PostContentHtml.astro';
 import { admin, adminReview, common } from '@/i18n';
 import { getSiteDestinations } from '@/lib/admin';
 import { listPublishLogsForPost } from '@/lib/publish';
-import { getPostById } from '@/lib/posts';
+import { assetsForContentRender, getPostById, loadPostAssetsForPost, renderPostContentHtml } from '@/lib/posts';
 import type { PostStatus, PublishLogStatus } from '@/lib/types';
 
 const { id } = Astro.params;
@@ -35,8 +36,13 @@ const errorMessage =
 
 const approved = Astro.url.searchParams.get('approved') === '1';
 const rejected = Astro.url.searchParams.get('rejected') === '1';
+const reopened = Astro.url.searchParams.get('reopened') === '1';
 const retried = Astro.url.searchParams.get('retry') === '1';
+const isPublished = post.status === 'published';
 const preview = admin.preview;
+
+const postAssets = await loadPostAssetsForPost(Astro.locals.supabase, post.id);
+const contentHtml = renderPostContentHtml(post.content_md, assetsForContentRender(postAssets));
 ---
 
 <AppLayout title={preview.title} heading={preview.heading}>
@@ -51,6 +57,16 @@ const preview = admin.preview;
 	)}
 	{rejected && (
 		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">{adminReview.rejected}</p>
+	)}
+	{reopened && (
+		<p class="mb-4 rounded-lg bg-sky-50 px-3 py-2 text-sm text-sky-900">{adminReview.reopened}</p>
+	)}
+	{reopened && (
+		<p class="mb-4 text-sm">
+			<a href={`/dashboard/posts/${post.id}`} class="text-brand hover:underline">
+				Otwórz edytor redaktora →
+			</a>
+		</p>
 	)}
 	{retried && (
 		<p class="mb-4 rounded-lg bg-sky-50 px-3 py-2 text-sm text-sky-900">{logsUi.retryQueued}</p>
@@ -68,7 +84,13 @@ const preview = admin.preview;
 			</p>
 		)}
 		{post.slug && <p class="mt-1 font-mono text-sm text-slate-500">/{post.slug}</p>}
-		<pre class="mt-6 whitespace-pre-wrap rounded-lg bg-slate-50 p-4 text-sm">{post.content_md}</pre>
+		<div class="mt-6 rounded-lg border border-slate-100 bg-slate-50/50 p-4">
+			{contentHtml ? (
+				<PostContentHtml html={contentHtml} />
+			) : (
+				<p class="text-sm text-slate-500">(pusta treść)</p>
+			)}
+		</div>
 	</article>
 
 	{
@@ -154,5 +176,30 @@ const preview = admin.preview;
 		)
 	}
 
+	{
+		isPublished && (
+			<form
+				method="post"
+				action={`/api/admin/posts/${post.id}/reopen`}
+				class="mt-6 space-y-3 rounded-xl border border-sky-100 bg-sky-50/40 p-6"
+				data-reopen-form
+			>
+				<p class="text-sm text-slate-700">{adminReview.reopenHint}</p>
+				<button
+					type="submit"
+					class="rounded-lg border border-sky-300 bg-white px-4 py-2 text-sm font-medium text-sky-900 hover:bg-sky-50"
+				>
+					{adminReview.reopen}
+				</button>
+			</form>
+		)
+	}
+
 	<a href="/admin" class="mt-6 inline-block text-sm text-brand hover:underline">{preview.back}</a>
+
+	<script define:vars={{ reopenConfirm: adminReview.reopenConfirm }}>
+		document.querySelector('[data-reopen-form]')?.addEventListener('submit', (e) => {
+			if (!confirm(reopenConfirm)) e.preventDefault();
+		});
+	</script>
 </AppLayout>

@@ -272,6 +272,10 @@ export const adminReview = {
 	destinations: 'Destynacje do publikacji',
 	approved: 'Wpis zaakceptowany — publikacja w tle (start natychmiast).',
 	rejected: 'Wpis odrzucony.',
+	reopen: 'Popraw wpis',
+	reopenHint: 'Wraca do szkicu — redaktor edytuje, wysyła do akceptacji, potem publikujesz aktualizację na tej samej stronie.',
+	reopenConfirm: 'Wrócić wpis do poprawki? Na stronie zostanie stara wersja do momentu ponownej publikacji.',
+	reopened: 'Wpis wrócił do szkicu — redaktor może go teraz edytować.',
 	publishLogs: {
 		heading: 'Status publikacji',
 		destination: 'Destynacja',
@@ -295,5 +299,6 @@ export const adminReview = {
 		note_required: 'Podaj uwagi (min. 3 znaki).',
 		invalid_destinations: 'Niedozwolona destynacja dla tej strony.',
 		retry_failed: 'Nie udało się ponowić (log nie jest w stanie failed).',
+		not_published: 'Poprawka dostępna tylko dla opublikowanych wpisów.',
 	},
 } as const;

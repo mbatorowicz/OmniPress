@@ -1,6 +1,50 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { PostRow } from '@/lib/posts';
 
+async function queuePublishForDestination(
+	supabase: SupabaseClient,
+	postId: string,
+	destinationId: string,
+): Promise<boolean> {
+	const { data: previous } = await supabase
+		.from('publish_logs')
+		.select('id')
+		.eq('post_id', postId)
+		.eq('destination_id', destinationId)
+		.eq('status', 'success')
+		.order('published_at', { ascending: false })
+		.limit(1)
+		.maybeSingle();
+
+	if (previous) {
+		await supabase
+			.from('publish_logs')
+			.update({ status: 'withdrawn' })
+			.eq('post_id', postId)
+			.eq('destination_id', destinationId)
+			.eq('status', 'success')
+			.neq('id', previous.id);
+
+		const { error } = await supabase
+			.from('publish_logs')
+			.update({
+				status: 'pending',
+				response_summary: null,
+				next_retry_at: null,
+				retry_count: 0,
+			})
+			.eq('id', previous.id);
+		return !error;
+	}
+
+	const { error } = await supabase.from('publish_logs').insert({
+		post_id: postId,
+		destination_id: destinationId,
+		status: 'pending',
+	});
+	return !error;
+}
+
 export async function approvePost(
 	supabase: SupabaseClient,
 	post: PostRow,
@@ -24,14 +68,10 @@ export async function approvePost(
 		return { ok: false, error: 'invalid_destinations' };
 	}
 
-	const logs = destinationIds.map((destination_id) => ({
-		post_id: post.id,
-		destination_id,
-		status: 'pending' as const,
-	}));
-
-	const { error: logError } = await supabase.from('publish_logs').insert(logs);
-	if (logError) return { ok: false, error: 'logs_failed' };
+	for (const destinationId of destinationIds) {
+		const queued = await queuePublishForDestination(supabase, post.id, destinationId);
+		if (!queued) return { ok: false, error: 'logs_failed' };
+	}
 
 	const { error: updateError } = await supabase
 		.from('posts')
@@ -62,5 +102,23 @@ export async function rejectPost(
 
 	if (error) return { ok: false, error: 'update_failed' };
 	if (!data) return { ok: false, error: 'not_pending' };
+	return { ok: true };
+}
+
+/** Opublikowany wpis → szkic (redaktor może poprawić i wysłać ponownie). */
+export async function reopenPostForEditing(
+	supabase: SupabaseClient,
+	postId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+	const { data, error } = await supabase
+		.from('posts')
+		.update({ status: 'draft', rejection_note: null })
+		.eq('id', postId)
+		.eq('status', 'published')
+		.select('id')
+		.maybeSingle();
+
+	if (error) return { ok: false, error: 'update_failed' };
+	if (!data) return { ok: false, error: 'not_published' };
 	return { ok: true };
 }

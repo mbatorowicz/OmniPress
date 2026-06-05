@@ -1,4 +1,5 @@
-import { markdownToSafeHtml } from './markdown';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { assetsForContentRender, loadPostAssetsForPost, renderPostContentHtml } from '@/lib/posts';
 import {
 	decryptDestinationCredentials,
 	isWordPressCredentials,
@@ -17,6 +18,7 @@ function basicAuthHeader(username: string, password: string): string {
 }
 
 export async function publishToWordPress(
+	supabase: SupabaseClient,
 	post: PostForPublish,
 	destination: DestinationForPublish,
 ): Promise<PublishResult> {
@@ -34,7 +36,8 @@ export async function publishToWordPress(
 		return { ok: false, summary: 'Brak credentials WP (ENCRYPTION_KEY?)', retryable: false };
 	}
 
-	const html = markdownToSafeHtml(post.content_md);
+	const assets = await loadPostAssetsForPost(supabase, post.id);
+	const html = renderPostContentHtml(post.content_md, assetsForContentRender(assets));
 	const body: Record<string, unknown> = {
 		title: post.title,
 		content: html,

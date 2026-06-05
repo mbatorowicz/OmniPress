@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { loadPostAssets, publicAssetUrl } from './assets';
+import { applyAssetDisplayToMarkdown, type AssetForDisplay } from './asset-markdown';
 import {
 	decryptDestinationCredentials,
 	isGitHubCredentials,
@@ -120,8 +121,22 @@ export async function publishToGitHubAstro(
 		const assets = await loadPostAssets(supabase, post.id);
 		const urlMap = await uploadPostAssets(cfg, creds.token, slug, assets);
 		const bodyMd = rewriteAssetUrls(post.content_md, urlMap);
+		const assetsForDisplay: AssetForDisplay[] = assets.flatMap((asset) => {
+			const sourceUrl = publicAssetUrl(asset.storage_path);
+			if (!sourceUrl) return [];
+			return [
+				{
+					filename: asset.filename,
+					mime_type: asset.mime_type,
+					display_mode: asset.display_mode === 'embed' ? 'embed' : 'link',
+					sourceUrl,
+					publishUrl: urlMap.get(sourceUrl) ?? sourceUrl,
+				},
+			];
+		});
+		const publishedBody = applyAssetDisplayToMarkdown(bodyMd, assetsForDisplay);
 		const pubDate = post.updated_at ?? new Date().toISOString();
-		const fileContent = buildAstroMarkdown(post.title, bodyMd, pubDate, cfg.contentLayout, {
+		const fileContent = buildAstroMarkdown(post.title, publishedBody, pubDate, cfg.contentLayout, {
 			slug: post.category_slug ?? '',
 			name: post.category_name ?? '',
 		});

@@ -10,7 +10,7 @@ export async function dispatchPublish(
 	existingExternalId?: string | null,
 ): Promise<PublishResult> {
 	if (destination.type === 'wordpress') {
-		return publishToWordPress(post, destination);
+		return publishToWordPress(supabase, post, destination);
 	}
 	if (destination.type === 'github_astro') {
 		return publishToGitHubAstro(supabase, post, destination, existingExternalId);

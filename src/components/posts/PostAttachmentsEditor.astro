@@ -1,0 +1,115 @@
+---
+import type { PostAssetRow } from '@/lib/posts/assets';
+import { publicUrlForAsset } from '@/lib/posts/assets';
+
+type Props = {
+	assets: PostAssetRow[];
+	labels: {
+		heading: string;
+		empty: string;
+		displayLink: string;
+		displayEmbed: string;
+		inlineImage: string;
+		pdf: string;
+		image: string;
+	};
+};
+
+const { assets, labels } = Astro.props;
+const PDF_MIME = 'application/pdf';
+---
+
+<div class="mt-3 rounded-lg border border-slate-200 bg-slate-50/80 p-4" data-attachments-panel>
+	<h3 class="text-sm font-medium text-slate-700">{labels.heading}</h3>
+	{
+		assets.length === 0 ? (
+			<p class="mt-2 text-xs text-slate-500" data-attachments-empty>
+				{labels.empty}
+			</p>
+		) : (
+			<ul class="mt-3 space-y-2" data-attachments-list>
+				{assets.map((asset) => {
+					const url = publicUrlForAsset(asset.storage_path);
+					const isPdf = asset.mime_type === PDF_MIME;
+					return (
+						<li
+							class="flex flex-wrap items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2"
+							data-asset-id={asset.id}
+						>
+							<div class="min-w-0 flex-1">
+								<p class="truncate text-sm font-medium text-slate-800" title={asset.filename}>
+									{isPdf ? labels.pdf : labels.image} {asset.filename}
+								</p>
+								{url && (
+									<a
+										href={url}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="text-xs text-brand hover:underline"
+									>
+										{url}
+									</a>
+								)}
+							</div>
+							{isPdf ? (
+								<fieldset class="flex shrink-0 flex-col gap-1 text-xs text-slate-600">
+									<label class="flex cursor-pointer items-center gap-2">
+										<input
+											type="radio"
+											name={`asset_mode_${asset.id}`}
+											value="link"
+											checked={asset.display_mode !== 'embed'}
+											class="text-brand"
+										/>
+										{labels.displayLink}
+									</label>
+									<label class="flex cursor-pointer items-center gap-2">
+										<input
+											type="radio"
+											name={`asset_mode_${asset.id}`}
+											value="embed"
+											checked={asset.display_mode === 'embed'}
+											class="text-brand"
+										/>
+										{labels.displayEmbed}
+									</label>
+								</fieldset>
+							) : (
+								<p class="shrink-0 text-xs text-slate-500">{labels.inlineImage}</p>
+							)}
+						</li>
+					);
+				})}
+			</ul>
+		)
+	}
+</div>
+
+<template id="attachment-row-template">
+	<li
+		class="flex flex-wrap items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2"
+		data-asset-id=""
+	>
+		<div class="min-w-0 flex-1">
+			<p class="truncate text-sm font-medium text-slate-800" data-asset-name></p>
+			<a
+				href=""
+				target="_blank"
+				rel="noopener noreferrer"
+				class="text-xs text-brand hover:underline"
+				data-asset-url
+			></a>
+		</div>
+		<fieldset class="flex shrink-0 flex-col gap-1 text-xs text-slate-600" data-asset-pdf-options hidden>
+			<label class="flex cursor-pointer items-center gap-2">
+				<input type="radio" value="link" checked class="text-brand" data-asset-mode-link />
+				<span data-label-link></span>
+			</label>
+			<label class="flex cursor-pointer items-center gap-2">
+				<input type="radio" value="embed" class="text-brand" data-asset-mode-embed />
+				<span data-label-embed></span>
+			</label>
+		</fieldset>
+		<p class="shrink-0 text-xs text-slate-500" data-asset-inline-note hidden></p>
+	</li>
+</template>

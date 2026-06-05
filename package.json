@@ -1,7 +1,7 @@
 {
   "name": "omnipress",
   "type": "module",
-	"version": "0.5.5",
+	"version": "0.5.7",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -15,6 +15,7 @@
     "setup:auth-urls": "node scripts/fix-auth-config.mjs",
 	"setup:storage": "node scripts/apply-migration.mjs supabase/migrations/20250604000000_storage_post_assets.sql",
     "setup:storage-pdf": "node scripts/apply-migration.mjs supabase/migrations/20250609000000_storage_post_assets_pdf.sql",
+    "setup:asset-display": "node scripts/apply-migration.mjs supabase/migrations/20250610000000_asset_display_mode.sql",
     "setup:phase3": "node scripts/apply-migration.mjs supabase/migrations/20250605000000_phase3_post_slug_unique.sql",
     "setup:phase4": "node scripts/apply-migration.mjs supabase/migrations/20250606000000_phase4_publish_worker.sql",
 	"setup:categories": "node scripts/apply-migration.mjs supabase/migrations/20250607000000_post_categories.sql",

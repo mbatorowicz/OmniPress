@@ -37,7 +37,18 @@ export const dashboard = {
 			slug: 'Slug (opcjonalnie)',
 			slugPlaceholder: 'np. komunikat-urzedu',
 			content: 'Treść (Markdown)',
-			contentHint: 'Nagłówki: ## H2, ### H3. Zdjęcie: ![opis](url). PDF wstaw jako załącznik — link pojawi się w treści.',
+			contentHint: 'Nagłówki: ## H2, ### H3. Zdjęcie: ![opis](url). PDF wstaw jako załącznik — poniżej wybierz link lub podgląd.',
+			amendmentHint:
+				'Poprawka opublikowanego wpisu — zapisz zmiany i wyślij ponownie do akceptacji. Na stronie zostanie stara wersja do ponownej publikacji.',
+		},
+		attachments: {
+			heading: 'Załączniki',
+			empty: 'Brak plików — użyj „Dodaj plik” powyżej.',
+			displayLink: 'Link do pobrania',
+			displayEmbed: 'Podgląd PDF na stronie',
+			inlineImage: 'Wyświetlane w treści',
+			pdf: '📄',
+			image: '🖼',
 		},
 		actions: {
 			save: 'Zapisz szkic',

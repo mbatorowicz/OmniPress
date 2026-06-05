@@ -53,12 +53,20 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 		);
 	}
 
-	await supabase.from('assets').insert({
-		post_id: postId,
-		storage_path: storagePath,
-		filename: file.name,
-		mime_type: file.type,
-	});
+	const { data: assetRow, error: insertError } = await supabase
+		.from('assets')
+		.insert({
+			post_id: postId,
+			storage_path: storagePath,
+			filename: file.name,
+			mime_type: file.type,
+		})
+		.select('id, filename, mime_type, display_mode')
+		.single();
+
+	if (insertError || !assetRow) {
+		return new Response(JSON.stringify({ error: api.posts.uploadFailed }), { status: 500 });
+	}
 
 	const { data: publicData } = supabase.storage
 		.from('post-assets')
@@ -66,8 +74,21 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 
 	const markdown = markdownForUploadedAsset(file.name, publicData.publicUrl, file.type);
 
-	return new Response(JSON.stringify({ url: publicData.publicUrl, markdown }), {
-		status: 200,
-		headers: { 'Content-Type': 'application/json' },
-	});
+	return new Response(
+		JSON.stringify({
+			url: publicData.publicUrl,
+			markdown,
+			asset: {
+				id: assetRow.id,
+				filename: assetRow.filename,
+				mime_type: assetRow.mime_type,
+				display_mode: assetRow.display_mode ?? 'link',
+				url: publicData.publicUrl,
+			},
+		}),
+		{
+			status: 200,
+			headers: { 'Content-Type': 'application/json' },
+		},
+	);
 };
