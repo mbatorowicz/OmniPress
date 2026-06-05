@@ -46,6 +46,7 @@ export function galleryUrlsFromAssets(
 	return imageAssets.flatMap((asset) => {
 		const sourceUrl = publicAssetUrl(asset.storage_path);
 		if (!sourceUrl) return [];
-		return [urlMap.get(sourceUrl) ?? sourceUrl];
+		const published = urlMap.get(sourceUrl);
+		return published ? [published] : [];
 	});
 }

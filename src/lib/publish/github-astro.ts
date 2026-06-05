@@ -56,14 +56,21 @@ async function uploadPostAssets(
 	token: string,
 	slug: string,
 	assets: Awaited<ReturnType<typeof loadPostAssets>>,
-): Promise<Map<string, string>> {
+): Promise<{ map: Map<string, string>; errors: string[] }> {
 	const map = new Map<string, string>();
+	const errors: string[] = [];
 	for (const asset of assets) {
 		const sourceUrl = publicAssetUrl(asset.storage_path);
-		if (!sourceUrl) continue;
+		if (!sourceUrl) {
+			errors.push(`${asset.filename}: brak publicznego URL Supabase`);
+			continue;
+		}
 
 		const res = await fetch(sourceUrl);
-		if (!res.ok) continue;
+		if (!res.ok) {
+			errors.push(`${asset.filename}: pobranie HTTP ${res.status}`);
+			continue;
+		}
 
 		const assetName = asset.storage_path.split('/').pop() ?? asset.filename;
 		const gitPath =
@@ -73,16 +80,21 @@ async function uploadPostAssets(
 		const relative =
 			cfg.contentLayout === 'folder' ? `./${assetName}` : `./assets/${slug}/${assetName}`;
 
-		await putGitHubFile(
-			cfg,
-			token,
-			gitPath,
-			await res.arrayBuffer(),
-			`OmniPress: asset ${asset.filename}`,
-		);
-		map.set(sourceUrl, relative);
+		try {
+			await putGitHubFile(
+				cfg,
+				token,
+				gitPath,
+				await res.arrayBuffer(),
+				`OmniPress: asset ${asset.filename}`,
+			);
+			map.set(sourceUrl, relative);
+		} catch (err) {
+			const msg = err instanceof Error ? err.message : 'GitHub upload failed';
+			errors.push(`${asset.filename}: ${msg.slice(0, 120)}`);
+		}
 	}
-	return map;
+	return { map, errors };
 }
 
 export async function publishToGitHubAstro(
@@ -116,7 +128,19 @@ export async function publishToGitHubAstro(
 		);
 
 		const assets = await loadPostAssets(supabase, post.id);
-		const urlMap = await uploadPostAssets(cfg, creds.token, slug, assets);
+		const { map: urlMap, errors: uploadErrors } = await uploadPostAssets(
+			cfg,
+			creds.token,
+			slug,
+			assets,
+		);
+		if (uploadErrors.length > 0) {
+			return {
+				ok: false,
+				summary: `Nie udało się wgrać załączników: ${uploadErrors.join('; ')}`.slice(0, 500),
+				retryable: true,
+			};
+		}
 		const imageAssets = assets.filter((a) => a.mime_type.startsWith('image/'));
 		const pdfAssets = assets.filter((a) => a.mime_type === 'application/pdf');
 
