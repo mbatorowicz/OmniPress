@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { getSiteDestinations } from '@/lib/admin/sites';
+import { loadSiteAstroDestination } from '@/lib/admin/sites';
 import {
 	decryptDestinationCredentials,
 	isGitHubCredentials,
@@ -8,34 +8,16 @@ import {
 	getGitHubFileText,
 	parseGitHubRepoConfig,
 } from '@/lib/publish/github-api';
-import type { DestinationForPublish } from '@/lib/publish/types';
 import { appendRecentChangeOnGitHub } from './github';
 import { parseRecentChangesFile } from './parse';
 import type { RecentChangeEntry, RecentChangesFile } from './types';
 import { emptyRecentChangesFile, recentChangesPath } from './types';
 
-async function loadAstroDestination(
-	supabase: SupabaseClient,
-	siteId: string,
-): Promise<DestinationForPublish | null> {
-	const links = await getSiteDestinations(supabase, siteId);
-	const link = links.find((l) => l.destinations?.type === 'github_astro');
-	if (!link) return null;
-
-	const { data } = await supabase
-		.from('destinations')
-		.select('id, name, type, config, encrypted_credentials, is_active')
-		.eq('id', link.destination_id)
-		.maybeSingle();
-
-	return (data as DestinationForPublish | null) ?? null;
-}
-
 export async function loadRecentChangesFromGitHub(
 	supabase: SupabaseClient,
 	siteId: string,
 ): Promise<{ ok: true; file: RecentChangesFile } | { ok: false; error: string }> {
-	const dest = await loadAstroDestination(supabase, siteId);
+	const dest = await loadSiteAstroDestination(supabase, siteId);
 	if (!dest?.is_active) return { ok: false, error: 'no_astro_destination' };
 
 	const cfg = parseGitHubRepoConfig(dest.config);
@@ -62,7 +44,7 @@ export async function announceRecentChangeOnGitHub(
 	siteId: string,
 	entry: RecentChangeEntry,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-	const dest = await loadAstroDestination(supabase, siteId);
+	const dest = await loadSiteAstroDestination(supabase, siteId);
 	if (!dest?.is_active) return { ok: false, error: 'no_astro_destination' };
 
 	const cfg = parseGitHubRepoConfig(dest.config);

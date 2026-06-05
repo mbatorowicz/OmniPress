@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.astro';
 import RecentChangesForm from '@/components/admin/RecentChangesForm.astro';
 import { adminRecentChanges } from '@/i18n';
-import { getSiteDestinations } from '@/lib/admin/sites';
+import { loadSiteAstroDestination } from '@/lib/admin/sites';
 import { loadRecentChangesFromGitHub } from '@/lib/recent-changes/store';
 import type { RecentChangeEntry } from '@/lib/recent-changes/types';
 

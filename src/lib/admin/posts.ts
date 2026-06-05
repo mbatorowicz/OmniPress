@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { PostRow } from '@/lib/posts';
+import { resolveSitePublishDestinationIds } from './sites';
 import { withdrawPostsFromRemoteBatch } from '@/lib/publish/withdraw';
 
 async function queuePublishForDestination(
@@ -49,32 +50,14 @@ async function queuePublishForDestination(
 export async function approvePost(
 	supabase: SupabaseClient,
 	post: PostRow,
-	destinationIds: string[],
 ): Promise<{ ok: true } | { ok: false; error: string }> {
 	if (post.status !== 'pending') {
 		return { ok: false, error: 'not_pending' };
 	}
+
+	const destinationIds = await resolveSitePublishDestinationIds(supabase, post.site_id);
 	if (destinationIds.length === 0) {
-		return { ok: false, error: 'no_destinations' };
-	}
-
-	const { data: allowed } = await supabase
-		.from('site_destinations')
-		.select('destination_id')
-		.eq('site_id', post.site_id)
-		.in('destination_id', destinationIds);
-
-	const allowedIds = new Set((allowed ?? []).map((r) => r.destination_id));
-	if (destinationIds.some((id) => !allowedIds.has(id))) {
-		return { ok: false, error: 'invalid_destinations' };
-	}
-
-	const { data: destTypes } = await supabase
-		.from('destinations')
-		.select('id, type')
-		.in('id', destinationIds);
-	if (destTypes?.some((d) => d.type !== 'github_astro')) {
-		return { ok: false, error: 'invalid_destinations' };
+		return { ok: false, error: 'no_site_channel' };
 	}
 
 	for (const destinationId of destinationIds) {

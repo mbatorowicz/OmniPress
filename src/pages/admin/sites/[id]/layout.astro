@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.astro';
 import AstroLayoutForm from '@/components/admin/AstroLayoutForm.astro';
 import { adminLayout, adminRecentChanges } from '@/i18n';
-import { getSiteDestinations } from '@/lib/admin/sites';
+import { loadSiteAstroDestination } from '@/lib/admin/sites';
 import {
 	importSiteAstroLayoutFromGitHub,
 	loadSiteAstroLayout,

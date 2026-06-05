@@ -11,10 +11,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const post = await getPostById(locals.supabase, postId);
 	if (!post) return redirect('/admin?error=not_found');
 
-	const form = await request.formData();
-	const destinationIds = form.getAll('destination_id').map(String);
-
-	const result = await approvePost(locals.supabase, post, destinationIds);
+	const result = await approvePost(locals.supabase, post);
 	if (!result.ok) {
 		return redirect(`/admin/posts/${postId}?error=${result.error}`);
 	}

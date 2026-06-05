@@ -4,17 +4,17 @@ export const admin = {
 	title: 'Administracja',
 	sites: {
 		heading: (n: number) => `Strony (${n})`,
-		lead: 'Jednostki organizacyjne — redaktorzy publikują w ramach przypisanej strony.',
+		lead: 'Jednostki organizacyjne — każda ma własne repozytorium GitHub do publikacji.',
 		empty: 'Dodaj stronę, np.',
 		exampleName: 'UG Miedzna',
 		exampleSlug: 'ug-miedzna',
 		manage: 'Zarządzaj stronami',
 	},
 	destinations: {
-		heading: (n: number) => `Destynacje (${n})`,
-		lead: 'GitHub/Astro — konfiguracja w panelu.',
+		heading: (_n: number) => `Destynacje`,
+		lead: 'Konfiguracja publikacji jest w edycji jednostki (Strony).',
 		empty: 'Brak destynacji.',
-		manage: 'Zarządzaj destynacjami',
+		manage: 'Strony',
 	},
 	editors: {
 		manage: 'Redaktorzy',

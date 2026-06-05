@@ -151,7 +151,7 @@ export async function createOrganizationalUnit(
 
 		const dest = await upsertDestination(supabase, {
 			id: null,
-			name: `${unitName} — Astro`,
+			name: `${unitName}`,
 			config: buildConfig('github_astro', form),
 			credentials: credForm,
 		});
@@ -206,7 +206,7 @@ export async function updateOrganizationalUnit(
 
 	const dest = await upsertDestination(supabase, {
 		id: astroId,
-		name: `${unitName} — Astro`,
+		name: `${unitName}`,
 		config: buildConfig('github_astro', form),
 		credentials: credForm,
 	});

@@ -41,8 +41,8 @@ export const adminSites = {
 export const adminUnit = {
 	title: 'Nowa jednostka organizacyjna',
 	editTitle: 'Edytuj jednostkę',
-	editLead: 'Strona logiczna i kanał publikacji Astro — ten sam formularz co przy tworzeniu.',
-	lead: 'Jednym krokiem: strona logiczna i destynacja GitHub → Astro.',
+	editLead: 'Nazwa strony i repozytorium GitHub (publikacja Astro) — w jednym miejscu.',
+	lead: 'Jednym krokiem: strona logiczna + repozytorium GitHub do publikacji.',
 	sections: {
 		unit: 'Jednostka',
 		astro: 'GitHub → Astro',
@@ -51,7 +51,7 @@ export const adminUnit = {
 	errors: {
 		name_required: 'Podaj nazwę jednostki.',
 		invalid_slug: 'Nieprawidłowy slug (min. 2 znaki, a-z, 0-9, myślnik).',
-		no_channel: 'Skonfiguruj kanał Astro (repozytorium GitHub).',
+		no_channel: 'Skonfiguruj repozytorium GitHub (pola poniżej).',
 		config_repo: 'Podaj repozytorium w formacie owner/repo.',
 		site_failed: 'Nie udało się utworzyć strony.',
 		destination_failed: 'Nie udało się utworzyć destynacji.',
@@ -261,7 +261,10 @@ export const adminReview = {
 	approve: 'Zaakceptuj i przygotuj publikację',
 	reject: 'Odrzuć',
 	rejectionNote: 'Uwagi dla redaktora (wymagane przy odrzuceniu)',
-	destinations: 'Destynacje do publikacji',
+	destinations: 'Publikacja na stronie',
+	publishLead: (channelName: string) =>
+		`Wpis trafi na stronę publiczną przez repozytorium powiązane ze stroną (${channelName}).`,
+	configureSite: 'Skonfiguruj stronę →',
 	approved: 'Wpis zaakceptowany — publikacja w tle (start natychmiast).',
 	rejected: 'Wpis odrzucony.',
 	reopen: 'Popraw wpis',
@@ -297,7 +300,8 @@ export const adminReview = {
 	},
 	errors: {
 		not_pending: 'Wpis nie oczekuje na akceptację.',
-		no_destinations: 'Wybierz co najmniej jedną destynację.',
+		no_destinations: 'Strona nie ma skonfigurowanego repozytorium GitHub.',
+		no_site_channel: 'Strona nie ma skonfigurowanego repozytorium GitHub — edytuj jednostkę.',
 		note_required: 'Podaj uwagi (min. 3 znaki).',
 		invalid_destinations: 'Niedozwolona destynacja dla tej strony.',
 		retry_failed: 'Nie udało się ponowić (log nie jest w stanie failed).',

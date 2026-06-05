@@ -5,7 +5,7 @@ import PostContentHtml from '@/components/posts/PostContentHtml.astro';
 import PostReopenForm from '@/components/admin/PostReopenForm.astro';
 import PostAdminActions from '@/components/admin/PostAdminActions.astro';
 import { admin, adminReview, common } from '@/i18n';
-import { canReopenPost, getSiteDestinations } from '@/lib/admin';
+import { canReopenPost, loadSiteAstroDestination } from '@/lib/admin';
 import { listPublishLogsForPost } from '@/lib/publish';
 import { buildPublishedBodyMd } from '@/lib/publish/post-gallery';
 import type { PostAsset } from '@/lib/publish/assets';
@@ -25,9 +25,7 @@ const { data: author } = await Astro.locals.supabase
 	.eq('id', post.author_id)
 	.single();
 
-const siteDests = (await getSiteDestinations(Astro.locals.supabase, post.site_id)).filter(
-	(link) => link.destinations?.type === 'github_astro',
-);
+const siteChannel = await loadSiteAstroDestination(Astro.locals.supabase, post.site_id);
 const publishLogs = await listPublishLogsForPost(Astro.locals.supabase, post.id);
 const isPending = post.status === 'pending';
 const logLabels = adminReview.logStatus;
@@ -189,26 +187,24 @@ const galleryAssets = postAssets.filter(isGalleryImageAsset);
 	}
 
 	{
-		isPending && siteDests.length > 0 && (
+		isPending && siteChannel && (
 			<form method="post" action={`/api/admin/posts/${post.id}/approve`} class="mt-6 space-y-3 rounded-xl border bg-white p-6">
-				<p class="text-sm font-medium">{adminReview.destinations}</p>
-				{
-					siteDests.map((link) => (
-						<label class="flex items-center gap-2 text-sm">
-							<input
-								type="checkbox"
-								name="destination_id"
-								value={link.destination_id}
-								checked={link.is_default}
-							/>
-							{link.destinations?.name} ({link.destinations?.type})
-						</label>
-					))
-				}
+				<p class="text-sm text-slate-600">{adminReview.publishLead(siteChannel.name)}</p>
 				<button type="submit" class="rounded-lg bg-brand px-4 py-2 text-sm text-white">
 					{adminReview.approve}
 				</button>
 			</form>
+		)
+	}
+
+	{
+		isPending && !siteChannel && (
+			<p class="mt-6 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+				{adminReview.errors.no_site_channel}{' '}
+				<a href={`/admin/units/${post.site_id}`} class="font-medium text-brand hover:underline">
+					{adminReview.configureSite}
+				</a>
+			</p>
 		)
 	}
 

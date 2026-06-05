@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Site } from '@/lib/types';
+import type { DestinationForPublish } from '@/lib/publish/types';
 
 export async function listSites(supabase: SupabaseClient): Promise<Site[]> {
 	const { data } = await supabase.from('sites').select('*').order('name');
@@ -30,6 +31,47 @@ export async function getSiteDestinations(
 	return (data ?? []) as SiteDestinationLink[];
 }
 
+/** Aktywna destynacja GitHub/Astro przypisana do strony (1:1 w UI). */
+export async function loadSiteAstroDestination(
+	supabase: SupabaseClient,
+	siteId: string,
+): Promise<DestinationForPublish | null> {
+	const links = await getSiteDestinations(supabase, siteId);
+	const link = links.find((l) => l.destinations?.type === 'github_astro');
+	if (!link) return null;
+
+	const { data } = await supabase
+		.from('destinations')
+		.select('id, name, type, config, encrypted_credentials, is_active')
+		.eq('id', link.destination_id)
+		.maybeSingle();
+
+	const dest = (data as DestinationForPublish | null) ?? null;
+	if (!dest?.is_active) return null;
+	return dest;
+}
+
+export async function resolveSitePublishDestinationIds(
+	supabase: SupabaseClient,
+	siteId: string,
+): Promise<string[]> {
+	const dest = await loadSiteAstroDestination(supabase, siteId);
+	return dest ? [dest.id] : [];
+}
+
+export async function getSiteIdByDestinationId(
+	supabase: SupabaseClient,
+	destinationId: string,
+): Promise<string | null> {
+	const { data } = await supabase
+		.from('site_destinations')
+		.select('site_id')
+		.eq('destination_id', destinationId)
+		.limit(1)
+		.maybeSingle();
+	return (data?.site_id as string | undefined) ?? null;
+}
+
 export async function countSitePosts(supabase: SupabaseClient, siteId: string): Promise<number> {
 	const { count } = await supabase
 		.from('posts')
@@ -50,7 +92,16 @@ export async function deleteSite(
 
 	await supabase.from('profiles').update({ default_site_id: null }).eq('default_site_id', siteId);
 	await supabase.from('user_sites').delete().eq('site_id', siteId);
+
+	const links = await getSiteDestinations(supabase, siteId);
 	await supabase.from('site_destinations').delete().eq('site_id', siteId);
+
+	for (const link of links) {
+		const logs = await countDestinationPublishLogs(supabase, link.destination_id);
+		if (logs === 0) {
+			await supabase.from('destinations').delete().eq('id', link.destination_id);
+		}
+	}
 
 	const { error } = await supabase.from('sites').delete().eq('id', siteId);
 	if (error) return { ok: false, error: 'delete_failed' };

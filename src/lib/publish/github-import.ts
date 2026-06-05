@@ -1,7 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { getSiteDestinations } from '@/lib/admin/sites';
-import {
-	assetBasename,
+import { loadSiteAstroDestination } from '@/lib/admin/sites';
 	parseAstroPostFile,
 	siblingFolderPath,
 	slugFromGitHubMarkdownPath,
@@ -26,23 +24,6 @@ import type { DestinationForPublish } from './types';
 export type ImportPostsResult =
 	| { ok: true; imported: number; updated: number; skipped: number; errors: string[] }
 	| { ok: false; error: string };
-
-async function loadAstroDestination(
-	supabase: SupabaseClient,
-	siteId: string,
-): Promise<DestinationForPublish | null> {
-	const links = await getSiteDestinations(supabase, siteId);
-	const link = links.find((l) => l.destinations?.type === 'github_astro');
-	if (!link) return null;
-
-	const { data } = await supabase
-		.from('destinations')
-		.select('id, name, type, config, encrypted_credentials, is_active')
-		.eq('id', link.destination_id)
-		.maybeSingle();
-
-	return (data as DestinationForPublish | null) ?? null;
-}
 
 function mimeFromFilename(filename: string): string {
 	const lower = filename.toLowerCase();
@@ -282,7 +263,7 @@ export async function importPublishedPostsFromGitHub(
 	siteId: string,
 	authorId: string,
 ): Promise<ImportPostsResult> {
-	const dest = await loadAstroDestination(supabase, siteId);
+	const dest = await loadSiteAstroDestination(supabase, siteId);
 	if (!dest?.is_active) return { ok: false, error: 'no_astro_destination' };
 
 	const cfg = parseGitHubRepoConfig(dest.config);
