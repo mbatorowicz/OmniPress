@@ -34,7 +34,7 @@ export const admin = {
 	},
 	published: {
 		heading: (n: number) => `Opublikowane — poprawka (${n})`,
-		lead: 'Otwórz wpis, popraw treść albo zdejmij ze strony. „Dezaktywuj” usuwa wpis ze strony i wraca do szkicu.',
+		lead: 'Zaznacz wiele wpisów i wykonaj akcję zbiorczo — na GitHubie powstanie jeden commit (jeden deploy).',
 		empty: 'Brak opublikowanych wpisów.',
 	},
 	postList: {
@@ -45,6 +45,14 @@ export const admin = {
 		colActions: 'Akcje',
 		noCategory: '—',
 		open: 'Otwórz',
+		selectAll: 'Zaznacz wszystkie',
+		selected: 'Zaznaczono: {n}',
+		bulkDeactivate: 'Dezaktywuj zaznaczone',
+		bulkDelete: 'Usuń zaznaczone',
+		bulkDeactivateConfirm:
+			'Zdjąć {n} wpisów ze strony? W CMS wrócą do szkicu. Pliki znikną z GitHub w jednym commicie.',
+		bulkDeleteConfirm:
+			'Trwale usunąć {n} wpisów z OmniPress? Tej operacji nie można cofnąć.',
 		deactivate: 'Dezaktywuj',
 		delete: 'Usuń',
 		deactivateConfirm:
@@ -53,6 +61,12 @@ export const admin = {
 			'Trwale usunąć wpis z OmniPress? Tej operacji nie można cofnąć. Jeśli wpis jest na stronie, zostanie też zdjęty.',
 		deactivated: 'Wpis zdezaktywowany — usunięty ze strony, w CMS jest szkicem.',
 		deleted: 'Wpis usunięty z OmniPress.',
+		bulkDeactivated: (n: number) =>
+			`${n} wpisów zdezaktywowanych — zdjęto ze strony (jeden commit GitHub).`,
+		bulkDeleted: (n: number) => `${n} wpisów usuniętych z OmniPress.`,
+		bulkSkipped: (n: number) => `${n} pozycji pominięto (np. nieopublikowane).`,
+		noneSelected: 'Nie zaznaczono żadnego wpisu.',
+		invalidAction: 'Nieprawidłowa akcja.',
 		remoteWarning: 'Uwaga: na części destynacji nie udało się zdjąć wpisu — sprawdź logi publikacji.',
 	},
 	preview: {

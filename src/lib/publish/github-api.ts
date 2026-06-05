@@ -109,6 +109,83 @@ export async function deleteGitHubFile(
 	return { commitSha: json.commit?.sha ?? existing.sha };
 }
 
+/** Usuwa wiele plików w jednym commicie (jeden deploy Vercel). */
+export async function deleteGitHubFilesBatch(
+	cfg: GitHubConfig,
+	token: string,
+	filePaths: string[],
+	message: string,
+): Promise<{ commitSha: string; deleted: number } | null> {
+	const paths = [...new Set(filePaths.map((p) => p.trim()).filter(Boolean))];
+	if (paths.length === 0) return null;
+
+	const existing: string[] = [];
+	for (const path of paths) {
+		const meta = await getGitHubFile(cfg, token, path);
+		if (meta) existing.push(path);
+	}
+	if (existing.length === 0) return null;
+
+	const refUrl = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/ref/heads/${encodeURIComponent(cfg.branch)}`;
+	const refRes = await fetch(refUrl, { headers: ghHeaders(token) });
+	if (!refRes.ok) {
+		const text = await refRes.text();
+		throw new Error(`GitHub ref ${refRes.status}: ${text.slice(0, 200)}`);
+	}
+	const refJson = (await refRes.json()) as { object: { sha: string } };
+	const parentSha = refJson.object.sha;
+
+	const commitRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/commits/${parentSha}`, {
+		headers: ghHeaders(token),
+	});
+	if (!commitRes.ok) {
+		const text = await commitRes.text();
+		throw new Error(`GitHub commit ${commitRes.status}: ${text.slice(0, 200)}`);
+	}
+	const commitJson = (await commitRes.json()) as { tree: { sha: string } };
+
+	const treeRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/trees`, {
+		method: 'POST',
+		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			base_tree: commitJson.tree.sha,
+			tree: existing.map((path) => ({ path, mode: '100644', sha: null })),
+		}),
+	});
+	if (!treeRes.ok) {
+		const text = await treeRes.text();
+		throw new Error(`GitHub tree ${treeRes.status}: ${text.slice(0, 300)}`);
+	}
+	const treeJson = (await treeRes.json()) as { sha: string };
+
+	const newCommitRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/commits`, {
+		method: 'POST',
+		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			message,
+			tree: treeJson.sha,
+			parents: [parentSha],
+		}),
+	});
+	if (!newCommitRes.ok) {
+		const text = await newCommitRes.text();
+		throw new Error(`GitHub commit POST ${newCommitRes.status}: ${text.slice(0, 300)}`);
+	}
+	const newCommitJson = (await newCommitRes.json()) as { sha: string };
+
+	const updateRefRes = await fetch(refUrl, {
+		method: 'PATCH',
+		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+		body: JSON.stringify({ sha: newCommitJson.sha, force: false }),
+	});
+	if (!updateRefRes.ok) {
+		const text = await updateRefRes.text();
+		throw new Error(`GitHub ref PATCH ${updateRefRes.status}: ${text.slice(0, 300)}`);
+	}
+
+	return { commitSha: newCommitJson.sha, deleted: existing.length };
+}
+
 export async function putGitHubFile(
 	cfg: GitHubConfig,
 	token: string,

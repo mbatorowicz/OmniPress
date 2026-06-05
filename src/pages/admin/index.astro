@@ -33,7 +33,18 @@ const { data: published } = await supabase
 const listLabels = admin.postList;
 const deactivated = Astro.url.searchParams.get('deactivated') === '1';
 const deleted = Astro.url.searchParams.get('deleted') === '1';
+const bulkDeactivated = Number(Astro.url.searchParams.get('bulk_deactivated') ?? '0');
+const bulkDeleted = Number(Astro.url.searchParams.get('bulk_deleted') ?? '0');
+const bulkSkipped = Number(Astro.url.searchParams.get('bulk_skipped') ?? '0');
 const remoteWarning = Astro.url.searchParams.get('remote_warning') === '1';
+const errorCode = Astro.url.searchParams.get('error');
+const bulkErrors: Record<string, string> = {
+	none_selected: listLabels.noneSelected,
+	none_published: 'Żaden z zaznaczonych wpisów nie jest opublikowany.',
+	invalid_action: listLabels.invalidAction,
+	not_found: 'Nie znaleziono wpisów.',
+};
+const errorMessage = errorCode && errorCode in bulkErrors ? bulkErrors[errorCode] : null;
 ---
 
 <AppLayout title={admin.title} heading={admin.title}>
@@ -57,6 +68,24 @@ const remoteWarning = Astro.url.searchParams.get('remote_warning') === '1';
 	)}
 	{deleted && (
 		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{listLabels.deleted}</p>
+	)}
+	{bulkDeactivated > 0 && (
+		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">
+			{listLabels.bulkDeactivated(bulkDeactivated)}
+		</p>
+	)}
+	{bulkDeleted > 0 && (
+		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">
+			{listLabels.bulkDeleted(bulkDeleted)}
+		</p>
+	)}
+	{bulkSkipped > 0 && (
+		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+			{listLabels.bulkSkipped(bulkSkipped)}
+		</p>
+	)}
+	{errorMessage && (
+		<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{errorMessage}</p>
 	)}
 	{remoteWarning && (
 		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">{listLabels.remoteWarning}</p>
@@ -136,7 +165,7 @@ const remoteWarning = Astro.url.searchParams.get('remote_warning') === '1';
 			!published?.length ? (
 				<p class="mt-2 text-sm text-slate-600">{admin.published.empty}</p>
 			) : (
-				<AdminPostsTable posts={published} labels={listLabels} showPublishedActions />
+				<AdminPostsTable posts={published} labels={listLabels} showBulkActions />
 			)
 		}
 	</section>

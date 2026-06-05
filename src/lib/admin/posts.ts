@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { PostRow } from '@/lib/posts';
-import { withdrawPostFromRemote } from '@/lib/publish/withdraw';
+import { withdrawPostsFromRemoteBatch } from '@/lib/publish/withdraw';
 
 async function queuePublishForDestination(
 	supabase: SupabaseClient,
@@ -163,7 +163,7 @@ export async function deactivatePost(
 	if (!post) return { ok: false, error: 'not_found' };
 	if (post.status !== 'published') return { ok: false, error: 'not_published' };
 
-	const { remoteErrors } = await withdrawPostFromRemote(supabase, postId, post.title || 'wpis');
+	const { remoteErrors } = await withdrawPostsFromRemoteBatch(supabase, [postId]);
 
 	const { data, error } = await supabase
 		.from('posts')
@@ -199,11 +199,75 @@ export async function deletePost(
 		.limit(1);
 
 	if (liveLogs?.length) {
-		const withdraw = await withdrawPostFromRemote(supabase, postId, post.title || 'wpis');
+		const withdraw = await withdrawPostsFromRemoteBatch(supabase, [postId]);
 		remoteErrors = withdraw.remoteErrors;
 	}
 
 	const { error } = await supabase.from('posts').delete().eq('id', postId);
 	if (error) return { ok: false, error: 'delete_failed' };
 	return { ok: true, remoteErrors };
+}
+
+export type BulkPostsResult =
+	| { ok: true; processed: number; skipped: number; remoteErrors: string[] }
+	| { ok: false; error: string };
+
+/** Zbiorczo zdejmuje opublikowane wpisy ze strony (jeden commit GitHub na destynację). */
+export async function bulkDeactivatePosts(
+	supabase: SupabaseClient,
+	postIds: string[],
+): Promise<BulkPostsResult> {
+	const ids = [...new Set(postIds.filter(Boolean))];
+	if (ids.length === 0) return { ok: false, error: 'none_selected' };
+
+	const { data: posts } = await supabase
+		.from('posts')
+		.select('id')
+		.in('id', ids)
+		.eq('status', 'published');
+
+	const publishedIds = (posts ?? []).map((p) => p.id);
+	if (publishedIds.length === 0) return { ok: false, error: 'none_published' };
+
+	const { remoteErrors } = await withdrawPostsFromRemoteBatch(supabase, publishedIds);
+
+	const { error } = await supabase
+		.from('posts')
+		.update({ status: 'draft', rejection_note: null })
+		.in('id', publishedIds)
+		.eq('status', 'published');
+
+	if (error) return { ok: false, error: 'update_failed' };
+
+	return {
+		ok: true,
+		processed: publishedIds.length,
+		skipped: ids.length - publishedIds.length,
+		remoteErrors,
+	};
+}
+
+/** Zbiorczo usuwa wpisy z CMS (GitHub batch — jeden deploy). */
+export async function bulkDeletePosts(
+	supabase: SupabaseClient,
+	postIds: string[],
+): Promise<BulkPostsResult> {
+	const ids = [...new Set(postIds.filter(Boolean))];
+	if (ids.length === 0) return { ok: false, error: 'none_selected' };
+
+	const { data: posts } = await supabase.from('posts').select('id').in('id', ids);
+	const foundIds = (posts ?? []).map((p) => p.id);
+	if (foundIds.length === 0) return { ok: false, error: 'not_found' };
+
+	const { remoteErrors } = await withdrawPostsFromRemoteBatch(supabase, foundIds);
+
+	const { error } = await supabase.from('posts').delete().in('id', foundIds);
+	if (error) return { ok: false, error: 'delete_failed' };
+
+	return {
+		ok: true,
+		processed: foundIds.length,
+		skipped: ids.length - foundIds.length,
+		remoteErrors,
+	};
 }
