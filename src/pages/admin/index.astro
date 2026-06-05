@@ -49,11 +49,13 @@ const importErrorMessage =
 			? importErrorCode
 			: null;
 const errorCode = Astro.url.searchParams.get('error');
+const remoteDetail = Astro.url.searchParams.get('remote_detail');
 const bulkErrors: Record<string, string> = {
 	none_selected: listLabels.noneSelected,
 	none_published: 'Żaden z zaznaczonych wpisów nie jest opublikowany.',
 	invalid_action: listLabels.invalidAction,
 	not_found: 'Nie znaleziono wpisów.',
+	remote_failed: listLabels.remoteFailed,
 };
 const errorMessage = errorCode && errorCode in bulkErrors ? bulkErrors[errorCode] : null;
 const defaultImportSiteId =
@@ -95,10 +97,18 @@ const defaultImportSiteId =
 		</p>
 	)}
 	{errorMessage && (
-		<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{errorMessage}</p>
+		<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">
+			{errorMessage}
+			{remoteDetail && errorCode === 'remote_failed' && (
+				<span class="mt-1 block font-mono text-xs">{remoteDetail}</span>
+			)}
+		</p>
 	)}
 	{remoteWarning && (
-		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">{listLabels.remoteWarning}</p>
+		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+			{listLabels.remoteWarning}
+			{remoteDetail && <span class="mt-1 block font-mono text-xs">{remoteDetail}</span>}
+		</p>
 	)}
 	{importImported + importUpdated > 0 && (
 		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">

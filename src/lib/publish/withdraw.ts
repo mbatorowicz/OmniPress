@@ -1,13 +1,17 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { decryptDestinationCredentials, isGitHubCredentials } from './credentials';
-import { deleteGitHubFilesBatch, parseGitHubRepoConfig } from './github-api';
+import {
+	deleteGitHubFilesBatch,
+	expandGitHubWithdrawPaths,
+	listGitHubTreeBlobPaths,
+	parseGitHubRepoConfig,
+} from './github-api';
 import { loadDestinationForPublish } from './dispatch';
-import { parseExternalGitHubPath } from './paths';
 import type { DestinationForPublish } from './types';
 
 async function withdrawFromGitHubBatch(
 	destination: DestinationForPublish,
-	filePaths: string[],
+	externalIds: string[],
 ): Promise<{ ok: true; summary: string } | { ok: false; summary: string }> {
 	const cfg = parseGitHubRepoConfig(destination.config);
 	if (!cfg) return { ok: false, summary: 'Brak repo w konfiguracji' };
@@ -17,18 +21,18 @@ async function withdrawFromGitHubBatch(
 		return { ok: false, summary: 'Brak tokenu GitHub' };
 	}
 
-	const paths = filePaths.flatMap((id) => {
-		const p = parseExternalGitHubPath(id);
-		return p ? [p] : [];
-	});
-	if (paths.length === 0) return { ok: true, summary: 'Brak plików do usunięcia' };
+	if (externalIds.length === 0) return { ok: true, summary: 'Brak plików do usunięcia' };
 
 	try {
+		const allBlobPaths = await listGitHubTreeBlobPaths(cfg, creds.token);
+		const paths = expandGitHubWithdrawPaths(externalIds, cfg, allBlobPaths);
+		if (paths.length === 0) return { ok: true, summary: 'Brak plików do usunięcia' };
+
 		const result = await deleteGitHubFilesBatch(
 			cfg,
 			creds.token,
 			paths,
-			`OmniPress: zdejmij ${paths.length} wpis(ów) ze strony`,
+			`OmniPress: zdejmij ${externalIds.length} wpis(ów) ze strony`,
 		);
 		if (!result) return { ok: true, summary: 'Pliki już usunięte z repo' };
 		return {
@@ -52,6 +56,19 @@ type SuccessLog = {
 	destination_id: string;
 	external_id: string | null;
 };
+
+async function postsWithLivePublishLogs(
+	supabase: SupabaseClient,
+	postIds: string[],
+): Promise<boolean> {
+	const { data } = await supabase
+		.from('publish_logs')
+		.select('id')
+		.in('post_id', postIds)
+		.eq('status', 'success')
+		.limit(1);
+	return Boolean(data?.length);
+}
 
 /** Zdejmuje wiele wpisów ze stron — GitHub: jeden commit na destynację. */
 export async function withdrawPostsFromRemoteBatch(
@@ -78,6 +95,8 @@ export async function withdrawPostsFromRemoteBatch(
 		byDestination.set(log.destination_id, list);
 	}
 
+	const withdrawnLogIds: string[] = [];
+
 	for (const [destinationId, destLogs] of byDestination) {
 		const destination = await loadDestinationForPublish(supabase, destinationId);
 		if (!destination) {
@@ -96,14 +115,20 @@ export async function withdrawPostsFromRemoteBatch(
 		const outcome = await withdrawFromGitHubBatch(destination, externalIds);
 		if (!outcome.ok) {
 			remoteErrors.push(`${destination.name}: ${outcome.summary}`);
+			continue;
 		}
+
+		withdrawnLogIds.push(...destLogs.map((l) => l.id));
 	}
 
-	const logIds = successLogs.map((l) => l.id);
-	await supabase.from('publish_logs').update({ status: 'withdrawn' }).in('id', logIds);
+	if (withdrawnLogIds.length > 0) {
+		await supabase.from('publish_logs').update({ status: 'withdrawn' }).in('id', withdrawnLogIds);
+	}
 
-	return { remoteErrors, withdrawnCount: logIds.length };
+	return { remoteErrors, withdrawnCount: withdrawnLogIds.length };
 }
+
+export { postsWithLivePublishLogs };
 
 /** Usuwa wpis ze strony docelowej (GitHub) i oznacza logi jako withdrawn. */
 export async function withdrawPostFromRemote(

@@ -11,7 +11,11 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
 	if (action === 'deactivate') {
 		const result = await bulkDeactivatePosts(locals.supabase, postIds);
 		if (!result.ok) {
-			return redirect(`/admin?error=${result.error}`);
+			const params = new URLSearchParams({ error: result.error });
+			if (result.remoteErrors?.[0]) {
+				params.set('remote_detail', result.remoteErrors[0].slice(0, 240));
+			}
+			return redirect(`/admin?${params.toString()}`);
 		}
 		const params = new URLSearchParams({
 			bulk_deactivated: String(result.processed),
@@ -24,7 +28,11 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
 	if (action === 'delete') {
 		const result = await bulkDeletePosts(locals.supabase, postIds);
 		if (!result.ok) {
-			return redirect(`/admin?error=${result.error}`);
+			const params = new URLSearchParams({ error: result.error });
+			if (result.remoteErrors?.[0]) {
+				params.set('remote_detail', result.remoteErrors[0].slice(0, 240));
+			}
+			return redirect(`/admin?${params.toString()}`);
 		}
 		const params = new URLSearchParams({
 			bulk_deleted: String(result.processed),

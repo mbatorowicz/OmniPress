@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { PostRow } from '@/lib/posts';
 import { resolveSitePublishDestinationIds } from './sites';
-import { withdrawPostsFromRemoteBatch } from '@/lib/publish/withdraw';
+import { postsWithLivePublishLogs, withdrawPostsFromRemoteBatch } from '@/lib/publish/withdraw';
 
 async function queuePublishForDestination(
 	supabase: SupabaseClient,
@@ -154,7 +154,14 @@ export async function deactivatePost(
 	if (!post) return { ok: false, error: 'not_found' };
 	if (post.status !== 'published') return { ok: false, error: 'not_published' };
 
-	const { remoteErrors } = await withdrawPostsFromRemoteBatch(supabase, [postId]);
+	let remoteErrors: string[] = [];
+	if (await postsWithLivePublishLogs(supabase, [postId])) {
+		const withdraw = await withdrawPostsFromRemoteBatch(supabase, [postId]);
+		remoteErrors = withdraw.remoteErrors;
+		if (remoteErrors.length > 0) {
+			return { ok: false, error: 'remote_failed' };
+		}
+	}
 
 	const { data, error } = await supabase
 		.from('posts')
@@ -182,16 +189,12 @@ export async function deletePost(
 	if (!post) return { ok: false, error: 'not_found' };
 
 	let remoteErrors: string[] = [];
-	const { data: liveLogs } = await supabase
-		.from('publish_logs')
-		.select('id')
-		.eq('post_id', postId)
-		.eq('status', 'success')
-		.limit(1);
-
-	if (liveLogs?.length) {
+	if (await postsWithLivePublishLogs(supabase, [postId])) {
 		const withdraw = await withdrawPostsFromRemoteBatch(supabase, [postId]);
 		remoteErrors = withdraw.remoteErrors;
+		if (remoteErrors.length > 0) {
+			return { ok: false, error: 'remote_failed' };
+		}
 	}
 
 	const { error } = await supabase.from('posts').delete().eq('id', postId);
@@ -201,7 +204,7 @@ export async function deletePost(
 
 export type BulkPostsResult =
 	| { ok: true; processed: number; skipped: number; remoteErrors: string[] }
-	| { ok: false; error: string };
+	| { ok: false; error: string; remoteErrors?: string[] };
 
 /** Zbiorczo zdejmuje opublikowane wpisy ze strony (jeden commit GitHub na destynację). */
 export async function bulkDeactivatePosts(
@@ -220,7 +223,15 @@ export async function bulkDeactivatePosts(
 	const publishedIds = (posts ?? []).map((p) => p.id);
 	if (publishedIds.length === 0) return { ok: false, error: 'none_published' };
 
-	const { remoteErrors } = await withdrawPostsFromRemoteBatch(supabase, publishedIds);
+	const needsRemote = await postsWithLivePublishLogs(supabase, publishedIds);
+	let remoteErrors: string[] = [];
+	if (needsRemote) {
+		const withdraw = await withdrawPostsFromRemoteBatch(supabase, publishedIds);
+		remoteErrors = withdraw.remoteErrors;
+		if (remoteErrors.length > 0) {
+			return { ok: false, error: 'remote_failed', remoteErrors };
+		}
+	}
 
 	const { error } = await supabase
 		.from('posts')
@@ -250,7 +261,15 @@ export async function bulkDeletePosts(
 	const foundIds = (posts ?? []).map((p) => p.id);
 	if (foundIds.length === 0) return { ok: false, error: 'not_found' };
 
-	const { remoteErrors } = await withdrawPostsFromRemoteBatch(supabase, foundIds);
+	const needsRemote = await postsWithLivePublishLogs(supabase, foundIds);
+	let remoteErrors: string[] = [];
+	if (needsRemote) {
+		const withdraw = await withdrawPostsFromRemoteBatch(supabase, foundIds);
+		remoteErrors = withdraw.remoteErrors;
+		if (remoteErrors.length > 0) {
+			return { ok: false, error: 'remote_failed', remoteErrors };
+		}
+	}
 
 	const { error } = await supabase.from('posts').delete().in('id', foundIds);
 	if (error) return { ok: false, error: 'delete_failed' };

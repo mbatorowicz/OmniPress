@@ -34,7 +34,7 @@ export const admin = {
 	importPosts: {
 		heading: 'Synchronizacja z GitHub',
 		lead:
-			'Pobierz wpisy już opublikowane na stronie Astro do OmniPress — będziesz mógł je edytować, dezaktywować i usuwać jak wpisy dodane w CMS.',
+			'Jednorazowo pobierz wpisy ze strony Astro do OmniPress. Po synchronizacji wpisy zostają w bazie — odświeżenie strony nie wymaga ponownego importu. Ponowny import aktualizuje treść (bez ponownego pobierania niezmienionych załączników).',
 		button: 'Importuj opublikowane wpisy',
 		siteLabel: 'Strona',
 		success: (imported: number, updated: number) =>
@@ -77,7 +77,8 @@ export const admin = {
 		bulkSkipped: (n: number) => `${n} pozycji pominięto (np. nieopublikowane).`,
 		noneSelected: 'Nie zaznaczono żadnego wpisu.',
 		invalidAction: 'Nieprawidłowa akcja.',
-		remoteWarning: 'Uwaga: na części destynacji nie udało się zdjąć wpisu — sprawdź logi publikacji.',
+		remoteWarning: 'Nie udało się zdjąć wpisu ze strony (GitHub) — wpisy w CMS nie zostały usunięte.',
+		remoteFailed: 'Usuwanie ze strony nie powiodło się — sprawdź token GitHub i spróbuj ponownie.',
 	},
 	preview: {
 		title: 'Podgląd wpisu',

@@ -78,6 +78,44 @@ async function findExistingPostId(
 	return (bySlug?.id as string | undefined) ?? null;
 }
 
+async function syncPostAssetsFromGitHub(
+	supabase: SupabaseClient,
+	cfg: GitHubConfig,
+	token: string,
+	postId: string,
+	markdownPath: string,
+	parsed: ParsedAstroPost,
+	allBlobPaths: string[],
+	skipIfUnchanged: boolean,
+): Promise<string[]> {
+	const assetPaths = listGitHubSiblingAssets(allBlobPaths, markdownPath);
+
+	if (skipIfUnchanged) {
+		const { data: oldAssets } = await supabase
+			.from('assets')
+			.select('filename')
+			.eq('post_id', postId);
+		const existing = new Set((oldAssets ?? []).map((a) => a.filename));
+		const needed = assetPaths.map((p) => p.split('/').pop() ?? p);
+		if (
+			needed.length === existing.size &&
+			needed.every((name) => existing.has(name))
+		) {
+			return [];
+		}
+	}
+
+	return replacePostAssetsFromGitHub(
+		supabase,
+		cfg,
+		token,
+		postId,
+		markdownPath,
+		parsed,
+		allBlobPaths,
+	);
+}
+
 async function replacePostAssetsFromGitHub(
 	supabase: SupabaseClient,
 	cfg: GitHubConfig,
@@ -237,7 +275,7 @@ async function importOnePost(
 	}
 
 	errors.push(
-		...(await replacePostAssetsFromGitHub(
+		...(await syncPostAssetsFromGitHub(
 			supabase,
 			cfg,
 			token,
@@ -245,6 +283,7 @@ async function importOnePost(
 			markdownPath,
 			parsed,
 			allBlobPaths,
+			Boolean(existingId),
 		)),
 	);
 	await ensureSuccessPublishLog(

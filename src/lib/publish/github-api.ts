@@ -1,4 +1,4 @@
-import { encodeGitHubPath } from './paths';
+import { encodeGitHubPath, parseExternalGitHubPath } from './paths';
 import { bytesToBase64, textToBase64 } from './assets';
 import { normalizeGitHubRepo } from '@/lib/admin/github-repo';
 import { parseContentLayout, type ContentLayout } from './content-layout';
@@ -327,6 +327,26 @@ export function listGitHubSiblingAssets(
 		if (!rel || rel.includes('/')) return false;
 		return !rel.toLowerCase().endsWith('.md');
 	});
+}
+
+/** Ścieżki do usunięcia z repo — index.md + assety w folderze (layout folder). */
+export function expandGitHubWithdrawPaths(
+	externalIds: string[],
+	cfg: GitHubConfig,
+	allBlobPaths: string[],
+): string[] {
+	const out = new Set<string>();
+	for (const externalId of externalIds) {
+		const mdPath = parseExternalGitHubPath(externalId);
+		if (!mdPath) continue;
+		out.add(mdPath);
+		if (cfg.contentLayout === 'folder') {
+			for (const assetPath of listGitHubSiblingAssets(allBlobPaths, mdPath)) {
+				out.add(assetPath);
+			}
+		}
+	}
+	return [...out];
 }
 
 export async function probeGitHubRepository(
