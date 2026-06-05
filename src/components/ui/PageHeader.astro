@@ -1,0 +1,15 @@
+---
+interface Props {
+	title: string;
+	lead?: string;
+	small?: boolean;
+	class?: string;
+}
+
+const { title, lead, small, class: className = '' } = Astro.props;
+---
+
+<div class={className}>
+	{small ? <h2 class="ui-heading-sm">{title}</h2> : <h2 class="ui-heading">{title}</h2>}
+	{lead && <p class="ui-lead">{lead}</p>}
+</div>

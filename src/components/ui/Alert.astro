@@ -1,0 +1,16 @@
+---
+export type AlertVariant = 'success' | 'error' | 'warning' | 'info';
+
+interface Props {
+	variant?: AlertVariant;
+	class?: string;
+	role?: 'alert' | 'status';
+}
+
+const { variant = 'info', class: className = '', role } = Astro.props;
+const roleAttr = role ?? (variant === 'error' ? 'alert' : 'status');
+---
+
+<p class={`ui-alert ui-alert--${variant} ${className}`} role={roleAttr}>
+	<slot />
+</p>

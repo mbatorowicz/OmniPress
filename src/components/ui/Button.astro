@@ -1,0 +1,61 @@
+---
+export type ButtonVariant = 'primary' | 'secondary' | 'nav-accent' | 'warning' | 'danger' | 'ghost';
+
+interface Props {
+	variant?: ButtonVariant;
+	href?: string;
+	type?: 'button' | 'submit' | 'reset';
+	class?: string;
+	disabled?: boolean;
+	block?: boolean;
+	large?: boolean;
+	name?: string;
+	value?: string;
+	confirm?: string;
+	id?: string;
+}
+
+const {
+	variant = 'primary',
+	href,
+	type = 'button',
+	class: className = '',
+	disabled,
+	block,
+	large,
+	name,
+	value,
+	confirm,
+	id,
+} = Astro.props;
+
+const classes = [
+	'ui-btn',
+	`ui-btn--${variant}`,
+	block ? 'ui-btn--block' : '',
+	large ? 'ui-btn--lg' : '',
+	className,
+]
+	.filter(Boolean)
+	.join(' ');
+---
+
+{
+	href ? (
+		<a href={href} class={classes} id={id}>
+			<slot />
+		</a>
+	) : (
+		<button
+			type={type}
+			class={classes}
+			disabled={disabled}
+			name={name}
+			value={value}
+			id={id}
+			data-confirm={confirm}
+		>
+			<slot />
+		</button>
+	)
+}

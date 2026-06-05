@@ -1,5 +1,8 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
+import Alert from '@/components/ui/Alert.astro';
+import Button from '@/components/ui/Button.astro';
+import Panel from '@/components/ui/Panel.astro';
 import { adminEditors, common } from '@/i18n';
 import { getEditorSiteIds, listEditors, listSites } from '@/lib/admin';
 
@@ -16,34 +19,36 @@ const saved = Astro.url.searchParams.get('saved') === '1';
 ---
 
 <AppLayout title={adminEditors.title} heading={editor.display_name || adminEditors.title}>
-	<a href="/admin/editors" class="mb-4 inline-block text-sm text-brand hover:underline">← {adminEditors.title}</a>
-	{saved && <p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{common.saved}</p>}
+	<a href="/admin/editors" class="mb-4 inline-block text-sm ui-link">← {adminEditors.title}</a>
+	{saved && <Alert variant="success">{common.saved}</Alert>}
 
-	<form method="post" action={`/api/admin/editors/${id}/sites`} class="space-y-4 rounded-xl border bg-white p-6">
-		<fieldset>
-			<legend class="mb-2 text-sm font-medium">{adminEditors.fields.sites}</legend>
-			{
-				sites.map((s) => (
-					<label class="flex items-center gap-2 py-1 text-sm">
-						<input type="checkbox" name="site_id" value={s.id} checked={assigned.has(s.id)} />
-						{s.name}
-					</label>
-				))
-			}
-		</fieldset>
-		<label class="block text-sm">
-			<span class="font-medium">{adminEditors.fields.defaultSite}</span>
-			<select name="default_site_id" class="mt-1 w-full max-w-xs rounded-lg border px-3 py-2">
-				<option value="">—</option>
+	<Panel class="space-y-4">
+		<form method="post" action={`/api/admin/editors/${id}/sites`} class="space-y-4">
+			<fieldset>
+				<legend class="mb-2 text-sm font-medium">{adminEditors.fields.sites}</legend>
 				{
 					sites.map((s) => (
-						<option value={s.id} selected={editor.default_site_id === s.id}>
+						<label class="flex items-center gap-2 py-1 text-sm">
+							<input type="checkbox" name="site_id" value={s.id} checked={assigned.has(s.id)} class="ui-checkbox" />
 							{s.name}
-						</option>
+						</label>
 					))
 				}
-			</select>
-		</label>
-		<button type="submit" class="rounded-lg bg-brand px-4 py-2 text-sm text-white">{adminEditors.actions.save}</button>
-	</form>
+			</fieldset>
+			<label class="ui-label">
+				<span class="font-medium">{adminEditors.fields.defaultSite}</span>
+				<select name="default_site_id" class="ui-input ui-select max-w-xs">
+					<option value="">—</option>
+					{
+						sites.map((s) => (
+							<option value={s.id} selected={editor.default_site_id === s.id}>
+								{s.name}
+							</option>
+						))
+					}
+				</select>
+			</label>
+			<Button type="submit">{adminEditors.actions.save}</Button>
+		</form>
+	</Panel>
 </AppLayout>

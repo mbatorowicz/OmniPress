@@ -1,5 +1,7 @@
 ---
 import { adminLayout } from '@/i18n';
+import Alert from '@/components/ui/Alert.astro';
+import Button from '@/components/ui/Button.astro';
 import type { SiteAstroLayout } from '@/lib/astro-layout/types';
 
 interface Props {
@@ -19,20 +21,11 @@ const slots = layout.slots;
 ---
 
 {saved && (
-	<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">
-		{synced ? adminLayout.savedSynced : adminLayout.saved}
-	</p>
+	<Alert variant="success">{synced ? adminLayout.savedSynced : adminLayout.saved}</Alert>
 )}
-{imported && (
-	<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{adminLayout.imported}</p>
-)}
-{errorMessage && (
-	<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{errorMessage}</p>
-)}
-
-{!hasAstroChannel && (
-	<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">{adminLayout.noAstroChannel}</p>
-)}
+{imported && <Alert variant="success">{adminLayout.imported}</Alert>}
+{errorMessage && <Alert variant="error">{errorMessage}</Alert>}
+{!hasAstroChannel && <Alert variant="warning">{adminLayout.noAstroChannel}</Alert>}
 
 <form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="max-w-5xl space-y-6">
 	<section class="space-y-3 rounded-xl border bg-white p-6">
@@ -234,9 +227,7 @@ const slots = layout.slots;
 			<input type="checkbox" name="sync_github" checked={hasAstroChannel} disabled={!hasAstroChannel} />
 			{adminLayout.fields.syncGitHub}
 		</label>
-		<button type="submit" class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark">
-			{adminLayout.actions.save}
-		</button>
+		<Button type="submit">{adminLayout.actions.save}</Button>
 	</div>
 </form>
 

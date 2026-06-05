@@ -1,5 +1,6 @@
 ---
 import { common } from '@/i18n';
+import Button from '@/components/ui/Button.astro';
 
 type PostRow = {
 	id: string;
@@ -48,78 +49,75 @@ const dateFmt = new Intl.DateTimeFormat('pl-PL', { dateStyle: 'short', timeStyle
 			class="space-y-3"
 			data-selected-template={labels.selected}
 		>
-			<div
-				class="sticky top-0 z-10 flex flex-wrap items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm"
-				data-bulk-bar
-			>
-				<span class="text-sm text-slate-600" data-selected-label>
+			<div class="ui-bulk-bar" data-bulk-bar>
+				<span class="ui-label-muted" data-selected-label>
 					{labels.selected.replace('{n}', '0')}
 				</span>
-				<button
+				<Button
 					type="submit"
 					name="action"
 					value="deactivate"
+					variant="warning"
 					disabled
-					class="rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-900 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-40"
-					data-bulk-deactivate
-					data-confirm={labels.bulkDeactivateConfirm}
+					confirm={labels.bulkDeactivateConfirm}
+					id="bulk-deactivate-btn"
 				>
 					{labels.bulkDeactivate}
-				</button>
-				<button
+				</Button>
+				<Button
 					type="submit"
 					name="action"
 					value="delete"
+					variant="danger"
 					disabled
-					class="rounded-lg border border-red-300 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-800 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-40"
-					data-bulk-delete
-					data-confirm={labels.bulkDeleteConfirm}
+					confirm={labels.bulkDeleteConfirm}
+					id="bulk-delete-btn"
 				>
 					{labels.bulkDelete}
-				</button>
+				</Button>
 			</div>
 
-			<div class="overflow-x-auto rounded-lg border border-slate-200">
-				<table class="min-w-full text-left text-sm">
-					<thead class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+			<div class="ui-table-wrap">
+				<table class="ui-table">
+					<thead class="ui-table-head">
 						<tr>
-							<th class="w-10 px-3 py-3">
+							<th class="ui-table-th w-10 px-3">
 								<input
 									type="checkbox"
-									class="rounded border-slate-300"
+									class="ui-checkbox"
 									data-select-all
 									aria-label={labels.selectAll}
 								/>
 							</th>
-							<th class="px-4 py-3 font-medium">{labels.colTitle}</th>
-							<th class="px-4 py-3 font-medium">{labels.colCategory}</th>
-							<th class="hidden px-4 py-3 font-medium sm:table-cell">{labels.colSite}</th>
-							<th class="px-4 py-3 font-medium">{labels.colDate}</th>
-							<th class="px-4 py-3 font-medium">{labels.colActions}</th>
+							<th class="ui-table-th">{labels.colTitle}</th>
+							<th class="ui-table-th">{labels.colCategory}</th>
+							<th class="ui-table-th hidden sm:table-cell">{labels.colSite}</th>
+							<th class="ui-table-th">{labels.colDate}</th>
+							<th class="ui-table-th">{labels.colActions}</th>
 						</tr>
 					</thead>
-					<tbody class="divide-y divide-slate-100 bg-white">
+					<tbody class="ui-table-body">
 						{
 							posts.map((p) => {
 								const siteName = (p.sites as { name: string } | null)?.name ?? '—';
 								const when = dateFmt.format(new Date(p[dateField] ?? p.updated_at));
 								return (
-									<tr class="hover:bg-slate-50/80">
-										<td class="px-3 py-3">
+									<tr class="ui-table-row">
+										<td class="ui-table-td px-3">
 											<input
 												type="checkbox"
 												name="post_id"
 												value={p.id}
-												class="rounded border-slate-300"
+												class="ui-checkbox"
 												data-post-checkbox
 											/>
 										</td>
-										<td class="px-4 py-3">
-											<a href={`/admin/posts/${p.id}`} class="font-medium text-brand hover:underline">
+										<td class="ui-table-td">
+											<a href={`/admin/posts/${p.id}`} class="ui-link">
 												{p.title || common.untitled}
 											</a>
 										</td>
-										<td class="px-4 py-3 text-slate-700">
+										<td class="ui-table-td text-slate-700">
 											{p.category_name ? (
 												<span>
 													{p.category_name}
@@ -131,15 +129,12 @@ const dateFmt = new Intl.DateTimeFormat('pl-PL', { dateStyle: 'short', timeStyle
 												<span class="text-slate-400">{labels.noCategory}</span>
 											)}
 										</td>
-										<td class="hidden px-4 py-3 text-slate-600 sm:table-cell">{siteName}</td>
-										<td class="whitespace-nowrap px-4 py-3 text-slate-500">{when}</td>
-										<td class="px-4 py-3">
-											<a
-												href={`/admin/posts/${p.id}`}
-												class="rounded border border-slate-200 px-2 py-1 text-xs hover:bg-slate-50"
-											>
+										<td class="ui-table-td hidden text-slate-600 sm:table-cell">{siteName}</td>
+										<td class="ui-table-td whitespace-nowrap text-slate-500">{when}</td>
+										<td class="ui-table-td">
+											<Button href={`/admin/posts/${p.id}`} variant="ghost">
 												{labels.open}
-											</a>
+											</Button>
 										</td>
 									</tr>
 								);
@@ -150,29 +145,29 @@ const dateFmt = new Intl.DateTimeFormat('pl-PL', { dateStyle: 'short', timeStyle
 			</div>
 		</form>
 	) : (
-		<div class="mt-4 overflow-x-auto rounded-lg border border-slate-200">
-			<table class="min-w-full text-left text-sm">
-				<thead class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+		<div class="ui-table-wrap mt-4">
+			<table class="ui-table">
+				<thead class="ui-table-head">
 					<tr>
-						<th class="px-4 py-3 font-medium">{labels.colTitle}</th>
-						<th class="px-4 py-3 font-medium">{labels.colCategory}</th>
-						<th class="hidden px-4 py-3 font-medium sm:table-cell">{labels.colSite}</th>
-						<th class="px-4 py-3 font-medium">{labels.colDate}</th>
+						<th class="ui-table-th">{labels.colTitle}</th>
+						<th class="ui-table-th">{labels.colCategory}</th>
+						<th class="ui-table-th hidden sm:table-cell">{labels.colSite}</th>
+						<th class="ui-table-th">{labels.colDate}</th>
 					</tr>
 				</thead>
-				<tbody class="divide-y divide-slate-100 bg-white">
+				<tbody class="ui-table-body">
 					{
 						posts.map((p) => {
 							const siteName = (p.sites as { name: string } | null)?.name ?? '—';
 							const when = dateFmt.format(new Date(p[dateField] ?? p.updated_at));
 							return (
-								<tr class="hover:bg-slate-50/80">
-									<td class="px-4 py-3">
-										<a href={`/admin/posts/${p.id}`} class="font-medium text-brand hover:underline">
+								<tr class="ui-table-row">
+									<td class="ui-table-td">
+										<a href={`/admin/posts/${p.id}`} class="ui-link">
 											{p.title || common.untitled}
 										</a>
 									</td>
-									<td class="px-4 py-3 text-slate-700">
+									<td class="ui-table-td text-slate-700">
 										{p.category_name ? (
 											<span>
 												{p.category_name}
@@ -184,8 +179,8 @@ const dateFmt = new Intl.DateTimeFormat('pl-PL', { dateStyle: 'short', timeStyle
 											<span class="text-slate-400">{labels.noCategory}</span>
 										)}
 									</td>
-									<td class="hidden px-4 py-3 text-slate-600 sm:table-cell">{siteName}</td>
-									<td class="whitespace-nowrap px-4 py-3 text-slate-500">{when}</td>
+									<td class="ui-table-td hidden text-slate-600 sm:table-cell">{siteName}</td>
+									<td class="ui-table-td whitespace-nowrap text-slate-500">{when}</td>
 								</tr>
 							);
 						})

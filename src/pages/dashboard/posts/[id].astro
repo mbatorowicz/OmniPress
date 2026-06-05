@@ -6,6 +6,8 @@ import PostGalleryPanel from '@/components/posts/PostGalleryPanel.astro';
 import PostPdfAttachments from '@/components/posts/PostPdfAttachments.astro';
 import PostContentHtml from '@/components/posts/PostContentHtml.astro';
 import PostReopenForm from '@/components/admin/PostReopenForm.astro';
+import Alert from '@/components/ui/Alert.astro';
+import Button from '@/components/ui/Button.astro';
 import { common, dashboard, postError } from '@/i18n';
 import { canReopenPost } from '@/lib/admin';
 import { loadSiteCategories } from '@/lib/categories';
@@ -96,52 +98,40 @@ const pdfUi = ed.pdfAttachments;
 		)}
 	</div>
 
-	{saved && (
-		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800" role="status">
-			{ed.saved}
-		</p>
-	)}
-	{errorMessage && (
-		<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
-			{errorMessage}
-		</p>
-	)}
+	{saved && <Alert variant="success">{ed.saved}</Alert>}
+	{errorMessage && <Alert variant="error">{errorMessage}</Alert>}
 
 	{
 		editable ? (
 			<>
 				{categoryWarnings.length > 0 && (
-					<div class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+					<Alert variant="warning">
 						<ul class="list-inside list-disc">
 							{categoryWarnings.map((w) => (
 								<li>{w}</li>
 							))}
 						</ul>
-					</div>
+					</Alert>
 				)}
 				{categoriesUnavailable && (
-					<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">
-						{ed.fields.categoryEmpty}
-					</p>
+					<Alert variant="error">{ed.fields.categoryEmpty}</Alert>
 				)}
 				{isAmendment && (
-					<p class="mb-4 rounded-lg bg-sky-50 px-3 py-2 text-sm text-sky-900" role="status">
-						{ed.fields.amendmentHint}
-					</p>
+					<Alert variant="info">{ed.fields.amendmentHint}</Alert>
 				)}
 				<form
 					id="post-form"
 					method="post"
 					action={`/api/posts/${post.id}/save`}
-					class="space-y-4 rounded-xl border border-slate-200 bg-white p-6"
+					class="ui-panel ui-panel--default space-y-4"
 				>
-					<label class="block text-sm">
-						<span class="font-medium text-slate-700">{ed.fields.category}</span>
+					<label class="ui-label">
+						<span class="font-medium ui-label-text">{ed.fields.category}</span>
 						<select
 							name="category_slug"
 							required
 							disabled={categoriesUnavailable}
-							class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+							class="ui-input ui-select"
 						>
 							<option value="">— wybierz kategorię —</option>
 							{categories.map((c) => (
@@ -155,24 +145,18 @@ const pdfUi = ed.pdfAttachments;
 						</select>
 					</label>
 					<p class="text-xs text-slate-500">{ed.fields.categoryHint}</p>
-					<label class="block text-sm">
-						<span class="font-medium text-slate-700">{ed.fields.title}</span>
-						<input
-							type="text"
-							name="title"
-							required
-							value={post.title}
-							class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-						/>
+					<label class="ui-label">
+						<span class="font-medium ui-label-text">{ed.fields.title}</span>
+						<input type="text" name="title" required value={post.title} class="ui-input" />
 					</label>
-					<label class="block text-sm">
-						<span class="font-medium text-slate-700">{ed.fields.slug}</span>
+					<label class="ui-label">
+						<span class="font-medium ui-label-text">{ed.fields.slug}</span>
 						<input
 							type="text"
 							name="slug"
 							value={post.slug ?? ''}
 							placeholder={ed.fields.slugPlaceholder}
-							class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm"
+							class="ui-input font-mono text-sm"
 						/>
 					</label>
 					<div>
@@ -188,30 +172,25 @@ const pdfUi = ed.pdfAttachments;
 						<PostPdfAttachments postId={post.id} assets={postAssets} labels={pdfUi} />
 					</div>
 					<div class="flex flex-wrap gap-3">
-						<button
-							type="submit"
-							class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
-						>
-							{ed.actions.save}
-						</button>
+						<Button type="submit">{ed.actions.save}</Button>
 					</div>
 				</form>
 
 				{submittable && (
 					<form method="post" action={`/api/posts/${post.id}/submit`} class="mt-4">
-						<button
+						<Button
 							type="submit"
+							variant="warning"
 							disabled={categoriesUnavailable || !post.category_slug}
-							class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-900 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
-							data-confirm={ed.actions.confirmSubmit}
+							confirm={ed.actions.confirmSubmit}
 						>
 							{ed.actions.submit}
-						</button>
+						</Button>
 					</form>
 				)}
 			</>
 		) : (
-			<article class="rounded-xl border border-slate-200 bg-white p-6">
+			<article class="ui-panel ui-panel--default">
 				{post.category_name && (
 					<p class="text-sm text-slate-600">
 						{ed.fields.category}: <strong>{post.category_name}</strong>
@@ -225,9 +204,9 @@ const pdfUi = ed.pdfAttachments;
 					<p class="mt-2 text-sm text-sky-800">{ed.publishingLocked}</p>
 				)}
 				{post.rejection_note && (
-					<p class="mt-2 rounded-lg bg-red-50 p-3 text-sm text-red-800">
+					<Alert variant="error" class="mt-2">
 						<strong>{ed.rejectionNote}</strong> {post.rejection_note}
-					</p>
+					</Alert>
 				)}
 				<div class="mt-4 rounded-lg border border-slate-100 bg-slate-50/50 p-4">
 					{contentHtml ? (
@@ -272,7 +251,7 @@ const pdfUi = ed.pdfAttachments;
 	}
 
 	<p class="mt-6">
-		<a href="/dashboard" class="text-sm text-brand hover:underline">{ed.backToList}</a>
+		<a href="/dashboard" class="text-sm ui-link">{ed.backToList}</a>
 	</p>
 
 	{

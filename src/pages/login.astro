@@ -1,6 +1,8 @@
 ---
 import '../styles/global.css';
 import VersionBadge from '@/components/layout/VersionBadge.astro';
+import Alert from '@/components/ui/Alert.astro';
+import Button from '@/components/ui/Button.astro';
 import { auth, common } from '@/i18n';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 
@@ -45,9 +47,9 @@ const showReset = mode === 'reset';
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>{auth.login.pageTitle} · {common.appName}</title>
 	</head>
-	<body class="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-100 p-6">
-		<div class="w-full max-w-sm rounded-xl bg-white p-8 shadow-sm">
-			<h1 class="text-xl font-semibold text-brand">{common.appName}</h1>
+	<body class="ui-auth-shell">
+		<div class="ui-auth-card">
+			<h1 class="ui-auth-title">{common.appName}</h1>
 			<p class="mt-1 text-sm text-slate-600">
 				{showReset ? auth.login.headingReset : auth.login.headingSignIn}
 			</p>
@@ -58,69 +60,63 @@ const showReset = mode === 'reset';
 				) : (
 					<>
 						{errorMessage && (
-							<p class="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
+							<Alert variant="error" class="mt-4 mb-0">
 								{errorMessage}
-							</p>
+							</Alert>
 						)}
 						{infoMessage && (
-							<p class="mt-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800" role="status">
+							<Alert variant="success" class="mt-4 mb-0">
 								{infoMessage}
-							</p>
+							</Alert>
 						)}
 
 						{
 							showReset ? (
 								<form action="/api/auth/reset" method="post" class="mt-6 space-y-4">
-									<label class="block text-sm">
-										<span class="text-slate-700">{common.email}</span>
+									<label class="ui-label">
+										<span class="ui-label-text">{common.email}</span>
 										<input
 											type="email"
 											name="email"
 											required
 											autocomplete="username"
-											class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+											class="ui-input"
 										/>
 									</label>
-									<button
-										type="submit"
-										class="w-full rounded-lg bg-brand px-4 py-2 font-medium text-white hover:bg-brand-dark"
-									>
+									<Button type="submit" block>
 										{auth.login.submitReset}
-									</button>
+									</Button>
 									<p class="text-center text-sm">
-										<a href="/login" class="text-brand hover:underline">
+										<a href="/login" class="ui-link">
 											{auth.login.backToLogin}
 										</a>
 									</p>
 								</form>
 							) : (
 								<form action="/api/auth/login" method="post" class="mt-6 space-y-4">
-									<label class="block text-sm">
-										<span class="text-slate-700">{common.email}</span>
+									<label class="ui-label">
+										<span class="ui-label-text">{common.email}</span>
 										<input
 											type="email"
 											name="email"
 											required
 											autocomplete="username"
-											class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+											class="ui-input"
 										/>
 									</label>
-									<label class="block text-sm">
-										<span class="text-slate-700">{common.password}</span>
+									<label class="ui-label">
+										<span class="ui-label-text">{common.password}</span>
 										<input
 											type="password"
 											name="password"
 											required
 											autocomplete="current-password"
-											class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+											class="ui-input"
 										/>
 									</label>
-									<button
-										type="submit"
-										class="w-full rounded-lg bg-brand px-4 py-2 font-medium text-white hover:bg-brand-dark"
-									>
+									<Button type="submit" block>
 										{auth.login.submitSignIn}
-									</button>
+									</Button>
 									<p class="text-center text-sm">
 										<a href="/login?mode=reset" class="text-slate-600 hover:text-brand">
 											{auth.login.forgotPassword}

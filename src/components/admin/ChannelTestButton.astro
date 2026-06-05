@@ -15,11 +15,7 @@ const { destinationId } = Astro.props;
 	data-dest-field="astro_destination_id"
 	data-destination-id={destinationId ?? ''}
 >
-	<button
-		type="button"
-		data-test-btn
-		class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-800 hover:bg-slate-50"
-	>
+	<button type="button" data-test-btn class="ui-btn ui-btn--secondary px-3 py-1.5">
 		{adminDestinations.actions.testChannel}
 	</button>
 	<p class="mt-2 hidden text-sm" data-test-result role="status"></p>
@@ -46,7 +42,7 @@ const { destinationId } = Astro.props;
 				btn.disabled = true;
 				btn.textContent = labelTesting;
 				result.classList.add('hidden');
-				result.classList.remove('text-green-800', 'text-red-800', 'rounded-lg', 'px-3', 'py-2', 'bg-green-50', 'bg-red-50');
+				result.classList.remove('ui-alert', 'ui-alert--success', 'ui-alert--error');
 
 				const fd = new FormData(form);
 				if (destField && !fd.get(destField) && fallbackDestId) {
@@ -58,17 +54,11 @@ const { destinationId } = Astro.props;
 					const data = (await res.json()) as { ok?: boolean; message?: string };
 					const ok = Boolean(data.ok);
 					result.textContent = data.message ?? (ok ? 'OK' : 'Błąd testu');
-					result.classList.toggle('text-green-800', ok);
-					result.classList.toggle('text-red-800', !ok);
-					result.classList.toggle('bg-green-50', ok);
-					result.classList.toggle('bg-red-50', !ok);
-					result.classList.toggle('rounded-lg', true);
-					result.classList.toggle('px-3', true);
-					result.classList.toggle('py-2', true);
+					result.classList.add('ui-alert', ok ? 'ui-alert--success' : 'ui-alert--error');
 					result.classList.remove('hidden');
 				} catch {
 					result.textContent = 'Błąd sieci — spróbuj ponownie.';
-					result.classList.add('text-red-800', 'bg-red-50', 'rounded-lg', 'px-3', 'py-2');
+					result.classList.add('ui-alert', 'ui-alert--error');
 					result.classList.remove('hidden');
 				} finally {
 					btn.disabled = false;

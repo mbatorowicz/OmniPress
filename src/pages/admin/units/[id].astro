@@ -1,6 +1,9 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
 import UnitForm from '@/components/admin/UnitForm.astro';
+import Alert from '@/components/ui/Alert.astro';
+import Button from '@/components/ui/Button.astro';
+import Panel from '@/components/ui/Panel.astro';
 import { adminSites, adminUnit, common } from '@/i18n';
 import { countSitePosts, loadUnitFormInitial } from '@/lib/admin';
 
@@ -21,13 +24,13 @@ const errorMessage =
 ---
 
 <AppLayout title={initial.name} heading={adminUnit.editTitle}>
-	<a href="/admin/sites" class="mb-4 inline-block text-sm text-brand hover:underline">
+	<a href="/admin/sites" class="mb-4 inline-block text-sm ui-link">
 		← {adminSites.title}
 	</a>
 
-	{saved && <p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{common.saved}</p>}
+	{saved && <Alert variant="success">{common.saved}</Alert>}
 
-	<p class="mb-4 text-sm text-slate-600">{adminUnit.editLead}</p>
+	<p class="mb-4 ui-muted">{adminUnit.editLead}</p>
 
 	<UnitForm
 		action={`/api/admin/units/${id}/save`}
@@ -36,22 +39,16 @@ const errorMessage =
 		errorMessage={errorMessage}
 	/>
 
-	<p class="mt-6 max-w-2xl flex flex-wrap gap-3">
-		<a
-			href={`/admin/units/${id}/layout`}
-			class="inline-flex rounded-lg border border-brand/30 bg-brand/5 px-4 py-2 text-sm font-medium text-brand hover:bg-brand/10"
-		>
+	<p class="mt-6 flex max-w-2xl flex-wrap gap-3">
+		<Button href={`/admin/units/${id}/layout`} variant="nav-accent">
 			{adminUnit.layoutLink}
-		</a>
-		<a
-			href={`/admin/units/${id}/changes`}
-			class="inline-flex rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:border-brand"
-		>
+		</Button>
+		<Button href={`/admin/units/${id}/changes`} variant="secondary">
 			{adminUnit.changesLink}
-		</a>
+		</Button>
 	</p>
 
-	<section class="mt-8 max-w-2xl rounded-xl border border-red-100 bg-red-50/30 p-6">
+	<Panel variant="danger" class="mt-8 max-w-2xl">
 		<h3 class="text-sm font-medium text-red-900">{adminSites.delete.heading}</h3>
 		<p class="mt-1 text-sm text-red-800">{adminSites.delete.lead}</p>
 		{postCount > 0 && (
@@ -61,16 +58,12 @@ const errorMessage =
 		)}
 		<form method="post" action={`/api/admin/sites/${id}/delete`} class="mt-4 space-y-3">
 			<label class="flex items-start gap-2 text-sm text-red-900">
-				<input type="checkbox" name="confirm" class="mt-1" disabled={postCount > 0} />
+				<input type="checkbox" name="confirm" class="ui-checkbox mt-1" disabled={postCount > 0} />
 				{adminSites.delete.confirm}
 			</label>
-			<button
-				type="submit"
-				disabled={postCount > 0}
-				class="rounded-lg border border-red-300 bg-white px-4 py-2 text-sm text-red-900 disabled:cursor-not-allowed disabled:opacity-50"
-			>
+			<Button type="submit" variant="danger" disabled={postCount > 0}>
 				{adminSites.actions.delete}
-			</button>
+			</Button>
 		</form>
-	</section>
+	</Panel>
 </AppLayout>

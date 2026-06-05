@@ -6,8 +6,8 @@ export function initAdminPostsBulkForm(): void {
 	const checkboxes = form.querySelectorAll('[data-post-checkbox]');
 	const selectAll = form.querySelector('[data-select-all]');
 	const label = form.querySelector('[data-selected-label]');
-	const deactivateBtn = form.querySelector('[data-bulk-deactivate]');
-	const deleteBtn = form.querySelector('[data-bulk-delete]');
+	const deactivateBtn = document.getElementById('bulk-deactivate-btn');
+	const deleteBtn = document.getElementById('bulk-delete-btn');
 
 	function selectedCount() {
 		return [...checkboxes].filter((cb) => cb instanceof HTMLInputElement && cb.checked).length;

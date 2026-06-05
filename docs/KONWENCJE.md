@@ -51,6 +51,14 @@ src/
 - Logika w `lib/` → testy `*.test.ts` obok modułu.
 - Teksty i18n — bez testów; klucze sprawdzają TypeScript (`as const`).
 
-## 7. Agent AI
+## 7. UI (SSOT stylów)
+
+- **Klasy:** `src/styles/ui.css` — prefiks `ui-*` (alerty, panele, przyciski, formularze, tabele).
+- **Komponenty:** `src/components/ui/` — preferuj `<Alert>`, `<Button>`, `<Panel>`, `<PageHeader>`, `<AdminSubnav>` zamiast powielania klas Tailwind w `.astro`.
+- **Zakaz** długich stringów typu `rounded-lg bg-green-50 px-3 py-2…` w stronach — użyj komponentu lub klasy `ui-*`.
+- Import globalny: `global.css` → `@import './ui.css'`.
+- Wyjątki: layout siatki (grid/flex), edytor rich-text, galeria — mogą mieć lokalne klasy strukturalne.
+
+## 8. Agent AI
 
 Proces i odpowiedzialność: [ROLE_AGENT.md](./ROLE_AGENT.md). PRD docelowy: [PRD.md](../PRD.md). Stan kodu: [STATUS.md](./STATUS.md).

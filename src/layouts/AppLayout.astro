@@ -25,27 +25,27 @@ const profile = Astro.locals.profile;
 		<header class="border-b border-slate-200 bg-white">
 			<div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
 				<a href="/" class="text-lg font-semibold text-brand">{common.appName}</a>
-				<nav class="flex items-center gap-4 text-sm">
-					{
-						profile?.role === 'admin' && (
-							<a href="/admin" class="hover:text-brand">
-								{layout.navAdmin}
-							</a>
-						)
-					}
-					<a href="/dashboard" class="hover:text-brand">
-						{profile?.role === 'admin' ? layout.navEditorPanel : layout.navPanel}
+		<nav class="ui-header-nav">
+			{
+				profile?.role === 'admin' && (
+					<a href="/admin" class="ui-header-nav-link">
+						{layout.navAdmin}
 					</a>
-					<form method="post" action="/api/auth/signout">
-						<button type="submit" class="text-slate-600 hover:text-brand">
-							{layout.navSignOut}
-						</button>
-					</form>
-				</nav>
+				)
+			}
+			<a href="/dashboard" class="ui-header-nav-link">
+				{profile?.role === 'admin' ? layout.navEditorPanel : layout.navPanel}
+			</a>
+			<form method="post" action="/api/auth/signout">
+				<button type="submit" class="ui-header-signout">
+					{layout.navSignOut}
+				</button>
+			</form>
+		</nav>
 			</div>
 		</header>
 		<main class="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
-			{heading && <h1 class="mb-6 text-2xl font-semibold text-slate-800">{heading}</h1>}
+			{heading && <h1 class="ui-page-heading">{heading}</h1>}
 			<slot />
 		</main>
 		<AppFooter />

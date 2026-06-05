@@ -1,5 +1,7 @@
 ---
 import { adminRecentChanges } from '@/i18n';
+import Alert from '@/components/ui/Alert.astro';
+import Button from '@/components/ui/Button.astro';
 import type { RecentChangeEntry } from '@/lib/recent-changes/types';
 
 interface Props {
@@ -15,17 +17,9 @@ const { siteId, entries, hasAstroChannel, errorMessage, saved } = Astro.props;
 const kindLabels = adminRecentChanges.kinds;
 ---
 
-{saved && (
-	<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{adminRecentChanges.saved}</p>
-)}
-{errorMessage && (
-	<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{errorMessage}</p>
-)}
-{!hasAstroChannel && (
-	<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
-		{adminRecentChanges.noAstroChannel}
-	</p>
-)}
+{saved && <Alert variant="success">{adminRecentChanges.saved}</Alert>}
+{errorMessage && <Alert variant="error">{errorMessage}</Alert>}
+{!hasAstroChannel && <Alert variant="warning">{adminRecentChanges.noAstroChannel}</Alert>}
 
 <section class="mb-8 max-w-4xl space-y-3 rounded-xl border bg-white p-6">
 	<h2 class="text-sm font-semibold text-slate-800">{adminRecentChanges.currentHeading}</h2>
@@ -123,13 +117,9 @@ const kindLabels = adminRecentChanges.kinds;
 			</select>
 		</label>
 
-		<button
-			type="submit"
-			disabled={!hasAstroChannel}
-			class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark disabled:opacity-50"
-		>
+		<Button type="submit" disabled={!hasAstroChannel}>
 			{adminRecentChanges.actions.announce}
-		</button>
+		</Button>
 	</form>
 </section>
 

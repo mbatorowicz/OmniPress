@@ -4,6 +4,9 @@ import StatusBadge from '@/components/posts/StatusBadge.astro';
 import PostContentHtml from '@/components/posts/PostContentHtml.astro';
 import PostReopenForm from '@/components/admin/PostReopenForm.astro';
 import PostAdminActions from '@/components/admin/PostAdminActions.astro';
+import Alert from '@/components/ui/Alert.astro';
+import Button from '@/components/ui/Button.astro';
+import Panel from '@/components/ui/Panel.astro';
 import { admin, adminReview, common } from '@/i18n';
 import { canReopenPost, loadSiteAstroDestination } from '@/lib/admin';
 import { listPublishLogsForPost } from '@/lib/publish';
@@ -68,39 +71,23 @@ const galleryAssets = postAssets.filter(isGalleryImageAsset);
 		{author?.display_name && <span>{preview.authorLabel} {author.display_name}</span>}
 	</div>
 
-	{approved && (
-		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{adminReview.approved}</p>
-	)}
-	{rejected && (
-		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">{adminReview.rejected}</p>
-	)}
-	{reopened && (
-		<p class="mb-4 rounded-lg bg-sky-50 px-3 py-2 text-sm text-sky-900">{adminReview.reopened}</p>
-	)}
-	{deactivated && (
-		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{adminReview.deactivated}</p>
-	)}
-	{deleted && (
-		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{adminReview.deleted}</p>
-	)}
-	{remoteWarning && (
-		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">{adminReview.remoteWarning}</p>
-	)}
+	{approved && <Alert variant="success">{adminReview.approved}</Alert>}
+	{rejected && <Alert variant="warning">{adminReview.rejected}</Alert>}
+	{reopened && <Alert variant="info">{adminReview.reopened}</Alert>}
+	{deactivated && <Alert variant="success">{adminReview.deactivated}</Alert>}
+	{deleted && <Alert variant="success">{adminReview.deleted}</Alert>}
+	{remoteWarning && <Alert variant="warning">{adminReview.remoteWarning}</Alert>}
 	{reopened && (
 		<p class="mb-4 text-sm">
-			<a href={`/dashboard/posts/${post.id}`} class="text-brand hover:underline">
+			<a href={`/dashboard/posts/${post.id}`} class="ui-link">
 				Otwórz edytor redaktora →
 			</a>
 		</p>
 	)}
-	{retried && (
-		<p class="mb-4 rounded-lg bg-sky-50 px-3 py-2 text-sm text-sky-900">{logsUi.retryQueued}</p>
-	)}
-	{errorMessage && (
-		<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{errorMessage}</p>
-	)}
+	{retried && <Alert variant="info">{logsUi.retryQueued}</Alert>}
+	{errorMessage && <Alert variant="error">{errorMessage}</Alert>}
 
-	<article class="rounded-xl border border-slate-200 bg-white p-6">
+	<Panel tag="article">
 		<h2 class="text-xl font-semibold">{post.title || common.untitled}</h2>
 		{post.category_name && (
 			<p class="mt-1 text-sm text-slate-600">
@@ -139,39 +126,39 @@ const galleryAssets = postAssets.filter(isGalleryImageAsset);
 				</div>
 			)
 		}
-	</article>
+	</Panel>
 
 	{
 		publishLogs.length > 0 && (
-			<section class="mt-6 overflow-x-auto rounded-xl border bg-white p-6">
+			<Panel class="mt-6 overflow-x-auto">
 				<h3 class="text-sm font-medium">{logsUi.heading}</h3>
-				<table class="mt-4 w-full text-left text-sm">
-					<thead class="border-b text-slate-500">
+				<table class="ui-table mt-4">
+					<thead class="ui-table-head">
 						<tr>
-							<th class="pb-2 pr-4">{logsUi.destination}</th>
-							<th class="pb-2 pr-4">{logsUi.status}</th>
-							<th class="pb-2 pr-4">{logsUi.summary}</th>
-							<th class="pb-2 pr-4">{logsUi.retries}</th>
-							<th class="pb-2">{logsUi.retry}</th>
+							<th class="ui-table-th">{logsUi.destination}</th>
+							<th class="ui-table-th">{logsUi.status}</th>
+							<th class="ui-table-th">{logsUi.summary}</th>
+							<th class="ui-table-th">{logsUi.retries}</th>
+							<th class="ui-table-th">{logsUi.retry}</th>
 						</tr>
 					</thead>
-					<tbody class="divide-y">
+					<tbody class="ui-table-body">
 						{publishLogs.map((log) => {
 							const st = log.status as PublishLogStatus;
 							const failed = st === 'failed';
 							return (
-								<tr class={failed ? 'bg-red-50/50' : ''}>
-									<td class="py-2 pr-4">
+								<tr class={`ui-table-row ${failed ? 'bg-red-50/50' : ''}`}>
+									<td class="ui-table-td">
 										{log.destinations?.name}
 										<span class="ml-1 text-slate-400">({log.destinations?.type})</span>
 									</td>
-									<td class="py-2 pr-4">{logLabels[st]}</td>
-									<td class="py-2 pr-4 text-slate-600">{log.response_summary ?? '—'}</td>
-									<td class="py-2 pr-4">{log.retry_count}</td>
-									<td class="py-2">
+									<td class="ui-table-td">{logLabels[st]}</td>
+									<td class="ui-table-td text-slate-600">{log.response_summary ?? '—'}</td>
+									<td class="ui-table-td">{log.retry_count}</td>
+									<td class="ui-table-td">
 										{failed && (
 											<form method="post" action={`/api/admin/posts/${post.id}/publish-logs/${log.id}/retry`}>
-												<button type="submit" class="text-brand hover:underline">
+												<button type="submit" class="ui-link border-0 bg-transparent p-0">
 													{logsUi.retry}
 												</button>
 											</form>
@@ -182,43 +169,43 @@ const galleryAssets = postAssets.filter(isGalleryImageAsset);
 						})}
 					</tbody>
 				</table>
-			</section>
+			</Panel>
 		)
 	}
 
 	{
 		isPending && siteChannel && (
-			<form method="post" action={`/api/admin/posts/${post.id}/approve`} class="mt-6 space-y-3 rounded-xl border bg-white p-6">
-				<p class="text-sm text-slate-600">{adminReview.publishLead(siteChannel.name)}</p>
-				<button type="submit" class="rounded-lg bg-brand px-4 py-2 text-sm text-white">
-					{adminReview.approve}
-				</button>
-			</form>
+			<Panel class="mt-6 space-y-3">
+				<p class="ui-muted">{adminReview.publishLead(siteChannel.name)}</p>
+				<form method="post" action={`/api/admin/posts/${post.id}/approve`}>
+					<Button type="submit">{adminReview.approve}</Button>
+				</form>
+			</Panel>
 		)
 	}
 
 	{
 		isPending && !siteChannel && (
-			<p class="mt-6 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+			<Alert variant="warning" class="mt-6">
 				{adminReview.errors.no_site_channel}{' '}
-				<a href={`/admin/units/${post.site_id}`} class="font-medium text-brand hover:underline">
+				<a href={`/admin/units/${post.site_id}`} class="ui-link">
 					{adminReview.configureSite}
 				</a>
-			</p>
+			</Alert>
 		)
 	}
 
 	{
 		isPending && (
-			<form method="post" action={`/api/admin/posts/${post.id}/reject`} class="mt-4 max-w-lg space-y-3 rounded-xl border border-red-100 bg-white p-6">
-				<label class="block text-sm">
-					<span class="font-medium">{adminReview.rejectionNote}</span>
-					<textarea name="rejection_note" required rows={3} class="mt-1 w-full rounded-lg border px-3 py-2" />
-				</label>
-				<button type="submit" class="rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-900">
-					{adminReview.reject}
-				</button>
-			</form>
+			<Panel variant="danger" class="mt-4 max-w-lg">
+				<form method="post" action={`/api/admin/posts/${post.id}/reject`} class="space-y-3">
+					<label class="ui-label">
+						<span class="font-medium">{adminReview.rejectionNote}</span>
+						<textarea name="rejection_note" required rows={3} class="ui-input" />
+					</label>
+					<Button type="submit" variant="danger">{adminReview.reject}</Button>
+				</form>
+			</Panel>
 		)
 	}
 
@@ -226,5 +213,5 @@ const galleryAssets = postAssets.filter(isGalleryImageAsset);
 
 	<PostAdminActions postId={post.id} status={post.status} />
 
-	<a href="/admin" class="mt-6 inline-block text-sm text-brand hover:underline">{preview.back}</a>
+	<a href="/admin" class="ui-link mt-6 inline-block text-sm">{preview.back}</a>
 </AppLayout>

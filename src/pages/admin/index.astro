@@ -1,7 +1,12 @@
 ---
 import AppLayout from '../../layouts/AppLayout.astro';
 import AdminPostsTable from '@/components/admin/AdminPostsTable.astro';
-import { admin, adminSites, common } from '@/i18n';
+import AdminSubnav from '@/components/ui/AdminSubnav.astro';
+import Alert from '@/components/ui/Alert.astro';
+import Button from '@/components/ui/Button.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import Panel from '@/components/ui/Panel.astro';
+import { admin, adminSites } from '@/i18n';
 import { listSites } from '@/lib/admin';
 
 const supabase = Astro.locals.supabase;
@@ -63,73 +68,48 @@ const defaultImportSiteId =
 ---
 
 <AppLayout title={admin.title} heading={admin.title}>
-	<nav class="mb-8 flex flex-wrap gap-3 text-sm">
-		<a href="/admin/units/new" class="rounded-lg border border-brand bg-brand/5 px-4 py-2 font-medium text-brand hover:bg-brand/10">
-			{adminSites.wizardLink}
-		</a>
-		<a href="/admin/sites" class="rounded-lg border border-slate-200 bg-white px-4 py-2 hover:border-brand">
-			{admin.sites.manage}
-		</a>
-		<a href="/admin/editors" class="rounded-lg border border-slate-200 bg-white px-4 py-2 hover:border-brand">
-			{admin.editors.manage}
-		</a>
-	</nav>
+	<AdminSubnav
+		links={[
+			{ href: '/admin/units/new', label: adminSites.wizardLink, accent: true },
+			{ href: '/admin/sites', label: admin.sites.manage },
+			{ href: '/admin/editors', label: admin.editors.manage },
+		]}
+	/>
 
-	{deactivated && (
-		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{listLabels.deactivated}</p>
-	)}
-	{deleted && (
-		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{listLabels.deleted}</p>
-	)}
+	{deactivated && <Alert variant="success">{listLabels.deactivated}</Alert>}
+	{deleted && <Alert variant="success">{listLabels.deleted}</Alert>}
 	{bulkDeactivated > 0 && (
-		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">
-			{listLabels.bulkDeactivated(bulkDeactivated)}
-		</p>
+		<Alert variant="success">{listLabels.bulkDeactivated(bulkDeactivated)}</Alert>
 	)}
-	{bulkDeleted > 0 && (
-		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">
-			{listLabels.bulkDeleted(bulkDeleted)}
-		</p>
-	)}
-	{bulkSkipped > 0 && (
-		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
-			{listLabels.bulkSkipped(bulkSkipped)}
-		</p>
-	)}
+	{bulkDeleted > 0 && <Alert variant="success">{listLabels.bulkDeleted(bulkDeleted)}</Alert>}
+	{bulkSkipped > 0 && <Alert variant="warning">{listLabels.bulkSkipped(bulkSkipped)}</Alert>}
 	{errorMessage && (
-		<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">
+		<Alert variant="error">
 			{errorMessage}
 			{remoteDetail && errorCode === 'remote_failed' && (
-				<span class="mt-1 block font-mono text-xs">{remoteDetail}</span>
+				<span class="ui-alert-detail">{remoteDetail}</span>
 			)}
-		</p>
+		</Alert>
 	)}
 	{remoteWarning && (
-		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+		<Alert variant="warning">
 			{listLabels.remoteWarning}
-			{remoteDetail && <span class="mt-1 block font-mono text-xs">{remoteDetail}</span>}
-		</p>
+			{remoteDetail && <span class="ui-alert-detail">{remoteDetail}</span>}
+		</Alert>
 	)}
 	{importImported + importUpdated > 0 && (
-		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">
-			{importLabels.success(importImported, importUpdated)}
-		</p>
+		<Alert variant="success">{importLabels.success(importImported, importUpdated)}</Alert>
 	)}
-	{importWarnings > 0 && (
-		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
-			{importLabels.warnings(importWarnings)}
-		</p>
-	)}
-	{importErrorMessage && (
-		<p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{importErrorMessage}</p>
-	)}
+	{importWarnings > 0 && <Alert variant="warning">{importLabels.warnings(importWarnings)}</Alert>}
+	{importErrorMessage && <Alert variant="error">{importErrorMessage}</Alert>}
 
-	<section class="mb-8 rounded-xl border border-slate-200 bg-white p-6">
-		<h2 class="text-lg font-medium text-slate-900">{importLabels.heading}</h2>
-		<p class="mt-1 text-sm text-slate-600">{importLabels.lead}</p>
+	<Panel variant="default" class="mb-8">
+		<PageHeader title={importLabels.heading} lead={importLabels.lead} />
 		{
 			sites.length === 0 ? (
-				<p class="mt-4 text-sm text-slate-500">{admin.sites.empty} {admin.sites.exampleName}.</p>
+				<p class="mt-4 ui-muted">
+					{admin.sites.empty} {admin.sites.exampleName}.
+				</p>
 			) : (
 				<form
 					method="post"
@@ -139,11 +119,11 @@ const defaultImportSiteId =
 				>
 					{
 						sites.length > 1 ? (
-							<label class="text-sm">
-								<span class="text-slate-600">{importLabels.siteLabel}</span>
+							<label class="ui-label-inline">
+								<span class="ui-label-muted">{importLabels.siteLabel}</span>
 								<select
 									name="site_id_display"
-									class="ml-2 rounded-lg border border-slate-300 px-2 py-2"
+									class="ui-select ui-input--inline"
 									id="import-site-select"
 								>
 									{sites.map((s) => (
@@ -157,88 +137,79 @@ const defaultImportSiteId =
 							<input type="hidden" name="site_id_display" value={sites[0]!.id} />
 						)
 					}
-					<button
-						type="submit"
-						class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
-					>
-						{importLabels.button}
-					</button>
+					<Button type="submit">{importLabels.button}</Button>
 				</form>
 			)
 		}
-	</section>
+	</Panel>
 
-	<section class="mb-8 rounded-xl border border-brand/20 bg-brand/5 p-6">
-		<h2 class="text-lg font-medium text-slate-900">{admin.content.heading}</h2>
-		<p class="mt-1 text-sm text-slate-600">{admin.content.lead}</p>
-		<a
-			href="/dashboard"
-			class="mt-4 inline-block rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
-		>
+	<Panel variant="accent" class="mb-8">
+		<PageHeader title={admin.content.heading} lead={admin.content.lead} />
+		<Button href="/dashboard" class="mt-4">
 			{admin.content.openDashboard}
-		</a>
-	</section>
+		</Button>
+	</Panel>
 
-	{sites.length > 1 && (
-		<script is:inline>
-			(() => {
-				const form = document.getElementById('import-posts-form');
-				const select = document.getElementById('import-site-select');
-				if (!form || !select) return;
-				select.addEventListener('change', () => {
-					form.action = `/api/admin/sites/${select.value}/posts/import`;
-				});
-			})();
-		</script>
-	)}
+	{
+		sites.length > 1 && (
+			<script is:inline>
+				(() => {
+					const form = document.getElementById('import-posts-form');
+					const select = document.getElementById('import-site-select');
+					if (!form || !select) return;
+					select.addEventListener('change', () => {
+						form.action = `/api/admin/sites/${select.value}/posts/import`;
+					});
+				})();
+			</script>
+		)
+	}
 
-	<section class="rounded-xl border border-slate-200 bg-white p-6">
-			<h2 class="text-lg font-medium">{admin.sites.heading(sites.length)}</h2>
-			<p class="mt-1 text-sm text-slate-500">{admin.sites.lead}</p>
-			<ul class="mt-4 space-y-2 text-sm">
-				{
-					sites.slice(0, 5).map((s) => (
-						<li>
-							<a href={`/admin/units/${s.id}`} class="text-brand hover:underline">
-								{s.name}
-							</a>
-						</li>
-					))
-				}
-			</ul>
-		</section>
+	<Panel variant="default">
+		<PageHeader title={admin.sites.heading(sites.length)} lead={admin.sites.lead} />
+		<ul class="mt-4 space-y-2 text-sm">
+			{
+				sites.slice(0, 5).map((s) => (
+					<li>
+						<a href={`/admin/units/${s.id}`} class="ui-link">
+							{s.name}
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</Panel>
 
-	<section class="mt-6 rounded-xl border border-slate-200 bg-white p-6">
-		<h2 class="text-lg font-medium">{admin.pending.heading(pending?.length ?? 0)}</h2>
+	<Panel variant="default" class="mt-6">
+		<PageHeader title={admin.pending.heading(pending?.length ?? 0)} />
 		{
 			!pending?.length ? (
-				<p class="mt-2 text-sm text-slate-600">{admin.pending.empty}</p>
+				<p class="ui-empty">{admin.pending.empty}</p>
 			) : (
 				<AdminPostsTable posts={pending} labels={listLabels} dateField="created_at" />
 			)
 		}
-	</section>
+	</Panel>
 
-	<section class="mt-6 rounded-xl border border-slate-200 bg-white p-6">
-		<h2 class="text-lg font-medium">{admin.publishing.heading(publishing?.length ?? 0)}</h2>
+	<Panel variant="default" class="mt-6">
+		<PageHeader title={admin.publishing.heading(publishing?.length ?? 0)} />
 		{
 			!publishing?.length ? (
-				<p class="mt-2 text-sm text-slate-600">{admin.publishing.empty}</p>
+				<p class="ui-empty">{admin.publishing.empty}</p>
 			) : (
 				<AdminPostsTable posts={publishing} labels={listLabels} dateField="created_at" />
 			)
 		}
-	</section>
+	</Panel>
 
-	<section class="mt-6 rounded-xl border border-sky-100 bg-sky-50/30 p-6">
-		<h2 class="text-lg font-medium">{admin.published.heading(published?.length ?? 0)}</h2>
-		<p class="mt-1 text-sm text-slate-600">{admin.published.lead}</p>
+	<Panel variant="info" class="mt-6">
+		<PageHeader title={admin.published.heading(published?.length ?? 0)} lead={admin.published.lead} />
 		{
 			!published?.length ? (
-				<p class="mt-2 text-sm text-slate-600">{admin.published.empty}</p>
+				<p class="ui-empty">{admin.published.empty}</p>
 			) : (
 				<AdminPostsTable posts={published} labels={listLabels} showBulkActions />
 			)
 		}
-	</section>
+	</Panel>
 </AppLayout>
