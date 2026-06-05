@@ -32,4 +32,13 @@ describe('expandGitHubWithdrawPaths', () => {
 			].sort(),
 		);
 	});
+
+	it('usuwa pliki w podfolderach wpisu', () => {
+		const paths = expandGitHubWithdrawPaths(
+			[formatExternalGitHubPath('src/content/news/tytu/index.md')],
+			cfg,
+			[...blobs, 'src/content/news/tytu/nested/extra.pdf'],
+		);
+		expect(paths).toContain('src/content/news/tytu/nested/extra.pdf');
+	});
 });

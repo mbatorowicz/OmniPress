@@ -3,6 +3,12 @@
 Format: [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+commit`.
 
+## [0.7.15] — 2026-06-05
+
+### Naprawione
+
+- Withdraw GitHub: usuwa cały folder wpisu (także pliki w podfolderach).
+
 ## [0.7.14] — 2026-06-05
 
 ### Naprawione

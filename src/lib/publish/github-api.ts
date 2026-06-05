@@ -341,7 +341,7 @@ export function listGitHubSiblingAssets(
 	});
 }
 
-/** Ścieżki do usunięcia z repo — index.md + assety w folderze (layout folder). */
+/** Ścieżki do usunięcia z repo — index.md + cały folder wpisu (layout folder). */
 export function expandGitHubWithdrawPaths(
 	externalIds: string[],
 	cfg: GitHubConfig,
@@ -353,8 +353,9 @@ export function expandGitHubWithdrawPaths(
 		if (!mdPath) continue;
 		out.add(mdPath);
 		if (cfg.contentLayout === 'folder') {
-			for (const assetPath of listGitHubSiblingAssets(allBlobPaths, mdPath)) {
-				out.add(assetPath);
+			const folderPrefix = `${mdPath.replace(/\/[^/]+$/i, '')}/`;
+			for (const assetPath of allBlobPaths) {
+				if (assetPath.startsWith(folderPrefix)) out.add(assetPath);
 			}
 		}
 	}
