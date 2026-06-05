@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { api } from '@/i18n';
+import { api, formatUploadError } from '@/i18n';
 import { requireAuth } from '@/lib/auth';
 import { canEditPost, extensionForMime, getPostById, markdownForUploadedAsset, validatePostAssetFile } from '@/lib/posts';
 
@@ -46,7 +46,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 	if (uploadError) {
 		return new Response(
 			JSON.stringify({
-				error: api.posts.uploadFailed,
+				error: formatUploadError(uploadError.message),
 				detail: uploadError.message,
 			}),
 			{ status: 500 },

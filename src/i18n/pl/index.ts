@@ -13,6 +13,6 @@ export {
 	adminLayout,
 	adminRecentChanges,
 } from './admin-panels';
-export { api } from './api';
+export { api, formatUploadError } from './api';
 export { home } from './home';
 export { callbackPage } from './callback';
