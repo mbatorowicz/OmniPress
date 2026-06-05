@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { loadPostAssets, publicAssetUrl } from './assets';
 import { applyAssetDisplayToMarkdown, type AssetForDisplay } from './asset-markdown';
+import { prepareAstroPostContent } from './post-content';
 import {
 	decryptDestinationCredentials,
 	isGitHubCredentials,
@@ -135,10 +136,14 @@ export async function publishToGitHubAstro(
 			];
 		});
 		const publishedBody = applyAssetDisplayToMarkdown(bodyMd, assetsForDisplay);
+		const prepared = prepareAstroPostContent(publishedBody);
 		const pubDate = post.updated_at ?? new Date().toISOString();
-		const fileContent = buildAstroMarkdown(post.title, publishedBody, pubDate, cfg.contentLayout, {
+		const fileContent = buildAstroMarkdown(post.title, prepared.bodyMd, pubDate, cfg.contentLayout, {
 			slug: post.category_slug ?? '',
 			name: post.category_name ?? '',
+			coverImage: prepared.coverImage ?? undefined,
+			galleryImages: prepared.galleryImages.length ? prepared.galleryImages : undefined,
+			excerpt: prepared.excerpt || undefined,
 		});
 
 		const { commitSha } = await putGitHubFile(

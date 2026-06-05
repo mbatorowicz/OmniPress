@@ -172,7 +172,7 @@ const att = ed.attachments;
 							{post.content_md}
 						</textarea>
 						<p class="mt-1 text-xs text-slate-500">{ed.fields.contentHint}</p>
-						<PostAttachmentsEditor assets={postAssets} labels={att} />
+						<PostAttachmentsEditor assets={postAssets} contentMd={post.content_md} labels={att} />
 					</div>
 					<div class="flex flex-wrap gap-3">
 						<button
@@ -249,6 +249,9 @@ const att = ed.attachments;
 					uploadNetworkError: ed.uploadNetworkError,
 					attLabels: att,
 					pdfMime: 'application/pdf',
+					labelCover: att.coverImage,
+					labelGallery: att.galleryImage,
+					labelUnused: att.unusedImage,
 				}}
 			>
 				document.querySelector('[data-confirm]')?.addEventListener('click', (e) => {
@@ -261,6 +264,10 @@ const att = ed.attachments;
 				const list = panel?.querySelector('[data-attachments-list]');
 				const empty = panel?.querySelector('[data-attachments-empty]');
 				const template = document.getElementById('attachment-row-template');
+
+				function countImagesInMarkdown(md) {
+					return (md.match(/!\[[^\]]*\]\([^)]+\)/g) || []).length;
+				}
 
 				function appendAssetRow(asset) {
 					if (!panel || !template) return;
@@ -278,11 +285,16 @@ const att = ed.attachments;
 					const name = row.querySelector('[data-asset-name]');
 					const url = row.querySelector('[data-asset-url]');
 					const pdfOptions = row.querySelector('[data-asset-pdf-options]');
-					const inlineNote = row.querySelector('[data-asset-inline-note]');
+					const roleEl = row.querySelector('[data-asset-role]');
 					const isPdf = asset.mime_type === pdfMime;
 					if (name) {
 						name.textContent = `${isPdf ? attLabels.pdf : attLabels.image} ${asset.filename}`;
 						name.title = asset.filename;
+					}
+					if (!isPdf && roleEl instanceof HTMLElement && textarea) {
+						const n = countImagesInMarkdown(textarea.value);
+						roleEl.hidden = false;
+						roleEl.textContent = n <= 1 ? labelCover : labelGallery;
 					}
 					if (url instanceof HTMLAnchorElement) {
 						url.href = asset.url;
@@ -304,9 +316,6 @@ const att = ed.attachments;
 						const labelEmbed = row.querySelector('[data-label-embed]');
 						if (labelLink) labelLink.textContent = attLabels.displayLink;
 						if (labelEmbed) labelEmbed.textContent = attLabels.displayEmbed;
-					} else if (inlineNote instanceof HTMLElement) {
-						inlineNote.hidden = false;
-						inlineNote.textContent = attLabels.inlineImage;
 					}
 					ul.appendChild(row);
 				}

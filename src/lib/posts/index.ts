@@ -6,6 +6,12 @@ export {
 	resolveSiteIdForNewPost,
 	type AllowedSite,
 } from './site';
+export {
+	imageRolesByAssetId,
+	isImageAsset,
+	sortImageAssetsForDisplay,
+	type ImageAttachmentRole,
+} from './image-order';
 export { extensionForMime, markdownForUploadedAsset, validateImageFile, validatePostAssetFile } from './upload';
 export {
 	assetsForContentRender,

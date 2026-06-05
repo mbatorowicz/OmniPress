@@ -37,7 +37,8 @@ export const dashboard = {
 			slug: 'Slug (opcjonalnie)',
 			slugPlaceholder: 'np. komunikat-urzedu',
 			content: 'Treść (Markdown)',
-			contentHint: 'Nagłówki: ## H2, ### H3. Zdjęcie: ![opis](url). PDF wstaw jako załącznik — poniżej wybierz link lub podgląd.',
+			contentHint:
+				'Nagłówki: ## H2, ### H3. Zdjęcia w treści: pierwsze = zajawka na liście wpisów, kolejne = galeria na stronie artykułu. PDF — wybór link/podgląd poniżej.',
 			amendmentHint:
 				'Poprawka opublikowanego wpisu — zapisz zmiany i wyślij ponownie do akceptacji. Na stronie zostanie stara wersja do ponownej publikacji.',
 		},
@@ -47,6 +48,9 @@ export const dashboard = {
 			displayLink: 'Link do pobrania',
 			displayEmbed: 'Podgląd PDF na stronie',
 			inlineImage: 'Wyświetlane w treści',
+			coverImage: 'Zdjęcie zajawkowe',
+			galleryImage: 'Galeria',
+			unusedImage: 'Nie wstawione w treść',
 			pdf: '📄',
 			image: '🖼',
 		},
