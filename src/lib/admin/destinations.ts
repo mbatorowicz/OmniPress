@@ -56,14 +56,6 @@ export async function encryptCredentialsFromForm(
 	return encryptSecret(JSON.stringify({ token }));
 }
 
-export async function listDestinations(supabase: SupabaseClient): Promise<DestinationRow[]> {
-	const { data } = await supabase
-		.from('destinations')
-		.select('id, name, type, config, is_active')
-		.order('name');
-	return (data ?? []) as DestinationRow[];
-}
-
 export async function getDestinationById(
 	supabase: SupabaseClient,
 	id: string,

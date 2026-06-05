@@ -1,7 +1,6 @@
 /** Teksty paneli admin CRUD (strony, destynacje, redaktorzy, akceptacja). */
 export const adminSites = {
 	title: 'Strony',
-	newSite: '+ Nowa strona',
 	edit: 'Edytuj stronę',
 	fields: {
 		name: 'Nazwa',
@@ -12,7 +11,6 @@ export const adminSites = {
 	actions: {
 		save: 'Zapisz',
 		create: 'Utwórz',
-		destinations: 'Destynacje',
 		editors: 'Redaktorzy',
 		delete: 'Usuń jednostkę',
 	},
@@ -20,12 +18,6 @@ export const adminSites = {
 		heading: 'Usuń jednostkę organizacyjną',
 		lead: 'Trwale usuwa stronę z OmniPress. Działa tylko gdy nie ma żadnych wpisów przypisanych do tej jednostki.',
 		confirm: 'Rozumiem — usuń trwale',
-	},
-	destinations: {
-		title: 'Destynacje strony',
-		lead: 'Zaznacz kanały publikacji powiązane z tą stroną.',
-		default: 'Domyślna',
-		save: 'Zapisz mapowanie',
 	},
 	errors: {
 		invalid_slug: 'Nieprawidłowy slug (min. 2 znaki, a-z, 0-9, myślnik).',
@@ -187,13 +179,7 @@ export const adminRecentChanges = {
 } as const;
 
 export const adminDestinations = {
-	title: 'Destynacje',
-	newDestination: '+ Nowa destynacja',
-	edit: 'Edytuj destynację',
 	fields: {
-		name: 'Nazwa',
-		type: 'Typ',
-		active: 'Aktywna',
 		repo: 'Repozytorium (owner/repo)',
 		repoHint: 'Bez .git na końcu — np. mbatorowicz/gmina-miedzna.pl',
 		branch: 'Branch',
@@ -206,28 +192,7 @@ export const adminDestinations = {
 		credentialsOptional: 'Credentials opcjonalne przy tworzeniu — możesz dodać przy edycji przed publikacją.',
 		noEncryption: 'Brak ENCRYPTION_KEY — credentials nie zostaną zapisane (publikacja zablokowana).',
 	},
-	types: {
-		wordpress: 'WordPress (nieobsługiwane)',
-		github_astro: 'GitHub → Astro',
-	},
-	legacyWordpress: {
-		heading: 'Stara destynacja WordPress',
-		lead: 'OmniPress publikuje wyłącznie na Astro (GitHub). Usuń tę destynację lub utwórz nową typu GitHub → Astro.',
-	},
-	actions: { save: 'Zapisz', create: 'Utwórz', delete: 'Usuń destynację', testChannel: 'Testuj połączenie' },
-	delete: {
-		heading: 'Usuń destynację',
-		lead: 'Trwale usuwa kanał publikacji. Niedostępne, gdy istnieją logi publikacji.',
-		confirm: 'Rozumiem — usuń trwale',
-	},
-	errors: {
-		save_failed: 'Zapis destynacji nie powiódł się.',
-		config_repo: 'Podaj repozytorium w formacie owner/repo.',
-		has_logs: 'Nie można usunąć — są logi publikacji. Ustaw „nieaktywna” zamiast usuwania.',
-		delete_failed: 'Usunięcie nie powiodło się.',
-		delete_confirm: 'Zaznacz potwierdzenie przed usunięciem.',
-	},
-	deleted: 'Destynacja usunięta.',
+	actions: { testChannel: 'Testuj połączenie' },
 } as const;
 
 export const adminEditors = {

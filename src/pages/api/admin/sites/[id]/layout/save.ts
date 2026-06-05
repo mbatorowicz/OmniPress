@@ -20,22 +20,22 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	});
 
 	if (!parsed.ok) {
-		return redirect(`/admin/sites/${siteId}/layout?error=${parsed.error}`);
+		return redirect(`/admin/units/${siteId}/layout?error=${parsed.error}`);
 	}
 
 	const saved = await saveSiteAstroLayout(locals.supabase, siteId, parsed.layout);
 	if (!saved.ok) {
-		return redirect(`/admin/sites/${siteId}/layout?error=save_failed`);
+		return redirect(`/admin/units/${siteId}/layout?error=save_failed`);
 	}
 
 	const syncGitHub = form.get('sync_github') === 'on';
 	if (syncGitHub) {
 		const synced = await syncSiteAstroLayoutToGitHub(locals.supabase, siteId, parsed.layout);
 		if (!synced.ok) {
-			return redirect(`/admin/sites/${siteId}/layout?error=${synced.error}&saved=1`);
+			return redirect(`/admin/units/${siteId}/layout?error=${synced.error}&saved=1`);
 		}
-		return redirect(`/admin/sites/${siteId}/layout?saved=1&synced=1`);
+		return redirect(`/admin/units/${siteId}/layout?saved=1&synced=1`);
 	}
 
-	return redirect(`/admin/sites/${siteId}/layout?saved=1`);
+	return redirect(`/admin/units/${siteId}/layout?saved=1`);
 };

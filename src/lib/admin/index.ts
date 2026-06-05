@@ -12,13 +12,12 @@ export {
 	buildConfig,
 	encryptCredentialsFromForm,
 	getDestinationById,
-	listDestinations,
 	parseDestinationType,
 	validateDestinationConfig,
 	type DestinationRow,
 	type DestinationConfigError,
 } from './destinations';
-export { deleteDestination, getSiteById, getSiteDestinations, getSiteIdByDestinationId, listSites, loadSiteAstroDestination, resolveSitePublishDestinationIds, countSitePosts, deleteSite, type SiteDestinationLink } from './sites';
+export { getSiteById, getSiteDestinations, listSites, loadSiteAstroDestination, resolveSitePublishDestinationIds, countSitePosts, deleteSite, type SiteDestinationLink } from './sites';
 export { approvePost, rejectPost, reopenPostForEditing, canReopenPost, deactivatePost, deletePost, bulkDeactivatePosts, bulkDeletePosts } from './posts';
 export {
 	getEditorSiteIds,

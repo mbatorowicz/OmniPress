@@ -10,12 +10,6 @@ export const admin = {
 		exampleSlug: 'ug-miedzna',
 		manage: 'Zarządzaj stronami',
 	},
-	destinations: {
-		heading: (_n: number) => `Destynacje`,
-		lead: 'Konfiguracja publikacji jest w edycji jednostki (Strony).',
-		empty: 'Brak destynacji.',
-		manage: 'Strony',
-	},
 	editors: {
 		manage: 'Redaktorzy',
 	},

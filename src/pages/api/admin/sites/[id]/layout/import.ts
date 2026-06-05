@@ -9,8 +9,8 @@ export const POST: APIRoute = async ({ params, redirect, locals }) => {
 
 	const result = await importSiteAstroLayoutFromGitHub(locals.supabase, siteId);
 	if (!result.ok) {
-		return redirect(`/admin/sites/${siteId}/layout?error=${result.error}`);
+		return redirect(`/admin/units/${siteId}/layout?error=${result.error}`);
 	}
 
-	return redirect(`/admin/sites/${siteId}/layout?imported=1`);
+	return redirect(`/admin/units/${siteId}/layout?imported=1`);
 };

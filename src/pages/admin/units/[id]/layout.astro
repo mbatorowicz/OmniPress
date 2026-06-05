@@ -25,8 +25,7 @@ const emptyLayout =
 	layout.categories.length === 0 &&
 	layout.slots.length === 0;
 
-const links = await getSiteDestinations(Astro.locals.supabase, id);
-const hasAstroChannel = links.some((l) => l.destinations?.type === 'github_astro');
+const hasAstroChannel = Boolean(await loadSiteAstroDestination(Astro.locals.supabase, id));
 
 if (emptyLayout && hasAstroChannel) {
 	const imported = await importSiteAstroLayoutFromGitHub(Astro.locals.supabase, id);
@@ -63,7 +62,7 @@ const imported = Astro.url.searchParams.get('imported') === '1';
 	/>
 
 	<p class="mt-6">
-		<a href={`/admin/sites/${id}/changes`} class="text-sm text-brand hover:underline">
+		<a href={`/admin/units/${id}/changes`} class="text-sm text-brand hover:underline">
 			→ {adminRecentChanges.title}
 		</a>
 	</p>

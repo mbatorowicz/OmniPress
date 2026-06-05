@@ -59,19 +59,6 @@ export async function resolveSitePublishDestinationIds(
 	return dest ? [dest.id] : [];
 }
 
-export async function getSiteIdByDestinationId(
-	supabase: SupabaseClient,
-	destinationId: string,
-): Promise<string | null> {
-	const { data } = await supabase
-		.from('site_destinations')
-		.select('site_id')
-		.eq('destination_id', destinationId)
-		.limit(1)
-		.maybeSingle();
-	return (data?.site_id as string | undefined) ?? null;
-}
-
 export async function countSitePosts(supabase: SupabaseClient, siteId: string): Promise<number> {
 	const { count } = await supabase
 		.from('posts')
@@ -108,7 +95,7 @@ export async function deleteSite(
 	return { ok: true };
 }
 
-export async function countDestinationPublishLogs(
+async function countDestinationPublishLogs(
 	supabase: SupabaseClient,
 	destinationId: string,
 ): Promise<number> {
@@ -117,25 +104,4 @@ export async function countDestinationPublishLogs(
 		.select('id', { count: 'exact', head: true })
 		.eq('destination_id', destinationId);
 	return count ?? 0;
-}
-
-export async function deleteDestination(
-	supabase: SupabaseClient,
-	destinationId: string,
-): Promise<{ ok: true } | { ok: false; error: 'not_found' | 'has_logs' | 'delete_failed' }> {
-	const { data: dest } = await supabase
-		.from('destinations')
-		.select('id')
-		.eq('id', destinationId)
-		.maybeSingle();
-	if (!dest) return { ok: false, error: 'not_found' };
-
-	const logs = await countDestinationPublishLogs(supabase, destinationId);
-	if (logs > 0) return { ok: false, error: 'has_logs' };
-
-	await supabase.from('site_destinations').delete().eq('destination_id', destinationId);
-
-	const { error } = await supabase.from('destinations').delete().eq('id', destinationId);
-	if (error) return { ok: false, error: 'delete_failed' };
-	return { ok: true };
 }

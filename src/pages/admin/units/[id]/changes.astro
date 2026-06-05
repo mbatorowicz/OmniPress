@@ -17,8 +17,7 @@ const { data: site } = await Astro.locals.supabase
 
 if (!site) return Astro.redirect('/admin/sites');
 
-const links = await getSiteDestinations(Astro.locals.supabase, id);
-const hasAstroChannel = links.some((l) => l.destinations?.type === 'github_astro');
+const hasAstroChannel = Boolean(await loadSiteAstroDestination(Astro.locals.supabase, id));
 
 let entries: RecentChangeEntry[] = [];
 if (hasAstroChannel) {
@@ -43,7 +42,7 @@ const saved = Astro.url.searchParams.get('saved') === '1';
 <AppLayout title={adminRecentChanges.title} heading={adminRecentChanges.title}>
 	<div class="mb-4 flex flex-wrap gap-4 text-sm">
 		<a href={`/admin/units/${id}`} class="text-brand hover:underline">← {site.name}</a>
-		<a href={`/admin/sites/${id}/layout`} class="text-brand hover:underline">
+		<a href={`/admin/units/${id}/layout`} class="text-brand hover:underline">
 			{adminRecentChanges.actions.backLayout}
 		</a>
 	</div>
