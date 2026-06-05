@@ -18,6 +18,20 @@ export type GitHubFileMeta = {
 
 const GH_API = 'https://api.github.com';
 
+function gitBranchRefGetUrl(cfg: GitHubConfig): string {
+	return `${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/ref/heads/${encodeURIComponent(cfg.branch)}`;
+}
+
+/** GitHub: GET używa /git/ref/, PATCH /git/refs/ — inaczej 404. */
+function gitBranchRefUpdateUrl(cfg: GitHubConfig): string {
+	return `${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/refs/heads/${encodeURIComponent(cfg.branch)}`;
+}
+
+/** @internal — testy URL Git ref API */
+export function gitBranchRefUrls(cfg: GitHubConfig): { get: string; patch: string } {
+	return { get: gitBranchRefGetUrl(cfg), patch: gitBranchRefUpdateUrl(cfg) };
+}
+
 export function parseGitHubRepoConfig(config: Record<string, unknown>): GitHubConfig | null {
 	const repoRaw = normalizeGitHubRepo(String(config.repo ?? ''));
 	if (!repoRaw.includes('/')) return null;
@@ -145,11 +159,10 @@ export async function deleteGitHubFilesBatch(
 	}
 	if (existing.length === 0) return null;
 
-	const refUrl = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/ref/heads/${encodeURIComponent(cfg.branch)}`;
-	const refRes = await fetch(refUrl, { headers: ghHeaders(token) });
+	const refRes = await fetch(gitBranchRefGetUrl(cfg), { headers: ghHeaders(token) });
 	if (!refRes.ok) {
 		const text = await refRes.text();
-		throw new Error(`GitHub ref ${refRes.status}: ${text.slice(0, 200)}`);
+		throw new Error(`GitHub ref GET ${refRes.status}: ${text.slice(0, 200)}`);
 	}
 	const refJson = (await refRes.json()) as { object: { sha: string } };
 	const parentSha = refJson.object.sha;
@@ -192,7 +205,7 @@ export async function deleteGitHubFilesBatch(
 	}
 	const newCommitJson = (await newCommitRes.json()) as { sha: string };
 
-	const updateRefRes = await fetch(refUrl, {
+	const updateRefRes = await fetch(gitBranchRefUpdateUrl(cfg), {
 		method: 'PATCH',
 		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
 		body: JSON.stringify({ sha: newCommitJson.sha, force: false }),
@@ -255,11 +268,10 @@ export function httpStatusFromError(message: string): number | null {
 }
 
 export async function listGitHubTreeBlobPaths(cfg: GitHubConfig, token: string): Promise<string[]> {
-	const refUrl = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/ref/heads/${encodeURIComponent(cfg.branch)}`;
-	const refRes = await fetch(refUrl, { headers: ghHeaders(token) });
+	const refRes = await fetch(gitBranchRefGetUrl(cfg), { headers: ghHeaders(token) });
 	if (!refRes.ok) {
 		const text = await refRes.text();
-		throw new Error(`GitHub ref ${refRes.status}: ${text.slice(0, 200)}`);
+		throw new Error(`GitHub ref GET ${refRes.status}: ${text.slice(0, 200)}`);
 	}
 	const refJson = (await refRes.json()) as { object: { sha: string } };
 

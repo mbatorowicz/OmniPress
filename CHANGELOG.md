@@ -3,6 +3,12 @@
 Format: [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+commit`.
 
+## [0.7.14] — 2026-06-05
+
+### Naprawione
+
+- Withdraw / bulk delete z GitHub: PATCH ref używa `/git/refs/` (wcześniej błędne `/git/ref/` → 404).
+
 ## [0.7.13] — 2026-06-05
 
 ### Porządki
