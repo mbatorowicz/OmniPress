@@ -82,6 +82,33 @@ export async function getGitHubFileText(
 	return Buffer.from(json.content.replace(/\n/g, ''), 'base64').toString('utf8');
 }
 
+export async function deleteGitHubFile(
+	cfg: GitHubConfig,
+	token: string,
+	filePath: string,
+	message: string,
+): Promise<{ commitSha: string } | null> {
+	const existing = await getGitHubFile(cfg, token, filePath);
+	if (!existing) return null;
+
+	const url = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeGitHubPath(filePath)}`;
+	const res = await fetch(url, {
+		method: 'DELETE',
+		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			message,
+			sha: existing.sha,
+			branch: cfg.branch,
+		}),
+	});
+	const text = await res.text();
+	if (!res.ok) {
+		throw new Error(`GitHub DELETE ${res.status}: ${text.slice(0, 300)}`);
+	}
+	const json = JSON.parse(text) as { commit?: { sha?: string } };
+	return { commitSha: json.commit?.sha ?? existing.sha };
+}
+
 export async function putGitHubFile(
 	cfg: GitHubConfig,
 	token: string,

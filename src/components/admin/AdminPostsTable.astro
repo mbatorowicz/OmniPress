@@ -1,0 +1,130 @@
+---
+import { common } from '@/i18n';
+
+type PostRow = {
+	id: string;
+	title: string;
+	category_name: string | null;
+	category_slug: string | null;
+	updated_at: string;
+	created_at?: string;
+	sites: { name: string } | null;
+};
+
+type Labels = {
+	colTitle: string;
+	colCategory: string;
+	colSite: string;
+	colDate: string;
+	colActions: string;
+	noCategory: string;
+	open: string;
+	deactivate: string;
+	delete: string;
+	deactivateConfirm: string;
+	deleteConfirm: string;
+};
+
+type Props = {
+	posts: PostRow[];
+	labels: Labels;
+	showPublishedActions?: boolean;
+	dateField?: 'updated_at' | 'created_at';
+};
+
+const { posts, labels, showPublishedActions = false, dateField = 'updated_at' } = Astro.props;
+
+const dateFmt = new Intl.DateTimeFormat('pl-PL', { dateStyle: 'short', timeStyle: 'short' });
+---
+
+<div class="mt-4 overflow-x-auto rounded-lg border border-slate-200">
+	<table class="min-w-full text-left text-sm">
+		<thead class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+			<tr>
+				<th class="px-4 py-3 font-medium">{labels.colTitle}</th>
+				<th class="px-4 py-3 font-medium">{labels.colCategory}</th>
+				<th class="hidden px-4 py-3 font-medium sm:table-cell">{labels.colSite}</th>
+				<th class="px-4 py-3 font-medium">{labels.colDate}</th>
+				{showPublishedActions && <th class="px-4 py-3 font-medium">{labels.colActions}</th>}
+			</tr>
+		</thead>
+		<tbody class="divide-y divide-slate-100 bg-white">
+			{
+				posts.map((p) => {
+					const siteName = (p.sites as { name: string } | null)?.name ?? '—';
+					const when = dateFmt.format(new Date(p[dateField] ?? p.updated_at));
+					return (
+						<tr class="hover:bg-slate-50/80">
+							<td class="px-4 py-3">
+								<a href={`/admin/posts/${p.id}`} class="font-medium text-brand hover:underline">
+									{p.title || common.untitled}
+								</a>
+							</td>
+							<td class="px-4 py-3 text-slate-700">
+								{p.category_name ? (
+									<span>
+										{p.category_name}
+										{p.category_slug && (
+											<span class="ml-1 font-mono text-xs text-slate-400">{p.category_slug}</span>
+										)}
+									</span>
+								) : (
+									<span class="text-slate-400">{labels.noCategory}</span>
+								)}
+							</td>
+							<td class="hidden px-4 py-3 text-slate-600 sm:table-cell">{siteName}</td>
+							<td class="whitespace-nowrap px-4 py-3 text-slate-500">{when}</td>
+							{
+								showPublishedActions && (
+									<td class="px-4 py-3">
+										<div class="flex flex-wrap gap-2">
+											<a
+												href={`/admin/posts/${p.id}`}
+												class="rounded border border-slate-200 px-2 py-1 text-xs hover:bg-slate-50"
+											>
+												{labels.open}
+											</a>
+											<form
+												method="post"
+												action={`/api/admin/posts/${p.id}/deactivate`}
+												data-confirm={labels.deactivateConfirm}
+											>
+												<button
+													type="submit"
+													class="rounded border border-amber-200 bg-amber-50 px-2 py-1 text-xs text-amber-900 hover:bg-amber-100"
+												>
+													{labels.deactivate}
+												</button>
+											</form>
+											<form
+												method="post"
+												action={`/api/admin/posts/${p.id}/delete`}
+												data-confirm={labels.deleteConfirm}
+											>
+												<button
+													type="submit"
+													class="rounded border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-800 hover:bg-red-100"
+												>
+													{labels.delete}
+												</button>
+											</form>
+										</div>
+									</td>
+								)
+							}
+						</tr>
+					);
+				})
+			}
+		</tbody>
+	</table>
+</div>
+
+<script>
+	for (const form of document.querySelectorAll('form[data-confirm]')) {
+		form.addEventListener('submit', (e) => {
+			const msg = form.getAttribute('data-confirm');
+			if (msg && !confirm(msg)) e.preventDefault();
+		});
+	}
+</script>

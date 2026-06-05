@@ -34,8 +34,26 @@ export const admin = {
 	},
 	published: {
 		heading: (n: number) => `Opublikowane — poprawka (${n})`,
-		lead: 'Kliknij wpis, potem „Popraw wpis”, aby wrócił do szkicu i wysłać aktualizację na stronę.',
+		lead: 'Otwórz wpis, popraw treść albo zdejmij ze strony. „Dezaktywuj” usuwa wpis ze strony i wraca do szkicu.',
 		empty: 'Brak opublikowanych wpisów.',
+	},
+	postList: {
+		colTitle: 'Tytuł',
+		colCategory: 'Kategoria',
+		colSite: 'Strona',
+		colDate: 'Ostatnia zmiana',
+		colActions: 'Akcje',
+		noCategory: '—',
+		open: 'Otwórz',
+		deactivate: 'Dezaktywuj',
+		delete: 'Usuń',
+		deactivateConfirm:
+			'Zdjąć wpis ze strony publicznej? W CMS wróci do szkicu — można go później ponownie opublikować.',
+		deleteConfirm:
+			'Trwale usunąć wpis z OmniPress? Tej operacji nie można cofnąć. Jeśli wpis jest na stronie, zostanie też zdjęty.',
+		deactivated: 'Wpis zdezaktywowany — usunięty ze strony, w CMS jest szkicem.',
+		deleted: 'Wpis usunięty z OmniPress.',
+		remoteWarning: 'Uwaga: na części destynacji nie udało się zdjąć wpisu — sprawdź logi publikacji.',
 	},
 	preview: {
 		title: 'Podgląd wpisu',

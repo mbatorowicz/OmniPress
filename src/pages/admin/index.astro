@@ -1,5 +1,6 @@
 ---
 import AppLayout from '../../layouts/AppLayout.astro';
+import AdminPostsTable from '@/components/admin/AdminPostsTable.astro';
 import { admin, adminSites, common } from '@/i18n';
 import { listDestinations, listSites } from '@/lib/admin';
 
@@ -7,24 +8,32 @@ const supabase = Astro.locals.supabase;
 const sites = await listSites(supabase);
 const destinations = await listDestinations(supabase);
 
+const postSelect =
+	'id, title, status, category_name, category_slug, created_at, updated_at, sites(name)';
+
 const { data: pending } = await supabase
 	.from('posts')
-	.select('id, title, status, created_at, sites(name)')
+	.select(postSelect)
 	.eq('status', 'pending')
 	.order('created_at', { ascending: false });
 
 const { data: publishing } = await supabase
 	.from('posts')
-	.select('id, title, status, created_at, sites(name)')
+	.select(postSelect)
 	.eq('status', 'publishing')
 	.order('created_at', { ascending: false });
 
 const { data: published } = await supabase
 	.from('posts')
-	.select('id, title, status, updated_at, sites(name)')
+	.select(postSelect)
 	.eq('status', 'published')
 	.order('updated_at', { ascending: false })
 	.limit(30);
+
+const listLabels = admin.postList;
+const deactivated = Astro.url.searchParams.get('deactivated') === '1';
+const deleted = Astro.url.searchParams.get('deleted') === '1';
+const remoteWarning = Astro.url.searchParams.get('remote_warning') === '1';
 ---
 
 <AppLayout title={admin.title} heading={admin.title}>
@@ -42,6 +51,16 @@ const { data: published } = await supabase
 			{admin.editors.manage}
 		</a>
 	</nav>
+
+	{deactivated && (
+		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{listLabels.deactivated}</p>
+	)}
+	{deleted && (
+		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{listLabels.deleted}</p>
+	)}
+	{remoteWarning && (
+		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">{listLabels.remoteWarning}</p>
+	)}
 
 	<section class="mb-8 rounded-xl border border-brand/20 bg-brand/5 p-6">
 		<h2 class="text-lg font-medium text-slate-900">{admin.content.heading}</h2>
@@ -94,16 +113,7 @@ const { data: published } = await supabase
 			!pending?.length ? (
 				<p class="mt-2 text-sm text-slate-600">{admin.pending.empty}</p>
 			) : (
-				<ul class="mt-4 divide-y divide-slate-100 text-sm">
-					{pending.map((p) => (
-						<li class="py-3">
-							<a href={`/admin/posts/${p.id}`} class="font-medium text-brand hover:underline">
-								{p.title || common.untitled}
-							</a>
-							<span class="ml-2 text-slate-500">— {(p.sites as { name: string } | null)?.name}</span>
-						</li>
-					))}
-				</ul>
+				<AdminPostsTable posts={pending} labels={listLabels} dateField="created_at" />
 			)
 		}
 	</section>
@@ -114,16 +124,7 @@ const { data: published } = await supabase
 			!publishing?.length ? (
 				<p class="mt-2 text-sm text-slate-600">{admin.publishing.empty}</p>
 			) : (
-				<ul class="mt-4 divide-y divide-slate-100 text-sm">
-					{publishing.map((p) => (
-						<li class="py-3">
-							<a href={`/admin/posts/${p.id}`} class="font-medium text-brand hover:underline">
-								{p.title || common.untitled}
-							</a>
-							<span class="ml-2 text-slate-500">— {(p.sites as { name: string } | null)?.name}</span>
-						</li>
-					))}
-				</ul>
+				<AdminPostsTable posts={publishing} labels={listLabels} dateField="created_at" />
 			)
 		}
 	</section>
@@ -135,16 +136,7 @@ const { data: published } = await supabase
 			!published?.length ? (
 				<p class="mt-2 text-sm text-slate-600">{admin.published.empty}</p>
 			) : (
-				<ul class="mt-4 divide-y divide-slate-100 text-sm">
-					{published.map((p) => (
-						<li class="py-3">
-							<a href={`/admin/posts/${p.id}`} class="font-medium text-brand hover:underline">
-								{p.title || common.untitled}
-							</a>
-							<span class="ml-2 text-slate-500">— {(p.sites as { name: string } | null)?.name}</span>
-						</li>
-					))}
-				</ul>
+				<AdminPostsTable posts={published} labels={listLabels} showPublishedActions />
 			)
 		}
 	</section>

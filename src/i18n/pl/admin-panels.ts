@@ -276,6 +276,16 @@ export const adminReview = {
 	reopenHint: 'Wraca do szkicu — redaktor edytuje, wysyła do akceptacji, potem publikujesz aktualizację na tej samej stronie.',
 	reopenConfirm: 'Wrócić wpis do poprawki? Na stronie zostanie stara wersja do momentu ponownej publikacji.',
 	reopened: 'Wpis wrócił do szkicu — redaktor może go teraz edytować.',
+	deactivate: 'Dezaktywuj ze strony',
+	deactivateHint: 'Usuwa wpis ze strony publicznej (GitHub / WordPress). W OmniPress wraca do szkicu.',
+	deactivateConfirm:
+		'Zdjąć wpis ze strony? W CMS zostanie szkicem — można go edytować lub ponownie opublikować.',
+	deactivated: 'Wpis zdezaktywowany.',
+	delete: 'Usuń wpis',
+	deleteHint: 'Trwale usuwa wpis z OmniPress wraz z załącznikami.',
+	deleteConfirm: 'Na pewno usunąć wpis? Tej operacji nie można cofnąć.',
+	deleted: 'Wpis usunięty.',
+	remoteWarning: 'Część destynacji zgłosiła błąd przy zdejmowaniu — sprawdź logi publikacji.',
 	publishLogs: {
 		heading: 'Status publikacji',
 		destination: 'Destynacja',
@@ -300,5 +310,7 @@ export const adminReview = {
 		invalid_destinations: 'Niedozwolona destynacja dla tej strony.',
 		retry_failed: 'Nie udało się ponowić (log nie jest w stanie failed).',
 		not_published: 'Poprawka dostępna tylko dla opublikowanych wpisów.',
+		not_found: 'Wpis nie istnieje.',
+		delete_failed: 'Nie udało się usunąć wpisu.',
 	},
 } as const;

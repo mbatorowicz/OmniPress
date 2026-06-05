@@ -3,6 +3,7 @@ import AppLayout from '@/layouts/AppLayout.astro';
 import StatusBadge from '@/components/posts/StatusBadge.astro';
 import PostContentHtml from '@/components/posts/PostContentHtml.astro';
 import PostReopenForm from '@/components/admin/PostReopenForm.astro';
+import PostAdminActions from '@/components/admin/PostAdminActions.astro';
 import { admin, adminReview, common } from '@/i18n';
 import { canReopenPost, getSiteDestinations } from '@/lib/admin';
 import { listPublishLogsForPost } from '@/lib/publish';
@@ -40,6 +41,9 @@ const errorMessage =
 const approved = Astro.url.searchParams.get('approved') === '1';
 const rejected = Astro.url.searchParams.get('rejected') === '1';
 const reopened = Astro.url.searchParams.get('reopened') === '1';
+const deactivated = Astro.url.searchParams.get('deactivated') === '1';
+const deleted = Astro.url.searchParams.get('deleted') === '1';
+const remoteWarning = Astro.url.searchParams.get('remote_warning') === '1';
 const retried = Astro.url.searchParams.get('retry') === '1';
 const canReopen = await canReopenPost(Astro.locals.supabase, post.id, post.status);
 const preview = admin.preview;
@@ -72,6 +76,15 @@ const galleryAssets = postAssets.filter(isGalleryImageAsset);
 	)}
 	{reopened && (
 		<p class="mb-4 rounded-lg bg-sky-50 px-3 py-2 text-sm text-sky-900">{adminReview.reopened}</p>
+	)}
+	{deactivated && (
+		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{adminReview.deactivated}</p>
+	)}
+	{deleted && (
+		<p class="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">{adminReview.deleted}</p>
+	)}
+	{remoteWarning && (
+		<p class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">{adminReview.remoteWarning}</p>
 	)}
 	{reopened && (
 		<p class="mb-4 text-sm">
@@ -212,6 +225,8 @@ const galleryAssets = postAssets.filter(isGalleryImageAsset);
 	}
 
 	{canReopen && <PostReopenForm postId={post.id} />}
+
+	<PostAdminActions postId={post.id} status={post.status} />
 
 	<a href="/admin" class="mt-6 inline-block text-sm text-brand hover:underline">{preview.back}</a>
 </AppLayout>
