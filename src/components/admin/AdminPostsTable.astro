@@ -41,7 +41,13 @@ const dateFmt = new Intl.DateTimeFormat('pl-PL', { dateStyle: 'short', timeStyle
 
 {
 	showBulkActions ? (
-		<form method="post" action="/api/admin/posts/bulk" id="bulk-posts-form" class="space-y-3">
+		<form
+			method="post"
+			action="/api/admin/posts/bulk"
+			id="bulk-posts-form"
+			class="space-y-3"
+			data-selected-template={labels.selected}
+		>
 			<div
 				class="sticky top-0 z-10 flex flex-wrap items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm"
 				data-bulk-bar
@@ -190,58 +196,7 @@ const dateFmt = new Intl.DateTimeFormat('pl-PL', { dateStyle: 'short', timeStyle
 	)
 }
 
-<script define:vars={{ selectedTemplate: labels.selected }}>
-	const form = document.getElementById('bulk-posts-form');
-	if (form instanceof HTMLFormElement) {
-		const checkboxes = form.querySelectorAll('[data-post-checkbox]');
-		const selectAll = form.querySelector('[data-select-all]');
-		const label = form.querySelector('[data-selected-label]');
-		const deactivateBtn = form.querySelector('[data-bulk-deactivate]');
-		const deleteBtn = form.querySelector('[data-bulk-delete]');
-
-		function selectedCount(): number {
-			return [...checkboxes].filter((cb) => cb instanceof HTMLInputElement && cb.checked).length;
-		}
-
-		function syncUi(): void {
-			const n = selectedCount();
-			if (label instanceof HTMLElement) {
-				label.textContent = selectedTemplate.replace('{n}', String(n));
-			}
-			for (const btn of [deactivateBtn, deleteBtn]) {
-				if (btn instanceof HTMLButtonElement) btn.disabled = n === 0;
-			}
-			if (selectAll instanceof HTMLInputElement && checkboxes.length > 0) {
-				selectAll.indeterminate = n > 0 && n < checkboxes.length;
-				selectAll.checked = n === checkboxes.length;
-			}
-		}
-
-		selectAll?.addEventListener('change', () => {
-			if (!(selectAll instanceof HTMLInputElement)) return;
-			for (const cb of checkboxes) {
-				if (cb instanceof HTMLInputElement) cb.checked = selectAll.checked;
-			}
-			syncUi();
-		});
-
-		for (const cb of checkboxes) {
-			cb.addEventListener('change', syncUi);
-		}
-
-		form.addEventListener('submit', (e) => {
-			const submitter = e.submitter;
-			if (!(submitter instanceof HTMLButtonElement)) return;
-			const confirmMsg = submitter.getAttribute('data-confirm');
-			if (!confirmMsg) return;
-			const n = selectedCount();
-			if (n === 0) {
-				e.preventDefault();
-				return;
-			}
-			if (!confirm(confirmMsg.replace('{n}', String(n)))) e.preventDefault();
-		});
-
-		syncUi();
-	}
+<script>
+	import { initAdminPostsBulkForm } from '@/lib/admin/posts-table';
+	initAdminPostsBulkForm();
 </script>

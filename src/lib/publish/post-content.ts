@@ -1,5 +1,5 @@
 const IMAGE_MD_RE = /!\[([^\]]*)\]\(([^)]+)\)/g;
-const PDF_LINK_RE = /\[📄[^\]]*\]\([^)]+\)/g;
+const PDF_LINK_RE = /\[📄\s*([^\]]+)\]\([^)]+\)/g;
 
 export type PreparedAstroPost = {
 	bodyMd: string;
@@ -33,7 +33,7 @@ export function stripImageMarkdown(md: string): string {
 export function markdownToPlainExcerpt(md: string, maxLen = 200): string {
 	let text = md
 		.replace(IMAGE_MD_RE, ' ')
-		.replace(PDF_LINK_RE, ' ')
+		.replace(PDF_LINK_RE, '$1 ')
 		.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
 		.replace(/^#{1,6}\s+/gm, '')
 		.replace(/\*\*(.+?)\*\*/g, '$1')

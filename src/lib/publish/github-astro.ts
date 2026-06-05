@@ -161,13 +161,17 @@ export async function publishToGitHubAstro(
 		const publishedBody = applyAssetDisplayToMarkdown(bodyWithPdfs, assetsForDisplay);
 		const galleryUrls = galleryUrlsFromAssets(imageAssets, urlMap);
 		const prepared = prepareAstroPostFromGallery(publishedBody, galleryUrls);
+		let excerpt = prepared.excerpt;
+		if (!excerpt.trim() && pdfAssets.length > 0) {
+			excerpt = pdfAssets[0]!.filename.replace(/\.pdf$/i, '');
+		}
 		const pubDate = post.updated_at ?? new Date().toISOString();
 		const fileContent = buildAstroMarkdown(post.title, prepared.bodyMd, pubDate, cfg.contentLayout, {
 			slug: post.category_slug ?? '',
 			name: post.category_name ?? '',
 			coverImage: prepared.coverImage ?? undefined,
 			galleryImages: prepared.galleryImages.length ? prepared.galleryImages : undefined,
-			excerpt: prepared.excerpt || undefined,
+			excerpt: excerpt || undefined,
 		});
 
 		const { commitSha } = await putGitHubFile(

@@ -7,7 +7,7 @@ type Props = {
 const { initialMarkdown, placeholder } = Astro.props;
 ---
 
-<div class="rich-editor rounded-lg border border-slate-300 bg-white" data-rich-editor>
+<div class="rich-editor rounded-lg border border-slate-300 bg-white" data-rich-editor data-placeholder={placeholder}>
 	<div class="flex flex-wrap gap-1 border-b border-slate-200 bg-slate-50 px-2 py-2">
 		<button type="button" data-editor-cmd="bold" class="rounded px-2 py-1 text-sm font-bold hover:bg-white" title="Pogrubienie">B</button>
 		<button type="button" data-editor-cmd="italic" class="rounded px-2 py-1 text-sm italic hover:bg-white" title="Kursywa">I</button>
@@ -62,7 +62,7 @@ const { initialMarkdown, placeholder } = Astro.props;
 	}
 </style>
 
-<script define:vars={{ initialMarkdown, placeholder }}>
+<script>
 	import { initPostRichEditor } from '@/lib/editor/client-init';
-	initPostRichEditor(initialMarkdown, placeholder);
+	initPostRichEditor();
 </script>

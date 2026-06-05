@@ -29,6 +29,13 @@ const initialOrder = galleryAssets.map((a) => a.id).join(',');
 	class="mt-4 rounded-lg border border-slate-200 bg-slate-50/80 p-4"
 	data-gallery-panel
 	data-post-id={postId}
+	data-initial-assets={JSON.stringify(galleryAssets)}
+	data-label-cover={labels.cover}
+	data-label-gallery={labels.gallery}
+	data-label-move-up={labels.moveUp}
+	data-label-move-down={labels.moveDown}
+	data-label-empty={labels.empty}
+	data-label-add={labels.add}
 >
 	<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
 		<div>
@@ -51,14 +58,7 @@ const initialOrder = galleryAssets.map((a) => a.id).join(',');
 	<input type="hidden" name="gallery_order" value={initialOrder} data-gallery-order />
 </div>
 
-<script define:vars={{ galleryAssets, labels }}>
+<script>
 	import { initPostGallery } from '@/lib/editor/client-init';
-	initPostGallery(galleryAssets, {
-		cover: labels.cover,
-		gallery: labels.gallery,
-		moveUp: labels.moveUp,
-		moveDown: labels.moveDown,
-		empty: labels.empty,
-		add: labels.add,
-	});
+	initPostGallery();
 </script>
