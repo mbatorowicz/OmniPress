@@ -6,4 +6,4 @@ export {
 	resolveSiteIdForNewPost,
 	type AllowedSite,
 } from './site';
-export { extensionForMime, validateImageFile } from './upload';
+export { extensionForMime, markdownForUploadedAsset, validateImageFile, validatePostAssetFile } from './upload';

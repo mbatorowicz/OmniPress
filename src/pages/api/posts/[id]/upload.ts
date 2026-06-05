@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { api } from '@/i18n';
 import { requireAuth } from '@/lib/auth';
-import { canEditPost, extensionForMime, getPostById, validateImageFile } from '@/lib/posts';
+import { canEditPost, extensionForMime, getPostById, markdownForUploadedAsset, validatePostAssetFile } from '@/lib/posts';
 
 export const POST: APIRoute = async ({ params, request, locals }) => {
 	const postId = params.id;
@@ -26,7 +26,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 		return new Response(JSON.stringify({ error: api.posts.missingFile }), { status: 400 });
 	}
 
-	const validationError = validateImageFile(file);
+	const validationError = validatePostAssetFile(file);
 	if (validationError) {
 		return new Response(JSON.stringify({ error: validationError }), { status: 400 });
 	}
@@ -64,7 +64,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 		.from('post-assets')
 		.getPublicUrl(storagePath);
 
-	const markdown = `![${file.name}](${publicData.publicUrl})`;
+	const markdown = markdownForUploadedAsset(file.name, publicData.publicUrl, file.type);
 
 	return new Response(JSON.stringify({ url: publicData.publicUrl, markdown }), {
 		status: 200,

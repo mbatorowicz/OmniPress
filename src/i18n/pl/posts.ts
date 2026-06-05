@@ -20,8 +20,9 @@ export const posts = {
 		not_found: 'Wpis nie istnieje.',
 	},
 	upload: {
-		invalidMime: 'Dozwolone formaty: JPEG, PNG, WebP, GIF.',
-		tooLarge: 'Plik jest za duży (max 10 MB).',
+		invalidMime: 'Dozwolone formaty: JPEG, PNG, WebP, GIF lub PDF.',
+		tooLarge: 'Zdjęcie jest za duże (max 10 MB).',
+		pdfTooLarge: 'Plik PDF jest za duży (max 15 MB).',
 	},
 } as const;
 
