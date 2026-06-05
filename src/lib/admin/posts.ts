@@ -105,16 +105,42 @@ export async function rejectPost(
 	return { ok: true };
 }
 
+/** Czy wpis był już na stronie i można go otworzyć do poprawki. */
+export async function canReopenPost(
+	supabase: SupabaseClient,
+	postId: string,
+	status: string,
+): Promise<boolean> {
+	if (status === 'published') return true;
+	if (status !== 'publishing') return false;
+
+	const { data } = await supabase
+		.from('publish_logs')
+		.select('id')
+		.eq('post_id', postId)
+		.eq('status', 'success')
+		.limit(1)
+		.maybeSingle();
+
+	return Boolean(data);
+}
+
 /** Opublikowany wpis → szkic (redaktor może poprawić i wysłać ponownie). */
 export async function reopenPostForEditing(
 	supabase: SupabaseClient,
 	postId: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+	const { data: post } = await supabase.from('posts').select('status').eq('id', postId).maybeSingle();
+	if (!post) return { ok: false, error: 'not_published' };
+
+	const allowed = await canReopenPost(supabase, postId, post.status);
+	if (!allowed) return { ok: false, error: 'not_published' };
+
 	const { data, error } = await supabase
 		.from('posts')
 		.update({ status: 'draft', rejection_note: null })
 		.eq('id', postId)
-		.eq('status', 'published')
+		.in('status', ['published', 'publishing'])
 		.select('id')
 		.maybeSingle();
 

@@ -1,0 +1,32 @@
+---
+import { adminReview } from '@/i18n';
+
+type Props = {
+	postId: string;
+};
+
+const { postId } = Astro.props;
+---
+
+<form
+	method="post"
+	action={`/api/admin/posts/${postId}/reopen`}
+	class="mt-6 space-y-3 rounded-xl border border-sky-100 bg-sky-50/40 p-6"
+	data-reopen-form
+>
+	<p class="text-sm text-slate-700">{adminReview.reopenHint}</p>
+	<button
+		type="submit"
+		class="rounded-lg border border-sky-300 bg-white px-4 py-2 text-sm font-medium text-sky-900 hover:bg-sky-50"
+	>
+		{adminReview.reopen}
+	</button>
+</form>
+
+<script define:vars={{ reopenConfirm: adminReview.reopenConfirm }}>
+	for (const form of document.querySelectorAll('[data-reopen-form]')) {
+		form.addEventListener('submit', (e) => {
+			if (!confirm(reopenConfirm)) e.preventDefault();
+		});
+	}
+</script>

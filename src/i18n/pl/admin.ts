@@ -32,6 +32,11 @@ export const admin = {
 		heading: (n: number) => `Publikacja w toku (${n})`,
 		empty: 'Brak wpisów w kolejce.',
 	},
+	published: {
+		heading: (n: number) => `Opublikowane — poprawka (${n})`,
+		lead: 'Kliknij wpis, potem „Popraw wpis”, aby wrócił do szkicu i wysłać aktualizację na stronę.',
+		empty: 'Brak opublikowanych wpisów.',
+	},
 	preview: {
 		title: 'Podgląd wpisu',
 		heading: 'Podgląd wpisu',

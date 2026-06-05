@@ -3,7 +3,9 @@ import AppLayout from '@/layouts/AppLayout.astro';
 import StatusBadge from '@/components/posts/StatusBadge.astro';
 import PostAttachmentsEditor from '@/components/posts/PostAttachmentsEditor.astro';
 import PostContentHtml from '@/components/posts/PostContentHtml.astro';
+import PostReopenForm from '@/components/admin/PostReopenForm.astro';
 import { common, dashboard, postError } from '@/i18n';
+import { canReopenPost } from '@/lib/admin';
 import { loadSiteCategories } from '@/lib/categories';
 import { listPublishLogsForPost } from '@/lib/publish';
 import {
@@ -53,6 +55,8 @@ const contentHtml = renderPostContentHtml(post.content_md, assetsForContentRende
 const publishLogs = await listPublishLogsForPost(Astro.locals.supabase, post.id);
 const isAmendment =
 	post.status === 'draft' && publishLogs.some((log) => log.external_id || log.status === 'withdrawn');
+const canReopen =
+	profile.role === 'admin' && (await canReopenPost(Astro.locals.supabase, post.id, post.status));
 
 const ed = dashboard.editor;
 const att = ed.attachments;
@@ -219,6 +223,14 @@ const att = ed.attachments;
 						<p class="text-sm text-slate-500">{ed.emptyContent}</p>
 					)}
 				</div>
+				{canReopen && <PostReopenForm postId={post.id} />}
+				{profile.role === 'admin' && post.status === 'pending' && (
+					<p class="mt-4 text-sm">
+						<a href={`/admin/posts/${post.id}`} class="text-brand hover:underline">
+							Przejdź do akceptacji →
+						</a>
+					</p>
+				)}
 			</article>
 		)
 	}

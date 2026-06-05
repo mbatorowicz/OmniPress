@@ -2,8 +2,9 @@
 import AppLayout from '@/layouts/AppLayout.astro';
 import StatusBadge from '@/components/posts/StatusBadge.astro';
 import PostContentHtml from '@/components/posts/PostContentHtml.astro';
+import PostReopenForm from '@/components/admin/PostReopenForm.astro';
 import { admin, adminReview, common } from '@/i18n';
-import { getSiteDestinations } from '@/lib/admin';
+import { canReopenPost, getSiteDestinations } from '@/lib/admin';
 import { listPublishLogsForPost } from '@/lib/publish';
 import { assetsForContentRender, getPostById, loadPostAssetsForPost, renderPostContentHtml } from '@/lib/posts';
 import type { PostStatus, PublishLogStatus } from '@/lib/types';
@@ -38,7 +39,7 @@ const approved = Astro.url.searchParams.get('approved') === '1';
 const rejected = Astro.url.searchParams.get('rejected') === '1';
 const reopened = Astro.url.searchParams.get('reopened') === '1';
 const retried = Astro.url.searchParams.get('retry') === '1';
-const isPublished = post.status === 'published';
+const canReopen = await canReopenPost(Astro.locals.supabase, post.id, post.status);
 const preview = admin.preview;
 
 const postAssets = await loadPostAssetsForPost(Astro.locals.supabase, post.id);
@@ -176,30 +177,7 @@ const contentHtml = renderPostContentHtml(post.content_md, assetsForContentRende
 		)
 	}
 
-	{
-		isPublished && (
-			<form
-				method="post"
-				action={`/api/admin/posts/${post.id}/reopen`}
-				class="mt-6 space-y-3 rounded-xl border border-sky-100 bg-sky-50/40 p-6"
-				data-reopen-form
-			>
-				<p class="text-sm text-slate-700">{adminReview.reopenHint}</p>
-				<button
-					type="submit"
-					class="rounded-lg border border-sky-300 bg-white px-4 py-2 text-sm font-medium text-sky-900 hover:bg-sky-50"
-				>
-					{adminReview.reopen}
-				</button>
-			</form>
-		)
-	}
+	{canReopen && <PostReopenForm postId={post.id} />}
 
 	<a href="/admin" class="mt-6 inline-block text-sm text-brand hover:underline">{preview.back}</a>
-
-	<script define:vars={{ reopenConfirm: adminReview.reopenConfirm }}>
-		document.querySelector('[data-reopen-form]')?.addEventListener('submit', (e) => {
-			if (!confirm(reopenConfirm)) e.preventDefault();
-		});
-	</script>
 </AppLayout>
