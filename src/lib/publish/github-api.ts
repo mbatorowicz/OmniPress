@@ -93,12 +93,19 @@ export async function putGitHubFile(
 	const url = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeGitHubPath(filePath)}`;
 	const encoded =
 		typeof content === 'string' ? textToBase64(content) : bytesToBase64(content);
+
+	let sha = existingSha;
+	if (!sha) {
+		const existing = await getGitHubFile(cfg, token, filePath);
+		sha = existing?.sha;
+	}
+
 	const body: Record<string, string> = {
 		message,
 		content: encoded,
 		branch: cfg.branch,
 	};
-	if (existingSha) body.sha = existingSha;
+	if (sha) body.sha = sha;
 
 	const res = await fetch(url, {
 		method: 'PUT',
@@ -110,9 +117,9 @@ export async function putGitHubFile(
 		throw new Error(`GitHub PUT ${res.status}: ${text.slice(0, 300)}`);
 	}
 	const json = JSON.parse(text) as { content?: { sha?: string }; commit?: { sha?: string } };
-	const sha = json.content?.sha ?? existingSha ?? '';
-	const commitSha = json.commit?.sha ?? sha;
-	return { sha, commitSha };
+	const contentSha = json.content?.sha ?? sha ?? '';
+	const commitSha = json.commit?.sha ?? contentSha;
+	return { sha: contentSha, commitSha };
 }
 
 export function isGitHubRetryable(status: number): boolean {

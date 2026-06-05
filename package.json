@@ -1,7 +1,7 @@
 {
   "name": "omnipress",
   "type": "module",
-	"version": "0.5.8",
+	"version": "0.5.9",
   "engines": {
     "node": ">=22.12.0"
   },
