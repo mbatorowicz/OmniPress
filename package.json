@@ -1,13 +1,14 @@
 {
   "name": "omnipress",
   "type": "module",
-	"version": "0.7.15",
+  "version": "0.7.16",
   "engines": {
     "node": ">=22.12.0"
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build:pdf-viewer": "node scripts/build-pdf-viewer.mjs",
+    "build": "npm run build:pdf-viewer && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "setup:remote": "node scripts/setup-remote.mjs",
@@ -22,6 +23,7 @@
     "setup:categories": "node scripts/apply-migration.mjs supabase/migrations/20250607000000_post_categories.sql",
     "setup:layout": "node scripts/apply-migration.mjs supabase/migrations/20250608000000_site_astro_layout.sql",
     "setup:remove-wordpress": "node scripts/apply-migration.mjs supabase/migrations/20250612000000_remove_wordpress.sql",
+    "setup:profiles-guard": "node scripts/apply-migration.mjs supabase/migrations/20250613000000_profiles_self_update_guard.sql",
     "env:pull": "vercel env pull .env.local --yes",
     "version": "node -e \"import('./scripts/lib/git-info.mjs').then(m=>console.log(m.getVersionLabel()))\"",
     "test": "vitest run",
@@ -38,11 +40,13 @@
     "@tiptap/starter-kit": "^3.26.0",
     "astro": "^6.4.3",
     "marked": "^18.0.5",
+    "pdfjs-dist": "^6.0.227",
     "tailwindcss": "^4.3.0",
     "turndown": "^7.2.4"
   },
   "devDependencies": {
     "@types/turndown": "^5.0.6",
+    "esbuild": "^0.28.0",
     "pg": "^8.21.0",
     "vitest": "^3.2.4"
   }

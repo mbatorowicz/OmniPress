@@ -1,7 +1,7 @@
 const ALLOWED_TAGS = new Set([
 	'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
 	'p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'img', 'blockquote',
-	'div', 'iframe',
+	'div',
 ]);
 
 /** Prosty Markdown → HTML z whitelistą tagów (eksport WP). */
@@ -59,13 +59,14 @@ export function sanitizeHtml(html: string): string {
 		if (lower === 'div') {
 			const className = attrs.match(/\sclass="([^"]+)"/i)?.[1];
 			if (className !== 'op-pdf-viewer') return '';
-			return '<div class="op-pdf-viewer">';
-		}
-		if (lower === 'iframe') {
-			const src = attrs.match(/\ssrc="([^"]+)"/i)?.[1];
-			const title = attrs.match(/\stitle="([^"]*)"/i)?.[1] ?? '';
-			if (!src || /^\s*javascript:/i.test(src)) return '';
-			return `<iframe src="${src}" title="${title}" loading="lazy"></iframe>`;
+			const src = attrs.match(/\sdata-op-pdf-src="([^"]+)"/i)?.[1];
+			const title = attrs.match(/\sdata-op-pdf-title="([^"]*)"/i)?.[1] ?? '';
+			const labels = attrs.match(/\sdata-op-pdf-labels="([^"]*)"/i)?.[1] ?? '';
+			if (!src) return '';
+			return (
+				`<div class="op-pdf-viewer" data-op-pdf-src="${src}" ` +
+				`data-op-pdf-title="${title}" data-op-pdf-labels="${labels}">`
+			);
 		}
 		if (/^<\//.test(match)) return `</${lower}>`;
 		return `<${lower}>`;

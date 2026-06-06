@@ -21,8 +21,21 @@ export const posts = {
 	},
 	upload: {
 		invalidMime: 'Dozwolone formaty: JPEG, PNG, WebP, GIF lub PDF.',
+		invalidContent: 'Zawartość pliku nie odpowiada deklarowanemu formatowi.',
 		tooLarge: 'Zdjęcie jest za duże (max 10 MB).',
 		pdfTooLarge: 'Plik PDF jest za duży (max 15 MB).',
+	},
+	pdfViewer: {
+		prev: 'Poprzednia',
+		next: 'Następna',
+		page: 'Strona',
+		of: 'z',
+		zoomIn: 'Powiększ',
+		zoomOut: 'Pomniejsz',
+		download: 'Pobierz PDF',
+		loading: 'Ładowanie PDF…',
+		error: 'Nie udało się wyświetlić PDF.',
+		open: 'Otwórz PDF w nowej karcie',
 	},
 } as const;
 

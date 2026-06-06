@@ -1,3 +1,5 @@
+import { pdfEmbedHtml as buildPdfEmbedHtml } from '@/lib/pdf-viewer/embed-html';
+
 export type AssetDisplayMode = 'link' | 'embed';
 
 export type AssetForDisplay = {
@@ -11,16 +13,15 @@ export type AssetForDisplay = {
 };
 
 const PDF_MIME = 'application/pdf';
-const EMBED_BLOCK_RE = /<div class="op-pdf-viewer">[\s\S]*?<\/div>/g;
+const EMBED_BLOCK_RE =
+	/<div class="op-pdf-viewer"[^>]*>[\s\S]*?<\/div>(?:\s*<script type="module" src="\/omnipress\/pdf-viewer\.js"><\/script>)?/g;
 
 function escapeRegex(value: string): string {
 	return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export function pdfEmbedHtml(src: string, title: string): string {
-	const safeSrc = src.replace(/"/g, '&quot;');
-	const safeTitle = title.replace(/"/g, '&quot;');
-	return `<div class="op-pdf-viewer"><iframe src="${safeSrc}" title="${safeTitle}" loading="lazy"></iframe></div>`;
+export function pdfEmbedHtml(src: string, title: string, forPublish = false): string {
+	return buildPdfEmbedHtml(src, title, undefined, forPublish);
 }
 
 function pdfLinkPattern(filename: string, url?: string): RegExp {
@@ -31,12 +32,17 @@ function pdfLinkPattern(filename: string, url?: string): RegExp {
 	return new RegExp(`\\[📄\\s*${name}\\]\\([^)]+\\)`, 'g');
 }
 
-/** Zamienia linki PDF (embed) na blok iframe w Markdown / HTML. */
-export function applyAssetDisplayToMarkdown(contentMd: string, assets: AssetForDisplay[]): string {
+/** Zamienia linki PDF (embed) na blok podglądu PDF.js w Markdown / HTML. */
+export function applyAssetDisplayToMarkdown(
+	contentMd: string,
+	assets: AssetForDisplay[],
+	options?: { forPublish?: boolean },
+): string {
+	const forPublish = options?.forPublish ?? false;
 	let out = contentMd;
 	for (const asset of assets) {
 		if (asset.mime_type !== PDF_MIME || asset.display_mode !== 'embed') continue;
-		const embed = pdfEmbedHtml(asset.publishUrl, asset.filename);
+		const embed = pdfEmbedHtml(asset.publishUrl, asset.filename, forPublish);
 		out = out.replace(pdfLinkPattern(asset.filename, asset.sourceUrl), embed);
 		out = out.replace(pdfLinkPattern(asset.filename), embed);
 	}

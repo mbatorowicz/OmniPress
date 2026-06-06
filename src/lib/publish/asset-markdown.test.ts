@@ -2,9 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { applyAssetDisplayToMarkdown, pdfEmbedHtml, segmentContentForRender } from './asset-markdown';
 
 describe('pdfEmbedHtml', () => {
-	it('tworzy izolowany blok iframe', () => {
+	it('tworzy blok PDF.js z data-op-pdf-src', () => {
 		expect(pdfEmbedHtml('./doc.pdf', 'Doc')).toContain('class="op-pdf-viewer"');
-		expect(pdfEmbedHtml('./doc.pdf', 'Doc')).toContain('src="./doc.pdf"');
+		expect(pdfEmbedHtml('./doc.pdf', 'Doc')).toContain('data-op-pdf-src="./doc.pdf"');
+		expect(pdfEmbedHtml('./doc.pdf', 'Doc')).not.toContain('<iframe');
+	});
+
+	it('dodaje skrypt viewer przy publikacji', () => {
+		const html = pdfEmbedHtml('./doc.pdf', 'Doc', true);
+		expect(html).toContain('/omnipress/pdf-viewer.js');
 	});
 });
 

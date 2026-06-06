@@ -31,21 +31,9 @@ const { html, class: className = 'post-content-html' } = Astro.props;
 		height: auto;
 		border-radius: 0.375rem;
 	}
-
-	.post-content-html .op-pdf-viewer {
-		margin: 1.25rem 0;
-		border: 1px solid #e2e8f0;
-		border-radius: 0.5rem;
-		overflow: hidden;
-		background: #f8fafc;
-		isolation: isolate;
-	}
-
-	.post-content-html .op-pdf-viewer iframe {
-		display: block;
-		width: 100%;
-		height: min(75vh, 640px);
-		border: 0;
-		background: #fff;
-	}
 </style>
+
+<script>
+	import { initPdfViewers } from '@/lib/pdf-viewer/init';
+	initPdfViewers();
+</script>

@@ -2,7 +2,7 @@ import { applyAssetDisplayToMarkdown, segmentContentForRender, type AssetForDisp
 import { markdownToSafeHtml } from '@/lib/publish/markdown';
 
 export function renderPostContentHtml(contentMd: string, assets: AssetForDisplay[]): string {
-	const prepared = applyAssetDisplayToMarkdown(contentMd, assets);
+	const prepared = applyAssetDisplayToMarkdown(contentMd, assets, { forPublish: false });
 	return segmentContentForRender(prepared)
 		.map((segment) => (segment.type === 'embed' ? segment.value : markdownToSafeHtml(segment.value)))
 		.join('');

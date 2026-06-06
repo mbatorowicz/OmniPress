@@ -38,7 +38,12 @@ function mimeFromFilename(filename: string): string {
 
 function pdfDisplayMode(body: string, filename: string): 'link' | 'embed' {
 	const escaped = filename.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-	return new RegExp(`iframe[^>]+src=["']\\.\\/${escaped}["']`, 'i').test(body) ? 'embed' : 'link';
+	return new RegExp(
+		`(?:iframe[^>]+src=["']\\.\\/${escaped}["']|data-op-pdf-src=["']\\.\\/${escaped}["'])`,
+		'i',
+	).test(body)
+		? 'embed'
+		: 'link';
 }
 
 function imageSortOrder(parsed: ParsedAstroPost, filename: string): number {
