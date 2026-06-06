@@ -51,6 +51,9 @@ export const dashboard = {
 			gallery: 'Galeria',
 			moveUp: 'W górę',
 			moveDown: 'W dół',
+			remove: 'Usuń zdjęcie',
+			confirmRemove: 'Usunąć to zdjęcie z galerii? Tej operacji nie można cofnąć.',
+			removeFailed: 'Nie udało się usunąć zdjęcia.',
 		},
 		pdfAttachments: {
 			heading: 'Załączniki PDF',

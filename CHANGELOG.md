@@ -3,6 +3,21 @@
 Format: [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+commit`.
 
+## [0.7.16] — 2026-06-06
+
+### Dodane
+
+- Edytor: usuwanie zdjęć z galerii (przycisk ×, potwierdzenie, DELETE API).
+
+### Bezpieczeństwo
+
+- Migracja RLS: trigger blokujący eskalację `role` i `default_site_id` w `profiles`.
+- Auth: rate limit, blokada cross-origin POST, generyczne komunikaty błędów, anti-enumeracja resetu.
+- Middleware: nagłówki bezpieczeństwa HTTP (HSTS w prod).
+- Upload: weryfikacja magic bytes; usunięto surowe `detail` z odpowiedzi API.
+- API kategorii: jawna weryfikacja dostępu do strony.
+- `setup:auth-urls`: wyłącza publiczną rejestrację (`disable_signup`).
+
 ## [0.7.15] — 2026-06-05
 
 ### Naprawione

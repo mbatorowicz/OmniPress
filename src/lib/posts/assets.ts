@@ -120,3 +120,33 @@ export async function nextGallerySortOrder(
 		.maybeSingle();
 	return (data?.sort_order ?? -1) + 1;
 }
+
+export type DeletePostAssetError = 'not_found' | 'delete_failed';
+
+export async function deletePostAsset(
+	supabase: SupabaseClient,
+	postId: string,
+	assetId: string,
+): Promise<{ ok: true } | { ok: false; error: DeletePostAssetError }> {
+	const { data: asset } = await supabase
+		.from('assets')
+		.select('id, storage_path, mime_type')
+		.eq('id', assetId)
+		.eq('post_id', postId)
+		.maybeSingle();
+
+	if (!asset || !isGalleryImageAsset(asset as PostAssetRow)) {
+		return { ok: false, error: 'not_found' };
+	}
+
+	await supabase.storage.from('post-assets').remove([asset.storage_path]);
+
+	const { error } = await supabase
+		.from('assets')
+		.delete()
+		.eq('id', assetId)
+		.eq('post_id', postId);
+
+	if (error) return { ok: false, error: 'delete_failed' };
+	return { ok: true };
+}

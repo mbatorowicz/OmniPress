@@ -28,7 +28,7 @@ Przewodnik po panelu redaktora. Stan funkcji: [STATUS.md](./STATUS.md).
 | Tytuł | Wymagany przed wysłaniem |
 | Slug | Opcjonalnie; może być generowany z tytułu |
 | Treść | Edytor WYSIWYG (TipTap) — zapis jako Markdown |
-| Galeria | Zdjęcia pod wpisem; pierwsze = zajawka (cover) |
+| Galeria | Zdjęcia pod wpisem; pierwsze = zajawka (cover); kolejność ↑↓; usuwanie × |
 | PDF | Załączniki jako link lub podgląd osadzony |
 
 **Zapisz szkic** — możesz wracać i edytować (status `draft` lub `rejected`).

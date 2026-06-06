@@ -5,6 +5,9 @@ type GalleryLabels = {
 	gallery: string;
 	moveUp: string;
 	moveDown: string;
+	remove: string;
+	confirmRemove: string;
+	removeFailed: string;
 	empty: string;
 	add: string;
 };
@@ -18,7 +21,7 @@ function syncOrderInput(root: HTMLElement): void {
 	}
 }
 
-function renderGallery(root: HTMLElement, labels: GalleryLabels): void {
+function renderGallery(root: HTMLElement, labels: GalleryLabels, postId: string): void {
 	const grid = root.querySelector('[data-gallery-grid]');
 	const empty = root.querySelector('[data-gallery-empty]');
 	if (!(grid instanceof HTMLElement)) return;
@@ -52,6 +55,7 @@ function renderGallery(root: HTMLElement, labels: GalleryLabels): void {
 				<div class="flex shrink-0 gap-1">
 					<button type="button" data-gallery-up class="rounded border border-slate-200 px-1.5 py-0.5 text-xs hover:bg-slate-50" ${index === 0 ? 'disabled' : ''} aria-label="${labels.moveUp}">↑</button>
 					<button type="button" data-gallery-down class="rounded border border-slate-200 px-1.5 py-0.5 text-xs hover:bg-slate-50" ${index === order.length - 1 ? 'disabled' : ''} aria-label="${labels.moveDown}">↓</button>
+					<button type="button" data-gallery-remove class="rounded border border-red-200 px-1.5 py-0.5 text-xs text-red-700 hover:bg-red-50" aria-label="${labels.remove}">×</button>
 				</div>
 			</div>
 		`;
@@ -61,7 +65,7 @@ function renderGallery(root: HTMLElement, labels: GalleryLabels): void {
 			const next = [...order];
 			[next[index - 1], next[index]] = [next[index]!, next[index - 1]!];
 			order = next;
-			renderGallery(root, labels);
+			renderGallery(root, labels, postId);
 		});
 
 		card.querySelector('[data-gallery-down]')?.addEventListener('click', () => {
@@ -69,7 +73,32 @@ function renderGallery(root: HTMLElement, labels: GalleryLabels): void {
 			const next = [...order];
 			[next[index], next[index + 1]] = [next[index + 1]!, next[index]!];
 			order = next;
-			renderGallery(root, labels);
+			renderGallery(root, labels, postId);
+		});
+
+		card.querySelector('[data-gallery-remove]')?.addEventListener('click', async () => {
+			if (!confirm(labels.confirmRemove)) return;
+
+			const btn = card.querySelector('[data-gallery-remove]');
+			btn?.setAttribute('disabled', 'true');
+
+			try {
+				const res = await fetch(`/api/posts/${postId}/assets/${asset.id}`, {
+					method: 'DELETE',
+					credentials: 'same-origin',
+				});
+				const data = await res.json();
+				if (!res.ok) {
+					alert(data.error ?? labels.removeFailed);
+					btn?.removeAttribute('disabled');
+					return;
+				}
+				order = order.filter((a) => a.id !== asset.id);
+				renderGallery(root, labels, postId);
+			} catch {
+				alert(labels.removeFailed);
+				btn?.removeAttribute('disabled');
+			}
 		});
 
 		grid.appendChild(card);
@@ -83,15 +112,17 @@ export function mountGalleryPanel(
 	initialAssets: GalleryAsset[],
 	labels: GalleryLabels,
 ): void {
-	order = [...initialAssets];
-	renderGallery(root, labels);
-
 	const postId = root.dataset.postId;
+	if (!postId) return;
+
+	order = [...initialAssets];
+	renderGallery(root, labels, postId);
+
 	const input = root.querySelector('[data-gallery-upload]');
 	input?.addEventListener('change', async () => {
 		if (!(input instanceof HTMLInputElement)) return;
 		const files = input.files;
-		if (!files?.length || !postId) return;
+		if (!files?.length) return;
 
 		const label = root.querySelector('[data-gallery-upload-label]');
 		label?.classList.add('opacity-50', 'pointer-events-none');
@@ -118,7 +149,7 @@ export function mountGalleryPanel(
 					filename: data.asset.filename,
 				});
 			}
-			renderGallery(root, labels);
+			renderGallery(root, labels, postId);
 		} catch {
 			alert('Błąd połączenia przy uploadzie.');
 		} finally {
@@ -129,6 +160,8 @@ export function mountGalleryPanel(
 }
 
 export function appendGalleryAsset(root: HTMLElement, asset: GalleryAsset, labels: GalleryLabels): void {
+	const postId = root.dataset.postId;
+	if (!postId) return;
 	order.push(asset);
-	renderGallery(root, labels);
+	renderGallery(root, labels, postId);
 }

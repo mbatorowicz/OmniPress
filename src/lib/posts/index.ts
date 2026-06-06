@@ -22,6 +22,7 @@ export {
 	parseGalleryOrder,
 	updateGalleryOrder,
 	nextGallerySortOrder,
+	deletePostAsset,
 	isGalleryImageAsset,
 	isPdfAsset,
 	type PostAssetRow,

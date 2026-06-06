@@ -1,10 +1,13 @@
 export const api = {
 	posts: {
 		missingPostId: 'Brak ID wpisu',
+		missingSiteId: 'Brak ID strony.',
 		unauthorized: 'Niezalogowany',
 		forbidden: 'Brak uprawnień',
 		missingFile: 'Brak pliku',
 		uploadFailed: 'Upload nie powiódł się.',
+		assetNotFound: 'Plik nie istnieje lub nie można go usunąć.',
+		deleteFailed: 'Usunięcie pliku nie powiodło się.',
 	},
 } as const;
 

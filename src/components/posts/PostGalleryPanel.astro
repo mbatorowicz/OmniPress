@@ -13,6 +13,9 @@ type Props = {
 		gallery: string;
 		moveUp: string;
 		moveDown: string;
+		remove: string;
+		confirmRemove: string;
+		removeFailed: string;
 	};
 };
 
@@ -34,6 +37,9 @@ const initialOrder = galleryAssets.map((a) => a.id).join(',');
 	data-label-gallery={labels.gallery}
 	data-label-move-up={labels.moveUp}
 	data-label-move-down={labels.moveDown}
+	data-label-remove={labels.remove}
+	data-label-confirm-remove={labels.confirmRemove}
+	data-label-remove-failed={labels.removeFailed}
 	data-label-empty={labels.empty}
 	data-label-add={labels.add}
 >

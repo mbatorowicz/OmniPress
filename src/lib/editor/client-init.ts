@@ -52,6 +52,9 @@ export function initPostGallery(): void {
 		gallery: root.dataset.labelGallery ?? '',
 		moveUp: root.dataset.labelMoveUp ?? '',
 		moveDown: root.dataset.labelMoveDown ?? '',
+		remove: root.dataset.labelRemove ?? '',
+		confirmRemove: root.dataset.labelConfirmRemove ?? '',
+		removeFailed: root.dataset.labelRemoveFailed ?? '',
 		empty: root.dataset.labelEmpty ?? '',
 		add: root.dataset.labelAdd ?? '',
 	};
