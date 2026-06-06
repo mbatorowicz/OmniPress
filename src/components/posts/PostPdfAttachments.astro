@@ -10,6 +10,9 @@ type Props = {
 		add: string;
 		displayLink: string;
 		displayEmbed: string;
+		remove: string;
+		confirmRemove: string;
+		removeFailed: string;
 	};
 };
 
@@ -23,6 +26,9 @@ const pdfAssets = assets.filter(isPdfAsset);
 	data-post-id={postId}
 	data-label-link={labels.displayLink}
 	data-label-embed={labels.displayEmbed}
+	data-label-remove={labels.remove}
+	data-label-confirm-remove={labels.confirmRemove}
+	data-label-remove-failed={labels.removeFailed}
 >
 	<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
 		<h3 class="text-sm font-medium text-slate-700">{labels.heading}</h3>
@@ -41,7 +47,10 @@ const pdfAssets = assets.filter(isPdfAsset);
 			pdfAssets.map((asset) => {
 				const url = publicUrlForAsset(asset.storage_path);
 				return (
-					<li class="flex flex-wrap items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2">
+					<li
+						class="flex flex-wrap items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2"
+						data-asset-id={asset.id}
+					>
 						<div class="min-w-0 flex-1">
 							<p class="truncate text-sm font-medium text-slate-800">📄 {asset.filename}</p>
 							{url && (
@@ -72,6 +81,14 @@ const pdfAssets = assets.filter(isPdfAsset);
 								{labels.displayEmbed}
 							</label>
 						</fieldset>
+						<button
+							type="button"
+							data-pdf-remove
+							class="shrink-0 rounded border border-red-200 px-2 py-1 text-xs text-red-700 hover:bg-red-50"
+							aria-label={labels.remove}
+						>
+							×
+						</button>
 					</li>
 				);
 			})

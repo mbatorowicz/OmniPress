@@ -123,6 +123,10 @@ export async function nextGallerySortOrder(
 
 export type DeletePostAssetError = 'not_found' | 'delete_failed';
 
+export function canDeletePostAsset(asset: Pick<PostAssetRow, 'mime_type'>): boolean {
+	return isGalleryImageAsset(asset as PostAssetRow) || isPdfAsset(asset as PostAssetRow);
+}
+
 export async function deletePostAsset(
 	supabase: SupabaseClient,
 	postId: string,
@@ -135,7 +139,7 @@ export async function deletePostAsset(
 		.eq('post_id', postId)
 		.maybeSingle();
 
-	if (!asset || !isGalleryImageAsset(asset as PostAssetRow)) {
+	if (!asset || !canDeletePostAsset(asset)) {
 		return { ok: false, error: 'not_found' };
 	}
 

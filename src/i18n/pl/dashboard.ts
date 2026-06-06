@@ -61,6 +61,9 @@ export const dashboard = {
 			add: '+ Dodaj PDF',
 			displayLink: 'Link do pobrania',
 			displayEmbed: 'Podgląd PDF na stronie',
+			remove: 'Usuń PDF',
+			confirmRemove: 'Usunąć ten plik PDF? Tej operacji nie można cofnąć.',
+			removeFailed: 'Nie udało się usunąć pliku PDF.',
 		},
 		attachments: {
 			heading: 'Załączniki',
