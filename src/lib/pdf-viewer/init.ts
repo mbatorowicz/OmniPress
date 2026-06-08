@@ -1,8 +1,8 @@
-import workerUrl from 'pdfjs-dist/build/pdf.worker.mjs?url';
 import { configurePdfWorker, mountPdfViewers } from './mount';
+import { PDF_WORKER_PUBLIC_PATH } from './types';
 
 export function initPdfViewers(): void {
-	configurePdfWorker(workerUrl);
+	configurePdfWorker(PDF_WORKER_PUBLIC_PATH);
 
 	const run = () => mountPdfViewers();
 	if (document.readyState === 'loading') {

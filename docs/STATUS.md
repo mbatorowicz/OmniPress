@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.7.13** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.7.16** (kod + baza + panel).
 
 Produkcja: https://omni-press.vercel.app
 
@@ -97,6 +97,20 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub.
 | `20250610000000_asset_display_mode.sql` | `setup:asset-display` |
 | `20250611000000_asset_sort_order.sql` | `setup:asset-sort` |
 | `20250612000000_remove_wordpress.sql` | `setup:remove-wordpress` |
+| `20250613000000_profiles_self_update_guard.sql` | `setup:profiles-guard` |
+
+---
+
+## Bezpieczeństwo (0.7.16)
+
+| Warstwa | Status |
+|---------|--------|
+| RLS trigger `profiles` (role, default_site_id) | ✅ migracja `setup:profiles-guard` |
+| Wyłączenie public signup (Supabase) | ✅ `setup:auth-urls` |
+| Rate limit + Origin check (auth POST) | ✅ |
+| Nagłówki HTTP (HSTS, X-Frame-Options, …) | ✅ middleware |
+| Upload: magic bytes | ✅ |
+| Anti-enumeracja resetu hasła | ✅ |
 
 ---
 

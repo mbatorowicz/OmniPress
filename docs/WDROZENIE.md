@@ -57,9 +57,12 @@ npm run setup:storage-pdf
 npm run setup:asset-display
 npm run setup:asset-sort
 npm run setup:remove-wordpress
+npm run setup:profiles-guard
 ```
 
 Świeża baza: `setup:remote` stosuje schemat początkowy; potem pozostałe migracje w kolejności dat.
+
+**Auth (obowiązkowo po wdrożeniu):** `npm run setup:auth-urls` — Site URL, redirecty i **wyłączenie publicznej rejestracji**.
 
 ---
 

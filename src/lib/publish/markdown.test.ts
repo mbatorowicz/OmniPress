@@ -11,4 +11,13 @@ describe('markdownToSafeHtml', () => {
 	it('usuwa script z HTML', () => {
 		expect(sanitizeHtml('<p>ok</p><script>alert(1)</script>')).toBe('<p>ok</p>');
 	});
+
+	it('zachowuje zamykające </a> w linkach mailto', () => {
+		const html = markdownToSafeHtml(
+			'Kontakt: [anna@modr.pl](mailto:anna@modr.pl)',
+		);
+		expect(html).toContain('<a href="mailto:anna@modr.pl"');
+		expect(html).toContain('</a>');
+		expect(html).not.toMatch(/<a[^>]*>[^<]*<\/p>/);
+	});
 });

@@ -35,6 +35,12 @@ export function canEditPost(post: PostRow, userId: string, role: UserRole): bool
 	return post.author_id === userId && (post.status === 'draft' || post.status === 'rejected');
 }
 
+/** Podgląd załączników (PDF) — admin: każdy wpis; redaktor: własne. */
+export function canViewPostAssets(post: PostRow, userId: string, role: UserRole): boolean {
+	if (role === 'admin') return true;
+	return post.author_id === userId;
+}
+
 export function canSubmitPost(post: PostRow, userId: string): boolean {
 	return post.author_id === userId && post.status === 'draft';
 }

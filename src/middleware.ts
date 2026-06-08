@@ -9,20 +9,21 @@ import {
 } from './lib/auth';
 import { isSupabaseConfigured } from './lib/supabase/env';
 import { createSupabaseServerClient } from './lib/supabase/server';
+import { applySecurityHeaders } from './lib/security/headers';
 
 export const onRequest = defineMiddleware(async (context, next) => {
 	const { url, cookies, redirect, locals } = context;
 	const pathname = url.pathname;
 	const codeRedirect = authCodeRedirectTarget(url);
 	if (codeRedirect) {
-		return redirect(codeRedirect);
+		return applySecurityHeaders(redirect(codeRedirect));
 	}
 
 	if (!isSupabaseConfigured()) {
 		if (pathname === '/' || isPublicPath(pathname)) {
-			return next();
+			return applySecurityHeaders(await next());
 		}
-		return redirect('/?setup=1');
+		return applySecurityHeaders(redirect('/?setup=1'));
 	}
 
 	const supabase = createSupabaseServerClient(cookies, context.request);
@@ -33,28 +34,28 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	locals.profile = user ? await getProfile(supabase, user.id) : null;
 
 	if (user && (pathname === '/login' || pathname === '/auth/callback')) {
-		return redirect(roleHomePath(locals.profile?.role ?? 'editor'));
+		return applySecurityHeaders(redirect(roleHomePath(locals.profile?.role ?? 'editor')));
 	}
 
 	if (!user && isProtectedPath(pathname)) {
-		return redirect('/login');
+		return applySecurityHeaders(redirect('/login'));
 	}
 
 	if (!user && pathname === '/' && !url.searchParams.get('code')) {
-		return redirect('/login');
+		return applySecurityHeaders(redirect('/login'));
 	}
 
 	if (!user && pathname === '/auth/reset-password') {
-		return next();
+		return applySecurityHeaders(await next());
 	}
 
 	if (user && pathname === '/') {
-		return redirect(roleHomePath(locals.profile?.role ?? 'editor'));
+		return applySecurityHeaders(redirect(roleHomePath(locals.profile?.role ?? 'editor')));
 	}
 
 	if (user && pathname.startsWith('/admin') && locals.profile?.role !== 'admin') {
-		return redirect('/dashboard');
+		return applySecurityHeaders(redirect('/dashboard'));
 	}
 
-	return next();
+	return applySecurityHeaders(await next());
 });

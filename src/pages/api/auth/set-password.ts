@@ -1,8 +1,16 @@
 import type { APIRoute } from 'astro';
 import { auth, mapAuthError } from '@/i18n';
+import { guardAuthMutationRequest } from '@/lib/auth/guard-request';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
+	const guard = guardAuthMutationRequest(request, 'set-password');
+	if (!guard.ok) {
+		return redirect(
+			`/auth/reset-password?error=${encodeURIComponent(guard.message)}`,
+		);
+	}
+
 	const form = await request.formData();
 	const password = String(form.get('password') ?? '');
 	const password2 = String(form.get('password_confirm') ?? '');

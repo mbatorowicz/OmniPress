@@ -5,7 +5,12 @@ export function mapAuthError(message: string): string {
 	const m = message.toLowerCase();
 	const s = auth.supabase;
 
-	if (m.includes('invalid login') || m.includes('invalid credentials')) {
+	if (
+		m.includes('invalid login') ||
+		m.includes('invalid credentials') ||
+		m.includes('user not found') ||
+		m.includes('invalid email or password')
+	) {
 		return s.invalidCredentials;
 	}
 	if (m.includes('email not confirmed')) {
@@ -17,9 +22,10 @@ export function mapAuthError(message: string): string {
 	if (m.includes('rate limit') || m.includes('too many')) {
 		return s.rateLimit;
 	}
-	if (m.includes('user not found')) {
-		return s.userNotFound;
+
+	if (m.includes('signup') && m.includes('disabled')) {
+		return s.signupDisabled;
 	}
 
-	return `${s.prefix}${message}`;
+	return s.genericFailure;
 }

@@ -45,6 +45,7 @@ export function sanitizeHtml(html: string): string {
 	return withoutScripts.replace(/<\/?([a-z0-9]+)([^>]*)>/gi, (match, tag: string, attrs: string) => {
 		const lower = tag.toLowerCase();
 		if (!ALLOWED_TAGS.has(lower)) return '';
+		if (/^<\//.test(match)) return `</${lower}>`;
 		if (lower === 'a') {
 			const href = attrs.match(/\shref="([^"]+)"/i)?.[1];
 			if (!href || /^\s*javascript:/i.test(href)) return '';
@@ -68,7 +69,6 @@ export function sanitizeHtml(html: string): string {
 				`data-op-pdf-title="${title}" data-op-pdf-labels="${labels}">`
 			);
 		}
-		if (/^<\//.test(match)) return `</${lower}>`;
 		return `<${lower}>`;
 	});
 }

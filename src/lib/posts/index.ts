@@ -1,4 +1,11 @@
-export { canEditPost, canSubmitPost, getPostById, slugFromTitle, type PostRow } from './access';
+export {
+	canEditPost,
+	canSubmitPost,
+	canViewPostAssets,
+	getPostById,
+	slugFromTitle,
+	type PostRow,
+} from './access';
 export { resolvePostCategoryFields } from './category';
 export {
 	collectAllowedSites,
@@ -15,6 +22,8 @@ export {
 export { extensionForMime, markdownForUploadedAsset, validateImageFile, validatePostAssetFile } from './upload';
 export {
 	assetsForContentRender,
+	assetsForPreviewRender,
+	previewAssetFileUrl,
 	loadPostAssetsForPost,
 	parseAssetDisplayModes,
 	publicUrlForAsset,

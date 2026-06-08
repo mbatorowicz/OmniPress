@@ -34,7 +34,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 	}
 
 	const kind = String(form.get('kind') ?? 'gallery');
-	const validationError = validatePostAssetFile(file);
+	const validationError = await validatePostAssetFile(file);
 	if (validationError) {
 		return new Response(JSON.stringify({ error: validationError }), { status: 400 });
 	}
@@ -62,7 +62,6 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 		return new Response(
 			JSON.stringify({
 				error: formatUploadError(uploadError.message),
-				detail: uploadError.message,
 			}),
 			{ status: 500 },
 		);

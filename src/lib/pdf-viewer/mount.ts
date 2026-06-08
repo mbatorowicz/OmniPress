@@ -167,7 +167,15 @@ async function mountOne(el: HTMLElement): Promise<void> {
 	});
 
 	try {
-		const task = pdfjsLib.getDocument(src);
+		const sameOrigin =
+			src.startsWith('/') ||
+			(typeof window !== 'undefined' && src.startsWith(window.location.origin));
+		const task = pdfjsLib.getDocument({
+			url: src,
+			...(sameOrigin
+				? { disableRange: true, disableStream: true, withCredentials: true }
+				: {}),
+		});
 		pdf = await task.promise;
 		updatePageInfo();
 		await renderPage();

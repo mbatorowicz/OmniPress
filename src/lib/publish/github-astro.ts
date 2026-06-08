@@ -18,6 +18,7 @@ import {
 	httpStatusFromError,
 	parseGitHubRepoConfig,
 	putGitHubFile,
+	type GitHubConfig,
 } from './github-api';
 import {
 	formatExternalGitHubPath,
@@ -31,6 +32,14 @@ import { buildPostRecentChangeEntry } from '@/lib/recent-changes/post-entry';
 import { parseVercelConfig } from './vercel-api';
 import { waitForVercelBuild } from './vercel-deploy';
 import type { DestinationForPublish, PostForPublish, PublishResult } from './types';
+
+function publishedAssetUrl(cfg: GitHubConfig, slug: string, assetName: string): string {
+	if (cfg.assetPublicBase && cfg.contentLayout === 'folder') {
+		return `/${cfg.assetPublicBase}/${slug}/${assetName}`;
+	}
+	if (cfg.contentLayout === 'folder') return `./${assetName}`;
+	return `./assets/${slug}/${assetName}`;
+}
 
 async function pickMarkdownPath(
 	cfg: ReturnType<typeof parseGitHubRepoConfig> & object,
@@ -81,8 +90,7 @@ async function uploadPostAssets(
 			cfg.contentLayout === 'folder'
 				? joinContentPath(cfg.contentPath, slug, assetName)
 				: joinContentPath(cfg.contentPath, 'assets', slug, assetName);
-		const relative =
-			cfg.contentLayout === 'folder' ? `./${assetName}` : `./assets/${slug}/${assetName}`;
+		const relative = publishedAssetUrl(cfg, slug, assetName);
 
 		try {
 			await putGitHubFile(

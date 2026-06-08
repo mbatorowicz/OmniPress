@@ -36,8 +36,22 @@ sequenceDiagram
 | `src/i18n/map-auth-error.ts` | Mapowanie błędów Supabase |
 | `src/lib/auth/require.ts` | `requireAuth(locals)` dla API |
 | `src/lib/auth/recovery-redirect.ts` | Rozróżnienie `?code=` recovery vs magic link |
+| `src/lib/auth/guard-request.ts` | Rate limit + blokada cross-origin POST (auth) |
+| `src/lib/auth/origin.ts` | Wykrywanie cross-origin POST |
+| `src/lib/auth/rate-limit.ts` | Limit prób logowania / resetu |
+| `src/lib/security/headers.ts` | Nagłówki bezpieczeństwa HTTP |
 | `src/middleware.ts` | Sesja na każde żądanie, guard tras |
 | `src/pages/api/auth/*` | Mutacje auth (POST only) |
+
+## Bezpieczeństwo
+
+1. **Rejestracja** — wyłączona w Supabase (`disable_signup: true` przez `npm run setup:auth-urls`). Konta tylko przez admina.
+2. **RLS profiles** — trigger `profiles_guard_self_update` blokuje zmianę `role` i `default_site_id` przez redaktora (`npm run setup:profiles-guard`).
+3. **Auth POST** — rate limit (20 / 15 min / IP) + odrzucenie żądań z obcym nagłówkiem `Origin`.
+4. **Reset hasła** — zawsze ten sam komunikat sukcesu (brak enumeracji e-maili).
+5. **Logowanie** — generyczny komunikat błędu (`invalidCredentials`).
+6. **Nagłówki** — `X-Frame-Options`, `HSTS` (prod), `nosniff`, `Referrer-Policy` (middleware).
+7. **Upload** — weryfikacja magic bytes + limit rozmiaru; bez surowych błędów storage w JSON.
 
 ## Zasady
 

@@ -7,6 +7,7 @@ const cfg = {
 	branch: 'main',
 	contentPath: 'src/content/news',
 	contentLayout: 'folder' as const,
+	assetPublicBase: 'post-files',
 };
 
 describe('gitBranchRefUrls', () => {

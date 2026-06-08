@@ -53,6 +53,7 @@ const res = await fetch(`https://api.supabase.com/v1/projects/${PROJECT_REF}/con
 	body: JSON.stringify({
 		site_url: SITE_URL,
 		uri_allow_list: REDIRECT_URLS,
+		disable_signup: true,
 	}),
 });
 
@@ -65,3 +66,4 @@ if (!res.ok) {
 console.log('✓ Supabase Auth URL zaktualizowany:');
 console.log('  Site URL:', SITE_URL);
 console.log('  Redirects:', REDIRECT_URLS);
+console.log('  Rejestracja publiczna: wyłączona (disable_signup=true)');

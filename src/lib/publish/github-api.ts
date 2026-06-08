@@ -9,6 +9,8 @@ export type GitHubConfig = {
 	branch: string;
 	contentPath: string;
 	contentLayout: ContentLayout;
+	/** Np. post-files → /post-files/{slug}/plik.pdf (public/ po buildzie Astro). */
+	assetPublicBase: string | null;
 };
 
 export type GitHubFileMeta = {
@@ -43,12 +45,17 @@ export function parseGitHubRepoConfig(config: Record<string, unknown>): GitHubCo
 		typeof config.content_path === 'string' && config.content_path.trim()
 			? config.content_path.trim()
 			: 'src/content';
+	const assetPublicBase =
+		typeof config.asset_public_base === 'string' && config.asset_public_base.trim()
+			? config.asset_public_base.trim().replace(/^\/+|\/+$/g, '')
+			: null;
 	return {
 		owner,
 		repo,
 		branch,
 		contentPath,
 		contentLayout: parseContentLayout(config),
+		assetPublicBase,
 	};
 }
 

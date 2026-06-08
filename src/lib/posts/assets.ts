@@ -42,6 +42,27 @@ export function publicUrlForAsset(storagePath: string): string | null {
 	return publicAssetUrl(storagePath);
 }
 
+/** Same-origin URL do podglądu PDF w panelu (PDF.js + cookies sesji). */
+export function previewAssetFileUrl(postId: string, assetId: string): string {
+	return `/api/posts/${postId}/assets/${assetId}/file`;
+}
+
+export function assetsForPreviewRender(postId: string, assets: PostAssetRow[]): AssetForDisplay[] {
+	return assets.flatMap((asset) => {
+		const sourceUrl = publicUrlForAsset(asset.storage_path);
+		if (!sourceUrl) return [];
+		return [
+			{
+				filename: asset.filename,
+				mime_type: asset.mime_type,
+				display_mode: asset.display_mode,
+				sourceUrl,
+				publishUrl: previewAssetFileUrl(postId, asset.id),
+			},
+		];
+	});
+}
+
 export function assetsForContentRender(
 	assets: PostAssetRow[],
 	urlForPath: (storagePath: string) => string | null = publicUrlForAsset,

@@ -15,7 +15,7 @@ import { listPublishLogsForPost } from '@/lib/publish';
 import { buildPublishedBodyMd } from '@/lib/publish/post-gallery';
 import type { PostAsset } from '@/lib/publish/assets';
 import {
-	assetsForContentRender,
+	assetsForPreviewRender,
 	canEditPost,
 	canSubmitPost,
 	getPostById,
@@ -72,7 +72,7 @@ const previewMd = buildPublishedBodyMd(
 	pdfAssets as PostAsset[],
 	pdfUrlMap,
 );
-const contentHtml = renderPostContentHtml(previewMd, assetsForContentRender(pdfAssets));
+const contentHtml = renderPostContentHtml(previewMd, assetsForPreviewRender(post.id, pdfAssets));
 const galleryAssets = postAssets.filter(isGalleryImageAsset);
 const publishLogs = await listPublishLogsForPost(Astro.locals.supabase, post.id);
 const isAmendment =

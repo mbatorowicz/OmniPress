@@ -1,11 +1,19 @@
 import type { APIRoute } from 'astro';
-import { auth } from '@/i18n';
+import { auth, mapAuthError } from '@/i18n';
+import { guardAuthMutationRequest } from '@/lib/auth/guard-request';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 /**
  * Przenosi sesję z fragmentu URL (#access_token) do ciasteczek httpOnly (SSR).
  */
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
+	const guard = guardAuthMutationRequest(request, 'establish-session');
+	if (!guard.ok) {
+		return redirect(
+			`/login?mode=reset&error=${encodeURIComponent(guard.message)}`,
+		);
+	}
+
 	const form = await request.formData();
 	const access_token = String(form.get('access_token') ?? '').trim();
 	const refresh_token = String(form.get('refresh_token') ?? '').trim();

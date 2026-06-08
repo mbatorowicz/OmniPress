@@ -52,6 +52,8 @@ export const auth = {
 			'Błąd konfiguracji Supabase (Redirect URLs). Administrator musi ustawić Site URL na https://omni-press.vercel.app',
 		rateLimit: 'Zbyt wiele prób — odczekaj chwilę i spróbuj ponownie.',
 		userNotFound: 'Jeśli konto istnieje, wysłaliśmy link (sprawdź też spam).',
+		signupDisabled: 'Rejestracja jest wyłączona — poproś administratora o konto.',
+		genericFailure: 'Operacja nie powiodła się — spróbuj ponownie.',
 		prefix: 'Błąd: ',
 	},
 } as const;
