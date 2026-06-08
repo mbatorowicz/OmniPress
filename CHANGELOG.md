@@ -9,7 +9,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 - Redaktor: pole daty i godziny publikacji (Europe/Warsaw); wymagane przy wysłaniu do akceptacji.
 - Admin: status `scheduled` i kolejka zaplanowanych wpisów; worker publikuje po `scheduled_publish_at`.
-- Cron publikacji: co godzinę (zamiast raz dziennie).
+- Worker publikacji: start przy `/admin`, po akceptacji natychmiastowej; cron Vercel 06:00 UTC (limit Hobby — co godzinę wymaga Pro).
 - Migracja: `npm run setup:scheduled-publish`.
 
 ## [0.7.16] — 2026-06-06
