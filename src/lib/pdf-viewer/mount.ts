@@ -36,6 +36,33 @@ function isLegacyIframeViewer(el: HTMLElement): boolean {
 	return el.querySelector('iframe') instanceof HTMLIFrameElement;
 }
 
+function pdfDocumentOptions(src: string) {
+	const sameOrigin =
+		src.startsWith('/') ||
+		(typeof window !== 'undefined' && src.startsWith(window.location.origin));
+	return {
+		url: src,
+		...(sameOrigin
+			? { disableRange: true, disableStream: true, withCredentials: true }
+			: {}),
+	};
+}
+
+async function loadPdfDocument(src: string): Promise<PDFDocumentProxy> {
+	const task = pdfjsLib.getDocument(pdfDocumentOptions(src));
+	return task.promise;
+}
+
+export function mountPdfThumbs(root: ParentNode = document): void {
+	injectStyles();
+	const nodes = root.querySelectorAll<HTMLElement>(
+		'.op-pdf-thumb[data-pdf-src]:not([data-pdf-thumb-mounted])',
+	);
+	for (const el of nodes) {
+		void mountThumb(el);
+	}
+}
+
 export function mountPdfViewers(root: ParentNode = document): void {
 	injectStyles();
 	const nodes = root.querySelectorAll<HTMLElement>(
@@ -44,6 +71,44 @@ export function mountPdfViewers(root: ParentNode = document): void {
 	for (const el of nodes) {
 		if (isLegacyIframeViewer(el)) continue;
 		void mountOne(el);
+	}
+}
+
+async function mountThumb(el: HTMLElement): Promise<void> {
+	const src = el.getAttribute('data-pdf-src');
+	if (!src) return;
+
+	el.setAttribute('data-pdf-thumb-mounted', '');
+	const title = el.getAttribute('data-pdf-title') ?? 'PDF';
+	const fallback = el.querySelector<HTMLElement>('.op-pdf-thumb-fallback');
+
+	const canvas = document.createElement('canvas');
+	canvas.setAttribute('role', 'img');
+	canvas.setAttribute('aria-label', title);
+	el.replaceChildren(canvas);
+	if (fallback) el.append(fallback);
+
+	const host = el.parentElement ?? el;
+	const width = host.clientWidth || 640;
+	const height = host.clientHeight || Math.round((width * 10) / 16);
+
+	try {
+		const pdf = await loadPdfDocument(src);
+		const page = await pdf.getPage(1);
+		const base = page.getViewport({ scale: 1 });
+		const scale = Math.max(width / base.width, height / base.height, 0.1);
+		const viewport = page.getViewport({ scale });
+		const ctx = canvas.getContext('2d');
+		if (!ctx) throw new Error('canvas_unavailable');
+
+		canvas.width = Math.floor(viewport.width);
+		canvas.height = Math.floor(viewport.height);
+		await page.render({ canvas, canvasContext: ctx, viewport }).promise;
+		fallback?.remove();
+	} catch {
+		el.classList.add('op-pdf-thumb--error');
+		canvas.remove();
+		if (fallback) fallback.hidden = false;
 	}
 }
 
@@ -167,16 +232,7 @@ async function mountOne(el: HTMLElement): Promise<void> {
 	});
 
 	try {
-		const sameOrigin =
-			src.startsWith('/') ||
-			(typeof window !== 'undefined' && src.startsWith(window.location.origin));
-		const task = pdfjsLib.getDocument({
-			url: src,
-			...(sameOrigin
-				? { disableRange: true, disableStream: true, withCredentials: true }
-				: {}),
-		});
-		pdf = await task.promise;
+		pdf = await loadPdfDocument(src);
 		updatePageInfo();
 		await renderPage();
 	} catch {

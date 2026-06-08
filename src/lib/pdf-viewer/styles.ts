@@ -70,4 +70,37 @@ export const PDF_VIEWER_CSS = `
 .op-pdf-viewer .op-pdf-status a {
 	color: #1d4ed8;
 }
+.op-pdf-thumb {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	background: #f1f5f9;
+}
+.op-pdf-thumb canvas {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: top center;
+}
+.op-pdf-thumb-fallback {
+	display: none;
+	align-items: center;
+	justify-content: center;
+	min-width: 3.5rem;
+	padding: 0.35rem 0.75rem;
+	border-radius: 0.375rem;
+	background: #dc2626;
+	color: #fff;
+	font-size: 0.85rem;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+}
+.op-pdf-thumb--error .op-pdf-thumb-fallback {
+	display: inline-flex;
+}
 `;
