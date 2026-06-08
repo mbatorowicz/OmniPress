@@ -11,6 +11,7 @@ import {
 	updatePostAssetDisplayModes,
 } from '@/lib/posts';
 import { wallTimeInZoneToUtcIso } from '@/lib/posts/scheduled-publish';
+import { sanitizeStorageMarkdown } from '@/lib/content/sanitize';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const postId = params.id;
@@ -27,7 +28,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 
 	const form = await request.formData();
 	const title = String(form.get('title') ?? '').trim();
-	const content_md = String(form.get('content_md') ?? '');
+	const content_md = sanitizeStorageMarkdown(String(form.get('content_md') ?? ''));
 	const slugInput = String(form.get('slug') ?? '').trim();
 	const slug = slugInput || (title ? slugFromTitle(title) : post.slug);
 	const categorySlug = String(form.get('category_slug') ?? '').trim();

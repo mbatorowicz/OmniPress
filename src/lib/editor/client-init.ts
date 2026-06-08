@@ -17,12 +17,14 @@ export function initPostRichEditor(): void {
 
 	const initialMarkdown = hidden.value;
 	const placeholder = root.dataset.placeholder ?? '';
+	const linkPrompt = root.dataset.linkPrompt ?? '';
 
 	void import('@/lib/editor/tiptap-editor').then(({ createPostEditor }) => {
 		const editor = createPostEditor({
 			element: mount,
 			initialHtml: markdownToEditorHtml(initialMarkdown),
 			placeholder,
+			linkPrompt,
 			onChange(html) {
 				hidden.value = editorHtmlToMarkdown(html);
 			},

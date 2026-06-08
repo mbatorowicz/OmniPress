@@ -21,6 +21,7 @@ import {
 } from './github-api';
 import { formatExternalGitHubPath } from './paths';
 import type { DestinationForPublish } from './types';
+import { sanitizeStorageMarkdown } from '@/lib/content/sanitize';
 
 export type ImportPostsResult =
 	| { ok: true; imported: number; updated: number; skipped: number; errors: string[] }
@@ -251,7 +252,7 @@ async function importOnePost(
 	const postPayload = {
 		title: parsed.title,
 		slug,
-		content_md: parsed.body,
+		content_md: sanitizeStorageMarkdown(parsed.body),
 		category_slug: parsed.categorySlug || null,
 		category_name: parsed.categoryName || null,
 		status: 'published' as const,

@@ -113,6 +113,7 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub.
 | Nagłówki HTTP (HSTS, X-Frame-Options, …) | ✅ middleware |
 | Upload: magic bytes | ✅ |
 | Anti-enumeracja resetu hasła | ✅ |
+| Sanityzacja treści (edytor + zapis + publikacja) | ✅ |
 
 ---
 

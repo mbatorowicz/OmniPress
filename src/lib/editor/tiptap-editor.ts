@@ -2,11 +2,13 @@ import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import StarterKit from '@tiptap/starter-kit';
 import { Editor } from '@tiptap/core';
+import { isSafeUrl } from '@/lib/content/sanitize';
 
 type CreatePostEditorOptions = {
 	element: HTMLElement;
 	initialHtml: string;
 	placeholder: string;
+	linkPrompt: string;
 	onChange: (html: string) => void;
 };
 
@@ -16,9 +18,16 @@ export function createPostEditor(opts: CreatePostEditorOptions): Editor {
 		extensions: [
 			StarterKit.configure({
 				heading: { levels: [2, 3] },
+				code: false,
+				codeBlock: false,
+				strike: false,
+				horizontalRule: false,
 			}),
 			Link.configure({
 				openOnClick: false,
+				autolink: true,
+				linkOnPaste: true,
+				validate: (url) => isSafeUrl(url),
 				HTMLAttributes: { rel: 'noopener noreferrer' },
 			}),
 			Placeholder.configure({ placeholder: opts.placeholder }),
@@ -48,13 +57,14 @@ export function createPostEditor(opts: CreatePostEditorOptions): Editor {
 			if (cmd === 'ordered') editor.chain().focus().toggleOrderedList().run();
 			if (cmd === 'link') {
 				const prev = editor.getAttributes('link').href as string | undefined;
-				const url = window.prompt('Adres linku (URL):', prev ?? 'https://');
+				const url = window.prompt(opts.linkPrompt, prev ?? 'https://');
 				if (url === null) return;
 				if (url === '') {
 					editor.chain().focus().extendMarkRange('link').unsetLink().run();
 					return;
 				}
-				editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+				if (!isSafeUrl(url)) return;
+				editor.chain().focus().extendMarkRange('link').setLink({ href: url.trim() }).run();
 			}
 		});
 	});

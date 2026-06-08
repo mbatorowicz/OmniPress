@@ -30,6 +30,16 @@ export const dashboard = {
 		scheduledLocked: 'Wpis zaakceptowany — publikacja zaplanowana na wskazaną datę.',
 		emptyContent: '(pusta treść)',
 		backToList: '← Wróć do listy',
+		richText: {
+			bold: 'Pogrubienie',
+			italic: 'Kursywa',
+			h2: 'Nagłówek',
+			h3: 'Podtytuł',
+			bulletList: 'Lista',
+			orderedList: 'Lista numerowana',
+			link: 'Link',
+			linkPrompt: 'Adres linku (URL):',
+		},
 		fields: {
 			category: 'Kategoria',
 			categoryHint: 'Lista pobierana z pliku kategorii w repozytorium Astro tej strony.',

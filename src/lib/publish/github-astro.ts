@@ -29,6 +29,7 @@ import {
 } from './paths';
 import { appendRecentChangeOnGitHub } from '@/lib/recent-changes/github';
 import { buildPostRecentChangeEntry } from '@/lib/recent-changes/post-entry';
+import { sanitizePublishMarkdown } from '@/lib/content/sanitize';
 import { parseVercelConfig } from './vercel-api';
 import { waitForVercelBuild } from './vercel-deploy';
 import type { DestinationForPublish, PostForPublish, PublishResult } from './types';
@@ -174,9 +175,11 @@ export async function publishToGitHubAstro(
 		if (hasPdfEmbed) {
 			await ensurePdfViewerOnGitHub(cfg, creds.token);
 		}
-		const publishedBody = applyAssetDisplayToMarkdown(bodyWithPdfs, assetsForDisplay, {
-			forPublish: true,
-		});
+		const publishedBody = sanitizePublishMarkdown(
+			applyAssetDisplayToMarkdown(bodyWithPdfs, assetsForDisplay, {
+				forPublish: true,
+			}),
+		);
 		const galleryUrls = galleryUrlsFromAssets(imageAssets, urlMap);
 		const prepared = prepareAstroPostFromGallery(publishedBody, galleryUrls);
 		let excerpt = prepared.excerpt;

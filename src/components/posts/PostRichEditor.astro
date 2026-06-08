@@ -2,20 +2,35 @@
 type Props = {
 	initialMarkdown: string;
 	placeholder: string;
+	toolbar: {
+		bold: string;
+		italic: string;
+		h2: string;
+		h3: string;
+		bulletList: string;
+		orderedList: string;
+		link: string;
+		linkPrompt: string;
+	};
 };
 
-const { initialMarkdown, placeholder } = Astro.props;
+const { initialMarkdown, placeholder, toolbar } = Astro.props;
 ---
 
-<div class="rich-editor rounded-lg border border-slate-300 bg-white" data-rich-editor data-placeholder={placeholder}>
+<div
+	class="rich-editor rounded-lg border border-slate-300 bg-white"
+	data-rich-editor
+	data-placeholder={placeholder}
+	data-link-prompt={toolbar.linkPrompt}
+>
 	<div class="flex flex-wrap gap-1 border-b border-slate-200 bg-slate-50 px-2 py-2">
-		<button type="button" data-editor-cmd="bold" class="rounded px-2 py-1 text-sm font-bold hover:bg-white" title="Pogrubienie">B</button>
-		<button type="button" data-editor-cmd="italic" class="rounded px-2 py-1 text-sm italic hover:bg-white" title="Kursywa">I</button>
-		<button type="button" data-editor-cmd="h2" class="rounded px-2 py-1 text-sm hover:bg-white" title="Nagłówek">H2</button>
-		<button type="button" data-editor-cmd="h3" class="rounded px-2 py-1 text-sm hover:bg-white" title="Podtytuł">H3</button>
-		<button type="button" data-editor-cmd="bullet" class="rounded px-2 py-1 text-sm hover:bg-white" title="Lista">• Lista</button>
-		<button type="button" data-editor-cmd="ordered" class="rounded px-2 py-1 text-sm hover:bg-white" title="Lista numerowana">1. Lista</button>
-		<button type="button" data-editor-cmd="link" class="rounded px-2 py-1 text-sm hover:bg-white" title="Link">🔗</button>
+		<button type="button" data-editor-cmd="bold" class="rounded px-2 py-1 text-sm font-bold hover:bg-white" title={toolbar.bold}>B</button>
+		<button type="button" data-editor-cmd="italic" class="rounded px-2 py-1 text-sm italic hover:bg-white" title={toolbar.italic}>I</button>
+		<button type="button" data-editor-cmd="h2" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.h2}>H2</button>
+		<button type="button" data-editor-cmd="h3" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.h3}>H3</button>
+		<button type="button" data-editor-cmd="bullet" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.bulletList}>• Lista</button>
+		<button type="button" data-editor-cmd="ordered" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.orderedList}>1. Lista</button>
+		<button type="button" data-editor-cmd="link" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.link}>🔗</button>
 	</div>
 	<div data-tiptap-mount class="min-h-[280px]"></div>
 	<textarea name="content_md" class="hidden" data-content-md>{initialMarkdown}</textarea>
@@ -59,6 +74,13 @@ const { initialMarkdown, placeholder } = Astro.props;
 	.rich-editor .tiptap a {
 		color: #1d4ed8;
 		text-decoration: underline;
+	}
+
+	.rich-editor .tiptap blockquote {
+		border-left: 3px solid #cbd5e1;
+		margin: 0.75rem 0;
+		padding-left: 1rem;
+		color: #475569;
 	}
 </style>
 

@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { requireAuth } from '@/lib/auth';
 import { canSubmitPost, getPostById } from '@/lib/posts';
 import { parseScheduledPublishAtInput } from '@/lib/posts/scheduled-publish';
+import { sanitizeStorageMarkdown } from '@/lib/content/sanitize';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const postId = params.id;
@@ -18,7 +19,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 
 	const form = await request.formData();
 	const title = String(form.get('title') ?? '').trim() || post.title;
-	const content_md = String(form.get('content_md') ?? post.content_md);
+	const content_md = sanitizeStorageMarkdown(String(form.get('content_md') ?? post.content_md));
 	const categorySlug = String(form.get('category_slug') ?? '').trim() || post.category_slug;
 
 	if (!title.trim()) {

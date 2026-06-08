@@ -1,10 +1,13 @@
-const ALLOWED_TAGS = new Set([
-	'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-	'p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'img', 'blockquote',
-	'div',
-]);
+import { sanitizeHtml as sanitizeHtmlCore } from '@/lib/content/sanitize';
 
-/** Prosty Markdown → HTML z whitelistą tagów (eksport WP). */
+export { isSafeUrl, sanitizeEditorHtml, sanitizePublishMarkdown, sanitizeStorageMarkdown } from '@/lib/content/sanitize';
+
+/** @deprecated alias — użyj sanitizeHtml z tego modułu lub @/lib/content/sanitize */
+export function sanitizeHtml(html: string): string {
+	return sanitizeHtmlCore(html);
+}
+
+/** Prosty Markdown → HTML z whitelistą tagów (podgląd wpisu). */
 export function markdownToSafeHtml(md: string): string {
 	const escaped = md
 		.replace(/&/g, '&amp;')
@@ -37,38 +40,5 @@ export function markdownToSafeHtml(md: string): string {
 		return `<p>${trimmed.replace(/\n/g, '<br />')}</p>`;
 	});
 
-	return sanitizeHtml(blocks.filter(Boolean).join('\n'));
-}
-
-export function sanitizeHtml(html: string): string {
-	const withoutScripts = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
-	return withoutScripts.replace(/<\/?([a-z0-9]+)([^>]*)>/gi, (match, tag: string, attrs: string) => {
-		const lower = tag.toLowerCase();
-		if (!ALLOWED_TAGS.has(lower)) return '';
-		if (/^<\//.test(match)) return `</${lower}>`;
-		if (lower === 'a') {
-			const href = attrs.match(/\shref="([^"]+)"/i)?.[1];
-			if (!href || /^\s*javascript:/i.test(href)) return '';
-			return `<a href="${href}" rel="noopener noreferrer">`;
-		}
-		if (lower === 'img') {
-			const src = attrs.match(/\ssrc="([^"]+)"/i)?.[1];
-			const alt = attrs.match(/\salt="([^"]*)"/i)?.[1] ?? '';
-			if (!src || /^\s*javascript:/i.test(src)) return '';
-			return `<img src="${src}" alt="${alt}" loading="lazy" />`;
-		}
-		if (lower === 'div') {
-			const className = attrs.match(/\sclass="([^"]+)"/i)?.[1];
-			if (className !== 'op-pdf-viewer') return '';
-			const src = attrs.match(/\sdata-op-pdf-src="([^"]+)"/i)?.[1];
-			const title = attrs.match(/\sdata-op-pdf-title="([^"]*)"/i)?.[1] ?? '';
-			const labels = attrs.match(/\sdata-op-pdf-labels="([^"]*)"/i)?.[1] ?? '';
-			if (!src) return '';
-			return (
-				`<div class="op-pdf-viewer" data-op-pdf-src="${src}" ` +
-				`data-op-pdf-title="${title}" data-op-pdf-labels="${labels}">`
-			);
-		}
-		return `<${lower}>`;
-	});
+	return sanitizeHtmlCore(blocks.filter(Boolean).join('\n'));
 }
