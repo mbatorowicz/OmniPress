@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { getGitHubFile, putGitHubFile, type GitHubConfig } from './github-api';
+import { getGitHubFile, getGitHubFileBinary, putGitHubFile, type GitHubConfig } from './github-api';
 const VIEWER_REPO_PATH = 'public/omnipress/pdf-viewer.js';
 const WORKER_REPO_PATH = 'public/omnipress/pdf.worker.mjs';
 
@@ -11,10 +11,17 @@ function ensureLocalPdfViewerBuilt(): void {
 	execSync('node scripts/build-pdf-viewer.mjs', { cwd: process.cwd(), stdio: 'inherit' });
 }
 
-function readPublicAsset(relativePath: string): ArrayBuffer {
+function readPublicAsset(relativePath: string): Uint8Array {
 	ensureLocalPdfViewerBuilt();
-	const bytes = readFileSync(join(process.cwd(), 'public', 'omnipress', relativePath));
-	return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+	return readFileSync(join(process.cwd(), 'public', 'omnipress', relativePath));
+}
+
+function buffersEqual(a: Uint8Array, b: Uint8Array): boolean {
+	if (a.byteLength !== b.byteLength) return false;
+	for (let i = 0; i < a.byteLength; i++) {
+		if (a[i] !== b[i]) return false;
+	}
+	return true;
 }
 
 async function ensureGitHubBinary(
@@ -24,9 +31,20 @@ async function ensureGitHubBinary(
 	localFile: string,
 	message: string,
 ): Promise<void> {
+	const local = readPublicAsset(localFile);
 	const existing = await getGitHubFile(cfg, token, repoPath);
-	if (existing) return;
-	await putGitHubFile(cfg, token, repoPath, readPublicAsset(localFile), message);
+	if (existing) {
+		const remote = await getGitHubFileBinary(cfg, token, repoPath);
+		if (remote && buffersEqual(local, new Uint8Array(remote))) return;
+	}
+	await putGitHubFile(
+		cfg,
+		token,
+		repoPath,
+		local.buffer.slice(local.byteOffset, local.byteOffset + local.byteLength),
+		message,
+		existing?.sha,
+	);
 }
 
 /** Wgrywa bundel PDF.js do repo Astro (public/omnipress), jeśli jeszcze go nie ma. */
