@@ -12,6 +12,7 @@ interface Props {
 	name?: string;
 	value?: string;
 	confirm?: string;
+	formaction?: string;
 	id?: string;
 }
 
@@ -26,6 +27,7 @@ const {
 	name,
 	value,
 	confirm,
+	formaction,
 	id,
 } = Astro.props;
 
@@ -52,6 +54,7 @@ const classes = [
 			disabled={disabled}
 			name={name}
 			value={value}
+			formaction={formaction}
 			id={id}
 			data-confirm={confirm}
 		>

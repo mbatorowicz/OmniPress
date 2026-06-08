@@ -275,9 +275,12 @@ const pdfUi = ed.pdfAttachments;
 
 	{
 		editable && (
-			<script define:vars={{ confirmSubmit: ed.actions.confirmSubmit }}>
-				document.querySelector('[data-confirm]')?.addEventListener('click', (e) => {
-					if (!confirm(confirmSubmit)) e.preventDefault();
+			<script>
+				document.getElementById('post-form')?.addEventListener('submit', (e) => {
+					const submitter = (e as SubmitEvent).submitter;
+					if (!(submitter instanceof HTMLButtonElement)) return;
+					const msg = submitter.getAttribute('data-confirm');
+					if (msg && !confirm(msg)) e.preventDefault();
 				});
 			</script>
 		)
