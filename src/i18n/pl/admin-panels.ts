@@ -238,6 +238,8 @@ export const adminReview = {
 		`Wpis trafi na stronę publiczną przez repozytorium powiązane ze stroną (${channelName}).`,
 	configureSite: 'Skonfiguruj stronę →',
 	approved: 'Wpis zaakceptowany — publikacja w tle (start natychmiast).',
+	approvedScheduled: 'Wpis zaakceptowany — publikacja zaplanowana na wskazaną datę.',
+	scheduledAt: 'Planowana publikacja',
 	rejected: 'Wpis odrzucony.',
 	reopen: 'Popraw wpis',
 	reopenHint: 'Wraca do szkicu — redaktor edytuje, wysyła do akceptacji, potem publikujesz aktualizację na tej samej stronie.',

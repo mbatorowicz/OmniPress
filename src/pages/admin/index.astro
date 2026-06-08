@@ -13,13 +13,19 @@ const supabase = Astro.locals.supabase;
 const sites = await listSites(supabase);
 
 const postSelect =
-	'id, title, status, category_name, category_slug, created_at, updated_at, sites(name)';
+	'id, title, status, category_name, category_slug, created_at, updated_at, scheduled_publish_at, sites(name)';
 
 const { data: pending } = await supabase
 	.from('posts')
 	.select(postSelect)
 	.eq('status', 'pending')
 	.order('created_at', { ascending: false });
+
+const { data: scheduled } = await supabase
+	.from('posts')
+	.select(postSelect)
+	.eq('status', 'scheduled')
+	.order('scheduled_publish_at', { ascending: true });
 
 const { data: publishing } = await supabase
 	.from('posts')
@@ -187,6 +193,25 @@ const defaultImportSiteId =
 				<p class="ui-empty">{admin.pending.empty}</p>
 			) : (
 				<AdminPostsTable posts={pending} labels={listLabels} dateField="created_at" />
+			)
+		}
+	</Panel>
+
+	<Panel variant="default" class="mt-6">
+		<PageHeader
+			title={admin.scheduled.heading(scheduled?.length ?? 0)}
+			lead={admin.scheduled.lead}
+		/>
+		{
+			!scheduled?.length ? (
+				<p class="ui-empty">{admin.scheduled.empty}</p>
+			) : (
+				<AdminPostsTable
+					posts={scheduled}
+					labels={listLabels}
+					dateField="scheduled_publish_at"
+					dateColumnLabel={listLabels.colPublishAt}
+				/>
 			)
 		}
 	</Panel>

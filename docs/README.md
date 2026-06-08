@@ -56,6 +56,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | `setup:layout` | Layout Astro w bazie |
 | `setup:remove-wordpress` | Usunięcie typu wordpress z enum |
 | `setup:profiles-guard` | Trigger RLS — blokada eskalacji roli / site |
+| `setup:scheduled-publish` | Data publikacji wpisu + status `scheduled` |
 | `env:pull` | Pobranie env z Vercel |
 | `test` | Vitest |
 | `build` | Astro production build |

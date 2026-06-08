@@ -4,6 +4,7 @@ export const posts = {
 	status: {
 		draft: 'Szkic',
 		pending: 'Do akceptacji',
+		scheduled: 'Zaplanowany',
 		publishing: 'Publikacja w toku',
 		published: 'Opublikowany',
 		rejected: 'Odrzucony',
@@ -17,6 +18,9 @@ export const posts = {
 		title_required: 'Podaj tytuł przed wysłaniem do akceptacji.',
 		category_required: 'Wybierz kategorię wpisu (lista z repozytorium Astro).',
 		categories_unavailable: 'Nie udało się pobrać kategorii — sprawdź kanały publikacji.',
+		schedule_required: 'Podaj datę i godzinę publikacji na stronie.',
+		schedule_invalid: 'Nieprawidłowa data publikacji.',
+		schedule_past: 'Data publikacji musi być w przyszłości.',
 		not_found: 'Wpis nie istnieje.',
 	},
 	upload: {

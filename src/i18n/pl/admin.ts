@@ -22,6 +22,11 @@ export const admin = {
 		heading: (n: number) => `Do akceptacji (${n})`,
 		empty: 'Brak wpisów oczekujących.',
 	},
+	scheduled: {
+		heading: (n: number) => `Zaplanowane (${n})`,
+		empty: 'Brak zaplanowanych publikacji.',
+		lead: 'Zaakceptowane — worker opublikuje automatycznie o wskazanej godzinie.',
+	},
 	publishing: {
 		heading: (n: number) => `Publikacja w toku (${n})`,
 		empty: 'Brak wpisów w kolejce.',
@@ -52,6 +57,7 @@ export const admin = {
 		colCategory: 'Kategoria',
 		colSite: 'Strona',
 		colDate: 'Ostatnia zmiana',
+		colPublishAt: 'Publikacja',
 		colActions: 'Akcje',
 		noCategory: '—',
 		open: 'Otwórz',

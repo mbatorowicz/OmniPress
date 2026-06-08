@@ -12,6 +12,7 @@ const draftPost = (overrides: Partial<PostRow> = {}): PostRow => ({
 	rejection_note: null,
 	category_slug: null,
 	category_name: null,
+	scheduled_publish_at: null,
 	...overrides,
 });
 

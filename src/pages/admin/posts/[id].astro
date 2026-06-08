@@ -9,6 +9,7 @@ import Button from '@/components/ui/Button.astro';
 import Panel from '@/components/ui/Panel.astro';
 import { admin, adminReview, common } from '@/i18n';
 import { canReopenPost, loadSiteAstroDestination } from '@/lib/admin';
+import { formatScheduledPublishAt } from '@/lib/posts/scheduled-publish';
 import { listPublishLogsForPost } from '@/lib/publish';
 import { buildPublishedBodyMd } from '@/lib/publish/post-gallery';
 import type { PostAsset } from '@/lib/publish/assets';
@@ -42,6 +43,7 @@ const errorMessage =
 		: null;
 
 const approved = Astro.url.searchParams.get('approved') === '1';
+const approvedScheduled = Astro.url.searchParams.get('scheduled') === '1';
 const rejected = Astro.url.searchParams.get('rejected') === '1';
 const reopened = Astro.url.searchParams.get('reopened') === '1';
 const deactivated = Astro.url.searchParams.get('deactivated') === '1';
@@ -71,7 +73,8 @@ const galleryAssets = postAssets.filter(isGalleryImageAsset);
 		{author?.display_name && <span>{preview.authorLabel} {author.display_name}</span>}
 	</div>
 
-	{approved && <Alert variant="success">{adminReview.approved}</Alert>}
+	{approved && !approvedScheduled && <Alert variant="success">{adminReview.approved}</Alert>}
+	{approved && approvedScheduled && <Alert variant="success">{adminReview.approvedScheduled}</Alert>}
 	{rejected && <Alert variant="warning">{adminReview.rejected}</Alert>}
 	{reopened && <Alert variant="info">{adminReview.reopened}</Alert>}
 	{deactivated && <Alert variant="success">{adminReview.deactivated}</Alert>}
@@ -96,6 +99,11 @@ const galleryAssets = postAssets.filter(isGalleryImageAsset);
 			</p>
 		)}
 		{post.slug && <p class="mt-1 font-mono text-sm text-slate-500">/{post.slug}</p>}
+		{post.scheduled_publish_at && (
+			<p class="mt-2 text-sm text-violet-800">
+				{adminReview.scheduledAt}: <strong>{formatScheduledPublishAt(post.scheduled_publish_at)}</strong>
+			</p>
+		)}
 		<div class="mt-6 rounded-lg border border-slate-100 bg-slate-50/50 p-4">
 			{contentHtml ? (
 				<PostContentHtml html={contentHtml} />

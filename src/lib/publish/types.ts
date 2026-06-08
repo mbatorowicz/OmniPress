@@ -21,6 +21,7 @@ export type PostForPublish = {
 	content_md: string;
 	status: string;
 	updated_at?: string;
+	scheduled_publish_at?: string | null;
 	category_slug: string | null;
 	category_name: string | null;
 };

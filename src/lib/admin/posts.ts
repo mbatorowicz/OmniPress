@@ -1,12 +1,20 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { PostRow } from '@/lib/posts';
+import { isScheduledPublishDue } from '@/lib/posts/scheduled-publish';
+import { schedulePublishWorker } from '@/lib/publish/trigger-worker';
 import { resolveSitePublishDestinationIds } from './sites';
 import { postsWithLivePublishLogs, withdrawPostsFromRemoteBatch } from '@/lib/publish/withdraw';
+
+function queueNotBefore(scheduledAt: string | null | undefined): string | null {
+	if (!scheduledAt || isScheduledPublishDue(scheduledAt)) return null;
+	return scheduledAt;
+}
 
 async function queuePublishForDestination(
 	supabase: SupabaseClient,
 	postId: string,
 	destinationId: string,
+	notBefore: string | null = null,
 ): Promise<boolean> {
 	const { data: previous } = await supabase
 		.from('publish_logs')
@@ -32,7 +40,7 @@ async function queuePublishForDestination(
 			.update({
 				status: 'pending',
 				response_summary: null,
-				next_retry_at: null,
+				next_retry_at: notBefore,
 				retry_count: 0,
 			})
 			.eq('id', previous.id);
@@ -43,6 +51,7 @@ async function queuePublishForDestination(
 		post_id: postId,
 		destination_id: destinationId,
 		status: 'pending',
+		next_retry_at: notBefore,
 	});
 	return !error;
 }
@@ -50,7 +59,7 @@ async function queuePublishForDestination(
 export async function approvePost(
 	supabase: SupabaseClient,
 	post: PostRow,
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<{ ok: true; scheduled: boolean } | { ok: false; error: string }> {
 	if (post.status !== 'pending') {
 		return { ok: false, error: 'not_pending' };
 	}
@@ -60,20 +69,25 @@ export async function approvePost(
 		return { ok: false, error: 'no_site_channel' };
 	}
 
+	const notBefore = queueNotBefore(post.scheduled_publish_at);
+	const nextStatus = notBefore ? 'scheduled' : 'publishing';
+
 	for (const destinationId of destinationIds) {
-		const queued = await queuePublishForDestination(supabase, post.id, destinationId);
+		const queued = await queuePublishForDestination(supabase, post.id, destinationId, notBefore);
 		if (!queued) return { ok: false, error: 'logs_failed' };
 	}
 
 	const { error: updateError } = await supabase
 		.from('posts')
-		.update({ status: 'publishing', rejection_note: null })
+		.update({ status: nextStatus, rejection_note: null })
 		.eq('id', post.id)
 		.eq('status', 'pending');
 
 	if (updateError) return { ok: false, error: 'update_failed' };
 
-	return { ok: true };
+	if (!notBefore) schedulePublishWorker();
+
+	return { ok: true, scheduled: Boolean(notBefore) };
 }
 
 export async function rejectPost(

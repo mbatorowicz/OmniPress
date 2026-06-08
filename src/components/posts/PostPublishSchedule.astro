@@ -1,0 +1,29 @@
+---
+import { utcIsoToWallTimeInput } from '@/lib/posts/scheduled-publish';
+
+interface Props {
+	value: string | null;
+	labels: {
+		label: string;
+		hint: string;
+		timezone: string;
+	};
+	required?: boolean;
+}
+
+const { value, labels, required = false } = Astro.props;
+const inputValue = utcIsoToWallTimeInput(value);
+---
+
+<label class="ui-label">
+	<span class="font-medium ui-label-text">{labels.label}</span>
+	<input
+		type="datetime-local"
+		name="scheduled_publish_at"
+		value={inputValue}
+		required={required}
+		class="ui-input max-w-xs"
+	/>
+</label>
+<p class="text-xs text-slate-500">{labels.hint}</p>
+<p class="text-xs text-slate-400">{labels.timezone}</p>

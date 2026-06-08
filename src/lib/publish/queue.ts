@@ -27,7 +27,14 @@ export async function claimPendingLogs(
 			.select('*')
 			.maybeSingle();
 
-		if (row) claimed.push(row as PublishLogRow);
+		if (row) {
+			claimed.push(row as PublishLogRow);
+			await supabase
+				.from('posts')
+				.update({ status: 'publishing' })
+				.eq('id', row.post_id)
+				.eq('status', 'scheduled');
+		}
 	}
 	return claimed;
 }

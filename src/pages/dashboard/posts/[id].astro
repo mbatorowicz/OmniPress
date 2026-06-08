@@ -5,6 +5,7 @@ import PostRichEditor from '@/components/posts/PostRichEditor.astro';
 import PostGalleryPanel from '@/components/posts/PostGalleryPanel.astro';
 import PostPdfAttachments from '@/components/posts/PostPdfAttachments.astro';
 import PostContentHtml from '@/components/posts/PostContentHtml.astro';
+import PostPublishSchedule from '@/components/posts/PostPublishSchedule.astro';
 import PostReopenForm from '@/components/admin/PostReopenForm.astro';
 import Alert from '@/components/ui/Alert.astro';
 import Button from '@/components/ui/Button.astro';
@@ -25,6 +26,7 @@ import {
 	publicUrlForAsset,
 	renderPostContentHtml,
 } from '@/lib/posts';
+import { formatScheduledPublishAt } from '@/lib/posts/scheduled-publish';
 import type { PostStatus } from '@/lib/types';
 
 const { id } = Astro.params;
@@ -159,6 +161,15 @@ const pdfUi = ed.pdfAttachments;
 							class="ui-input font-mono text-sm"
 						/>
 					</label>
+					<PostPublishSchedule
+						value={post.scheduled_publish_at}
+						required
+						labels={{
+							label: ed.fields.publishAt,
+							hint: ed.fields.publishAtHint,
+							timezone: ed.fields.publishAtTimezone,
+						}}
+					/>
 					<div>
 						<span class="text-sm font-medium text-slate-700">{ed.fields.content}</span>
 						<p class="mt-0.5 text-xs text-slate-500">{ed.fields.contentHint}</p>
@@ -173,21 +184,19 @@ const pdfUi = ed.pdfAttachments;
 					</div>
 					<div class="flex flex-wrap gap-3">
 						<Button type="submit">{ed.actions.save}</Button>
+						{submittable && (
+							<Button
+								type="submit"
+								formaction={`/api/posts/${post.id}/submit`}
+								variant="warning"
+								disabled={categoriesUnavailable || !post.category_slug}
+								confirm={ed.actions.confirmSubmit}
+							>
+								{ed.actions.submit}
+							</Button>
+						)}
 					</div>
 				</form>
-
-				{submittable && (
-					<form method="post" action={`/api/posts/${post.id}/submit`} class="mt-4">
-						<Button
-							type="submit"
-							variant="warning"
-							disabled={categoriesUnavailable || !post.category_slug}
-							confirm={ed.actions.confirmSubmit}
-						>
-							{ed.actions.submit}
-						</Button>
-					</form>
-				)}
 			</>
 		) : (
 			<article class="ui-panel ui-panel--default">
@@ -202,6 +211,16 @@ const pdfUi = ed.pdfAttachments;
 				)}
 				{post.status === 'publishing' && (
 					<p class="mt-2 text-sm text-sky-800">{ed.publishingLocked}</p>
+				)}
+				{post.status === 'scheduled' && post.scheduled_publish_at && (
+					<p class="mt-2 text-sm text-violet-800">
+						{ed.scheduledLocked} <strong>{formatScheduledPublishAt(post.scheduled_publish_at)}</strong>
+					</p>
+				)}
+				{post.status === 'pending' && post.scheduled_publish_at && (
+					<p class="mt-2 text-sm text-amber-800">
+						{ed.fields.publishAt}: <strong>{formatScheduledPublishAt(post.scheduled_publish_at)}</strong>
+					</p>
 				)}
 				{post.rejection_note && (
 					<Alert variant="error" class="mt-2">

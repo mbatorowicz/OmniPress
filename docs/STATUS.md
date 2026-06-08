@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.7.16** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.7.17** (kod + baza + panel).
 
 Produkcja: https://omni-press.vercel.app
 
@@ -43,6 +43,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Galeria zdjęć (cover + kolejność) | ✅ |
 | Załączniki PDF (link / podgląd) | ✅ |
 | Zapis szkicu, wysłanie do akceptacji | ✅ |
+| Data i godzina publikacji (czas polski) | ✅ |
 | Edycja tylko `draft` / `rejected`; poprawki opublikowanych (amendment) | ✅ |
 | Podgląd treści po wysłaniu / odrzuceniu | ✅ |
 
@@ -55,8 +56,8 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Jednostki organizacyjne (strona + GitHub w jednym formularzu) | ✅ `/admin/units/new`, `/admin/units/[id]` |
 | Lista stron | ✅ `/admin/sites` |
 | Redaktorzy + przypisanie stron | ✅ `/admin/editors` |
-| Kolejka: do akceptacji, publikacja w toku, opublikowane | ✅ `/admin` |
-| Akceptacja → kolejka publikacji GitHub | ✅ |
+| Kolejka: do akceptacji, zaplanowane, publikacja w toku, opublikowane | ✅ `/admin` |
+| Akceptacja → kolejka publikacji GitHub (natychmiast lub o zaplanowanej godzinie) | ✅ |
 | Odrzucenie z `rejection_note` | ✅ |
 | Ponowne otwarcie wpisu (reopen) | ✅ |
 | Dezaktywacja / usunięcie opublikowanego (withdraw z GitHub) | ✅ |
@@ -73,8 +74,8 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 
 ## Publikacja (worker)
 
-1. Admin akceptuje wpis → status `publishing`, `publish_logs.pending`.
-2. Worker `/api/worker/publish` (cron dzienny + start po akceptacji).
+1. Admin akceptuje wpis → `publish_logs.pending` (z `next_retry_at` = data redaktora, jeśli w przyszłości).
+2. Status `scheduled` (czeka) lub `publishing` (od razu). Worker `/api/worker/publish` (cron co godzinę + start po akceptacji natychmiastowej).
 3. Commit `.md` + assety do repo GitHub (layout `flat` lub `folder`).
 4. Opcjonalnie: oczekiwanie na deploy Vercel i zapis błędów buildu.
 5. Sukces → `published`; błąd → `failed` (retry automatyczny + przycisk w UI).
@@ -98,6 +99,7 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub.
 | `20250611000000_asset_sort_order.sql` | `setup:asset-sort` |
 | `20250612000000_remove_wordpress.sql` | `setup:remove-wordpress` |
 | `20250613000000_profiles_self_update_guard.sql` | `setup:profiles-guard` |
+| `20250614000000_post_scheduled_publish.sql` | `setup:scheduled-publish` |
 
 ---
 

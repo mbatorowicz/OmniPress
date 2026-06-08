@@ -1,6 +1,5 @@
 import type { APIRoute } from 'astro';
 import { approvePost, requireAdmin } from '@/lib/admin';
-import { schedulePublishWorker } from '@/lib/publish/trigger-worker';
 import { getPostById } from '@/lib/posts';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
@@ -15,6 +14,6 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	if (!result.ok) {
 		return redirect(`/admin/posts/${postId}?error=${result.error}`);
 	}
-	schedulePublishWorker();
-	return redirect(`/admin/posts/${postId}?approved=1`);
+	const qs = result.scheduled ? 'approved=1&scheduled=1' : 'approved=1';
+	return redirect(`/admin/posts/${postId}?${qs}`);
 };

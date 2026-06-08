@@ -183,7 +183,7 @@ export async function publishToGitHubAstro(
 		if (!excerpt.trim() && pdfAssets.length > 0) {
 			excerpt = pdfAssets[0]!.filename.replace(/\.pdf$/i, '');
 		}
-		const pubDate = post.updated_at ?? new Date().toISOString();
+		const pubDate = post.scheduled_publish_at ?? post.updated_at ?? new Date().toISOString();
 		const fileContent = buildAstroMarkdown(post.title, prepared.bodyMd, pubDate, cfg.contentLayout, {
 			slug: post.category_slug ?? '',
 			name: post.category_name ?? '',

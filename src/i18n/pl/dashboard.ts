@@ -27,6 +27,7 @@ export const dashboard = {
 		rejectionNote: 'Uwagi:',
 		pendingLocked: 'Wpis oczekuje na akceptację administratora — edycja zablokowana.',
 		publishingLocked: 'Trwa publikacja wpisu — edycja zablokowana.',
+		scheduledLocked: 'Wpis zaakceptowany — publikacja zaplanowana na wskazaną datę.',
 		emptyContent: '(pusta treść)',
 		backToList: '← Wróć do listy',
 		fields: {
@@ -41,6 +42,10 @@ export const dashboard = {
 			contentPlaceholder: 'Wpisz treść artykułu…',
 			amendmentHint:
 				'Poprawka opublikowanego wpisu — zapisz zmiany i wyślij ponownie do akceptacji. Na stronie zostanie stara wersja do ponownej publikacji.',
+			publishAt: 'Data i godzina publikacji',
+			publishAtHint:
+				'Wpis pojawi się na stronie publicznej po tej dacie (po akceptacji administratora).',
+			publishAtTimezone: 'Czas polski (Europe/Warsaw).',
 		},
 		gallery: {
 			heading: 'Galeria zdjęć',

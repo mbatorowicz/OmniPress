@@ -65,9 +65,10 @@ Po akceptacji wpisu worker publikuje na GitHub; opcjonalnie czeka na deploy Verc
 
 1. `/admin` → sekcja *Do akceptacji* → wpis.
 2. **Zaakceptuj:** *Zaakceptuj i przygotuj publikację* — publikacja na repozytorium strony.
-   - Status wpisu: `publishing` (kolejka w tle).
-   - `publish_logs`: `pending` → worker → `success` / `failed` (retry automatyczny).
-   - Po sukcesie: `published`.
+   - Jeśli data publikacji **już minęła** lub jest teraz → status `publishing`, worker startuje od razu.
+   - Jeśli data w **przyszłości** → status `scheduled`, wpis w sekcji *Zaplanowane*; worker opublikuje o tej godzinie (cron co godzinę).
+   - `publish_logs`: `pending` (z `next_retry_at` przy harmonogramie) → worker → `success` / `failed`.
+   - Po sukcesie: `published`. Data w frontmatter strony = data wybrana przez redaktora.
 3. **Odrzuć:** obowiązkowe uwagi → redaktor widzi `rejection_note` i może poprawić szkic.
 
 Na podglądzie wpisu: tabela **Status publikacji**. Przy błędzie (`failed`): **Ponów publikację**.

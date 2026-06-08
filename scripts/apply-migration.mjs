@@ -35,9 +35,19 @@ if (!dbUrl) {
 	process.exit(1);
 }
 
+function pgClientConfig(url) {
+	const normalized = url.replace(/^postgres:\/\//, 'postgresql://');
+	const parsed = new URL(normalized);
+	parsed.searchParams.delete('sslmode');
+	return {
+		connectionString: parsed.toString(),
+		ssl: { rejectUnauthorized: false },
+	};
+}
+
 const sqlPath = resolve(root, migrationFile);
 const sql = readFileSync(sqlPath, 'utf8');
-const client = new pg.Client({ connectionString: dbUrl, ssl: { rejectUnauthorized: false } });
+const client = new pg.Client(pgClientConfig(dbUrl));
 await client.connect();
 await client.query(sql);
 console.log('OK:', migrationFile);

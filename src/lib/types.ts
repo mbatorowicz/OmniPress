@@ -1,6 +1,12 @@
 export type UserRole = 'editor' | 'admin';
 
-export type PostStatus = 'draft' | 'pending' | 'publishing' | 'published' | 'rejected';
+export type PostStatus =
+	| 'draft'
+	| 'pending'
+	| 'scheduled'
+	| 'publishing'
+	| 'published'
+	| 'rejected';
 
 export type DestinationType = 'github_astro';
 

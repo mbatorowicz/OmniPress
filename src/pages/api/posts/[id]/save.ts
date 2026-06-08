@@ -1,6 +1,16 @@
 import type { APIRoute } from 'astro';
 import { requireAuth } from '@/lib/auth';
-import { canEditPost, getPostById, resolvePostCategoryFields, slugFromTitle, parseAssetDisplayModes, parseGalleryOrder, updateGalleryOrder, updatePostAssetDisplayModes } from '@/lib/posts';
+import {
+	canEditPost,
+	getPostById,
+	resolvePostCategoryFields,
+	slugFromTitle,
+	parseAssetDisplayModes,
+	parseGalleryOrder,
+	updateGalleryOrder,
+	updatePostAssetDisplayModes,
+} from '@/lib/posts';
+import { wallTimeInZoneToUtcIso } from '@/lib/posts/scheduled-publish';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const postId = params.id;
@@ -26,12 +36,22 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		return redirect(`/dashboard/posts/${postId}?error=category_required`);
 	}
 
+	const scheduleRaw = String(form.get('scheduled_publish_at') ?? '').trim();
+	let scheduled_publish_at: string | null = null;
+	if (scheduleRaw) {
+		scheduled_publish_at = wallTimeInZoneToUtcIso(scheduleRaw);
+		if (!scheduled_publish_at) {
+			return redirect(`/dashboard/posts/${postId}?error=schedule_invalid`);
+		}
+	}
+
 	const { error } = await supabase
 		.from('posts')
 		.update({
 			title,
 			content_md,
 			slug: slug || null,
+			scheduled_publish_at,
 			...categoryFields,
 		})
 		.eq('id', postId);

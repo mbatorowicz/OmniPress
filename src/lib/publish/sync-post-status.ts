@@ -24,11 +24,14 @@ export async function syncPostStatusFromLogs(
 		return;
 	}
 
-	let next: 'publishing' | 'published' = 'publishing';
+	const isProcessing = statuses.includes('processing') || statuses.includes('failed');
+	let next: 'scheduled' | 'publishing' | 'published' = 'publishing';
 	if (hasSuccess) {
 		next = 'published';
+	} else if (post.status === 'scheduled' && !isProcessing) {
+		next = 'scheduled';
 	} else if (!hasActive) {
-		next = 'publishing';
+		next = post.status === 'scheduled' ? 'scheduled' : 'publishing';
 	}
 
 	if (post.status !== next) {
@@ -39,11 +42,15 @@ export async function syncPostStatusFromLogs(
 export function derivePostStatusFromLogStatuses(
 	logStatuses: PublishLogStatus[],
 	currentPostStatus: string,
-): 'publishing' | 'published' | null {
+): 'scheduled' | 'publishing' | 'published' | null {
 	if (['draft', 'pending', 'rejected'].includes(currentPostStatus)) return null;
 	if (logStatuses.includes('success')) return 'published';
+	const isProcessing = logStatuses.includes('processing') || logStatuses.includes('failed');
+	if (currentPostStatus === 'scheduled' && !isProcessing) return 'scheduled';
 	const hasActive = logStatuses.some((s) =>
 		['pending', 'processing', 'failed'].includes(s),
 	);
-	return hasActive || currentPostStatus === 'publishing' ? 'publishing' : null;
+	return hasActive || currentPostStatus === 'publishing' || currentPostStatus === 'scheduled'
+		? 'publishing'
+		: null;
 }

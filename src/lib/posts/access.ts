@@ -12,6 +12,7 @@ export type PostRow = {
 	rejection_note: string | null;
 	category_slug: string | null;
 	category_name: string | null;
+	scheduled_publish_at: string | null;
 };
 
 export async function getPostById(
@@ -21,7 +22,7 @@ export async function getPostById(
 	const { data, error } = await supabase
 		.from('posts')
 		.select(
-			'id, author_id, site_id, title, content_md, slug, status, rejection_note, category_slug, category_name',
+			'id, author_id, site_id, title, content_md, slug, status, rejection_note, category_slug, category_name, scheduled_publish_at',
 		)
 		.eq('id', postId)
 		.maybeSingle();

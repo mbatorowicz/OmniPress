@@ -3,6 +3,15 @@
 Format: [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+commit`.
 
+## [0.7.17] — 2026-06-08
+
+### Dodane
+
+- Redaktor: pole daty i godziny publikacji (Europe/Warsaw); wymagane przy wysłaniu do akceptacji.
+- Admin: status `scheduled` i kolejka zaplanowanych wpisów; worker publikuje po `scheduled_publish_at`.
+- Cron publikacji: co godzinę (zamiast raz dziennie).
+- Migracja: `npm run setup:scheduled-publish`.
+
 ## [0.7.16] — 2026-06-06
 
 ### Dodane

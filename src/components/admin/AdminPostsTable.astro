@@ -9,6 +9,7 @@ type PostRow = {
 	category_slug: string | null;
 	updated_at: string;
 	created_at?: string;
+	scheduled_publish_at?: string | null;
 	sites: { name: string } | null;
 };
 
@@ -32,10 +33,18 @@ type Props = {
 	posts: PostRow[];
 	labels: Labels;
 	showBulkActions?: boolean;
-	dateField?: 'updated_at' | 'created_at';
+	dateField?: 'updated_at' | 'created_at' | 'scheduled_publish_at';
+	dateColumnLabel?: string;
 };
 
-const { posts, labels, showBulkActions = false, dateField = 'updated_at' } = Astro.props;
+const {
+	posts,
+	labels,
+	showBulkActions = false,
+	dateField = 'updated_at',
+	dateColumnLabel,
+} = Astro.props;
+const dateHeader = dateColumnLabel ?? labels.colDate;
 
 const dateFmt = new Intl.DateTimeFormat('pl-PL', { dateStyle: 'short', timeStyle: 'short' });
 ---
@@ -92,7 +101,7 @@ const dateFmt = new Intl.DateTimeFormat('pl-PL', { dateStyle: 'short', timeStyle
 							<th class="ui-table-th">{labels.colTitle}</th>
 							<th class="ui-table-th">{labels.colCategory}</th>
 							<th class="ui-table-th hidden sm:table-cell">{labels.colSite}</th>
-							<th class="ui-table-th">{labels.colDate}</th>
+							<th class="ui-table-th">{dateHeader}</th>
 							<th class="ui-table-th">{labels.colActions}</th>
 						</tr>
 					</thead>
@@ -100,7 +109,8 @@ const dateFmt = new Intl.DateTimeFormat('pl-PL', { dateStyle: 'short', timeStyle
 						{
 							posts.map((p) => {
 								const siteName = (p.sites as { name: string } | null)?.name ?? '—';
-								const when = dateFmt.format(new Date(p[dateField] ?? p.updated_at));
+								const rawDate = p[dateField] ?? p.updated_at;
+								const when = rawDate ? dateFmt.format(new Date(rawDate)) : '—';
 								return (
 									<tr class="ui-table-row">
 										<td class="ui-table-td px-3">
@@ -152,14 +162,15 @@ const dateFmt = new Intl.DateTimeFormat('pl-PL', { dateStyle: 'short', timeStyle
 						<th class="ui-table-th">{labels.colTitle}</th>
 						<th class="ui-table-th">{labels.colCategory}</th>
 						<th class="ui-table-th hidden sm:table-cell">{labels.colSite}</th>
-						<th class="ui-table-th">{labels.colDate}</th>
+						<th class="ui-table-th">{dateHeader}</th>
 					</tr>
 				</thead>
 				<tbody class="ui-table-body">
 					{
 						posts.map((p) => {
 							const siteName = (p.sites as { name: string } | null)?.name ?? '—';
-							const when = dateFmt.format(new Date(p[dateField] ?? p.updated_at));
+							const rawDate = p[dateField] ?? p.updated_at;
+							const when = rawDate ? dateFmt.format(new Date(rawDate)) : '—';
 							return (
 								<tr class="ui-table-row">
 									<td class="ui-table-td">

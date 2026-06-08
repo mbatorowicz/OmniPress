@@ -10,6 +10,14 @@ describe('derivePostStatusFromLogStatuses', () => {
 		expect(derivePostStatusFromLogStatuses(['pending'], 'publishing')).toBe('publishing');
 	});
 
+	it('scheduled z samym pending logiem zostaje scheduled', () => {
+		expect(derivePostStatusFromLogStatuses(['pending'], 'scheduled')).toBe('scheduled');
+	});
+
+	it('scheduled z processing przechodzi na publishing', () => {
+		expect(derivePostStatusFromLogStatuses(['processing'], 'scheduled')).toBe('publishing');
+	});
+
 	it('ignoruje draft/pending post', () => {
 		expect(derivePostStatusFromLogStatuses(['success'], 'pending')).toBeNull();
 	});
