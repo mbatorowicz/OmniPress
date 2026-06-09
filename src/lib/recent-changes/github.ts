@@ -3,18 +3,19 @@ import {
 	getGitHubFileText,
 	putGitHubFile,
 	type GitHubConfig,
+	type GitHubTextFileWrite,
 } from '@/lib/publish/github-api';
 import { buildRecentChangesPayload, parseRecentChangesFile } from './parse';
 import type { RecentChangeEntry } from './types';
 import { emptyRecentChangesFile, recentChangesPath } from './types';
 import { upsertRecentChange } from './upsert';
 
-export async function appendRecentChangeOnGitHub(
+export async function prepareRecentChangeAppendWrite(
 	cfg: GitHubConfig,
 	token: string,
 	destinationConfig: Record<string, unknown>,
 	entry: RecentChangeEntry,
-): Promise<void> {
+): Promise<GitHubTextFileWrite> {
 	const path = recentChangesPath(destinationConfig);
 	const existing = await getGitHubFile(cfg, token, path);
 	const text = existing ? await getGitHubFileText(cfg, token, path) : null;
@@ -27,12 +28,23 @@ export async function appendRecentChangeOnGitHub(
 	}
 
 	file.entries = upsertRecentChange(file.entries, entry);
+	return { path, content: buildRecentChangesPayload(file) };
+}
+
+export async function appendRecentChangeOnGitHub(
+	cfg: GitHubConfig,
+	token: string,
+	destinationConfig: Record<string, unknown>,
+	entry: RecentChangeEntry,
+): Promise<void> {
+	const prepared = await prepareRecentChangeAppendWrite(cfg, token, destinationConfig, entry);
+	const existing = await getGitHubFile(cfg, token, prepared.path);
 
 	await putGitHubFile(
 		cfg,
 		token,
-		path,
-		buildRecentChangesPayload(file),
+		prepared.path,
+		prepared.content,
 		'OmniPress: rejestr ostatnich zmian',
 		existing?.sha,
 	);

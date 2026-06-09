@@ -18,6 +18,11 @@ export type GitHubFileMeta = {
 	path: string;
 };
 
+export type GitHubTextFileWrite = {
+	path: string;
+	content: string;
+};
+
 const GH_API = 'https://api.github.com';
 
 function gitBranchRefGetUrl(cfg: GitHubConfig): string {
@@ -235,6 +240,102 @@ export async function deleteGitHubFilesBatch(
 	}
 
 	return { commitSha: newCommitJson.sha, deleted: existing.length };
+}
+
+async function getBranchHeadCommitSha(cfg: GitHubConfig, token: string): Promise<string> {
+	const refRes = await fetch(gitBranchRefGetUrl(cfg), { headers: ghHeaders(token) });
+	if (!refRes.ok) {
+		const text = await refRes.text();
+		throw new Error(`GitHub ref GET ${refRes.status}: ${text.slice(0, 200)}`);
+	}
+	const refJson = (await refRes.json()) as { object: { sha: string } };
+	return refJson.object.sha;
+}
+
+async function getCommitTreeSha(cfg: GitHubConfig, token: string, commitSha: string): Promise<string> {
+	const commitRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/commits/${commitSha}`, {
+		headers: ghHeaders(token),
+	});
+	if (!commitRes.ok) {
+		const text = await commitRes.text();
+		throw new Error(`GitHub commit ${commitRes.status}: ${text.slice(0, 200)}`);
+	}
+	const commitJson = (await commitRes.json()) as { tree: { sha: string } };
+	return commitJson.tree.sha;
+}
+
+/** Zapisuje wiele plików tekstowych w jednym commicie (jeden deploy Vercel). */
+export async function putGitHubFilesBatch(
+	cfg: GitHubConfig,
+	token: string,
+	files: GitHubTextFileWrite[],
+	message: string,
+): Promise<{ commitSha: string; written: number }> {
+	const byPath = new Map<string, string>();
+	for (const file of files) {
+		const path = file.path.trim();
+		if (!path) continue;
+		byPath.set(path, file.content);
+	}
+	if (byPath.size === 0) {
+		throw new Error('putGitHubFilesBatch: brak plików');
+	}
+
+	const parentSha = await getBranchHeadCommitSha(cfg, token);
+	const baseTreeSha = await getCommitTreeSha(cfg, token, parentSha);
+
+	const treeEntries: { path: string; mode: '100644'; type: 'blob'; sha: string }[] = [];
+	for (const [path, content] of byPath) {
+		const blobRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/blobs`, {
+			method: 'POST',
+			headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+			body: JSON.stringify({ content, encoding: 'utf-8' }),
+		});
+		if (!blobRes.ok) {
+			const text = await blobRes.text();
+			throw new Error(`GitHub blob ${blobRes.status}: ${text.slice(0, 300)}`);
+		}
+		const blobJson = (await blobRes.json()) as { sha: string };
+		treeEntries.push({ path, mode: '100644', type: 'blob', sha: blobJson.sha });
+	}
+
+	const treeRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/trees`, {
+		method: 'POST',
+		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+		body: JSON.stringify({ base_tree: baseTreeSha, tree: treeEntries }),
+	});
+	if (!treeRes.ok) {
+		const text = await treeRes.text();
+		throw new Error(`GitHub tree ${treeRes.status}: ${text.slice(0, 300)}`);
+	}
+	const treeJson = (await treeRes.json()) as { sha: string };
+
+	const newCommitRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/commits`, {
+		method: 'POST',
+		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			message,
+			tree: treeJson.sha,
+			parents: [parentSha],
+		}),
+	});
+	if (!newCommitRes.ok) {
+		const text = await newCommitRes.text();
+		throw new Error(`GitHub commit POST ${newCommitRes.status}: ${text.slice(0, 300)}`);
+	}
+	const newCommitJson = (await newCommitRes.json()) as { sha: string };
+
+	const updateRefRes = await fetch(gitBranchRefUpdateUrl(cfg), {
+		method: 'PATCH',
+		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+		body: JSON.stringify({ sha: newCommitJson.sha, force: false }),
+	});
+	if (!updateRefRes.ok) {
+		const text = await updateRefRes.text();
+		throw new Error(`GitHub ref PATCH ${updateRefRes.status}: ${text.slice(0, 300)}`);
+	}
+
+	return { commitSha: newCommitJson.sha, written: byPath.size };
 }
 
 export async function putGitHubFile(
