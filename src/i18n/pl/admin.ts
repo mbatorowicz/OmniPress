@@ -44,7 +44,9 @@ export const admin = {
 		siteLabel: 'Strona',
 		success: (imported: number, updated: number) =>
 			`Synchronizacja zakończona: ${imported} nowych, ${updated} zaktualizowanych.`,
-		warnings: (n: number) => `Uwaga: ${n} problemów przy pobieraniu załączników — sprawdź logi.`,
+		warnings: (n: number) =>
+			`Uwaga: ${n} problemów przy pobieraniu załączników — szczegóły poniżej.`,
+		warningsDetailHeading: 'Szczegóły problemów z załącznikami:',
 		errors: {
 			no_astro_destination: 'Ta strona nie ma aktywnej destynacji GitHub/Astro.',
 			invalid_repo: 'Nieprawidłowa konfiguracja repozytorium.',

@@ -27,6 +27,10 @@ export const POST: APIRoute = async ({ params, redirect, locals }) => {
 	});
 	if (result.errors.length > 0) {
 		query.set('import_warnings', String(result.errors.length));
+		const details = result.errors.slice(0, 15).join('\n');
+		if (details.length <= 1500) {
+			query.set('import_details', details);
+		}
 	}
 
 	return redirect(`/admin?${query.toString()}`);

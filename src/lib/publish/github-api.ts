@@ -98,10 +98,22 @@ export async function getGitHubFileBinary(
 		const text = await res.text();
 		throw new Error(`GitHub GET ${res.status}: ${text.slice(0, 200)}`);
 	}
-	const json = (await res.json()) as { content?: string; encoding?: string };
-	if (json.encoding !== 'base64' || !json.content) return null;
-	const bytes = Buffer.from(json.content.replace(/\n/g, ''), 'base64');
-	return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+	const json = (await res.json()) as {
+		content?: string;
+		encoding?: string;
+		download_url?: string;
+	};
+	if (json.encoding === 'base64' && json.content) {
+		const bytes = Buffer.from(json.content.replace(/\n/g, ''), 'base64');
+		return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+	}
+	// GitHub Contents API: pliki >1 MB zwracają encoding "none" + download_url
+	if (json.download_url) {
+		const blobRes = await fetch(json.download_url, { headers: ghHeaders(token) });
+		if (!blobRes.ok) return null;
+		return blobRes.arrayBuffer();
+	}
+	return null;
 }
 
 /** Odczyt treści pliku tekstowego/JSON z repozytorium (Contents API, base64). */

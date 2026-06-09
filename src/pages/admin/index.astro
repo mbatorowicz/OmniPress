@@ -53,6 +53,7 @@ const remoteWarning = Astro.url.searchParams.get('remote_warning') === '1';
 const importImported = Number(Astro.url.searchParams.get('imported') ?? '0');
 const importUpdated = Number(Astro.url.searchParams.get('updated') ?? '0');
 const importWarnings = Number(Astro.url.searchParams.get('import_warnings') ?? '0');
+const importDetails = Astro.url.searchParams.get('import_details')?.split('\n').filter(Boolean) ?? [];
 const importErrorCode = Astro.url.searchParams.get('import_error');
 const importSiteId = Astro.url.searchParams.get('site_id');
 const importLabels = admin.importPosts;
@@ -109,7 +110,23 @@ const defaultImportSiteId =
 	{importImported + importUpdated > 0 && (
 		<Alert variant="success">{importLabels.success(importImported, importUpdated)}</Alert>
 	)}
-	{importWarnings > 0 && <Alert variant="warning">{importLabels.warnings(importWarnings)}</Alert>}
+	{importWarnings > 0 && (
+		<Alert variant="warning">
+			<p>{importLabels.warnings(importWarnings)}</p>
+			{
+				importDetails.length > 0 && (
+					<div class="mt-2">
+						<p class="text-sm font-medium">{importLabels.warningsDetailHeading}</p>
+						<ul class="mt-1 list-inside list-disc text-sm">
+							{importDetails.map((line) => (
+								<li>{line}</li>
+							))}
+						</ul>
+					</div>
+				)
+			}
+		</Alert>
+	)}
 	{importErrorMessage && <Alert variant="error">{importErrorMessage}</Alert>}
 
 	<Panel variant="default" class="mb-8">
