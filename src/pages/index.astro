@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import VersionBadge from '@/components/layout/VersionBadge.astro';
+import Alert from '@/components/ui/Alert.astro';
 import { common, home } from '@/i18n';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 
@@ -21,10 +22,10 @@ const configured = isSupabaseConfigured();
 			<p class="mt-2 text-slate-600">{home.tagline}</p>
 			{
 				!configured || setup ? (
-					<div class="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+					<Alert variant="warning" class="mt-6 mb-0">
 						<p class="font-medium">{home.setup.heading}</p>
 						<p class="mt-1">{home.setup.body}</p>
-					</div>
+					</Alert>
 				) : (
 					<p class="mt-6">
 						<a href="/login" class="font-medium text-brand hover:underline">

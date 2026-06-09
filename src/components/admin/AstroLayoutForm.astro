@@ -2,6 +2,7 @@
 import { adminLayout } from '@/i18n';
 import Alert from '@/components/ui/Alert.astro';
 import Button from '@/components/ui/Button.astro';
+import Panel from '@/components/ui/Panel.astro';
 import SidebarBannersSection from '@/components/admin/SidebarBannersSection.astro';
 import { CERT_CATEGORIES } from '@/lib/cert';
 import type { SiteAstroLayout } from '@/lib/astro-layout/types';
@@ -58,88 +59,88 @@ const weatherSlots = slots.filter((slot) => slot.component === 'sidebar.weather'
 }
 {!hasAstroChannel && <Alert variant="warning">{adminLayout.noAstroChannel}</Alert>}
 
-<form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="max-w-5xl space-y-6">
-	<section class="space-y-3 rounded-xl border bg-white p-6">
-		<h2 class="text-sm font-semibold text-slate-800">{adminLayout.sections.menu}</h2>
-		<p class="text-xs text-slate-500">{adminLayout.menuHint}</p>
-		<label class="block text-sm">
+<form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="ui-form-stack max-w-5xl">
+	<Panel class="ui-form-section">
+		<h2 class="ui-section-title">{adminLayout.sections.menu}</h2>
+		<p class="ui-hint">{adminLayout.menuHint}</p>
+		<label class="ui-label">
 			<span class="font-medium">{adminLayout.fields.navigationJson}</span>
 			<textarea
 				name="navigation_json"
 				rows={16}
-				class="mt-1 w-full rounded-lg border px-3 py-2 font-mono text-xs"
+				class="ui-textarea ui-textarea--mono"
 				required>{navigationJson}</textarea
 			>
 		</label>
-		<p class="text-xs text-slate-500">
-			{adminLayout.paths.navigation}: <code class="rounded bg-slate-100 px-1">{layout.navigationPath}</code>
+		<p class="ui-hint">
+			{adminLayout.paths.navigation}: <code class="ui-code">{layout.navigationPath}</code>
 		</p>
-	</section>
+	</Panel>
 
-	<section class="space-y-3 rounded-xl border bg-white p-6">
-		<h2 class="text-sm font-semibold text-slate-800">{adminLayout.sections.slots}</h2>
-		<p class="text-xs text-slate-500">{adminLayout.slotsHint}</p>
-		<p class="text-xs text-slate-500">{adminLayout.slotsOrderHint}</p>
+	<Panel class="ui-form-section">
+		<h2 class="ui-section-title">{adminLayout.sections.slots}</h2>
+		<p class="ui-hint">{adminLayout.slotsHint}</p>
+		<p class="ui-hint">{adminLayout.slotsOrderHint}</p>
 		<div class="overflow-x-auto">
-			<table class="w-full min-w-[56rem] text-left text-sm" id="slots-table">
+			<table class="ui-table-dense min-w-[56rem]" id="slots-table">
 				<thead>
-					<tr class="border-b text-xs text-slate-500">
-						<th class="py-2 pr-2">{adminLayout.fields.slotId}</th>
-						<th class="py-2 pr-2">{adminLayout.fields.slotLabel}</th>
-						<th class="py-2 pr-2">{adminLayout.fields.slotComponent}</th>
-						<th class="py-2 pr-2">{adminLayout.fields.widgetTitle}</th>
-						<th class="py-2 pr-2">{adminLayout.fields.widgetSectionTitle}</th>
-						<th class="py-2 pr-2">{adminLayout.fields.widgetLimit}</th>
-						<th class="py-2 pr-2">{adminLayout.fields.widgetEmptyText}</th>
-						<th class="py-2 pr-2">{adminLayout.fields.widgetMoreLink}</th>
-						<th class="py-2 pr-2">{adminLayout.fields.widgetVariant}</th>
-						<th class="py-2 pr-2">{adminLayout.fields.widgetOrder}</th>
-						<th class="py-2 pr-2">{adminLayout.fields.widgetEnabled}</th>
-						<th class="py-2">{adminLayout.actions.removeSlot}</th>
+					<tr class="ui-table-dense-head">
+						<th class="ui-table-dense-th">{adminLayout.fields.slotId}</th>
+						<th class="ui-table-dense-th">{adminLayout.fields.slotLabel}</th>
+						<th class="ui-table-dense-th">{adminLayout.fields.slotComponent}</th>
+						<th class="ui-table-dense-th">{adminLayout.fields.widgetTitle}</th>
+						<th class="ui-table-dense-th">{adminLayout.fields.widgetSectionTitle}</th>
+						<th class="ui-table-dense-th">{adminLayout.fields.widgetLimit}</th>
+						<th class="ui-table-dense-th">{adminLayout.fields.widgetEmptyText}</th>
+						<th class="ui-table-dense-th">{adminLayout.fields.widgetMoreLink}</th>
+						<th class="ui-table-dense-th">{adminLayout.fields.widgetVariant}</th>
+						<th class="ui-table-dense-th">{adminLayout.fields.widgetOrder}</th>
+						<th class="ui-table-dense-th">{adminLayout.fields.widgetEnabled}</th>
+						<th class="ui-table-dense-th">{adminLayout.actions.removeSlot}</th>
 					</tr>
 				</thead>
 				<tbody id="slots-body">
 					{
 						slots.map((slot) => (
-							<tr class="slot-row border-b border-slate-50">
-								<td class="py-2 pr-2">
-									<input name="slot_id" value={slot.id} required class="w-28 rounded border px-2 py-1 font-mono text-xs" />
+							<tr class="slot-row ui-table-dense-row">
+								<td class="ui-table-dense-td">
+									<input name="slot_id" value={slot.id} required class="ui-input-compact ui-input-compact--mono w-28" />
 								</td>
-								<td class="py-2 pr-2">
-									<input name="slot_label" value={slot.label} required class="w-40 rounded border px-2 py-1 text-xs" />
+								<td class="ui-table-dense-td">
+									<input name="slot_label" value={slot.label} required class="ui-input-compact w-40" />
 								</td>
-								<td class="py-2 pr-2">
-									<input name="slot_component" value={slot.component} required class="w-36 rounded border px-2 py-1 font-mono text-xs" />
+								<td class="ui-table-dense-td">
+									<input name="slot_component" value={slot.component} required class="ui-input-compact ui-input-compact--mono w-36" />
 								</td>
-								<td class="py-2 pr-2">
-									<input name="slot_widget_title" value={slot.widget?.title ?? ''} class="w-36 rounded border px-2 py-1 text-xs" />
+								<td class="ui-table-dense-td">
+									<input name="slot_widget_title" value={slot.widget?.title ?? ''} class="ui-input-compact w-36" />
 								</td>
-								<td class="py-2 pr-2">
-									<input name="slot_widget_section_title" value={slot.widget?.sectionTitle ?? ''} class="w-36 rounded border px-2 py-1 text-xs" />
+								<td class="ui-table-dense-td">
+									<input name="slot_widget_section_title" value={slot.widget?.sectionTitle ?? ''} class="ui-input-compact w-36" />
 								</td>
-								<td class="py-2 pr-2">
-									<input name="slot_widget_limit" type="number" min="1" value={slot.widget?.limit ?? ''} class="w-16 rounded border px-2 py-1 text-xs" />
+								<td class="ui-table-dense-td">
+									<input name="slot_widget_limit" type="number" min="1" value={slot.widget?.limit ?? ''} class="ui-input-compact w-16" />
 								</td>
-								<td class="py-2 pr-2">
-									<input name="slot_widget_empty_text" value={slot.widget?.emptyText ?? ''} class="w-36 rounded border px-2 py-1 text-xs" />
+								<td class="ui-table-dense-td">
+									<input name="slot_widget_empty_text" value={slot.widget?.emptyText ?? ''} class="ui-input-compact w-36" />
 								</td>
-								<td class="py-2 pr-2">
-									<input name="slot_widget_more_link" value={slot.widget?.moreLink ?? ''} class="w-28 rounded border px-2 py-1 font-mono text-xs" />
+								<td class="ui-table-dense-td">
+									<input name="slot_widget_more_link" value={slot.widget?.moreLink ?? ''} class="ui-input-compact ui-input-compact--mono w-28" />
 								</td>
-								<td class="py-2 pr-2">
-									<select name="slot_widget_variant" class="rounded border px-2 py-1 text-xs">
+								<td class="ui-table-dense-td">
+									<select name="slot_widget_variant" class="ui-select-compact">
 										<option value="default" selected={slot.widget?.variant !== 'alert'}>{adminLayout.variants.default}</option>
 										<option value="alert" selected={slot.widget?.variant === 'alert'}>{adminLayout.variants.alert}</option>
 									</select>
 								</td>
-								<td class="py-2 pr-2">
-									<input name="slot_widget_order" type="number" min="0" value={slot.widget?.order ?? ''} class="w-16 rounded border px-2 py-1 text-xs" />
+								<td class="ui-table-dense-td">
+									<input name="slot_widget_order" type="number" min="0" value={slot.widget?.order ?? ''} class="ui-input-compact w-16" />
 								</td>
-								<td class="py-2 pr-2 text-center">
+								<td class="ui-table-dense-td text-center">
 									<input type="checkbox" name={`slot_enabled_${slot.id}`} checked={slot.widget?.enabled !== false} />
 								</td>
-								<td class="py-2">
-									<button type="button" class="remove-slot text-xs text-red-700 hover:underline">{adminLayout.actions.removeSlot}</button>
+								<td class="ui-table-dense-td">
+									<button type="button" class="remove-slot ui-link--danger">{adminLayout.actions.removeSlot}</button>
 								</td>
 							</tr>
 						))
@@ -147,32 +148,32 @@ const weatherSlots = slots.filter((slot) => slot.component === 'sidebar.weather'
 				</tbody>
 			</table>
 		</div>
-		<button type="button" id="add-slot" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-700 hover:border-brand">
+		<Button type="button" id="add-slot" variant="add">
 			{adminLayout.actions.addSlot}
-		</button>
+		</Button>
 
 		{
 			weatherSlots.length > 0 && (
-				<div class="mt-6 space-y-4 border-t pt-6">
-					<h3 class="text-sm font-medium text-slate-800">{adminLayout.fields.weatherHeading}</h3>
-					<p class="text-xs text-slate-500">{adminLayout.weatherHint}</p>
+				<div class="ui-divider-section">
+					<h3 class="ui-subheading">{adminLayout.fields.weatherHeading}</h3>
+					<p class="ui-hint">{adminLayout.weatherHint}</p>
 					{
 						weatherSlots.map((slot) => (
-							<div class="grid max-w-2xl gap-3 rounded-lg border border-slate-100 p-4 sm:grid-cols-2">
+							<div class="ui-fieldset-nested">
 								<input type="hidden" name="slot_weather_id" value={slot.id} />
-								<p class="text-xs font-medium text-slate-700 sm:col-span-2">
-									{slot.label} · <code class="rounded bg-slate-100 px-1">{slot.id}</code>
+								<p class="ui-label-text text-xs font-medium sm:col-span-2">
+									{slot.label} · <code class="ui-code">{slot.id}</code>
 								</p>
-								<label class="block text-sm">
+								<label class="ui-label">
 									<span class="font-medium">{adminLayout.fields.weatherTerytPowiat}</span>
 									<input
 										name="slot_weather_teryt_powiat"
 										value={slot.widget?.terytPowiat ?? ''}
 										pattern="[0-9]{4}"
-										class="mt-1 w-full rounded-lg border px-3 py-2 font-mono text-sm"
+										class="ui-input font-mono"
 									/>
 								</label>
-								<label class="block text-sm">
+								<label class="ui-label">
 									<span class="font-medium">{adminLayout.fields.weatherMapZoom}</span>
 									<input
 										name="slot_weather_map_zoom"
@@ -180,38 +181,38 @@ const weatherSlots = slots.filter((slot) => slot.component === 'sidebar.weather'
 										min="1"
 										max="18"
 										value={slot.widget?.mapZoom ?? 11}
-										class="mt-1 w-full rounded-lg border px-3 py-2"
+										class="ui-input"
 									/>
 								</label>
-								<label class="block text-sm">
+								<label class="ui-label">
 									<span class="font-medium">{adminLayout.fields.weatherLat}</span>
 									<input
 										name="slot_weather_lat"
 										type="number"
 										step="any"
 										value={slot.widget?.mapCenter?.lat ?? ''}
-										class="mt-1 w-full rounded-lg border px-3 py-2"
+										class="ui-input"
 									/>
 								</label>
-								<label class="block text-sm">
+								<label class="ui-label">
 									<span class="font-medium">{adminLayout.fields.weatherLon}</span>
 									<input
 										name="slot_weather_lon"
 										type="number"
 										step="any"
 										value={slot.widget?.mapCenter?.lon ?? ''}
-										class="mt-1 w-full rounded-lg border px-3 py-2"
+										class="ui-input"
 									/>
 								</label>
-								<label class="block text-sm sm:col-span-2">
+								<label class="ui-label sm:col-span-2">
 									<span class="font-medium">{adminLayout.fields.weatherMapScope}</span>
 									<input
 										name="slot_weather_map_scope"
 										value={slot.widget?.mapScopePowiaty?.join(', ') ?? ''}
-										class="mt-1 w-full rounded-lg border px-3 py-2 font-mono text-sm"
+										class="ui-input font-mono"
 									/>
 								</label>
-								<label class="flex items-center gap-2 text-sm sm:col-span-2">
+								<label class="ui-label-inline flex items-center gap-2 sm:col-span-2">
 									<input
 										type="checkbox"
 										name={`slot_weather_show_map_${slot.id}`}
@@ -225,32 +226,32 @@ const weatherSlots = slots.filter((slot) => slot.component === 'sidebar.weather'
 				</div>
 			)
 		}
-	</section>
+	</Panel>
 
-	<section class="space-y-3 rounded-xl border bg-white p-6">
-		<h2 class="text-sm font-semibold text-slate-800">{adminLayout.sections.categories}</h2>
-		<p class="text-xs text-slate-500">{adminLayout.categoriesHint}</p>
+	<Panel class="ui-form-section">
+		<h2 class="ui-section-title">{adminLayout.sections.categories}</h2>
+		<p class="ui-hint">{adminLayout.categoriesHint}</p>
 		<div class="overflow-x-auto">
-			<table class="w-full min-w-[28rem] text-left text-sm" id="categories-table">
+			<table class="ui-table-dense min-w-[28rem]" id="categories-table">
 				<thead>
-					<tr class="border-b text-xs text-slate-500">
-						<th class="py-2 pr-3">{adminLayout.fields.categorySlug}</th>
-						<th class="py-2 pr-3">{adminLayout.fields.categoryName}</th>
-						<th class="py-2">{adminLayout.fields.removeRow}</th>
+					<tr class="ui-table-dense-head">
+						<th class="ui-table-dense-th--wide">{adminLayout.fields.categorySlug}</th>
+						<th class="ui-table-dense-th--wide">{adminLayout.fields.categoryName}</th>
+						<th class="ui-table-dense-th--wide">{adminLayout.fields.removeRow}</th>
 					</tr>
 				</thead>
 				<tbody id="categories-body">
 					{
 						layout.categories.map((cat) => (
-							<tr class="category-row border-b border-slate-50">
-								<td class="py-2 pr-3">
-									<input name="category_slug" value={cat.slug} required class="w-full rounded border px-2 py-1 font-mono text-xs" />
+							<tr class="category-row ui-table-dense-row">
+								<td class="ui-table-dense-td--wide">
+									<input name="category_slug" value={cat.slug} required class="ui-input-compact ui-input-compact--mono w-full" />
 								</td>
-								<td class="py-2 pr-3">
-									<input name="category_name" value={cat.name} required class="w-full rounded border px-2 py-1" />
+								<td class="ui-table-dense-td--wide">
+									<input name="category_name" value={cat.name} required class="ui-input-compact w-full" />
 								</td>
-								<td class="py-2">
-									<button type="button" class="remove-category text-xs text-red-700 hover:underline">{adminLayout.actions.removeCategory}</button>
+								<td class="ui-table-dense-td--wide">
+									<button type="button" class="remove-category ui-link--danger">{adminLayout.actions.removeCategory}</button>
 								</td>
 							</tr>
 						))
@@ -258,29 +259,29 @@ const weatherSlots = slots.filter((slot) => slot.component === 'sidebar.weather'
 				</tbody>
 			</table>
 		</div>
-		<button type="button" id="add-category" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-700 hover:border-brand">
+		<Button type="button" id="add-category" variant="add">
 			{adminLayout.actions.addCategory}
-		</button>
-		<p class="text-xs text-slate-500">
-			{adminLayout.paths.categories}: <code class="rounded bg-slate-100 px-1">{layout.categoriesPath}</code>
+		</Button>
+		<p class="ui-hint">
+			{adminLayout.paths.categories}: <code class="ui-code">{layout.categoriesPath}</code>
 		</p>
-	</section>
+	</Panel>
 
-	<section class="space-y-3 rounded-xl border bg-white p-6">
-		<h2 class="text-sm font-semibold text-slate-800">{adminLayout.sections.displays}</h2>
-		<p class="text-xs text-slate-500">{adminLayout.displaysHint}</p>
+	<Panel class="ui-form-section">
+		<h2 class="ui-section-title">{adminLayout.sections.displays}</h2>
+		<p class="ui-hint">{adminLayout.displaysHint}</p>
 		{
 			slots.length === 0 ? (
-				<p class="text-sm text-amber-800">{adminLayout.errors.no_slots}</p>
+				<p class="ui-hint--warning">{adminLayout.errors.no_slots}</p>
 			) : (
 				<div class="overflow-x-auto">
-					<table class="w-full min-w-[32rem] text-left text-sm">
+					<table class="ui-table-dense min-w-[32rem]">
 						<thead>
-							<tr class="border-b text-xs text-slate-500">
-								<th class="py-2 pr-4">{adminLayout.fields.category}</th>
+							<tr class="ui-table-dense-head">
+								<th class="ui-table-dense-th--wide">{adminLayout.fields.category}</th>
 								{
 									slots.map((slot) => (
-										<th class="py-2 px-2 text-center">
+										<th class="ui-table-dense-th px-2 text-center">
 											<div>{slot.label}</div>
 											<div class="font-normal text-[10px] text-slate-400">{slot.component}</div>
 										</th>
@@ -291,13 +292,13 @@ const weatherSlots = slots.filter((slot) => slot.component === 'sidebar.weather'
 						<tbody>
 							{
 								layout.categories.map((cat) => (
-									<tr class="border-b border-slate-50">
-										<td class="py-2 pr-4 font-mono text-xs">{cat.slug}</td>
+									<tr class="ui-table-dense-row">
+										<td class="ui-table-dense-td--wide font-mono text-xs">{cat.slug}</td>
 										{
 											slots.map((slot) => {
 												const checked = layout.categoryDisplays[slot.id]?.includes(cat.slug) ?? false;
 												return (
-													<td class="py-2 px-2 text-center">
+													<td class="ui-table-dense-td px-2 text-center">
 														<input type="checkbox" name={`display_${slot.id}_${cat.slug}`} checked={checked} />
 													</td>
 												);
@@ -311,49 +312,49 @@ const weatherSlots = slots.filter((slot) => slot.component === 'sidebar.weather'
 				</div>
 			)
 		}
-		<p class="text-xs text-amber-800">{adminLayout.displaysRefreshHint}</p>
-	</section>
+		<p class="ui-hint--warning">{adminLayout.displaysRefreshHint}</p>
+	</Panel>
 
-	<section class="space-y-3 rounded-xl border bg-white p-6">
-		<h2 class="text-sm font-semibold text-slate-800">{adminLayout.sections.widgets}</h2>
-		<p class="text-xs text-slate-500">{adminLayout.widgetsHint}</p>
+	<Panel class="ui-form-section">
+		<h2 class="ui-section-title">{adminLayout.sections.widgets}</h2>
+		<p class="ui-hint">{adminLayout.widgetsHint}</p>
 		<div class="grid max-w-xl gap-3 sm:grid-cols-2">
-			<label class="block text-sm sm:col-span-2">
+			<label class="ui-label sm:col-span-2">
 				<span class="font-medium">{adminLayout.fields.recentChangesTitle}</span>
-				<input name="widget_recent_changes_title" value={recentWidget.title ?? ''} class="mt-1 w-full rounded-lg border px-3 py-2" />
+				<input name="widget_recent_changes_title" value={recentWidget.title ?? ''} class="ui-input" />
 			</label>
-			<label class="block text-sm">
+			<label class="ui-label">
 				<span class="font-medium">{adminLayout.fields.recentChangesLimit}</span>
-				<input name="widget_recent_changes_limit" type="number" min="1" value={recentWidget.limit ?? ''} class="mt-1 w-full rounded-lg border px-3 py-2" />
+				<input name="widget_recent_changes_limit" type="number" min="1" value={recentWidget.limit ?? ''} class="ui-input" />
 			</label>
-			<label class="block text-sm">
+			<label class="ui-label">
 				<span class="font-medium">{adminLayout.fields.widgetOrder}</span>
-				<input name="widget_recent_changes_order" type="number" min="0" value={recentWidget.order ?? ''} class="mt-1 w-full rounded-lg border px-3 py-2" />
+				<input name="widget_recent_changes_order" type="number" min="0" value={recentWidget.order ?? ''} class="ui-input" />
 			</label>
-			<label class="flex items-center gap-2 text-sm sm:col-span-2">
+			<label class="ui-label-inline flex items-center gap-2 sm:col-span-2">
 				<input type="checkbox" name="widget_recent_changes_enabled" checked={recentWidget.enabled !== false} />
 				{adminLayout.fields.recentChangesEnabled}
 			</label>
 		</div>
 
-		<div class="mt-6 grid max-w-xl gap-3 border-t pt-6 sm:grid-cols-2">
-			<h3 class="text-sm font-medium text-slate-800 sm:col-span-2">{adminLayout.fields.certAdvisoriesHeading}</h3>
-			<p class="text-xs text-slate-500 sm:col-span-2">{adminLayout.certAdvisoriesHint}</p>
-			<label class="block text-sm sm:col-span-2">
+		<div class="ui-divider-section grid max-w-xl gap-3 sm:grid-cols-2">
+			<h3 class="ui-subheading sm:col-span-2">{adminLayout.fields.certAdvisoriesHeading}</h3>
+			<p class="ui-hint sm:col-span-2">{adminLayout.certAdvisoriesHint}</p>
+			<label class="ui-label sm:col-span-2">
 				<span class="font-medium">{adminLayout.fields.certAdvisoriesTitle}</span>
-				<input name="widget_cert_advisories_title" value={certWidget.title ?? ''} class="mt-1 w-full rounded-lg border px-3 py-2" />
+				<input name="widget_cert_advisories_title" value={certWidget.title ?? ''} class="ui-input" />
 			</label>
-			<label class="block text-sm">
+			<label class="ui-label">
 				<span class="font-medium">{adminLayout.fields.certAdvisoriesLimit}</span>
-				<input name="widget_cert_advisories_limit" type="number" min="1" value={certWidget.limit ?? 5} class="mt-1 w-full rounded-lg border px-3 py-2" />
+				<input name="widget_cert_advisories_limit" type="number" min="1" value={certWidget.limit ?? 5} class="ui-input" />
 			</label>
-			<label class="block text-sm">
+			<label class="ui-label">
 				<span class="font-medium">{adminLayout.fields.widgetOrder}</span>
-				<input name="widget_cert_advisories_order" type="number" min="0" value={certWidget.order ?? ''} class="mt-1 w-full rounded-lg border px-3 py-2" />
+				<input name="widget_cert_advisories_order" type="number" min="0" value={certWidget.order ?? ''} class="ui-input" />
 			</label>
-			<label class="block text-sm">
+			<label class="ui-label">
 				<span class="font-medium">{adminLayout.fields.certAdvisoriesCategory}</span>
-				<select name="widget_cert_advisories_category" class="mt-1 w-full rounded-lg border px-3 py-2">
+				<select name="widget_cert_advisories_category" class="ui-input">
 					<option value="" selected={!certWidget.categoryFilter}>{adminLayout.certCategories.all}</option>
 					{CERT_CATEGORIES.map((category) => (
 						<option value={category} selected={certWidget.categoryFilter === category}>
@@ -362,27 +363,27 @@ const weatherSlots = slots.filter((slot) => slot.component === 'sidebar.weather'
 					))}
 				</select>
 			</label>
-			<label class="block text-sm sm:col-span-2">
+			<label class="ui-label sm:col-span-2">
 				<span class="font-medium">{adminLayout.fields.widgetMoreLink}</span>
 				<input
 					name="widget_cert_advisories_more_link"
 					value={certWidget.moreLink ?? 'https://moje.cert.pl/komunikaty/'}
-					class="mt-1 w-full rounded-lg border px-3 py-2 font-mono text-sm"
+					class="ui-input font-mono"
 				/>
 			</label>
-			<label class="block text-sm">
+			<label class="ui-label">
 				<span class="font-medium">{adminLayout.fields.widgetVariant}</span>
-				<select name="widget_cert_advisories_variant" class="mt-1 w-full rounded-lg border px-3 py-2">
+				<select name="widget_cert_advisories_variant" class="ui-input">
 					<option value="default" selected={certWidget.variant !== 'alert'}>{adminLayout.variants.default}</option>
 					<option value="alert" selected={certWidget.variant === 'alert'}>{adminLayout.variants.alert}</option>
 				</select>
 			</label>
-			<label class="flex items-center gap-2 text-sm sm:col-span-2">
+			<label class="ui-label-inline flex items-center gap-2 sm:col-span-2">
 				<input type="checkbox" name="widget_cert_advisories_enabled" checked={certWidget.enabled !== false} />
 				{adminLayout.fields.certAdvisoriesEnabled}
 			</label>
 		</div>
-	</section>
+	</Panel>
 
 	<SidebarBannersSection
 		banners={layout.banners}
@@ -402,7 +403,7 @@ const weatherSlots = slots.filter((slot) => slot.component === 'sidebar.weather'
 {
 	hasAstroChannel && (
 		<form method="post" action={`/api/admin/sites/${siteId}/layout/import`} class="mt-4">
-			<button type="submit" class="text-sm text-brand hover:underline">
+			<button type="submit" class="ui-link text-sm">
 				{adminLayout.actions.importFromGitHub}
 			</button>
 		</form>
@@ -434,11 +435,11 @@ const weatherSlots = slots.filter((slot) => slot.component === 'sidebar.weather'
 
 	addCatBtn?.addEventListener('click', () => {
 		const tr = document.createElement('tr');
-		tr.className = 'category-row border-b border-slate-50';
+		tr.className = 'category-row ui-table-dense-row';
 		tr.innerHTML = `
-			<td class="py-2 pr-3"><input name="category_slug" required class="w-full rounded border px-2 py-1 font-mono text-xs" /></td>
-			<td class="py-2 pr-3"><input name="category_name" required class="w-full rounded border px-2 py-1" /></td>
-			<td class="py-2"><button type="button" class="remove-category text-xs text-red-700 hover:underline">${removeCategoryLabel}</button></td>
+			<td class="ui-table-dense-td--wide"><input name="category_slug" required class="ui-input-compact ui-input-compact--mono w-full" /></td>
+			<td class="ui-table-dense-td--wide"><input name="category_name" required class="ui-input-compact w-full" /></td>
+			<td class="ui-table-dense-td--wide"><button type="button" class="remove-category ui-link--danger">${removeCategoryLabel}</button></td>
 		`;
 		catBody?.appendChild(tr);
 		bindRemoveCategory(tr);
@@ -447,20 +448,20 @@ const weatherSlots = slots.filter((slot) => slot.component === 'sidebar.weather'
 	addSlotBtn?.addEventListener('click', () => {
 		const id = `slot_${Date.now()}`;
 		const tr = document.createElement('tr');
-		tr.className = 'slot-row border-b border-slate-50';
+		tr.className = 'slot-row ui-table-dense-row';
 		tr.innerHTML = `
-			<td class="py-2 pr-2"><input name="slot_id" value="${id}" required class="w-28 rounded border px-2 py-1 font-mono text-xs" /></td>
-			<td class="py-2 pr-2"><input name="slot_label" required class="w-40 rounded border px-2 py-1 text-xs" /></td>
-			<td class="py-2 pr-2"><input name="slot_component" required class="w-36 rounded border px-2 py-1 font-mono text-xs" /></td>
-			<td class="py-2 pr-2"><input name="slot_widget_title" class="w-36 rounded border px-2 py-1 text-xs" /></td>
-			<td class="py-2 pr-2"><input name="slot_widget_section_title" class="w-36 rounded border px-2 py-1 text-xs" /></td>
-			<td class="py-2 pr-2"><input name="slot_widget_limit" type="number" min="1" class="w-16 rounded border px-2 py-1 text-xs" /></td>
-			<td class="py-2 pr-2"><input name="slot_widget_empty_text" class="w-36 rounded border px-2 py-1 text-xs" /></td>
-			<td class="py-2 pr-2"><input name="slot_widget_more_link" class="w-28 rounded border px-2 py-1 font-mono text-xs" /></td>
-			<td class="py-2 pr-2"><select name="slot_widget_variant" class="rounded border px-2 py-1 text-xs"><option value="default">${variantDefault}</option><option value="alert">${variantAlert}</option></select></td>
-			<td class="py-2 pr-2"><input name="slot_widget_order" type="number" min="0" class="w-16 rounded border px-2 py-1 text-xs" /></td>
-			<td class="py-2 pr-2 text-center"><input type="checkbox" name="slot_enabled_${id}" checked /></td>
-			<td class="py-2"><button type="button" class="remove-slot text-xs text-red-700 hover:underline">${removeSlotLabel}</button></td>
+			<td class="ui-table-dense-td"><input name="slot_id" value="${id}" required class="ui-input-compact ui-input-compact--mono w-28" /></td>
+			<td class="ui-table-dense-td"><input name="slot_label" required class="ui-input-compact w-40" /></td>
+			<td class="ui-table-dense-td"><input name="slot_component" required class="ui-input-compact ui-input-compact--mono w-36" /></td>
+			<td class="ui-table-dense-td"><input name="slot_widget_title" class="ui-input-compact w-36" /></td>
+			<td class="ui-table-dense-td"><input name="slot_widget_section_title" class="ui-input-compact w-36" /></td>
+			<td class="ui-table-dense-td"><input name="slot_widget_limit" type="number" min="1" class="ui-input-compact w-16" /></td>
+			<td class="ui-table-dense-td"><input name="slot_widget_empty_text" class="ui-input-compact w-36" /></td>
+			<td class="ui-table-dense-td"><input name="slot_widget_more_link" class="ui-input-compact ui-input-compact--mono w-28" /></td>
+			<td class="ui-table-dense-td"><select name="slot_widget_variant" class="ui-select-compact"><option value="default">${variantDefault}</option><option value="alert">${variantAlert}</option></select></td>
+			<td class="ui-table-dense-td"><input name="slot_widget_order" type="number" min="0" class="ui-input-compact w-16" /></td>
+			<td class="ui-table-dense-td text-center"><input type="checkbox" name="slot_enabled_${id}" checked /></td>
+			<td class="ui-table-dense-td"><button type="button" class="remove-slot ui-link--danger">${removeSlotLabel}</button></td>
 		`;
 		slotsBody?.appendChild(tr);
 		bindRemoveSlot(tr);

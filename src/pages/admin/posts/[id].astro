@@ -155,7 +155,7 @@ const galleryAssets = postAssets.filter(isGalleryImageAsset);
 							const st = log.status as PublishLogStatus;
 							const failed = st === 'failed';
 							return (
-								<tr class={`ui-table-row ${failed ? 'bg-red-50/50' : ''}`}>
+								<tr class:list={['ui-table-row', failed && 'ui-table-row--error']}>
 									<td class="ui-table-td">
 										{log.destinations?.name}
 										<span class="ml-1 text-slate-400">({log.destinations?.type})</span>

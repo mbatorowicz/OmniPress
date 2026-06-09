@@ -1,5 +1,7 @@
 ---
 import { adminLayout } from '@/i18n';
+import Button from '@/components/ui/Button.astro';
+import Panel from '@/components/ui/Panel.astro';
 import type { CategoryDefinition, SidebarBanner } from '@/lib/astro-layout/types';
 
 type PageOption = { path: string; title: string };
@@ -14,67 +16,67 @@ const { banners, categories, publishedPages } = Astro.props;
 const { fields, actions, bannerLinkTypes, bannerStyles, bannerImageVariants } = adminLayout;
 ---
 
-<section class="space-y-3 rounded-xl border bg-white p-6">
-	<h2 class="text-sm font-semibold text-slate-800">{adminLayout.sections.banners}</h2>
-	<p class="text-xs text-slate-500">{adminLayout.bannersHint}</p>
+<Panel class="ui-form-section">
+	<h2 class="ui-section-title">{adminLayout.sections.banners}</h2>
+	<p class="ui-hint">{adminLayout.bannersHint}</p>
 
 	<div class="overflow-x-auto">
-		<table class="w-full min-w-[72rem] text-left text-sm" id="banners-table">
+		<table class="ui-table-dense min-w-[72rem]" id="banners-table">
 			<thead>
-				<tr class="border-b text-xs text-slate-500">
-					<th class="py-2 pr-2">{fields.bannerLabel}</th>
-					<th class="py-2 pr-2">{fields.bannerStyle}</th>
-					<th class="py-2 pr-2">{fields.bannerImageUrl}</th>
-					<th class="py-2 pr-2">{fields.bannerImageVariant}</th>
-					<th class="py-2 pr-2">{fields.bannerTextTitle}</th>
-					<th class="py-2 pr-2">{fields.bannerTextButton}</th>
-					<th class="py-2 pr-2">{fields.bannerLinkType}</th>
-					<th class="py-2 pr-2">{fields.bannerCategory}</th>
-					<th class="py-2 pr-2">{fields.bannerPage}</th>
-					<th class="py-2 pr-2">{fields.bannerExternalUrl}</th>
-					<th class="py-2 pr-2">{fields.widgetOrder}</th>
-					<th class="py-2 pr-2">{fields.widgetEnabled}</th>
-					<th class="py-2">{actions.removeBanner}</th>
+				<tr class="ui-table-dense-head">
+					<th class="ui-table-dense-th">{fields.bannerLabel}</th>
+					<th class="ui-table-dense-th">{fields.bannerStyle}</th>
+					<th class="ui-table-dense-th">{fields.bannerImageUrl}</th>
+					<th class="ui-table-dense-th">{fields.bannerImageVariant}</th>
+					<th class="ui-table-dense-th">{fields.bannerTextTitle}</th>
+					<th class="ui-table-dense-th">{fields.bannerTextButton}</th>
+					<th class="ui-table-dense-th">{fields.bannerLinkType}</th>
+					<th class="ui-table-dense-th">{fields.bannerCategory}</th>
+					<th class="ui-table-dense-th">{fields.bannerPage}</th>
+					<th class="ui-table-dense-th">{fields.bannerExternalUrl}</th>
+					<th class="ui-table-dense-th">{fields.widgetOrder}</th>
+					<th class="ui-table-dense-th">{fields.widgetEnabled}</th>
+					<th class="ui-table-dense-th">{actions.removeBanner}</th>
 				</tr>
 			</thead>
 			<tbody id="banners-body">
 				{
 					banners.map((banner) => (
-						<tr class="banner-row border-b border-slate-50" data-banner-id={banner.id}>
-							<td class="py-2 pr-2">
+						<tr class="banner-row ui-table-dense-row" data-banner-id={banner.id}>
+							<td class="ui-table-dense-td">
 								<input type="hidden" name="banner_id" value={banner.id} />
-								<input name="banner_label" value={banner.label} required class="w-36 rounded border px-2 py-1 text-xs" />
+								<input name="banner_label" value={banner.label} required class="ui-input-compact w-36" />
 							</td>
-							<td class="py-2 pr-2">
-								<select name="banner_style" class="banner-style rounded border px-2 py-1 text-xs">
+							<td class="ui-table-dense-td">
+								<select name="banner_style" class="banner-style ui-select-compact">
 									<option value="image" selected={banner.style !== 'text'}>{bannerStyles.image}</option>
 									<option value="text" selected={banner.style === 'text'}>{bannerStyles.text}</option>
 								</select>
 							</td>
-							<td class="py-2 pr-2 banner-field-image">
-								<input name="banner_image_url" value={banner.imageUrl ?? ''} class="w-44 rounded border px-2 py-1 font-mono text-xs" />
+							<td class="ui-table-dense-td banner-field-image">
+								<input name="banner_image_url" value={banner.imageUrl ?? ''} class="ui-input-compact ui-input-compact--mono w-44" />
 							</td>
-							<td class="py-2 pr-2 banner-field-image">
-								<select name="banner_image_variant" class="rounded border px-2 py-1 text-xs">
+							<td class="ui-table-dense-td banner-field-image">
+								<select name="banner_image_variant" class="ui-select-compact">
 									<option value="default" selected={banner.imageVariant !== 'blue'}>{bannerImageVariants.default}</option>
 									<option value="blue" selected={banner.imageVariant === 'blue'}>{bannerImageVariants.blue}</option>
 								</select>
 							</td>
-							<td class="py-2 pr-2 banner-field-text">
-								<input name="banner_text_title" value={banner.textTitle ?? ''} class="w-32 rounded border px-2 py-1 text-xs" />
+							<td class="ui-table-dense-td banner-field-text">
+								<input name="banner_text_title" value={banner.textTitle ?? ''} class="ui-input-compact w-32" />
 							</td>
-							<td class="py-2 pr-2 banner-field-text">
-								<input name="banner_text_button" value={banner.textButton ?? ''} class="w-28 rounded border px-2 py-1 text-xs" />
+							<td class="ui-table-dense-td banner-field-text">
+								<input name="banner_text_button" value={banner.textButton ?? ''} class="ui-input-compact w-28" />
 							</td>
-							<td class="py-2 pr-2">
-								<select name="banner_link_type" class="banner-link-type rounded border px-2 py-1 text-xs">
+							<td class="ui-table-dense-td">
+								<select name="banner_link_type" class="banner-link-type ui-select-compact">
 									<option value="category" selected={banner.linkType === 'category'}>{bannerLinkTypes.category}</option>
 									<option value="page" selected={banner.linkType === 'page'}>{bannerLinkTypes.page}</option>
 									<option value="external" selected={banner.linkType === 'external'}>{bannerLinkTypes.external}</option>
 								</select>
 							</td>
-							<td class="py-2 pr-2 banner-field-category">
-								<select name="banner_category_slug" class="w-36 rounded border px-2 py-1 text-xs">
+							<td class="ui-table-dense-td banner-field-category">
+								<select name="banner_category_slug" class="ui-select-compact w-36">
 									<option value="">—</option>
 									{categories.map((cat) => (
 										<option value={cat.slug} selected={banner.categorySlug === cat.slug}>
@@ -83,8 +85,8 @@ const { fields, actions, bannerLinkTypes, bannerStyles, bannerImageVariants } = 
 									))}
 								</select>
 							</td>
-							<td class="py-2 pr-2 banner-field-page">
-								<select name="banner_page_path" class="w-44 rounded border px-2 py-1 text-xs">
+							<td class="ui-table-dense-td banner-field-page">
+								<select name="banner_page_path" class="ui-select-compact w-44">
 									<option value="">—</option>
 									{publishedPages.length === 0 ? (
 										<option value="" disabled>{adminLayout.noPublishedPages}</option>
@@ -97,22 +99,22 @@ const { fields, actions, bannerLinkTypes, bannerStyles, bannerImageVariants } = 
 									)}
 								</select>
 							</td>
-							<td class="py-2 pr-2 banner-field-external">
+							<td class="ui-table-dense-td banner-field-external">
 								<input
 									name="banner_external_url"
 									value={banner.externalUrl ?? ''}
-									class="w-40 rounded border px-2 py-1 font-mono text-xs"
+									class="ui-input-compact ui-input-compact--mono w-40"
 									placeholder="https://"
 								/>
 							</td>
-							<td class="py-2 pr-2">
-								<input name="banner_order" type="number" min="0" value={banner.order ?? ''} class="w-16 rounded border px-2 py-1 text-xs" />
+							<td class="ui-table-dense-td">
+								<input name="banner_order" type="number" min="0" value={banner.order ?? ''} class="ui-input-compact w-16" />
 							</td>
-							<td class="py-2 pr-2 text-center">
+							<td class="ui-table-dense-td text-center">
 								<input type="checkbox" name={`banner_enabled_${banner.id}`} checked={banner.enabled !== false} />
 							</td>
-							<td class="py-2">
-								<button type="button" class="remove-banner text-xs text-red-700 hover:underline">{actions.removeBanner}</button>
+							<td class="ui-table-dense-td">
+								<button type="button" class="remove-banner ui-link--danger">{actions.removeBanner}</button>
 							</td>
 						</tr>
 					))
@@ -121,9 +123,9 @@ const { fields, actions, bannerLinkTypes, bannerStyles, bannerImageVariants } = 
 		</table>
 	</div>
 
-	<button type="button" id="add-banner" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-700 hover:border-brand">
+	<Button type="button" id="add-banner" variant="add">
 		{actions.addBanner}
-	</button>
+	</Button>
 
 	<template id="banner-category-options">
 		<option value="">—</option>
@@ -140,7 +142,7 @@ const { fields, actions, bannerLinkTypes, bannerStyles, bannerImageVariants } = 
 			))
 		}
 	</template>
-</section>
+</Panel>
 
 <script
 	define:vars={{
@@ -164,19 +166,19 @@ const { fields, actions, bannerLinkTypes, bannerStyles, bannerImageVariants } = 
 		const style = row.querySelector('.banner-style')?.value ?? 'image';
 		const linkType = row.querySelector('.banner-link-type')?.value ?? 'category';
 		row.querySelectorAll('.banner-field-image').forEach((el) => {
-			el.classList.toggle('hidden', style !== 'image');
+			el.classList.toggle('banner-cell-hidden', style !== 'image');
 		});
 		row.querySelectorAll('.banner-field-text').forEach((el) => {
-			el.classList.toggle('hidden', style !== 'text');
+			el.classList.toggle('banner-cell-hidden', style !== 'text');
 		});
 		row.querySelectorAll('.banner-field-category').forEach((el) => {
-			el.classList.toggle('hidden', linkType !== 'category');
+			el.classList.toggle('banner-cell-hidden', linkType !== 'category');
 		});
 		row.querySelectorAll('.banner-field-page').forEach((el) => {
-			el.classList.toggle('hidden', linkType !== 'page');
+			el.classList.toggle('banner-cell-hidden', linkType !== 'page');
 		});
 		row.querySelectorAll('.banner-field-external').forEach((el) => {
-			el.classList.toggle('hidden', linkType !== 'external');
+			el.classList.toggle('banner-cell-hidden', linkType !== 'external');
 		});
 	}
 
@@ -192,60 +194,60 @@ const { fields, actions, bannerLinkTypes, bannerStyles, bannerImageVariants } = 
 	addBannerBtn?.addEventListener('click', () => {
 		const id = `banner_${Date.now()}`;
 		const tr = document.createElement('tr');
-		tr.className = 'banner-row border-b border-slate-50';
+		tr.className = 'banner-row ui-table-dense-row';
 		tr.dataset.bannerId = id;
 		const categoryOptions = categoryOptionsTpl?.innerHTML ?? '<option value="">—</option>';
 		const pageOptions = pageOptionsTpl?.innerHTML ?? '<option value="">—</option>';
 		tr.innerHTML = `
-			<td class="py-2 pr-2">
+			<td class="ui-table-dense-td">
 				<input type="hidden" name="banner_id" value="${id}" />
-				<input name="banner_label" required class="w-36 rounded border px-2 py-1 text-xs" />
+				<input name="banner_label" required class="ui-input-compact w-36" />
 			</td>
-			<td class="py-2 pr-2">
-				<select name="banner_style" class="banner-style rounded border px-2 py-1 text-xs">
+			<td class="ui-table-dense-td">
+				<select name="banner_style" class="banner-style ui-select-compact">
 					<option value="image">${styleImage}</option>
 					<option value="text">${styleText}</option>
 				</select>
 			</td>
-			<td class="py-2 pr-2 banner-field-image">
-				<input name="banner_image_url" class="w-44 rounded border px-2 py-1 font-mono text-xs" />
+			<td class="ui-table-dense-td banner-field-image">
+				<input name="banner_image_url" class="ui-input-compact ui-input-compact--mono w-44" />
 			</td>
-			<td class="py-2 pr-2 banner-field-image">
-				<select name="banner_image_variant" class="rounded border px-2 py-1 text-xs">
+			<td class="ui-table-dense-td banner-field-image">
+				<select name="banner_image_variant" class="ui-select-compact">
 					<option value="default">${variantDefault}</option>
 					<option value="blue">${variantBlue}</option>
 				</select>
 			</td>
-			<td class="py-2 pr-2 banner-field-text">
-				<input name="banner_text_title" class="w-32 rounded border px-2 py-1 text-xs" />
+			<td class="ui-table-dense-td banner-field-text">
+				<input name="banner_text_title" class="ui-input-compact w-32" />
 			</td>
-			<td class="py-2 pr-2 banner-field-text">
-				<input name="banner_text_button" class="w-28 rounded border px-2 py-1 text-xs" />
+			<td class="ui-table-dense-td banner-field-text">
+				<input name="banner_text_button" class="ui-input-compact w-28" />
 			</td>
-			<td class="py-2 pr-2">
-				<select name="banner_link_type" class="banner-link-type rounded border px-2 py-1 text-xs">
+			<td class="ui-table-dense-td">
+				<select name="banner_link_type" class="banner-link-type ui-select-compact">
 					<option value="category">${linkCategory}</option>
 					<option value="page">${linkPage}</option>
 					<option value="external">${linkExternal}</option>
 				</select>
 			</td>
-			<td class="py-2 pr-2 banner-field-category">
-				<select name="banner_category_slug" class="w-36 rounded border px-2 py-1 text-xs">${categoryOptions}</select>
+			<td class="ui-table-dense-td banner-field-category">
+				<select name="banner_category_slug" class="ui-select-compact w-36">${categoryOptions}</select>
 			</td>
-			<td class="py-2 pr-2 banner-field-page">
-				<select name="banner_page_path" class="w-44 rounded border px-2 py-1 text-xs">${pageOptions}</select>
+			<td class="ui-table-dense-td banner-field-page">
+				<select name="banner_page_path" class="ui-select-compact w-44">${pageOptions}</select>
 			</td>
-			<td class="py-2 pr-2 banner-field-external">
-				<input name="banner_external_url" class="w-40 rounded border px-2 py-1 font-mono text-xs" placeholder="https://" />
+			<td class="ui-table-dense-td banner-field-external">
+				<input name="banner_external_url" class="ui-input-compact ui-input-compact--mono w-40" placeholder="https://" />
 			</td>
-			<td class="py-2 pr-2">
-				<input name="banner_order" type="number" min="0" class="w-16 rounded border px-2 py-1 text-xs" />
+			<td class="ui-table-dense-td">
+				<input name="banner_order" type="number" min="0" class="ui-input-compact w-16" />
 			</td>
-			<td class="py-2 pr-2 text-center">
+			<td class="ui-table-dense-td text-center">
 				<input type="checkbox" name="banner_enabled_${id}" checked />
 			</td>
-			<td class="py-2">
-				<button type="button" class="remove-banner text-xs text-red-700 hover:underline">${removeBannerLabel}</button>
+			<td class="ui-table-dense-td">
+				<button type="button" class="remove-banner ui-link--danger">${removeBannerLabel}</button>
 			</td>
 		`;
 		bannersBody?.appendChild(tr);
@@ -253,8 +255,9 @@ const { fields, actions, bannerLinkTypes, bannerStyles, bannerImageVariants } = 
 	});
 </script>
 
-<style>
-	.hidden {
-		display: none;
+<style is:global>
+	#banners-table td.banner-cell-hidden {
+		visibility: hidden;
+		pointer-events: none;
 	}
 </style>

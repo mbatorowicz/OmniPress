@@ -22,7 +22,7 @@ const pdfAssets = assets.filter(isPdfAsset);
 ---
 
 <div
-	class="mt-4 rounded-lg border border-slate-200 bg-slate-50/80 p-4"
+	class="ui-panel--subtle mt-4"
 	data-pdf-attachments
 	data-post-id={postId}
 	data-label-link={labels.displayLink}
@@ -32,14 +32,14 @@ const pdfAssets = assets.filter(isPdfAsset);
 	data-label-remove-failed={labels.removeFailed}
 >
 	<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-		<h3 class="text-sm font-medium text-slate-700">{labels.heading}</h3>
-		<label class="cursor-pointer rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50">
+		<h3 class="ui-subheading">{labels.heading}</h3>
+		<label class="ui-btn--file">
 			{labels.add}
 			<input type="file" accept="application/pdf" class="hidden" data-pdf-upload />
 		</label>
 	</div>
 
-	<p class:list={['text-xs text-slate-500', pdfAssets.length > 0 && 'hidden']} data-pdf-empty>
+	<p class:list={['ui-hint', pdfAssets.length > 0 && 'hidden']} data-pdf-empty>
 		{labels.empty}
 	</p>
 
@@ -53,17 +53,17 @@ const pdfAssets = assets.filter(isPdfAsset);
 						data-asset-id={asset.id}
 					>
 						<div class="min-w-0 flex-1">
-							<p class="flex items-center gap-1.5 truncate text-sm font-medium text-slate-800">
-								<Icon name="file-text" size={16} class="text-slate-500" />
+							<p class="ui-subheading flex items-center gap-1.5 truncate">
+								<Icon name="file-text" size={16} class="ui-muted" />
 								{asset.filename}
 							</p>
 							{url && (
-								<a href={url} target="_blank" rel="noopener noreferrer" class="text-xs text-brand hover:underline">
+								<a href={url} target="_blank" rel="noopener noreferrer" class="ui-link text-xs">
 									{url}
 								</a>
 							)}
 						</div>
-						<fieldset class="flex shrink-0 flex-col gap-1 text-xs text-slate-600">
+						<fieldset class="ui-label-muted flex shrink-0 flex-col gap-1 text-xs">
 							<label class="flex cursor-pointer items-center gap-2">
 								<input
 									type="radio"
@@ -88,7 +88,7 @@ const pdfAssets = assets.filter(isPdfAsset);
 						<button
 							type="button"
 							data-pdf-remove
-							class="shrink-0 rounded border border-red-200 p-1 text-red-700 hover:bg-red-50"
+							class="ui-btn--icon-danger"
 							aria-label={labels.remove}
 						>
 							<Icon name="x" size={14} />

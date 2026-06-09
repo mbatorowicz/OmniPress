@@ -2,6 +2,7 @@
 import { adminRecentChanges } from '@/i18n';
 import Alert from '@/components/ui/Alert.astro';
 import Button from '@/components/ui/Button.astro';
+import Panel from '@/components/ui/Panel.astro';
 import type { RecentChangeEntry } from '@/lib/recent-changes/types';
 
 interface Props {
@@ -21,34 +22,34 @@ const kindLabels = adminRecentChanges.kinds;
 {errorMessage && <Alert variant="error">{errorMessage}</Alert>}
 {!hasAstroChannel && <Alert variant="warning">{adminRecentChanges.noAstroChannel}</Alert>}
 
-<section class="mb-8 max-w-4xl space-y-3 rounded-xl border bg-white p-6">
-	<h2 class="text-sm font-semibold text-slate-800">{adminRecentChanges.currentHeading}</h2>
+<Panel class="ui-form-section mb-8 max-w-4xl">
+	<h2 class="ui-section-title">{adminRecentChanges.currentHeading}</h2>
 	{
 		entries.length === 0 ? (
-			<p class="text-sm text-slate-500">{adminRecentChanges.currentEmpty}</p>
+			<p class="ui-muted">{adminRecentChanges.currentEmpty}</p>
 		) : (
 			<div class="overflow-x-auto">
-				<table class="w-full min-w-[32rem] text-left text-sm">
+				<table class="ui-table-dense min-w-[32rem]">
 					<thead>
-						<tr class="border-b text-xs text-slate-500">
-							<th class="py-2 pr-3">{adminRecentChanges.table.title}</th>
-							<th class="py-2 pr-3">{adminRecentChanges.table.href}</th>
-							<th class="py-2 pr-3">{adminRecentChanges.table.kind}</th>
-							<th class="py-2">{adminRecentChanges.table.date}</th>
+						<tr class="ui-table-dense-head">
+							<th class="ui-table-dense-th--wide">{adminRecentChanges.table.title}</th>
+							<th class="ui-table-dense-th--wide">{adminRecentChanges.table.href}</th>
+							<th class="ui-table-dense-th--wide">{adminRecentChanges.table.kind}</th>
+							<th class="ui-table-dense-th--wide">{adminRecentChanges.table.date}</th>
 						</tr>
 					</thead>
 					<tbody>
 						{
 							entries.map((entry) => (
-								<tr class="border-b border-slate-50">
-									<td class="py-2 pr-3">{entry.title}</td>
-									<td class="py-2 pr-3 font-mono text-xs">{entry.href}</td>
-									<td class="py-2 pr-3 text-xs">
+								<tr class="ui-table-dense-row">
+									<td class="ui-table-dense-td--wide">{entry.title}</td>
+									<td class="ui-table-dense-td--wide font-mono text-xs">{entry.href}</td>
+									<td class="ui-table-dense-td--wide text-xs">
 										{entry.kind in kindLabels
 											? kindLabels[entry.kind as keyof typeof kindLabels]
 											: entry.kind}
 									</td>
-									<td class="py-2 text-xs text-slate-500">
+									<td class="ui-table-dense-td--wide text-xs text-slate-500">
 										{new Date(entry.changedAt).toLocaleString('pl-PL')}
 									</td>
 								</tr>
@@ -59,26 +60,26 @@ const kindLabels = adminRecentChanges.kinds;
 			</div>
 		)
 	}
-</section>
+</Panel>
 
-<section class="max-w-2xl space-y-4 rounded-xl border bg-white p-6">
-	<h2 class="text-sm font-semibold text-slate-800">{adminRecentChanges.announceHeading}</h2>
-	<p class="text-xs text-slate-500">{adminRecentChanges.announceHint}</p>
+<Panel class="ui-form-section max-w-2xl">
+	<h2 class="ui-section-title">{adminRecentChanges.announceHeading}</h2>
+	<p class="ui-hint">{adminRecentChanges.announceHint}</p>
 
 	<form method="post" action={`/api/admin/sites/${siteId}/changes/announce`} class="space-y-4">
-		<label class="block text-sm">
+		<label class="ui-label">
 			<span class="font-medium">{adminRecentChanges.fields.title}</span>
 			<input
 				name="change_title"
 				required
 				minlength={3}
 				placeholder="Zaktualizowano numery rachunków bankowych"
-				class="mt-1 w-full rounded-lg border px-3 py-2"
+				class="ui-input"
 				disabled={!hasAstroChannel}
 			/>
 		</label>
 
-		<label class="block text-sm">
+		<label class="ui-label">
 			<span class="font-medium">{adminRecentChanges.fields.href}</span>
 			<input
 				name="change_href"
@@ -86,32 +87,32 @@ const kindLabels = adminRecentChanges.kinds;
 				required
 				value="/kontakt"
 				placeholder="/kontakt"
-				class="mt-1 w-full rounded-lg border px-3 py-2 font-mono"
+				class="ui-input font-mono"
 				disabled={!hasAstroChannel}
 			/>
 		</label>
 
 		<div class="flex flex-wrap gap-2 text-xs">
-			<span class="text-slate-500">{adminRecentChanges.presets.label}:</span>
+			<span class="ui-hint">{adminRecentChanges.presets.label}:</span>
 			<button
 				type="button"
-				class="preset-href rounded border border-slate-200 px-2 py-1 hover:border-brand"
+				class="ui-btn ui-btn--preset preset-href"
 				data-href="/kontakt"
 			>
 				{adminRecentChanges.presets.kontakt}
 			</button>
 			<button
 				type="button"
-				class="preset-href rounded border border-slate-200 px-2 py-1 hover:border-brand"
+				class="ui-btn ui-btn--preset preset-href"
 				data-href="/"
 			>
 				{adminRecentChanges.presets.home}
 			</button>
 		</div>
 
-		<label class="block text-sm">
+		<label class="ui-label">
 			<span class="font-medium">{adminRecentChanges.fields.kind}</span>
-			<select name="change_kind" class="mt-1 w-full rounded-lg border px-3 py-2" disabled={!hasAstroChannel}>
+			<select name="change_kind" class="ui-input" disabled={!hasAstroChannel}>
 				<option value="page">{adminRecentChanges.kinds.page}</option>
 				<option value="manual">{adminRecentChanges.kinds.manual}</option>
 			</select>
@@ -121,7 +122,7 @@ const kindLabels = adminRecentChanges.kinds;
 			{adminRecentChanges.actions.announce}
 		</Button>
 	</form>
-</section>
+</Panel>
 
 <script>
 	document.querySelectorAll('.preset-href').forEach((btn) => {

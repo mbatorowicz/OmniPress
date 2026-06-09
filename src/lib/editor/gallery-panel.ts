@@ -55,7 +55,7 @@ function renderGallery(root: HTMLElement, labels: GalleryLabels, postId: string)
 				<div class="flex shrink-0 gap-1">
 					<button type="button" data-gallery-up class="rounded border border-slate-200 px-1.5 py-0.5 text-xs hover:bg-slate-50" ${index === 0 ? 'disabled' : ''} aria-label="${labels.moveUp}">↑</button>
 					<button type="button" data-gallery-down class="rounded border border-slate-200 px-1.5 py-0.5 text-xs hover:bg-slate-50" ${index === order.length - 1 ? 'disabled' : ''} aria-label="${labels.moveDown}">↓</button>
-					<button type="button" data-gallery-remove class="rounded border border-red-200 px-1.5 py-0.5 text-xs text-red-700 hover:bg-red-50" aria-label="${labels.remove}">×</button>
+					<button type="button" data-gallery-remove class="ui-btn ui-btn--icon-danger text-xs" aria-label="${labels.remove}">×</button>
 				</div>
 			</div>
 		`;
