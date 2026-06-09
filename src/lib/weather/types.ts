@@ -7,13 +7,28 @@ export const WEATHER_WARNINGS_CACHE_TTL_MS = 2 * 60 * 60 * 1000;
 
 export type WeatherWarningLevel = 1 | 2 | 3;
 
+export type WeatherAffectedPowiat = {
+	code: string;
+	name: string;
+	isLocal: boolean;
+};
+
 export type WeatherWarning = {
 	id: string;
 	level: WeatherWarningLevel;
+	phenomenonCode: string;
 	phenomenon: string;
+	probability: string;
 	validFrom: string;
 	validTo: string;
 	content: string;
+	comments: string;
+	sms: string;
+	office: string;
+	rcb: boolean;
+	publishedAt: string;
+	affectedPowiaty: WeatherAffectedPowiat[];
+	affectsLocalPowiat: boolean;
 };
 
 export type WeatherWarningsFile = {
@@ -33,12 +48,20 @@ export type WeatherWarningsFile = {
 
 export type OsmetWarning = {
 	Level: string;
+	PhenomenonCode?: string;
 	PhenomenonName: string;
+	Probability?: number | string;
 	Content: string;
+	Comments?: string;
+	SMS?: string;
+	Name2?: string;
+	Rcb?: number | boolean;
 	ValidFrom: string;
 	ValidTo: string;
+	ReleaseDateTime?: string;
 	LxValidFrom?: string;
 	LxValidTo?: string;
+	LxReleaseDateTime?: string;
 };
 
 export type OsmetTerytResponse = {

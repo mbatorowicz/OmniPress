@@ -23,6 +23,8 @@ describe('normalizeOsmetTeryt', () => {
 		expect(file.active).toHaveLength(1);
 		expect(file.active[0].level).toBe(1);
 		expect(file.active[0].phenomenon).toBe('Burze');
+		expect(file.active[0].affectsLocalPowiat).toBe(true);
+		expect(file.active[0].affectedPowiaty.some((p) => p.code === '1433')).toBe(true);
 		expect(file.updatedAt).toBe('2026-06-09T18:33:59+02:00');
 	});
 
