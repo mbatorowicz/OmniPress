@@ -67,6 +67,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Strony statyczne (admin) + publikacja do repo Astro | ✅ `/admin/units/[id]/pages` |
 | Walidacja linków menu przed sync GitHub | ✅ |
 | Ostatnie zmiany (ogłoszenia) | ✅ `/admin/units/[id]/changes` |
+| Komunikaty CERT Polska (RSS → JSON w repo Astro) | ✅ Layout → widget CERT; cron `/api/worker/cert-sync`; API `/api/cert/advisories` |
 | Test połączenia GitHub | ✅ |
 | Logi publikacji + retry ręczny | ✅ |
 | Weryfikacja logów buildu Vercel po publikacji | ✅ (opcjonalnie token / project id) |

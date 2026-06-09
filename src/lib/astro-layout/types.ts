@@ -32,8 +32,14 @@ export type DisplaySlot = {
 	widget?: SlotWidgetConfig;
 };
 
+export type CertAdvisoriesWidgetConfig = SlotWidgetConfig & {
+	/** Filtr kategorii CERT (np. „Dla użytkowników”); brak = wszystkie */
+	categoryFilter?: string;
+};
+
 export type SiteWidgetsConfig = {
 	recent_changes?: SlotWidgetConfig;
+	cert_advisories?: CertAdvisoriesWidgetConfig;
 };
 
 export type SiteAstroLayout = {

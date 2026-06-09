@@ -123,6 +123,11 @@ export const adminLayout = {
 	navValidationHint:
 		'Sync do GitHub jest zablokowany, dopóki menu wskazuje nieistniejące adresy. Utwórz strony statyczne lub popraw href.',
 	widgetsHint: 'Ustawienia widgetów niezależnych od kategorii wpisów.',
+	certAdvisoriesHint:
+		'Komunikaty pobierane z kanału RSS CERT Polska (moje.cert.pl). Po zapisie z sync do GitHub trafia plik omnipress-cert-advisories.json — widget na stronie Astro czyta ten plik.',
+	certCategories: {
+		all: 'Wszystkie kategorie',
+	},
 	categoriesHint: 'Slug musi odpowiadać segmentowi URL wpisu (/{category}/{slug}).',
 	displaysHint: 'Zaznacz, które kategorie mają trafiać do danego komponentu na stronie Astro.',
 	displaysRefreshHint: 'Po dodaniu nowej kategorii zapisz formularz — macierz odświeży się przy następnym otwarciu.',
@@ -148,6 +153,11 @@ export const adminLayout = {
 		recentChangesTitle: 'Tytuł widgetu ostatnich zmian',
 		recentChangesLimit: 'Limit pozycji',
 		recentChangesEnabled: 'Pokaż widget ostatnich zmian',
+		certAdvisoriesHeading: 'Komunikaty CERT Polska',
+		certAdvisoriesTitle: 'Tytuł widgetu CERT',
+		certAdvisoriesLimit: 'Limit komunikatów',
+		certAdvisoriesCategory: 'Kategoria CERT',
+		certAdvisoriesEnabled: 'Pokaż komunikaty CERT na stronie',
 		categorySlug: 'Slug',
 		categoryName: 'Nazwa',
 		category: 'Kategoria',

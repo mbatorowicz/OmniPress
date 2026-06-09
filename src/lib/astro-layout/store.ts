@@ -17,6 +17,7 @@ import {
 	parseNavigationJson,
 } from './parse';
 import { normalizeSiteAstroLayout } from './parse';
+import { syncCertAdvisoriesOnGitHub } from '@/lib/cert/github';
 import { appendRecentChangeOnGitHub } from '@/lib/recent-changes/github';
 import { buildLayoutRecentChangeEntry } from '@/lib/recent-changes/layout-entry';
 import type { SiteAstroLayout } from './types';
@@ -146,8 +147,23 @@ export async function syncSiteAstroLayoutToGitHub(
 		// Rejestr zmian nie blokuje sync layoutu
 	}
 
+	let certSummary = '';
+	try {
+		const cert = await syncCertAdvisoriesOnGitHub(
+			cfg,
+			creds.token,
+			dest.config,
+			layout.widgets.cert_advisories,
+		);
+		if (cert.ok && cert.count > 0) {
+			certSummary = `, ${cert.count} komunikatów CERT`;
+		}
+	} catch {
+		// Sync CERT nie blokuje layoutu
+	}
+
 	return {
 		ok: true,
-		summary: `Zapisano ${navPath} i ${catPath} w ${cfg.owner}/${cfg.repo}`,
+		summary: `Zapisano ${navPath} i ${catPath} w ${cfg.owner}/${cfg.repo}${certSummary}`,
 	};
 }

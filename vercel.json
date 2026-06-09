@@ -3,6 +3,10 @@
     {
       "path": "/api/worker/publish",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/worker/cert-sync",
+      "schedule": "0 7 * * *"
     }
   ]
 }

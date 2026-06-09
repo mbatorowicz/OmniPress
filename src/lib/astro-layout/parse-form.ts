@@ -46,15 +46,32 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 }
 
 function parseWidgetsFromForm(form: FormData): SiteWidgetsConfig {
-	const title = String(form.get('widget_recent_changes_title') ?? '').trim();
-	const limit = parseIntField(form.get('widget_recent_changes_limit'));
-	const enabled = form.get('widget_recent_changes_enabled') === 'on';
 	const widgets: SiteWidgetsConfig = {};
+
+	const recentTitle = String(form.get('widget_recent_changes_title') ?? '').trim();
+	const recentLimit = parseIntField(form.get('widget_recent_changes_limit'));
+	const recentEnabled = form.get('widget_recent_changes_enabled') === 'on';
 	const recent: SiteWidgetsConfig['recent_changes'] = {};
-	if (title) recent.title = title;
-	if (limit) recent.limit = limit;
-	if (!enabled) recent.enabled = false;
+	if (recentTitle) recent.title = recentTitle;
+	if (recentLimit) recent.limit = recentLimit;
+	if (!recentEnabled) recent.enabled = false;
 	if (Object.keys(recent).length > 0) widgets.recent_changes = recent;
+
+	const certTitle = String(form.get('widget_cert_advisories_title') ?? '').trim();
+	const certLimit = parseIntField(form.get('widget_cert_advisories_limit'));
+	const certMoreLink = String(form.get('widget_cert_advisories_more_link') ?? '').trim();
+	const certCategory = String(form.get('widget_cert_advisories_category') ?? '').trim();
+	const certEnabled = form.get('widget_cert_advisories_enabled') === 'on';
+	const certVariant = String(form.get('widget_cert_advisories_variant') ?? '').trim();
+	const cert: SiteWidgetsConfig['cert_advisories'] = {};
+	if (certTitle) cert.title = certTitle;
+	if (certLimit) cert.limit = certLimit;
+	if (certMoreLink) cert.moreLink = certMoreLink;
+	if (certCategory) cert.categoryFilter = certCategory;
+	if (!certEnabled) cert.enabled = false;
+	if (certVariant === 'alert' || certVariant === 'default') cert.variant = certVariant;
+	if (Object.keys(cert).length > 0) widgets.cert_advisories = cert;
+
 	return widgets;
 }
 

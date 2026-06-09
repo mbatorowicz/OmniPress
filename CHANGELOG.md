@@ -3,6 +3,14 @@
 Format: [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+commit`.
 
+## [0.7.18] — 2026-06-09
+
+### Dodane
+
+- Admin → Layout: widget **Komunikaty CERT Polska** — pobieranie z RSS `moje.cert.pl`, sync do `omnipress-cert-advisories.json` w repo Astro.
+- Cron Vercel: `/api/worker/cert-sync` (codziennie 07:00 UTC) — odświeża komunikaty dla aktywnych stron z włączonym widgetem.
+- Publiczne API: `GET /api/cert/advisories?limit=5&category=Dla+użytkowników`.
+
 ## [0.7.17] — 2026-06-08
 
 ### Dodane

@@ -1,6 +1,7 @@
 import type {
 	CategoryDefinition,
 	CategoryDisplays,
+	CertAdvisoriesWidgetConfig,
 	DisplaySlot,
 	NavItem,
 	SiteAstroLayout,
@@ -52,11 +53,27 @@ export function parseSlots(raw: unknown): DisplaySlot[] {
 	return raw.map(parseSlot).filter((s): s is DisplaySlot => s !== null);
 }
 
+function parseCertWidget(raw: unknown): CertAdvisoriesWidgetConfig | undefined {
+	const widget = parseWidget(raw);
+	if (!widget && (!raw || typeof raw !== 'object')) return undefined;
+	const categoryFilter =
+		raw && typeof raw === 'object' && typeof (raw as CertAdvisoriesWidgetConfig).categoryFilter === 'string'
+			? (raw as CertAdvisoriesWidgetConfig).categoryFilter.trim()
+			: '';
+	const result: CertAdvisoriesWidgetConfig = { ...widget };
+	if (categoryFilter) result.categoryFilter = categoryFilter;
+	return Object.keys(result).length > 0 ? result : undefined;
+}
+
 export function parseWidgets(raw: unknown): SiteWidgetsConfig {
 	if (!raw || typeof raw !== 'object') return {};
 	const o = raw as SiteWidgetsConfig;
+	const widgets: SiteWidgetsConfig = {};
 	const recent = parseWidget(o.recent_changes);
-	return recent ? { recent_changes: recent } : {};
+	if (recent) widgets.recent_changes = recent;
+	const cert = parseCertWidget(o.cert_advisories);
+	if (cert) widgets.cert_advisories = cert;
+	return widgets;
 }
 
 export function parseNavigationJson(text: string): NavItem[] {
