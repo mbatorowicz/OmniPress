@@ -25,6 +25,21 @@ export type SlotWidgetConfig = {
 	order?: number;
 	/** true = tylko przypięte, false = tylko nieprzypięte, brak = wszystkie */
 	pinnedOnly?: boolean;
+	/** sidebar.weather — TERYT powiatu (4 cyfry) */
+	terytPowiat?: string;
+	/** sidebar.weather — centrum mapy */
+	mapCenter?: { lat: number; lon: number };
+	/** sidebar.weather — zoom mapy Leaflet */
+	mapZoom?: number;
+	/** sidebar.weather — czy renderować mini-mapę */
+	showMap?: boolean;
+	/** sidebar.weather — sąsiednie powiaty na mapie (kody TERYT) */
+	mapScopePowiaty?: string[];
+};
+
+export type WeatherSlotWidgetConfig = SlotWidgetConfig & {
+	terytPowiat: string;
+	mapCenter: { lat: number; lon: number };
 };
 
 export type DisplaySlot = {

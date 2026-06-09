@@ -18,6 +18,8 @@ import {
 } from './parse';
 import { normalizeSiteAstroLayout } from './parse';
 import { syncCertAdvisoriesOnGitHub } from '@/lib/cert/github';
+import { syncWeatherWarningsOnGitHub } from '@/lib/weather/github';
+import { findWeatherSlot } from '@/lib/weather/filter';
 import { appendRecentChangeOnGitHub } from '@/lib/recent-changes/github';
 import { buildLayoutRecentChangeEntry } from '@/lib/recent-changes/layout-entry';
 import type { SiteAstroLayout } from './types';
@@ -163,8 +165,23 @@ export async function syncSiteAstroLayoutToGitHub(
 		// Sync CERT nie blokuje layoutu
 	}
 
+	let weatherSummary = '';
+	try {
+		const weather = await syncWeatherWarningsOnGitHub(
+			cfg,
+			creds.token,
+			dest.config,
+			findWeatherSlot(layout),
+		);
+		if (weather.ok && weather.count > 0) {
+			weatherSummary = `, ${weather.count} ostrzeżeń pogodowych`;
+		}
+	} catch {
+		// Sync pogody nie blokuje layoutu
+	}
+
 	return {
 		ok: true,
-		summary: `Zapisano ${navPath} i ${catPath} w ${cfg.owner}/${cfg.repo}${certSummary}`,
+		summary: `Zapisano ${navPath} i ${catPath} w ${cfg.owner}/${cfg.repo}${certSummary}${weatherSummary}`,
 	};
 }

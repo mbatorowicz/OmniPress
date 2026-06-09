@@ -7,6 +7,10 @@
     {
       "path": "/api/worker/cert-sync",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/worker/weather-sync",
+      "schedule": "0 */2 * * *"
     }
   ]
 }

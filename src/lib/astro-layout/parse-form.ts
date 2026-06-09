@@ -25,6 +25,49 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 	const variants = form.getAll('slot_widget_variant').map((v) => String(v).trim());
 	const orders = form.getAll('slot_widget_order');
 
+	const weatherIds = form.getAll('slot_weather_id').map((v) => String(v).trim());
+	const weatherTeryt = form.getAll('slot_weather_teryt_powiat').map((v) => String(v).trim());
+	const weatherLat = form.getAll('slot_weather_lat');
+	const weatherLon = form.getAll('slot_weather_lon');
+	const weatherZoom = form.getAll('slot_weather_map_zoom');
+	const weatherScope = form.getAll('slot_weather_map_scope').map((v) => String(v).trim());
+	const weatherBySlotId = new Map<
+		string,
+		{
+			terytPowiat?: string;
+			mapCenter?: { lat: number; lon: number };
+			mapZoom?: number;
+			showMap?: boolean;
+			mapScopePowiaty?: string[];
+		}
+	>();
+
+	for (let i = 0; i < weatherIds.length; i++) {
+		const weatherId = weatherIds[i];
+		if (!weatherId) continue;
+		const entry: {
+			terytPowiat?: string;
+			mapCenter?: { lat: number; lon: number };
+			mapZoom?: number;
+			showMap?: boolean;
+			mapScopePowiaty?: string[];
+		} = {};
+		if (weatherTeryt[i]) entry.terytPowiat = weatherTeryt[i];
+		const lat = Number(String(weatherLat[i] ?? '').trim());
+		const lon = Number(String(weatherLon[i] ?? '').trim());
+		if (Number.isFinite(lat) && Number.isFinite(lon)) entry.mapCenter = { lat, lon };
+		const zoom = Number(String(weatherZoom[i] ?? '').trim());
+		if (Number.isFinite(zoom) && zoom > 0) entry.mapZoom = Math.floor(zoom);
+		if (form.get(`slot_weather_show_map_${weatherId}`) !== 'on') entry.showMap = false;
+		if (weatherScope[i]) {
+			entry.mapScopePowiaty = weatherScope[i]
+				.split(',')
+				.map((c) => c.trim())
+				.filter(Boolean);
+		}
+		weatherBySlotId.set(weatherId, entry);
+	}
+
 	const slots: DisplaySlot[] = [];
 	for (let i = 0; i < ids.length; i++) {
 		const id = ids[i];
@@ -43,6 +86,13 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 		const order = parseOrderField(orders[i] ?? null);
 		if (order !== undefined) widget.order = order;
 		if (form.get(`slot_enabled_${id}`) !== 'on') widget.enabled = false;
+
+		const weather = weatherBySlotId.get(id);
+		if (weather?.terytPowiat) widget.terytPowiat = weather.terytPowiat;
+		if (weather?.mapCenter) widget.mapCenter = weather.mapCenter;
+		if (weather?.mapZoom) widget.mapZoom = weather.mapZoom;
+		if (weather?.showMap === false) widget.showMap = false;
+		if (weather?.mapScopePowiaty?.length) widget.mapScopePowiaty = weather.mapScopePowiaty;
 
 		slots.push({
 			id,

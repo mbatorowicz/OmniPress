@@ -36,6 +36,27 @@ function parseWidget(raw: unknown): SlotWidgetConfig | undefined {
 	if (typeof w.order === 'number' && Number.isFinite(w.order) && w.order >= 0) {
 		widget.order = Math.floor(w.order);
 	}
+	if (typeof w.terytPowiat === 'string' && w.terytPowiat.trim()) {
+		widget.terytPowiat = w.terytPowiat.trim();
+	}
+	if (w.mapCenter && typeof w.mapCenter === 'object') {
+		const lat = Number((w.mapCenter as { lat?: unknown }).lat);
+		const lon = Number((w.mapCenter as { lon?: unknown }).lon);
+		if (Number.isFinite(lat) && Number.isFinite(lon)) {
+			widget.mapCenter = { lat, lon };
+		}
+	}
+	if (typeof w.mapZoom === 'number' && w.mapZoom > 0) {
+		widget.mapZoom = Math.floor(w.mapZoom);
+	}
+	if (w.showMap === false) widget.showMap = false;
+	if (Array.isArray(w.mapScopePowiaty)) {
+		const codes = w.mapScopePowiaty
+			.filter((c): c is string => typeof c === 'string')
+			.map((c) => c.trim())
+			.filter(Boolean);
+		if (codes.length > 0) widget.mapScopePowiaty = codes;
+	}
 	return Object.keys(widget).length > 0 ? widget : undefined;
 }
 

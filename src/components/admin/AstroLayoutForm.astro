@@ -35,6 +35,7 @@ const navigationJson = JSON.stringify(layout.navigation, null, '\t');
 const recentWidget = layout.widgets.recent_changes ?? {};
 const certWidget = layout.widgets.cert_advisories ?? {};
 const slots = layout.slots;
+const weatherSlots = slots.filter((slot) => slot.component === 'sidebar.weather');
 ---
 
 {saved && (
@@ -149,6 +150,81 @@ const slots = layout.slots;
 		<button type="button" id="add-slot" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-700 hover:border-brand">
 			{adminLayout.actions.addSlot}
 		</button>
+
+		{
+			weatherSlots.length > 0 && (
+				<div class="mt-6 space-y-4 border-t pt-6">
+					<h3 class="text-sm font-medium text-slate-800">{adminLayout.fields.weatherHeading}</h3>
+					<p class="text-xs text-slate-500">{adminLayout.weatherHint}</p>
+					{
+						weatherSlots.map((slot) => (
+							<div class="grid max-w-2xl gap-3 rounded-lg border border-slate-100 p-4 sm:grid-cols-2">
+								<input type="hidden" name="slot_weather_id" value={slot.id} />
+								<p class="text-xs font-medium text-slate-700 sm:col-span-2">
+									{slot.label} · <code class="rounded bg-slate-100 px-1">{slot.id}</code>
+								</p>
+								<label class="block text-sm">
+									<span class="font-medium">{adminLayout.fields.weatherTerytPowiat}</span>
+									<input
+										name="slot_weather_teryt_powiat"
+										value={slot.widget?.terytPowiat ?? ''}
+										pattern="[0-9]{4}"
+										class="mt-1 w-full rounded-lg border px-3 py-2 font-mono text-sm"
+									/>
+								</label>
+								<label class="block text-sm">
+									<span class="font-medium">{adminLayout.fields.weatherMapZoom}</span>
+									<input
+										name="slot_weather_map_zoom"
+										type="number"
+										min="1"
+										max="18"
+										value={slot.widget?.mapZoom ?? 11}
+										class="mt-1 w-full rounded-lg border px-3 py-2"
+									/>
+								</label>
+								<label class="block text-sm">
+									<span class="font-medium">{adminLayout.fields.weatherLat}</span>
+									<input
+										name="slot_weather_lat"
+										type="number"
+										step="any"
+										value={slot.widget?.mapCenter?.lat ?? ''}
+										class="mt-1 w-full rounded-lg border px-3 py-2"
+									/>
+								</label>
+								<label class="block text-sm">
+									<span class="font-medium">{adminLayout.fields.weatherLon}</span>
+									<input
+										name="slot_weather_lon"
+										type="number"
+										step="any"
+										value={slot.widget?.mapCenter?.lon ?? ''}
+										class="mt-1 w-full rounded-lg border px-3 py-2"
+									/>
+								</label>
+								<label class="block text-sm sm:col-span-2">
+									<span class="font-medium">{adminLayout.fields.weatherMapScope}</span>
+									<input
+										name="slot_weather_map_scope"
+										value={slot.widget?.mapScopePowiaty?.join(', ') ?? ''}
+										class="mt-1 w-full rounded-lg border px-3 py-2 font-mono text-sm"
+									/>
+								</label>
+								<label class="flex items-center gap-2 text-sm sm:col-span-2">
+									<input
+										type="checkbox"
+										name={`slot_weather_show_map_${slot.id}`}
+										checked={slot.widget?.showMap !== false}
+									/>
+									{adminLayout.fields.weatherShowMap}
+								</label>
+							</div>
+						))
+					}
+				</div>
+			)
+		}
 	</section>
 
 	<section class="space-y-3 rounded-xl border bg-white p-6">
