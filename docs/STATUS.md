@@ -68,7 +68,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Walidacja linków menu przed sync GitHub | ✅ |
 | Ostatnie zmiany (ogłoszenia) | ✅ `/admin/units/[id]/changes` |
 | Komunikaty CERT Polska (RSS → JSON w repo Astro) | ✅ Layout → widget CERT; cron `/api/worker/cert-sync`; API `/api/cert/advisories` |
-| Ostrzeżenia pogodowe IMGW (osmet-teryt → JSON w repo Astro) | ✅ Slot `sidebar.weather`; cron `/api/worker/weather-sync` co 2 h; API `/api/weather/warnings` |
+| Ostrzeżenia pogodowe IMGW (osmet-teryt → JSON w repo Astro) | ✅ Slot `sidebar.weather`; cron `/api/worker/weather-sync` raz dziennie (Hobby); sync przy zapisie layoutu; API `/api/weather/warnings` (cache 2 h) |
 | Test połączenia GitHub | ✅ |
 | Logi publikacji + retry ręczny | ✅ |
 | Weryfikacja logów buildu Vercel po publikacji | ✅ (opcjonalnie token / project id) |

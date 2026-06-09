@@ -77,7 +77,7 @@ Na podglądzie wpisu: tabela **Status publikacji**. Przy błędzie (`failed`): *
 
 ## 6. Layout, import i bulk
 
-- **Layout Astro:** `/admin/units/[id]/layout` — menu, kategorie, sloty → sync do GitHub. Przed sync walidacja linków wewnętrznych (strony statyczne, archiwa kategorii, `/kontakt`). Slot `sidebar.weather`: TERYT powiatu, współrzędne mapy → plik `omnipress-weather-warnings.json` + cron co 2 h.
+- **Layout Astro:** `/admin/units/[id]/layout` — menu, kategorie, sloty → sync do GitHub. Przed sync walidacja linków wewnętrznych (strony statyczne, archiwa kategorii, `/kontakt`). Slot `sidebar.weather`: TERYT powiatu, współrzędne mapy → plik `omnipress-weather-warnings.json` + cron raz dziennie (Hobby Vercel); sync też przy każdym zapisie layoutu.
 - **Strony statyczne:** `/admin/units/[id]/pages` — treści pod stałe URL (np. `/gmina/plan-ogolny`); publikacja od razu do `src/content/pages/` w repo Astro.
 - **Import wpisów z GitHub:** `/admin` → synchronizacja (wpisy już na stronie).
 - **Ostatnie zmiany:** `/admin/units/[id]/changes`.

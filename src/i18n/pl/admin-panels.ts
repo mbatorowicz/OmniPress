@@ -148,7 +148,7 @@ export const adminLayout = {
 	certAdvisoriesHint:
 		'Komunikaty pobierane z kanału RSS CERT Polska (moje.cert.pl). Po zapisie z sync do GitHub trafia plik omnipress-cert-advisories.json — widget na stronie Astro czyta ten plik.',
 	weatherHint:
-		'Ostrzeżenia IMGW (meteo.imgw.pl) dla powiatu jednostki. Co 2 h cron aktualizuje omnipress-weather-warnings.json w repo Astro. Publiczne API: /api/weather/warnings?terytPowiat=XXXX.',
+		'Ostrzeżenia IMGW (meteo.imgw.pl) dla powiatu jednostki. Cron raz dziennie (08:00 UTC) + sync przy zapisie layoutu aktualizuje omnipress-weather-warnings.json w repo Astro. Publiczne API (cache 2 h): /api/weather/warnings?terytPowiat=XXXX.',
 	certCategories: {
 		all: 'Wszystkie kategorie',
 	},
