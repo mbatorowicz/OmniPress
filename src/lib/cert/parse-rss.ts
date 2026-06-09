@@ -35,6 +35,13 @@ function parsePubDate(raw: string): string {
 	return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
 }
 
+const LEADING_EMOJI_RE =
+	/^(\s*(?:\p{Extended_Pictographic}(?:\p{Emoji_Modifier}|\uFE0F)?(?:\u200D\p{Extended_Pictographic}(?:\p{Emoji_Modifier}|\uFE0F)?)*)\s*)+/u;
+
+export function stripLeadingEmoji(text: string): string {
+	return text.replace(LEADING_EMOJI_RE, '').trimStart();
+}
+
 export function parseCertAdvisoriesRss(xml: string): CertAdvisory[] {
 	const items: CertAdvisory[] = [];
 	const itemRe = /<item>([\s\S]*?)<\/item>/gi;
@@ -52,7 +59,7 @@ export function parseCertAdvisoriesRss(xml: string): CertAdvisory[] {
 		const category = categories[0] ? decodeXmlEntities(categories[0]) : '';
 
 		items.push({
-			title: decodeXmlEntities(stripHtml(title)),
+			title: stripLeadingEmoji(decodeXmlEntities(stripHtml(title))),
 			href: decodeXmlEntities(link),
 			summary: stripHtml(description).slice(0, 280),
 			publishedAt: parsePubDate(pubDate),

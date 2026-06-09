@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseCertAdvisoriesRss } from './parse-rss';
+import { parseCertAdvisoriesRss, stripLeadingEmoji } from './parse-rss';
 
 const SAMPLE_RSS = `<?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0">
@@ -22,11 +22,18 @@ const SAMPLE_RSS = `<?xml version="1.0" encoding="utf-8"?>
 </channel>
 </rss>`;
 
+describe('stripLeadingEmoji', () => {
+	it('usuwa emoji z początku tytułu', () => {
+		expect(stripLeadingEmoji('🏦 Uwaga na oszustwa!')).toBe('Uwaga na oszustwa!');
+		expect(stripLeadingEmoji('Podatność w Gitea')).toBe('Podatność w Gitea');
+	});
+});
+
 describe('parseCertAdvisoriesRss', () => {
 	it('parsuje pozycje RSS z kategorią i skrótem', () => {
 		const entries = parseCertAdvisoriesRss(SAMPLE_RSS);
 		expect(entries).toHaveLength(2);
-		expect(entries[0].title).toContain('oszustwa');
+		expect(entries[0].title).toBe('Uwaga na oszustwa!');
 		expect(entries[0].href).toBe('https://moje.cert.pl/komunikaty/2026/88/test/');
 		expect(entries[0].category).toBe('Dla użytkowników');
 		expect(entries[0].summary).toContain('phishingowe');

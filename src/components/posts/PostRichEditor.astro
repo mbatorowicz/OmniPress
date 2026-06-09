@@ -1,4 +1,6 @@
 ---
+import Icon from '@/components/ui/Icon.astro';
+
 type Props = {
 	initialMarkdown: string;
 	placeholder: string;
@@ -30,7 +32,9 @@ const { initialMarkdown, placeholder, toolbar } = Astro.props;
 		<button type="button" data-editor-cmd="h3" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.h3}>H3</button>
 		<button type="button" data-editor-cmd="bullet" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.bulletList}>• Lista</button>
 		<button type="button" data-editor-cmd="ordered" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.orderedList}>1. Lista</button>
-		<button type="button" data-editor-cmd="link" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.link}>🔗</button>
+		<button type="button" data-editor-cmd="link" class="rounded px-2 py-1 text-sm text-slate-600 hover:bg-white" title={toolbar.link}>
+			<Icon name="link" size={16} />
+		</button>
 	</div>
 	<div data-tiptap-mount class="min-h-[280px]"></div>
 	<textarea name="content_md" class="hidden" data-content-md>{initialMarkdown}</textarea>

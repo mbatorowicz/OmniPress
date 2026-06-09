@@ -1,0 +1,16 @@
+---
+import { iconSvg, type IconName } from '@/lib/ui/icons';
+
+interface Props {
+	name: IconName;
+	size?: number;
+	class?: string;
+}
+
+const { name, size = 16, class: className } = Astro.props;
+---
+
+<span
+	class:list={['inline-flex shrink-0 items-center justify-center', className]}
+	set:html={iconSvg(name, size)}
+/>

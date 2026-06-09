@@ -1,4 +1,5 @@
 ---
+import Icon from '@/components/ui/Icon.astro';
 import { isPdfAsset, publicUrlForAsset, type PostAssetRow } from '@/lib/posts/assets';
 
 type Props = {
@@ -52,7 +53,10 @@ const pdfAssets = assets.filter(isPdfAsset);
 						data-asset-id={asset.id}
 					>
 						<div class="min-w-0 flex-1">
-							<p class="truncate text-sm font-medium text-slate-800">📄 {asset.filename}</p>
+							<p class="flex items-center gap-1.5 truncate text-sm font-medium text-slate-800">
+								<Icon name="file-text" size={16} class="text-slate-500" />
+								{asset.filename}
+							</p>
 							{url && (
 								<a href={url} target="_blank" rel="noopener noreferrer" class="text-xs text-brand hover:underline">
 									{url}
@@ -84,10 +88,10 @@ const pdfAssets = assets.filter(isPdfAsset);
 						<button
 							type="button"
 							data-pdf-remove
-							class="shrink-0 rounded border border-red-200 px-2 py-1 text-xs text-red-700 hover:bg-red-50"
+							class="shrink-0 rounded border border-red-200 p-1 text-red-700 hover:bg-red-50"
 							aria-label={labels.remove}
 						>
-							×
+							<Icon name="x" size={14} />
 						</button>
 					</li>
 				);

@@ -1,3 +1,5 @@
+import { iconSvg } from '@/lib/ui/icons';
+
 type PdfLabels = {
 	displayLink: string;
 	displayEmbed: string;
@@ -26,7 +28,10 @@ function buildPdfRow(
 	li.dataset.assetId = asset.id;
 	li.innerHTML = `
 		<div class="min-w-0 flex-1">
-			<p class="truncate text-sm font-medium text-slate-800">📄 ${asset.filename}</p>
+			<p class="flex items-center gap-1.5 truncate text-sm font-medium text-slate-800">
+				<span class="inline-flex shrink-0 text-slate-500">${iconSvg('file-text', 16)}</span>
+				<span class="truncate">${asset.filename}</span>
+			</p>
 			<a href="${asset.url}" target="_blank" rel="noopener noreferrer" class="text-xs text-brand hover:underline">${asset.url}</a>
 		</div>
 		<fieldset class="flex shrink-0 flex-col gap-1 text-xs text-slate-600">
@@ -42,9 +47,9 @@ function buildPdfRow(
 		<button
 			type="button"
 			data-pdf-remove
-			class="shrink-0 rounded border border-red-200 px-2 py-1 text-xs text-red-700 hover:bg-red-50"
+			class="shrink-0 rounded border border-red-200 p-1 text-red-700 hover:bg-red-50"
 			aria-label="${labels.remove}"
-		>×</button>
+		>${iconSvg('x', 14)}</button>
 	`;
 	const labelLink = li.querySelector('[data-label-link]');
 	const labelEmbed = li.querySelector('[data-label-embed]');

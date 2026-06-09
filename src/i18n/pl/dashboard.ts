@@ -89,8 +89,6 @@ export const dashboard = {
 			coverImage: 'Zdjęcie zajawkowe',
 			galleryImage: 'Galeria',
 			unusedImage: 'Nie wstawione w treść',
-			pdf: '📄',
-			image: '🖼',
 		},
 		actions: {
 			save: 'Zapisz szkic',
