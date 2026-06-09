@@ -118,6 +118,7 @@ export const adminLayout = {
 	lead: 'Menu nawigacji, lista kategorii wpisów oraz przypisanie kategorii do sekcji na stronie (sync do repozytorium GitHub).',
 	saved: 'Layout zapisany w OmniPress.',
 	savedSynced: 'Layout zapisany i wysłany do repozytorium GitHub.',
+	syncSummaryPrefix: 'Sync:',
 	imported: 'Zaimportowano layout z repozytorium GitHub.',
 	noAstroChannel: 'Brak aktywnego kanału Astro — zapis tylko w OmniPress (bez sync do GitHub).',
 	slotsHint:
@@ -237,6 +238,9 @@ export const adminLayout = {
 		invalid_repo: 'Nieprawidłowa konfiguracja repozytorium Astro.',
 		no_github_token: 'Brak tokenu GitHub — dodaj PAT w destynacji Astro.',
 		dead_nav_links: 'Menu zawiera nieistniejące linki wewnętrzne — popraw przed wysłaniem do GitHub.',
+		sync_failed: 'Zapis do GitHub nie powiódł się — layout zapisany tylko w OmniPress.',
+		vercel_build_failed:
+			'GitHub zaktualizowany, ale build Vercel strony Astro nie przeszedł — produkcja może być nieaktualna.',
 	},
 } as const;
 

@@ -3,13 +3,17 @@ import { loadSiteAstroDestination } from '@/lib/admin/sites';
 import {
 	decryptDestinationCredentials,
 	isGitHubCredentials,
+	resolveVercelTokenForDestination,
 } from '@/lib/publish/credentials';
 import {
 	getGitHubFile,
 	getGitHubFileText,
 	parseGitHubRepoConfig,
 	putGitHubFile,
+	type GitHubConfig,
 } from '@/lib/publish/github-api';
+import { parseVercelConfig } from '@/lib/publish/vercel-api';
+import { waitForVercelBuild } from '@/lib/publish/vercel-deploy';
 import {
 	buildCategoriesFilePayload,
 	buildNavigationFilePayload,
@@ -99,11 +103,35 @@ export async function importSiteAstroLayoutFromGitHub(
 	return { ok: true, layout };
 }
 
+export type LayoutGitHubSyncResult =
+	| { ok: true; summary: string }
+	| { ok: false; error: string; detail?: string };
+
+async function putGitHubTextFile(
+	cfg: GitHubConfig,
+	token: string,
+	filePath: string,
+	content: string,
+	message: string,
+): Promise<string> {
+	const existing = await getGitHubFile(cfg, token, filePath);
+	try {
+		const result = await putGitHubFile(cfg, token, filePath, content, message, existing?.sha);
+		return result.commitSha;
+	} catch (err) {
+		const msg = err instanceof Error ? err.message : '';
+		if (!msg.includes('409')) throw err;
+		const fresh = await getGitHubFile(cfg, token, filePath);
+		const result = await putGitHubFile(cfg, token, filePath, content, message, fresh?.sha);
+		return result.commitSha;
+	}
+}
+
 export async function syncSiteAstroLayoutToGitHub(
 	supabase: SupabaseClient,
 	siteId: string,
 	layout: SiteAstroLayout,
-): Promise<{ ok: true; summary: string } | { ok: false; error: string }> {
+): Promise<LayoutGitHubSyncResult> {
 	const dest = await loadSiteAstroDestination(supabase, siteId);
 	if (!dest?.is_active) return { ok: false, error: 'no_astro_destination' };
 
@@ -118,70 +146,91 @@ export async function syncSiteAstroLayoutToGitHub(
 	const navPath = layout.navigationPath;
 	const catPath = layout.categoriesPath;
 
-	const existingNav = await getGitHubFile(cfg, creds.token, navPath);
-	await putGitHubFile(
-		cfg,
-		creds.token,
-		navPath,
-		buildNavigationFilePayload(layout.navigation),
-		'OmniPress: aktualizacja menu',
-		existingNav?.sha,
-	);
-
-	const existingCat = await getGitHubFile(cfg, creds.token, catPath);
-	await putGitHubFile(
-		cfg,
-		creds.token,
-		catPath,
-		buildCategoriesFilePayload(layout),
-		'OmniPress: kategorie i przypisanie do komponentów',
-		existingCat?.sha,
-	);
-
 	try {
-		await appendRecentChangeOnGitHub(
+		let lastCommitSha = await putGitHubTextFile(
 			cfg,
 			creds.token,
-			dest.config,
-			buildLayoutRecentChangeEntry(),
+			navPath,
+			buildNavigationFilePayload(layout.navigation),
+			'OmniPress: aktualizacja menu',
 		);
-	} catch {
-		// Rejestr zmian nie blokuje sync layoutu
-	}
 
-	let certSummary = '';
-	try {
-		const certSlot = findSlotByComponent(layout, 'sidebar.cert_advisories');
-		const cert = await syncCertAdvisoriesOnGitHub(
+		lastCommitSha = await putGitHubTextFile(
 			cfg,
 			creds.token,
-			dest.config,
-			certSlot?.widget,
+			catPath,
+			buildCategoriesFilePayload(layout),
+			'OmniPress: kategorie i przypisanie do komponentów',
 		);
-		if (cert.ok && cert.count > 0) {
-			certSummary = `, ${cert.count} komunikatów CERT`;
+
+		try {
+			await appendRecentChangeOnGitHub(
+				cfg,
+				creds.token,
+				dest.config,
+				buildLayoutRecentChangeEntry(),
+			);
+		} catch {
+			// Rejestr zmian nie blokuje sync layoutu
 		}
-	} catch {
-		// Sync CERT nie blokuje layoutu
-	}
 
-	let weatherSummary = '';
-	try {
-		const weather = await syncWeatherWarningsOnGitHub(
-			cfg,
-			creds.token,
-			dest.config,
-			findWeatherSlot(layout),
-		);
-		if (weather.ok && weather.count > 0) {
-			weatherSummary = `, ${weather.count} ostrzeżeń pogodowych`;
+		let certSummary = '';
+		try {
+			const certSlot = findSlotByComponent(layout, 'sidebar.cert_advisories');
+			const cert = await syncCertAdvisoriesOnGitHub(
+				cfg,
+				creds.token,
+				dest.config,
+				certSlot?.widget,
+			);
+			if (cert.ok && cert.count > 0) {
+				certSummary = `, ${cert.count} komunikatów CERT`;
+			}
+			if (cert.ok && cert.commitSha) lastCommitSha = cert.commitSha;
+		} catch {
+			// Sync CERT nie blokuje layoutu
 		}
-	} catch {
-		// Sync pogody nie blokuje layoutu
-	}
 
-	return {
-		ok: true,
-		summary: `Zapisano ${navPath} i ${catPath} w ${cfg.owner}/${cfg.repo}${certSummary}${weatherSummary}`,
-	};
+		let weatherSummary = '';
+		try {
+			const weather = await syncWeatherWarningsOnGitHub(
+				cfg,
+				creds.token,
+				dest.config,
+				findWeatherSlot(layout),
+			);
+			if (weather.ok && weather.count > 0) {
+				weatherSummary = `, ${weather.count} ostrzeżeń pogodowych`;
+			}
+			if (weather.ok && weather.commitSha) lastCommitSha = weather.commitSha;
+		} catch {
+			// Sync pogody nie blokuje layoutu
+		}
+
+		const githubSummary = `Zapisano ${navPath} i ${catPath} w ${cfg.owner}/${cfg.repo}${certSummary}${weatherSummary}`;
+
+		const vercelCfg = parseVercelConfig(dest.config);
+		const vercelToken = resolveVercelTokenForDestination(creds);
+		if (vercelCfg && vercelToken) {
+			const vercel = await waitForVercelBuild({
+				cfg: vercelCfg,
+				token: vercelToken,
+				commitSha: lastCommitSha,
+				maxWaitMs: 120_000,
+			});
+			if (!vercel.ok) {
+				return {
+					ok: false,
+					error: 'vercel_build_failed',
+					detail: `${githubSummary} | ${vercel.summary}`,
+				};
+			}
+			return { ok: true, summary: `${githubSummary} | ${vercel.summary}` };
+		}
+
+		return { ok: true, summary: githubSummary };
+	} catch (err) {
+		const detail = err instanceof Error ? err.message : 'sync_failed';
+		return { ok: false, error: 'sync_failed', detail: detail.slice(0, 300) };
+	}
 }

@@ -14,6 +14,8 @@ interface Props {
 	layout: SiteAstroLayout;
 	hasAstroChannel: boolean;
 	errorMessage?: string | null;
+	errorDetail?: string | null;
+	syncSummary?: string | null;
 	navWarningLines?: string[];
 	saved?: boolean;
 	synced?: boolean;
@@ -26,6 +28,8 @@ const {
 	layout,
 	hasAstroChannel,
 	errorMessage,
+	errorDetail,
+	syncSummary,
 	navWarningLines = [],
 	saved,
 	synced,
@@ -37,10 +41,22 @@ const categoryFeedSlots = getCategoryFeedSlots(layout.slots);
 ---
 
 {saved && (
-	<Alert variant="success">{synced ? adminLayout.savedSynced : adminLayout.saved}</Alert>
+	<Alert variant="success">
+		{synced ? adminLayout.savedSynced : adminLayout.saved}
+		{synced && syncSummary && (
+			<p class="mt-1 text-sm font-normal opacity-90">
+				{adminLayout.syncSummaryPrefix} {syncSummary}
+			</p>
+		)}
+	</Alert>
 )}
 {imported && <Alert variant="success">{adminLayout.imported}</Alert>}
-{errorMessage && <Alert variant="error">{errorMessage}</Alert>}
+{errorMessage && (
+	<Alert variant="error">
+		{errorMessage}
+		{errorDetail && <p class="mt-1 text-sm font-normal opacity-90">{errorDetail}</p>}
+	</Alert>
+)}
 {
 	navWarningLines.length > 0 && (
 		<Alert variant="warning">

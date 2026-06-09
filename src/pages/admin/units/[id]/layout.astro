@@ -42,11 +42,14 @@ if (emptyLayout && hasAstroChannel) {
 }
 
 const errorCode = Astro.url.searchParams.get('error');
+const syncDetail = Astro.url.searchParams.get('sync_detail');
+const syncSummary = Astro.url.searchParams.get('sync_summary');
 const layoutErrors = adminLayout.errors;
 const errorMessage =
 	errorCode && errorCode in layoutErrors
 		? layoutErrors[errorCode as keyof typeof layoutErrors]
 		: null;
+const errorDetail = syncDetail?.trim() || null;
 
 const saved = Astro.url.searchParams.get('saved') === '1';
 const synced = Astro.url.searchParams.get('synced') === '1';
@@ -82,6 +85,8 @@ const publishedPages = (await listSitePages(Astro.locals.supabase, id))
 		layout={layout}
 		hasAstroChannel={hasAstroChannel}
 		errorMessage={errorMessage}
+		errorDetail={errorDetail}
+		syncSummary={syncSummary}
 		navWarningLines={navWarningLines}
 		saved={saved}
 		synced={synced}

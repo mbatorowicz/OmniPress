@@ -12,7 +12,9 @@ export async function syncWeatherWarningsOnGitHub(
 	token: string,
 	destinationConfig: Record<string, unknown>,
 	widgetConfig?: WeatherSlotWidgetConfig | null,
-): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
+): Promise<
+	{ ok: true; count: number; commitSha?: string } | { ok: false; error: string }
+> {
 	if (!widgetConfig?.terytPowiat?.trim()) {
 		return { ok: true, count: 0 };
 	}
@@ -22,7 +24,7 @@ export async function syncWeatherWarningsOnGitHub(
 		const file: WeatherWarningsFile = normalizeOsmetTeryt(raw, widgetConfig);
 		const path = weatherWarningsPath(destinationConfig);
 		const existing = await getGitHubFile(cfg, token, path);
-		await putGitHubFile(
+		const { commitSha } = await putGitHubFile(
 			cfg,
 			token,
 			path,
@@ -31,7 +33,7 @@ export async function syncWeatherWarningsOnGitHub(
 			existing?.sha,
 		);
 
-		return { ok: true, count: file.active.length };
+		return { ok: true, count: file.active.length, commitSha };
 	} catch (err) {
 		const message = err instanceof Error ? err.message : 'weather_sync_failed';
 		return { ok: false, error: message };

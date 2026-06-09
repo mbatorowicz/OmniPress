@@ -12,7 +12,9 @@ export async function syncCertAdvisoriesOnGitHub(
 	token: string,
 	destinationConfig: Record<string, unknown>,
 	widgetConfig?: CertAdvisoriesWidgetConfig,
-): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
+): Promise<
+	{ ok: true; count: number; commitSha?: string } | { ok: false; error: string }
+> {
 	if (!widgetConfig || widgetConfig.enabled === false) {
 		return { ok: true, count: 0 };
 	}
@@ -27,7 +29,7 @@ export async function syncCertAdvisoriesOnGitHub(
 		};
 
 		const existing = await getGitHubFile(cfg, token, path);
-		await putGitHubFile(
+		const { commitSha } = await putGitHubFile(
 			cfg,
 			token,
 			path,
@@ -36,7 +38,7 @@ export async function syncCertAdvisoriesOnGitHub(
 			existing?.sha,
 		);
 
-		return { ok: true, count: entries.length };
+		return { ok: true, count: entries.length, commitSha };
 	} catch (err) {
 		const message = err instanceof Error ? err.message : 'cert_sync_failed';
 		return { ok: false, error: message };

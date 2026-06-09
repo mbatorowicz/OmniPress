@@ -50,9 +50,13 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 
 		const synced = await syncSiteAstroLayoutToGitHub(locals.supabase, siteId, parsed.layout);
 		if (!synced.ok) {
-			return redirect(`/admin/units/${siteId}/layout?error=${synced.error}&saved=1`);
+			const params = new URLSearchParams({ error: synced.error, saved: '1' });
+			if (synced.detail) params.set('sync_detail', synced.detail.slice(0, 400));
+			return redirect(`/admin/units/${siteId}/layout?${params.toString()}`);
 		}
-		return redirect(`/admin/units/${siteId}/layout?saved=1&synced=1`);
+		const params = new URLSearchParams({ saved: '1', synced: '1' });
+		if (synced.summary) params.set('sync_summary', synced.summary.slice(0, 400));
+		return redirect(`/admin/units/${siteId}/layout?${params.toString()}`);
 	}
 
 	return redirect(`/admin/units/${siteId}/layout?saved=1`);
