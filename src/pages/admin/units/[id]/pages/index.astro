@@ -26,6 +26,8 @@ const errorMessage =
 		? ui.errors[errorCode as keyof typeof ui.errors]
 		: null;
 const deleted = Astro.url.searchParams.get('deleted') === '1';
+const seedFromNavDone = Astro.url.searchParams.has('seeded') || Astro.url.searchParams.has('published');
+const layoutSynced = Astro.url.searchParams.get('layout_synced') === '1';
 
 function statusLabel(status: PageStatus): string {
 	return status === 'published' ? ui.statusPublished : ui.statusDraft;
@@ -39,13 +41,23 @@ function statusLabel(status: PageStatus): string {
 	<p class="mb-4 text-sm text-slate-600">{ui.lead}</p>
 
 	{deleted && <Alert variant="success">{ui.deleted}</Alert>}
+	{seedFromNavDone && (
+		<Alert variant="success">
+			{ui.seedFromNavDone}
+			{layoutSynced ? ' Layout wysłany do GitHub.' : ''}
+		</Alert>
+	)}
 	{errorMessage && <Alert variant="error">{errorMessage}</Alert>}
 
-	<div class="mb-4">
+	<div class="mb-4 flex flex-wrap gap-3">
 		<form method="post" action={`/api/admin/sites/${id}/pages/create`}>
 			<Button type="submit">{ui.create}</Button>
 		</form>
+		<form method="post" action={`/api/admin/sites/${id}/pages/seed-nav`}>
+			<Button type="submit" variant="secondary">{ui.actions.seedFromNav}</Button>
+		</form>
 	</div>
+	<p class="mb-4 text-xs text-slate-500">{ui.seedFromNavHint}</p>
 
 	<Panel>
 		{

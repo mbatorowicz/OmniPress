@@ -89,7 +89,11 @@ export const adminSitePages = {
 		save: 'Zapisz szkic',
 		publish: 'Opublikuj na stronie',
 		delete: 'Usuń stronę',
+		seedFromNav: 'Utwórz strony z menu',
 	},
+	seedFromNavHint:
+		'Tworzy brakujące strony statyczne dla linków wewnętrznych z menu Astro i publikuje je do GitHub.',
+	seedFromNavDone: 'Utworzono strony z menu i opublikowano w repozytorium.',
 	saved: 'Strona zapisana.',
 	published: 'Strona opublikowana w repozytorium GitHub.',
 	deleted: 'Strona usunięta.',
