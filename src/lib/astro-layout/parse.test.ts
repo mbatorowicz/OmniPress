@@ -55,11 +55,13 @@ describe('astro-layout parse', () => {
 			categoryDisplays: { home_pinned: ['aktualnosci'] },
 			slots: sampleSlots,
 			widgets: {},
+			banners: [],
 			navigationPath: 'src/config/omnipress-navigation.json',
 			categoriesPath: 'src/config/omnipress-categories.json',
 		};
 		expect(buildNavigationFilePayload(layout.navigation)).toContain('"label"');
 		expect(buildCategoriesFilePayload(layout)).toContain('"slots"');
+		expect(buildCategoriesFilePayload(layout)).toContain('"banners"');
 	});
 });
 

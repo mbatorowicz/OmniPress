@@ -126,7 +126,25 @@ export const adminLayout = {
 	navValidationHeading: 'Problemy w menu (linki wewnętrzne):',
 	navValidationHint:
 		'Sync do GitHub jest zablokowany, dopóki menu wskazuje nieistniejące adresy. Utwórz strony statyczne lub popraw href.',
-	widgetsHint: 'Ustawienia widgetów niezależnych od kategorii wpisów.',
+	widgetsHint:
+		'Ustawienia widgetów niezależnych od kategorii wpisów. Pole „Kolejność” (sidebar): mniejsza liczba = wyżej na pasku bocznym.',
+	slotsOrderHint: 'Kolejność dotyczy slotów z komponentem sidebar.* (pasek boczny strony).',
+	bannersHint:
+		'Banery w sidebarze strony. Link: kategoria (archiwum wpisów), strona statyczna (opublikowana) lub adres zewnętrzny (nowa karta).',
+	bannerLinkTypes: {
+		category: 'Kategoria wpisów',
+		page: 'Strona statyczna',
+		external: 'Adres zewnętrzny',
+	},
+	bannerStyles: {
+		image: 'Obrazek',
+		text: 'Tekstowy',
+	},
+	bannerImageVariants: {
+		default: 'Standardowy',
+		blue: 'Niebieskie tło',
+	},
+	noPublishedPages: 'Brak opublikowanych stron statycznych.',
 	certAdvisoriesHint:
 		'Komunikaty pobierane z kanału RSS CERT Polska (moje.cert.pl). Po zapisie z sync do GitHub trafia plik omnipress-cert-advisories.json — widget na stronie Astro czyta ten plik.',
 	certCategories: {
@@ -141,6 +159,7 @@ export const adminLayout = {
 		categories: 'Kategorie wpisów',
 		displays: 'Kategorie w komponentach',
 		widgets: 'Widgety globalne',
+		banners: 'Banery sidebaru',
 	},
 	fields: {
 		navigationJson: 'Menu (JSON)',
@@ -154,6 +173,7 @@ export const adminLayout = {
 		widgetMoreLink: 'Link „zobacz więcej”',
 		widgetVariant: 'Styl',
 		widgetEnabled: 'Włączony',
+		widgetOrder: 'Kolejność (sidebar)',
 		recentChangesTitle: 'Tytuł widgetu ostatnich zmian',
 		recentChangesLimit: 'Limit pozycji',
 		recentChangesEnabled: 'Pokaż widget ostatnich zmian',
@@ -165,6 +185,16 @@ export const adminLayout = {
 		categorySlug: 'Slug',
 		categoryName: 'Nazwa',
 		category: 'Kategoria',
+		bannerLabel: 'Etykieta (alt)',
+		bannerStyle: 'Typ banera',
+		bannerImageUrl: 'URL obrazka',
+		bannerImageVariant: 'Tło',
+		bannerTextTitle: 'Nagłówek',
+		bannerTextButton: 'Przycisk',
+		bannerLinkType: 'Cel linku',
+		bannerCategory: 'Kategoria',
+		bannerPage: 'Strona statyczna',
+		bannerExternalUrl: 'URL zewnętrzny',
 		removeRow: '',
 		syncGitHub: 'Wyślij zmiany do repozytorium GitHub (omnipress-navigation.json + omnipress-categories.json)',
 	},
@@ -177,8 +207,10 @@ export const adminLayout = {
 		importFromGitHub: 'Importuj z GitHub (nadpisuje dane w OmniPress)',
 		addCategory: '+ Dodaj kategorię',
 		addSlot: '+ Dodaj slot',
+		addBanner: '+ Dodaj baner',
 		removeCategory: 'Usuń',
 		removeSlot: 'Usuń',
+		removeBanner: 'Usuń',
 	},
 	variants: {
 		default: 'Domyślny',

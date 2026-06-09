@@ -1,10 +1,16 @@
 import { parseNavigationJson } from './parse';
+import { isBannerLinkType } from './banners';
 import { mergeCategoryDisplays } from './slots';
-import type { CategoryDefinition, DisplaySlot, SiteAstroLayout, SiteWidgetsConfig } from './types';
+import type { CategoryDefinition, DisplaySlot, SidebarBanner, SiteAstroLayout, SiteWidgetsConfig } from './types';
 
 function parseIntField(raw: FormDataEntryValue | null): number | undefined {
 	const n = Number(String(raw ?? '').trim());
 	return Number.isFinite(n) && n > 0 ? Math.floor(n) : undefined;
+}
+
+function parseOrderField(raw: FormDataEntryValue | null): number | undefined {
+	const n = Number(String(raw ?? '').trim());
+	return Number.isFinite(n) && n >= 0 ? Math.floor(n) : undefined;
 }
 
 function parseSlotsFromForm(form: FormData): DisplaySlot[] {
@@ -17,6 +23,7 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 	const emptyTexts = form.getAll('slot_widget_empty_text').map((v) => String(v).trim());
 	const moreLinks = form.getAll('slot_widget_more_link').map((v) => String(v).trim());
 	const variants = form.getAll('slot_widget_variant').map((v) => String(v).trim());
+	const orders = form.getAll('slot_widget_order');
 
 	const slots: DisplaySlot[] = [];
 	for (let i = 0; i < ids.length; i++) {
@@ -33,6 +40,8 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 		if (emptyTexts[i]) widget.emptyText = emptyTexts[i];
 		if (moreLinks[i]) widget.moreLink = moreLinks[i];
 		if (variants[i] === 'alert' || variants[i] === 'default') widget.variant = variants[i];
+		const order = parseOrderField(orders[i] ?? null);
+		if (order !== undefined) widget.order = order;
 		if (form.get(`slot_enabled_${id}`) !== 'on') widget.enabled = false;
 
 		slots.push({
@@ -52,8 +61,10 @@ function parseWidgetsFromForm(form: FormData): SiteWidgetsConfig {
 	const recentLimit = parseIntField(form.get('widget_recent_changes_limit'));
 	const recentEnabled = form.get('widget_recent_changes_enabled') === 'on';
 	const recent: SiteWidgetsConfig['recent_changes'] = {};
+	const recentOrder = parseOrderField(form.get('widget_recent_changes_order'));
 	if (recentTitle) recent.title = recentTitle;
 	if (recentLimit) recent.limit = recentLimit;
+	if (recentOrder !== undefined) recent.order = recentOrder;
 	if (!recentEnabled) recent.enabled = false;
 	if (Object.keys(recent).length > 0) widgets.recent_changes = recent;
 
@@ -64,15 +75,64 @@ function parseWidgetsFromForm(form: FormData): SiteWidgetsConfig {
 	const certEnabled = form.get('widget_cert_advisories_enabled') === 'on';
 	const certVariant = String(form.get('widget_cert_advisories_variant') ?? '').trim();
 	const cert: SiteWidgetsConfig['cert_advisories'] = {};
+	const certOrder = parseOrderField(form.get('widget_cert_advisories_order'));
 	if (certTitle) cert.title = certTitle;
 	if (certLimit) cert.limit = certLimit;
 	if (certMoreLink) cert.moreLink = certMoreLink;
 	if (certCategory) cert.categoryFilter = certCategory;
+	if (certOrder !== undefined) cert.order = certOrder;
 	if (!certEnabled) cert.enabled = false;
 	if (certVariant === 'alert' || certVariant === 'default') cert.variant = certVariant;
 	if (Object.keys(cert).length > 0) widgets.cert_advisories = cert;
 
 	return widgets;
+}
+
+function parseBannersFromForm(form: FormData): SidebarBanner[] {
+	const ids = form.getAll('banner_id').map((v) => String(v).trim());
+	const labels = form.getAll('banner_label').map((v) => String(v).trim());
+	const styles = form.getAll('banner_style').map((v) => String(v).trim());
+	const imageUrls = form.getAll('banner_image_url').map((v) => String(v).trim());
+	const imageVariants = form.getAll('banner_image_variant').map((v) => String(v).trim());
+	const textTitles = form.getAll('banner_text_title').map((v) => String(v).trim());
+	const textButtons = form.getAll('banner_text_button').map((v) => String(v).trim());
+	const linkTypes = form.getAll('banner_link_type').map((v) => String(v).trim());
+	const categorySlugs = form.getAll('banner_category_slug').map((v) => String(v).trim());
+	const pagePaths = form.getAll('banner_page_path').map((v) => String(v).trim());
+	const externalUrls = form.getAll('banner_external_url').map((v) => String(v).trim());
+	const orders = form.getAll('banner_order');
+
+	const banners: SidebarBanner[] = [];
+	for (let i = 0; i < ids.length; i++) {
+		const id = ids[i];
+		const label = labels[i] ?? '';
+		const linkTypeRaw = linkTypes[i] ?? '';
+		if (!id || !label || !isBannerLinkType(linkTypeRaw)) continue;
+
+		const style = styles[i] === 'text' ? 'text' : 'image';
+		const banner: SidebarBanner = { id, label, style, linkType: linkTypeRaw };
+
+		if (imageUrls[i]) banner.imageUrl = imageUrls[i];
+		if (imageVariants[i] === 'blue') banner.imageVariant = 'blue';
+		if (textTitles[i]) banner.textTitle = textTitles[i];
+		if (textButtons[i]) banner.textButton = textButtons[i];
+		if (linkTypeRaw === 'category' && categorySlugs[i]) banner.categorySlug = categorySlugs[i];
+		if (linkTypeRaw === 'page' && pagePaths[i]) banner.pagePath = pagePaths[i];
+		if (linkTypeRaw === 'external' && externalUrls[i]) banner.externalUrl = externalUrls[i];
+
+		const order = parseOrderField(orders[i] ?? null);
+		if (order !== undefined) banner.order = order;
+		if (form.get(`banner_enabled_${id}`) !== 'on') banner.enabled = false;
+
+		if (style === 'image' && !banner.imageUrl) continue;
+		if (style === 'text' && !banner.textTitle) continue;
+		if (linkTypeRaw === 'category' && !banner.categorySlug) continue;
+		if (linkTypeRaw === 'page' && !banner.pagePath) continue;
+		if (linkTypeRaw === 'external' && !banner.externalUrl) continue;
+
+		banners.push(banner);
+	}
+	return banners;
 }
 
 export function parseLayoutFromFormData(
@@ -120,6 +180,7 @@ export function parseLayoutFromFormData(
 			categoryDisplays,
 			slots,
 			widgets: parseWidgetsFromForm(form),
+			banners: parseBannersFromForm(form),
 			navigationPath: base.navigationPath,
 			categoriesPath: base.categoriesPath,
 		},

@@ -12,6 +12,8 @@ import {
 	formatNavValidationIssues,
 	validateNavigationLinks,
 } from '@/lib/astro-layout/validate-nav';
+import { listSitePages } from '@/lib/site-pages/access';
+import { buildSitePagePublicPath } from '@/lib/site-pages/url';
 
 const DEFAULT_STATIC_ROUTES = ['/', '/kontakt'];
 
@@ -59,6 +61,13 @@ const knownNavPaths = await buildKnownNavPaths(
 const navWarningLines = formatNavValidationIssues(
 	validateNavigationLinks(layout.navigation, knownNavPaths),
 );
+
+const publishedPages = (await listSitePages(Astro.locals.supabase, id))
+	.filter((p) => p.status === 'published')
+	.map((p) => ({
+		path: buildSitePagePublicPath(p.path_prefix, p.slug),
+		title: p.title,
+	}));
 ---
 
 <AppLayout title={adminLayout.title} heading={adminLayout.title}>
@@ -77,6 +86,7 @@ const navWarningLines = formatNavValidationIssues(
 		saved={saved}
 		synced={synced}
 		imported={imported}
+		publishedPages={publishedPages}
 	/>
 
 	<p class="mt-6 flex flex-wrap gap-4">

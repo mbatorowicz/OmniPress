@@ -4,11 +4,13 @@ import type {
 	CertAdvisoriesWidgetConfig,
 	DisplaySlot,
 	NavItem,
+	SidebarBanner,
 	SiteAstroLayout,
 	SiteWidgetsConfig,
 	SlotWidgetConfig,
 } from './types';
 import { DEFAULT_CATEGORIES_PATH, DEFAULT_NAVIGATION_PATH, emptySiteAstroLayout } from './types';
+import { parseBanners } from './banners';
 import { mergeCategoryDisplays } from './slots';
 
 function isNavItem(raw: unknown): raw is NavItem {
@@ -31,6 +33,9 @@ function parseWidget(raw: unknown): SlotWidgetConfig | undefined {
 	if (w.variant === 'alert' || w.variant === 'default') widget.variant = w.variant;
 	if (w.pinnedOnly === true) widget.pinnedOnly = true;
 	if (w.pinnedOnly === false) widget.pinnedOnly = false;
+	if (typeof w.order === 'number' && Number.isFinite(w.order) && w.order >= 0) {
+		widget.order = Math.floor(w.order);
+	}
 	return Object.keys(widget).length > 0 ? widget : undefined;
 }
 
@@ -88,6 +93,7 @@ export function parseCategoriesFile(text: string): {
 	displays: CategoryDisplays;
 	slots: DisplaySlot[];
 	widgets: SiteWidgetsConfig;
+	banners: SidebarBanner[];
 } {
 	const parsed = JSON.parse(text) as unknown;
 
@@ -102,6 +108,7 @@ export function parseCategoriesFile(text: string): {
 			slots: [],
 			widgets: {},
 			displays: {},
+			banners: [],
 		};
 	}
 
@@ -114,6 +121,7 @@ export function parseCategoriesFile(text: string): {
 		displays?: CategoryDisplays;
 		slots?: unknown;
 		widgets?: unknown;
+		banners?: unknown;
 	};
 
 	const categories = (obj.categories ?? [])
@@ -124,7 +132,9 @@ export function parseCategoriesFile(text: string): {
 	const widgets = parseWidgets(obj.widgets);
 	const displays = mergeCategoryDisplays(slots, obj.displays ?? {});
 
-	return { categories, displays, slots, widgets };
+	const banners = parseBanners(obj.banners);
+
+	return { categories, displays, slots, widgets, banners };
 }
 
 export function buildCategoriesFilePayload(layout: SiteAstroLayout): string {
@@ -134,6 +144,7 @@ export function buildCategoriesFilePayload(layout: SiteAstroLayout): string {
 			displays: layout.categoryDisplays,
 			slots: layout.slots,
 			widgets: layout.widgets,
+			banners: layout.banners,
 		},
 		null,
 		'\t',
@@ -154,6 +165,7 @@ export function normalizeSiteAstroLayout(raw: unknown): SiteAstroLayout {
 		categories: Array.isArray(o.categories) ? o.categories : [],
 		slots,
 		widgets: o.widgets && typeof o.widgets === 'object' ? o.widgets : {},
+		banners: parseBanners(o.banners),
 		navigationPath: o.navigationPath?.trim() || DEFAULT_NAVIGATION_PATH,
 		categoriesPath: o.categoriesPath?.trim() || DEFAULT_CATEGORIES_PATH,
 	};

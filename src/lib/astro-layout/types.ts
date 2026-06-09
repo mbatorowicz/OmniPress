@@ -21,6 +21,8 @@ export type SlotWidgetConfig = {
 	enabled?: boolean;
 	variant?: 'default' | 'alert';
 	moreLink?: string;
+	/** Kolejność w sidebarze (mniejsza = wyżej); dotyczy widgetów globalnych i slotów sidebar.* */
+	order?: number;
 	/** true = tylko przypięte, false = tylko nieprzypięte, brak = wszystkie */
 	pinnedOnly?: boolean;
 };
@@ -42,12 +44,32 @@ export type SiteWidgetsConfig = {
 	cert_advisories?: CertAdvisoriesWidgetConfig;
 };
 
+export type SidebarBannerLinkType = 'category' | 'page' | 'external';
+
+export type SidebarBanner = {
+	id: string;
+	/** Tekst alternatywny / etykieta dostępności */
+	label: string;
+	style: 'image' | 'text';
+	imageUrl?: string;
+	imageVariant?: 'default' | 'blue';
+	textTitle?: string;
+	textButton?: string;
+	linkType: SidebarBannerLinkType;
+	categorySlug?: string;
+	pagePath?: string;
+	externalUrl?: string;
+	order?: number;
+	enabled?: boolean;
+};
+
 export type SiteAstroLayout = {
 	navigation: NavItem[];
 	categoryDisplays: CategoryDisplays;
 	categories: CategoryDefinition[];
 	slots: DisplaySlot[];
 	widgets: SiteWidgetsConfig;
+	banners: SidebarBanner[];
 	navigationPath: string;
 	categoriesPath: string;
 };
@@ -62,6 +84,7 @@ export function emptySiteAstroLayout(): SiteAstroLayout {
 		categories: [],
 		slots: [],
 		widgets: {},
+		banners: [],
 		navigationPath: DEFAULT_NAVIGATION_PATH,
 		categoriesPath: DEFAULT_CATEGORIES_PATH,
 	};
