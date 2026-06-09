@@ -28,6 +28,9 @@ export const adminSites = {
 	},
 	deleted: 'Jednostka usunięta.',
 	wizardLink: 'Kreator: jednostka + Astro',
+	empty: 'Brak jednostek — utwórz pierwszą (np. UG Miedzna).',
+	lead: 'Kliknij nazwę jednostki, aby edytować GitHub, menu (Layout Astro), strony statyczne i ogłoszenia.',
+	back: '← Administracja',
 } as const;
 
 export const adminUnit = {

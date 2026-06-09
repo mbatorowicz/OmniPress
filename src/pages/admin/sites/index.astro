@@ -12,28 +12,38 @@ const deleted = Astro.url.searchParams.get('deleted') === '1';
 
 <AppLayout title={adminSites.title} heading={adminSites.title}>
 	<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-		<a href="/admin" class="text-sm ui-link">{admin.preview.back}</a>
+		<a href="/admin" class="text-sm ui-link">{adminSites.back}</a>
 		<Button href="/admin/units/new">{adminSites.wizardLink}</Button>
 	</div>
 
+	<p class="mb-4 text-sm text-slate-600">{adminSites.lead}</p>
+
 	{deleted && <Alert variant="success">{adminSites.deleted}</Alert>}
 
-	<ul class="ui-list-card">
+	<Panel>
 		{
-			sites.map((s) => (
-				<li class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
-					<div>
-						<a href={`/admin/units/${s.id}`} class="ui-link">
-							{s.name}
-						</a>
-						<span class="ml-2 text-slate-500">{s.slug}</span>
-						{!s.is_active && (
-							<span class="ml-2 rounded bg-slate-100 px-2 py-0.5 text-xs">{adminSites.fields.inactive}</span>
-						)}
-					</div>
-					<span class="text-xs text-slate-500">{adminUnit.actions.edit}</span>
-				</li>
-			))
+			sites.length === 0 ? (
+				<p class="ui-empty">{adminSites.empty}</p>
+			) : (
+				<ul class="ui-list-divide">
+					{sites.map((s) => (
+						<li class="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
+							<div>
+								<a href={`/admin/units/${s.id}`} class="ui-link font-medium">
+									{s.name}
+								</a>
+								<span class="ml-2 text-slate-500">{s.slug}</span>
+								{!s.is_active && (
+									<span class="ml-2 rounded bg-slate-100 px-2 py-0.5 text-xs">
+										{adminSites.fields.inactive}
+									</span>
+								)}
+							</div>
+							<span class="text-xs text-slate-500">{adminUnit.actions.edit}</span>
+						</li>
+					))}
+				</ul>
+			)
 		}
-	</ul>
+	</Panel>
 </AppLayout>
