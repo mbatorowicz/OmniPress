@@ -1,3 +1,5 @@
+import type { LayoutComponentId } from './components';
+
 export type NavItem = {
 	label: string;
 	href?: string;
@@ -13,6 +15,8 @@ export type CategoryDefinition = {
 /** slotId → lista slugów kategorii widocznych w danym komponencie */
 export type CategoryDisplays = Record<string, string[]>;
 
+export type BannerLinkType = 'category' | 'page' | 'external';
+
 export type SlotWidgetConfig = {
 	title?: string;
 	sectionTitle?: string;
@@ -21,20 +25,28 @@ export type SlotWidgetConfig = {
 	enabled?: boolean;
 	variant?: 'default' | 'alert';
 	moreLink?: string;
-	/** Kolejność w sidebarze (mniejsza = wyżej); dotyczy widgetów globalnych i slotów sidebar.* */
+	/** Kolejność (mniejsza = wyżej); sidebar.* i home.* */
 	order?: number;
-	/** true = tylko przypięte, false = tylko nieprzypięte, brak = wszystkie */
 	pinnedOnly?: boolean;
-	/** sidebar.weather — TERYT powiatu (4 cyfry) */
+	/** sidebar.cert_advisories */
+	categoryFilter?: string;
+	/** sidebar.weather */
 	terytPowiat?: string;
-	/** sidebar.weather — centrum mapy */
 	mapCenter?: { lat: number; lon: number };
-	/** sidebar.weather — zoom mapy Leaflet */
 	mapZoom?: number;
-	/** sidebar.weather — czy renderować mini-mapę */
 	showMap?: boolean;
-	/** sidebar.weather — sąsiednie powiaty na mapie (kody TERYT) */
 	mapScopePowiaty?: string[];
+	/** sidebar.banner — alt; domyślnie slot.label */
+	bannerLabel?: string;
+	style?: 'image' | 'text';
+	imageUrl?: string;
+	imageVariant?: 'default' | 'blue';
+	textTitle?: string;
+	textButton?: string;
+	linkType?: BannerLinkType;
+	categorySlug?: string;
+	pagePath?: string;
+	externalUrl?: string;
 };
 
 export type WeatherSlotWidgetConfig = SlotWidgetConfig & {
@@ -45,46 +57,17 @@ export type WeatherSlotWidgetConfig = SlotWidgetConfig & {
 export type DisplaySlot = {
 	id: string;
 	label: string;
-	component: string;
+	component: LayoutComponentId | string;
 	widget?: SlotWidgetConfig;
 };
 
-export type CertAdvisoriesWidgetConfig = SlotWidgetConfig & {
-	/** Filtr kategorii CERT (np. „Dla użytkowników”); brak = wszystkie */
-	categoryFilter?: string;
-};
-
-export type SiteWidgetsConfig = {
-	recent_changes?: SlotWidgetConfig;
-	cert_advisories?: CertAdvisoriesWidgetConfig;
-};
-
-export type SidebarBannerLinkType = 'category' | 'page' | 'external';
-
-export type SidebarBanner = {
-	id: string;
-	/** Tekst alternatywny / etykieta dostępności */
-	label: string;
-	style: 'image' | 'text';
-	imageUrl?: string;
-	imageVariant?: 'default' | 'blue';
-	textTitle?: string;
-	textButton?: string;
-	linkType: SidebarBannerLinkType;
-	categorySlug?: string;
-	pagePath?: string;
-	externalUrl?: string;
-	order?: number;
-	enabled?: boolean;
-};
+export type CertAdvisoriesWidgetConfig = SlotWidgetConfig;
 
 export type SiteAstroLayout = {
 	navigation: NavItem[];
 	categoryDisplays: CategoryDisplays;
 	categories: CategoryDefinition[];
 	slots: DisplaySlot[];
-	widgets: SiteWidgetsConfig;
-	banners: SidebarBanner[];
 	navigationPath: string;
 	categoriesPath: string;
 };
@@ -98,8 +81,6 @@ export function emptySiteAstroLayout(): SiteAstroLayout {
 		categoryDisplays: {},
 		categories: [],
 		slots: [],
-		widgets: {},
-		banners: [],
 		navigationPath: DEFAULT_NAVIGATION_PATH,
 		categoriesPath: DEFAULT_CATEGORIES_PATH,
 	};

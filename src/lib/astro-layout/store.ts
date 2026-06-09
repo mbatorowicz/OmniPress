@@ -19,6 +19,7 @@ import {
 import { normalizeSiteAstroLayout } from './parse';
 import { syncCertAdvisoriesOnGitHub } from '@/lib/cert/github';
 import { syncWeatherWarningsOnGitHub } from '@/lib/weather/github';
+import { findSlotByComponent } from './slots';
 import { findWeatherSlot } from '@/lib/weather/filter';
 import { appendRecentChangeOnGitHub } from '@/lib/recent-changes/github';
 import { buildLayoutRecentChangeEntry } from '@/lib/recent-changes/layout-entry';
@@ -92,8 +93,6 @@ export async function importSiteAstroLayoutFromGitHub(
 		layout.categories = parsed.categories;
 		layout.categoryDisplays = parsed.displays;
 		layout.slots = parsed.slots;
-		layout.widgets = parsed.widgets;
-		layout.banners = parsed.banners;
 	}
 
 	await saveSiteAstroLayout(supabase, siteId, layout);
@@ -152,11 +151,12 @@ export async function syncSiteAstroLayoutToGitHub(
 
 	let certSummary = '';
 	try {
+		const certSlot = findSlotByComponent(layout, 'sidebar.cert_advisories');
 		const cert = await syncCertAdvisoriesOnGitHub(
 			cfg,
 			creds.token,
 			dest.config,
-			layout.widgets.cert_advisories,
+			certSlot?.widget,
 		);
 		if (cert.ok && cert.count > 0) {
 			certSummary = `, ${cert.count} komunikatów CERT`;

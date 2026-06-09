@@ -338,8 +338,6 @@ if (syncLayout) {
 			categories: layout.categories ?? [],
 			displays: layout.categoryDisplays ?? {},
 			slots: layout.slots ?? [],
-			widgets: layout.widgets ?? {},
-			banners: layout.banners ?? [],
 		},
 		null,
 		'\t',

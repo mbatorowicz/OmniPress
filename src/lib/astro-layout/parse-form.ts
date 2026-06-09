@@ -1,7 +1,8 @@
 import { parseNavigationJson } from './parse';
-import { isBannerLinkType } from './banners';
-import { mergeCategoryDisplays } from './slots';
-import type { CategoryDefinition, DisplaySlot, SidebarBanner, SiteAstroLayout, SiteWidgetsConfig } from './types';
+import { isCategoryFeedComponent, isLayoutComponentId, isSingletonComponent } from './components';
+import { validateBannerWidget } from './banners';
+import { mergeCategoryDisplays, sortSlotsByOrder } from './slots';
+import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from './types';
 
 function parseIntField(raw: FormDataEntryValue | null): number | undefined {
 	const n = Number(String(raw ?? '').trim());
@@ -24,6 +25,17 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 	const moreLinks = form.getAll('slot_widget_more_link').map((v) => String(v).trim());
 	const variants = form.getAll('slot_widget_variant').map((v) => String(v).trim());
 	const orders = form.getAll('slot_widget_order');
+	const certFilters = form.getAll('slot_cert_category_filter').map((v) => String(v).trim());
+
+	const bannerStyles = form.getAll('slot_banner_style').map((v) => String(v).trim());
+	const bannerImageUrls = form.getAll('slot_banner_image_url').map((v) => String(v).trim());
+	const bannerImageVariants = form.getAll('slot_banner_image_variant').map((v) => String(v).trim());
+	const bannerTextTitles = form.getAll('slot_banner_text_title').map((v) => String(v).trim());
+	const bannerTextButtons = form.getAll('slot_banner_text_button').map((v) => String(v).trim());
+	const bannerLinkTypes = form.getAll('slot_banner_link_type').map((v) => String(v).trim());
+	const bannerCategorySlugs = form.getAll('slot_banner_category_slug').map((v) => String(v).trim());
+	const bannerPagePaths = form.getAll('slot_banner_page_path').map((v) => String(v).trim());
+	const bannerExternalUrls = form.getAll('slot_banner_external_url').map((v) => String(v).trim());
 
 	const weatherIds = form.getAll('slot_weather_id').map((v) => String(v).trim());
 	const weatherTeryt = form.getAll('slot_weather_teryt_powiat').map((v) => String(v).trim());
@@ -68,12 +80,18 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 		weatherBySlotId.set(weatherId, entry);
 	}
 
+	const seenSingletons = new Set<string>();
 	const slots: DisplaySlot[] = [];
+
 	for (let i = 0; i < ids.length; i++) {
 		const id = ids[i];
 		const label = labels[i] ?? '';
 		const component = components[i] ?? '';
-		if (!id || !label || !component) continue;
+		if (!id || !label || !isLayoutComponentId(component)) continue;
+		if (isSingletonComponent(component)) {
+			if (seenSingletons.has(component)) continue;
+			seenSingletons.add(component);
+		}
 
 		const widget: DisplaySlot['widget'] = {};
 		if (titles[i]) widget.title = titles[i];
@@ -84,8 +102,29 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 		if (moreLinks[i]) widget.moreLink = moreLinks[i];
 		if (variants[i] === 'alert' || variants[i] === 'default') widget.variant = variants[i];
 		const order = parseOrderField(orders[i] ?? null);
-		if (order !== undefined) widget.order = order;
+		widget.order = order ?? (i + 1) * 10;
 		if (form.get(`slot_enabled_${id}`) !== 'on') widget.enabled = false;
+		if (certFilters[i]) widget.categoryFilter = certFilters[i];
+
+		if (component === 'sidebar.banner') {
+			widget.style = bannerStyles[i] === 'text' ? 'text' : 'image';
+			if (bannerImageUrls[i]) widget.imageUrl = bannerImageUrls[i];
+			if (bannerImageVariants[i] === 'blue') widget.imageVariant = 'blue';
+			if (bannerTextTitles[i]) widget.textTitle = bannerTextTitles[i];
+			if (bannerTextButtons[i]) widget.textButton = bannerTextButtons[i];
+			const linkType = bannerLinkTypes[i];
+			if (linkType === 'category' || linkType === 'page' || linkType === 'external') {
+				widget.linkType = linkType;
+			}
+			if (widget.linkType === 'category' && bannerCategorySlugs[i]) {
+				widget.categorySlug = bannerCategorySlugs[i];
+			}
+			if (widget.linkType === 'page' && bannerPagePaths[i]) widget.pagePath = bannerPagePaths[i];
+			if (widget.linkType === 'external' && bannerExternalUrls[i]) {
+				widget.externalUrl = bannerExternalUrls[i];
+			}
+			if (!validateBannerWidget(widget, label)) continue;
+		}
 
 		const weather = weatherBySlotId.get(id);
 		if (weather?.terytPowiat) widget.terytPowiat = weather.terytPowiat;
@@ -101,88 +140,7 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 			widget: Object.keys(widget).length > 0 ? widget : undefined,
 		});
 	}
-	return slots;
-}
-
-function parseWidgetsFromForm(form: FormData): SiteWidgetsConfig {
-	const widgets: SiteWidgetsConfig = {};
-
-	const recentTitle = String(form.get('widget_recent_changes_title') ?? '').trim();
-	const recentLimit = parseIntField(form.get('widget_recent_changes_limit'));
-	const recentEnabled = form.get('widget_recent_changes_enabled') === 'on';
-	const recent: SiteWidgetsConfig['recent_changes'] = {};
-	const recentOrder = parseOrderField(form.get('widget_recent_changes_order'));
-	if (recentTitle) recent.title = recentTitle;
-	if (recentLimit) recent.limit = recentLimit;
-	if (recentOrder !== undefined) recent.order = recentOrder;
-	if (!recentEnabled) recent.enabled = false;
-	if (Object.keys(recent).length > 0) widgets.recent_changes = recent;
-
-	const certTitle = String(form.get('widget_cert_advisories_title') ?? '').trim();
-	const certLimit = parseIntField(form.get('widget_cert_advisories_limit'));
-	const certMoreLink = String(form.get('widget_cert_advisories_more_link') ?? '').trim();
-	const certCategory = String(form.get('widget_cert_advisories_category') ?? '').trim();
-	const certEnabled = form.get('widget_cert_advisories_enabled') === 'on';
-	const certVariant = String(form.get('widget_cert_advisories_variant') ?? '').trim();
-	const cert: SiteWidgetsConfig['cert_advisories'] = {};
-	const certOrder = parseOrderField(form.get('widget_cert_advisories_order'));
-	if (certTitle) cert.title = certTitle;
-	if (certLimit) cert.limit = certLimit;
-	if (certMoreLink) cert.moreLink = certMoreLink;
-	if (certCategory) cert.categoryFilter = certCategory;
-	if (certOrder !== undefined) cert.order = certOrder;
-	if (!certEnabled) cert.enabled = false;
-	if (certVariant === 'alert' || certVariant === 'default') cert.variant = certVariant;
-	if (Object.keys(cert).length > 0) widgets.cert_advisories = cert;
-
-	return widgets;
-}
-
-function parseBannersFromForm(form: FormData): SidebarBanner[] {
-	const ids = form.getAll('banner_id').map((v) => String(v).trim());
-	const labels = form.getAll('banner_label').map((v) => String(v).trim());
-	const styles = form.getAll('banner_style').map((v) => String(v).trim());
-	const imageUrls = form.getAll('banner_image_url').map((v) => String(v).trim());
-	const imageVariants = form.getAll('banner_image_variant').map((v) => String(v).trim());
-	const textTitles = form.getAll('banner_text_title').map((v) => String(v).trim());
-	const textButtons = form.getAll('banner_text_button').map((v) => String(v).trim());
-	const linkTypes = form.getAll('banner_link_type').map((v) => String(v).trim());
-	const categorySlugs = form.getAll('banner_category_slug').map((v) => String(v).trim());
-	const pagePaths = form.getAll('banner_page_path').map((v) => String(v).trim());
-	const externalUrls = form.getAll('banner_external_url').map((v) => String(v).trim());
-	const orders = form.getAll('banner_order');
-
-	const banners: SidebarBanner[] = [];
-	for (let i = 0; i < ids.length; i++) {
-		const id = ids[i];
-		const label = labels[i] ?? '';
-		const linkTypeRaw = linkTypes[i] ?? '';
-		if (!id || !label || !isBannerLinkType(linkTypeRaw)) continue;
-
-		const style = styles[i] === 'text' ? 'text' : 'image';
-		const banner: SidebarBanner = { id, label, style, linkType: linkTypeRaw };
-
-		if (imageUrls[i]) banner.imageUrl = imageUrls[i];
-		if (imageVariants[i] === 'blue') banner.imageVariant = 'blue';
-		if (textTitles[i]) banner.textTitle = textTitles[i];
-		if (textButtons[i]) banner.textButton = textButtons[i];
-		if (linkTypeRaw === 'category' && categorySlugs[i]) banner.categorySlug = categorySlugs[i];
-		if (linkTypeRaw === 'page' && pagePaths[i]) banner.pagePath = pagePaths[i];
-		if (linkTypeRaw === 'external' && externalUrls[i]) banner.externalUrl = externalUrls[i];
-
-		const order = parseOrderField(orders[i] ?? null);
-		if (order !== undefined) banner.order = order;
-		if (form.get(`banner_enabled_${id}`) !== 'on') banner.enabled = false;
-
-		if (style === 'image' && !banner.imageUrl) continue;
-		if (style === 'text' && !banner.textTitle) continue;
-		if (linkTypeRaw === 'category' && !banner.categorySlug) continue;
-		if (linkTypeRaw === 'page' && !banner.pagePath) continue;
-		if (linkTypeRaw === 'external' && !banner.externalUrl) continue;
-
-		banners.push(banner);
-	}
-	return banners;
+	return sortSlotsByOrder(slots);
 }
 
 export function parseLayoutFromFormData(
@@ -217,6 +175,7 @@ export function parseLayoutFromFormData(
 
 	const categoryDisplays = mergeCategoryDisplays(slots, {});
 	for (const slot of slots) {
+		if (!isCategoryFeedComponent(slot.component)) continue;
 		categoryDisplays[slot.id] = categories
 			.filter((c) => form.get(`display_${slot.id}_${c.slug}`) === 'on')
 			.map((c) => c.slug);
@@ -229,8 +188,6 @@ export function parseLayoutFromFormData(
 			categories,
 			categoryDisplays,
 			slots,
-			widgets: parseWidgetsFromForm(form),
-			banners: parseBannersFromForm(form),
 			navigationPath: base.navigationPath,
 			categoriesPath: base.categoriesPath,
 		},

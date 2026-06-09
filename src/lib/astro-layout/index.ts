@@ -1,17 +1,26 @@
 export type {
 	NavItem,
 	CategoryDefinition,
+	CategoryDisplays,
 	DisplaySlot,
 	SlotWidgetConfig,
-	SiteWidgetsConfig,
 	SiteAstroLayout,
+	CertAdvisoriesWidgetConfig,
 } from './types';
-export { emptyDisplaysForSlots, mergeCategoryDisplays } from './slots';
+export type { LayoutComponentId } from './components';
+export { emptyDisplaysForSlots, mergeCategoryDisplays, sortSlotsByOrder, findSlotByComponent, findSlotsByComponent, getSidebarSlots, getSlotWidget, getCategoryFeedSlots } from './slots';
+export {
+	LAYOUT_COMPONENTS,
+	LAYOUT_COMPONENT_IDS,
+	isLayoutComponentId,
+	isCategoryFeedComponent,
+	isSingletonComponent,
+	isSidebarComponent,
+} from './components';
 export {
 	parseNavigationJson,
 	parseCategoriesFile,
 	parseSlots,
-	parseWidgets,
 	buildCategoriesFilePayload,
 } from './parse';
 export { parseLayoutFromFormData } from './parse-form';

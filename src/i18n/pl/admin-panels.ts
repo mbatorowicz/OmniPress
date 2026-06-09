@@ -120,17 +120,23 @@ export const adminLayout = {
 	savedSynced: 'Layout zapisany i wysłany do repozytorium GitHub.',
 	imported: 'Zaimportowano layout z repozytorium GitHub.',
 	noAstroChannel: 'Brak aktywnego kanału Astro — zapis tylko w OmniPress (bez sync do GitHub).',
-	slotsHint: 'Slot = miejsce na stronie Astro (component np. home.latest, sidebar.weather). Tytuły i limity wpisów ustawiasz w kolumnach widgetu.',
+	slotsHint:
+		'Komponenty strony Astro w jednej liście. Wybierz typ (home.*, sidebar.*), ustaw kolejność — mniejsza liczba = wyżej w sidebarze. Pola kolumn dostosowują się do typu.',
+	slotsOrderHint:
+		'Kolejność (order) dotyczy wszystkich komponentów sidebar.* — banery, pogoda, CERT i ostatnie zmiany sortują się wspólnie.',
+	componentLabels: {
+		'home.pinned': 'Strona główna — przypięte',
+		'home.latest': 'Strona główna — najnowsze',
+		'sidebar.weather': 'Sidebar — pogoda (IMGW)',
+		'sidebar.recent_changes': 'Sidebar — ostatnie zmiany',
+		'sidebar.cert_advisories': 'Sidebar — komunikaty CERT',
+		'sidebar.banner': 'Sidebar — baner',
+	},
 	menuHint:
 		'Tablica JSON — pola label, href, opcjonalnie isMegaMenu i zagnieżdżone children (do 3 poziomów). Link wewnętrzny musi wskazywać opublikowaną stronę statyczną, archiwum kategorii (/{slug}) lub znaną trasę w repo.',
 	navValidationHeading: 'Problemy w menu (linki wewnętrzne):',
 	navValidationHint:
 		'Sync do GitHub jest zablokowany, dopóki menu wskazuje nieistniejące adresy. Utwórz strony statyczne lub popraw href.',
-	widgetsHint:
-		'Ustawienia widgetów niezależnych od kategorii wpisów. Pole „Kolejność” (sidebar): mniejsza liczba = wyżej na pasku bocznym.',
-	slotsOrderHint: 'Kolejność dotyczy slotów z komponentem sidebar.* (pasek boczny strony).',
-	bannersHint:
-		'Banery w sidebarze strony. Link: kategoria (archiwum wpisów), strona statyczna (opublikowana) lub adres zewnętrzny (nowa karta).',
 	bannerLinkTypes: {
 		category: 'Kategoria wpisów',
 		page: 'Strona statyczna',
@@ -157,11 +163,9 @@ export const adminLayout = {
 	displaysRefreshHint: 'Po dodaniu nowej kategorii zapisz formularz — macierz odświeży się przy następnym otwarciu.',
 	sections: {
 		menu: 'Menu główne',
-		slots: 'Komponenty strony (sloty)',
+		slots: 'Komponenty strony',
 		categories: 'Kategorie wpisów',
 		displays: 'Kategorie w komponentach',
-		widgets: 'Widgety globalne',
-		banners: 'Banery sidebaru',
 	},
 	fields: {
 		navigationJson: 'Menu (JSON)',
@@ -215,11 +219,9 @@ export const adminLayout = {
 		save: 'Zapisz layout',
 		importFromGitHub: 'Importuj z GitHub (nadpisuje dane w OmniPress)',
 		addCategory: '+ Dodaj kategorię',
-		addSlot: '+ Dodaj slot',
-		addBanner: '+ Dodaj baner',
+		addComponent: '+ Dodaj komponent',
 		removeCategory: 'Usuń',
 		removeSlot: 'Usuń',
-		removeBanner: 'Usuń',
 	},
 	variants: {
 		default: 'Domyślny',
@@ -228,7 +230,8 @@ export const adminLayout = {
 	errors: {
 		invalid_navigation: 'Menu: nieprawidłowy JSON lub struktura.',
 		no_categories: 'Dodaj co najmniej jedną kategorię (slug + nazwa).',
-		no_slots: 'Dodaj co najmniej jeden slot (komponent strony).',
+		no_slots: 'Dodaj co najmniej jeden komponent.',
+		no_category_feed_slots: 'Dodaj komponent home.pinned lub home.latest, aby przypisywać kategorie.',
 		save_failed: 'Zapis layoutu nie powiódł się.',
 		no_astro_destination: 'Brak aktywnego kanału Astro — skonfiguruj go w edycji jednostki.',
 		invalid_repo: 'Nieprawidłowa konfiguracja repozytorium Astro.',

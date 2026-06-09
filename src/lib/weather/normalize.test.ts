@@ -65,8 +65,6 @@ describe('findWeatherSlot', () => {
 					},
 				},
 			],
-			widgets: {},
-			banners: [],
 			navigationPath: '',
 			categoriesPath: '',
 		});
@@ -86,8 +84,6 @@ describe('findWeatherSlot', () => {
 					widget: { enabled: true },
 				},
 			],
-			widgets: {},
-			banners: [],
 			navigationPath: '',
 			categoriesPath: '',
 		});

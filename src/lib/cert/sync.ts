@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { loadSiteAstroLayout } from '@/lib/astro-layout/store';
+import { findSlotByComponent } from '@/lib/astro-layout/slots';
 import { loadSiteAstroDestination } from '@/lib/admin/sites';
 import {
 	decryptDestinationCredentials,
@@ -21,7 +22,8 @@ export async function syncCertAdvisoriesForSite(
 	siteId: string,
 ): Promise<CertSyncSiteResult> {
 	const layout = await loadSiteAstroLayout(supabase, siteId);
-	const widget = layout.widgets.cert_advisories;
+	const certSlot = findSlotByComponent(layout, 'sidebar.cert_advisories');
+	const widget = certSlot?.widget;
 	if (!widget || widget.enabled === false) {
 		return { siteId, ok: true, skipped: true, count: 0 };
 	}
