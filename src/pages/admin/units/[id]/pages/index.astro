@@ -1,0 +1,75 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import Alert from '@/components/ui/Alert.astro';
+import Button from '@/components/ui/Button.astro';
+import Panel from '@/components/ui/Panel.astro';
+import { adminSitePages } from '@/i18n';
+import { listSitePages } from '@/lib/site-pages';
+import { buildSitePagePublicPath } from '@/lib/site-pages/url';
+import type { PageStatus } from '@/lib/types';
+
+const { id } = Astro.params;
+if (!id || Astro.locals.profile?.role !== 'admin') return Astro.redirect('/admin');
+
+const { data: site } = await Astro.locals.supabase
+	.from('sites')
+	.select('id, name')
+	.eq('id', id)
+	.maybeSingle();
+if (!site) return Astro.redirect('/admin/sites');
+
+const pages = await listSitePages(Astro.locals.supabase, id);
+const ui = adminSitePages;
+const errorCode = Astro.url.searchParams.get('error');
+const errorMessage =
+	errorCode && errorCode in ui.errors
+		? ui.errors[errorCode as keyof typeof ui.errors]
+		: null;
+const deleted = Astro.url.searchParams.get('deleted') === '1';
+
+function statusLabel(status: PageStatus): string {
+	return status === 'published' ? ui.statusPublished : ui.statusDraft;
+}
+---
+
+<AppLayout title={ui.title} heading={ui.title}>
+	<a href={`/admin/units/${id}`} class="mb-4 inline-block text-sm ui-link">
+		← {site.name}
+	</a>
+	<p class="mb-4 text-sm text-slate-600">{ui.lead}</p>
+
+	{deleted && <Alert variant="success">{ui.deleted}</Alert>}
+	{errorMessage && <Alert variant="error">{errorMessage}</Alert>}
+
+	<div class="mb-4">
+		<form method="post" action={`/api/admin/sites/${id}/pages/create`}>
+			<Button type="submit">{ui.create}</Button>
+		</form>
+	</div>
+
+	<Panel>
+		{
+			pages.length === 0 ? (
+				<p class="ui-empty">{ui.empty}</p>
+			) : (
+				<ul class="ui-list-divide">
+					{pages.map((page) => (
+						<li class="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
+							<div>
+								<a href={`/admin/units/${id}/pages/${page.id}`} class="ui-link font-medium">
+									{page.title || '—'}
+								</a>
+								<p class="mt-0.5 font-mono text-xs text-slate-500">
+									{buildSitePagePublicPath(page.path_prefix, page.slug)}
+								</p>
+							</div>
+							<span class="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+								{statusLabel(page.status as PageStatus)}
+							</span>
+						</li>
+					))}
+				</ul>
+			)
+		}
+	</Panel>
+</AppLayout>

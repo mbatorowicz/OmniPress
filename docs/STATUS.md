@@ -64,6 +64,8 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Bulk dezaktywacja / usuwanie opublikowanych | ✅ |
 | Import wpisów z GitHub | ✅ |
 | Layout Astro (menu, kategorie, sloty) + sync do repo | ✅ `/admin/units/[id]/layout` |
+| Strony statyczne (admin) + publikacja do repo Astro | ✅ `/admin/units/[id]/pages` |
+| Walidacja linków menu przed sync GitHub | ✅ |
 | Ostatnie zmiany (ogłoszenia) | ✅ `/admin/units/[id]/changes` |
 | Test połączenia GitHub | ✅ |
 | Logi publikacji + retry ręczny | ✅ |
@@ -100,6 +102,7 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub.
 | `20250612000000_remove_wordpress.sql` | `setup:remove-wordpress` |
 | `20250613000000_profiles_self_update_guard.sql` | `setup:profiles-guard` |
 | `20250614000000_post_scheduled_publish.sql` | `setup:scheduled-publish` |
+| `20250615000000_site_pages.sql` | `setup:site-pages` |
 
 ---
 

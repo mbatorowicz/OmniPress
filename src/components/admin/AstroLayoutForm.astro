@@ -9,12 +9,14 @@ interface Props {
 	layout: SiteAstroLayout;
 	hasAstroChannel: boolean;
 	errorMessage?: string | null;
+	navWarningLines?: string[];
 	saved?: boolean;
 	synced?: boolean;
 	imported?: boolean;
 }
 
-const { siteId, layout, hasAstroChannel, errorMessage, saved, synced, imported } = Astro.props;
+const { siteId, layout, hasAstroChannel, errorMessage, navWarningLines = [], saved, synced, imported } =
+	Astro.props;
 const navigationJson = JSON.stringify(layout.navigation, null, '\t');
 const recentWidget = layout.widgets.recent_changes ?? {};
 const slots = layout.slots;
@@ -25,6 +27,19 @@ const slots = layout.slots;
 )}
 {imported && <Alert variant="success">{adminLayout.imported}</Alert>}
 {errorMessage && <Alert variant="error">{errorMessage}</Alert>}
+{
+	navWarningLines.length > 0 && (
+		<Alert variant="warning">
+			<p class="font-medium">{adminLayout.navValidationHeading}</p>
+			<p class="mt-1 text-sm">{adminLayout.navValidationHint}</p>
+			<ul class="mt-2 list-inside list-disc text-sm">
+				{navWarningLines.slice(0, 12).map((line) => (
+					<li>{line}</li>
+				))}
+			</ul>
+		</Alert>
+	)
+}
 {!hasAstroChannel && <Alert variant="warning">{adminLayout.noAstroChannel}</Alert>}
 
 <form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="max-w-5xl space-y-6">

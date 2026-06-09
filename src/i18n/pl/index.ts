@@ -12,6 +12,7 @@ export {
 	adminUnit,
 	adminLayout,
 	adminRecentChanges,
+	adminSitePages,
 } from './admin-panels';
 export { api, formatUploadError } from './api';
 export { home } from './home';

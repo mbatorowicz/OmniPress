@@ -61,7 +61,49 @@ export const adminUnit = {
 		vercel: 'Vercel → Project Settings → General → Project ID (prj_…). Po publikacji OmniPress sprawdza log buildu.',
 	},
 	layoutLink: 'Layout Astro (menu i komponenty)',
+	pagesLink: 'Strony statyczne',
 	changesLink: 'Ogłoś zmianę na stronie',
+} as const;
+
+export const adminSitePages = {
+	title: 'Strony statyczne',
+	lead: 'Treści pod stałe adresy URL (np. /gmina/plan-ogolny). Tylko administrator — publikacja od razu do repozytorium Astro.',
+	empty: 'Brak stron — utwórz pierwszą stronę statyczną.',
+	create: '+ Nowa strona',
+	backToUnit: 'Wróć do jednostki',
+	statusDraft: 'Szkic',
+	statusPublished: 'Opublikowana',
+	fields: {
+		title: 'Tytuł',
+		slug: 'Slug (segment URL)',
+		pathPrefix: 'Prefix ścieżki (np. gmina → /gmina/…)',
+		pathPrefixHint: 'Opcjonalny pierwszy segment URL. Puste = strona pod /{slug}.',
+		publicPath: 'Adres publiczny',
+		content: 'Treść',
+		contentHint: 'Edytor WYSIWYG — zapis jako Markdown w repozytorium.',
+	},
+	actions: {
+		save: 'Zapisz szkic',
+		publish: 'Opublikuj na stronie',
+		delete: 'Usuń stronę',
+	},
+	saved: 'Strona zapisana.',
+	published: 'Strona opublikowana w repozytorium GitHub.',
+	deleted: 'Strona usunięta.',
+	errors: {
+		not_found: 'Strona nie istnieje.',
+		create_failed: 'Nie udało się utworzyć strony.',
+		title_required: 'Podaj tytuł strony.',
+		invalid_slug: 'Nieprawidłowy slug (min. 2 znaki, a-z, 0-9, myślnik).',
+		invalid_path_prefix: 'Nieprawidłowy prefix ścieżki.',
+		duplicate_path: 'Strona pod tym adresem już istnieje w tej jednostce.',
+		save_failed: 'Zapis strony nie powiódł się.',
+		publish_failed: 'Publikacja nie powiodła się.',
+		no_astro_destination: 'Brak aktywnego kanału Astro.',
+		invalid_repo: 'Nieprawidłowa konfiguracja repozytorium.',
+		no_github_token: 'Brak tokenu GitHub.',
+		delete_failed: 'Usunięcie nie powiodło się.',
+	},
 } as const;
 
 export const adminLayout = {
@@ -72,7 +114,11 @@ export const adminLayout = {
 	imported: 'Zaimportowano layout z repozytorium GitHub.',
 	noAstroChannel: 'Brak aktywnego kanału Astro — zapis tylko w OmniPress (bez sync do GitHub).',
 	slotsHint: 'Slot = miejsce na stronie Astro (component np. home.latest, sidebar.weather). Tytuły i limity wpisów ustawiasz w kolumnach widgetu.',
-	menuHint: 'Tablica JSON — pola label, href, opcjonalnie isMegaMenu i zagnieżdżone children (do 3 poziomów).',
+	menuHint:
+		'Tablica JSON — pola label, href, opcjonalnie isMegaMenu i zagnieżdżone children (do 3 poziomów). Link wewnętrzny musi wskazywać opublikowaną stronę statyczną, archiwum kategorii (/{slug}) lub znaną trasę w repo.',
+	navValidationHeading: 'Problemy w menu (linki wewnętrzne):',
+	navValidationHint:
+		'Sync do GitHub jest zablokowany, dopóki menu wskazuje nieistniejące adresy. Utwórz strony statyczne lub popraw href.',
 	widgetsHint: 'Ustawienia widgetów niezależnych od kategorii wpisów.',
 	categoriesHint: 'Slug musi odpowiadać segmentowi URL wpisu (/{category}/{slug}).',
 	displaysHint: 'Zaznacz, które kategorie mają trafiać do danego komponentu na stronie Astro.',
@@ -129,6 +175,7 @@ export const adminLayout = {
 		no_astro_destination: 'Brak aktywnego kanału Astro — skonfiguruj go w edycji jednostki.',
 		invalid_repo: 'Nieprawidłowa konfiguracja repozytorium Astro.',
 		no_github_token: 'Brak tokenu GitHub — dodaj PAT w destynacji Astro.',
+		dead_nav_links: 'Menu zawiera nieistniejące linki wewnętrzne — popraw przed wysłaniem do GitHub.',
 	},
 } as const;
 

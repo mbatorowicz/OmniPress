@@ -25,6 +25,7 @@
     "setup:remove-wordpress": "node scripts/apply-migration.mjs supabase/migrations/20250612000000_remove_wordpress.sql",
     "setup:profiles-guard": "node scripts/apply-migration.mjs supabase/migrations/20250613000000_profiles_self_update_guard.sql",
     "setup:scheduled-publish": "node scripts/apply-migration.mjs supabase/migrations/20250614000000_post_scheduled_publish.sql",
+    "setup:site-pages": "node scripts/apply-migration.mjs supabase/migrations/20250615000000_site_pages.sql",
     "env:pull": "vercel env pull .env.local --yes",
     "version": "node -e \"import('./scripts/lib/git-info.mjs').then(m=>console.log(m.getVersionLabel()))\"",
     "test": "vitest run",

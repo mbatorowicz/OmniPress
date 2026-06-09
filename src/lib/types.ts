@@ -12,6 +12,8 @@ export type DestinationType = 'github_astro';
 
 export type PublishLogStatus = 'pending' | 'processing' | 'success' | 'failed' | 'withdrawn';
 
+export type PageStatus = 'draft' | 'published';
+
 export interface Profile {
 	id: string;
 	role: UserRole;

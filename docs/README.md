@@ -57,6 +57,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | `setup:remove-wordpress` | Usunięcie typu wordpress z enum |
 | `setup:profiles-guard` | Trigger RLS — blokada eskalacji roli / site |
 | `setup:scheduled-publish` | Data publikacji wpisu + status `scheduled` |
+| `setup:site-pages` | Strony statyczne (admin) |
 | `env:pull` | Pobranie env z Vercel |
 | `test` | Vitest |
 | `build` | Astro production build |

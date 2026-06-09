@@ -77,7 +77,8 @@ Na podglądzie wpisu: tabela **Status publikacji**. Przy błędzie (`failed`): *
 
 ## 6. Layout, import i bulk
 
-- **Layout Astro:** `/admin/units/[id]/layout` — menu, kategorie, sloty → sync do GitHub.
+- **Layout Astro:** `/admin/units/[id]/layout` — menu, kategorie, sloty → sync do GitHub. Przed sync walidacja linków wewnętrznych (strony statyczne, archiwa kategorii, `/kontakt`).
+- **Strony statyczne:** `/admin/units/[id]/pages` — treści pod stałe URL (np. `/gmina/plan-ogolny`); publikacja od razu do `src/content/pages/` w repo Astro.
 - **Import wpisów z GitHub:** `/admin` → synchronizacja (wpisy już na stronie).
 - **Ostatnie zmiany:** `/admin/units/[id]/changes`.
 - **Bulk:** na liście opublikowanych — zaznacz wiele wpisów → dezaktywuj lub usuń (w tym z GitHub).

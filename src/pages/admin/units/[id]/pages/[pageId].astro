@@ -1,0 +1,112 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import PostRichEditor from '@/components/posts/PostRichEditor.astro';
+import Alert from '@/components/ui/Alert.astro';
+import Button from '@/components/ui/Button.astro';
+import { adminSitePages, dashboard } from '@/i18n';
+import { getSitePageById } from '@/lib/site-pages';
+import { buildSitePagePublicPath } from '@/lib/site-pages/url';
+import type { PageStatus } from '@/lib/types';
+
+const { id, pageId } = Astro.params;
+if (!id || !pageId || Astro.locals.profile?.role !== 'admin') return Astro.redirect('/admin');
+
+const page = await getSitePageById(Astro.locals.supabase, pageId);
+if (!page || page.site_id !== id) {
+	return Astro.redirect(`/admin/units/${id}/pages?error=not_found`);
+}
+
+const ui = adminSitePages;
+const ed = dashboard.editor;
+const errorCode = Astro.url.searchParams.get('error');
+const errorMessage =
+	errorCode && errorCode in ui.errors
+		? ui.errors[errorCode as keyof typeof ui.errors]
+		: null;
+const saved = Astro.url.searchParams.get('saved') === '1';
+const published = Astro.url.searchParams.get('published') === '1';
+const publicPath = buildSitePagePublicPath(page.path_prefix, page.slug);
+const statusLabel = page.status === 'published' ? ui.statusPublished : ui.statusDraft;
+---
+
+<AppLayout title={page.title || ui.title} heading={page.title || ui.title}>
+	<a href={`/admin/units/${id}/pages`} class="mb-4 inline-block text-sm ui-link">
+		← {ui.title}
+	</a>
+
+	<p class="mb-2 text-sm text-slate-600">
+		<span class="rounded bg-slate-100 px-2 py-0.5 text-xs">{statusLabel}</span>
+		<span class="ml-2 font-mono text-xs text-slate-500">{publicPath}</span>
+	</p>
+
+	{saved && <Alert variant="success">{ui.saved}</Alert>}
+	{published && <Alert variant="success">{ui.published}</Alert>}
+	{errorMessage && <Alert variant="error">{errorMessage}</Alert>}
+
+	<form
+		id="page-form"
+		method="post"
+		action={`/api/admin/sites/${id}/pages/${pageId}/save`}
+		class="ui-panel ui-panel--default max-w-4xl space-y-4"
+	>
+		<label class="ui-label">
+			<span class="font-medium ui-label-text">{ui.fields.title}</span>
+			<input type="text" name="title" required value={page.title} class="ui-input" />
+		</label>
+		<div class="grid gap-4 sm:grid-cols-2">
+			<label class="ui-label">
+				<span class="font-medium ui-label-text">{ui.fields.pathPrefix}</span>
+				<input
+					type="text"
+					name="path_prefix"
+					value={page.path_prefix}
+					placeholder="gmina"
+					class="ui-input font-mono text-sm"
+				/>
+				<p class="mt-1 text-xs text-slate-500">{ui.fields.pathPrefixHint}</p>
+			</label>
+			<label class="ui-label">
+				<span class="font-medium ui-label-text">{ui.fields.slug}</span>
+				<input
+					type="text"
+					name="slug"
+					required
+					value={page.slug}
+					class="ui-input font-mono text-sm"
+				/>
+			</label>
+		</div>
+		<p class="text-xs text-slate-500">
+			{ui.fields.publicPath}: <code class="rounded bg-slate-100 px-1">{publicPath}</code>
+		</p>
+		<div>
+			<span class="text-sm font-medium text-slate-700">{ui.fields.content}</span>
+			<p class="mt-0.5 text-xs text-slate-500">{ui.fields.contentHint}</p>
+			<div class="mt-2">
+				<PostRichEditor
+					initialMarkdown={page.content_md}
+					placeholder={ed.fields.contentPlaceholder}
+					toolbar={ed.richText}
+				/>
+			</div>
+		</div>
+		<div class="flex flex-wrap gap-3">
+			<Button type="submit">{ui.actions.save}</Button>
+			<Button
+				type="submit"
+				formaction={`/api/admin/sites/${id}/pages/${pageId}/publish`}
+				variant="nav-accent"
+			>
+				{ui.actions.publish}
+			</Button>
+		</div>
+	</form>
+
+	<form
+		method="post"
+		action={`/api/admin/sites/${id}/pages/${pageId}/delete`}
+		class="mt-8 max-w-4xl"
+	>
+		<Button type="submit" variant="danger">{ui.actions.delete}</Button>
+	</form>
+</AppLayout>

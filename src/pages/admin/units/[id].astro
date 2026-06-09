@@ -4,7 +4,7 @@ import UnitForm from '@/components/admin/UnitForm.astro';
 import Alert from '@/components/ui/Alert.astro';
 import Button from '@/components/ui/Button.astro';
 import Panel from '@/components/ui/Panel.astro';
-import { adminSites, adminUnit, common } from '@/i18n';
+import { adminUnit, adminSites, common } from '@/i18n';
 import { countSitePosts, loadUnitFormInitial } from '@/lib/admin';
 
 const { id } = Astro.params;
@@ -42,6 +42,9 @@ const errorMessage =
 	<p class="mt-6 flex max-w-2xl flex-wrap gap-3">
 		<Button href={`/admin/units/${id}/layout`} variant="nav-accent">
 			{adminUnit.layoutLink}
+		</Button>
+		<Button href={`/admin/units/${id}/pages`} variant="secondary">
+			{adminUnit.pagesLink}
 		</Button>
 		<Button href={`/admin/units/${id}/changes`} variant="secondary">
 			{adminUnit.changesLink}
