@@ -1,0 +1,38 @@
+---
+interface Props {
+	id?: string;
+	name?: string;
+	rows?: number;
+	placeholder?: string;
+	required?: boolean;
+	disabled?: boolean;
+	readonly?: boolean;
+	class?: string;
+	mono?: boolean;
+}
+
+const {
+	id,
+	name,
+	rows,
+	placeholder,
+	required,
+	disabled,
+	readonly,
+	class: className = '',
+	mono,
+} = Astro.props;
+---
+
+<textarea
+	{id}
+	{name}
+	{rows}
+	{placeholder}
+	{required}
+	{disabled}
+	{readonly}
+	class:list={['ui-textarea', mono ? 'ui-textarea--mono' : '', className]}
+>
+	<slot />
+</textarea>

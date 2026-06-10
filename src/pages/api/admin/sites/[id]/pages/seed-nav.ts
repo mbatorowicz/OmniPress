@@ -1,9 +1,11 @@
 import type { APIRoute } from 'astro';
-import { requireAdmin } from '@/lib/admin';
+import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
 import { seedNavSitePages } from '@/lib/site-pages/seed-nav';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
-	if (!requireAdmin(locals)) return redirect('/login');
+	const auth = guardAdminRedirect(locals, redirect);
+	if (isGuardBlocked(auth)) return auth;
+	const { supabase } = auth;
 	const siteId = params.id;
 	if (!siteId) return redirect('/admin/sites');
 
@@ -12,7 +14,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 
 	const dbOnly = new URL(request.url).searchParams.get('db_only') === '1';
 
-	const result = await seedNavSitePages(locals.supabase, siteId, user.id, {
+	const result = await seedNavSitePages(supabase, siteId, user.id, {
 		publishToGitHub: !dbOnly,
 		syncLayout: !dbOnly,
 	});

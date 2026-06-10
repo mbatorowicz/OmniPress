@@ -1,38 +1,23 @@
 import type { APIRoute } from 'astro';
 import { api } from '@/i18n';
-import { getUserSites, requireAuth } from '@/lib/auth';
+import { getUserSites } from '@/lib/auth';
+import { guardAuthJson, isGuardBlocked, jsonError, jsonOk } from '@/lib/api';
 import { loadSiteCategories } from '@/lib/categories';
 import { loadAllowedSites } from '@/lib/posts';
 
 export const GET: APIRoute = async ({ params, locals }) => {
-	const auth = requireAuth(locals);
-	if (!auth) {
-		return new Response(JSON.stringify({ ok: false, message: api.posts.unauthorized }), {
-			status: 401,
-			headers: { 'Content-Type': 'application/json' },
-		});
-	}
+	const auth = guardAuthJson(locals);
+	if (isGuardBlocked(auth)) return auth;
 
 	const siteId = params.siteId;
-	if (!siteId) {
-		return new Response(JSON.stringify({ ok: false, message: api.posts.missingSiteId }), {
-			status: 400,
-			headers: { 'Content-Type': 'application/json' },
-		});
-	}
+	if (!siteId) return jsonError(api.posts.missingSiteId, 400);
 
 	const userSites = await getUserSites(auth.supabase, auth.user.id);
 	const allowed = await loadAllowedSites(auth.supabase, auth.profile, userSites);
 	if (!allowed.some((site) => site.id === siteId)) {
-		return new Response(JSON.stringify({ ok: false, message: api.posts.forbidden }), {
-			status: 403,
-			headers: { 'Content-Type': 'application/json' },
-		});
+		return jsonError(api.posts.forbidden, 403);
 	}
 
 	const { categories, warnings } = await loadSiteCategories(auth.supabase, siteId);
-	return new Response(JSON.stringify({ ok: true, categories, warnings }), {
-		status: 200,
-		headers: { 'Content-Type': 'application/json' },
-	});
+	return jsonOk({ categories, warnings });
 };

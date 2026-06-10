@@ -1,0 +1,70 @@
+---
+import { common } from '@/i18n';
+import Button from '@/components/ui/actions/Button.astro';
+import TableRow from '@/components/ui/table/TableRow.astro';
+import TableCell from '@/components/ui/table/TableCell.astro';
+
+type PostRow = {
+	id: string;
+	title: string;
+	category_name: string | null;
+	category_slug: string | null;
+	updated_at: string;
+	created_at?: string;
+	scheduled_publish_at?: string | null;
+	sites: { name: string } | null;
+};
+
+interface Props {
+	post: PostRow;
+	when: string;
+	selectable?: boolean;
+	labels: {
+		noCategory: string;
+		open: string;
+	};
+}
+
+const { post, when, selectable, labels } = Astro.props;
+const siteName = (post.sites as { name: string } | null)?.name ?? '—';
+---
+
+<TableRow>
+	{
+		selectable && (
+			<TableCell class="px-3">
+				<input type="checkbox" name="post_id" value={post.id} class="ui-checkbox" data-post-checkbox />
+			</TableCell>
+		)
+	}
+	<TableCell>
+		<a href={`/admin/posts/${post.id}`} class="ui-link">
+			{post.title || common.untitled}
+		</a>
+	</TableCell>
+	<TableCell class="text-slate-700">
+		{
+			post.category_name ? (
+				<span>
+					{post.category_name}
+					{post.category_slug && (
+						<span class="ml-1 font-mono text-xs text-slate-400">{post.category_slug}</span>
+					)}
+				</span>
+			) : (
+				<span class="text-slate-400">{labels.noCategory}</span>
+			)
+		}
+	</TableCell>
+	<TableCell class="hidden text-slate-600 sm:table-cell">{siteName}</TableCell>
+	<TableCell class="whitespace-nowrap text-slate-500">{when}</TableCell>
+	{
+		selectable && (
+			<TableCell>
+				<Button href={`/admin/posts/${post.id}`} variant="ghost">
+					{labels.open}
+				</Button>
+			</TableCell>
+		)
+	}
+</TableRow>

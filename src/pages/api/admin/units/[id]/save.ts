@@ -1,13 +1,16 @@
 import type { APIRoute } from 'astro';
-import { requireAdmin, updateOrganizationalUnit } from '@/lib/admin';
+import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
+import { updateOrganizationalUnit } from '@/lib/admin';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
-	if (!requireAdmin(locals)) return redirect('/login');
+	const auth = guardAdminRedirect(locals, redirect);
+	if (isGuardBlocked(auth)) return auth;
+	const { supabase } = auth;
 	const siteId = params.id;
 	if (!siteId) return redirect('/admin/sites');
 
 	const form = await request.formData();
-	const result = await updateOrganizationalUnit(locals.supabase, siteId, form);
+	const result = await updateOrganizationalUnit(supabase, siteId, form);
 
 	if (!result.ok) {
 		return redirect(`/admin/units/${siteId}?error=${result.error}`);

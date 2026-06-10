@@ -3,6 +3,8 @@ export {
 	canSubmitPost,
 	canViewPostAssets,
 	getPostById,
+	loadEditablePost,
+	loadSubmittablePost,
 	slugFromTitle,
 	type PostRow,
 } from './access';

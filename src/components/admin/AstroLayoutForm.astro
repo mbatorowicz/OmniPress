@@ -1,10 +1,11 @@
 ---
 import { adminLayout } from '@/i18n';
-import Alert from '@/components/ui/Alert.astro';
-import Button from '@/components/ui/Button.astro';
-import Panel from '@/components/ui/Panel.astro';
-import LayoutSlotsSection from '@/components/admin/LayoutSlotsSection.astro';
-import { getCategoryFeedSlots } from '@/lib/astro-layout/slots';
+import Alert from '@/components/ui/feedback/Alert.astro';
+import Button from '@/components/ui/actions/Button.astro';
+import NavigationSection from '@/components/admin/layout/NavigationSection.astro';
+import CategoryMatrixSection from '@/components/admin/layout/CategoryMatrixSection.astro';
+import VisibilitySection from '@/components/admin/layout/VisibilitySection.astro';
+import LayoutSlotsSection from '@/components/admin/layout-slots/LayoutSlotsSection.astro';
 import type { SiteAstroLayout } from '@/lib/astro-layout/types';
 
 type PageOption = { path: string; title: string };
@@ -36,8 +37,6 @@ const {
 	imported,
 	publishedPages = [],
 } = Astro.props;
-const navigationJson = JSON.stringify(layout.navigation, null, '\t');
-const categoryFeedSlots = getCategoryFeedSlots(layout.slots);
 ---
 
 {saved && (
@@ -73,115 +72,10 @@ const categoryFeedSlots = getCategoryFeedSlots(layout.slots);
 {!hasAstroChannel && <Alert variant="warning">{adminLayout.noAstroChannel}</Alert>}
 
 <form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="ui-form-stack max-w-5xl">
-	<Panel class="ui-form-section">
-		<h2 class="ui-section-title">{adminLayout.sections.menu}</h2>
-		<p class="ui-hint">{adminLayout.menuHint}</p>
-		<label class="ui-label">
-			<span class="font-medium">{adminLayout.fields.navigationJson}</span>
-			<textarea
-				name="navigation_json"
-				rows={16}
-				class="ui-textarea ui-textarea--mono"
-				required>{navigationJson}</textarea
-			>
-		</label>
-		<p class="ui-hint">
-			{adminLayout.paths.navigation}: <code class="ui-code">{layout.navigationPath}</code>
-		</p>
-	</Panel>
-
-	<LayoutSlotsSection
-		slots={layout.slots}
-		categories={layout.categories}
-		publishedPages={publishedPages}
-	/>
-
-	<Panel class="ui-form-section">
-		<h2 class="ui-section-title">{adminLayout.sections.categories}</h2>
-		<p class="ui-hint">{adminLayout.categoriesHint}</p>
-		<div class="overflow-x-auto">
-			<table class="ui-table-dense min-w-[28rem]" id="categories-table">
-				<thead>
-					<tr class="ui-table-dense-head">
-						<th class="ui-table-dense-th--wide">{adminLayout.fields.categorySlug}</th>
-						<th class="ui-table-dense-th--wide">{adminLayout.fields.categoryName}</th>
-						<th class="ui-table-dense-th--wide">{adminLayout.fields.removeRow}</th>
-					</tr>
-				</thead>
-				<tbody id="categories-body">
-					{
-						layout.categories.map((cat) => (
-							<tr class="category-row ui-table-dense-row">
-								<td class="ui-table-dense-td--wide">
-									<input name="category_slug" value={cat.slug} required class="ui-input-compact ui-input-compact--mono w-full" />
-								</td>
-								<td class="ui-table-dense-td--wide">
-									<input name="category_name" value={cat.name} required class="ui-input-compact w-full" />
-								</td>
-								<td class="ui-table-dense-td--wide">
-									<button type="button" class="remove-category ui-link--danger">{adminLayout.actions.removeCategory}</button>
-								</td>
-							</tr>
-						))
-					}
-				</tbody>
-			</table>
-		</div>
-		<Button type="button" id="add-category" variant="add">
-			{adminLayout.actions.addCategory}
-		</Button>
-		<p class="ui-hint">
-			{adminLayout.paths.categories}: <code class="ui-code">{layout.categoriesPath}</code>
-		</p>
-	</Panel>
-
-	<Panel class="ui-form-section">
-		<h2 class="ui-section-title">{adminLayout.sections.displays}</h2>
-		<p class="ui-hint">{adminLayout.displaysHint}</p>
-		{
-			categoryFeedSlots.length === 0 ? (
-				<p class="ui-hint--warning">{adminLayout.errors.no_category_feed_slots}</p>
-			) : (
-				<div class="overflow-x-auto">
-					<table class="ui-table-dense min-w-[32rem]">
-						<thead>
-							<tr class="ui-table-dense-head">
-								<th class="ui-table-dense-th--wide">{adminLayout.fields.category}</th>
-								{
-									categoryFeedSlots.map((slot) => (
-										<th class="ui-table-dense-th px-2 text-center">
-											<div>{slot.label}</div>
-											<div class="font-normal text-[10px] text-slate-400">{slot.component}</div>
-										</th>
-									))
-								}
-							</tr>
-						</thead>
-						<tbody>
-							{
-								layout.categories.map((cat) => (
-									<tr class="ui-table-dense-row">
-										<td class="ui-table-dense-td--wide font-mono text-xs">{cat.slug}</td>
-										{
-											categoryFeedSlots.map((slot) => {
-												const checked = layout.categoryDisplays[slot.id]?.includes(cat.slug) ?? false;
-												return (
-													<td class="ui-table-dense-td px-2 text-center">
-														<input type="checkbox" name={`display_${slot.id}_${cat.slug}`} checked={checked} />
-													</td>
-												);
-											})
-										}
-									</tr>
-								))
-							}
-						</tbody>
-					</table>
-				</div>
-			)
-		}
-		<p class="ui-hint--warning">{adminLayout.displaysRefreshHint}</p>
-	</Panel>
+	<NavigationSection {layout} />
+	<LayoutSlotsSection slots={layout.slots} categories={layout.categories} publishedPages={publishedPages} />
+	<CategoryMatrixSection {layout} />
+	<VisibilitySection {layout} />
 
 	<div class="flex flex-wrap items-center gap-4">
 		<label class="flex items-center gap-2 text-sm">
@@ -201,29 +95,3 @@ const categoryFeedSlots = getCategoryFeedSlots(layout.slots);
 		</form>
 	)
 }
-
-<script define:vars={{ removeCategoryLabel: adminLayout.actions.removeCategory }}>
-	const catBody = document.getElementById('categories-body');
-	const addCatBtn = document.getElementById('add-category');
-
-	function bindRemoveCategory(row) {
-		row.querySelector('.remove-category')?.addEventListener('click', () => {
-			if (catBody.querySelectorAll('.category-row').length <= 1) return;
-			row.remove();
-		});
-	}
-
-	catBody?.querySelectorAll('.category-row').forEach(bindRemoveCategory);
-
-	addCatBtn?.addEventListener('click', () => {
-		const tr = document.createElement('tr');
-		tr.className = 'category-row ui-table-dense-row';
-		tr.innerHTML = `
-			<td class="ui-table-dense-td--wide"><input name="category_slug" required class="ui-input-compact ui-input-compact--mono w-full" /></td>
-			<td class="ui-table-dense-td--wide"><input name="category_name" required class="ui-input-compact w-full" /></td>
-			<td class="ui-table-dense-td--wide"><button type="button" class="remove-category ui-link--danger">${removeCategoryLabel}</button></td>
-		`;
-		catBody?.appendChild(tr);
-		bindRemoveCategory(tr);
-	});
-</script>

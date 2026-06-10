@@ -1,10 +1,12 @@
 import type { APIRoute } from 'astro';
-import { requireAdmin } from '@/lib/admin';
+import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
 import { parseAnnounceForm } from '@/lib/recent-changes/parse-form';
 import { announceRecentChangeOnGitHub } from '@/lib/recent-changes/store';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
-	if (!requireAdmin(locals)) return redirect('/login');
+	const auth = guardAdminRedirect(locals, redirect);
+	if (isGuardBlocked(auth)) return auth;
+	const { supabase } = auth;
 	const siteId = params.id;
 	if (!siteId) return redirect('/admin/sites');
 
@@ -14,7 +16,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		return redirect(`/admin/units/${siteId}/changes?error=${parsed.error}`);
 	}
 
-	const result = await announceRecentChangeOnGitHub(locals.supabase, siteId, parsed.entry);
+	const result = await announceRecentChangeOnGitHub(supabase, siteId, parsed.entry);
 	if (!result.ok) {
 		return redirect(`/admin/units/${siteId}/changes?error=${result.error}`);
 	}

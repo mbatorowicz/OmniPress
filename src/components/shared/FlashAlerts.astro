@@ -1,0 +1,19 @@
+---
+import Alert from '@/components/ui/feedback/Alert.astro';
+import type { FlashMessage } from '@/lib/ui/flash';
+
+interface Props {
+	messages: FlashMessage[];
+}
+
+const { messages } = Astro.props;
+---
+
+{
+	messages.map((msg) => (
+		<Alert variant={msg.variant}>
+			{msg.message}
+			{msg.detail && <span class="ui-alert-detail">{msg.detail}</span>}
+		</Alert>
+	))
+}

@@ -1,0 +1,74 @@
+@layer components {
+	.ui-panel {
+		@apply rounded-xl border p-6;
+	}
+	.ui-panel--default {
+		@apply border-slate-200 bg-white;
+	}
+	.ui-panel--accent {
+		@apply border-brand/20 bg-brand/5;
+	}
+	.ui-panel--info {
+		@apply border-sky-100 bg-sky-50/30;
+	}
+	.ui-panel--danger {
+		@apply border-red-100 bg-red-50/30;
+	}
+	.ui-panel--amber {
+		@apply border-amber-100 bg-amber-50/40;
+	}
+	.ui-panel--sky {
+		@apply border-sky-100 bg-sky-50/40;
+	}
+	.ui-panel--subtle {
+		@apply rounded-lg border border-slate-200 bg-slate-50/80 p-4;
+	}
+	.ui-heading {
+		@apply text-lg font-medium text-slate-900;
+	}
+	.ui-heading-sm {
+		@apply text-sm font-medium uppercase tracking-wide text-slate-500;
+	}
+	.ui-lead {
+		@apply mt-1 text-sm text-slate-600;
+	}
+	.ui-muted {
+		@apply text-sm text-slate-500;
+	}
+	.ui-empty {
+		@apply mt-2 text-sm text-slate-600;
+	}
+	.ui-section-title {
+		@apply text-sm font-semibold text-slate-800;
+	}
+	.ui-subheading {
+		@apply text-sm font-medium text-slate-800;
+	}
+	.ui-tag {
+		@apply rounded-full bg-slate-100 px-3 py-1 text-sm;
+	}
+	.ui-code {
+		@apply rounded bg-slate-100 px-1;
+	}
+	.ui-divider-section {
+		@apply mt-6 space-y-4 border-t pt-6;
+	}
+	.ui-list-divide {
+		@apply divide-y divide-slate-100;
+	}
+	.ui-list-card {
+		@apply divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white;
+	}
+	.ui-app-shell {
+		@apply flex min-h-screen flex-col bg-surface-muted text-slate-900 antialiased;
+	}
+	.ui-app-header {
+		@apply border-b border-slate-200 bg-surface;
+	}
+	.ui-app-main {
+		@apply mx-auto w-full max-w-5xl flex-1 px-4 py-8;
+	}
+	.ui-public-card {
+		@apply w-full max-w-md rounded-card bg-surface p-8 shadow-card;
+	}
+}

@@ -31,16 +31,21 @@ sequenceDiagram
 | `src/lib/supabase/cookies.ts` | Adapter `getAll`/`setAll` + merge ciasteczek w tym samym żądaniu |
 | `src/lib/supabase/server.ts` | Klient SSR |
 | `src/lib/auth/session.ts` | `getUser`, profil |
-| `src/lib/auth/routes.ts` | Ścieżki publiczne / chronione |
+| `src/lib/auth/routes.ts` | Ścieżki publiczne / chronione / `isAdminApiPath` |
 | `src/i18n/pl/auth.ts` | Napisy auth (SSOT) |
 | `src/i18n/map-auth-error.ts` | Mapowanie błędów Supabase |
-| `src/lib/auth/require.ts` | `requireAuth(locals)` dla API |
+| `src/lib/auth/require.ts` | `requireAuth(locals)` — sesja z middleware |
 | `src/lib/auth/recovery-redirect.ts` | Rozróżnienie `?code=` recovery vs magic link |
 | `src/lib/auth/guard-request.ts` | Rate limit + blokada cross-origin POST (auth) |
 | `src/lib/auth/origin.ts` | Wykrywanie cross-origin POST |
 | `src/lib/auth/rate-limit.ts` | Limit prób logowania / resetu |
 | `src/lib/security/headers.ts` | Nagłówki bezpieczeństwa HTTP |
-| `src/middleware.ts` | Sesja na każde żądanie, guard tras |
+| `src/middleware.ts` | Cienki entrypoint → `lib/middleware/pipeline.ts` |
+| `src/lib/middleware/pipeline.ts` | Sesja SSR, guard tras HTML i `/api/admin/*` |
+| `src/lib/api/guards.ts` | `guardAuthRedirect`, `guardAdminRedirect`, `guardAuthJson`, `guardAdminJson` |
+| `src/lib/api/response.ts` | `jsonOk`, `jsonError` — ujednolicony JSON |
+| `src/lib/api/worker.ts` | Autoryzacja cron (`CRON_SECRET`) |
+| `src/pages/api/*` | Cienkie handlery — guard + logika z `lib/` |
 | `src/pages/api/auth/*` | Mutacje auth (POST only) |
 
 ## Bezpieczeństwo
@@ -52,6 +57,17 @@ sequenceDiagram
 5. **Logowanie** — generyczny komunikat błędu (`invalidCredentials`).
 6. **Nagłówki** — `X-Frame-Options`, `HSTS` (prod), `nosniff`, `Referrer-Policy` (middleware).
 7. **Upload** — weryfikacja magic bytes + limit rozmiaru; bez surowych błędów storage w JSON.
+
+## Ochrona API
+
+| Warstwa | Zachowanie |
+|---------|------------|
+| Middleware `/api/admin/*` | Brak sesji → JSON 401; redaktor → JSON 403 |
+| Handler `guardAdminRedirect` | Defense in depth dla form POST (redirect `/login` lub `/dashboard`) |
+| Handler `guardAuthJson` / `guardAdminJson` | Fetch API — JSON 401/403 z i18n |
+| `loadEditablePost` / `loadSubmittablePost` | Dostęp do wpisu w `lib/posts/access.ts` |
+
+Trasy `/api/posts/*` i `/api/sites/*` — guard w handlerze (middleware nie blokuje globalnie).
 
 ## Zasady
 

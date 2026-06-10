@@ -1,5 +1,6 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
+import AdminContextNav from '@/components/shell/AdminContextNav.astro';
 import RecentChangesForm from '@/components/admin/RecentChangesForm.astro';
 import { adminRecentChanges } from '@/i18n';
 import { loadSiteAstroDestination } from '@/lib/admin/sites';
@@ -40,13 +41,7 @@ const saved = Astro.url.searchParams.get('saved') === '1';
 ---
 
 <AppLayout title={adminRecentChanges.title} heading={adminRecentChanges.title}>
-	<div class="mb-4 flex flex-wrap gap-4 text-sm">
-		<a href={`/admin/units/${id}`} class="text-brand hover:underline">← {site.name}</a>
-		<a href={`/admin/units/${id}/layout`} class="text-brand hover:underline">
-			{adminRecentChanges.actions.backLayout}
-		</a>
-	</div>
-
+	<AdminContextNav siteId={id} siteName={site.name} section="changes" />
 	<p class="mb-4 text-sm text-slate-600">{adminRecentChanges.lead}</p>
 
 	<RecentChangesForm

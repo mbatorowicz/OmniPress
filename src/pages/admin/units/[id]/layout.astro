@@ -1,7 +1,8 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
 import AstroLayoutForm from '@/components/admin/AstroLayoutForm.astro';
-import { adminLayout, adminRecentChanges, adminSitePages } from '@/i18n';
+import AdminContextNav from '@/components/shell/AdminContextNav.astro';
+import { adminLayout } from '@/i18n';
 import { loadSiteAstroDestination } from '@/lib/admin/sites';
 import {
 	importSiteAstroLayoutFromGitHub,
@@ -74,10 +75,7 @@ const publishedPages = (await listSitePages(Astro.locals.supabase, id))
 ---
 
 <AppLayout title={adminLayout.title} heading={adminLayout.title}>
-	<a href={`/admin/units/${id}`} class="mb-4 inline-block text-sm text-brand hover:underline">
-		← {site.name}
-	</a>
-
+	<AdminContextNav siteId={id} siteName={site.name} section="layout" />
 	<p class="mb-4 text-sm text-slate-600">{adminLayout.lead}</p>
 
 	<AstroLayoutForm
@@ -94,12 +92,4 @@ const publishedPages = (await listSitePages(Astro.locals.supabase, id))
 		publishedPages={publishedPages}
 	/>
 
-	<p class="mt-6 flex flex-wrap gap-4">
-		<a href={`/admin/units/${id}/pages`} class="text-sm text-brand hover:underline">
-			→ {adminSitePages.title}
-		</a>
-		<a href={`/admin/units/${id}/changes`} class="text-sm text-brand hover:underline">
-			→ {adminRecentChanges.title}
-		</a>
-	</p>
 </AppLayout>

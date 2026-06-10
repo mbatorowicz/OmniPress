@@ -1,12 +1,9 @@
 ---
-import AppLayout from '../../layouts/AppLayout.astro';
-import AdminPostsTable from '@/components/admin/AdminPostsTable.astro';
-import AdminSubnav from '@/components/ui/AdminSubnav.astro';
-import Alert from '@/components/ui/Alert.astro';
-import Button from '@/components/ui/Button.astro';
-import PageHeader from '@/components/ui/PageHeader.astro';
-import Panel from '@/components/ui/Panel.astro';
+import AppLayout from '@/layouts/AppLayout.astro';
+import AdminQueueHub from '@/components/admin/queue/AdminQueueHub.astro';
+import AdminSubnav from '@/components/ui/navigation/AdminSubnav.astro';
 import { admin, adminSites } from '@/i18n';
+import { parseAdminHubFlash } from '@/lib/admin/hub-flash';
 import { listSites } from '@/lib/admin';
 import { schedulePublishWorker } from '@/lib/publish/trigger-worker';
 
@@ -43,38 +40,10 @@ const { data: published } = await supabase
 	.order('updated_at', { ascending: false })
 	.limit(30);
 
-const listLabels = admin.postList;
-const deactivated = Astro.url.searchParams.get('deactivated') === '1';
-const deleted = Astro.url.searchParams.get('deleted') === '1';
-const bulkDeactivated = Number(Astro.url.searchParams.get('bulk_deactivated') ?? '0');
-const bulkDeleted = Number(Astro.url.searchParams.get('bulk_deleted') ?? '0');
-const bulkSkipped = Number(Astro.url.searchParams.get('bulk_skipped') ?? '0');
-const remoteWarning = Astro.url.searchParams.get('remote_warning') === '1';
-const importImported = Number(Astro.url.searchParams.get('imported') ?? '0');
-const importUpdated = Number(Astro.url.searchParams.get('updated') ?? '0');
-const importWarnings = Number(Astro.url.searchParams.get('import_warnings') ?? '0');
-const importDetails = Astro.url.searchParams.get('import_details')?.split('\n').filter(Boolean) ?? [];
-const importErrorCode = Astro.url.searchParams.get('import_error');
 const importSiteId = Astro.url.searchParams.get('site_id');
-const importLabels = admin.importPosts;
-const importErrorMessage =
-	importErrorCode && importErrorCode in importLabels.errors
-		? importLabels.errors[importErrorCode]!
-		: importErrorCode
-			? importErrorCode
-			: null;
-const errorCode = Astro.url.searchParams.get('error');
-const remoteDetail = Astro.url.searchParams.get('remote_detail');
-const bulkErrors: Record<string, string> = {
-	none_selected: listLabels.noneSelected,
-	none_published: 'Żaden z zaznaczonych wpisów nie jest opublikowany.',
-	invalid_action: listLabels.invalidAction,
-	not_found: 'Nie znaleziono wpisów.',
-	remote_failed: listLabels.remoteFailed,
-};
-const errorMessage = errorCode && errorCode in bulkErrors ? bulkErrors[errorCode] : null;
 const defaultImportSiteId =
 	importSiteId && sites.some((s) => s.id === importSiteId) ? importSiteId : (sites[0]?.id ?? '');
+const flashMessages = parseAdminHubFlash(Astro.url);
 ---
 
 <AppLayout title={admin.title} heading={admin.title}>
@@ -85,176 +54,14 @@ const defaultImportSiteId =
 			{ href: '/admin/editors', label: admin.editors.manage },
 		]}
 	/>
-
-	{deactivated && <Alert variant="success">{listLabels.deactivated}</Alert>}
-	{deleted && <Alert variant="success">{listLabels.deleted}</Alert>}
-	{bulkDeactivated > 0 && (
-		<Alert variant="success">{listLabels.bulkDeactivated(bulkDeactivated)}</Alert>
-	)}
-	{bulkDeleted > 0 && <Alert variant="success">{listLabels.bulkDeleted(bulkDeleted)}</Alert>}
-	{bulkSkipped > 0 && <Alert variant="warning">{listLabels.bulkSkipped(bulkSkipped)}</Alert>}
-	{errorMessage && (
-		<Alert variant="error">
-			{errorMessage}
-			{remoteDetail && errorCode === 'remote_failed' && (
-				<span class="ui-alert-detail">{remoteDetail}</span>
-			)}
-		</Alert>
-	)}
-	{remoteWarning && (
-		<Alert variant="warning">
-			{listLabels.remoteWarning}
-			{remoteDetail && <span class="ui-alert-detail">{remoteDetail}</span>}
-		</Alert>
-	)}
-	{importImported + importUpdated > 0 && (
-		<Alert variant="success">{importLabels.success(importImported, importUpdated)}</Alert>
-	)}
-	{importWarnings > 0 && (
-		<Alert variant="warning">
-			<p>{importLabels.warnings(importWarnings)}</p>
-			{
-				importDetails.length > 0 && (
-					<div class="mt-2">
-						<p class="text-sm font-medium">{importLabels.warningsDetailHeading}</p>
-						<ul class="mt-1 list-inside list-disc text-sm">
-							{importDetails.map((line) => (
-								<li>{line}</li>
-							))}
-						</ul>
-					</div>
-				)
-			}
-		</Alert>
-	)}
-	{importErrorMessage && <Alert variant="error">{importErrorMessage}</Alert>}
-
-	<Panel variant="default" class="mb-8">
-		<PageHeader title={importLabels.heading} lead={importLabels.lead} />
-		{
-			sites.length === 0 ? (
-				<p class="mt-4 ui-muted">
-					{admin.sites.empty} {admin.sites.exampleName}.
-				</p>
-			) : (
-				<form
-					method="post"
-					action={`/api/admin/sites/${defaultImportSiteId}/posts/import`}
-					class="mt-4 flex flex-wrap items-end gap-3"
-					id="import-posts-form"
-				>
-					{
-						sites.length > 1 ? (
-							<label class="ui-label-inline">
-								<span class="ui-label-muted">{importLabels.siteLabel}</span>
-								<select
-									name="site_id_display"
-									class="ui-select ui-input--inline"
-									id="import-site-select"
-								>
-									{sites.map((s) => (
-										<option value={s.id} selected={s.id === importSiteId}>
-											{s.name}
-										</option>
-									))}
-								</select>
-							</label>
-						) : (
-							<input type="hidden" name="site_id_display" value={sites[0]!.id} />
-						)
-					}
-					<Button type="submit">{importLabels.button}</Button>
-				</form>
-			)
-		}
-	</Panel>
-
-	<Panel variant="accent" class="mb-8">
-		<PageHeader title={admin.content.heading} lead={admin.content.lead} />
-		<Button href="/dashboard" class="mt-4">
-			{admin.content.openDashboard}
-		</Button>
-	</Panel>
-
-	{
-		sites.length > 1 && (
-			<script is:inline>
-				(() => {
-					const form = document.getElementById('import-posts-form');
-					const select = document.getElementById('import-site-select');
-					if (!form || !select) return;
-					select.addEventListener('change', () => {
-						form.action = `/api/admin/sites/${select.value}/posts/import`;
-					});
-				})();
-			</script>
-		)
-	}
-
-	<Panel variant="default">
-		<PageHeader title={admin.sites.heading(sites.length)} lead={admin.sites.lead} />
-		<ul class="mt-4 space-y-2 text-sm">
-			{
-				sites.slice(0, 5).map((s) => (
-					<li>
-						<a href={`/admin/units/${s.id}`} class="ui-link">
-							{s.name}
-						</a>
-					</li>
-				))
-			}
-		</ul>
-	</Panel>
-
-	<Panel variant="default" class="mt-6">
-		<PageHeader title={admin.pending.heading(pending?.length ?? 0)} />
-		{
-			!pending?.length ? (
-				<p class="ui-empty">{admin.pending.empty}</p>
-			) : (
-				<AdminPostsTable posts={pending} labels={listLabels} dateField="created_at" />
-			)
-		}
-	</Panel>
-
-	<Panel variant="default" class="mt-6">
-		<PageHeader
-			title={admin.scheduled.heading(scheduled?.length ?? 0)}
-			lead={admin.scheduled.lead}
-		/>
-		{
-			!scheduled?.length ? (
-				<p class="ui-empty">{admin.scheduled.empty}</p>
-			) : (
-				<AdminPostsTable
-					posts={scheduled}
-					labels={listLabels}
-					dateField="scheduled_publish_at"
-					dateColumnLabel={listLabels.colPublishAt}
-				/>
-			)
-		}
-	</Panel>
-
-	<Panel variant="default" class="mt-6">
-		<PageHeader title={admin.publishing.heading(publishing?.length ?? 0)} />
-		{
-			!publishing?.length ? (
-				<p class="ui-empty">{admin.publishing.empty}</p>
-			) : (
-				<AdminPostsTable posts={publishing} labels={listLabels} dateField="created_at" />
-			)
-		}
-	</Panel>
-
-	<Panel variant="info" class="mt-6">
-		<PageHeader title={admin.published.heading(published?.length ?? 0)} lead={admin.published.lead} />
-		{
-			!published?.length ? (
-				<p class="ui-empty">{admin.published.empty}</p>
-			) : (
-				<AdminPostsTable posts={published} labels={listLabels} showBulkActions />
-			)
-		}
-	</Panel>
+	<AdminQueueHub
+		{sites}
+		pending={pending}
+		scheduled={scheduled}
+		publishing={publishing}
+		published={published}
+		{flashMessages}
+		{defaultImportSiteId}
+		{importSiteId}
+	/>
 </AppLayout>

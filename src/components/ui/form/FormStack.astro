@@ -1,0 +1,16 @@
+---
+interface Props {
+	class?: string;
+	tag?: 'form' | 'div';
+	method?: string;
+	action?: string;
+	enctype?: string;
+	id?: string;
+}
+
+const { class: className = '', tag: Tag = 'div', method, action, enctype, id } = Astro.props;
+---
+
+<Tag class={`ui-form-stack ${className}`} {method} {action} {enctype} {id}>
+	<slot />
+</Tag>

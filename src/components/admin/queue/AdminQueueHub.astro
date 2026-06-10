@@ -1,0 +1,107 @@
+---
+import AdminImportSection from '@/components/admin/queue/AdminImportSection.astro';
+import AdminQueueSection from '@/components/admin/queue/AdminQueueSection.astro';
+import FlashAlerts from '@/components/shared/FlashAlerts.astro';
+import Button from '@/components/ui/actions/Button.astro';
+import PageHeader from '@/components/ui/layout/PageHeader.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+import { admin } from '@/i18n';
+import type { FlashMessage } from '@/lib/ui/flash';
+import type { SiteRow } from '@/lib/posts/site';
+
+type PostRow = {
+	id: string;
+	title: string;
+	category_name: string | null;
+	category_slug: string | null;
+	updated_at: string;
+	created_at?: string;
+	scheduled_publish_at?: string | null;
+	sites: { name: string } | null;
+};
+
+interface Props {
+	sites: SiteRow[];
+	pending: PostRow[] | null;
+	scheduled: PostRow[] | null;
+	publishing: PostRow[] | null;
+	published: PostRow[] | null;
+	flashMessages: FlashMessage[];
+	defaultImportSiteId: string;
+	importSiteId: string | null;
+}
+
+const {
+	sites,
+	pending,
+	scheduled,
+	publishing,
+	published,
+	flashMessages,
+	defaultImportSiteId,
+	importSiteId,
+} = Astro.props;
+const listLabels = admin.postList;
+---
+
+<FlashAlerts messages={flashMessages} />
+
+<AdminImportSection sites={sites} {defaultImportSiteId} {importSiteId} />
+
+<Panel variant="accent" class="mb-8">
+	<PageHeader title={admin.content.heading} lead={admin.content.lead} />
+	<Button href="/dashboard" class="mt-4">
+		{admin.content.openDashboard}
+	</Button>
+</Panel>
+
+<Panel variant="default">
+	<PageHeader title={admin.sites.heading(sites.length)} lead={admin.sites.lead} />
+	<ul class="mt-4 space-y-2 text-sm">
+		{
+			sites.slice(0, 5).map((s) => (
+				<li>
+					<a href={`/admin/units/${s.id}`} class="ui-link">
+						{s.name}
+					</a>
+				</li>
+			))
+		}
+	</ul>
+</Panel>
+
+<AdminQueueSection
+	title={admin.pending.heading(pending?.length ?? 0)}
+	empty={admin.pending.empty}
+	posts={pending}
+	labels={listLabels}
+	dateField="created_at"
+/>
+
+<AdminQueueSection
+	title={admin.scheduled.heading(scheduled?.length ?? 0)}
+	lead={admin.scheduled.lead}
+	empty={admin.scheduled.empty}
+	posts={scheduled}
+	labels={listLabels}
+	dateField="scheduled_publish_at"
+	dateColumnLabel={listLabels.colPublishAt}
+/>
+
+<AdminQueueSection
+	title={admin.publishing.heading(publishing?.length ?? 0)}
+	empty={admin.publishing.empty}
+	posts={publishing}
+	labels={listLabels}
+	dateField="created_at"
+/>
+
+<AdminQueueSection
+	title={admin.published.heading(published?.length ?? 0)}
+	lead={admin.published.lead}
+	empty={admin.published.empty}
+	posts={published}
+	labels={listLabels}
+	showBulkActions
+	variant="info"
+/>

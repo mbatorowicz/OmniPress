@@ -1,10 +1,11 @@
 import type { APIRoute } from 'astro';
-import { requireAuth, getUserSites } from '@/lib/auth';
+import { guardAuthRedirect, isGuardBlocked } from '@/lib/api';
+import { getUserSites } from '@/lib/auth';
 import { loadAllowedSites, resolveSiteIdForNewPost } from '@/lib/posts';
 
 export const POST: APIRoute = async ({ request, redirect, locals }) => {
-	const auth = requireAuth(locals);
-	if (!auth) return redirect('/login');
+	const auth = guardAuthRedirect(locals, redirect);
+	if (isGuardBlocked(auth)) return auth;
 	const { user, profile, supabase } = auth;
 
 	const form = await request.formData();

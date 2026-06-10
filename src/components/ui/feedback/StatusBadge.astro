@@ -1,0 +1,14 @@
+---
+import Badge from '@/components/ui/feedback/Badge.astro';
+import { posts } from '@/i18n';
+import type { PostStatus } from '@/lib/types';
+
+interface Props {
+	status: PostStatus;
+}
+
+const { status } = Astro.props;
+const labels = posts.status;
+---
+
+<Badge variant={status}>{labels[status]}</Badge>

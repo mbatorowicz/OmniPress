@@ -1,8 +1,9 @@
 ---
-import '../styles/global.css';
-import VersionBadge from '@/components/layout/VersionBadge.astro';
-import Alert from '@/components/ui/Alert.astro';
-import Button from '@/components/ui/Button.astro';
+import AuthLayout from '@/layouts/AuthLayout.astro';
+import Alert from '@/components/ui/feedback/Alert.astro';
+import Button from '@/components/ui/actions/Button.astro';
+import Label from '@/components/ui/form/Label.astro';
+import Input from '@/components/ui/form/Input.astro';
 import { auth, common } from '@/i18n';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 
@@ -33,102 +34,52 @@ if (successParam) {
 		infoMessage = successParam;
 	}
 }
-if (sent) {
-	infoMessage = auth.login.resetSent;
-}
+if (sent) infoMessage = auth.login.resetSent;
 
 const showReset = mode === 'reset';
 ---
 
-<!doctype html>
-<html lang="pl">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>{auth.login.pageTitle} · {common.appName}</title>
-	</head>
-	<body class="ui-auth-shell">
-		<div class="ui-auth-card">
-			<h1 class="ui-auth-title">{common.appName}</h1>
-			<p class="mt-1 text-sm text-slate-600">
-				{showReset ? auth.login.headingReset : auth.login.headingSignIn}
-			</p>
-
-			{
-				!configured ? (
-					<p class="mt-4 text-sm text-amber-800">{auth.login.notConfigured}</p>
-				) : (
-					<>
-						{errorMessage && (
-							<Alert variant="error" class="mt-4 mb-0">
-								{errorMessage}
-							</Alert>
-						)}
-						{infoMessage && (
-							<Alert variant="success" class="mt-4 mb-0">
-								{infoMessage}
-							</Alert>
-						)}
-
-						{
-							showReset ? (
-								<form action="/api/auth/reset" method="post" class="mt-6 space-y-4">
-									<label class="ui-label">
-										<span class="ui-label-text">{common.email}</span>
-										<input
-											type="email"
-											name="email"
-											required
-											autocomplete="username"
-											class="ui-input"
-										/>
-									</label>
-									<Button type="submit" block>
-										{auth.login.submitReset}
-									</Button>
-									<p class="text-center text-sm">
-										<a href="/login" class="ui-link">
-											{auth.login.backToLogin}
-										</a>
-									</p>
-								</form>
-							) : (
-								<form action="/api/auth/login" method="post" class="mt-6 space-y-4">
-									<label class="ui-label">
-										<span class="ui-label-text">{common.email}</span>
-										<input
-											type="email"
-											name="email"
-											required
-											autocomplete="username"
-											class="ui-input"
-										/>
-									</label>
-									<label class="ui-label">
-										<span class="ui-label-text">{common.password}</span>
-										<input
-											type="password"
-											name="password"
-											required
-											autocomplete="current-password"
-											class="ui-input"
-										/>
-									</label>
-									<Button type="submit" block>
-										{auth.login.submitSignIn}
-									</Button>
-									<p class="text-center text-sm">
-										<a href="/login?mode=reset" class="ui-link">
-											{auth.login.forgotPassword}
-										</a>
-									</p>
-								</form>
-							)
-						}
-					</>
-				)
-			}
-		</div>
-		<VersionBadge />
-	</body>
-</html>
+<AuthLayout
+	title={auth.login.pageTitle}
+	lead={showReset ? auth.login.headingReset : auth.login.headingSignIn}
+>
+	{
+		!configured ? (
+			<p class="mt-4 text-sm text-amber-800">{auth.login.notConfigured}</p>
+		) : (
+			<>
+				{errorMessage && <Alert variant="error" class="mt-4 mb-0">{errorMessage}</Alert>}
+				{infoMessage && <Alert variant="success" class="mt-4 mb-0">{infoMessage}</Alert>}
+				{
+					showReset ? (
+						<form action="/api/auth/reset" method="post" class="mt-6 space-y-4">
+							<Label>
+								<span>{common.email}</span>
+								<Input type="email" name="email" required autocomplete="username" />
+							</Label>
+							<Button type="submit" block>{auth.login.submitReset}</Button>
+							<p class="text-center text-sm">
+								<a href="/login" class="ui-link">{auth.login.backToLogin}</a>
+							</p>
+						</form>
+					) : (
+						<form action="/api/auth/login" method="post" class="mt-6 space-y-4">
+							<Label>
+								<span>{common.email}</span>
+								<Input type="email" name="email" required autocomplete="username" />
+							</Label>
+							<Label>
+								<span>{common.password}</span>
+								<Input type="password" name="password" required autocomplete="current-password" />
+							</Label>
+							<Button type="submit" block>{auth.login.submitSignIn}</Button>
+							<p class="text-center text-sm">
+								<a href="/login?mode=reset" class="ui-link">{auth.login.forgotPassword}</a>
+							</p>
+						</form>
+					)
+				}
+			</>
+		)
+	}
+</AuthLayout>

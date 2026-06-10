@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { requireAdmin } from '@/lib/admin';
+import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
 import { parseLayoutFromFormData } from '@/lib/astro-layout/parse-form';
 import {
 	buildKnownNavPaths,
@@ -14,11 +14,13 @@ import {
 const DEFAULT_STATIC_ROUTES = ['/', '/kontakt'];
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
-	if (!requireAdmin(locals)) return redirect('/login');
+	const auth = guardAdminRedirect(locals, redirect);
+	if (isGuardBlocked(auth)) return auth;
+	const { supabase } = auth;
 	const siteId = params.id;
 	if (!siteId) return redirect('/admin/sites');
 
-	const existing = await loadSiteAstroLayout(locals.supabase, siteId);
+	const existing = await loadSiteAstroLayout(supabase, siteId);
 	const form = await request.formData();
 	const parsed = parseLayoutFromFormData(form, {
 		navigationPath: existing.navigationPath,
@@ -29,7 +31,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		return redirect(`/admin/units/${siteId}/layout?error=${parsed.error}`);
 	}
 
-	const saved = await saveSiteAstroLayout(locals.supabase, siteId, parsed.layout);
+	const saved = await saveSiteAstroLayout(supabase, siteId, parsed.layout);
 	if (!saved.ok) {
 		return redirect(`/admin/units/${siteId}/layout?error=save_failed`);
 	}
@@ -38,7 +40,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	if (syncGitHub) {
 		const categorySlugs = parsed.layout.categories.map((c) => c.slug);
 		const knownPaths = await buildKnownNavPaths(
-			locals.supabase,
+			supabase,
 			siteId,
 			categorySlugs,
 			DEFAULT_STATIC_ROUTES,
@@ -48,7 +50,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 			return redirect(`/admin/units/${siteId}/layout?error=dead_nav_links&saved=1`);
 		}
 
-		const synced = await syncSiteAstroLayoutToGitHub(locals.supabase, siteId, parsed.layout);
+		const synced = await syncSiteAstroLayoutToGitHub(supabase, siteId, parsed.layout);
 		if (!synced.ok) {
 			const params = new URLSearchParams({ error: synced.error, saved: '1' });
 			if (synced.detail) params.set('sync_detail', synced.detail.slice(0, 400));

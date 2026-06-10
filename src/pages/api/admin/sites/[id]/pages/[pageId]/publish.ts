@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { requireAdmin } from '@/lib/admin';
+import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
 import {
 	getSitePageById,
 	markSitePagePublished,
@@ -10,12 +10,14 @@ import {
 import { sanitizeStorageMarkdown } from '@/lib/content/sanitize';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
-	if (!requireAdmin(locals)) return redirect('/login');
+	const auth = guardAdminRedirect(locals, redirect);
+	if (isGuardBlocked(auth)) return auth;
+	const { supabase } = auth;
 	const siteId = params.id;
 	const pageId = params.pageId;
 	if (!siteId || !pageId) return redirect('/admin/sites');
 
-	const page = await getSitePageById(locals.supabase, pageId);
+	const page = await getSitePageById(supabase, pageId);
 	if (!page || page.site_id !== siteId) {
 		return redirect(`/admin/units/${siteId}/pages?error=not_found`);
 	}
@@ -32,17 +34,17 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		return redirect(`/admin/units/${siteId}/pages/${pageId}?error=${resolved.error}`);
 	}
 
-	const saved = await updateSitePage(locals.supabase, pageId, resolved.fields);
+	const saved = await updateSitePage(supabase, pageId, resolved.fields);
 	if (!saved.ok) {
 		return redirect(`/admin/units/${siteId}/pages/${pageId}?error=${saved.error}`);
 	}
 
 	const toPublish = { ...page, ...resolved.fields };
-	const result = await publishSitePageToGitHub(locals.supabase, toPublish);
+	const result = await publishSitePageToGitHub(supabase, toPublish);
 	if (!result.ok) {
 		return redirect(`/admin/units/${siteId}/pages/${pageId}?error=${result.error}`);
 	}
 
-	await markSitePagePublished(locals.supabase, pageId, result.externalId);
+	await markSitePagePublished(supabase, pageId, result.externalId);
 	return redirect(`/admin/units/${siteId}/pages/${pageId}?published=1`);
 };

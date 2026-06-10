@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import { requireAuth } from '@/lib/auth';
-import { canSubmitPost, getPostById } from '@/lib/posts';
+import { guardAuthRedirect, isGuardBlocked, redirectPostError } from '@/lib/api';
+import { loadSubmittablePost } from '@/lib/posts';
 import { parseScheduledPublishAtInput } from '@/lib/posts/scheduled-publish';
 import { sanitizeStorageMarkdown } from '@/lib/content/sanitize';
 
@@ -8,14 +8,12 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const postId = params.id;
 	if (!postId) return redirect('/dashboard');
 
-	const auth = requireAuth(locals);
-	if (!auth) return redirect('/login');
+	const auth = guardAuthRedirect(locals, redirect);
+	if (isGuardBlocked(auth)) return auth;
 	const { user, supabase } = auth;
 
-	const post = await getPostById(supabase, postId);
-	if (!post || !canSubmitPost(post, user.id)) {
-		return redirect(`/dashboard/posts/${postId}?error=forbidden`);
-	}
+	const post = await loadSubmittablePost(supabase, postId, user.id);
+	if (!post) return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'forbidden');
 
 	const form = await request.formData();
 	const title = String(form.get('title') ?? '').trim() || post.title;
@@ -23,19 +21,19 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const categorySlug = String(form.get('category_slug') ?? '').trim() || post.category_slug;
 
 	if (!title.trim()) {
-		return redirect(`/dashboard/posts/${postId}?error=title_required`);
+		return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'title_required');
 	}
 
 	if (!categorySlug?.trim()) {
-		return redirect(`/dashboard/posts/${postId}?error=category_required`);
+		return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'category_required');
 	}
 
 	const schedule = parseScheduledPublishAtInput(form.get('scheduled_publish_at'));
 	if (schedule.error === 'invalid') {
-		return redirect(`/dashboard/posts/${postId}?error=schedule_required`);
+		return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'schedule_required');
 	}
 	if (schedule.error === 'past') {
-		return redirect(`/dashboard/posts/${postId}?error=schedule_past`);
+		return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'schedule_past');
 	}
 
 	const { error } = await supabase
@@ -51,7 +49,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		.eq('id', postId);
 
 	if (error) {
-		return redirect(`/dashboard/posts/${postId}?error=submit_failed`);
+		return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'submit_failed');
 	}
 
 	return redirect('/dashboard?submitted=1');

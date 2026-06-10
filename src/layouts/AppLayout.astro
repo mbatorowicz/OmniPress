@@ -1,7 +1,7 @@
 ---
-import '../styles/global.css';
-import AppFooter from '@/components/layout/AppFooter.astro';
-import { common, layout } from '@/i18n';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import AppHeader from '@/components/shell/AppHeader.astro';
+import AppFooter from '@/components/shell/AppFooter.astro';
 
 interface Props {
 	title: string;
@@ -9,45 +9,13 @@ interface Props {
 }
 
 const { title, heading } = Astro.props;
-const profile = Astro.locals.profile;
 ---
 
-<!doctype html>
-<html lang="pl">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{title} · {common.appName}</title>
-	</head>
-	<body class="flex min-h-screen flex-col bg-slate-50 text-slate-900 antialiased">
-		<header class="border-b border-slate-200 bg-white">
-			<div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
-				<a href="/" class="text-lg font-semibold text-brand">{common.appName}</a>
-		<nav class="ui-header-nav">
-			{
-				profile?.role === 'admin' && (
-					<a href="/admin" class="ui-header-nav-link">
-						{layout.navAdmin}
-					</a>
-				)
-			}
-			<a href="/dashboard" class="ui-header-nav-link">
-				{profile?.role === 'admin' ? layout.navEditorPanel : layout.navPanel}
-			</a>
-			<form method="post" action="/api/auth/signout">
-				<button type="submit" class="ui-header-signout">
-					{layout.navSignOut}
-				</button>
-			</form>
-		</nav>
-			</div>
-		</header>
-		<main class="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
-			{heading && <h1 class="ui-page-heading">{heading}</h1>}
-			<slot />
-		</main>
-		<AppFooter />
-	</body>
-</html>
+<BaseLayout title={title} bodyClass="ui-app-shell">
+	<AppHeader />
+	<main class="ui-app-main">
+		{heading && <h1 class="ui-page-heading">{heading}</h1>}
+		<slot />
+	</main>
+	<AppFooter />
+</BaseLayout>

@@ -1,0 +1,74 @@
+---
+import Panel from '@/components/ui/layout/Panel.astro';
+import Table from '@/components/ui/table/Table.astro';
+import TableHead from '@/components/ui/table/TableHead.astro';
+import TableBody from '@/components/ui/table/TableBody.astro';
+import TableRow from '@/components/ui/table/TableRow.astro';
+import TableCell from '@/components/ui/table/TableCell.astro';
+import { adminReview } from '@/i18n';
+import type { PublishLogStatus } from '@/lib/types';
+
+type PublishLog = {
+	id: string;
+	status: string;
+	response_summary: string | null;
+	retry_count: number;
+	destinations: { name: string; type: string } | null;
+};
+
+interface Props {
+	postId: string;
+	logs: PublishLog[];
+}
+
+const { postId, logs } = Astro.props;
+const logLabels = adminReview.logStatus;
+const logsUi = adminReview.publishLogs;
+
+if (logs.length === 0) return null;
+---
+
+<Panel class="mt-6 overflow-x-auto">
+	<h3 class="text-sm font-medium">{logsUi.heading}</h3>
+	<Table class="mt-4">
+		<TableHead>
+			<TableRow>
+				<TableCell header>{logsUi.destination}</TableCell>
+				<TableCell header>{logsUi.status}</TableCell>
+				<TableCell header>{logsUi.summary}</TableCell>
+				<TableCell header>{logsUi.retries}</TableCell>
+				<TableCell header>{logsUi.retry}</TableCell>
+			</TableRow>
+		</TableHead>
+		<TableBody>
+			{
+				logs.map((log) => {
+					const st = log.status as PublishLogStatus;
+					const failed = st === 'failed';
+					return (
+						<TableRow error={failed}>
+							<TableCell>
+								{log.destinations?.name}
+								<span class="ml-1 text-slate-400">({log.destinations?.type})</span>
+							</TableCell>
+							<TableCell>{logLabels[st]}</TableCell>
+							<TableCell class="text-slate-600">{log.response_summary ?? '—'}</TableCell>
+							<TableCell>{log.retry_count}</TableCell>
+							<TableCell>
+								{
+									failed && (
+										<form method="post" action={`/api/admin/posts/${postId}/publish-logs/${log.id}/retry`}>
+											<button type="submit" class="ui-link border-0 bg-transparent p-0">
+												{logsUi.retry}
+											</button>
+										</form>
+									)
+								}
+							</TableCell>
+						</TableRow>
+					);
+				})
+			}
+		</TableBody>
+	</Table>
+</Panel>

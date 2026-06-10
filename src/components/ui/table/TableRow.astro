@@ -1,0 +1,19 @@
+---
+interface Props {
+	dense?: boolean;
+	error?: boolean;
+	class?: string;
+}
+
+const { dense, error, class: className = '' } = Astro.props;
+---
+
+<tr
+	class:list={[
+		dense ? 'ui-table-dense-row' : 'ui-table-row',
+		error ? 'ui-table-row--error' : '',
+		className,
+	]}
+>
+	<slot />
+</tr>

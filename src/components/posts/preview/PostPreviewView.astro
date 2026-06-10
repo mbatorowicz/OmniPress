@@ -1,0 +1,70 @@
+---
+import Alert from '@/components/ui/feedback/Alert.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+import PostContentHtml from '@/components/posts/PostContentHtml.astro';
+import PostGalleryPreview from '@/components/posts/preview/PostGalleryPreview.astro';
+import PostReopenForm from '@/components/admin/PostReopenForm.astro';
+import { common, dashboard } from '@/i18n';
+import { formatScheduledPublishAt } from '@/lib/posts/scheduled-publish';
+import type { PostAsset } from '@/lib/publish/assets';
+import type { PostRow } from '@/lib/posts/access';
+
+interface Props {
+	post: PostRow;
+	contentHtml: string;
+	galleryAssets: PostAsset[];
+	canReopen: boolean;
+	isAdmin: boolean;
+	galleryHeading: string;
+	coverLabel: string;
+}
+
+const { post, contentHtml, galleryAssets, canReopen, isAdmin, galleryHeading, coverLabel } = Astro.props;
+const ed = dashboard.editor;
+---
+
+<Panel tag="article">
+	{post.category_name && (
+		<p class="text-sm text-slate-600">
+			{ed.fields.category}: <strong>{post.category_name}</strong>
+		</p>
+	)}
+	<h2 class="text-xl font-semibold">{post.title || common.untitled}</h2>
+	{post.status === 'pending' && <p class="mt-2 text-sm text-amber-800">{ed.pendingLocked}</p>}
+	{post.status === 'publishing' && <p class="mt-2 text-sm text-sky-800">{ed.publishingLocked}</p>}
+	{
+		post.status === 'scheduled' && post.scheduled_publish_at && (
+			<p class="mt-2 text-sm text-violet-800">
+				{ed.scheduledLocked} <strong>{formatScheduledPublishAt(post.scheduled_publish_at)}</strong>
+			</p>
+		)
+	}
+	{
+		post.status === 'pending' && post.scheduled_publish_at && (
+			<p class="mt-2 text-sm text-amber-800">
+				{ed.fields.publishAt}: <strong>{formatScheduledPublishAt(post.scheduled_publish_at)}</strong>
+			</p>
+		)
+	}
+	{
+		post.rejection_note && (
+			<Alert variant="error" class="mt-2">
+				<strong>{ed.rejectionNote}</strong> {post.rejection_note}
+			</Alert>
+		)
+	}
+	<div class="mt-4 rounded-lg border border-slate-100 bg-slate-50/50 p-4">
+		{contentHtml ? <PostContentHtml html={contentHtml} /> : <p class="text-sm text-slate-500">{ed.emptyContent}</p>}
+	</div>
+	<PostGalleryPreview assets={galleryAssets} heading={galleryHeading} {coverLabel} />
+	{canReopen && <PostReopenForm postId={post.id} />}
+	{
+		isAdmin && post.status === 'pending' && (
+			<p class="mt-4 text-sm">
+				<a href={`/admin/posts/${post.id}`} class="ui-link">
+					{ed.actions.goToReview}
+				</a>
+			</p>
+		)
+	}
+</Panel>

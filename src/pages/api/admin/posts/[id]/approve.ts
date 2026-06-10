@@ -1,16 +1,19 @@
 import type { APIRoute } from 'astro';
-import { approvePost, requireAdmin } from '@/lib/admin';
+import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
+import { approvePost } from '@/lib/admin';
 import { getPostById } from '@/lib/posts';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
-	if (!requireAdmin(locals)) return redirect('/login');
+	const auth = guardAdminRedirect(locals, redirect);
+	if (isGuardBlocked(auth)) return auth;
+	const { supabase } = auth;
 	const postId = params.id;
 	if (!postId) return redirect('/admin');
 
-	const post = await getPostById(locals.supabase, postId);
+	const post = await getPostById(supabase, postId);
 	if (!post) return redirect('/admin?error=not_found');
 
-	const result = await approvePost(locals.supabase, post);
+	const result = await approvePost(supabase, post);
 	if (!result.ok) {
 		return redirect(`/admin/posts/${postId}?error=${result.error}`);
 	}

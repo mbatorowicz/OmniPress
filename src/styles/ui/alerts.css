@@ -1,0 +1,23 @@
+@layer components {
+	.ui-alert {
+		@apply mb-4 rounded-lg px-3 py-2 text-sm;
+	}
+	.ui-alert--success {
+		@apply bg-green-50 text-green-800;
+	}
+	.ui-alert--error {
+		@apply bg-red-50 text-red-800;
+	}
+	.ui-alert--warning {
+		@apply bg-amber-50 text-amber-900;
+	}
+	.ui-alert--info {
+		@apply bg-sky-50 text-sky-900;
+	}
+	.ui-alert--note {
+		@apply bg-slate-50 text-slate-700;
+	}
+	.ui-alert-detail {
+		@apply mt-1 block font-mono text-xs;
+	}
+}

@@ -1,0 +1,29 @@
+@layer components {
+	.ui-page-heading {
+		@apply mb-6 text-2xl font-semibold text-slate-800;
+	}
+	.ui-header-nav {
+		@apply flex items-center gap-4 text-sm;
+	}
+	.ui-header-nav-link {
+		@apply rounded-md px-2 py-1 text-slate-700 hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2;
+	}
+	.ui-header-nav-link--active {
+		@apply bg-brand/10 font-medium text-brand;
+	}
+	.ui-header-signout {
+		@apply rounded-md px-2 py-1 text-slate-600 hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2;
+	}
+	.ui-subnav {
+		@apply mb-8 flex flex-wrap gap-3 text-sm;
+	}
+	.ui-breadcrumb {
+		@apply mb-4 flex flex-wrap items-center gap-2 text-sm text-slate-600;
+	}
+	.ui-breadcrumb-sep {
+		@apply text-slate-400;
+	}
+	.ui-breadcrumb-current {
+		@apply font-medium text-slate-800;
+	}
+}

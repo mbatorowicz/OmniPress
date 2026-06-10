@@ -1,0 +1,57 @@
+---
+interface Props {
+	id?: string;
+	name?: string;
+	type?: string;
+	value?: string;
+	placeholder?: string;
+	required?: boolean;
+	disabled?: boolean;
+	readonly?: boolean;
+	autocomplete?: string;
+	class?: string;
+	inline?: boolean;
+	error?: boolean;
+	min?: string | number;
+	max?: string | number;
+	step?: string | number;
+}
+
+const {
+	id,
+	name,
+	type = 'text',
+	value,
+	placeholder,
+	required,
+	disabled,
+	readonly,
+	autocomplete,
+	class: className = '',
+	inline,
+	error,
+	min,
+	max,
+	step,
+} = Astro.props;
+---
+
+<input
+	{id}
+	{name}
+	{type}
+	{value}
+	{placeholder}
+	{required}
+	{disabled}
+	{readonly}
+	{autocomplete}
+	{min}
+	{max}
+	{step}
+	class:list={[
+		inline ? 'ui-input--inline' : 'ui-input',
+		error ? 'ui-input--error' : '',
+		className,
+	]}
+/>

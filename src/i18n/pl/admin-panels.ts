@@ -66,6 +66,7 @@ export const adminUnit = {
 	layoutLink: 'Layout Astro (menu i komponenty)',
 	pagesLink: 'Strony statyczne',
 	changesLink: 'Ogłoś zmianę na stronie',
+	categoriesJsonHint: 'JSON z listą slug/name — OmniPress pobiera przy edycji wpisu.',
 } as const;
 
 export const adminSitePages = {
@@ -357,6 +358,7 @@ export const adminReview = {
 	reopenHint: 'Wraca do szkicu — redaktor edytuje, wysyła do akceptacji, potem publikujesz aktualizację na tej samej stronie.',
 	reopenConfirm: 'Wrócić wpis do poprawki? Na stronie zostanie stara wersja do momentu ponownej publikacji.',
 	reopened: 'Wpis wrócił do szkicu — redaktor może go teraz edytować.',
+	openEditor: 'Otwórz edytor redaktora →',
 	deactivate: 'Dezaktywuj ze strony',
 	deactivateHint: 'Usuwa wpis ze strony publicznej (GitHub). W OmniPress wraca do szkicu.',
 	deactivateConfirm:

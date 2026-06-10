@@ -1,8 +1,7 @@
 import type { APIRoute } from 'astro';
-import { requireAuth } from '@/lib/auth';
+import { guardAuthRedirect, isGuardBlocked, redirectPostError } from '@/lib/api';
 import {
-	canEditPost,
-	getPostById,
+	loadEditablePost,
 	resolvePostCategoryFields,
 	slugFromTitle,
 	parseAssetDisplayModes,
@@ -17,14 +16,12 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const postId = params.id;
 	if (!postId) return redirect('/dashboard');
 
-	const auth = requireAuth(locals);
-	if (!auth) return redirect('/login');
+	const auth = guardAuthRedirect(locals, redirect);
+	if (isGuardBlocked(auth)) return auth;
 	const { user, profile, supabase } = auth;
 
-	const post = await getPostById(supabase, postId);
-	if (!post || !canEditPost(post, user.id, profile.role)) {
-		return redirect(`/dashboard/posts/${postId}?error=forbidden`);
-	}
+	const post = await loadEditablePost(supabase, postId, user.id, profile.role);
+	if (!post) return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'forbidden');
 
 	const form = await request.formData();
 	const title = String(form.get('title') ?? '').trim();
@@ -34,7 +31,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const categorySlug = String(form.get('category_slug') ?? '').trim();
 	const categoryFields = await resolvePostCategoryFields(supabase, post.site_id, categorySlug);
 	if (!categoryFields) {
-		return redirect(`/dashboard/posts/${postId}?error=category_required`);
+		return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'category_required');
 	}
 
 	const scheduleRaw = String(form.get('scheduled_publish_at') ?? '').trim();
@@ -42,7 +39,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	if (scheduleRaw) {
 		scheduled_publish_at = wallTimeInZoneToUtcIso(scheduleRaw);
 		if (!scheduled_publish_at) {
-			return redirect(`/dashboard/posts/${postId}?error=schedule_invalid`);
+			return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'schedule_invalid');
 		}
 	}
 
@@ -58,7 +55,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		.eq('id', postId);
 
 	if (error) {
-		return redirect(`/dashboard/posts/${postId}?error=save_failed`);
+		return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'save_failed');
 	}
 
 	await updatePostAssetDisplayModes(supabase, postId, parseAssetDisplayModes(form));

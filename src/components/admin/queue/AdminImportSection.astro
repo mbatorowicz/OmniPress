@@ -1,0 +1,69 @@
+---
+import Button from '@/components/ui/actions/Button.astro';
+import Label from '@/components/ui/form/Label.astro';
+import Select from '@/components/ui/form/Select.astro';
+import PageHeader from '@/components/ui/layout/PageHeader.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+import { admin, adminSites } from '@/i18n';
+import type { SiteRow } from '@/lib/posts/site';
+
+interface Props {
+	sites: SiteRow[];
+	defaultImportSiteId: string;
+	importSiteId: string | null;
+}
+
+const { sites, defaultImportSiteId, importSiteId } = Astro.props;
+const importLabels = admin.importPosts;
+---
+
+<Panel variant="default" class="mb-8">
+	<PageHeader title={importLabels.heading} lead={importLabels.lead} />
+	{
+		sites.length === 0 ? (
+			<p class="mt-4 ui-muted">
+				{admin.sites.empty} {admin.sites.exampleName}.
+			</p>
+		) : (
+			<form
+				method="post"
+				action={`/api/admin/sites/${defaultImportSiteId}/posts/import`}
+				class="mt-4 flex flex-wrap items-end gap-3"
+				id="import-posts-form"
+			>
+				{
+					sites.length > 1 ? (
+						<Label inline muted>
+							{importLabels.siteLabel}
+							<Select id="import-site-select" name="site_id_display" class="ui-input--inline">
+								{sites.map((s) => (
+									<option value={s.id} selected={s.id === importSiteId}>
+										{s.name}
+									</option>
+								))}
+							</Select>
+						</Label>
+					) : (
+						<input type="hidden" name="site_id_display" value={sites[0]!.id} />
+					)
+				}
+				<Button type="submit">{importLabels.button}</Button>
+			</form>
+		)
+	}
+</Panel>
+
+{
+	sites.length > 1 && (
+		<script is:inline>
+			(() => {
+				const form = document.getElementById('import-posts-form');
+				const select = document.getElementById('import-site-select');
+				if (!form || !select) return;
+				select.addEventListener('change', () => {
+					form.action = `/api/admin/sites/${select.value}/posts/import`;
+				});
+			})();
+		</script>
+	)
+}

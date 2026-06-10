@@ -1,3 +1,5 @@
+import { confirmAction } from '@/lib/ui/confirm';
+
 export function initAdminPostsBulkForm(): void {
 	const form = document.getElementById('bulk-posts-form');
 	if (!(form instanceof HTMLFormElement)) return;
@@ -55,7 +57,7 @@ export function initAdminPostsBulkForm(): void {
 			e.preventDefault();
 			return;
 		}
-		if (!confirm(confirmMsg.replace('{n}', String(n)))) e.preventDefault();
+		if (!confirmAction(confirmMsg, n)) e.preventDefault();
 	});
 
 	syncUi();

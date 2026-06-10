@@ -1,0 +1,117 @@
+---
+import Alert from '@/components/ui/feedback/Alert.astro';
+import Button from '@/components/ui/actions/Button.astro';
+import Label from '@/components/ui/form/Label.astro';
+import Input from '@/components/ui/form/Input.astro';
+import Select from '@/components/ui/form/Select.astro';
+import PostRichEditor from '@/components/posts/PostRichEditor.astro';
+import PostGalleryPanel from '@/components/posts/PostGalleryPanel.astro';
+import PostPdfAttachments from '@/components/posts/PostPdfAttachments.astro';
+import PostPublishSchedule from '@/components/posts/PostPublishSchedule.astro';
+import ConfirmScript from '@/components/shared/ConfirmScript.astro';
+import { dashboard } from '@/i18n';
+import type { PostAsset } from '@/lib/publish/assets';
+import type { PostRow } from '@/lib/posts';
+import type { CategoryOption } from '@/lib/categories/types';
+
+interface Props {
+	post: PostRow;
+	postId: string;
+	categories: CategoryOption[];
+	categoryWarnings: string[];
+	categoriesUnavailable: boolean;
+	isAmendment: boolean;
+	submittable: boolean;
+	postAssets: PostAsset[];
+}
+
+const {
+	post,
+	postId,
+	categories,
+	categoryWarnings,
+	categoriesUnavailable,
+	isAmendment,
+	submittable,
+	postAssets,
+} = Astro.props;
+const ed = dashboard.editor;
+const gal = ed.gallery;
+const pdfUi = ed.pdfAttachments;
+---
+
+{categoryWarnings.length > 0 && (
+	<Alert variant="warning">
+		<ul class="list-inside list-disc">
+			{categoryWarnings.map((w) => (
+				<li>{w}</li>
+			))}
+		</ul>
+	</Alert>
+)}
+{categoriesUnavailable && <Alert variant="error">{ed.fields.categoryEmpty}</Alert>}
+{isAmendment && <Alert variant="info">{ed.fields.amendmentHint}</Alert>}
+
+<form
+	id="post-form"
+	method="post"
+	action={`/api/posts/${postId}/save`}
+	class="ui-panel ui-panel--default space-y-4"
+>
+	<Label>
+		<span class="font-medium">{ed.fields.category}</span>
+		<Select name="category_slug" required disabled={categoriesUnavailable}>
+			<option value="">— wybierz kategorię —</option>
+			{categories.map((c) => (
+				<option value={c.slug} selected={post.category_slug === c.slug}>
+					{c.name}
+				</option>
+			))}
+		</Select>
+	</Label>
+	<p class="ui-hint">{ed.fields.categoryHint}</p>
+	<Label>
+		<span class="font-medium">{ed.fields.title}</span>
+		<Input type="text" name="title" required value={post.title} />
+	</Label>
+	<Label>
+		<span class="font-medium">{ed.fields.slug}</span>
+		<Input type="text" name="slug" value={post.slug ?? ''} placeholder={ed.fields.slugPlaceholder} class="font-mono text-sm" />
+	</Label>
+	<PostPublishSchedule
+		value={post.scheduled_publish_at}
+		required
+		labels={{
+			label: ed.fields.publishAt,
+			hint: ed.fields.publishAtHint,
+			timezone: ed.fields.publishAtTimezone,
+		}}
+	/>
+	<div>
+		<span class="text-sm font-medium text-slate-700">{ed.fields.content}</span>
+		<p class="mt-0.5 ui-hint">{ed.fields.contentHint}</p>
+		<div class="mt-2">
+			<PostRichEditor initialMarkdown={post.content_md} placeholder={ed.fields.contentPlaceholder} toolbar={ed.richText} />
+		</div>
+		<PostGalleryPanel postId={postId} assets={postAssets} labels={gal} />
+		<PostPdfAttachments postId={postId} assets={postAssets} labels={pdfUi} />
+	</div>
+	<div class="flex flex-wrap gap-3">
+		<Button type="submit">{ed.actions.save}</Button>
+		{
+			submittable && (
+				<Button
+					type="submit"
+					formaction={`/api/posts/${postId}/submit`}
+					variant="warning"
+					disabled={categoriesUnavailable || !post.category_slug}
+					confirm={ed.actions.confirmSubmit}
+				>
+					{ed.actions.submit}
+				</Button>
+			)
+		}
+	</div>
+</form>
+
+<ConfirmScript />

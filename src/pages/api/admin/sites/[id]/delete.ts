@@ -1,8 +1,11 @@
 import type { APIRoute } from 'astro';
-import { deleteSite, requireAdmin } from '@/lib/admin';
+import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
+import { deleteSite } from '@/lib/admin';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
-	if (!requireAdmin(locals)) return redirect('/login');
+	const auth = guardAdminRedirect(locals, redirect);
+	if (isGuardBlocked(auth)) return auth;
+	const { supabase } = auth;
 	const siteId = params.id;
 	if (!siteId) return redirect('/admin/sites');
 
@@ -11,7 +14,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		return redirect(`/admin/units/${siteId}?error=delete_confirm`);
 	}
 
-	const result = await deleteSite(locals.supabase, siteId);
+	const result = await deleteSite(supabase, siteId);
 	if (!result.ok) {
 		return redirect(`/admin/units/${siteId}?error=${result.error}`);
 	}

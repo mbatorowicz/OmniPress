@@ -1,0 +1,15 @@
+---
+type BadgeVariant = 'draft' | 'pending' | 'scheduled' | 'publishing' | 'published' | 'rejected' | 'neutral';
+
+interface Props {
+	variant?: BadgeVariant;
+	class?: string;
+}
+
+const { variant = 'neutral', class: className = '' } = Astro.props;
+const variantClass = variant === 'neutral' ? '' : `ui-badge--${variant}`;
+---
+
+<span class:list={['ui-badge', variantClass, className]}>
+	<slot />
+</span>

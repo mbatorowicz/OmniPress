@@ -1,0 +1,11 @@
+---
+interface Props {
+	dense?: boolean;
+}
+
+const { dense } = Astro.props;
+---
+
+<tbody class={dense ? undefined : 'ui-table-body'}>
+	<slot />
+</tbody>

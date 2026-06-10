@@ -1,0 +1,22 @@
+---
+interface Props {
+	id?: string;
+	name?: string;
+	required?: boolean;
+	disabled?: boolean;
+	class?: string;
+	compact?: boolean;
+}
+
+const { id, name, required, disabled, class: className = '', compact } = Astro.props;
+---
+
+<select
+	{id}
+	{name}
+	{required}
+	{disabled}
+	class:list={[compact ? 'ui-select-compact' : 'ui-select', className]}
+>
+	<slot />
+</select>

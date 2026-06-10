@@ -1,20 +1,33 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
-import StatusBadge from '@/components/posts/StatusBadge.astro';
-import PostContentHtml from '@/components/posts/PostContentHtml.astro';
-import PostReopenForm from '@/components/admin/PostReopenForm.astro';
+import AdminPostPreview from '@/components/admin/posts/AdminPostPreview.astro';
+import PublishLogsPanel from '@/components/admin/posts/PublishLogsPanel.astro';
 import PostAdminActions from '@/components/admin/PostAdminActions.astro';
-import Alert from '@/components/ui/Alert.astro';
-import Button from '@/components/ui/Button.astro';
-import Panel from '@/components/ui/Panel.astro';
-import { admin, adminReview, common } from '@/i18n';
+import PostReopenForm from '@/components/admin/PostReopenForm.astro';
+import FlashAlerts from '@/components/shared/FlashAlerts.astro';
+import BackLink from '@/components/ui/navigation/BackLink.astro';
+import Button from '@/components/ui/actions/Button.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+import StatusBadge from '@/components/ui/feedback/StatusBadge.astro';
+import Alert from '@/components/ui/feedback/Alert.astro';
+import Label from '@/components/ui/form/Label.astro';
+import Textarea from '@/components/ui/form/Textarea.astro';
+import { admin, adminReview } from '@/i18n';
 import { canReopenPost, loadSiteAstroDestination } from '@/lib/admin';
-import { formatScheduledPublishAt } from '@/lib/posts/scheduled-publish';
 import { listPublishLogsForPost } from '@/lib/publish';
 import { buildPublishedBodyMd } from '@/lib/publish/post-gallery';
 import type { PostAsset } from '@/lib/publish/assets';
-import { assetsForPreviewRender, getPostById, isGalleryImageAsset, isPdfAsset, loadPostAssetsForPost, publicUrlForAsset, renderPostContentHtml } from '@/lib/posts';
-import type { PostStatus, PublishLogStatus } from '@/lib/types';
+import {
+	assetsForPreviewRender,
+	getPostById,
+	isGalleryImageAsset,
+	isPdfAsset,
+	loadPostAssetsForPost,
+	publicUrlForAsset,
+	renderPostContentHtml,
+} from '@/lib/posts';
+import type { PostStatus } from '@/lib/types';
+import type { FlashMessage } from '@/lib/ui/flash';
 
 const { id } = Astro.params;
 if (!id || Astro.locals.profile?.role !== 'admin') return Astro.redirect('/admin');
@@ -32,26 +45,29 @@ const { data: author } = await Astro.locals.supabase
 const siteChannel = await loadSiteAstroDestination(Astro.locals.supabase, post.site_id);
 const publishLogs = await listPublishLogsForPost(Astro.locals.supabase, post.id);
 const isPending = post.status === 'pending';
-const logLabels = adminReview.logStatus;
-const logsUi = adminReview.publishLogs;
-
-const errorCode = Astro.url.searchParams.get('error');
-const reviewErrors = adminReview.errors;
-const errorMessage =
-	errorCode && errorCode in reviewErrors
-		? reviewErrors[errorCode as keyof typeof reviewErrors]
-		: null;
-
-const approved = Astro.url.searchParams.get('approved') === '1';
-const approvedScheduled = Astro.url.searchParams.get('scheduled') === '1';
-const rejected = Astro.url.searchParams.get('rejected') === '1';
-const reopened = Astro.url.searchParams.get('reopened') === '1';
-const deactivated = Astro.url.searchParams.get('deactivated') === '1';
-const deleted = Astro.url.searchParams.get('deleted') === '1';
-const remoteWarning = Astro.url.searchParams.get('remote_warning') === '1';
-const retried = Astro.url.searchParams.get('retry') === '1';
 const canReopen = await canReopenPost(Astro.locals.supabase, post.id, post.status);
 const preview = admin.preview;
+
+const params = Astro.url.searchParams;
+const reviewErrors = adminReview.errors;
+const errorCode = params.get('error');
+const flashMessages: FlashMessage[] = [];
+
+if (params.get('approved') === '1') {
+	flashMessages.push({
+		variant: 'success',
+		message: params.get('scheduled') === '1' ? adminReview.approvedScheduled : adminReview.approved,
+	});
+}
+if (params.get('rejected') === '1') flashMessages.push({ variant: 'warning', message: adminReview.rejected });
+if (params.get('reopened') === '1') flashMessages.push({ variant: 'info', message: adminReview.reopened });
+if (params.get('deactivated') === '1') flashMessages.push({ variant: 'success', message: adminReview.deactivated });
+if (params.get('deleted') === '1') flashMessages.push({ variant: 'success', message: adminReview.deleted });
+if (params.get('remote_warning') === '1') flashMessages.push({ variant: 'warning', message: adminReview.remoteWarning });
+if (params.get('retry') === '1') flashMessages.push({ variant: 'info', message: adminReview.publishLogs.retryQueued });
+if (errorCode && errorCode in reviewErrors) {
+	flashMessages.push({ variant: 'error', message: reviewErrors[errorCode as keyof typeof reviewErrors] });
+}
 
 const postAssets = await loadPostAssetsForPost(Astro.locals.supabase, post.id);
 const pdfAssets = postAssets.filter(isPdfAsset);
@@ -73,113 +89,17 @@ const galleryAssets = postAssets.filter(isGalleryImageAsset);
 		{author?.display_name && <span>{preview.authorLabel} {author.display_name}</span>}
 	</div>
 
-	{approved && !approvedScheduled && <Alert variant="success">{adminReview.approved}</Alert>}
-	{approved && approvedScheduled && <Alert variant="success">{adminReview.approvedScheduled}</Alert>}
-	{rejected && <Alert variant="warning">{adminReview.rejected}</Alert>}
-	{reopened && <Alert variant="info">{adminReview.reopened}</Alert>}
-	{deactivated && <Alert variant="success">{adminReview.deactivated}</Alert>}
-	{deleted && <Alert variant="success">{adminReview.deleted}</Alert>}
-	{remoteWarning && <Alert variant="warning">{adminReview.remoteWarning}</Alert>}
-	{reopened && (
-		<p class="mb-4 text-sm">
-			<a href={`/dashboard/posts/${post.id}`} class="ui-link">
-				Otwórz edytor redaktora →
-			</a>
-		</p>
-	)}
-	{retried && <Alert variant="info">{logsUi.retryQueued}</Alert>}
-	{errorMessage && <Alert variant="error">{errorMessage}</Alert>}
-
-	<Panel tag="article">
-		<h2 class="text-xl font-semibold">{post.title || common.untitled}</h2>
-		{post.category_name && (
-			<p class="mt-1 text-sm text-slate-600">
-				Kategoria: <strong>{post.category_name}</strong>
-				{post.category_slug && <span class="font-mono text-slate-500"> ({post.category_slug})</span>}
-			</p>
-		)}
-		{post.slug && <p class="mt-1 font-mono text-sm text-slate-500">/{post.slug}</p>}
-		{post.scheduled_publish_at && (
-			<p class="mt-2 text-sm text-violet-800">
-				{adminReview.scheduledAt}: <strong>{formatScheduledPublishAt(post.scheduled_publish_at)}</strong>
-			</p>
-		)}
-		<div class="mt-6 rounded-lg border border-slate-100 bg-slate-50/50 p-4">
-			{contentHtml ? (
-				<PostContentHtml html={contentHtml} />
-			) : (
-				<p class="text-sm text-slate-500">(pusta treść)</p>
-			)}
-		</div>
-		{
-			galleryAssets.length > 0 && (
-				<div class="mt-6">
-					<h3 class="text-sm font-medium text-slate-700">Galeria zdjęć (pod wpisem na stronie)</h3>
-					<div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-						{galleryAssets.map((asset, index) => {
-							const url = publicUrlForAsset(asset.storage_path);
-							if (!url) return null;
-							return (
-								<div class="relative overflow-hidden rounded-lg border border-slate-200">
-									{index === 0 && (
-										<span class="absolute left-2 top-2 z-10 rounded bg-brand px-2 py-0.5 text-xs font-medium text-white">
-											Zajawka
-										</span>
-									)}
-									<img src={url} alt={asset.filename} class="aspect-[4/3] w-full object-cover" loading="lazy" />
-								</div>
-							);
-						})}
-					</div>
-				</div>
-			)
-		}
-	</Panel>
-
+	<FlashAlerts messages={flashMessages} />
 	{
-		publishLogs.length > 0 && (
-			<Panel class="mt-6 overflow-x-auto">
-				<h3 class="text-sm font-medium">{logsUi.heading}</h3>
-				<table class="ui-table mt-4">
-					<thead class="ui-table-head">
-						<tr>
-							<th class="ui-table-th">{logsUi.destination}</th>
-							<th class="ui-table-th">{logsUi.status}</th>
-							<th class="ui-table-th">{logsUi.summary}</th>
-							<th class="ui-table-th">{logsUi.retries}</th>
-							<th class="ui-table-th">{logsUi.retry}</th>
-						</tr>
-					</thead>
-					<tbody class="ui-table-body">
-						{publishLogs.map((log) => {
-							const st = log.status as PublishLogStatus;
-							const failed = st === 'failed';
-							return (
-								<tr class:list={['ui-table-row', failed && 'ui-table-row--error']}>
-									<td class="ui-table-td">
-										{log.destinations?.name}
-										<span class="ml-1 text-slate-400">({log.destinations?.type})</span>
-									</td>
-									<td class="ui-table-td">{logLabels[st]}</td>
-									<td class="ui-table-td text-slate-600">{log.response_summary ?? '—'}</td>
-									<td class="ui-table-td">{log.retry_count}</td>
-									<td class="ui-table-td">
-										{failed && (
-											<form method="post" action={`/api/admin/posts/${post.id}/publish-logs/${log.id}/retry`}>
-												<button type="submit" class="ui-link border-0 bg-transparent p-0">
-													{logsUi.retry}
-												</button>
-											</form>
-										)}
-									</td>
-								</tr>
-							);
-						})}
-					</tbody>
-				</table>
-			</Panel>
+		params.get('reopened') === '1' && (
+			<p class="mb-4 text-sm">
+				<a href={`/dashboard/posts/${post.id}`} class="ui-link">{adminReview.openEditor}</a>
+			</p>
 		)
 	}
+
+	<AdminPostPreview {post} {contentHtml} {galleryAssets} />
+	<PublishLogsPanel postId={post.id} logs={publishLogs} />
 
 	{
 		isPending && siteChannel && (
@@ -196,9 +116,7 @@ const galleryAssets = postAssets.filter(isGalleryImageAsset);
 		isPending && !siteChannel && (
 			<Alert variant="warning" class="mt-6">
 				{adminReview.errors.no_site_channel}{' '}
-				<a href={`/admin/units/${post.site_id}`} class="ui-link">
-					{adminReview.configureSite}
-				</a>
+				<a href={`/admin/units/${post.site_id}`} class="ui-link">{adminReview.configureSite}</a>
 			</Alert>
 		)
 	}
@@ -207,10 +125,10 @@ const galleryAssets = postAssets.filter(isGalleryImageAsset);
 		isPending && (
 			<Panel variant="danger" class="mt-4 max-w-lg">
 				<form method="post" action={`/api/admin/posts/${post.id}/reject`} class="space-y-3">
-					<label class="ui-label">
+					<Label>
 						<span class="font-medium">{adminReview.rejectionNote}</span>
-						<textarea name="rejection_note" required rows={3} class="ui-input" />
-					</label>
+						<Textarea name="rejection_note" required rows={3} />
+					</Label>
 					<Button type="submit" variant="danger">{adminReview.reject}</Button>
 				</form>
 			</Panel>
@@ -218,8 +136,6 @@ const galleryAssets = postAssets.filter(isGalleryImageAsset);
 	}
 
 	{canReopen && <PostReopenForm postId={post.id} />}
-
 	<PostAdminActions postId={post.id} status={post.status} />
-
-	<a href="/admin" class="ui-link mt-6 inline-block text-sm">{preview.back}</a>
+	<BackLink href="/admin" label={preview.back.replace('← ', '')} class="mt-6" />
 </AppLayout>

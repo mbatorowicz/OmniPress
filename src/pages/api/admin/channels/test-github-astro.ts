@@ -1,18 +1,13 @@
 import type { APIRoute } from 'astro';
-import { requireAdmin, testGitHubAstroChannel } from '@/lib/admin';
+import { guardAdminJson, isGuardBlocked, jsonResponse } from '@/lib/api';
+import { testGitHubAstroChannel } from '@/lib/admin';
 
 export const POST: APIRoute = async ({ request, locals }) => {
-	if (!requireAdmin(locals)) {
-		return new Response(JSON.stringify({ ok: false, message: 'Brak uprawnień.' }), {
-			status: 401,
-			headers: { 'Content-Type': 'application/json' },
-		});
-	}
+	const auth = guardAdminJson(locals);
+	if (isGuardBlocked(auth)) return auth;
+	const { supabase } = auth;
 
 	const form = await request.formData();
-	const result = await testGitHubAstroChannel(locals.supabase, form);
-	return new Response(JSON.stringify(result), {
-		status: 200,
-		headers: { 'Content-Type': 'application/json' },
-	});
+	const result = await testGitHubAstroChannel(supabase, form);
+	return jsonResponse(result);
 };

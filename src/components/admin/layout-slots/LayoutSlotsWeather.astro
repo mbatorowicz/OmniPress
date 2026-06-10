@@ -1,0 +1,57 @@
+---
+import { adminLayout } from '@/i18n';
+import Label from '@/components/ui/form/Label.astro';
+import Input from '@/components/ui/form/Input.astro';
+import Checkbox from '@/components/ui/form/Checkbox.astro';
+import SectionTitle from '@/components/ui/layout/SectionTitle.astro';
+import type { DisplaySlot } from '@/lib/astro-layout/types';
+
+interface Props {
+	slots: DisplaySlot[];
+}
+
+const { slots } = Astro.props;
+const weatherSlots = slots.filter((slot) => slot.component === 'sidebar.weather');
+const { fields } = adminLayout;
+
+if (weatherSlots.length === 0) return null;
+---
+
+<div class="ui-divider-section">
+	<SectionTitle>{fields.weatherHeading}</SectionTitle>
+	<p class="ui-hint">{adminLayout.weatherHint}</p>
+	{
+		weatherSlots.map((slot) => (
+			<div class="ui-fieldset-nested">
+				<input type="hidden" name="slot_weather_id" value={slot.id} />
+				<p class="ui-label-text text-xs font-medium sm:col-span-2">
+					{slot.label} · <code class="ui-code">{slot.id}</code>
+				</p>
+				<Label>
+					<span class="font-medium">{fields.weatherTerytPowiat}</span>
+					<Input name="slot_weather_teryt_powiat" value={slot.widget?.terytPowiat ?? ''} class="font-mono" />
+				</Label>
+				<Label>
+					<span class="font-medium">{fields.weatherMapZoom}</span>
+					<Input name="slot_weather_map_zoom" type="number" min="1" max="18" value={String(slot.widget?.mapZoom ?? 11)} />
+				</Label>
+				<Label>
+					<span class="font-medium">{fields.weatherLat}</span>
+					<Input name="slot_weather_lat" type="number" step="any" value={slot.widget?.mapCenter?.lat != null ? String(slot.widget.mapCenter.lat) : ''} />
+				</Label>
+				<Label>
+					<span class="font-medium">{fields.weatherLon}</span>
+					<Input name="slot_weather_lon" type="number" step="any" value={slot.widget?.mapCenter?.lon != null ? String(slot.widget.mapCenter.lon) : ''} />
+				</Label>
+				<Label class="sm:col-span-2">
+					<span class="font-medium">{fields.weatherMapScope}</span>
+					<Input name="slot_weather_map_scope" value={slot.widget?.mapScopePowiaty?.join(', ') ?? ''} class="font-mono" />
+				</Label>
+				<label class="ui-label-inline flex items-center gap-2 sm:col-span-2">
+					<Checkbox name={`slot_weather_show_map_${slot.id}`} checked={slot.widget?.showMap !== false} />
+					{fields.weatherShowMap}
+				</label>
+			</div>
+		))
+	}
+</div>

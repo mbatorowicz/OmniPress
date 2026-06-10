@@ -1,0 +1,37 @@
+---
+import { adminLayout } from '@/i18n';
+import { CERT_CATEGORIES } from '@/lib/cert';
+import type { CategoryDefinition } from '@/lib/astro-layout/types';
+
+type PageOption = { path: string; title: string };
+
+interface Props {
+	categories: CategoryDefinition[];
+	publishedPages: PageOption[];
+}
+
+const { categories, publishedPages } = Astro.props;
+---
+
+<template id="slot-cert-category-options">
+	<option value="">{adminLayout.certCategories.all}</option>
+	{CERT_CATEGORIES.map((category) => (
+		<option value={category}>{category}</option>
+	))}
+</template>
+
+<template id="slot-banner-category-options">
+	<option value="">—</option>
+	{categories.map((cat) => (
+		<option value={cat.slug}>{cat.name}</option>
+	))}
+</template>
+
+<template id="slot-banner-page-options">
+	<option value="">—</option>
+	{
+		publishedPages.map((page) => (
+			<option value={page.path}>{page.title} ({page.path})</option>
+		))
+	}
+</template>

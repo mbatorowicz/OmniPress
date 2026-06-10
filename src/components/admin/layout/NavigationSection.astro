@@ -1,0 +1,27 @@
+---
+import { adminLayout } from '@/i18n';
+import Label from '@/components/ui/form/Label.astro';
+import Textarea from '@/components/ui/form/Textarea.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+import SectionTitle from '@/components/ui/layout/SectionTitle.astro';
+import type { SiteAstroLayout } from '@/lib/astro-layout/types';
+
+interface Props {
+	layout: SiteAstroLayout;
+}
+
+const { layout } = Astro.props;
+const navigationJson = JSON.stringify(layout.navigation, null, '\t');
+---
+
+<Panel class="ui-form-section">
+	<SectionTitle>{adminLayout.sections.menu}</SectionTitle>
+	<p class="ui-hint">{adminLayout.menuHint}</p>
+	<Label>
+		<span class="font-medium">{adminLayout.fields.navigationJson}</span>
+		<Textarea name="navigation_json" rows={16} mono required>{navigationJson}</Textarea>
+	</Label>
+	<p class="ui-hint">
+		{adminLayout.paths.navigation}: <code class="ui-code">{layout.navigationPath}</code>
+	</p>
+</Panel>

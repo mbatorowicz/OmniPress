@@ -1,8 +1,11 @@
 import type { APIRoute } from 'astro';
-import { createEditorAccount, requireAdmin } from '@/lib/admin';
+import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
+import { createEditorAccount } from '@/lib/admin';
 
 export const POST: APIRoute = async ({ request, redirect, locals }) => {
-	if (!requireAdmin(locals)) return redirect('/login');
+	const auth = guardAdminRedirect(locals, redirect);
+	if (isGuardBlocked(auth)) return auth;
+	const { supabase } = auth;
 
 	const form = await request.formData();
 	const email = String(form.get('email') ?? '').trim();

@@ -1,0 +1,139 @@
+---
+import Button from '@/components/ui/actions/Button.astro';
+import Table from '@/components/ui/table/Table.astro';
+import TableHead from '@/components/ui/table/TableHead.astro';
+import TableBody from '@/components/ui/table/TableBody.astro';
+import TableRow from '@/components/ui/table/TableRow.astro';
+import TableCell from '@/components/ui/table/TableCell.astro';
+import PostsTableRow from '@/components/admin/queue/PostsTableRow.astro';
+
+type PostRow = {
+	id: string;
+	title: string;
+	category_name: string | null;
+	category_slug: string | null;
+	updated_at: string;
+	created_at?: string;
+	scheduled_publish_at?: string | null;
+	sites: { name: string } | null;
+};
+
+type Labels = {
+	colTitle: string;
+	colCategory: string;
+	colSite: string;
+	colDate: string;
+	colActions: string;
+	noCategory: string;
+	open: string;
+	selectAll: string;
+	selected: string;
+	bulkDeactivate: string;
+	bulkDelete: string;
+	bulkDeactivateConfirm: string;
+	bulkDeleteConfirm: string;
+};
+
+type Props = {
+	posts: PostRow[];
+	labels: Labels;
+	showBulkActions?: boolean;
+	dateField?: 'updated_at' | 'created_at' | 'scheduled_publish_at';
+	dateColumnLabel?: string;
+};
+
+const {
+	posts,
+	labels,
+	showBulkActions = false,
+	dateField = 'updated_at',
+	dateColumnLabel,
+} = Astro.props;
+const dateHeader = dateColumnLabel ?? labels.colDate;
+const dateFmt = new Intl.DateTimeFormat('pl-PL', { dateStyle: 'short', timeStyle: 'short' });
+
+function formatWhen(post: PostRow): string {
+	const rawDate = post[dateField] ?? post.updated_at;
+	return rawDate ? dateFmt.format(new Date(rawDate)) : '—';
+}
+---
+
+{
+	showBulkActions ? (
+		<form
+			method="post"
+			action="/api/admin/posts/bulk"
+			id="bulk-posts-form"
+			class="space-y-3"
+			data-selected-template={labels.selected}
+		>
+			<div class="ui-bulk-bar" data-bulk-bar>
+				<span class="ui-label-muted" data-selected-label>
+					{labels.selected.replace('{n}', '0')}
+				</span>
+				<Button
+					type="submit"
+					name="action"
+					value="deactivate"
+					variant="warning"
+					disabled
+					confirm={labels.bulkDeactivateConfirm}
+					id="bulk-deactivate-btn"
+				>
+					{labels.bulkDeactivate}
+				</Button>
+				<Button
+					type="submit"
+					name="action"
+					value="delete"
+					variant="danger"
+					disabled
+					confirm={labels.bulkDeleteConfirm}
+					id="bulk-delete-btn"
+				>
+					{labels.bulkDelete}
+				</Button>
+			</div>
+			<Table class={posts.length ? 'mt-0' : 'mt-4'}>
+				<TableHead>
+					<TableRow>
+						<TableCell header class="w-10 px-3">
+							<input type="checkbox" class="ui-checkbox" data-select-all aria-label={labels.selectAll} />
+						</TableCell>
+						<TableCell header>{labels.colTitle}</TableCell>
+						<TableCell header>{labels.colCategory}</TableCell>
+						<TableCell header class="hidden sm:table-cell">{labels.colSite}</TableCell>
+						<TableCell header>{dateHeader}</TableCell>
+						<TableCell header>{labels.colActions}</TableCell>
+					</TableRow>
+				</TableHead>
+				<TableBody>
+					{posts.map((p) => (
+						<PostsTableRow post={p} when={formatWhen(p)} selectable labels={labels} />
+					))}
+				</TableBody>
+			</Table>
+		</form>
+	) : (
+		<Table class="mt-4">
+			<TableHead>
+				<TableRow>
+					<TableCell header>{labels.colTitle}</TableCell>
+					<TableCell header>{labels.colCategory}</TableCell>
+					<TableCell header class="hidden sm:table-cell">{labels.colSite}</TableCell>
+					<TableCell header>{dateHeader}</TableCell>
+				</TableRow>
+			</TableHead>
+			<TableBody>
+				{posts.map((p) => (
+					<PostsTableRow post={p} when={formatWhen(p)} labels={labels} />
+				))}
+			</TableBody>
+		</Table>
+	)
+}
+
+<script>
+	import { initAdminPostsBulkForm } from '@/lib/admin/posts-table';
+	initAdminPostsBulkForm();
+</script>

@@ -1,7 +1,7 @@
 ---
-import '../styles/global.css';
-import VersionBadge from '@/components/layout/VersionBadge.astro';
-import Alert from '@/components/ui/Alert.astro';
+import PublicLayout from '@/layouts/PublicLayout.astro';
+import Alert from '@/components/ui/feedback/Alert.astro';
+import Button from '@/components/ui/actions/Button.astro';
 import { common, home } from '@/i18n';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 
@@ -9,32 +9,19 @@ const setup = Astro.url.searchParams.get('setup') === '1';
 const configured = isSupabaseConfigured();
 ---
 
-<!doctype html>
-<html lang="pl">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>{common.appName}</title>
-	</head>
-	<body class="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-100 p-6 font-sans">
-		<div class="w-full max-w-md rounded-xl bg-white p-8 shadow-sm">
-			<h1 class="text-2xl font-semibold text-brand">{common.appName}</h1>
-			<p class="mt-2 text-slate-600">{home.tagline}</p>
-			{
-				!configured || setup ? (
-					<Alert variant="warning" class="mt-6 mb-0">
-						<p class="font-medium">{home.setup.heading}</p>
-						<p class="mt-1">{home.setup.body}</p>
-					</Alert>
-				) : (
-					<p class="mt-6">
-						<a href="/login" class="font-medium text-brand hover:underline">
-							{home.goToLogin}
-						</a>
-					</p>
-				)
-			}
-		</div>
-		<VersionBadge />
-	</body>
-</html>
+<PublicLayout>
+	<h1 class="text-2xl font-semibold text-brand">{common.appName}</h1>
+	<p class="mt-2 text-slate-600">{home.tagline}</p>
+	{
+		!configured || setup ? (
+			<Alert variant="warning" class="mt-6 mb-0">
+				<p class="font-medium">{home.setup.heading}</p>
+				<p class="mt-1">{home.setup.body}</p>
+			</Alert>
+		) : (
+			<p class="mt-6">
+				<Button href="/login">{home.goToLogin}</Button>
+			</p>
+		)
+	}
+</PublicLayout>

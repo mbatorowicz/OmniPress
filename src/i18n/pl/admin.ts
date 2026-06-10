@@ -93,7 +93,18 @@ export const admin = {
 		heading: 'Podgląd wpisu',
 		siteLabel: 'Strona:',
 		authorLabel: 'Autor:',
+		categoryLabel: 'Kategoria:',
+		emptyContent: '(pusta treść)',
+		galleryHeading: 'Galeria zdjęć (pod wpisem na stronie)',
+		galleryCover: 'Zajawka',
 		phaseNote: 'Publikacja na platformach — Faza 4 (kolejka).',
 		back: '← Administracja',
+	},
+	bulkErrors: {
+		none_selected: 'Nie zaznaczono żadnego wpisu.',
+		none_published: 'Żaden z zaznaczonych wpisów nie jest opublikowany.',
+		invalid_action: 'Nieprawidłowa akcja.',
+		not_found: 'Nie znaleziono wpisów.',
+		remote_failed: 'Usuwanie ze strony nie powiodło się — sprawdź token GitHub i spróbuj ponownie.',
 	},
 } as const;

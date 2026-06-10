@@ -46,6 +46,29 @@ export function canSubmitPost(post: PostRow, userId: string): boolean {
 	return post.author_id === userId && post.status === 'draft';
 }
 
+/** Wpis do edycji lub null gdy brak dostępu. */
+export async function loadEditablePost(
+	supabase: SupabaseClient,
+	postId: string,
+	userId: string,
+	role: UserRole,
+): Promise<PostRow | null> {
+	const post = await getPostById(supabase, postId);
+	if (!post || !canEditPost(post, userId, role)) return null;
+	return post;
+}
+
+/** Wpis do wysłania do akceptacji lub null. */
+export async function loadSubmittablePost(
+	supabase: SupabaseClient,
+	postId: string,
+	userId: string,
+): Promise<PostRow | null> {
+	const post = await getPostById(supabase, postId);
+	if (!post || !canSubmitPost(post, userId)) return null;
+	return post;
+}
+
 export function slugFromTitle(title: string): string {
 	return title
 		.toLowerCase()

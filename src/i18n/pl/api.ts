@@ -1,4 +1,8 @@
 export const api = {
+	admin: {
+		forbidden: 'Brak uprawnień administratora.',
+		unauthorized: 'Niezalogowany',
+	},
 	posts: {
 		missingPostId: 'Brak ID wpisu',
 		missingSiteId: 'Brak ID strony.',

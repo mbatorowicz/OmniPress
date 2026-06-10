@@ -1,0 +1,8 @@
+/**
+ * Tokeny wizualne UI — używane przez partials ui/*.
+ */
+@layer components {
+	.ui-focus-ring {
+		@apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2;
+	}
+}

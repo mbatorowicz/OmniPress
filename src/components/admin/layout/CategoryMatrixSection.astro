@@ -1,0 +1,59 @@
+---
+import { adminLayout } from '@/i18n';
+import Button from '@/components/ui/actions/Button.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+import SectionTitle from '@/components/ui/layout/SectionTitle.astro';
+import Table from '@/components/ui/table/Table.astro';
+import TableHead from '@/components/ui/table/TableHead.astro';
+import TableRow from '@/components/ui/table/TableRow.astro';
+import TableCell from '@/components/ui/table/TableCell.astro';
+import type { SiteAstroLayout } from '@/lib/astro-layout/types';
+
+interface Props {
+	layout: SiteAstroLayout;
+}
+
+const { layout } = Astro.props;
+---
+
+<Panel class="ui-form-section">
+	<SectionTitle>{adminLayout.sections.categories}</SectionTitle>
+	<p class="ui-hint">{adminLayout.categoriesHint}</p>
+	<Table dense wrap class="min-w-[28rem]" id="categories-table">
+		<TableHead dense>
+			<TableRow dense>
+				<TableCell header dense wide>{adminLayout.fields.categorySlug}</TableCell>
+				<TableCell header dense wide>{adminLayout.fields.categoryName}</TableCell>
+				<TableCell header dense wide>{adminLayout.fields.removeRow}</TableCell>
+			</TableRow>
+		</TableHead>
+		<tbody id="categories-body">
+			{
+				layout.categories.map((cat) => (
+					<tr class="category-row ui-table-dense-row">
+						<td class="ui-table-dense-td--wide">
+							<input name="category_slug" value={cat.slug} required class="ui-input-compact ui-input-compact--mono w-full" />
+						</td>
+						<td class="ui-table-dense-td--wide">
+							<input name="category_name" value={cat.name} required class="ui-input-compact w-full" />
+						</td>
+						<td class="ui-table-dense-td--wide">
+							<button type="button" class="remove-category ui-link--danger">{adminLayout.actions.removeCategory}</button>
+						</td>
+					</tr>
+				))
+			}
+		</tbody>
+	</Table>
+	<Button type="button" id="add-category" variant="add">
+		{adminLayout.actions.addCategory}
+	</Button>
+	<p class="ui-hint">
+		{adminLayout.paths.categories}: <code class="ui-code">{layout.categoriesPath}</code>
+	</p>
+</Panel>
+
+<script define:vars={{ removeCategoryLabel: adminLayout.actions.removeCategory }}>
+	import { initCategoriesTable } from '@/lib/admin/categories-form-client';
+	initCategoriesTable(removeCategoryLabel);
+</script>

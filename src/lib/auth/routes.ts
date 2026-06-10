@@ -10,7 +10,8 @@ export const PUBLIC_PATHS = new Set([
 ]);
 
 export const AUTH_API_PREFIX = '/api/auth/';
-export const PUBLIC_API_PREFIXES = ['/api/cert/'] as const;
+export const ADMIN_API_PREFIX = '/api/admin/';
+export const PUBLIC_API_PREFIXES = ['/api/cert/', '/api/weather/'] as const;
 
 export function isPublicPath(pathname: string): boolean {
 	if (PUBLIC_PATHS.has(pathname)) return true;
@@ -21,6 +22,10 @@ export function isPublicPath(pathname: string): boolean {
 
 export function isProtectedPath(pathname: string): boolean {
 	return PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
+}
+
+export function isAdminApiPath(pathname: string): boolean {
+	return pathname.startsWith(ADMIN_API_PREFIX);
 }
 
 export function roleHomePath(role: UserRole): string {

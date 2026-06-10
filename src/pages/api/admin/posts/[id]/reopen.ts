@@ -1,12 +1,15 @@
 import type { APIRoute } from 'astro';
-import { reopenPostForEditing, requireAdmin } from '@/lib/admin';
+import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
+import { reopenPostForEditing } from '@/lib/admin';
 
 export const POST: APIRoute = async ({ params, redirect, locals }) => {
-	if (!requireAdmin(locals)) return redirect('/login');
+	const auth = guardAdminRedirect(locals, redirect);
+	if (isGuardBlocked(auth)) return auth;
+	const { supabase } = auth;
 	const postId = params.id;
 	if (!postId) return redirect('/admin');
 
-	const result = await reopenPostForEditing(locals.supabase, postId);
+	const result = await reopenPostForEditing(supabase, postId);
 	if (!result.ok) {
 		return redirect(`/admin/posts/${postId}?error=${result.error}`);
 	}

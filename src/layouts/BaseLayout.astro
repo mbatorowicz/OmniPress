@@ -1,0 +1,25 @@
+---
+import '@/styles/global.css';
+import { common } from '@/i18n';
+
+interface Props {
+	title: string;
+	bodyClass?: string;
+}
+
+const { title, bodyClass = '' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="pl">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title} · {common.appName}</title>
+	</head>
+	<body class={bodyClass}>
+		<slot />
+	</body>
+</html>

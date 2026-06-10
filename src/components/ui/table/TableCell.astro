@@ -1,0 +1,34 @@
+---
+interface Props {
+	header?: boolean;
+	dense?: boolean;
+	wide?: boolean;
+	class?: string;
+}
+
+const { header, dense, wide, class: className = '' } = Astro.props;
+
+const cellClass = header
+	? dense
+		? wide
+			? 'ui-table-dense-th--wide'
+			: 'ui-table-dense-th'
+		: 'ui-table-th'
+	: dense
+		? wide
+			? 'ui-table-dense-td--wide'
+			: 'ui-table-dense-td'
+		: 'ui-table-td';
+---
+
+{
+	header ? (
+		<th class:list={[cellClass, className]}>
+			<slot />
+		</th>
+	) : (
+		<td class:list={[cellClass, className]}>
+			<slot />
+		</td>
+	)
+}

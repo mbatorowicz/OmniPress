@@ -1,0 +1,21 @@
+---
+interface Props {
+	for?: string;
+	inline?: boolean;
+	muted?: boolean;
+	class?: string;
+}
+
+const { for: htmlFor, inline, muted, class: className = '' } = Astro.props;
+---
+
+<label
+	for={htmlFor}
+	class:list={[
+		inline ? 'ui-label-inline' : 'ui-label',
+		muted ? 'ui-label-muted' : 'ui-label-text',
+		className,
+	]}
+>
+	<slot />
+</label>

@@ -1,0 +1,23 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import VersionBadge from '@/components/shell/VersionBadge.astro';
+import { common } from '@/i18n';
+
+interface Props {
+	title: string;
+	heading?: string;
+	lead?: string;
+	wide?: boolean;
+}
+
+const { title, heading, lead, wide } = Astro.props;
+---
+
+<BaseLayout title={title} bodyClass="ui-auth-shell">
+	<div class:list={['ui-auth-card', wide && 'max-w-md']}>
+		<h1 class="ui-auth-title">{heading ?? common.appName}</h1>
+		{lead && <p class="mt-1 text-sm text-slate-600">{lead}</p>}
+		<slot />
+	</div>
+	<VersionBadge />
+</BaseLayout>

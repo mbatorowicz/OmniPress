@@ -1,15 +1,11 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
-import StatusBadge from '@/components/posts/StatusBadge.astro';
-import PostRichEditor from '@/components/posts/PostRichEditor.astro';
-import PostGalleryPanel from '@/components/posts/PostGalleryPanel.astro';
-import PostPdfAttachments from '@/components/posts/PostPdfAttachments.astro';
-import PostContentHtml from '@/components/posts/PostContentHtml.astro';
-import PostPublishSchedule from '@/components/posts/PostPublishSchedule.astro';
-import PostReopenForm from '@/components/admin/PostReopenForm.astro';
-import Alert from '@/components/ui/Alert.astro';
-import Button from '@/components/ui/Button.astro';
-import { common, dashboard, postError } from '@/i18n';
+import FlashAlerts from '@/components/shared/FlashAlerts.astro';
+import BackLink from '@/components/ui/navigation/BackLink.astro';
+import StatusBadge from '@/components/ui/feedback/StatusBadge.astro';
+import PostEditorForm from '@/components/posts/editor/PostEditorForm.astro';
+import PostPreviewView from '@/components/posts/preview/PostPreviewView.astro';
+import { dashboard, posts } from '@/i18n';
 import { canReopenPost } from '@/lib/admin';
 import { loadSiteCategories } from '@/lib/categories';
 import { listPublishLogsForPost } from '@/lib/publish';
@@ -26,28 +22,25 @@ import {
 	publicUrlForAsset,
 	renderPostContentHtml,
 } from '@/lib/posts';
-import { formatScheduledPublishAt } from '@/lib/posts/scheduled-publish';
 import type { PostStatus } from '@/lib/types';
+import { parseQueryFlash } from '@/lib/ui/flash';
 
 const { id } = Astro.params;
 const profile = Astro.locals.profile!;
 const user = Astro.locals.user!;
 
-if (!id) {
-	return Astro.redirect('/dashboard');
-}
+if (!id) return Astro.redirect('/dashboard');
 
 const post = await getPostById(Astro.locals.supabase, id);
-if (!post) {
-	return Astro.redirect('/dashboard?error=not_found');
-}
+if (!post) return Astro.redirect('/dashboard?error=not_found');
 
 const editable = canEditPost(post, user.id, profile.role);
 const submittable = canSubmitPost(post, user.id);
 
-const saved = Astro.url.searchParams.get('saved') === '1';
-const errorCode = Astro.url.searchParams.get('error');
-const errorMessage = errorCode ? postError(errorCode) : null;
+const flashMessages = parseQueryFlash(Astro.url, {
+	errorMap: posts.errors as Record<string, string>,
+	saved: dashboard.editor.saved,
+});
 
 const { data: site } = await Astro.locals.supabase
 	.from('sites')
@@ -69,11 +62,7 @@ const pdfUrlMap = new Map(
 		return u ? ([[u, u]] as const) : [];
 	}),
 );
-const previewMd = buildPublishedBodyMd(
-	post.content_md,
-	pdfAssets as PostAsset[],
-	pdfUrlMap,
-);
+const previewMd = buildPublishedBodyMd(post.content_md, pdfAssets as PostAsset[], pdfUrlMap);
 const contentHtml = renderPostContentHtml(previewMd, assetsForPreviewRender(post.id, pdfAssets));
 const galleryAssets = postAssets.filter(isGalleryImageAsset);
 const publishLogs = await listPublishLogsForPost(Astro.locals.supabase, post.id);
@@ -83,14 +72,9 @@ const canReopen =
 	profile.role === 'admin' && (await canReopenPost(Astro.locals.supabase, post.id, post.status));
 
 const ed = dashboard.editor;
-const gal = ed.gallery;
-const pdfUi = ed.pdfAttachments;
 ---
 
-<AppLayout
-	title={post.title || ed.titleFallback}
-	heading={editable ? ed.headingEdit : ed.headingView}
->
+<AppLayout title={post.title || ed.titleFallback} heading={editable ? ed.headingEdit : ed.headingView}>
 	<div class="mb-4 flex flex-wrap items-center gap-3 text-sm text-slate-600">
 		<StatusBadge status={post.status as PostStatus} />
 		{site?.name && (
@@ -100,190 +84,32 @@ const pdfUi = ed.pdfAttachments;
 		)}
 	</div>
 
-	{saved && <Alert variant="success">{ed.saved}</Alert>}
-	{errorMessage && <Alert variant="error">{errorMessage}</Alert>}
+	<FlashAlerts messages={flashMessages} />
 
 	{
 		editable ? (
-			<>
-				{categoryWarnings.length > 0 && (
-					<Alert variant="warning">
-						<ul class="list-inside list-disc">
-							{categoryWarnings.map((w) => (
-								<li>{w}</li>
-							))}
-						</ul>
-					</Alert>
-				)}
-				{categoriesUnavailable && (
-					<Alert variant="error">{ed.fields.categoryEmpty}</Alert>
-				)}
-				{isAmendment && (
-					<Alert variant="info">{ed.fields.amendmentHint}</Alert>
-				)}
-				<form
-					id="post-form"
-					method="post"
-					action={`/api/posts/${post.id}/save`}
-					class="ui-panel ui-panel--default space-y-4"
-				>
-					<label class="ui-label">
-						<span class="font-medium ui-label-text">{ed.fields.category}</span>
-						<select
-							name="category_slug"
-							required
-							disabled={categoriesUnavailable}
-							class="ui-input ui-select"
-						>
-							<option value="">— wybierz kategorię —</option>
-							{categories.map((c) => (
-								<option
-									value={c.slug}
-									selected={post.category_slug === c.slug}
-								>
-									{c.name}
-								</option>
-							))}
-						</select>
-					</label>
-					<p class="text-xs text-slate-500">{ed.fields.categoryHint}</p>
-					<label class="ui-label">
-						<span class="font-medium ui-label-text">{ed.fields.title}</span>
-						<input type="text" name="title" required value={post.title} class="ui-input" />
-					</label>
-					<label class="ui-label">
-						<span class="font-medium ui-label-text">{ed.fields.slug}</span>
-						<input
-							type="text"
-							name="slug"
-							value={post.slug ?? ''}
-							placeholder={ed.fields.slugPlaceholder}
-							class="ui-input font-mono text-sm"
-						/>
-					</label>
-					<PostPublishSchedule
-						value={post.scheduled_publish_at}
-						required
-						labels={{
-							label: ed.fields.publishAt,
-							hint: ed.fields.publishAtHint,
-							timezone: ed.fields.publishAtTimezone,
-						}}
-					/>
-					<div>
-						<span class="text-sm font-medium text-slate-700">{ed.fields.content}</span>
-						<p class="mt-0.5 text-xs text-slate-500">{ed.fields.contentHint}</p>
-						<div class="mt-2">
-							<PostRichEditor
-								initialMarkdown={post.content_md}
-								placeholder={ed.fields.contentPlaceholder}
-								toolbar={ed.richText}
-							/>
-						</div>
-						<PostGalleryPanel postId={post.id} assets={postAssets} labels={gal} />
-						<PostPdfAttachments postId={post.id} assets={postAssets} labels={pdfUi} />
-					</div>
-					<div class="flex flex-wrap gap-3">
-						<Button type="submit">{ed.actions.save}</Button>
-						{submittable && (
-							<Button
-								type="submit"
-								formaction={`/api/posts/${post.id}/submit`}
-								variant="warning"
-								disabled={categoriesUnavailable || !post.category_slug}
-								confirm={ed.actions.confirmSubmit}
-							>
-								{ed.actions.submit}
-							</Button>
-						)}
-					</div>
-				</form>
-			</>
+			<PostEditorForm
+				{post}
+				postId={post.id}
+				{categories}
+				{categoryWarnings}
+				{categoriesUnavailable}
+				{isAmendment}
+				{submittable}
+				{postAssets}
+			/>
 		) : (
-			<article class="ui-panel ui-panel--default">
-				{post.category_name && (
-					<p class="text-sm text-slate-600">
-						{ed.fields.category}: <strong>{post.category_name}</strong>
-					</p>
-				)}
-				<h2 class="text-xl font-semibold">{post.title || common.untitled}</h2>
-				{post.status === 'pending' && (
-					<p class="mt-2 text-sm text-amber-800">{ed.pendingLocked}</p>
-				)}
-				{post.status === 'publishing' && (
-					<p class="mt-2 text-sm text-sky-800">{ed.publishingLocked}</p>
-				)}
-				{post.status === 'scheduled' && post.scheduled_publish_at && (
-					<p class="mt-2 text-sm text-violet-800">
-						{ed.scheduledLocked} <strong>{formatScheduledPublishAt(post.scheduled_publish_at)}</strong>
-					</p>
-				)}
-				{post.status === 'pending' && post.scheduled_publish_at && (
-					<p class="mt-2 text-sm text-amber-800">
-						{ed.fields.publishAt}: <strong>{formatScheduledPublishAt(post.scheduled_publish_at)}</strong>
-					</p>
-				)}
-				{post.rejection_note && (
-					<Alert variant="error" class="mt-2">
-						<strong>{ed.rejectionNote}</strong> {post.rejection_note}
-					</Alert>
-				)}
-				<div class="mt-4 rounded-lg border border-slate-100 bg-slate-50/50 p-4">
-					{contentHtml ? (
-						<PostContentHtml html={contentHtml} />
-					) : (
-						<p class="text-sm text-slate-500">{ed.emptyContent}</p>
-					)}
-				</div>
-				{
-					galleryAssets.length > 0 && (
-						<div class="mt-6">
-							<h3 class="text-sm font-medium text-slate-700">{gal.heading}</h3>
-							<div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-								{galleryAssets.map((asset, index) => {
-									const url = publicUrlForAsset(asset.storage_path);
-									if (!url) return null;
-									return (
-										<div class="relative overflow-hidden rounded-lg border border-slate-200">
-											{index === 0 && (
-												<span class="absolute left-2 top-2 z-10 rounded bg-brand px-2 py-0.5 text-xs font-medium text-white">
-													{gal.cover}
-												</span>
-											)}
-											<img src={url} alt={asset.filename} class="aspect-[4/3] w-full object-cover" loading="lazy" />
-										</div>
-									);
-								})}
-							</div>
-						</div>
-					)
-				}
-				{canReopen && <PostReopenForm postId={post.id} />}
-				{profile.role === 'admin' && post.status === 'pending' && (
-					<p class="mt-4 text-sm">
-						<a href={`/admin/posts/${post.id}`} class="text-brand hover:underline">
-							Przejdź do akceptacji →
-						</a>
-					</p>
-				)}
-			</article>
+			<PostPreviewView
+				{post}
+				{contentHtml}
+				{galleryAssets}
+				{canReopen}
+				isAdmin={profile.role === 'admin'}
+				galleryHeading={ed.gallery.heading}
+				coverLabel={ed.gallery.cover}
+			/>
 		)
 	}
 
-	<p class="mt-6">
-		<a href="/dashboard" class="text-sm ui-link">{ed.backToList}</a>
-	</p>
-
-	{
-		editable && (
-			<script>
-				document.getElementById('post-form')?.addEventListener('submit', (e) => {
-					const submitter = (e as SubmitEvent).submitter;
-					if (!(submitter instanceof HTMLButtonElement)) return;
-					const msg = submitter.getAttribute('data-confirm');
-					if (msg && !confirm(msg)) e.preventDefault();
-				});
-			</script>
-		)
-	}
+	<BackLink href="/dashboard" label={ed.backToList.replace('← ', '')} class="mt-6" />
 </AppLayout>

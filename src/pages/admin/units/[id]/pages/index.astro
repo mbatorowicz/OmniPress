@@ -1,8 +1,9 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
-import Alert from '@/components/ui/Alert.astro';
-import Button from '@/components/ui/Button.astro';
-import Panel from '@/components/ui/Panel.astro';
+import AdminContextNav from '@/components/shell/AdminContextNav.astro';
+import Alert from '@/components/ui/feedback/Alert.astro';
+import Button from '@/components/ui/actions/Button.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
 import { adminSitePages } from '@/i18n';
 import { listSitePages } from '@/lib/site-pages';
 import { buildSitePagePublicPath } from '@/lib/site-pages/url';
@@ -35,9 +36,7 @@ function statusLabel(status: PageStatus): string {
 ---
 
 <AppLayout title={ui.title} heading={ui.title}>
-	<a href={`/admin/units/${id}`} class="mb-4 inline-block text-sm ui-link">
-		← {site.name}
-	</a>
+	<AdminContextNav siteId={id} siteName={site.name} section="pages" />
 	<p class="mb-4 text-sm text-slate-600">{ui.lead}</p>
 
 	{deleted && <Alert variant="success">{ui.deleted}</Alert>}

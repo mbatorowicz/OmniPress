@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { requireAuth } from '@/lib/auth';
+import { guardAuthJson, isGuardBlocked } from '@/lib/api';
 import { servePostAssetFile } from '@/lib/posts/asset-file';
 
 export const GET: APIRoute = async ({ params, locals }) => {
@@ -7,8 +7,8 @@ export const GET: APIRoute = async ({ params, locals }) => {
 	const assetId = params.assetId;
 	if (!postId || !assetId) return new Response(null, { status: 400 });
 
-	const auth = requireAuth(locals);
-	if (!auth) return new Response(null, { status: 401 });
+	const auth = guardAuthJson(locals);
+	if (isGuardBlocked(auth)) return auth;
 
 	const result = await servePostAssetFile(
 		auth.supabase,

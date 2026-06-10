@@ -30,8 +30,8 @@ const { initialMarkdown, placeholder, toolbar } = Astro.props;
 		<button type="button" data-editor-cmd="italic" class="rounded px-2 py-1 text-sm italic hover:bg-white" title={toolbar.italic}>I</button>
 		<button type="button" data-editor-cmd="h2" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.h2}>H2</button>
 		<button type="button" data-editor-cmd="h3" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.h3}>H3</button>
-		<button type="button" data-editor-cmd="bullet" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.bulletList}>• Lista</button>
-		<button type="button" data-editor-cmd="ordered" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.orderedList}>1. Lista</button>
+		<button type="button" data-editor-cmd="bullet" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.bulletList}>{toolbar.bulletList}</button>
+		<button type="button" data-editor-cmd="ordered" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.orderedList}>{toolbar.orderedList}</button>
 		<button type="button" data-editor-cmd="link" class="rounded px-2 py-1 text-sm text-slate-600 hover:bg-white" title={toolbar.link}>
 			<Icon name="link" size={16} />
 		</button>

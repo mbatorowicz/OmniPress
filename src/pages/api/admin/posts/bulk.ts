@@ -1,15 +1,18 @@
 import type { APIRoute } from 'astro';
-import { bulkDeactivatePosts, bulkDeletePosts, requireAdmin } from '@/lib/admin';
+import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
+import { bulkDeactivatePosts, bulkDeletePosts } from '@/lib/admin';
 
 export const POST: APIRoute = async ({ request, redirect, locals }) => {
-	if (!requireAdmin(locals)) return redirect('/login');
+	const auth = guardAdminRedirect(locals, redirect);
+	if (isGuardBlocked(auth)) return auth;
+	const { supabase } = auth;
 
 	const form = await request.formData();
 	const action = String(form.get('action') ?? '');
 	const postIds = form.getAll('post_id').map(String).filter(Boolean);
 
 	if (action === 'deactivate') {
-		const result = await bulkDeactivatePosts(locals.supabase, postIds);
+		const result = await bulkDeactivatePosts(supabase, postIds);
 		if (!result.ok) {
 			const params = new URLSearchParams({ error: result.error });
 			if (result.remoteErrors?.[0]) {
@@ -26,7 +29,7 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
 	}
 
 	if (action === 'delete') {
-		const result = await bulkDeletePosts(locals.supabase, postIds);
+		const result = await bulkDeletePosts(supabase, postIds);
 		if (!result.ok) {
 			const params = new URLSearchParams({ error: result.error });
 			if (result.remoteErrors?.[0]) {

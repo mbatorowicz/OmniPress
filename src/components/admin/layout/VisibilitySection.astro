@@ -1,0 +1,64 @@
+---
+import { adminLayout } from '@/i18n';
+import Panel from '@/components/ui/layout/Panel.astro';
+import SectionTitle from '@/components/ui/layout/SectionTitle.astro';
+import Table from '@/components/ui/table/Table.astro';
+import TableHead from '@/components/ui/table/TableHead.astro';
+import TableRow from '@/components/ui/table/TableRow.astro';
+import TableCell from '@/components/ui/table/TableCell.astro';
+import { getCategoryFeedSlots } from '@/lib/astro-layout/slots';
+import type { SiteAstroLayout } from '@/lib/astro-layout/types';
+
+interface Props {
+	layout: SiteAstroLayout;
+}
+
+const { layout } = Astro.props;
+const categoryFeedSlots = getCategoryFeedSlots(layout.slots);
+---
+
+<Panel class="ui-form-section">
+	<SectionTitle>{adminLayout.sections.displays}</SectionTitle>
+	<p class="ui-hint">{adminLayout.displaysHint}</p>
+	{
+		categoryFeedSlots.length === 0 ? (
+			<p class="ui-hint--warning">{adminLayout.errors.no_category_feed_slots}</p>
+		) : (
+			<Table dense wrap class="min-w-[32rem]">
+				<TableHead dense>
+					<TableRow dense>
+						<TableCell header dense wide>{adminLayout.fields.category}</TableCell>
+						{
+							categoryFeedSlots.map((slot) => (
+								<TableCell header dense class="px-2 text-center">
+									<div>{slot.label}</div>
+									<div class="font-normal text-[10px] text-slate-400">{slot.component}</div>
+								</TableCell>
+							))
+						}
+					</TableRow>
+				</TableHead>
+				<tbody>
+					{
+						layout.categories.map((cat) => (
+							<TableRow dense>
+								<TableCell dense wide class="font-mono text-xs">{cat.slug}</TableCell>
+								{
+									categoryFeedSlots.map((slot) => {
+										const checked = layout.categoryDisplays[slot.id]?.includes(cat.slug) ?? false;
+										return (
+											<TableCell dense class="px-2 text-center">
+												<input type="checkbox" name={`display_${slot.id}_${cat.slug}`} checked={checked} />
+											</TableCell>
+										);
+									})
+								}
+							</TableRow>
+						))
+					}
+				</tbody>
+			</Table>
+		)
+	}
+	<p class="ui-hint--warning">{adminLayout.displaysRefreshHint}</p>
+</Panel>

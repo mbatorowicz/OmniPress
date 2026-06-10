@@ -95,6 +95,7 @@ export const dashboard = {
 			submit: 'Wyślij do akceptacji',
 			confirmSubmit: 'Wysłać do akceptacji? Po wysłaniu nie będziesz mógł edytować.',
 			addImage: 'Dodaj plik (zdjęcie / PDF)',
+			goToReview: 'Przejdź do akceptacji →',
 		},
 		uploadFailed: 'Upload nie powiódł się',
 		uploadNetworkError: 'Błąd połączenia przy uploadzie.',

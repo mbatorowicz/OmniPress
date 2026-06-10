@@ -1,6 +1,8 @@
 export { mapAuthError } from '@/i18n/map-auth-error';
 export {
+	ADMIN_API_PREFIX,
 	AUTH_API_PREFIX,
+	isAdminApiPath,
 	isProtectedPath,
 	isPublicPath,
 	PROTECTED_PREFIXES,

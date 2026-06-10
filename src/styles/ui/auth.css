@@ -1,0 +1,11 @@
+@layer components {
+	.ui-auth-shell {
+		@apply flex min-h-screen flex-col items-center justify-center gap-4 bg-surface-muted p-6;
+	}
+	.ui-auth-card {
+		@apply w-full max-w-sm rounded-card bg-surface p-8 shadow-card;
+	}
+	.ui-auth-title {
+		@apply text-xl font-semibold text-brand;
+	}
+}

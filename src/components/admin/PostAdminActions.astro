@@ -1,7 +1,8 @@
 ---
 import { adminReview } from '@/i18n';
-import Button from '@/components/ui/Button.astro';
-import Panel from '@/components/ui/Panel.astro';
+import Button from '@/components/ui/actions/Button.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+import ConfirmScript from '@/components/shared/ConfirmScript.astro';
 
 type Props = {
 	postId: string;
@@ -44,11 +45,4 @@ const show = status === 'published';
 	)
 }
 
-<script>
-	for (const form of document.querySelectorAll('form[data-confirm]')) {
-		form.addEventListener('submit', (e) => {
-			const msg = form.getAttribute('data-confirm');
-			if (msg && !confirm(msg)) e.preventDefault();
-		});
-	}
-</script>
+<ConfirmScript />

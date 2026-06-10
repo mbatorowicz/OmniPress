@@ -1,0 +1,50 @@
+@layer components {
+	.ui-table-wrap {
+		@apply overflow-x-auto rounded-lg border border-slate-200;
+	}
+	.ui-table {
+		@apply min-w-full text-left text-sm;
+	}
+	.ui-table-head {
+		@apply border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500;
+	}
+	.ui-table-th {
+		@apply px-4 py-3 font-medium;
+	}
+	.ui-table-body {
+		@apply divide-y divide-slate-100 bg-white;
+	}
+	.ui-table-row {
+		@apply hover:bg-slate-50/80;
+	}
+	.ui-table-td {
+		@apply px-4 py-3;
+	}
+	.ui-bulk-bar {
+		@apply sticky top-0 z-10 flex flex-wrap items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm;
+	}
+	.ui-table-dense {
+		@apply w-full text-left text-sm;
+	}
+	.ui-table-dense-head {
+		@apply border-b text-xs text-slate-500;
+	}
+	.ui-table-dense-th {
+		@apply py-2 pr-2 font-medium;
+	}
+	.ui-table-dense-th--wide {
+		@apply py-2 pr-3 font-medium;
+	}
+	.ui-table-dense-row {
+		@apply border-b border-slate-50;
+	}
+	.ui-table-dense-td {
+		@apply py-2 pr-2;
+	}
+	.ui-table-dense-td--wide {
+		@apply py-2 pr-3;
+	}
+	.ui-table-row--error {
+		@apply bg-red-50/50;
+	}
+}

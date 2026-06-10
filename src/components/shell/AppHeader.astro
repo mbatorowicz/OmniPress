@@ -1,0 +1,43 @@
+---
+import Button from '@/components/ui/actions/Button.astro';
+import { common, layout } from '@/i18n';
+
+const profile = Astro.locals.profile;
+const pathname = Astro.url.pathname;
+const isAdmin = profile?.role === 'admin';
+const adminActive = pathname.startsWith('/admin');
+const panelActive = pathname.startsWith('/dashboard');
+---
+
+<header class="ui-app-header">
+	<div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
+		<a href="/" class="text-lg font-semibold text-brand">{common.appName}</a>
+		{
+			profile && (
+				<nav class="ui-header-nav" aria-label={layout.aria.mainNav}>
+					{isAdmin && (
+						<a
+							href="/admin"
+							class:list={['ui-header-nav-link', adminActive && 'ui-header-nav-link--active']}
+							aria-current={adminActive ? 'page' : undefined}
+						>
+							{layout.navAdmin}
+						</a>
+					)}
+					<a
+						href="/dashboard"
+						class:list={['ui-header-nav-link', panelActive && 'ui-header-nav-link--active']}
+						aria-current={panelActive ? 'page' : undefined}
+					>
+						{isAdmin ? layout.navEditorPanel : layout.navPanel}
+					</a>
+					<form method="post" action="/api/auth/signout">
+						<Button type="submit" variant="ghost">
+							{layout.navSignOut}
+						</Button>
+					</form>
+				</nav>
+			)
+		}
+	</div>
+</header>

@@ -1,0 +1,73 @@
+---
+import AdminPostsTable from '@/components/admin/queue/AdminPostsTable.astro';
+import PageHeader from '@/components/ui/layout/PageHeader.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+
+type PostRow = {
+	id: string;
+	title: string;
+	category_name: string | null;
+	category_slug: string | null;
+	updated_at: string;
+	created_at?: string;
+	scheduled_publish_at?: string | null;
+	sites: { name: string } | null;
+};
+
+type Labels = {
+	colTitle: string;
+	colCategory: string;
+	colSite: string;
+	colDate: string;
+	colActions: string;
+	noCategory: string;
+	open: string;
+	selectAll: string;
+	selected: string;
+	bulkDeactivate: string;
+	bulkDelete: string;
+	bulkDeactivateConfirm: string;
+	bulkDeleteConfirm: string;
+};
+
+interface Props {
+	title: string;
+	lead?: string;
+	empty: string;
+	posts: PostRow[] | null | undefined;
+	labels: Labels;
+	variant?: 'default' | 'info';
+	showBulkActions?: boolean;
+	dateField?: 'updated_at' | 'created_at' | 'scheduled_publish_at';
+	dateColumnLabel?: string;
+}
+
+const {
+	title,
+	lead,
+	empty,
+	posts,
+	labels,
+	variant = 'default',
+	showBulkActions,
+	dateField,
+	dateColumnLabel,
+} = Astro.props;
+---
+
+<Panel variant={variant} class="mt-6">
+	<PageHeader title={title} lead={lead} />
+	{
+		!posts?.length ? (
+			<p class="ui-empty">{empty}</p>
+		) : (
+			<AdminPostsTable
+				posts={posts}
+				labels={labels}
+				{showBulkActions}
+				{dateField}
+				{dateColumnLabel}
+			/>
+		)
+	}
+</Panel>

@@ -17,7 +17,9 @@ Obowiązują przy każdej zmianie. Indeks dokumentacji: [README.md](./README.md)
 src/
   config/       — tylko konfiguracja techniczna (URL, build)
   i18n/pl/      — napisy UI (SSOT tekstów)
-  lib/          — logika bez UI (auth, posts, supabase)
+  lib/          — logika bez UI (auth, api, posts, supabase)
+  lib/api/      — guardy, JSON/redirect helpers, worker cron
+  lib/middleware/ — pipeline SSR (sesja, trasy)
   components/   — małe fragmenty UI
   layouts/      — szablony stron
   pages/        — trasy (cienkie: dane + i18n + layout)
@@ -53,11 +55,17 @@ src/
 
 ## 7. UI (SSOT stylów)
 
-- **Klasy:** `src/styles/ui.css` — prefiks `ui-*` (alerty, panele, przyciski, formularze, tabele).
-- **Komponenty:** `src/components/ui/` — preferuj `<Alert>`, `<Button>`, `<Panel>`, `<PageHeader>`, `<AdminSubnav>` zamiast powielania klas Tailwind w `.astro`.
-- **Zakaz** długich stringów typu `rounded-lg bg-green-50 px-3 py-2…` w stronach — użyj komponentu lub klasy `ui-*`.
-- Import globalny: `global.css` → `@import './ui.css'`.
-- Wyjątki: layout siatki (grid/flex), edytor rich-text, galeria — mogą mieć lokalne klasy strukturalne.
+- **Klasy:** `src/styles/ui.css` (importuje partiale z `src/styles/ui/`) — prefiks `ui-*`.
+- **Tokeny:** `src/styles/global.css` (`@theme`: brand, surface, radius-card).
+- **Layouty:** `src/layouts/` — `BaseLayout`, `PublicLayout`, `AuthLayout`, `AppLayout`.
+- **Powłoka:** `src/components/shell/` — header, footer, `AdminContextNav`.
+- **Design system:** `src/components/ui/` — podfoldery `actions/`, `feedback/`, `form/`, `table/`, `layout/`, `navigation/`.
+- **Wzorce:** `src/components/shared/` — `FlashAlerts`, `ConfirmScript`.
+- **Domena:** `src/components/admin/`, `src/components/posts/` — logika panelu; importują tylko `ui/` i `shell/`.
+- **Logika klienta UI:** `src/lib/ui/` — `confirm.ts`, `flash.ts`, `icons.ts`.
+- **Zakaz** długich stringów Tailwind w stronach — komponent `ui/*` lub klasa `ui-*`.
+- Importy wyłącznie przez alias `@/`.
+- Wyjątki: siatki flex/grid, edytor TipTap, galeria — lokalne klasy strukturalne.
 
 ## 8. Agent AI
 
