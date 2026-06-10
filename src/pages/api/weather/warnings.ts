@@ -50,6 +50,7 @@ export const GET: APIRoute = async ({ url }) => {
 				terytPowiat: file.config.terytPowiat,
 				active: file.active,
 				terytLevels: file.terytLevels,
+				mapHighlight: file.mapHighlight,
 				mapScope: file.mapScope,
 			}),
 			{

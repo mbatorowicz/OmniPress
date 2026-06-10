@@ -32,8 +32,10 @@ export type SlotWidgetConfig = {
 	pinnedOnly?: boolean;
 	/** sidebar.cert_advisories */
 	categoryFilter?: string;
-	/** sidebar.weather */
+	/** sidebar.weather — kod powiatu (4 cyfry), np. 1433 = węgrowski */
 	terytPowiat?: string;
+	/** sidebar.weather — kod gminy (7 cyfr), np. 1433062 = Miedzna; metadane / marker mapy */
+	terytGmina?: string;
 	mapCenter?: { lat: number; lon: number };
 	mapZoom?: number;
 	showMap?: boolean;

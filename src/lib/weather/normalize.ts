@@ -1,4 +1,5 @@
 import type { WeatherSlotWidgetConfig } from '@/lib/astro-layout/types';
+import { powiatName14 } from './powiaty-14';
 import {
 	buildMapScope,
 	type OsmetTerytResponse,
@@ -42,7 +43,7 @@ function affectedPowiatyForWarning(
 		.sort()
 		.map((code) => ({
 			code,
-			name: `powiat ${code}`,
+			name: powiatName14(code),
 			isLocal: code === localPowiat,
 		}));
 }
@@ -79,16 +80,42 @@ function toWeatherWarning(
 	};
 }
 
+export function buildMapHighlight(
+	active: WeatherWarning[],
+	terytPowiat: string,
+): string[] {
+	const codes = new Set<string>();
+	const primary = terytPowiat.trim();
+	if (primary) codes.add(primary);
+	for (const warning of active) {
+		for (const powiat of warning.affectedPowiaty) {
+			codes.add(powiat.code);
+		}
+	}
+	return [...codes].sort();
+}
+
+export function buildFullMapScope(
+	highlight: string[],
+	config: WeatherSlotWidgetConfig,
+): string[] {
+	const neighbors = (config.mapScopePowiaty ?? []).map((c) => c.trim()).filter(Boolean);
+	const scope = new Set([...highlight, ...neighbors]);
+	return [...scope].sort();
+}
+
 export function buildTerytLevels(
 	teryt: Record<string, string[]>,
 	warnings: Record<string, OsmetWarning>,
 	scope: string[],
+	activeWarningIds: ReadonlySet<string>,
 ): Record<string, number> {
 	const levels: Record<string, number> = {};
 	for (const code of scope) {
 		const ids = teryt[code] ?? [];
 		let max = 0;
 		for (const id of ids) {
+			if (!activeWarningIds.has(id)) continue;
 			const level = parseLevel(warnings[id]?.Level);
 			if (level && level > max) max = level;
 		}
@@ -103,7 +130,6 @@ export function normalizeOsmetTeryt(
 	now = new Date(),
 ): WeatherWarningsFile {
 	const terytPowiat = config.terytPowiat?.trim() ?? '';
-	const mapScope = buildMapScope(config);
 	const warningIds = new Set<string>();
 	for (const [code, ids] of Object.entries(raw.teryt)) {
 		if (!code.startsWith(VOIVODESHIP_PREFIX)) continue;
@@ -121,6 +147,16 @@ export function normalizeOsmetTeryt(
 
 	active.sort((a, b) => b.level - a.level || a.validTo.localeCompare(b.validTo));
 
+	const activeWarningIds = new Set(active.map((w) => w.id));
+	const mapHighlight = buildMapHighlight(active, terytPowiat);
+	const mapScope = buildFullMapScope(mapHighlight, config);
+	const terytLevels = buildTerytLevels(
+		raw.teryt,
+		raw.warnings,
+		mapHighlight,
+		activeWarningIds,
+	);
+
 	const updatedAt =
 		raw.program?.LxExportTime?.trim() ||
 		raw.program?.ExportTime?.trim() ||
@@ -137,7 +173,8 @@ export function normalizeOsmetTeryt(
 			mapScopePowiaty: config.mapScopePowiaty ?? [],
 		},
 		active,
-		terytLevels: buildTerytLevels(raw.teryt, raw.warnings, mapScope),
+		terytLevels,
+		mapHighlight,
 		mapScope,
 	};
 }

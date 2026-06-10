@@ -43,6 +43,9 @@ export type WeatherWarningsFile = {
 	};
 	active: WeatherWarning[];
 	terytLevels: Record<string, number>;
+	/** Powiaty objęte aktywnymi ostrzeżeniami — do kolorowania mapy. */
+	mapHighlight: string[];
+	/** Pełny zasięg widoku mapy (ostrzeżenia + opcjonalni sąsiedzi). */
 	mapScope: string[];
 };
 
@@ -94,6 +97,7 @@ export function emptyWeatherWarningsFile(config: WeatherSlotWidgetConfig): Weath
 		},
 		active: [],
 		terytLevels: {},
+		mapHighlight: mapScope,
 		mapScope,
 	};
 }

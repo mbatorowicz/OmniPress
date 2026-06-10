@@ -46,6 +46,7 @@ if (weatherSlots.length === 0) return null;
 				<Label class="sm:col-span-2">
 					<span class="font-medium">{fields.weatherMapScope}</span>
 					<Input name="slot_weather_map_scope" value={slot.widget?.mapScopePowiaty?.join(', ') ?? ''} class="font-mono" />
+					<p class="ui-hint mt-1">{adminLayout.weatherMapHint}</p>
 				</Label>
 				<label class="ui-label-inline flex items-center gap-2 sm:col-span-2">
 					<Checkbox name={`slot_weather_show_map_${slot.id}`} checked={slot.widget?.showMap !== false} />

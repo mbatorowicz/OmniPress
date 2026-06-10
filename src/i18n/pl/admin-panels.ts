@@ -167,7 +167,9 @@ export const adminLayout = {
 	certAdvisoriesHint:
 		'Komunikaty pobierane z kanału RSS CERT Polska (moje.cert.pl). Po zapisie z sync do GitHub trafia plik omnipress-cert-advisories.json — widget na stronie Astro czyta ten plik.',
 	weatherHint:
-		'Ostrzeżenia IMGW (meteo.imgw.pl) dla powiatu jednostki. Cron raz dziennie (08:00 UTC) + sync przy zapisie layoutu aktualizuje omnipress-weather-warnings.json w repo Astro. Publiczne API (cache 2 h): /api/weather/warnings?terytPowiat=XXXX.',
+		'Ostrzeżenia IMGW (meteo.imgw.pl) dla powiatu jednostki. Powiaty objęte ostrzeżeniem trafiają na mapę automatycznie. Cron raz dziennie (08:00 UTC) + sync przy zapisie layoutu aktualizuje omnipress-weather-warnings.json w repo Astro. Publiczne API (cache 2 h): /api/weather/warnings?terytPowiat=XXXX.',
+	weatherMapHint:
+		'Lat/lon i zoom są opcjonalne — mapa na stronie dopasowuje widok do zasięgu ostrzeżenia. Dodatkowe powiaty służą tylko jako kontekst (szare obramowanie).',
 	weatherDetailsHint:
 		'Modal otwiera szczegóły w szerokim oknie nad stroną — zalecane dla czytelności długich treści ostrzeżeń.',
 	weatherDetailsDisplayOptions: {
@@ -213,11 +215,11 @@ export const adminLayout = {
 		certAdvisoriesCategory: 'Kategoria CERT',
 		certAdvisoriesEnabled: 'Pokaż komunikaty CERT na stronie',
 		weatherHeading: 'Widget ostrzeżeń meteorologicznych (sidebar.weather)',
-		weatherTerytPowiat: 'TERYT powiatu (4 cyfry)',
+		weatherTerytPowiat: 'TERYT powiatu (4 cyfry, np. 1433 — powiat węgrowski)',
 		weatherLat: 'Szerokość geogr. (lat)',
 		weatherLon: 'Długość geogr. (lon)',
 		weatherMapZoom: 'Zoom mapy',
-		weatherMapScope: 'Sąsiednie powiaty (TERYT, po przecinku)',
+		weatherMapScope: 'Dodatkowe powiaty na mapie — kontekst (TERYT, po przecinku)',
 		weatherShowMap: 'Pokaż mini-mapę ostrzeżeń',
 		weatherDetailsDisplay: 'Sposób wyświetlania szczegółów',
 		weatherDetailsLayout: 'Układ pól szczegółów',
