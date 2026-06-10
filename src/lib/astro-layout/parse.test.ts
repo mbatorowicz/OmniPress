@@ -21,6 +21,22 @@ describe('astro-layout parse', () => {
 		expect(nav[0].label).toBe('Kontakt');
 	});
 
+	it('parsuje hideWhenEmpty w slocie', () => {
+		const text = JSON.stringify({
+			categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],
+			slots: [
+				{
+					id: 'home_pinned',
+					label: 'Przypięte',
+					component: 'home.pinned',
+					widget: { sectionTitle: 'Przypięte', hideWhenEmpty: true },
+				},
+			],
+		});
+		const parsed = parseCategoriesFile(text);
+		expect(parsed.slots[0]?.widget?.hideWhenEmpty).toBe(true);
+	});
+
 	it('parsuje plik kategorii ze slotami', () => {
 		const text = JSON.stringify({
 			categories: [{ slug: 'pogoda', name: 'Pogoda' }],
@@ -87,12 +103,14 @@ describe('parseLayoutFromFormData', () => {
 		form.append('slot_label', 'Przypięte');
 		form.append('slot_component', 'home.pinned');
 		form.set('slot_enabled_home_pinned', 'on');
+		form.set('slot_hide_when_empty_home_pinned', 'on');
 		form.set('display_home_pinned_pogoda', 'on');
 
 		const result = parseLayoutFromFormData(form, base);
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		expect(result.layout.categoryDisplays.home_pinned).toEqual(['pogoda']);
+		expect(result.layout.slots[0]?.widget?.hideWhenEmpty).toBe(true);
 	});
 
 	it('sortuje banery po order w slotach', () => {

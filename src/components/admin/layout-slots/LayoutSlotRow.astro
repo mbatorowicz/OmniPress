@@ -54,6 +54,9 @@ const { fields, actions, bannerLinkTypes, bannerStyles, bannerImageVariants, com
 	<td class="ui-table-dense-td slot-field-feed">
 		<input name="slot_widget_empty_text" value={w.emptyText ?? ''} class="ui-input-compact w-32" />
 	</td>
+	<td class="ui-table-dense-td slot-field-hide-empty text-center">
+		<input type="checkbox" name={`slot_hide_when_empty_${slot.id}`} checked={w.hideWhenEmpty === true} />
+	</td>
 	<td class="ui-table-dense-td slot-field-feed">
 		<input name="slot_widget_more_link" value={w.moreLink ?? ''} class="ui-input-compact ui-input-compact--mono w-28" />
 	</td>

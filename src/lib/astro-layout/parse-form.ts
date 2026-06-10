@@ -99,6 +99,7 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 		const limit = parseIntField(limits[i] ?? null);
 		if (limit) widget.limit = limit;
 		if (emptyTexts[i]) widget.emptyText = emptyTexts[i];
+		if (form.get(`slot_hide_when_empty_${id}`) === 'on') widget.hideWhenEmpty = true;
 		if (moreLinks[i]) widget.moreLink = moreLinks[i];
 		if (variants[i] === 'alert' || variants[i] === 'default') widget.variant = variants[i];
 		const order = parseOrderField(orders[i] ?? null);

@@ -25,6 +25,7 @@ function parseWidget(raw: unknown): SlotWidgetConfig | undefined {
 	if (typeof w.sectionTitle === 'string' && w.sectionTitle.trim())
 		widget.sectionTitle = w.sectionTitle.trim();
 	if (typeof w.emptyText === 'string' && w.emptyText.trim()) widget.emptyText = w.emptyText.trim();
+	if (w.hideWhenEmpty === true) widget.hideWhenEmpty = true;
 	if (typeof w.moreLink === 'string' && w.moreLink.trim()) widget.moreLink = w.moreLink.trim();
 	if (typeof w.limit === 'number' && w.limit > 0) widget.limit = Math.floor(w.limit);
 	if (w.enabled === false) widget.enabled = false;

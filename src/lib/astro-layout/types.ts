@@ -22,6 +22,8 @@ export type SlotWidgetConfig = {
 	sectionTitle?: string;
 	limit?: number;
 	emptyText?: string;
+	/** Ukryj cały widget/sekcję, gdy brak wpisów lub ostrzeżeń */
+	hideWhenEmpty?: boolean;
 	enabled?: boolean;
 	variant?: 'default' | 'alert';
 	moreLink?: string;

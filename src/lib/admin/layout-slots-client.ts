@@ -1,3 +1,5 @@
+import { refreshLayoutSlotsPreview } from '@/lib/admin/layout-slots-preview-client';
+
 export interface LayoutSlotsClientConfig {
 	removeSlotLabel: string;
 	variantDefault: string;
@@ -17,6 +19,10 @@ export interface LayoutSlotsClientConfig {
 const FEED = ['home.pinned', 'home.latest', 'sidebar.recent_changes', 'sidebar.cert_advisories'];
 const BANNER = 'sidebar.banner';
 const CERT = 'sidebar.cert_advisories';
+
+function supportsHideWhenEmpty(component: string): boolean {
+	return component !== BANNER && (FEED.includes(component) || component === 'sidebar.weather');
+}
 
 function nextSlotOrder(slotsBody: HTMLElement): number {
 	let max = 0;
@@ -61,8 +67,12 @@ function syncSlotRowVisibility(row: HTMLElement): void {
 	const isFeed = FEED.includes(component);
 	const isBanner = component === BANNER;
 	const isCert = component === CERT;
+	const canHideWhenEmpty = supportsHideWhenEmpty(component);
 	row.querySelectorAll('.slot-field-feed').forEach((el) => {
 		el.classList.toggle('slot-cell-hidden', !isFeed);
+	});
+	row.querySelectorAll('.slot-field-hide-empty').forEach((el) => {
+		el.classList.toggle('slot-cell-hidden', !canHideWhenEmpty);
 	});
 	row.querySelectorAll('.slot-field-cert').forEach((el) => {
 		el.classList.toggle('slot-cell-hidden', !isCert);
@@ -85,6 +95,7 @@ function buildSlotRowHtml(config: LayoutSlotsClientConfig, id: string, order: nu
 		<td class="ui-table-dense-td slot-field-feed"><input name="slot_widget_section_title" class="ui-input-compact w-32" /></td>
 		<td class="ui-table-dense-td slot-field-feed"><input name="slot_widget_limit" type="number" min="1" class="ui-input-compact w-16" /></td>
 		<td class="ui-table-dense-td slot-field-feed"><input name="slot_widget_empty_text" class="ui-input-compact w-32" /></td>
+		<td class="ui-table-dense-td slot-field-hide-empty text-center"><input type="checkbox" name="slot_hide_when_empty_${id}" /></td>
 		<td class="ui-table-dense-td slot-field-feed"><input name="slot_widget_more_link" class="ui-input-compact ui-input-compact--mono w-28" /></td>
 		<td class="ui-table-dense-td slot-field-feed"><select name="slot_widget_variant" class="ui-select-compact"><option value="default">${c.variantDefault}</option><option value="alert">${c.variantAlert}</option></select></td>
 		<td class="ui-table-dense-td slot-field-cert"><select name="slot_cert_category_filter" class="ui-select-compact w-36">${certOptions}</select></td>
@@ -113,12 +124,16 @@ export function initLayoutSlotsTable(config: LayoutSlotsClientConfig): void {
 	if (!(slotsBody instanceof HTMLElement)) return;
 
 	function bindSlotRow(row: HTMLElement): void {
-		row.querySelector('.slot-component')?.addEventListener('change', () => syncSlotRowVisibility(row));
+		row.querySelector('.slot-component')?.addEventListener('change', () => {
+			syncSlotRowVisibility(row);
+			refreshLayoutSlotsPreview();
+		});
 		row.querySelector('.slot-banner-style')?.addEventListener('change', () => syncBannerSubfields(row));
 		row.querySelector('.slot-banner-link-type')?.addEventListener('change', () => syncBannerSubfields(row));
 		row.querySelector('.remove-slot')?.addEventListener('click', () => {
 			if (slotsBody.querySelectorAll('.slot-row').length <= 1) return;
 			row.remove();
+			refreshLayoutSlotsPreview();
 		});
 		syncSlotRowVisibility(row);
 	}
@@ -155,5 +170,6 @@ export function initLayoutSlotsTable(config: LayoutSlotsClientConfig): void {
 		if (compSelect) compSelect.value = component;
 		slotsBody.appendChild(tr);
 		bindSlotRow(tr);
+		refreshLayoutSlotsPreview();
 	});
 }

@@ -8,6 +8,7 @@ import TableHead from '@/components/ui/table/TableHead.astro';
 import TableRow from '@/components/ui/table/TableRow.astro';
 import TableCell from '@/components/ui/table/TableCell.astro';
 import LayoutSlotRow from '@/components/admin/layout-slots/LayoutSlotRow.astro';
+import LayoutSlotsPreview from '@/components/admin/layout-slots/LayoutSlotsPreview.astro';
 import LayoutSlotsWeather from '@/components/admin/layout-slots/LayoutSlotsWeather.astro';
 import LayoutSlotsTemplates from '@/components/admin/layout-slots/LayoutSlotsTemplates.astro';
 import { LAYOUT_COMPONENT_IDS } from '@/lib/astro-layout/components';
@@ -34,6 +35,10 @@ const componentOptionsHtml = LAYOUT_COMPONENT_IDS.map(
 	<p class="ui-hint">{adminLayout.slotsHint}</p>
 	<p class="ui-hint">{adminLayout.slotsOrderHint}</p>
 
+	<LayoutSlotsPreview />
+
+	<h3 class="mt-2 text-sm font-semibold text-slate-800">{adminLayout.slotsConfigTitle}</h3>
+
 	<Table dense wrap class="min-w-[80rem]" id="slots-table">
 		<TableHead dense>
 			<TableRow dense>
@@ -46,6 +51,7 @@ const componentOptionsHtml = LAYOUT_COMPONENT_IDS.map(
 				<TableCell header dense>{fields.widgetSectionTitle}</TableCell>
 				<TableCell header dense>{fields.widgetLimit}</TableCell>
 				<TableCell header dense>{fields.widgetEmptyText}</TableCell>
+				<TableCell header dense>{fields.widgetHideWhenEmpty}</TableCell>
 				<TableCell header dense>{fields.widgetMoreLink}</TableCell>
 				<TableCell header dense>{fields.widgetVariant}</TableCell>
 				<TableCell header dense>{fields.certAdvisoriesCategory}</TableCell>

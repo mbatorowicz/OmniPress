@@ -20,6 +20,11 @@ export function mergeCategoryDisplays(
 	return base;
 }
 
+/** Zamienia wartości order dwóch sąsiednich slotów (używane przy reorder ↑↓). */
+export function swapAdjacentOrders(a: number, b: number): [number, number] {
+	return [b, a];
+}
+
 export function sortSlotsByOrder(slots: DisplaySlot[]): DisplaySlot[] {
 	return [...slots].sort((a, b) => {
 		const ao = a.widget?.order ?? Number.MAX_SAFE_INTEGER;

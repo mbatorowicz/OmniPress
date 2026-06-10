@@ -26,3 +26,8 @@ export function isSingletonComponent(component: string): boolean {
 export function isSidebarComponent(component: string): boolean {
 	return isLayoutComponentId(component) && LAYOUT_COMPONENTS[component].area === 'sidebar';
 }
+
+/** Komponenty z pustym stanem (tekst „Brak…”) — obsługa hideWhenEmpty */
+export function supportsHideWhenEmpty(component: string): boolean {
+	return isLayoutComponentId(component) && component !== 'sidebar.banner';
+}

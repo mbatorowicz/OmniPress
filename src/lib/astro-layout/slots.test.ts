@@ -3,9 +3,17 @@ import {
 	findSlotByComponent,
 	getCategoryFeedSlots,
 	sortSlotsByOrder,
+	swapAdjacentOrders,
 } from './slots';
 import { isCategoryFeedComponent } from './components';
 import type { DisplaySlot, SiteAstroLayout } from './types';
+
+describe('swapAdjacentOrders', () => {
+	it('zamienia wartości order między sąsiednimi slotami', () => {
+		expect(swapAdjacentOrders(10, 20)).toEqual([20, 10]);
+		expect(swapAdjacentOrders(30, 30)).toEqual([30, 30]);
+	});
+});
 
 describe('sortSlotsByOrder', () => {
 	it('sortuje rosnąco po widget.order', () => {
