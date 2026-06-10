@@ -4,7 +4,7 @@ import Alert from '@/components/ui/feedback/Alert.astro';
 import Button from '@/components/ui/actions/Button.astro';
 import PageHeader from '@/components/ui/layout/PageHeader.astro';
 import Panel from '@/components/ui/layout/Panel.astro';
-import { admin, adminEditors } from '@/i18n';
+import { adminEditors, layout } from '@/i18n';
 import { listEditors, listSites } from '@/lib/admin';
 
 const editors = await listEditors(Astro.locals.supabase);
@@ -16,10 +16,14 @@ const errorMessage =
 	errorCode && errorCode in editorErrors
 		? editorErrors[errorCode as keyof typeof editorErrors]
 		: null;
+
+const breadcrumbs = [
+	{ label: layout.breadcrumb.admin, href: '/admin' },
+	{ label: layout.breadcrumb.editors },
+];
 ---
 
-<AppLayout title={adminEditors.title} heading={adminEditors.title}>
-	<a href="/admin" class="mb-4 inline-block text-sm ui-link">{admin.preview.back}</a>
+<AppLayout title={adminEditors.title} heading={adminEditors.title} {breadcrumbs}>
 	<p class="mb-4 ui-muted">{adminEditors.lead}</p>
 
 	{errorMessage && <Alert variant="error">{errorMessage}</Alert>}
@@ -62,7 +66,7 @@ const errorMessage =
 						</ul>
 					</fieldset>
 				) : (
-					<p class="text-sm text-amber-800">Najpierw utwórz jednostkę organizacyjną (stronę).</p>
+					<p class="text-sm text-amber-800">{adminEditors.invite.noSites}</p>
 				)
 			}
 			{
@@ -70,7 +74,7 @@ const errorMessage =
 					<label class="ui-label">
 						<span>{adminEditors.invite.defaultSite}</span>
 						<select name="default_site_id" class="ui-input ui-select">
-							<option value="">— pierwsza zaznaczona —</option>
+							<option value="">{adminEditors.invite.defaultSiteFirst}</option>
 							{sites.map((s) => (
 								<option value={s.id}>{s.name}</option>
 							))}
@@ -83,10 +87,10 @@ const errorMessage =
 	</Panel>
 
 	<Panel>
-		<h2 class="ui-heading">Konta redaktorów</h2>
+		<h2 class="ui-heading">{adminEditors.list.heading}</h2>
 		{
 			editors.length === 0 ? (
-				<p class="ui-empty">Brak redaktorów — utwórz konto powyżej.</p>
+				<p class="ui-empty">{adminEditors.list.empty}</p>
 			) : (
 				<ul class="ui-list-divide mt-4">
 					{editors.map((e) => (

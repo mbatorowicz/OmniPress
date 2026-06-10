@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.astro';
 import Alert from '@/components/ui/feedback/Alert.astro';
 import Button from '@/components/ui/actions/Button.astro';
 import Panel from '@/components/ui/layout/Panel.astro';
-import { adminEditors, common } from '@/i18n';
+import { adminEditors, common, layout } from '@/i18n';
 import { getEditorSiteIds, listEditors, listSites } from '@/lib/admin';
 
 const { id } = Astro.params;
@@ -16,10 +16,19 @@ if (!editor) return Astro.redirect('/admin/editors');
 const sites = await listSites(Astro.locals.supabase);
 const assigned = new Set(await getEditorSiteIds(Astro.locals.supabase, id));
 const saved = Astro.url.searchParams.get('saved') === '1';
+
+const breadcrumbs = [
+	{ label: layout.breadcrumb.admin, href: '/admin' },
+	{ label: layout.breadcrumb.editors, href: '/admin/editors' },
+	{ label: editor.display_name || editor.id.slice(0, 8) },
+];
 ---
 
-<AppLayout title={adminEditors.title} heading={editor.display_name || adminEditors.title}>
-	<a href="/admin/editors" class="mb-4 inline-block text-sm ui-link">← {adminEditors.title}</a>
+<AppLayout
+	title={adminEditors.title}
+	heading={editor.display_name || adminEditors.title}
+	{breadcrumbs}
+>
 	{saved && <Alert variant="success">{common.saved}</Alert>}
 
 	<Panel class="space-y-4">

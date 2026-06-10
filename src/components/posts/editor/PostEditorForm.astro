@@ -61,7 +61,7 @@ const pdfUi = ed.pdfAttachments;
 	<Label>
 		<span class="font-medium">{ed.fields.category}</span>
 		<Select name="category_slug" required disabled={categoriesUnavailable}>
-			<option value="">— wybierz kategorię —</option>
+			<option value="">{ed.fields.categoryPlaceholder}</option>
 			{categories.map((c) => (
 				<option value={c.slug} selected={post.category_slug === c.slug}>
 					{c.name}

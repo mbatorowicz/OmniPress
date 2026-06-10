@@ -2,20 +2,40 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import AppHeader from '@/components/shell/AppHeader.astro';
 import AppFooter from '@/components/shell/AppFooter.astro';
+import AdminSidebar from '@/components/shell/AdminSidebar.astro';
+import Breadcrumbs, { type Crumb } from '@/components/ui/navigation/Breadcrumbs.astro';
 
 interface Props {
 	title: string;
 	heading?: string;
+	breadcrumbs?: Crumb[];
 }
 
-const { title, heading } = Astro.props;
+const { title, heading, breadcrumbs } = Astro.props;
+
+const showSidebar =
+	Astro.locals.profile?.role === 'admin' && Astro.url.pathname.startsWith('/admin');
 ---
 
 <BaseLayout title={title} bodyClass="ui-app-shell">
 	<AppHeader />
-	<main class="ui-app-main">
-		{heading && <h1 class="ui-page-heading">{heading}</h1>}
-		<slot />
-	</main>
+	{
+		showSidebar ? (
+			<div class="ui-app-body">
+				<AdminSidebar />
+				<main class="ui-app-content">
+					{breadcrumbs && <Breadcrumbs items={breadcrumbs} />}
+					{heading && <h1 class="ui-page-heading">{heading}</h1>}
+					<slot />
+				</main>
+			</div>
+		) : (
+			<main class="ui-app-main">
+				{breadcrumbs && <Breadcrumbs items={breadcrumbs} />}
+				{heading && <h1 class="ui-page-heading">{heading}</h1>}
+				<slot />
+			</main>
+		)
+	}
 	<AppFooter />
 </BaseLayout>

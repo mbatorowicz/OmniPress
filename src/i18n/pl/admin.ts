@@ -2,21 +2,16 @@ import { common } from './common';
 
 export const admin = {
 	title: 'Administracja',
+	queueHeading: 'Kolejka wpisów',
 	sites: {
-		heading: (n: number) => `Strony (${n})`,
-		lead: 'Jednostki organizacyjne — każda ma własne repozytorium GitHub do publikacji.',
 		empty: 'Dodaj stronę, np.',
 		exampleName: 'UG Miedzna',
-		exampleSlug: 'ug-miedzna',
-		manage: 'Zarządzaj stronami',
 	},
-	editors: {
-		manage: 'Redaktorzy',
-	},
-	content: {
-		heading: 'Treści i publikacja',
-		lead: 'Jako administrator możesz pisać szkice w panelu redaktora, potem zaakceptować je tutaj.',
-		openDashboard: 'Panel treści — nowy artykuł',
+	queueNav: {
+		pending: 'Do akceptacji',
+		scheduled: 'Zaplanowane',
+		publishing: 'W toku',
+		published: 'Opublikowane',
 	},
 	pending: {
 		heading: (n: number) => `Do akceptacji (${n})`,

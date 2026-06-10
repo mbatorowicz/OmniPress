@@ -12,7 +12,7 @@ import StatusBadge from '@/components/ui/feedback/StatusBadge.astro';
 import Alert from '@/components/ui/feedback/Alert.astro';
 import Label from '@/components/ui/form/Label.astro';
 import Textarea from '@/components/ui/form/Textarea.astro';
-import { admin, adminReview } from '@/i18n';
+import { admin, adminReview, common, layout } from '@/i18n';
 import { canReopenPost, loadSiteAstroDestination } from '@/lib/admin';
 import { listPublishLogsForPost } from '@/lib/publish';
 import { buildPublishedBodyMd } from '@/lib/publish/post-gallery';
@@ -80,9 +80,14 @@ const pdfUrlMap = new Map(
 const previewMd = buildPublishedBodyMd(post.content_md, pdfAssets as PostAsset[], pdfUrlMap);
 const contentHtml = renderPostContentHtml(previewMd, assetsForPreviewRender(post.id, pdfAssets));
 const galleryAssets = postAssets.filter(isGalleryImageAsset);
+
+const breadcrumbs = [
+	{ label: layout.breadcrumb.admin, href: '/admin' },
+	{ label: post.title || common.untitled },
+];
 ---
 
-<AppLayout title={preview.title} heading={preview.heading}>
+<AppLayout title={preview.title} heading={preview.heading} {breadcrumbs}>
 	<div class="mb-4 flex flex-wrap gap-3 text-sm text-slate-600">
 		<StatusBadge status={post.status as PostStatus} />
 		{site?.name && <span>{preview.siteLabel} {site.name}</span>}

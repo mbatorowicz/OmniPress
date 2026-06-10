@@ -43,7 +43,7 @@ function statusLabel(status: PageStatus): string {
 	{seedFromNavDone && (
 		<Alert variant="success">
 			{ui.seedFromNavDone}
-			{layoutSynced ? ' Layout wysłany do GitHub.' : ''}
+			{layoutSynced ? ` ${ui.layoutSynced}` : ''}
 		</Alert>
 	)}
 	{errorMessage && <Alert variant="error">{errorMessage}</Alert>}

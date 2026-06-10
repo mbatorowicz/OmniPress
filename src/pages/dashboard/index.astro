@@ -36,51 +36,48 @@ const errorMessage =
 	{submitted && <Alert variant="success">{dashboard.submitted}</Alert>}
 	{errorMessage && <Alert variant="warning">{errorMessage}</Alert>}
 
-	<Panel class="mb-8 flex flex-wrap items-center justify-between gap-4">
-		<PageHeader title={dashboard.articles.heading} lead={dashboard.articles.lead} />
-		{
-			allowedSites.length > 0 ? (
-				<form method="post" action="/api/posts/create" class="mt-4 flex flex-wrap items-end gap-2">
-					{
-						allowedSites.length === 1 ? (
-							<input type="hidden" name="site_id" value={allowedSites[0].id} />
-						) : (
-							<label class="ui-label-inline">
-								<span class="ui-label-muted">{common.site}</span>
-								<select name="site_id" class="ui-select ui-input--inline">
-									{allowedSites.map((s) => (
-										<option value={s.id} selected={s.id === profile.default_site_id}>
-											{s.name}
-										</option>
-									))}
-								</select>
-							</label>
-						)
-					}
-					<Button type="submit">{dashboard.articles.newPost}</Button>
-				</form>
-			) : (
-				<p class="ui-muted mt-4">{dashboard.articles.noTargetSite}</p>
-			)
-		}
+	<Panel class="mb-6">
+		<div class="flex flex-wrap items-center justify-between gap-4">
+			<PageHeader title={dashboard.articles.heading} lead={dashboard.articles.lead} />
+			{
+				allowedSites.length > 0 ? (
+					<form method="post" action="/api/posts/create" class="flex flex-wrap items-end gap-2">
+						{
+							allowedSites.length === 1 ? (
+								<input type="hidden" name="site_id" value={allowedSites[0].id} />
+							) : (
+								<label class="ui-label-inline">
+									<span class="ui-label-muted">{common.site}</span>
+									<select name="site_id" class="ui-select ui-input--inline">
+										{allowedSites.map((s) => (
+											<option value={s.id} selected={s.id === profile.default_site_id}>
+												{s.name}
+											</option>
+										))}
+									</select>
+								</label>
+							)
+						}
+						<Button type="submit">{dashboard.articles.newPost}</Button>
+					</form>
+				) : (
+					<p class="ui-muted">{dashboard.articles.noTargetSite}</p>
+				)
+			}
+		</div>
+		<div class="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
+			<span class="ui-muted">{dashboard.sites.heading}:</span>
+			{
+				allowedSites.length === 0 ? (
+					<span class="ui-muted">{dashboard.sites.empty}</span>
+				) : (
+					allowedSites.map((s) => <span class="ui-tag">{s.name}</span>)
+				)
+			}
+		</div>
 	</Panel>
 
 	<Panel>
-		<h2 class="ui-heading-sm">{dashboard.sites.heading}</h2>
-		{
-			allowedSites.length === 0 ? (
-				<p class="ui-empty">{dashboard.sites.empty}</p>
-			) : (
-				<ul class="mt-3 flex flex-wrap gap-2">
-					{allowedSites.map((s) => (
-						<li class="ui-tag">{s.name}</li>
-					))}
-				</ul>
-			)
-		}
-	</Panel>
-
-	<Panel class="mt-6">
 		<h2 class="ui-heading">{dashboard.posts.heading}</h2>
 		{
 			!posts?.length ? (

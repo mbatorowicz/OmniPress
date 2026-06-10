@@ -1,5 +1,6 @@
 ---
 import Button from '@/components/ui/actions/Button.astro';
+import Breadcrumbs, { type Crumb } from '@/components/ui/navigation/Breadcrumbs.astro';
 import { adminUnit, layout } from '@/i18n';
 
 export type AdminUnitSection = 'edit' | 'layout' | 'pages' | 'changes';
@@ -8,9 +9,10 @@ interface Props {
 	siteId: string;
 	siteName: string;
 	section: AdminUnitSection;
+	currentLabel?: string;
 }
 
-const { siteId, siteName, section } = Astro.props;
+const { siteId, siteName, section, currentLabel } = Astro.props;
 
 const sectionLabels: Record<AdminUnitSection, string> = {
 	edit: layout.breadcrumb.edit,
@@ -19,32 +21,40 @@ const sectionLabels: Record<AdminUnitSection, string> = {
 	changes: layout.breadcrumb.changes,
 };
 
+const sectionHrefs: Record<AdminUnitSection, string> = {
+	edit: `/admin/units/${siteId}`,
+	layout: `/admin/units/${siteId}/layout`,
+	pages: `/admin/units/${siteId}/pages`,
+	changes: `/admin/units/${siteId}/changes`,
+};
+
+const crumbs: Crumb[] = [
+	{ label: layout.breadcrumb.admin, href: '/admin' },
+	{ label: layout.breadcrumb.units, href: '/admin/sites' },
+	{ label: siteName, href: `/admin/units/${siteId}` },
+];
+
+if (section !== 'edit') {
+	crumbs.push({
+		label: sectionLabels[section],
+		href: currentLabel ? sectionHrefs[section] : undefined,
+	});
+}
+
+if (currentLabel) {
+	crumbs.push({ label: currentLabel });
+}
+
 const links = [
-	{ href: `/admin/units/${siteId}`, label: adminUnit.actions.edit, section: 'edit' as const },
-	{ href: `/admin/units/${siteId}/layout`, label: adminUnit.layoutLink, section: 'layout' as const },
-	{ href: `/admin/units/${siteId}/pages`, label: adminUnit.pagesLink, section: 'pages' as const },
-	{ href: `/admin/units/${siteId}/changes`, label: adminUnit.changesLink, section: 'changes' as const },
+	{ href: sectionHrefs.edit, label: adminUnit.actions.edit, section: 'edit' as const },
+	{ href: sectionHrefs.layout, label: adminUnit.layoutLink, section: 'layout' as const },
+	{ href: sectionHrefs.pages, label: adminUnit.pagesLink, section: 'pages' as const },
+	{ href: sectionHrefs.changes, label: adminUnit.changesLink, section: 'changes' as const },
 ];
 ---
 
 <nav class="mb-6" aria-label={layout.aria.adminContext}>
-	<ol class="ui-breadcrumb">
-		<li>
-			<a href="/admin" class="ui-link">{layout.breadcrumb.admin}</a>
-		</li>
-		<li class="ui-breadcrumb-sep" aria-hidden="true">/</li>
-		<li>
-			<a href={`/admin/units/${siteId}`} class="ui-link">{siteName}</a>
-		</li>
-		{
-			section !== 'edit' && (
-				<>
-					<li class="ui-breadcrumb-sep" aria-hidden="true">/</li>
-					<li class="ui-breadcrumb-current">{sectionLabels[section]}</li>
-				</>
-			)
-		}
-	</ol>
+	<Breadcrumbs items={crumbs} />
 	<div class="ui-subnav mb-0 mt-3">
 		{
 			links.map((link) => (

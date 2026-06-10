@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.7.17** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.8.0** (kod + baza + panel).
 
 Produkcja: https://omni-press.vercel.app
 

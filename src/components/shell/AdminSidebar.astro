@@ -1,0 +1,80 @@
+---
+import { layout } from '@/i18n';
+
+const pathname = Astro.url.pathname;
+const nav = layout.sidebar;
+
+type SidebarLink = {
+	href: string;
+	label: string;
+	active: boolean;
+	sub?: boolean;
+};
+
+type SidebarGroup = {
+	label: string;
+	links: SidebarLink[];
+};
+
+const groups: SidebarGroup[] = [
+	{
+		label: nav.groupQueue,
+		links: [
+			{
+				href: '/admin',
+				label: nav.queue,
+				active: pathname === '/admin' || pathname.startsWith('/admin/posts'),
+			},
+			{ href: '/dashboard', label: nav.contentPanel, active: false },
+		],
+	},
+	{
+		label: nav.groupManage,
+		links: [
+			{
+				href: '/admin/sites',
+				label: nav.units,
+				active:
+					pathname.startsWith('/admin/sites') ||
+					(pathname.startsWith('/admin/units') && pathname !== '/admin/units/new'),
+			},
+			{
+				href: '/admin/units/new',
+				label: nav.unitNew,
+				active: pathname === '/admin/units/new',
+				sub: true,
+			},
+			{
+				href: '/admin/editors',
+				label: nav.editors,
+				active: pathname.startsWith('/admin/editors'),
+			},
+		],
+	},
+];
+---
+
+<aside class="ui-sidebar">
+	<nav class="ui-sidebar-nav" aria-label={layout.aria.sidebarNav}>
+		{
+			groups.map((group) => (
+				<>
+					<span class="ui-sidebar-group">{group.label}</span>
+					{group.links.map((link) => (
+						<a
+							href={link.href}
+							class:list={[
+								'ui-sidebar-link',
+								link.sub && 'ui-sidebar-link--sub',
+								link.active && 'ui-sidebar-link--active',
+							]}
+							aria-current={link.active ? 'page' : undefined}
+						>
+							{link.label}
+						</a>
+					))}
+				</>
+			))
+		}
+	</nav>
+</aside>

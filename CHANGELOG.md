@@ -3,6 +3,18 @@
 Format: [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+commit`.
 
+## [0.8.0] — 2026-06-10
+
+### Zmienione (refaktor UI)
+
+- Panel admina: stały **sidebar nawigacji** (Kolejka wpisów, Panel treści, Jednostki, Redaktorzy) zamiast rozproszonych przycisków; szerszy obszar roboczy (`max-w-7xl`).
+- **Breadcrumby** na wszystkich zagnieżdżonych stronach (`Breadcrumbs` w `ui/navigation`) — jeden wzorzec zamiast trzech wariantów „← wstecz”.
+- `/admin` odchudzony: tylko kolejki wpisów + podsumowanie sekcji z kotwicami; usunięte zdublowane panele „Strony” i „Panel treści”; import GitHub jako zwijana sekcja na dole.
+- Edytor strony statycznej (`/admin/units/[id]/pages/[pageId]`) odzyskał nawigację kontekstu jednostki (breadcrumb + zakładki).
+- Lista jednostek: przycisk „Edytuj” zamiast nieklikalnej etykiety; ujednolicona nazwa „Jednostki (strony)”.
+- Dashboard redaktora: połączone panele („Twoje strony” jako tagi w panelu artykułów).
+- i18n: usunięte hardkodowane teksty (redaktorzy, strony statyczne, kategoria w edytorze, licznik wpisów przy usuwaniu jednostki).
+
 ## [0.7.18] — 2026-06-09
 
 ### Dodane

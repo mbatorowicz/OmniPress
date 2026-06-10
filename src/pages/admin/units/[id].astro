@@ -41,7 +41,7 @@ const flashMessages = parseQueryFlash(Astro.url, {
 		{
 			postCount > 0 && (
 				<p class="mt-2 text-sm font-medium text-red-900">
-					{adminSites.errors.has_posts} ({postCount} wpisów)
+					{adminSites.errors.has_posts} {adminSites.delete.postsCount(postCount)}
 				</p>
 			)
 		}

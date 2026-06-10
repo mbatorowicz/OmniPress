@@ -59,6 +59,9 @@
 	.ui-list-card {
 		@apply divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white;
 	}
+	.ui-panel-summary {
+		@apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 -m-2 cursor-pointer select-none rounded-md p-2 text-lg font-medium text-slate-900 hover:text-brand;
+	}
 	.ui-app-shell {
 		@apply flex min-h-screen flex-col bg-surface-muted text-slate-900 antialiased;
 	}

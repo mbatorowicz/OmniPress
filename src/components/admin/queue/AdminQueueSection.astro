@@ -40,6 +40,7 @@ interface Props {
 	showBulkActions?: boolean;
 	dateField?: 'updated_at' | 'created_at' | 'scheduled_publish_at';
 	dateColumnLabel?: string;
+	id?: string;
 }
 
 const {
@@ -52,10 +53,11 @@ const {
 	showBulkActions,
 	dateField,
 	dateColumnLabel,
+	id,
 } = Astro.props;
 ---
 
-<Panel variant={variant} class="mt-6">
+<Panel variant={variant} class="mt-6 scroll-mt-6" {id}>
 	<PageHeader title={title} lead={lead} />
 	{
 		!posts?.length ? (

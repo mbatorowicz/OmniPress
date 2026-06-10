@@ -1,0 +1,42 @@
+---
+import { layout } from '@/i18n';
+
+export interface Crumb {
+	label: string;
+	href?: string;
+}
+
+interface Props {
+	items: Crumb[];
+	class?: string;
+}
+
+const { items, class: className } = Astro.props;
+---
+
+<nav aria-label={layout.aria.breadcrumbs} class={className}>
+	<ol class="ui-breadcrumb">
+		{
+			items.map((item, index) => (
+				<>
+					{index > 0 && (
+						<li class="ui-breadcrumb-sep" aria-hidden="true">
+							/
+						</li>
+					)}
+					<li>
+						{item.href ? (
+							<a href={item.href} class="ui-link">
+								{item.label}
+							</a>
+						) : (
+							<span class="ui-breadcrumb-current" aria-current="page">
+								{item.label}
+							</span>
+						)}
+					</li>
+				</>
+			))
+		}
+	</ol>
+</nav>
