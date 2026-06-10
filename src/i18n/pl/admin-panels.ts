@@ -123,12 +123,24 @@ export const adminLayout = {
 	imported: 'Zaimportowano layout z repozytorium GitHub.',
 	noAstroChannel: 'Brak aktywnego kanału Astro — zapis tylko w OmniPress (bez sync do GitHub).',
 	slotsHint:
-		'Komponenty strony Astro w jednej liście. Wybierz typ (home.*, sidebar.*), ustaw kolejność — mniejsza liczba = wyżej w sidebarze. Pola kolumn dostosowują się do typu.',
+		'Komponenty strony Astro w jednej liście. Wybierz typ (home.*, sidebar.*) i kolejność — mniejsza liczba = wyżej w sidebarze. Szczegóły konfiguracji są w sekcjach poniżej, pogrupowanych według typu komponentu.',
+	slotsListTitle: 'Lista komponentów',
+	slotsConfigHint:
+		'Pola ustawień są podzielone na sekcje według typu komponentu. Każdy slot ma własny blok w odpowiedniej sekcji.',
+	recentChangesHint:
+		'Widget pokazuje ostatnie zmiany opublikowane w OmniPress (ogłoszenia jednostki).',
+	sectionTitles: {
+		home_feed: 'Feedy strony głównej',
+		recent_changes: 'Ostatnie zmiany (sidebar)',
+		cert: 'Komunikaty CERT Polska',
+		banner: 'Banery (sidebar)',
+		weather: 'Ostrzeżenia meteorologiczne IMGW',
+	},
 	slotsOrderHint:
 		'Kolejność (order) dotyczy wszystkich komponentów sidebar.* — banery, ostrzeżenia meteo, CERT i ostatnie zmiany sortują się wspólnie. Możesz też zmieniać kolejność strzałkami w podglądzie szablonu.',
 	slotsPreviewTitle: 'Podgląd szablonu',
 	slotsPreviewHint:
-		'Schemat układu strony Astro — strefa główna i sidebar. Kliknij kartę, aby przejść do szczegółów w tabeli poniżej.',
+		'Schemat układu strony Astro — strefa główna i sidebar. Kliknij kartę, aby przejść do szczegółów w sekcji konfiguracji poniżej.',
 	slotsPreviewMenuPlaceholder: 'Nagłówek / menu nawigacji',
 	slotsPreviewHomeZone: 'Strefa główna',
 	slotsPreviewSidebarZone: 'Sidebar',

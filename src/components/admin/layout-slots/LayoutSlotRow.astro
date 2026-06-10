@@ -1,21 +1,15 @@
 ---
 import { adminLayout } from '@/i18n';
-import { CERT_CATEGORIES } from '@/lib/cert';
 import { LAYOUT_COMPONENT_IDS } from '@/lib/astro-layout/components';
-import type { CategoryDefinition, DisplaySlot } from '@/lib/astro-layout/types';
-
-type PageOption = { path: string; title: string };
+import type { DisplaySlot } from '@/lib/astro-layout/types';
 
 interface Props {
 	slot: DisplaySlot;
-	categories: CategoryDefinition[];
-	publishedPages: PageOption[];
 }
 
-const { slot, categories, publishedPages } = Astro.props;
+const { slot } = Astro.props;
 const w = slot.widget ?? {};
-const { fields, actions, bannerLinkTypes, bannerStyles, bannerImageVariants, componentLabels, variants } =
-	adminLayout;
+const { fields, actions, componentLabels } = adminLayout;
 ---
 
 <tr class="slot-row ui-table-dense-row" data-slot-id={slot.id}>
@@ -26,7 +20,7 @@ const { fields, actions, bannerLinkTypes, bannerStyles, bannerImageVariants, com
 		<input name="slot_label" value={slot.label} required class="ui-input-compact w-32" />
 	</td>
 	<td class="ui-table-dense-td">
-		<select name="slot_component" class="slot-component ui-select-compact w-40">
+		<select name="slot_component" class="slot-component ui-select-compact w-48">
 			{
 				LAYOUT_COMPONENT_IDS.map((id) => (
 					<option value={id} selected={slot.component === id}>
@@ -41,100 +35,6 @@ const { fields, actions, bannerLinkTypes, bannerStyles, bannerImageVariants, com
 	</td>
 	<td class="ui-table-dense-td text-center">
 		<input type="checkbox" name={`slot_enabled_${slot.id}`} checked={w.enabled !== false} />
-	</td>
-	<td class="ui-table-dense-td slot-field-feed">
-		<input name="slot_widget_title" value={w.title ?? ''} class="ui-input-compact w-32" />
-	</td>
-	<td class="ui-table-dense-td slot-field-feed">
-		<input name="slot_widget_section_title" value={w.sectionTitle ?? ''} class="ui-input-compact w-32" />
-	</td>
-	<td class="ui-table-dense-td slot-field-feed">
-		<input name="slot_widget_limit" type="number" min="1" value={w.limit ?? ''} class="ui-input-compact w-16" />
-	</td>
-	<td class="ui-table-dense-td slot-field-feed">
-		<input name="slot_widget_empty_text" value={w.emptyText ?? ''} class="ui-input-compact w-32" />
-	</td>
-	<td class="ui-table-dense-td slot-field-hide-empty text-center">
-		<input type="checkbox" name={`slot_hide_when_empty_${slot.id}`} checked={w.hideWhenEmpty === true} />
-	</td>
-	<td class="ui-table-dense-td slot-field-feed">
-		<input name="slot_widget_more_link" value={w.moreLink ?? ''} class="ui-input-compact ui-input-compact--mono w-28" />
-	</td>
-	<td class="ui-table-dense-td slot-field-feed">
-		<select name="slot_widget_variant" class="ui-select-compact">
-			<option value="default" selected={w.variant !== 'alert'}>{variants.default}</option>
-			<option value="alert" selected={w.variant === 'alert'}>{variants.alert}</option>
-		</select>
-	</td>
-	<td class="ui-table-dense-td slot-field-cert">
-		<select name="slot_cert_category_filter" class="ui-select-compact w-36">
-			<option value="" selected={!w.categoryFilter}>{adminLayout.certCategories.all}</option>
-			{CERT_CATEGORIES.map((category) => (
-				<option value={category} selected={w.categoryFilter === category}>
-					{category}
-				</option>
-			))}
-		</select>
-	</td>
-	<td class="ui-table-dense-td slot-field-banner">
-		<select name="slot_banner_style" class="slot-banner-style ui-select-compact">
-			<option value="image" selected={w.style !== 'text'}>{bannerStyles.image}</option>
-			<option value="text" selected={w.style === 'text'}>{bannerStyles.text}</option>
-		</select>
-	</td>
-	<td class="ui-table-dense-td slot-field-banner slot-banner-field-image">
-		<input name="slot_banner_image_url" value={w.imageUrl ?? ''} class="ui-input-compact ui-input-compact--mono w-36" />
-	</td>
-	<td class="ui-table-dense-td slot-field-banner slot-banner-field-image">
-		<select name="slot_banner_image_variant" class="ui-select-compact">
-			<option value="default" selected={w.imageVariant !== 'blue'}>{bannerImageVariants.default}</option>
-			<option value="blue" selected={w.imageVariant === 'blue'}>{bannerImageVariants.blue}</option>
-		</select>
-	</td>
-	<td class="ui-table-dense-td slot-field-banner slot-banner-field-text">
-		<input name="slot_banner_text_title" value={w.textTitle ?? ''} class="ui-input-compact w-28" />
-	</td>
-	<td class="ui-table-dense-td slot-field-banner slot-banner-field-text">
-		<input name="slot_banner_text_button" value={w.textButton ?? ''} class="ui-input-compact w-24" />
-	</td>
-	<td class="ui-table-dense-td slot-field-banner">
-		<select name="slot_banner_link_type" class="slot-banner-link-type ui-select-compact">
-			<option value="category" selected={w.linkType === 'category'}>{bannerLinkTypes.category}</option>
-			<option value="page" selected={w.linkType === 'page'}>{bannerLinkTypes.page}</option>
-			<option value="external" selected={w.linkType === 'external'}>{bannerLinkTypes.external}</option>
-		</select>
-	</td>
-	<td class="ui-table-dense-td slot-field-banner slot-banner-field-category">
-		<select name="slot_banner_category_slug" class="ui-select-compact w-32">
-			<option value="">—</option>
-			{categories.map((cat) => (
-				<option value={cat.slug} selected={w.categorySlug === cat.slug}>
-					{cat.name}
-				</option>
-			))}
-		</select>
-	</td>
-	<td class="ui-table-dense-td slot-field-banner slot-banner-field-page">
-		<select name="slot_banner_page_path" class="ui-select-compact w-36">
-			<option value="">—</option>
-			{publishedPages.length === 0 ? (
-				<option value="" disabled>{adminLayout.noPublishedPages}</option>
-			) : (
-				publishedPages.map((page) => (
-					<option value={page.path} selected={w.pagePath === page.path}>
-						{page.title} ({page.path})
-					</option>
-				))
-			)}
-		</select>
-	</td>
-	<td class="ui-table-dense-td slot-field-banner slot-banner-field-external">
-		<input
-			name="slot_banner_external_url"
-			value={w.externalUrl ?? ''}
-			class="ui-input-compact ui-input-compact--mono w-36"
-			placeholder="https://"
-		/>
 	</td>
 	<td class="ui-table-dense-td">
 		<button type="button" class="remove-slot ui-link--danger">{actions.removeSlot}</button>

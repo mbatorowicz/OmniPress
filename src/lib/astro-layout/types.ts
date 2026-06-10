@@ -17,24 +17,35 @@ export type CategoryDisplays = Record<string, string[]>;
 
 export type BannerLinkType = 'category' | 'page' | 'external';
 
-export type SlotWidgetConfig = {
+export type BaseSlotWidget = {
+	order?: number;
+	enabled?: boolean;
+};
+
+export type FeedListWidget = BaseSlotWidget & {
 	title?: string;
-	sectionTitle?: string;
 	limit?: number;
 	emptyText?: string;
-	/** Ukryj cały widget/sekcję, gdy brak wpisów lub ostrzeżeń */
 	hideWhenEmpty?: boolean;
-	enabled?: boolean;
 	variant?: 'default' | 'alert';
+};
+
+export type HomeFeedWidgetConfig = FeedListWidget & {
+	sectionTitle?: string;
 	moreLink?: string;
-	/** Kolejność (mniejsza = wyżej); sidebar.* i home.* */
-	order?: number;
 	pinnedOnly?: boolean;
-	/** sidebar.cert_advisories */
+};
+
+export type RecentChangesWidgetConfig = FeedListWidget;
+
+export type CertAdvisoriesWidgetConfig = FeedListWidget & {
 	categoryFilter?: string;
-	/** sidebar.weather — kod powiatu (4 cyfry), np. 1433 = węgrowski */
+};
+
+export type WeatherSlotWidgetConfig = BaseSlotWidget & {
+	title?: string;
+	hideWhenEmpty?: boolean;
 	terytPowiat?: string;
-	/** sidebar.weather — kod gminy (7 cyfr), np. 1433062 = Miedzna; metadane / marker mapy */
 	terytGmina?: string;
 	mapCenter?: { lat: number; lon: number };
 	mapZoom?: number;
@@ -44,7 +55,9 @@ export type SlotWidgetConfig = {
 	detailsLayout?: 'stacked' | 'grid';
 	detailsSummary?: string;
 	detailsCloseLabel?: string;
-	/** sidebar.banner — alt; domyślnie slot.label */
+};
+
+export type BannerWidgetConfig = BaseSlotWidget & {
 	bannerLabel?: string;
 	style?: 'image' | 'text';
 	imageUrl?: string;
@@ -57,10 +70,12 @@ export type SlotWidgetConfig = {
 	externalUrl?: string;
 };
 
-export type WeatherSlotWidgetConfig = SlotWidgetConfig & {
-	terytPowiat: string;
-	mapCenter: { lat: number; lon: number };
-};
+/** Płaski obiekt w JSON — suma pól wszystkich typów widgetów */
+export type SlotWidgetConfig = HomeFeedWidgetConfig &
+	RecentChangesWidgetConfig &
+	CertAdvisoriesWidgetConfig &
+	WeatherSlotWidgetConfig &
+	BannerWidgetConfig;
 
 export type DisplaySlot = {
 	id: string;
@@ -68,8 +83,6 @@ export type DisplaySlot = {
 	component: LayoutComponentId | string;
 	widget?: SlotWidgetConfig;
 };
-
-export type CertAdvisoriesWidgetConfig = SlotWidgetConfig;
 
 export type SiteAstroLayout = {
 	navigation: NavItem[];

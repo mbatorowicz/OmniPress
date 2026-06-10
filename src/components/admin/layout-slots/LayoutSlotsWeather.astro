@@ -4,6 +4,8 @@ import Label from '@/components/ui/form/Label.astro';
 import Input from '@/components/ui/form/Input.astro';
 import Checkbox from '@/components/ui/form/Checkbox.astro';
 import SectionTitle from '@/components/ui/layout/SectionTitle.astro';
+import { getComponentKind } from '@/lib/astro-layout/components';
+import { slotFormFields } from '@/lib/astro-layout/slot-form-fields';
 import type { DisplaySlot } from '@/lib/astro-layout/types';
 
 interface Props {
@@ -11,79 +13,86 @@ interface Props {
 }
 
 const { slots } = Astro.props;
-const weatherSlots = slots.filter((slot) => slot.component === 'sidebar.weather');
+const weatherSlots = slots.filter((s) => getComponentKind(s.component) === 'weather');
 const { fields } = adminLayout;
 
 if (weatherSlots.length === 0) return null;
 ---
 
-<div class="ui-divider-section">
-	<SectionTitle>{fields.weatherHeading}</SectionTitle>
+<div class="ui-divider-section slot-kind-section" data-kind="weather">
+	<SectionTitle>{adminLayout.sectionTitles.weather}</SectionTitle>
 	<p class="ui-hint">{adminLayout.weatherHint}</p>
 	{
-		weatherSlots.map((slot) => (
-			<div class="ui-fieldset-nested">
-				<input type="hidden" name="slot_weather_id" value={slot.id} />
-				<p class="ui-label-text text-xs font-medium sm:col-span-2">
-					{slot.label} · <code class="ui-code">{slot.id}</code>
-				</p>
-				<Label>
-					<span class="font-medium">{fields.weatherTerytPowiat}</span>
-					<Input name="slot_weather_teryt_powiat" value={slot.widget?.terytPowiat ?? ''} class="font-mono" />
-				</Label>
-				<Label>
-					<span class="font-medium">{fields.weatherMapZoom}</span>
-					<Input name="slot_weather_map_zoom" type="number" min="1" max="18" value={String(slot.widget?.mapZoom ?? 11)} />
-				</Label>
-				<Label>
-					<span class="font-medium">{fields.weatherLat}</span>
-					<Input name="slot_weather_lat" type="number" step="any" value={slot.widget?.mapCenter?.lat != null ? String(slot.widget.mapCenter.lat) : ''} />
-				</Label>
-				<Label>
-					<span class="font-medium">{fields.weatherLon}</span>
-					<Input name="slot_weather_lon" type="number" step="any" value={slot.widget?.mapCenter?.lon != null ? String(slot.widget.mapCenter.lon) : ''} />
-				</Label>
-				<Label class="sm:col-span-2">
-					<span class="font-medium">{fields.weatherMapScope}</span>
-					<Input name="slot_weather_map_scope" value={slot.widget?.mapScopePowiaty?.join(', ') ?? ''} class="font-mono" />
-					<p class="ui-hint mt-1">{adminLayout.weatherMapHint}</p>
-				</Label>
-				<label class="ui-label-inline flex items-center gap-2 sm:col-span-2">
-					<Checkbox name={`slot_weather_show_map_${slot.id}`} checked={slot.widget?.showMap !== false} />
-					{fields.weatherShowMap}
-				</label>
-				<Label>
-					<span class="font-medium">{fields.weatherDetailsDisplay}</span>
-					<select name="slot_weather_details_display" class="ui-select-compact w-full">
-						<option value="modal" selected={slot.widget?.detailsDisplay !== 'inline'}>
-							{adminLayout.weatherDetailsDisplayOptions.modal}
-						</option>
-						<option value="inline" selected={slot.widget?.detailsDisplay === 'inline'}>
-							{adminLayout.weatherDetailsDisplayOptions.inline}
-						</option>
-					</select>
-				</Label>
-				<Label>
-					<span class="font-medium">{fields.weatherDetailsLayout}</span>
-					<select name="slot_weather_details_layout" class="ui-select-compact w-full">
-						<option value="stacked" selected={slot.widget?.detailsLayout !== 'grid'}>
-							{adminLayout.weatherDetailsLayoutOptions.stacked}
-						</option>
-						<option value="grid" selected={slot.widget?.detailsLayout === 'grid'}>
-							{adminLayout.weatherDetailsLayoutOptions.grid}
-						</option>
-					</select>
-				</Label>
-				<Label>
-					<span class="font-medium">{fields.weatherDetailsSummary}</span>
-					<Input name="slot_weather_details_summary" value={slot.widget?.detailsSummary ?? ''} />
-				</Label>
-				<Label>
-					<span class="font-medium">{fields.weatherDetailsCloseLabel}</span>
-					<Input name="slot_weather_details_close_label" value={slot.widget?.detailsCloseLabel ?? ''} />
-				</Label>
-				<p class="ui-hint sm:col-span-2">{adminLayout.weatherDetailsHint}</p>
-			</div>
-		))
+		weatherSlots.map((slot) => {
+			const w = slot.widget ?? {};
+			const f = slotFormFields.weather;
+			return (
+				<div class="ui-fieldset-nested slot-detail-block" data-slot-id={slot.id}>
+					<p class="ui-label-text text-xs font-medium sm:col-span-2">
+						{slot.label} · <code class="ui-code">{slot.id}</code>
+					</p>
+					<label class="ui-label-inline flex items-center gap-2 sm:col-span-2">
+						<input type="checkbox" name={slotFormFields.hideWhenEmpty(slot.id)} checked={w.hideWhenEmpty === true} />
+						<span class="font-medium">{fields.widgetHideWhenEmpty}</span>
+					</label>
+					<Label>
+						<span class="font-medium">{fields.weatherTerytPowiat}</span>
+						<Input name={f.terytPowiat(slot.id)} value={w.terytPowiat ?? ''} class="font-mono" />
+					</Label>
+					<Label>
+						<span class="font-medium">{fields.weatherMapZoom}</span>
+						<Input name={f.mapZoom(slot.id)} type="number" min="1" max="18" value={String(w.mapZoom ?? 11)} />
+					</Label>
+					<Label>
+						<span class="font-medium">{fields.weatherLat}</span>
+						<Input name={f.lat(slot.id)} type="number" step="any" value={w.mapCenter?.lat != null ? String(w.mapCenter.lat) : ''} />
+					</Label>
+					<Label>
+						<span class="font-medium">{fields.weatherLon}</span>
+						<Input name={f.lon(slot.id)} type="number" step="any" value={w.mapCenter?.lon != null ? String(w.mapCenter.lon) : ''} />
+					</Label>
+					<Label class="sm:col-span-2">
+						<span class="font-medium">{fields.weatherMapScope}</span>
+						<Input name={f.mapScope(slot.id)} value={w.mapScopePowiaty?.join(', ') ?? ''} class="font-mono" />
+						<p class="ui-hint mt-1">{adminLayout.weatherMapHint}</p>
+					</Label>
+					<label class="ui-label-inline flex items-center gap-2 sm:col-span-2">
+						<Checkbox name={f.showMap(slot.id)} checked={w.showMap !== false} />
+						{fields.weatherShowMap}
+					</label>
+					<Label>
+						<span class="font-medium">{fields.weatherDetailsDisplay}</span>
+						<select name={f.detailsDisplay(slot.id)} class="ui-select-compact w-full">
+							<option value="modal" selected={w.detailsDisplay !== 'inline'}>
+								{adminLayout.weatherDetailsDisplayOptions.modal}
+							</option>
+							<option value="inline" selected={w.detailsDisplay === 'inline'}>
+								{adminLayout.weatherDetailsDisplayOptions.inline}
+							</option>
+						</select>
+					</Label>
+					<Label>
+						<span class="font-medium">{fields.weatherDetailsLayout}</span>
+						<select name={f.detailsLayout(slot.id)} class="ui-select-compact w-full">
+							<option value="stacked" selected={w.detailsLayout !== 'grid'}>
+								{adminLayout.weatherDetailsLayoutOptions.stacked}
+							</option>
+							<option value="grid" selected={w.detailsLayout === 'grid'}>
+								{adminLayout.weatherDetailsLayoutOptions.grid}
+							</option>
+						</select>
+					</Label>
+					<Label>
+						<span class="font-medium">{fields.weatherDetailsSummary}</span>
+						<Input name={f.detailsSummary(slot.id)} value={w.detailsSummary ?? ''} />
+					</Label>
+					<Label>
+						<span class="font-medium">{fields.weatherDetailsCloseLabel}</span>
+						<Input name={f.detailsCloseLabel(slot.id)} value={w.detailsCloseLabel ?? ''} />
+					</Label>
+					<p class="ui-hint sm:col-span-2">{adminLayout.weatherDetailsHint}</p>
+				</div>
+			);
+		})
 	}
 </div>

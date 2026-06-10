@@ -117,6 +117,7 @@ describe('parseLayoutFromFormData', () => {
 		form.append('slot_component', 'home.pinned');
 		form.set('slot_enabled_home_pinned', 'on');
 		form.set('slot_hide_when_empty_home_pinned', 'on');
+		form.set('slot_home_feed_section_title__home_pinned', 'Przypięte');
 		form.set('display_home_pinned_pogoda', 'on');
 
 		const result = parseLayoutFromFormData(form, base);
@@ -135,20 +136,20 @@ describe('parseLayoutFromFormData', () => {
 		form.append('slot_id', 'b2');
 		form.append('slot_label', 'Baner 2');
 		form.append('slot_component', 'sidebar.banner');
-		form.append('slot_banner_style', 'text');
-		form.append('slot_banner_text_title', 'Drugi');
-		form.append('slot_banner_link_type', 'external');
-		form.append('slot_banner_external_url', 'https://two.example');
+		form.append('slot_banner_style__b2', 'text');
+		form.append('slot_banner_text_title__b2', 'Drugi');
+		form.append('slot_banner_link_type__b2', 'external');
+		form.append('slot_banner_external_url__b2', 'https://two.example');
 		form.append('slot_widget_order', '20');
 		form.set('slot_enabled_b2', 'on');
 
 		form.append('slot_id', 'b1');
 		form.append('slot_label', 'Baner 1');
 		form.append('slot_component', 'sidebar.banner');
-		form.append('slot_banner_style', 'text');
-		form.append('slot_banner_text_title', 'Pierwszy');
-		form.append('slot_banner_link_type', 'external');
-		form.append('slot_banner_external_url', 'https://one.example');
+		form.append('slot_banner_style__b1', 'text');
+		form.append('slot_banner_text_title__b1', 'Pierwszy');
+		form.append('slot_banner_link_type__b1', 'external');
+		form.append('slot_banner_external_url__b1', 'https://one.example');
 		form.append('slot_widget_order', '10');
 		form.set('slot_enabled_b1', 'on');
 
@@ -173,12 +174,11 @@ describe('parseLayoutFromFormData', () => {
 		form.append('slot_label', 'Ostrzeżenia');
 		form.append('slot_component', 'sidebar.weather');
 		form.set('slot_enabled_sidebar_weather', 'on');
-		form.append('slot_weather_id', 'sidebar_weather');
-		form.append('slot_weather_teryt_powiat', '1433');
-		form.append('slot_weather_details_display', 'modal');
-		form.append('slot_weather_details_layout', 'stacked');
-		form.append('slot_weather_details_summary', 'Szczegóły');
-		form.append('slot_weather_details_close_label', 'Zamknij okno');
+		form.append('slot_weather_teryt_powiat__sidebar_weather', '1433');
+		form.append('slot_weather_details_display__sidebar_weather', 'modal');
+		form.append('slot_weather_details_layout__sidebar_weather', 'stacked');
+		form.append('slot_weather_details_summary__sidebar_weather', 'Szczegóły');
+		form.append('slot_weather_details_close_label__sidebar_weather', 'Zamknij okno');
 
 		const result = parseLayoutFromFormData(form, base);
 		expect(result.ok).toBe(true);

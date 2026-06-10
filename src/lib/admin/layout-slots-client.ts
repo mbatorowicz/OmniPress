@@ -1,27 +1,16 @@
 import { refreshLayoutSlotsPreview } from '@/lib/admin/layout-slots-preview-client';
+import {
+	buildDetailHtml,
+	componentToKind,
+	type LayoutComponentKind,
+	type SectionBuildConfig,
+} from '@/lib/admin/layout-slots-sections';
 
-export interface LayoutSlotsClientConfig {
+export interface LayoutSlotsClientConfig extends SectionBuildConfig {
 	removeSlotLabel: string;
-	variantDefault: string;
-	variantAlert: string;
-	styleImage: string;
-	styleText: string;
-	variantBannerDefault: string;
-	variantBannerBlue: string;
-	linkCategory: string;
-	linkPage: string;
-	linkExternal: string;
 	componentOptionsHtml: string;
 	singletonComponents: string[];
-	certAllLabel: string;
-}
-
-const FEED = ['home.pinned', 'home.latest', 'sidebar.recent_changes', 'sidebar.cert_advisories'];
-const BANNER = 'sidebar.banner';
-const CERT = 'sidebar.cert_advisories';
-
-function supportsHideWhenEmpty(component: string): boolean {
-	return component !== BANNER && (FEED.includes(component) || component === 'sidebar.weather');
+	sectionTitles: Record<LayoutComponentKind, string>;
 }
 
 function nextSlotOrder(slotsBody: HTMLElement): number {
@@ -42,78 +31,116 @@ function usedSingletons(slotsBody: HTMLElement, singletonComponents: string[]): 
 	return used;
 }
 
-function syncBannerSubfields(row: HTMLElement): void {
-	const style = (row.querySelector('.slot-banner-style') as HTMLSelectElement | null)?.value ?? 'image';
-	const linkType = (row.querySelector('.slot-banner-link-type') as HTMLSelectElement | null)?.value ?? 'category';
-	row.querySelectorAll('.slot-banner-field-image').forEach((el) => {
-		el.classList.toggle('slot-cell-hidden', style !== 'image');
+function syncBannerSubfields(block: HTMLElement): void {
+	const style = (block.querySelector('.slot-banner-style') as HTMLSelectElement | null)?.value ?? 'image';
+	const linkType = (block.querySelector('.slot-banner-link-type') as HTMLSelectElement | null)?.value ?? 'category';
+	block.querySelectorAll('.slot-banner-field-image').forEach((el) => {
+		el.classList.toggle('hidden', style !== 'image');
 	});
-	row.querySelectorAll('.slot-banner-field-text').forEach((el) => {
-		el.classList.toggle('slot-cell-hidden', style !== 'text');
+	block.querySelectorAll('.slot-banner-field-text').forEach((el) => {
+		el.classList.toggle('hidden', style !== 'text');
 	});
-	row.querySelectorAll('.slot-banner-field-category').forEach((el) => {
-		el.classList.toggle('slot-cell-hidden', linkType !== 'category');
+	block.querySelectorAll('.slot-banner-field-category').forEach((el) => {
+		el.classList.toggle('hidden', linkType !== 'category');
 	});
-	row.querySelectorAll('.slot-banner-field-page').forEach((el) => {
-		el.classList.toggle('slot-cell-hidden', linkType !== 'page');
+	block.querySelectorAll('.slot-banner-field-page').forEach((el) => {
+		el.classList.toggle('hidden', linkType !== 'page');
 	});
-	row.querySelectorAll('.slot-banner-field-external').forEach((el) => {
-		el.classList.toggle('slot-cell-hidden', linkType !== 'external');
+	block.querySelectorAll('.slot-banner-field-external').forEach((el) => {
+		el.classList.toggle('hidden', linkType !== 'external');
 	});
 }
 
-function syncSlotRowVisibility(row: HTMLElement): void {
+function bindBannerBlock(block: HTMLElement): void {
+	block.querySelector('.slot-banner-style')?.addEventListener('change', () => syncBannerSubfields(block));
+	block.querySelector('.slot-banner-link-type')?.addEventListener('change', () => syncBannerSubfields(block));
+	syncBannerSubfields(block);
+}
+
+function readRowSlot(row: HTMLElement): { id: string; label: string; component: string } | null {
+	const id = (row.querySelector('input[name="slot_id"]') as HTMLInputElement | null)?.value?.trim() ?? '';
+	const label = (row.querySelector('input[name="slot_label"]') as HTMLInputElement | null)?.value?.trim() ?? '';
 	const component = (row.querySelector('.slot-component') as HTMLSelectElement | null)?.value ?? '';
-	const isFeed = FEED.includes(component);
-	const isBanner = component === BANNER;
-	const isCert = component === CERT;
-	const canHideWhenEmpty = supportsHideWhenEmpty(component);
-	row.querySelectorAll('.slot-field-feed').forEach((el) => {
-		el.classList.toggle('slot-cell-hidden', !isFeed);
-	});
-	row.querySelectorAll('.slot-field-hide-empty').forEach((el) => {
-		el.classList.toggle('slot-cell-hidden', !canHideWhenEmpty);
-	});
-	row.querySelectorAll('.slot-field-cert').forEach((el) => {
-		el.classList.toggle('slot-cell-hidden', !isCert);
-	});
-	row.querySelectorAll('.slot-field-banner').forEach((el) => {
-		el.classList.toggle('slot-cell-hidden', !isBanner);
-	});
-	if (isBanner) syncBannerSubfields(row);
+	if (!id || !component) return null;
+	return { id, label: label || id, component };
 }
 
-function buildSlotRowHtml(config: LayoutSlotsClientConfig, id: string, order: number, categoryOptions: string, pageOptions: string, certOptions: string): string {
-	const c = config;
+function ensureKindSection(
+	sectionsRoot: HTMLElement,
+	kind: LayoutComponentKind,
+	title: string,
+): HTMLElement {
+	let section = sectionsRoot.querySelector(`.slot-kind-section[data-kind="${kind}"]`) as HTMLElement | null;
+	if (!section) {
+		section = document.createElement('div');
+		section.className = 'ui-divider-section slot-kind-section';
+		section.dataset.kind = kind;
+		section.innerHTML = `<h3 class="ui-section-title">${title}</h3>`;
+		sectionsRoot.appendChild(section);
+	}
+	section.hidden = false;
+	return section;
+}
+
+function hideEmptySections(sectionsRoot: HTMLElement): void {
+	sectionsRoot.querySelectorAll('.slot-kind-section').forEach((section) => {
+		const hasBlocks = section.querySelectorAll('.slot-detail-block').length > 0;
+		(section as HTMLElement).hidden = !hasBlocks;
+	});
+}
+
+function removeDetailBlock(sectionsRoot: HTMLElement, slotId: string): void {
+	sectionsRoot.querySelector(`.slot-detail-block[data-slot-id="${slotId}"]`)?.remove();
+	hideEmptySections(sectionsRoot);
+}
+
+function addDetailBlock(
+	sectionsRoot: HTMLElement,
+	kind: LayoutComponentKind,
+	id: string,
+	label: string,
+	config: LayoutSlotsClientConfig,
+): void {
+	const section = ensureKindSection(sectionsRoot, kind, config.sectionTitles[kind]);
+	const wrapper = document.createElement('div');
+	wrapper.innerHTML = buildDetailHtml(kind, id, label, config);
+	const block = wrapper.firstElementChild as HTMLElement;
+	section.appendChild(block);
+	if (kind === 'banner') bindBannerBlock(block);
+}
+
+function syncDetailForRow(
+	row: HTMLElement,
+	sectionsRoot: HTMLElement,
+	config: LayoutSlotsClientConfig,
+	previousKind: LayoutComponentKind | null,
+): void {
+	const slot = readRowSlot(row);
+	if (!slot) return;
+	const kind = componentToKind(slot.component);
+	removeDetailBlock(sectionsRoot, slot.id);
+	if (!kind) return;
+	if (previousKind === kind) {
+		const existing = sectionsRoot.querySelector(`.slot-detail-block[data-slot-id="${slot.id}"]`);
+		if (existing) return;
+	}
+	addDetailBlock(sectionsRoot, kind, slot.id, slot.label, config);
+}
+
+function buildListRowHtml(config: LayoutSlotsClientConfig, id: string, order: number): string {
 	return `
 		<td class="ui-table-dense-td"><input name="slot_id" value="${id}" required class="ui-input-compact ui-input-compact--mono w-24" /></td>
 		<td class="ui-table-dense-td"><input name="slot_label" required class="ui-input-compact w-32" /></td>
-		<td class="ui-table-dense-td"><select name="slot_component" class="slot-component ui-select-compact w-40">${c.componentOptionsHtml}</select></td>
+		<td class="ui-table-dense-td"><select name="slot_component" class="slot-component ui-select-compact w-48">${config.componentOptionsHtml}</select></td>
 		<td class="ui-table-dense-td"><input name="slot_widget_order" type="number" min="0" value="${order}" class="ui-input-compact w-16" /></td>
 		<td class="ui-table-dense-td text-center"><input type="checkbox" name="slot_enabled_${id}" checked /></td>
-		<td class="ui-table-dense-td slot-field-feed"><input name="slot_widget_title" class="ui-input-compact w-32" /></td>
-		<td class="ui-table-dense-td slot-field-feed"><input name="slot_widget_section_title" class="ui-input-compact w-32" /></td>
-		<td class="ui-table-dense-td slot-field-feed"><input name="slot_widget_limit" type="number" min="1" class="ui-input-compact w-16" /></td>
-		<td class="ui-table-dense-td slot-field-feed"><input name="slot_widget_empty_text" class="ui-input-compact w-32" /></td>
-		<td class="ui-table-dense-td slot-field-hide-empty text-center"><input type="checkbox" name="slot_hide_when_empty_${id}" /></td>
-		<td class="ui-table-dense-td slot-field-feed"><input name="slot_widget_more_link" class="ui-input-compact ui-input-compact--mono w-28" /></td>
-		<td class="ui-table-dense-td slot-field-feed"><select name="slot_widget_variant" class="ui-select-compact"><option value="default">${c.variantDefault}</option><option value="alert">${c.variantAlert}</option></select></td>
-		<td class="ui-table-dense-td slot-field-cert"><select name="slot_cert_category_filter" class="ui-select-compact w-36">${certOptions}</select></td>
-		<td class="ui-table-dense-td slot-field-banner"><select name="slot_banner_style" class="slot-banner-style ui-select-compact"><option value="image">${c.styleImage}</option><option value="text">${c.styleText}</option></select></td>
-		<td class="ui-table-dense-td slot-field-banner slot-banner-field-image"><input name="slot_banner_image_url" class="ui-input-compact ui-input-compact--mono w-36" /></td>
-		<td class="ui-table-dense-td slot-field-banner slot-banner-field-image"><select name="slot_banner_image_variant" class="ui-select-compact"><option value="default">${c.variantBannerDefault}</option><option value="blue">${c.variantBannerBlue}</option></select></td>
-		<td class="ui-table-dense-td slot-field-banner slot-banner-field-text"><input name="slot_banner_text_title" class="ui-input-compact w-28" /></td>
-		<td class="ui-table-dense-td slot-field-banner slot-banner-field-text"><input name="slot_banner_text_button" class="ui-input-compact w-24" /></td>
-		<td class="ui-table-dense-td slot-field-banner"><select name="slot_banner_link_type" class="slot-banner-link-type ui-select-compact"><option value="category">${c.linkCategory}</option><option value="page">${c.linkPage}</option><option value="external">${c.linkExternal}</option></select></td>
-		<td class="ui-table-dense-td slot-field-banner slot-banner-field-category"><select name="slot_banner_category_slug" class="ui-select-compact w-32">${categoryOptions}</select></td>
-		<td class="ui-table-dense-td slot-field-banner slot-banner-field-page"><select name="slot_banner_page_path" class="ui-select-compact w-36">${pageOptions}</select></td>
-		<td class="ui-table-dense-td slot-field-banner slot-banner-field-external"><input name="slot_banner_external_url" class="ui-input-compact ui-input-compact--mono w-36" placeholder="https://" /></td>
-		<td class="ui-table-dense-td"><button type="button" class="remove-slot ui-link--danger">${c.removeSlotLabel}</button></td>
+		<td class="ui-table-dense-td"><button type="button" class="remove-slot ui-link--danger">${config.removeSlotLabel}</button></td>
 	`;
 }
 
 export function initLayoutSlotsTable(config: LayoutSlotsClientConfig): void {
 	const slotsBody = document.getElementById('slots-body');
+	const sectionsRoot = document.getElementById('slots-kind-sections');
 	const addSlotBtn = document.getElementById('add-slot');
 	const addComponentSelect = document.getElementById('add-slot-component');
 	const categoryOptionsTpl = document.getElementById('slot-banner-category-options');
@@ -121,22 +148,49 @@ export function initLayoutSlotsTable(config: LayoutSlotsClientConfig): void {
 	const certOptionsTpl = document.getElementById('slot-cert-category-options');
 	const layoutForm = slotsBody?.closest('form');
 
-	if (!(slotsBody instanceof HTMLElement)) return;
+	if (!(slotsBody instanceof HTMLElement) || !(sectionsRoot instanceof HTMLElement)) return;
+
+	const sectionConfig: SectionBuildConfig = {
+		...config,
+		categoryOptionsHtml: categoryOptionsTpl?.innerHTML ?? '<option value="">—</option>',
+		pageOptionsHtml: pageOptionsTpl?.innerHTML ?? '<option value="">—</option>',
+		certOptionsHtml: certOptionsTpl?.innerHTML ?? `<option value="">${config.certAllLabel}</option>`,
+	};
+
+	const rowKindMap = new WeakMap<HTMLElement, LayoutComponentKind | null>();
 
 	function bindSlotRow(row: HTMLElement): void {
+		const slot = readRowSlot(row);
+		rowKindMap.set(row, slot ? componentToKind(slot.component) : null);
+
+		row.querySelectorAll('.slot-detail-block').forEach((block) => {
+			if (componentToKind(slot?.component ?? '') === 'banner') bindBannerBlock(block as HTMLElement);
+		});
+
 		row.querySelector('.slot-component')?.addEventListener('change', () => {
-			syncSlotRowVisibility(row);
+			const previousKind = rowKindMap.get(row) ?? null;
+			const current = readRowSlot(row);
+			rowKindMap.set(row, current ? componentToKind(current.component) : null);
+			syncDetailForRow(row, sectionsRoot, { ...config, ...sectionConfig }, previousKind);
 			refreshLayoutSlotsPreview();
 		});
-		row.querySelector('.slot-banner-style')?.addEventListener('change', () => syncBannerSubfields(row));
-		row.querySelector('.slot-banner-link-type')?.addEventListener('change', () => syncBannerSubfields(row));
+
 		row.querySelector('.remove-slot')?.addEventListener('click', () => {
 			if (slotsBody.querySelectorAll('.slot-row').length <= 1) return;
+			const slot = readRowSlot(row);
+			if (slot) removeDetailBlock(sectionsRoot, slot.id);
 			row.remove();
 			refreshLayoutSlotsPreview();
 		});
-		syncSlotRowVisibility(row);
 	}
+
+	sectionsRoot.querySelectorAll('.slot-detail-block').forEach((block) => {
+		const kind = (block.closest('.slot-kind-section') as HTMLElement | null)?.dataset.kind as
+			| LayoutComponentKind
+			| undefined;
+		if (kind === 'banner') bindBannerBlock(block as HTMLElement);
+	});
+	hideEmptySections(sectionsRoot);
 
 	slotsBody.querySelectorAll('.slot-row').forEach((row) => bindSlotRow(row as HTMLElement));
 
@@ -144,7 +198,10 @@ export function initLayoutSlotsTable(config: LayoutSlotsClientConfig): void {
 		slotsBody.querySelectorAll('.slot-row').forEach((row) => {
 			const label = (row.querySelector('input[name="slot_label"]') as HTMLInputElement | null)?.value?.trim();
 			const id = (row.querySelector('input[name="slot_id"]') as HTMLInputElement | null)?.value?.trim();
-			if (!label || !id) row.remove();
+			if (!label || !id) {
+				removeDetailBlock(sectionsRoot, id ?? '');
+				row.remove();
+			}
 		});
 	});
 
@@ -157,18 +214,19 @@ export function initLayoutSlotsTable(config: LayoutSlotsClientConfig): void {
 			return;
 		}
 
+		const kind = componentToKind(component);
+		if (!kind) return;
+
 		const id = `slot_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 		const order = nextSlotOrder(slotsBody);
-		const categoryOptions = categoryOptionsTpl?.innerHTML ?? '<option value="">—</option>';
-		const pageOptions = pageOptionsTpl?.innerHTML ?? '<option value="">—</option>';
-		const certOptions = certOptionsTpl?.innerHTML ?? `<option value="">${config.certAllLabel}</option>`;
 		const tr = document.createElement('tr');
 		tr.className = 'slot-row ui-table-dense-row';
 		tr.dataset.slotId = id;
-		tr.innerHTML = buildSlotRowHtml(config, id, order, categoryOptions, pageOptions, certOptions);
+		tr.innerHTML = buildListRowHtml(config, id, order);
 		const compSelect = tr.querySelector('.slot-component') as HTMLSelectElement | null;
 		if (compSelect) compSelect.value = component;
 		slotsBody.appendChild(tr);
+		addDetailBlock(sectionsRoot, kind, id, '', { ...config, ...sectionConfig });
 		bindSlotRow(tr);
 		refreshLayoutSlotsPreview();
 	});

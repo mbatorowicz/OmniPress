@@ -81,9 +81,13 @@ function sortByOrder(slots: SlotRowData[]): SlotRowData[] {
 
 function highlightRow(row: HTMLElement): void {
 	const slotsBody = row.closest('#slots-body');
+	const slotId = (row.querySelector('input[name="slot_id"]') as HTMLInputElement | null)?.value?.trim();
 	slotsBody?.querySelectorAll('.slot-row').forEach((tr) => tr.classList.remove(HIGHLIGHT_CLASS));
 	row.classList.add(HIGHLIGHT_CLASS);
-	row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+	const detail = slotId
+		? document.querySelector(`.slot-detail-block[data-slot-id="${slotId}"]`)
+		: null;
+	(detail ?? row).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function buildCardHtml(
