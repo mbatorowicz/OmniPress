@@ -38,6 +38,10 @@ export type SlotWidgetConfig = {
 	mapZoom?: number;
 	showMap?: boolean;
 	mapScopePowiaty?: string[];
+	detailsDisplay?: 'modal' | 'inline';
+	detailsLayout?: 'stacked' | 'grid';
+	detailsSummary?: string;
+	detailsCloseLabel?: string;
 	/** sidebar.banner — alt; domyślnie slot.label */
 	bannerLabel?: string;
 	style?: 'image' | 'text';

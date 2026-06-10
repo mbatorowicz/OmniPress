@@ -43,6 +43,11 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 	const weatherLon = form.getAll('slot_weather_lon');
 	const weatherZoom = form.getAll('slot_weather_map_zoom');
 	const weatherScope = form.getAll('slot_weather_map_scope').map((v) => String(v).trim());
+	const weatherDetailsDisplay = form.getAll('slot_weather_details_display').map((v) => String(v).trim());
+	const weatherDetailsLayout = form.getAll('slot_weather_details_layout').map((v) => String(v).trim());
+	const weatherDetailsSummary = form.getAll('slot_weather_details_summary').map((v) => String(v).trim());
+	const weatherDetailsCloseLabel = form.getAll('slot_weather_details_close_label').map((v) => String(v).trim());
+
 	const weatherBySlotId = new Map<
 		string,
 		{
@@ -51,6 +56,10 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 			mapZoom?: number;
 			showMap?: boolean;
 			mapScopePowiaty?: string[];
+			detailsDisplay?: 'modal' | 'inline';
+			detailsLayout?: 'stacked' | 'grid';
+			detailsSummary?: string;
+			detailsCloseLabel?: string;
 		}
 	>();
 
@@ -63,6 +72,10 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 			mapZoom?: number;
 			showMap?: boolean;
 			mapScopePowiaty?: string[];
+			detailsDisplay?: 'modal' | 'inline';
+			detailsLayout?: 'stacked' | 'grid';
+			detailsSummary?: string;
+			detailsCloseLabel?: string;
 		} = {};
 		if (weatherTeryt[i]) entry.terytPowiat = weatherTeryt[i];
 		const lat = Number(String(weatherLat[i] ?? '').trim());
@@ -77,6 +90,16 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 				.map((c) => c.trim())
 				.filter(Boolean);
 		}
+		const detailsDisplay = weatherDetailsDisplay[i];
+		if (detailsDisplay === 'modal' || detailsDisplay === 'inline') {
+			entry.detailsDisplay = detailsDisplay;
+		}
+		const detailsLayout = weatherDetailsLayout[i];
+		if (detailsLayout === 'stacked' || detailsLayout === 'grid') {
+			entry.detailsLayout = detailsLayout;
+		}
+		if (weatherDetailsSummary[i]) entry.detailsSummary = weatherDetailsSummary[i];
+		if (weatherDetailsCloseLabel[i]) entry.detailsCloseLabel = weatherDetailsCloseLabel[i];
 		weatherBySlotId.set(weatherId, entry);
 	}
 
@@ -133,6 +156,10 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 		if (weather?.mapZoom) widget.mapZoom = weather.mapZoom;
 		if (weather?.showMap === false) widget.showMap = false;
 		if (weather?.mapScopePowiaty?.length) widget.mapScopePowiaty = weather.mapScopePowiaty;
+		if (weather?.detailsDisplay) widget.detailsDisplay = weather.detailsDisplay;
+		if (weather?.detailsLayout) widget.detailsLayout = weather.detailsLayout;
+		if (weather?.detailsSummary) widget.detailsSummary = weather.detailsSummary;
+		if (weather?.detailsCloseLabel) widget.detailsCloseLabel = weather.detailsCloseLabel;
 
 		slots.push({
 			id,

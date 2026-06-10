@@ -168,6 +168,16 @@ export const adminLayout = {
 		'Komunikaty pobierane z kanału RSS CERT Polska (moje.cert.pl). Po zapisie z sync do GitHub trafia plik omnipress-cert-advisories.json — widget na stronie Astro czyta ten plik.',
 	weatherHint:
 		'Ostrzeżenia IMGW (meteo.imgw.pl) dla powiatu jednostki. Cron raz dziennie (08:00 UTC) + sync przy zapisie layoutu aktualizuje omnipress-weather-warnings.json w repo Astro. Publiczne API (cache 2 h): /api/weather/warnings?terytPowiat=XXXX.',
+	weatherDetailsHint:
+		'Modal otwiera szczegóły w szerokim oknie nad stroną — zalecane dla czytelności długich treści ostrzeżeń.',
+	weatherDetailsDisplayOptions: {
+		modal: 'Modal — szerokie okno (zalecane)',
+		inline: 'Rozwijane w sidebarze',
+	},
+	weatherDetailsLayoutOptions: {
+		stacked: 'Jedna kolumna (zalecane)',
+		grid: 'Dwie kolumny (etykieta | wartość)',
+	},
 	certCategories: {
 		all: 'Wszystkie kategorie',
 	},
@@ -209,6 +219,10 @@ export const adminLayout = {
 		weatherMapZoom: 'Zoom mapy',
 		weatherMapScope: 'Sąsiednie powiaty (TERYT, po przecinku)',
 		weatherShowMap: 'Pokaż mini-mapę ostrzeżeń',
+		weatherDetailsDisplay: 'Sposób wyświetlania szczegółów',
+		weatherDetailsLayout: 'Układ pól szczegółów',
+		weatherDetailsSummary: 'Etykieta przycisku szczegółów',
+		weatherDetailsCloseLabel: 'Etykieta zamknięcia okna',
 		categorySlug: 'Slug',
 		categoryName: 'Nazwa',
 		category: 'Kategoria',

@@ -59,6 +59,18 @@ function parseWidget(raw: unknown): SlotWidgetConfig | undefined {
 			.filter(Boolean);
 		if (codes.length > 0) widget.mapScopePowiaty = codes;
 	}
+	if (w.detailsDisplay === 'modal' || w.detailsDisplay === 'inline') {
+		widget.detailsDisplay = w.detailsDisplay;
+	}
+	if (w.detailsLayout === 'stacked' || w.detailsLayout === 'grid') {
+		widget.detailsLayout = w.detailsLayout;
+	}
+	if (typeof w.detailsSummary === 'string' && w.detailsSummary.trim()) {
+		widget.detailsSummary = w.detailsSummary.trim();
+	}
+	if (typeof w.detailsCloseLabel === 'string' && w.detailsCloseLabel.trim()) {
+		widget.detailsCloseLabel = w.detailsCloseLabel.trim();
+	}
 	if (typeof w.bannerLabel === 'string' && w.bannerLabel.trim()) {
 		widget.bannerLabel = w.bannerLabel.trim();
 	}

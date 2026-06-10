@@ -46,7 +46,16 @@ describe('astro-layout parse', () => {
 					id: 'sidebar_weather',
 					label: 'Ostrzeżenia',
 					component: 'sidebar.weather',
-					widget: { title: 'Ostrzeżenia', limit: 5, terytPowiat: '1465', mapCenter: { lat: 52, lon: 21 } },
+					widget: {
+						title: 'Ostrzeżenia',
+						limit: 5,
+						terytPowiat: '1465',
+						mapCenter: { lat: 52, lon: 21 },
+						detailsDisplay: 'modal',
+						detailsLayout: 'stacked',
+						detailsSummary: 'Pełne szczegóły',
+						detailsCloseLabel: 'Zamknij',
+					},
 				},
 				{
 					id: 'sidebar_recent',
@@ -60,6 +69,10 @@ describe('astro-layout parse', () => {
 		const weather = parsed.slots.find((s) => s.component === 'sidebar.weather');
 		const recent = parsed.slots.find((s) => s.component === 'sidebar.recent_changes');
 		expect(weather?.widget?.terytPowiat).toBe('1465');
+		expect(weather?.widget?.detailsDisplay).toBe('modal');
+		expect(weather?.widget?.detailsLayout).toBe('stacked');
+		expect(weather?.widget?.detailsSummary).toBe('Pełne szczegóły');
+		expect(weather?.widget?.detailsCloseLabel).toBe('Zamknij');
 		expect(recent?.widget?.limit).toBe(3);
 		expect(parsed.displays).toEqual({});
 	});
@@ -149,5 +162,31 @@ describe('parseLayoutFromFormData', () => {
 		const displays = mergeCategoryDisplays(sampleSlots, { home_pinned: ['x'] });
 		expect(displays.home_pinned).toEqual(['x']);
 		expect(displays.sidebar_weather).toBeUndefined();
+	});
+
+	it('parsuje ustawienia szczegółów pogody z formularza', () => {
+		const form = new FormData();
+		form.set('navigation_json', '[{"label":"Kontakt","href":"/kontakt"}]');
+		form.append('category_slug', 'pogoda');
+		form.append('category_name', 'Pogoda');
+		form.append('slot_id', 'sidebar_weather');
+		form.append('slot_label', 'Ostrzeżenia');
+		form.append('slot_component', 'sidebar.weather');
+		form.set('slot_enabled_sidebar_weather', 'on');
+		form.append('slot_weather_id', 'sidebar_weather');
+		form.append('slot_weather_teryt_powiat', '1433');
+		form.append('slot_weather_details_display', 'modal');
+		form.append('slot_weather_details_layout', 'stacked');
+		form.append('slot_weather_details_summary', 'Szczegóły');
+		form.append('slot_weather_details_close_label', 'Zamknij okno');
+
+		const result = parseLayoutFromFormData(form, base);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		const weather = result.layout.slots.find((s) => s.component === 'sidebar.weather');
+		expect(weather?.widget?.detailsDisplay).toBe('modal');
+		expect(weather?.widget?.detailsLayout).toBe('stacked');
+		expect(weather?.widget?.detailsSummary).toBe('Szczegóły');
+		expect(weather?.widget?.detailsCloseLabel).toBe('Zamknij okno');
 	});
 });
