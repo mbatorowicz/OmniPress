@@ -3,6 +3,7 @@ interface Props {
 	id?: string;
 	name?: string;
 	rows?: number;
+	value?: string;
 	placeholder?: string;
 	required?: boolean;
 	disabled?: boolean;
@@ -15,6 +16,7 @@ const {
 	id,
 	name,
 	rows,
+	value = '',
 	placeholder,
 	required,
 	disabled,
@@ -33,6 +35,4 @@ const {
 	{disabled}
 	{readonly}
 	class:list={['ui-textarea', mono ? 'ui-textarea--mono' : '', className]}
->
-	<slot />
-</textarea>
+>{value}</textarea>

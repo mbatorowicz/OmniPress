@@ -19,7 +19,7 @@ const navigationJson = JSON.stringify(layout.navigation, null, '\t');
 	<p class="ui-hint">{adminLayout.menuHint}</p>
 	<Label>
 		<span class="font-medium">{adminLayout.fields.navigationJson}</span>
-		<Textarea name="navigation_json" rows={16} mono required>{navigationJson}</Textarea>
+		<Textarea name="navigation_json" rows={16} mono required value={navigationJson} />
 	</Label>
 	<p class="ui-hint">
 		{adminLayout.paths.navigation}: <code class="ui-code">{layout.navigationPath}</code>

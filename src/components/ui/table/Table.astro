@@ -3,17 +3,18 @@ interface Props {
 	dense?: boolean;
 	wrap?: boolean;
 	class?: string;
+	wrapClass?: string;
 	id?: string;
 }
 
-const { dense, wrap = true, class: className = '', id } = Astro.props;
+const { dense, wrap = true, class: className = '', wrapClass = '', id } = Astro.props;
 const tableClass = dense ? 'ui-table-dense' : 'ui-table';
 ---
 
 {
 	wrap ? (
-		<div class={`ui-table-wrap ${className}`}>
-			<table class={tableClass} {id}>
+		<div class:list={['ui-table-wrap', wrapClass]}>
+			<table class:list={[tableClass, className]} {id}>
 				<slot />
 			</table>
 		</div>

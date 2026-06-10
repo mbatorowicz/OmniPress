@@ -19,7 +19,7 @@ const { layout } = Astro.props;
 <Panel class="ui-form-section">
 	<SectionTitle>{adminLayout.sections.categories}</SectionTitle>
 	<p class="ui-hint">{adminLayout.categoriesHint}</p>
-	<Table dense wrap class="min-w-[28rem]" id="categories-table">
+	<Table dense wrap class="min-w-[28rem] w-full" id="categories-table">
 		<TableHead dense>
 			<TableRow dense>
 				<TableCell header dense wide>{adminLayout.fields.categorySlug}</TableCell>

@@ -24,7 +24,7 @@ const categoryFeedSlots = getCategoryFeedSlots(layout.slots);
 		categoryFeedSlots.length === 0 ? (
 			<p class="ui-hint--warning">{adminLayout.errors.no_category_feed_slots}</p>
 		) : (
-			<Table dense wrap class="min-w-[32rem]">
+			<Table dense wrap class="min-w-[32rem] w-full">
 				<TableHead dense>
 					<TableRow dense>
 						<TableCell header dense wide>{adminLayout.fields.category}</TableCell>
