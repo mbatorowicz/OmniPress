@@ -1,12 +1,11 @@
 import type { WeatherSlotWidgetConfig } from '@/lib/astro-layout/types';
 import { powiatName14 } from './powiaty-14';
-import {
-	buildMapScope,
-	type OsmetTerytResponse,
-	type OsmetWarning,
-	type WeatherWarning,
-	type WeatherWarningLevel,
-	type WeatherWarningsFile,
+import type {
+	OsmetTerytResponse,
+	OsmetWarning,
+	WeatherWarning,
+	WeatherWarningLevel,
+	WeatherWarningsFile,
 } from './types';
 
 const VOIVODESHIP_PREFIX = '14';

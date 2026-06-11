@@ -1,5 +1,3 @@
-import type { WeatherSlotWidgetConfig } from '@/lib/astro-layout/types';
-
 export const OSMET_TERYT_URL =
 	'https://meteo.imgw.pl/api/meteo/messages/v1/osmet/latest/osmet-teryt';
 
@@ -76,35 +74,3 @@ export type OsmetTerytResponse = {
 	};
 };
 
-export const DEFAULT_WEATHER_WARNINGS_PATH = 'src/config/omnipress-weather-warnings.json';
-
-export function weatherWarningsPath(config: Record<string, unknown>): string {
-	const raw = config.weather_warnings_path;
-	return typeof raw === 'string' && raw.trim() ? raw.trim() : DEFAULT_WEATHER_WARNINGS_PATH;
-}
-
-export function emptyWeatherWarningsFile(config: WeatherSlotWidgetConfig): WeatherWarningsFile {
-	const mapScope = buildMapScope(config);
-	return {
-		updatedAt: new Date().toISOString(),
-		source: 'IMGW-PIB',
-		config: {
-			terytPowiat: config.terytPowiat ?? '',
-			mapCenter: config.mapCenter ?? { lat: 0, lon: 0 },
-			mapZoom: config.mapZoom ?? 11,
-			showMap: config.showMap !== false,
-			mapScopePowiaty: config.mapScopePowiaty ?? [],
-		},
-		active: [],
-		terytLevels: {},
-		mapHighlight: mapScope,
-		mapScope,
-	};
-}
-
-export function buildMapScope(config: WeatherSlotWidgetConfig): string[] {
-	const primary = config.terytPowiat?.trim();
-	if (!primary) return [];
-	const neighbors = (config.mapScopePowiaty ?? []).map((c) => c.trim()).filter(Boolean);
-	return [primary, ...neighbors.filter((c) => c !== primary)];
-}

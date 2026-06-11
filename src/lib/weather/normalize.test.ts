@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { findWeatherSlot } from './filter';
 import { buildTerytLevels, normalizeOsmetTeryt } from './normalize';
 import sample from './fixtures/osmet-teryt.sample.json';
 import type { OsmetTerytResponse } from './types';
@@ -70,48 +69,5 @@ describe('buildTerytLevels', () => {
 		const activeIds = new Set(['Sk20260609034355961']);
 		const levels = buildTerytLevels(teryt, raw.warnings, ['1213'], activeIds);
 		expect(levels['1213']).toBe(1);
-	});
-});
-
-describe('findWeatherSlot', () => {
-	it('finds enabled sidebar.weather with terytPowiat', () => {
-		const config = findWeatherSlot({
-			navigation: [],
-			categoryDisplays: {},
-			categories: [],
-			slots: [
-				{
-					id: 'sidebar_weather',
-					label: 'Pogoda',
-					component: 'sidebar.weather',
-					widget: {
-						terytPowiat: '1433',
-						mapCenter: { lat: 52.47, lon: 22.09 },
-					},
-				},
-			],
-			navigationPath: '',
-			categoriesPath: '',
-		});
-		expect(config?.terytPowiat).toBe('1433');
-	});
-
-	it('returns null when terytPowiat missing', () => {
-		const config = findWeatherSlot({
-			navigation: [],
-			categoryDisplays: {},
-			categories: [],
-			slots: [
-				{
-					id: 'sidebar_weather',
-					label: 'Pogoda',
-					component: 'sidebar.weather',
-					widget: { enabled: true },
-				},
-			],
-			navigationPath: '',
-			categoriesPath: '',
-		});
-		expect(config).toBeNull();
 	});
 });

@@ -18,18 +18,3 @@ export type CertAdvisory = {
 	category: string;
 };
 
-export type CertAdvisoriesFile = {
-	updatedAt: string;
-	entries: CertAdvisory[];
-};
-
-export const DEFAULT_CERT_ADVISORIES_PATH = 'src/config/omnipress-cert-advisories.json';
-
-export function emptyCertAdvisoriesFile(): CertAdvisoriesFile {
-	return { updatedAt: new Date().toISOString(), entries: [] };
-}
-
-export function certAdvisoriesPath(config: Record<string, unknown>): string {
-	const raw = config.cert_advisories_path;
-	return typeof raw === 'string' && raw.trim() ? raw.trim() : DEFAULT_CERT_ADVISORIES_PATH;
-}
