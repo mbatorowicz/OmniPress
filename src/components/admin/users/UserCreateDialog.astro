@@ -1,21 +1,34 @@
 ---
+import Alert from '@/components/ui/feedback/Alert.astro';
 import Button from '@/components/ui/actions/Button.astro';
-import PageHeader from '@/components/ui/layout/PageHeader.astro';
-import Panel from '@/components/ui/layout/Panel.astro';
 import { adminUsers } from '@/i18n';
 import type { SiteRow } from '@/lib/posts/site';
 
 interface Props {
 	sites: SiteRow[];
+	errorMessage: string | null;
 }
 
-const { sites } = Astro.props;
+const { sites, errorMessage } = Astro.props;
 const t = adminUsers.create;
 ---
 
-<Panel class="mb-8">
-	<PageHeader title={t.heading} lead={t.lead} />
-	<form method="post" action="/api/admin/users/create" class="mt-4 max-w-lg space-y-4">
+<Button type="button" id="user-create-open">{t.open}</Button>
+
+<dialog id="user-create-dialog" class="ui-dialog" data-open={errorMessage ? 'true' : 'false'}>
+	<div class="ui-dialog-header">
+		<div>
+			<h2 class="ui-heading">{t.heading}</h2>
+			<p class="ui-lead">{t.lead}</p>
+		</div>
+		<button type="button" id="user-create-close" class="ui-dialog-close" aria-label={t.closeAria}>
+			✕
+		</button>
+	</div>
+
+	{errorMessage && <Alert variant="error">{errorMessage}</Alert>}
+
+	<form method="post" action="/api/admin/users/create" class="space-y-4">
 		<label class="ui-label">
 			<span class="font-medium">{t.email}</span>
 			<input name="email" type="email" required class="ui-input" />
@@ -74,6 +87,19 @@ const t = adminUsers.create;
 				</label>
 			)
 		}
-		<Button type="submit">{t.submit}</Button>
+		<div class="flex gap-3 pt-2">
+			<Button type="submit">{t.submit}</Button>
+			<Button type="button" variant="secondary" id="user-create-cancel">{t.cancel}</Button>
+		</div>
 	</form>
-</Panel>
+</dialog>
+
+<script>
+	const dialog = document.getElementById('user-create-dialog') as HTMLDialogElement | null;
+	const open = () => dialog?.showModal();
+	const close = () => dialog?.close();
+	document.getElementById('user-create-open')?.addEventListener('click', open);
+	document.getElementById('user-create-close')?.addEventListener('click', close);
+	document.getElementById('user-create-cancel')?.addEventListener('click', close);
+	if (dialog?.dataset.open === 'true') open();
+</script>

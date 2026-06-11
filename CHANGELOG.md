@@ -13,7 +13,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Dodane
 
-- **Użytkownicy** (`/admin/users`, zastępuje `/admin/editors` — redirect 301): konta administratorów i redaktorów; tworzenie z rolą, ustawienia konta (nazwa, rola, hasło), uprawnienia redaktora (strony + domyślna), usuwanie kont.
+- **Użytkownicy** (`/admin/users`, zastępuje `/admin/editors` — redirect 301): konta administratorów i redaktorów; tworzenie z rolą w oknie modalnym („+ Nowy użytkownik”), ustawienia konta (nazwa, rola, hasło), uprawnienia redaktora (strony + domyślna), usuwanie kont.
 - Zabezpieczenia: nie można usunąć własnego konta ani usunąć/zdegradować ostatniego administratora.
 - Migracja `setup:author-on-delete` — po usunięciu konta wpisy i strony statyczne zostają (`author_id = null`, w UI „konto usunięte”).
 

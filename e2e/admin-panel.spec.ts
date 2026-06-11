@@ -31,8 +31,14 @@ test.describe('panel administratora', () => {
 	test('/admin/users renderuje panel użytkowników', async ({ page }) => {
 		await page.goto('/admin/users');
 		await expect(page.getByRole('heading', { name: adminUsers.title })).toBeVisible();
-		await expect(page.getByText(adminUsers.create.heading)).toBeVisible();
 		await expect(page.getByText(adminUsers.list.heading)).toBeVisible();
+
+		// Formularz dodawania otwiera się w oknie modalnym.
+		await expect(page.getByText(adminUsers.create.heading)).toBeHidden();
+		await page.getByRole('button', { name: adminUsers.create.open }).click();
+		await expect(page.getByText(adminUsers.create.heading)).toBeVisible();
+		await page.getByRole('button', { name: adminUsers.create.cancel }).click();
+		await expect(page.getByText(adminUsers.create.heading)).toBeHidden();
 	});
 
 	test('/admin/editors przekierowuje do /admin/users', async ({ page }) => {

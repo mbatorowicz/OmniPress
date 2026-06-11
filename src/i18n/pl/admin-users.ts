@@ -7,6 +7,9 @@ export const adminUsers = {
 		editor: 'Redaktor',
 	},
 	create: {
+		open: '+ Nowy użytkownik',
+		cancel: 'Anuluj',
+		closeAria: 'Zamknij okno',
 		heading: 'Nowy użytkownik',
 		lead: 'Konto loguje się na /login (e-mail + hasło). Hasło przekaż użytkownikowi bezpiecznym kanałem.',
 		email: 'E-mail',

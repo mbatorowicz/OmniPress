@@ -69,7 +69,7 @@ Po akceptacji wpisu worker publikuje na GitHub; opcjonalnie czeka na deploy Verc
 
 Konta **administratorów i redaktorów** w jednym panelu (stare `/admin/editors` przekierowuje tutaj).
 
-- **Tworzenie:** e-mail + hasło startowe + rola (administrator / redaktor); redaktorowi zaznacz **dostępne strony** i **domyślną stronę** (używaną przy „+ Nowy artykuł”).
+- **Tworzenie:** przycisk **„+ Nowy użytkownik”** otwiera okno modalne — e-mail + hasło startowe + rola (administrator / redaktor); redaktorowi zaznacz **dostępne strony** i **domyślną stronę** (używaną przy „+ Nowy artykuł”).
 - **Ustawienia konta** (`/admin/users/[id]`): nazwa wyświetlana, zmiana roli, nowe hasło.
 - **Uprawnienia:** redaktor — przypisane strony + domyślna; administrator — pełny dostęp.
 - **Usuwanie:** konto znika, wpisy zostają w systemie (autor: „konto usunięte”). Nie można usunąć własnego konta ani ostatniego administratora.
