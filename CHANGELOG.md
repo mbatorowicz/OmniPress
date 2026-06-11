@@ -3,6 +3,20 @@
 Format: [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+commit`.
 
+## [0.9.0] — 2026-06-11
+
+### Zmienione
+
+- Nawigacja: pełny rozdział **Administracja / Panel treści** (przyciski w nagłówku); sidebar tylko w `/admin/*` z trzema pozycjami: *Kolejka wpisów*, *Strony*, *Użytkownicy*.
+- Kolejka wpisów: 3 sekcje (*Do akceptacji*, *Zaplanowane*, *Opublikowane*); wpisy w trakcie publikacji w sekcji *Zaplanowane* ze znacznikiem **W toku**.
+- Strony (`/admin/sites`): lista jako **kafelki** + kafelek „+ Dodaj stronę”; kliknięcie kafelka otwiera ustawienia strony; etykiety „jednostka” → „strona”.
+
+### Dodane
+
+- **Użytkownicy** (`/admin/users`, zastępuje `/admin/editors` — redirect 301): konta administratorów i redaktorów; tworzenie z rolą, ustawienia konta (nazwa, rola, hasło), uprawnienia redaktora (strony + domyślna), usuwanie kont.
+- Zabezpieczenia: nie można usunąć własnego konta ani usunąć/zdegradować ostatniego administratora.
+- Migracja `setup:author-on-delete` — po usunięciu konta wpisy i strony statyczne zostają (`author_id = null`, w UI „konto usunięte”).
+
 ## [0.8.1] — 2026-06-11
 
 ### Dodane

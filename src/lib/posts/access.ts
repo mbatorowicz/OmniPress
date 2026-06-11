@@ -3,7 +3,8 @@ import type { PostStatus, UserRole } from '../types';
 
 export type PostRow = {
 	id: string;
-	author_id: string;
+	/** Null po usunięciu konta autora (FK on delete set null). */
+	author_id: string | null;
 	site_id: string;
 	title: string;
 	content_md: string;

@@ -9,6 +9,7 @@ import type { SiteRow } from '@/lib/posts/site';
 type PostRow = {
 	id: string;
 	title: string;
+	status?: string;
 	category_name: string | null;
 	category_slug: string | null;
 	updated_at: string;
@@ -21,29 +22,19 @@ interface Props {
 	sites: SiteRow[];
 	pending: PostRow[] | null;
 	scheduled: PostRow[] | null;
-	publishing: PostRow[] | null;
 	published: PostRow[] | null;
 	flashMessages: FlashMessage[];
 	defaultImportSiteId: string;
 	importSiteId: string | null;
 }
 
-const {
-	sites,
-	pending,
-	scheduled,
-	publishing,
-	published,
-	flashMessages,
-	defaultImportSiteId,
-	importSiteId,
-} = Astro.props;
+const { sites, pending, scheduled, published, flashMessages, defaultImportSiteId, importSiteId } =
+	Astro.props;
 const listLabels = admin.postList;
 
 const summary = [
 	{ id: 'pending', label: admin.queueNav.pending, count: pending?.length ?? 0 },
 	{ id: 'scheduled', label: admin.queueNav.scheduled, count: scheduled?.length ?? 0 },
-	{ id: 'publishing', label: admin.queueNav.publishing, count: publishing?.length ?? 0 },
 	{ id: 'published', label: admin.queueNav.published, count: published?.length ?? 0 },
 ];
 ---
@@ -79,15 +70,6 @@ const summary = [
 	labels={listLabels}
 	dateField="scheduled_publish_at"
 	dateColumnLabel={listLabels.colPublishAt}
-/>
-
-<AdminQueueSection
-	id="publishing"
-	title={admin.publishing.heading(publishing?.length ?? 0)}
-	empty={admin.publishing.empty}
-	posts={publishing}
-	labels={listLabels}
-	dateField="created_at"
 />
 
 <AdminQueueSection

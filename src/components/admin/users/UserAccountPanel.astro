@@ -1,0 +1,45 @@
+---
+import Button from '@/components/ui/actions/Button.astro';
+import PageHeader from '@/components/ui/layout/PageHeader.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+import { adminUsers } from '@/i18n';
+import type { UserListRow } from '@/lib/admin';
+
+interface Props {
+	user: UserListRow;
+	email: string | null;
+}
+
+const { user, email } = Astro.props;
+const t = adminUsers.account;
+---
+
+<Panel class="mb-8">
+	<PageHeader title={t.heading} />
+	<form method="post" action={`/api/admin/users/${user.id}/save`} class="mt-4 max-w-lg space-y-4">
+		{
+			email && (
+				<p class="text-sm">
+					<span class="font-medium">{t.email}:</span>
+					<span class="ml-1 text-slate-600">{email}</span>
+				</p>
+			)
+		}
+		<label class="ui-label">
+			<span class="font-medium">{t.displayName}</span>
+			<input name="display_name" class="ui-input" value={user.display_name ?? ''} />
+		</label>
+		<label class="ui-label">
+			<span class="font-medium">{t.role}</span>
+			<select name="role" class="ui-input ui-select max-w-xs">
+				<option value="editor" selected={user.role === 'editor'}>{adminUsers.roles.editor}</option>
+				<option value="admin" selected={user.role === 'admin'}>{adminUsers.roles.admin}</option>
+			</select>
+		</label>
+		<label class="ui-label">
+			<span>{t.newPassword}</span>
+			<input name="password" type="password" minlength={8} autocomplete="new-password" class="ui-input" />
+		</label>
+		<Button type="submit">{t.save}</Button>
+	</form>
+</Panel>

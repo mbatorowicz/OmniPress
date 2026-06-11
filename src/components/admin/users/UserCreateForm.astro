@@ -1,0 +1,79 @@
+---
+import Button from '@/components/ui/actions/Button.astro';
+import PageHeader from '@/components/ui/layout/PageHeader.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+import { adminUsers } from '@/i18n';
+import type { SiteRow } from '@/lib/posts/site';
+
+interface Props {
+	sites: SiteRow[];
+}
+
+const { sites } = Astro.props;
+const t = adminUsers.create;
+---
+
+<Panel class="mb-8">
+	<PageHeader title={t.heading} lead={t.lead} />
+	<form method="post" action="/api/admin/users/create" class="mt-4 max-w-lg space-y-4">
+		<label class="ui-label">
+			<span class="font-medium">{t.email}</span>
+			<input name="email" type="email" required class="ui-input" />
+		</label>
+		<label class="ui-label">
+			<span>{t.displayName}</span>
+			<input name="display_name" class="ui-input" />
+		</label>
+		<label class="ui-label">
+			<span class="font-medium">{t.password}</span>
+			<input
+				name="password"
+				type="password"
+				required
+				minlength={8}
+				autocomplete="new-password"
+				class="ui-input"
+			/>
+		</label>
+		<label class="ui-label">
+			<span class="font-medium">{t.role}</span>
+			<select name="role" class="ui-input ui-select max-w-xs">
+				<option value="editor">{adminUsers.roles.editor}</option>
+				<option value="admin">{adminUsers.roles.admin}</option>
+			</select>
+		</label>
+		{
+			sites.length > 0 ? (
+				<fieldset class="text-sm">
+					<legend class="mb-2 font-medium">{t.sites}</legend>
+					<ul class="space-y-2">
+						{sites.map((s) => (
+							<li>
+								<label class="flex items-center gap-2">
+									<input type="checkbox" name="site_ids" value={s.id} class="ui-checkbox" />
+									{s.name}
+								</label>
+							</li>
+						))}
+					</ul>
+				</fieldset>
+			) : (
+				<p class="text-sm text-amber-800">{t.noSites}</p>
+			)
+		}
+		{
+			sites.length > 0 && (
+				<label class="ui-label">
+					<span>{t.defaultSite}</span>
+					<select name="default_site_id" class="ui-input ui-select">
+						<option value="">{t.defaultSiteFirst}</option>
+						{sites.map((s) => (
+							<option value={s.id}>{s.name}</option>
+						))}
+					</select>
+				</label>
+			)
+		}
+		<Button type="submit">{t.submit}</Button>
+	</form>
+</Panel>

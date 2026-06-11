@@ -1,5 +1,6 @@
 ---
-import { common } from '@/i18n';
+import { admin, common } from '@/i18n';
+import Badge from '@/components/ui/feedback/Badge.astro';
 import Button from '@/components/ui/actions/Button.astro';
 import TableRow from '@/components/ui/table/TableRow.astro';
 import TableCell from '@/components/ui/table/TableCell.astro';
@@ -7,6 +8,7 @@ import TableCell from '@/components/ui/table/TableCell.astro';
 type PostRow = {
 	id: string;
 	title: string;
+	status?: string;
 	category_name: string | null;
 	category_slug: string | null;
 	updated_at: string;
@@ -41,6 +43,7 @@ const siteName = (post.sites as { name: string } | null)?.name ?? '—';
 		<a href={`/admin/posts/${post.id}`} class="ui-link">
 			{post.title || common.untitled}
 		</a>
+		{post.status === 'publishing' && <Badge variant="publishing">{admin.inProgressBadge}</Badge>}
 	</TableCell>
 	<TableCell class="text-slate-700">
 		{

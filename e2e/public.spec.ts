@@ -31,7 +31,7 @@ test.describe('strefa publiczna', () => {
 	});
 
 	test('trasy chronione przekierowują na /login', async ({ page }) => {
-		for (const path of ['/dashboard', '/admin', '/admin/sites', '/admin/editors']) {
+		for (const path of ['/dashboard', '/admin', '/admin/sites', '/admin/users']) {
 			await page.goto(path);
 			await expect(page, `trasa ${path}`).toHaveURL(/\/login$/);
 		}

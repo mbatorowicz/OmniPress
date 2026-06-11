@@ -10,9 +10,9 @@ export const admin = {
 	queueNav: {
 		pending: 'Do akceptacji',
 		scheduled: 'Zaplanowane',
-		publishing: 'W toku',
 		published: 'Opublikowane',
 	},
+	inProgressBadge: 'W toku',
 	pending: {
 		heading: (n: number) => `Do akceptacji (${n})`,
 		empty: 'Brak wpisów oczekujących.',
@@ -20,11 +20,7 @@ export const admin = {
 	scheduled: {
 		heading: (n: number) => `Zaplanowane (${n})`,
 		empty: 'Brak zaplanowanych publikacji.',
-		lead: 'Zaakceptowane — worker opublikuje automatycznie o wskazanej godzinie.',
-	},
-	publishing: {
-		heading: (n: number) => `Publikacja w toku (${n})`,
-		empty: 'Brak wpisów w kolejce.',
+		lead: 'Zaakceptowane — worker opublikuje automatycznie o wskazanej godzinie. Wpisy w trakcie publikacji mają znacznik „W toku”.',
 	},
 	published: {
 		heading: (n: number) => `Opublikowane — poprawka (${n})`,

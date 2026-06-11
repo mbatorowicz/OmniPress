@@ -1,0 +1,63 @@
+/** Teksty panelu zarządzania użytkownikami (administratorzy + redaktorzy). */
+export const adminUsers = {
+	title: 'Użytkownicy',
+	lead: 'Konta administratorów i redaktorów — dodawanie, ustawienia konta, uprawnienia.',
+	roles: {
+		admin: 'Administrator',
+		editor: 'Redaktor',
+	},
+	create: {
+		heading: 'Nowy użytkownik',
+		lead: 'Konto loguje się na /login (e-mail + hasło). Hasło przekaż użytkownikowi bezpiecznym kanałem.',
+		email: 'E-mail',
+		displayName: 'Imię i nazwisko (opcjonalnie)',
+		password: 'Hasło startowe (min. 8 znaków)',
+		role: 'Rola',
+		sites: 'Dostępne strony (redaktor)',
+		defaultSite: 'Domyślna strona',
+		defaultSiteFirst: '— pierwsza zaznaczona —',
+		noSites: 'Najpierw utwórz stronę.',
+		submit: 'Utwórz użytkownika',
+	},
+	list: {
+		heading: 'Konta użytkowników',
+		empty: 'Brak użytkowników — utwórz konto powyżej.',
+		you: 'to Ty',
+	},
+	account: {
+		heading: 'Ustawienia konta',
+		email: 'E-mail',
+		displayName: 'Imię i nazwisko',
+		role: 'Rola',
+		newPassword: 'Nowe hasło (puste = bez zmiany)',
+		save: 'Zapisz ustawienia',
+	},
+	permissions: {
+		heading: 'Uprawnienia',
+		adminInfo: 'Administrator ma dostęp do wszystkich stron i całej administracji.',
+		sites: 'Dostępne strony',
+		defaultSite: 'Domyślna strona',
+		save: 'Zapisz uprawnienia',
+	},
+	delete: {
+		heading: 'Usuń konto',
+		lead: 'Konto zostanie trwale usunięte. Wpisy użytkownika zostają w systemie (bez autora).',
+		confirm: 'Na pewno usunąć to konto? Tej operacji nie można cofnąć.',
+		submit: 'Usuń użytkownika',
+	},
+	deleted: 'Konto usunięte. Wpisy użytkownika pozostały w systemie.',
+	deletedAuthor: 'konto usunięte',
+	errors: {
+		not_configured:
+			'Brak SUPABASE_SERVICE_ROLE_KEY — ustaw zmienną na Vercel, aby zarządzać kontami.',
+		email_required: 'Podaj e-mail użytkownika.',
+		password_required: 'Hasło musi mieć co najmniej 8 znaków.',
+		invalid_role: 'Nieprawidłowa rola.',
+		create_failed: 'Nie udało się utworzyć konta (e-mail może już istnieć).',
+		save_failed: 'Zapis nie powiódł się.',
+		not_found: 'Użytkownik nie istnieje.',
+		self_delete: 'Nie możesz usunąć własnego konta.',
+		last_admin: 'Nie można usunąć ani zdegradować ostatniego administratora.',
+		delete_failed: 'Usunięcie konta nie powiodło się.',
+	},
+} as const;

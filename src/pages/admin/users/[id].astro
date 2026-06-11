@@ -1,0 +1,64 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import Alert from '@/components/ui/feedback/Alert.astro';
+import Badge from '@/components/ui/feedback/Badge.astro';
+import Button from '@/components/ui/actions/Button.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+import UserAccountPanel from '@/components/admin/users/UserAccountPanel.astro';
+import UserPermissionsPanel from '@/components/admin/users/UserPermissionsPanel.astro';
+import { adminUsers, common, layout } from '@/i18n';
+import { getEditorSiteIds, getUserEmail, getUserProfile, listSites } from '@/lib/admin';
+
+const { id } = Astro.params;
+if (!id) return Astro.redirect('/admin/users');
+
+const user = await getUserProfile(Astro.locals.supabase, id);
+if (!user) return Astro.redirect('/admin/users');
+
+const email = await getUserEmail(id);
+const sites = await listSites(Astro.locals.supabase);
+const assignedSiteIds = new Set(await getEditorSiteIds(Astro.locals.supabase, id));
+const isSelf = Astro.locals.user?.id === id;
+
+const saved = Astro.url.searchParams.get('saved') === '1';
+const errorCode = Astro.url.searchParams.get('error');
+const errorMessage =
+	errorCode && errorCode in adminUsers.errors
+		? adminUsers.errors[errorCode as keyof typeof adminUsers.errors]
+		: null;
+
+const heading = user.display_name || email || user.id.slice(0, 8);
+const breadcrumbs = [
+	{ label: layout.breadcrumb.admin, href: '/admin' },
+	{ label: layout.breadcrumb.users, href: '/admin/users' },
+	{ label: heading },
+];
+---
+
+<AppLayout title={adminUsers.title} {heading} {breadcrumbs}>
+	<p class="mb-4">
+		<Badge variant={user.role === 'admin' ? 'published' : 'neutral'}>
+			{adminUsers.roles[user.role]}
+		</Badge>
+	</p>
+
+	{saved && <Alert variant="success">{common.saved}</Alert>}
+	{errorMessage && <Alert variant="error">{errorMessage}</Alert>}
+
+	<UserAccountPanel {user} {email} />
+	<UserPermissionsPanel {user} {sites} {assignedSiteIds} />
+
+	{
+		!isSelf && (
+			<Panel variant="danger">
+				<h2 class="text-sm font-medium text-red-900">{adminUsers.delete.heading}</h2>
+				<p class="mt-1 text-sm text-red-800">{adminUsers.delete.lead}</p>
+				<form method="post" action={`/api/admin/users/${id}/delete`} class="mt-4">
+					<Button type="submit" variant="danger" confirm={adminUsers.delete.confirm}>
+						{adminUsers.delete.submit}
+					</Button>
+				</form>
+			</Panel>
+		)
+	}
+</AppLayout>

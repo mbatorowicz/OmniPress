@@ -59,6 +59,18 @@
 	.ui-list-card {
 		@apply divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white;
 	}
+	.ui-tile-grid {
+		@apply grid gap-4 sm:grid-cols-2 lg:grid-cols-3;
+	}
+	.ui-tile {
+		@apply flex flex-col gap-1 rounded-xl border border-slate-200 bg-white p-5 transition hover:border-brand/40 hover:shadow-sm;
+	}
+	.ui-tile--add {
+		@apply items-center justify-center border-dashed text-brand hover:bg-brand/5;
+	}
+	.ui-tile-title {
+		@apply text-base font-medium text-slate-900;
+	}
 	.ui-panel-summary {
 		@apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 -m-2 cursor-pointer select-none rounded-md p-2 text-lg font-medium text-slate-900 hover:text-brand;
 	}

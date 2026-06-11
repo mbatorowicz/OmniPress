@@ -1,6 +1,6 @@
-/** Teksty paneli admin CRUD (strony, destynacje, redaktorzy, akceptacja). */
+/** Teksty paneli admin CRUD (strony, destynacje, akceptacja). */
 export const adminSites = {
-	title: 'Jednostki (strony)',
+	title: 'Strony',
 	edit: 'Edytuj stronę',
 	fields: {
 		name: 'Nazwa',
@@ -11,47 +11,46 @@ export const adminSites = {
 	actions: {
 		save: 'Zapisz',
 		create: 'Utwórz',
-		editors: 'Redaktorzy',
-		delete: 'Usuń jednostkę',
+		delete: 'Usuń stronę',
 	},
 	delete: {
-		heading: 'Usuń jednostkę organizacyjną',
-		lead: 'Trwale usuwa stronę z OmniPress. Działa tylko gdy nie ma żadnych wpisów przypisanych do tej jednostki.',
+		heading: 'Usuń stronę',
+		lead: 'Trwale usuwa stronę z OmniPress. Działa tylko gdy nie ma żadnych wpisów przypisanych do tej strony.',
 		confirm: 'Rozumiem — usuń trwale',
 		postsCount: (n: number) => `(${n} wpisów)`,
 	},
 	errors: {
 		invalid_slug: 'Nieprawidłowy slug (min. 2 znaki, a-z, 0-9, myślnik).',
 		save_failed: 'Zapis strony nie powiódł się.',
-		has_posts: 'Nie można usunąć — są wpisy przypisane do tej jednostki. Użyj „nieaktywna” zamiast usuwania.',
+		has_posts: 'Nie można usunąć — są wpisy przypisane do tej strony. Użyj „nieaktywna” zamiast usuwania.',
 		delete_failed: 'Usunięcie nie powiodło się.',
 		delete_confirm: 'Zaznacz potwierdzenie przed usunięciem.',
 	},
-	deleted: 'Jednostka usunięta.',
-	wizardLink: 'Kreator: jednostka + Astro',
-	empty: 'Brak jednostek — utwórz pierwszą (np. UG Miedzna).',
-	lead: 'Kliknij nazwę jednostki, aby edytować GitHub, menu (Layout Astro), strony statyczne i ogłoszenia.',
+	deleted: 'Strona usunięta.',
+	addTile: '+ Dodaj stronę',
+	empty: 'Brak stron — utwórz pierwszą (np. UG Miedzna).',
+	lead: 'Kliknij kafelek, aby otworzyć ustawienia strony — GitHub, menu (Layout Astro), strony statyczne i ogłoszenia.',
 } as const;
 
 export const adminUnit = {
-	title: 'Nowa jednostka organizacyjna',
-	editTitle: 'Edytuj jednostkę',
+	title: 'Nowa strona',
+	editTitle: 'Ustawienia strony',
 	editLead: 'Nazwa strony i repozytorium GitHub (publikacja Astro) — w jednym miejscu.',
 	lead: 'Jednym krokiem: strona logiczna + repozytorium GitHub do publikacji.',
 	sections: {
-		unit: 'Jednostka',
+		unit: 'Strona',
 		astro: 'GitHub → Astro',
 	},
-	actions: { create: 'Utwórz jednostkę', save: 'Zapisz zmiany', edit: 'Edytuj' },
+	actions: { create: 'Utwórz stronę', save: 'Zapisz zmiany', edit: 'Edytuj' },
 	errors: {
-		name_required: 'Podaj nazwę jednostki.',
+		name_required: 'Podaj nazwę strony.',
 		invalid_slug: 'Nieprawidłowy slug (min. 2 znaki, a-z, 0-9, myślnik).',
 		no_channel: 'Skonfiguruj repozytorium GitHub (pola poniżej).',
 		config_repo: 'Podaj repozytorium w formacie owner/repo.',
 		site_failed: 'Nie udało się utworzyć strony.',
 		destination_failed: 'Nie udało się utworzyć destynacji.',
 		mapping_failed: 'Nie udało się powiązać destynacji ze stroną.',
-		not_found: 'Jednostka nie istnieje.',
+		not_found: 'Strona nie istnieje.',
 	},
 	credentialsNote: 'Token GitHub opcjonalny — możesz dodać później w edycji destynacji.',
 	astroHelp: {
@@ -74,7 +73,7 @@ export const adminSitePages = {
 	lead: 'Treści pod stałe adresy URL (np. /gmina/plan-ogolny). Tylko administrator — publikacja od razu do repozytorium Astro.',
 	empty: 'Brak stron — utwórz pierwszą stronę statyczną.',
 	create: '+ Nowa strona',
-	backToUnit: 'Wróć do jednostki',
+	backToUnit: 'Wróć do ustawień strony',
 	statusDraft: 'Szkic',
 	statusPublished: 'Opublikowana',
 	fields: {
@@ -354,39 +353,6 @@ export const adminDestinations = {
 		noEncryption: 'Brak ENCRYPTION_KEY — credentials nie zostaną zapisane (publikacja zablokowana).',
 	},
 	actions: { testChannel: 'Testuj połączenie' },
-} as const;
-
-export const adminEditors = {
-	title: 'Redaktorzy',
-	lead: 'Utwórz konto redaktora lub przypisz mu strony do publikacji szkiców.',
-	invite: {
-		heading: 'Nowy redaktor',
-		lead: 'Konto loguje się na /login (e-mail + hasło). Hasło przekaż redaktorowi bezpiecznym kanałem.',
-		email: 'E-mail',
-		displayName: 'Imię i nazwisko (opcjonalnie)',
-		password: 'Hasło startowe (min. 8 znaków)',
-		sites: 'Dostępne strony',
-		defaultSite: 'Domyślna strona',
-		defaultSiteFirst: '— pierwsza zaznaczona —',
-		noSites: 'Najpierw utwórz jednostkę organizacyjną (stronę).',
-		submit: 'Utwórz redaktora',
-	},
-	list: {
-		heading: 'Konta redaktorów',
-		empty: 'Brak redaktorów — utwórz konto powyżej.',
-	},
-	errors: {
-		not_configured: 'Brak SUPABASE_SERVICE_ROLE_KEY — utwórz redaktora skryptem lub ustaw zmienną na Vercel.',
-		email_required: 'Podaj e-mail redaktora.',
-		password_required: 'Hasło musi mieć co najmniej 8 znaków.',
-		create_failed: 'Nie udało się utworzyć konta (e-mail może już istnieć).',
-		save_failed: 'Zapis przypisania nie powiódł się.',
-	},
-	fields: {
-		sites: 'Dostępne strony',
-		defaultSite: 'Domyślna strona',
-	},
-	actions: { save: 'Zapisz przypisanie' },
 } as const;
 
 export const adminReview = {

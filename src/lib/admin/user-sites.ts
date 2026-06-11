@@ -1,18 +1,4 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Profile } from '@/lib/types';
-
-export type EditorRow = Pick<Profile, 'id' | 'display_name' | 'default_site_id'> & {
-	email?: string;
-};
-
-export async function listEditors(supabase: SupabaseClient): Promise<EditorRow[]> {
-	const { data } = await supabase
-		.from('profiles')
-		.select('id, display_name, default_site_id, role')
-		.eq('role', 'editor')
-		.order('display_name');
-	return (data ?? []) as EditorRow[];
-}
 
 export async function getEditorSiteIds(
 	supabase: SupabaseClient,

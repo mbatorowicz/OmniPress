@@ -54,7 +54,7 @@ Przewodnik po panelu redaktora. Stan funkcji: [STATUS.md](./STATUS.md).
 
 | Problem | Co zrobić |
 |---------|-----------|
-| „Brak przypisanej strony” | Poproś admina o przypisanie w `/admin/editors` |
+| „Brak przypisanej strony” | Poproś admina o przypisanie w `/admin/users` |
 | Brak kategorii na liście | Admin musi skonfigurować layout i plik kategorii w repo |
 | Nie mogę edytować | Wpis może być w statusie *Do akceptacji* lub *Opublikowany* (bez reopen) |
 | Upload nie działa | Zgłoś adminowi (bucket Storage) |

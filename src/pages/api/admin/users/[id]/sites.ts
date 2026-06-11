@@ -7,13 +7,13 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	if (isGuardBlocked(auth)) return auth;
 	const { supabase } = auth;
 	const userId = params.id;
-	if (!userId) return redirect('/admin/editors');
+	if (!userId) return redirect('/admin/users');
 
 	const form = await request.formData();
 	const siteIds = form.getAll('site_id').map(String);
 	const defaultSiteId = String(form.get('default_site_id') ?? '').trim() || null;
 
 	const result = await saveEditorSites(supabase, userId, siteIds, defaultSiteId);
-	if (!result.ok) return redirect(`/admin/editors/${userId}?error=save_failed`);
-	return redirect(`/admin/editors/${userId}?saved=1`);
+	if (!result.ok) return redirect(`/admin/users/${userId}?error=save_failed`);
+	return redirect(`/admin/users/${userId}?saved=1`);
 };

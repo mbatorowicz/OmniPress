@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.8.1** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.9.0** (kod + baza + panel).
 
 Produkcja: https://omni-press.vercel.app
 
@@ -25,7 +25,9 @@ Jedyny typ destynacji: **`github_astro`**.
 | Rola | Logowanie | Panel |
 |------|-----------|-------|
 | Redaktor | `/login` | `/dashboard`, `/dashboard/posts/[id]` |
-| Administrator | `/login` | `/admin`, `/admin/sites`, `/admin/units/*`, `/admin/editors/*`, `/admin/posts/[id]` |
+| Administrator | `/login` | `/admin`, `/admin/sites`, `/admin/units/*`, `/admin/users/*`, `/admin/posts/[id]` |
+
+Nawigacja: nagłówek z przyciskami *Administracja* / *Panel treści*; sidebar (tylko `/admin/*`): Kolejka wpisów, Strony, Użytkownicy. Stare `/admin/editors/*` przekierowuje (301) na `/admin/users/*`.
 
 Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 
@@ -53,10 +55,12 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 
 | Funkcja | Status |
 |---------|--------|
-| Jednostki organizacyjne (strona + GitHub w jednym formularzu) | ✅ `/admin/units/new`, `/admin/units/[id]` |
-| Lista stron | ✅ `/admin/sites` |
-| Redaktorzy + przypisanie stron | ✅ `/admin/editors` |
-| Kolejka: do akceptacji, zaplanowane, publikacja w toku, opublikowane | ✅ `/admin` |
+| Strony (jednostki) — strona + GitHub w jednym formularzu | ✅ `/admin/units/new`, `/admin/units/[id]` |
+| Lista stron jako kafelki + kafelek „+ Dodaj stronę” | ✅ `/admin/sites` |
+| Użytkownicy: admini + redaktorzy (tworzenie z rolą, ustawienia konta, hasło, usuwanie) | ✅ `/admin/users`, `/admin/users/[id]` |
+| Uprawnienia redaktora (strony + domyślna); blokada: własne konto / ostatni admin | ✅ |
+| Usunięcie konta zostawia wpisy (autor: „konto usunięte”) | ✅ migracja `setup:author-on-delete` |
+| Kolejka: do akceptacji, zaplanowane (ze znacznikiem „W toku”), opublikowane | ✅ `/admin` |
 | Akceptacja → kolejka publikacji GitHub (natychmiast lub o zaplanowanej godzinie) | ✅ |
 | Odrzucenie z `rejection_note` | ✅ |
 | Ponowne otwarcie wpisu (reopen) | ✅ |
@@ -105,6 +109,8 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub.
 | `20250613000000_profiles_self_update_guard.sql` | `setup:profiles-guard` |
 | `20250614000000_post_scheduled_publish.sql` | `setup:scheduled-publish` |
 | `20250615000000_site_pages.sql` | `setup:site-pages` |
+| `20250616000000_storage_import_admin.sql` | `setup:storage-import-admin` |
+| `20250617000000_author_on_delete_set_null.sql` | `setup:author-on-delete` |
 
 ---
 

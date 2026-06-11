@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { admin } from '@/i18n/pl/admin';
-import { adminEditors, adminSites, adminUnit } from '@/i18n/pl/admin-panels';
+import { adminSites, adminUnit } from '@/i18n/pl/admin-panels';
+import { adminUsers } from '@/i18n/pl/admin-users';
 import { dashboard } from '@/i18n/pl/dashboard';
 import { layout } from '@/i18n/pl/layout';
 
@@ -17,24 +18,29 @@ test.describe('panel administratora', () => {
 
 		const sidebar = page.getByRole('navigation', { name: layout.aria.sidebarNav });
 		await expect(sidebar.getByRole('link', { name: layout.sidebar.queue })).toBeVisible();
-		await expect(sidebar.getByRole('link', { name: layout.sidebar.units })).toBeVisible();
-		await expect(sidebar.getByRole('link', { name: layout.sidebar.editors })).toBeVisible();
+		await expect(sidebar.getByRole('link', { name: layout.sidebar.sites })).toBeVisible();
+		await expect(sidebar.getByRole('link', { name: layout.sidebar.users })).toBeVisible();
 	});
 
-	test('/admin/sites renderuje listę jednostek', async ({ page }) => {
+	test('/admin/sites renderuje kafelki stron', async ({ page }) => {
 		await page.goto('/admin/sites');
 		await expect(page.getByRole('heading', { name: adminSites.title })).toBeVisible();
-		await expect(page.getByRole('link', { name: adminSites.wizardLink })).toBeVisible();
+		await expect(page.getByRole('link', { name: adminSites.addTile })).toBeVisible();
 	});
 
-	test('/admin/editors renderuje panel redaktorów', async ({ page }) => {
+	test('/admin/users renderuje panel użytkowników', async ({ page }) => {
+		await page.goto('/admin/users');
+		await expect(page.getByRole('heading', { name: adminUsers.title })).toBeVisible();
+		await expect(page.getByText(adminUsers.create.heading)).toBeVisible();
+		await expect(page.getByText(adminUsers.list.heading)).toBeVisible();
+	});
+
+	test('/admin/editors przekierowuje do /admin/users', async ({ page }) => {
 		await page.goto('/admin/editors');
-		await expect(page.getByRole('heading', { name: adminEditors.title })).toBeVisible();
-		await expect(page.getByText(adminEditors.invite.heading)).toBeVisible();
-		await expect(page.getByText(adminEditors.list.heading)).toBeVisible();
+		await expect(page).toHaveURL(/\/admin\/users$/);
 	});
 
-	test('/admin/units/new renderuje kreator jednostki', async ({ page }) => {
+	test('/admin/units/new renderuje kreator strony', async ({ page }) => {
 		await page.goto('/admin/units/new');
 		await expect(page.getByRole('heading', { name: adminUnit.title })).toBeVisible();
 		await expect(page.getByRole('button', { name: adminUnit.actions.create })).toBeVisible();

@@ -1,0 +1,56 @@
+---
+import Button from '@/components/ui/actions/Button.astro';
+import PageHeader from '@/components/ui/layout/PageHeader.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+import { adminUsers } from '@/i18n';
+import type { UserListRow } from '@/lib/admin';
+import type { SiteRow } from '@/lib/posts/site';
+
+interface Props {
+	user: UserListRow;
+	sites: SiteRow[];
+	assignedSiteIds: Set<string>;
+}
+
+const { user, sites, assignedSiteIds } = Astro.props;
+const t = adminUsers.permissions;
+---
+
+<Panel class="mb-8">
+	<PageHeader title={t.heading} />
+	{
+		user.role === 'admin' ? (
+			<p class="mt-2 ui-muted">{t.adminInfo}</p>
+		) : (
+			<form method="post" action={`/api/admin/users/${user.id}/sites`} class="mt-4 max-w-lg space-y-4">
+				<fieldset>
+					<legend class="mb-2 text-sm font-medium">{t.sites}</legend>
+					{sites.map((s) => (
+						<label class="flex items-center gap-2 py-1 text-sm">
+							<input
+								type="checkbox"
+								name="site_id"
+								value={s.id}
+								checked={assignedSiteIds.has(s.id)}
+								class="ui-checkbox"
+							/>
+							{s.name}
+						</label>
+					))}
+				</fieldset>
+				<label class="ui-label">
+					<span class="font-medium">{t.defaultSite}</span>
+					<select name="default_site_id" class="ui-input ui-select max-w-xs">
+						<option value="">—</option>
+						{sites.map((s) => (
+							<option value={s.id} selected={user.default_site_id === s.id}>
+								{s.name}
+							</option>
+						))}
+					</select>
+				</label>
+				<Button type="submit">{t.save}</Button>
+			</form>
+		)
+	}
+</Panel>

@@ -3,7 +3,8 @@ export type PageStatus = 'draft' | 'published';
 export type SitePage = {
 	id: string;
 	site_id: string;
-	author_id: string;
+	/** Null po usunięciu konta autora (FK on delete set null). */
+	author_id: string | null;
 	title: string;
 	slug: string;
 	path_prefix: string;

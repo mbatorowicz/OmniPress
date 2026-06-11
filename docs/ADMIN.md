@@ -8,10 +8,11 @@ Operacyjny przewodnik po panelu OmniPress. Stan funkcji: [STATUS.md](./STATUS.md
 
 ## 0. Nawigacja panelu
 
-- **Sidebar** (stały, po lewej): *Kolejka wpisów* (`/admin`), *Panel treści* (`/dashboard`), *Jednostki (strony)* (`/admin/sites`), *+ Nowa jednostka*, *Redaktorzy* (`/admin/editors`). Na mobile — pozioma belka nad treścią.
-- **Breadcrumby** na każdej podstronie pokazują ścieżkę (np. `Administracja / Jednostki / UG Miedzna / Strony statyczne`).
-- W kontekście jednostki (`/admin/units/[id]/*`) dodatkowe zakładki: *Edytuj*, *Layout Astro*, *Strony statyczne*, *Ogłoś zmianę*.
-- `/admin` to wyłącznie kolejka wpisów — sekcje (*Do akceptacji*, *Zaplanowane*, *W toku*, *Opublikowane*) mają u góry podsumowanie z licznikami; import z GitHub jest zwijaną sekcją na dole.
+- **Nagłówek** (u góry): przyciski *Administracja* (`/admin`) i *Panel treści* (`/dashboard`) — lewe menu zależy od wyboru (panel treści nie ma sidebar).
+- **Sidebar** (tylko w `/admin/*`, po lewej): *Kolejka wpisów* (`/admin`), *Strony* (`/admin/sites`), *Użytkownicy* (`/admin/users`). Na mobile — pozioma belka nad treścią.
+- **Breadcrumby** na każdej podstronie pokazują ścieżkę (np. `Administracja / Strony / UG Miedzna / Strony statyczne`).
+- W kontekście strony (`/admin/units/[id]/*`) dodatkowe zakładki: *Edytuj*, *Layout Astro*, *Strony statyczne*, *Ogłoś zmianę*.
+- `/admin` to wyłącznie kolejka wpisów — sekcje (*Do akceptacji*, *Zaplanowane*, *Opublikowane*) mają u góry podsumowanie z licznikami; wpisy w trakcie publikacji są w sekcji *Zaplanowane* ze znacznikiem **W toku**; import z GitHub jest zwijaną sekcją na dole.
 
 ---
 
@@ -21,12 +22,12 @@ Operacyjny przewodnik po panelu OmniPress. Stan funkcji: [STATUS.md](./STATUS.md
 
 ```mermaid
 flowchart LR
-  unit[Jednostka + GitHub] --> editors[Redaktorzy user_sites]
+  unit[Strona + GitHub] --> editors[Użytkownicy user_sites]
   editors --> ready[Gotowe do treści]
 ```
 
-1. **Jednostka** — np. „UG Miedzna”, repo `mbatorowicz/gmina-miedzna.pl`, layout `folder`, ścieżka `src/content/news`.
-2. **Redaktor** (`/admin/editors`) — przypisz strony + domyślna strona.
+1. **Strona** — np. „UG Miedzna”, repo `mbatorowicz/gmina-miedzna.pl`, layout `folder`, ścieżka `src/content/news`.
+2. **Redaktor** (`/admin/users`) — utwórz konto z rolą *redaktor*, przypisz strony + domyślna strona.
 3. Redaktor loguje się na `/login` → `/dashboard`.
 
 Szczegóły wdrożenia technicznego: [WDROZENIE.md](./WDROZENIE.md).
@@ -35,13 +36,15 @@ Szczegóły wdrożenia technicznego: [WDROZENIE.md](./WDROZENIE.md).
 
 ## 2. Strony (`/admin/sites`)
 
+Lista stron jako **kafelki** — kliknięcie kafelka otwiera ustawienia strony (`/admin/units/[id]`); kafelek *+ Dodaj stronę* otwiera kreator (`/admin/units/new`).
+
 | Pole | Opis |
 |------|------|
 | Nazwa | Wyświetlana w panelu |
 | Slug | Identyfikator techniczny (`a-z`, `0-9`, myślnik) |
 | Aktywna | Nieaktywna strona — bez nowych wpisów (docelowo) |
 
-Edycja jednostki (GitHub, layout, import): `/admin/units/[id]`.
+Ustawienia strony (GitHub, layout, import): `/admin/units/[id]`.
 
 ---
 
@@ -62,10 +65,14 @@ Po akceptacji wpisu worker publikuje na GitHub; opcjonalnie czeka na deploy Verc
 
 ---
 
-## 4. Redaktorzy (`/admin/editors`)
+## 4. Użytkownicy (`/admin/users`)
 
-- Zaznacz **dostępne strony**.
-- Ustaw **domyślną stronę** (używaną przy „+ Nowy artykuł”).
+Konta **administratorów i redaktorów** w jednym panelu (stare `/admin/editors` przekierowuje tutaj).
+
+- **Tworzenie:** e-mail + hasło startowe + rola (administrator / redaktor); redaktorowi zaznacz **dostępne strony** i **domyślną stronę** (używaną przy „+ Nowy artykuł”).
+- **Ustawienia konta** (`/admin/users/[id]`): nazwa wyświetlana, zmiana roli, nowe hasło.
+- **Uprawnienia:** redaktor — przypisane strony + domyślna; administrator — pełny dostęp.
+- **Usuwanie:** konto znika, wpisy zostają w systemie (autor: „konto usunięte”). Nie można usunąć własnego konta ani ostatniego administratora.
 - Redaktor widzi **tylko własne** wpisy; nie widzi tokenów.
 
 ---

@@ -1,9 +1,7 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
 import Alert from '@/components/ui/feedback/Alert.astro';
-import Button from '@/components/ui/actions/Button.astro';
-import Panel from '@/components/ui/layout/Panel.astro';
-import { adminSites, adminUnit, layout } from '@/i18n';
+import { adminSites, layout } from '@/i18n';
 import { listSites } from '@/lib/admin';
 
 const sites = await listSites(Astro.locals.supabase);
@@ -16,39 +14,24 @@ const breadcrumbs = [
 ---
 
 <AppLayout title={adminSites.title} heading={adminSites.title} {breadcrumbs}>
-	<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-		<p class="text-sm text-slate-600">{adminSites.lead}</p>
-		<Button href="/admin/units/new">{adminSites.wizardLink}</Button>
-	</div>
+	<p class="mb-6 ui-muted">{adminSites.lead}</p>
 
 	{deleted && <Alert variant="success">{adminSites.deleted}</Alert>}
 
-	<Panel>
+	{sites.length === 0 && <p class="ui-empty mb-4">{adminSites.empty}</p>}
+
+	<div class="ui-tile-grid">
 		{
-			sites.length === 0 ? (
-				<p class="ui-empty">{adminSites.empty}</p>
-			) : (
-				<ul class="ui-list-divide">
-					{sites.map((s) => (
-						<li class="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
-							<div>
-								<a href={`/admin/units/${s.id}`} class="ui-link font-medium">
-									{s.name}
-								</a>
-								<span class="ml-2 text-slate-500">{s.slug}</span>
-								{!s.is_active && (
-									<span class="ml-2 rounded bg-slate-100 px-2 py-0.5 text-xs">
-										{adminSites.fields.inactive}
-									</span>
-								)}
-							</div>
-							<Button href={`/admin/units/${s.id}`} variant="secondary">
-								{adminUnit.actions.edit}
-							</Button>
-						</li>
-					))}
-				</ul>
-			)
+			sites.map((s) => (
+				<a href={`/admin/units/${s.id}`} class="ui-tile">
+					<span class="ui-tile-title">{s.name}</span>
+					<span class="ui-muted font-mono">{s.slug}</span>
+					{!s.is_active && <span class="ui-tag self-start text-xs">{adminSites.fields.inactive}</span>}
+				</a>
+			))
 		}
-	</Panel>
+		<a href="/admin/units/new" class="ui-tile ui-tile--add">
+			<span class="ui-tile-title text-brand">{adminSites.addTile}</span>
+		</a>
+	</div>
 </AppLayout>

@@ -39,6 +39,9 @@ const { data: published } = await supabase
 	.order('updated_at', { ascending: false })
 	.limit(30);
 
+// Wpisy w trakcie publikacji pokazujemy w sekcji „Zaplanowane” ze znacznikiem „W toku”.
+const scheduledQueue = [...(publishing ?? []), ...(scheduled ?? [])];
+
 const importSiteId = Astro.url.searchParams.get('site_id');
 const defaultImportSiteId =
 	importSiteId && sites.some((s) => s.id === importSiteId) ? importSiteId : (sites[0]?.id ?? '');
@@ -49,8 +52,7 @@ const flashMessages = parseAdminHubFlash(Astro.url);
 	<AdminQueueHub
 		{sites}
 		pending={pending}
-		scheduled={scheduled}
-		publishing={publishing}
+		scheduled={scheduledQueue}
 		published={published}
 		{flashMessages}
 		{defaultImportSiteId}

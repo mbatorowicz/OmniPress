@@ -1,0 +1,57 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import Alert from '@/components/ui/feedback/Alert.astro';
+import Badge from '@/components/ui/feedback/Badge.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+import UserCreateForm from '@/components/admin/users/UserCreateForm.astro';
+import { adminUsers, layout } from '@/i18n';
+import { listSites, listUsers } from '@/lib/admin';
+
+const users = await listUsers(Astro.locals.supabase);
+const sites = await listSites(Astro.locals.supabase);
+const selfId = Astro.locals.user?.id;
+
+const deleted = Astro.url.searchParams.get('deleted') === '1';
+const errorCode = Astro.url.searchParams.get('error');
+const errorMessage =
+	errorCode && errorCode in adminUsers.errors
+		? adminUsers.errors[errorCode as keyof typeof adminUsers.errors]
+		: null;
+
+const breadcrumbs = [
+	{ label: layout.breadcrumb.admin, href: '/admin' },
+	{ label: layout.breadcrumb.users },
+];
+---
+
+<AppLayout title={adminUsers.title} heading={adminUsers.title} {breadcrumbs}>
+	<p class="mb-4 ui-muted">{adminUsers.lead}</p>
+
+	{errorMessage && <Alert variant="error">{errorMessage}</Alert>}
+	{deleted && <Alert variant="success">{adminUsers.deleted}</Alert>}
+
+	<UserCreateForm {sites} />
+
+	<Panel>
+		<h2 class="ui-heading">{adminUsers.list.heading}</h2>
+		{
+			users.length === 0 ? (
+				<p class="ui-empty">{adminUsers.list.empty}</p>
+			) : (
+				<ul class="ui-list-divide mt-4">
+					{users.map((u) => (
+						<li class="flex flex-wrap items-center gap-2 py-3 text-sm">
+							<a href={`/admin/users/${u.id}`} class="ui-link font-medium">
+								{u.display_name || u.id.slice(0, 8)}
+							</a>
+							<Badge variant={u.role === 'admin' ? 'published' : 'neutral'}>
+								{adminUsers.roles[u.role]}
+							</Badge>
+							{u.id === selfId && <span class="ui-muted">({adminUsers.list.you})</span>}
+						</li>
+					))}
+				</ul>
+			)
+		}
+	</Panel>
+</AppLayout>

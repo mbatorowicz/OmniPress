@@ -6,7 +6,6 @@ export { dashboard } from './dashboard';
 export { admin } from './admin';
 export {
 	adminDestinations,
-	adminEditors,
 	adminReview,
 	adminSites,
 	adminUnit,
@@ -14,6 +13,7 @@ export {
 	adminRecentChanges,
 	adminSitePages,
 } from './admin-panels';
+export { adminUsers } from './admin-users';
 export { api, formatUploadError } from './api';
 export { home } from './home';
 export { callbackPage } from './callback';

@@ -19,12 +19,17 @@ export {
 } from './destinations';
 export { getSiteById, getSiteDestinations, listSites, loadSiteAstroDestination, resolveSitePublishDestinationIds, countSitePosts, deleteSite, type SiteDestinationLink } from './sites';
 export { approvePost, rejectPost, reopenPostForEditing, canReopenPost, deactivatePost, deletePost, bulkDeactivatePosts, bulkDeletePosts } from './posts';
-export {
-	getEditorSiteIds,
-	listEditors,
-	saveEditorSites,
-	syncSiteDestinations,
-	type EditorRow,
-} from './user-sites';
+export { getEditorSiteIds, saveEditorSites, syncSiteDestinations } from './user-sites';
 export { testGitHubAstroChannel, type ChannelTestResult } from './channel-test';
-export { createEditorAccount, type CreateEditorResult } from './create-editor';
+export {
+	createUserAccount,
+	deleteUserAccount,
+	getUserEmail,
+	getUserProfile,
+	listUsers,
+	parseUserRole,
+	updateUserAccount,
+	type UserAccountError,
+	type UserAccountResult,
+	type UserListRow,
+} from './users';
