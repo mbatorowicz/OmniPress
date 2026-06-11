@@ -68,7 +68,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Walidacja linków menu przed sync GitHub | ✅ |
 | Ostatnie zmiany (ogłoszenia) | ✅ `/admin/units/[id]/changes` |
 | Komunikaty CERT Polska (RSS → live API na stronie Astro) | ✅ Slot `sidebar.cert_advisories`; endpoint `/api/cert/advisories` na stronie jednostki (cache 15 min) |
-| Ostrzeżenia pogodowe IMGW (osmet-teryt → live API na stronie Astro) | ✅ Slot `sidebar.weather`; endpoint `/api/weather/warnings` na stronie jednostki (cache 15 min); API OmniPress `/api/weather/warnings` dla podglądu |
+| Ostrzeżenia pogodowe IMGW (osmet-teryt → live API na stronie Astro) | ✅ Slot `sidebar.weather`; endpoint `/api/weather/warnings` na stronie jednostki (cache 15 min) — OmniPress tylko konfiguruje slot |
 | Test połączenia GitHub | ✅ |
 | Logi publikacji + retry ręczny | ✅ |
 | Weryfikacja logów buildu Vercel po publikacji | ✅ (opcjonalnie token / project id) |

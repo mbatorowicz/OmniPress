@@ -11,12 +11,10 @@ export const PUBLIC_PATHS = new Set([
 
 export const AUTH_API_PREFIX = '/api/auth/';
 export const ADMIN_API_PREFIX = '/api/admin/';
-export const PUBLIC_API_PREFIXES = ['/api/cert/', '/api/weather/'] as const;
 
 export function isPublicPath(pathname: string): boolean {
 	if (PUBLIC_PATHS.has(pathname)) return true;
 	if (pathname.startsWith(AUTH_API_PREFIX)) return true;
-	if (PUBLIC_API_PREFIXES.some((p) => pathname.startsWith(p))) return true;
 	return false;
 }
 

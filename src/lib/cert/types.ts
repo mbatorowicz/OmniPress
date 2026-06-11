@@ -1,6 +1,4 @@
-export const CERT_ADVISORIES_FEED_URL =
-	'https://moje.cert.pl/advisory_feed/advisory/feed/';
-
+/** Kategorie kanału RSS CERT Polska — filtr widgetu w panelu Layout Astro. */
 export const CERT_CATEGORIES = [
 	'Dla użytkowników',
 	'Dla administratorów',
@@ -9,12 +7,3 @@ export const CERT_CATEGORIES = [
 ] as const;
 
 export type CertCategory = (typeof CERT_CATEGORIES)[number];
-
-export type CertAdvisory = {
-	title: string;
-	href: string;
-	summary: string;
-	publishedAt: string;
-	category: string;
-};
-
