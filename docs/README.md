@@ -59,7 +59,8 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | `setup:scheduled-publish` | Data publikacji wpisu + status `scheduled` |
 | `setup:site-pages` | Strony statyczne (admin) |
 | `env:pull` | Pobranie env z Vercel |
-| `test` | Vitest |
+| `test` | Vitest (jednostkowe) |
+| `test:e2e` | Playwright E2E/UI (domyślnie produkcja) |
 | `build` | Astro production build |
 
 ## Zasada zmian

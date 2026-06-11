@@ -50,8 +50,9 @@ src/
 
 ## 6. Testy
 
-- Logika w `lib/` → testy `*.test.ts` obok modułu.
+- Logika w `lib/` → testy `*.test.ts` obok modułu (Vitest, `npm test`).
 - Teksty i18n — bez testów; klucze sprawdzają TypeScript (`as const`).
+- **E2E/UI** → `e2e/*.spec.ts` (Playwright, `npm run test:e2e`) — domyślnie na produkcji (`E2E_BASE_URL` zmienia cel). Selektory przez teksty z `src/i18n/pl/` (import `@/i18n/pl/...`), nie hardkoduj stringów. Testy mutujące dane **muszą sprzątać po sobie** (`finally` + delete). Cykl logowanie/wylogowanie biegnie w osobnym projekcie `auth-flows` po pozostałych — `signOut` Supabase unieważnia wszystkie sesje konta.
 
 ## 7. UI (SSOT stylów)
 

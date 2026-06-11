@@ -3,6 +3,13 @@
 Format: [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+commit`.
 
+## [0.8.1] — 2026-06-11
+
+### Dodane
+
+- Testy E2E/UI (Playwright, `e2e/`) — domyślnie na produkcji: strefa publiczna, nagłówki bezpieczeństwa, CSRF, logowanie/wylogowanie, panel admina, pełny cykl wpisu (szkic → walidacja kategorii → zapis → usunięcie ze sprzątaniem).
+- Skrypty `npm run test:e2e` i `test:e2e:ui`; konto testowe z `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD` lub lokalnego `.admin-password.txt`.
+
 ## [0.8.0] — 2026-06-10
 
 ### Zmienione (refaktor UI)

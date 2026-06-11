@@ -1,7 +1,7 @@
 {
   "name": "omnipress",
   "type": "module",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -31,7 +31,9 @@
     "env:pull": "vercel env pull .env.local --yes",
     "version": "node -e \"import('./scripts/lib/git-info.mjs').then(m=>console.log(m.getVersionLabel()))\"",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@astrojs/vercel": "^10.0.8",
@@ -49,6 +51,7 @@
     "turndown": "^7.2.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@types/turndown": "^5.0.6",
     "esbuild": "^0.28.0",
     "pg": "^8.21.0",

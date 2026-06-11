@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.8.0** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.8.1** (kod + baza + panel).
 
 Produkcja: https://omni-press.vercel.app
 
@@ -119,6 +119,17 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub.
 | Upload: magic bytes | ✅ |
 | Anti-enumeracja resetu hasła | ✅ |
 | Sanityzacja treści (edytor + zapis + publikacja) | ✅ |
+
+---
+
+## Testy
+
+| Warstwa | Narzędzie | Zakres |
+|---------|-----------|--------|
+| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 42 pliki obok modułów |
+| E2E/UI (`npm run test:e2e`) | Playwright (`e2e/`) | produkcja: strefa publiczna, nagłówki bezpieczeństwa, CSRF, auth (logowanie/wylogowanie, błędne hasło), panel admina, cykl wpisu (szkic → walidacja → zapis → usunięcie) |
+
+E2E domyślnie biegnie na produkcji (`E2E_BASE_URL` zmienia cel); dane logowania: `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD` lub lokalny `.admin-password.txt`.
 
 ---
 
