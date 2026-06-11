@@ -13,6 +13,7 @@ import { buildPublishedBodyMd } from '@/lib/publish/post-gallery';
 import type { PostAsset } from '@/lib/publish/assets';
 import {
 	assetsForPreviewRender,
+	canDeletePost,
 	canEditPost,
 	canSubmitPost,
 	getPostById,
@@ -36,6 +37,7 @@ if (!post) return Astro.redirect('/dashboard?error=not_found');
 
 const editable = canEditPost(post, user.id, profile.role);
 const submittable = canSubmitPost(post, user.id);
+const deletable = canDeletePost(post, user.id);
 
 const flashMessages = parseQueryFlash(Astro.url, {
 	errorMap: posts.errors as Record<string, string>,
@@ -105,6 +107,7 @@ const breadcrumbs = [
 				{categoriesUnavailable}
 				{isAmendment}
 				{submittable}
+				{deletable}
 				{postAssets}
 			/>
 		) : (

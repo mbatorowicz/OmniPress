@@ -17,6 +17,7 @@ export const dashboard = {
 		empty: 'Brak wpisów — utwórz pierwszy artykuł.',
 	},
 	submitted: 'Wpis wysłany do akceptacji administratora.',
+	deleted: 'Wpis został usunięty.',
 	editor: {
 		titleFallback: 'Edytor',
 		headingEdit: 'Edytor artykułu',
@@ -53,9 +54,10 @@ export const dashboard = {
 			contentPlaceholder: 'Wpisz treść artykułu…',
 			amendmentHint:
 				'Poprawka opublikowanego wpisu — zapisz zmiany i wyślij ponownie do akceptacji. Na stronie zostanie stara wersja do ponownej publikacji.',
-			publishAt: 'Data i godzina publikacji',
+			publishAt: 'Data publikacji',
+			publishAtHour: 'Godzina',
 			publishAtHint:
-				'Wpis pojawi się na stronie publicznej po tej dacie (po akceptacji administratora).',
+				'Pozostaw datę pustą, aby opublikować w momencie wysłania (po akceptacji administratora).',
 			publishAtTimezone: 'Czas polski (Europe/Warsaw).',
 		},
 		gallery: {
@@ -95,6 +97,8 @@ export const dashboard = {
 			save: 'Zapisz szkic',
 			submit: 'Wyślij do akceptacji',
 			confirmSubmit: 'Wysłać do akceptacji? Po wysłaniu nie będziesz mógł edytować.',
+			delete: 'Usuń wpis',
+			confirmDelete: 'Usunąć ten wpis wraz z załącznikami? Tej operacji nie można cofnąć.',
 			addImage: 'Dodaj plik (zdjęcie / PDF)',
 			goToReview: 'Przejdź do akceptacji →',
 		},

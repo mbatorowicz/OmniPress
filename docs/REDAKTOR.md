@@ -27,7 +27,7 @@ Przewodnik po panelu redaktora. Stan funkcji: [STATUS.md](./STATUS.md).
 | Kategoria | Wymagana przed wysłaniem — lista z pliku w repo strony |
 | Tytuł | Wymagany przed wysłaniem |
 | Slug | Opcjonalnie; może być generowany z tytułu |
-| Data i godzina publikacji | Wymagana przed wysłaniem — czas polski; wpis pojawi się na stronie po tej dacie (po akceptacji) |
+| Data publikacji + godzina | Opcjonalna — czas polski, godziny do wyboru co godzinę 6:00–20:00; wpis pojawi się na stronie po tej dacie (po akceptacji). **Bez daty** wpis zostanie opublikowany w momencie wysłania (po akceptacji) |
 | Treść | Edytor WYSIWYG (TipTap) — zapis jako Markdown |
 | Galeria | Zdjęcia pod wpisem; pierwsze = zajawka (cover); kolejność ↑↓; usuwanie × |
 | PDF | Załączniki jako link lub podgląd osadzony |
@@ -35,6 +35,8 @@ Przewodnik po panelu redaktora. Stan funkcji: [STATUS.md](./STATUS.md).
 **Zapisz szkic** — możesz wracać i edytować (status `draft` lub `rejected`).
 
 **Wyślij do akceptacji** — po wysłaniu edycja zablokowana do decyzji admina.
+
+**Usuń wpis** — trwale usuwa Twój wpis wraz z załącznikami (tylko status *Szkic* lub *Odrzucony*).
 
 ---
 

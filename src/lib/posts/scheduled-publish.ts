@@ -1,5 +1,28 @@
 export const PUBLISH_TIMEZONE = 'Europe/Warsaw';
+export const PUBLISH_HOUR_FIRST = 6;
+export const PUBLISH_HOUR_LAST = 20;
+export const DEFAULT_PUBLISH_HOUR = '12:00';
 const DATETIME_LOCAL_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/;
+
+/** Godziny publikacji do wyboru w UI — pełne godziny 6:00–20:00. */
+export function publishHourOptions(): string[] {
+	const out: string[] = [];
+	for (let h = PUBLISH_HOUR_FIRST; h <= PUBLISH_HOUR_LAST; h++) {
+		out.push(`${String(h).padStart(2, '0')}:00`);
+	}
+	return out;
+}
+
+/** Pola formularza (data + godzina) → wall time `YYYY-MM-DDTHH:mm`; '' gdy brak daty. */
+export function combineScheduleDateHour(
+	dateRaw: FormDataEntryValue | null | undefined,
+	hourRaw: FormDataEntryValue | null | undefined,
+): string {
+	const date = String(dateRaw ?? '').trim();
+	if (!date) return '';
+	const hour = String(hourRaw ?? '').trim() || DEFAULT_PUBLISH_HOUR;
+	return `${date}T${hour}`;
+}
 
 type ZonedParts = { y: number; mo: number; d: number; h: number; mi: number };
 
@@ -66,11 +89,12 @@ export function formatScheduledPublishAt(iso: string | null): string {
 	}).format(new Date(iso));
 }
 
+/** Pusta wartość = publikacja w momencie wysłania (bez błędu). */
 export function parseScheduledPublishAtInput(
 	raw: FormDataEntryValue | null | undefined,
 ): { value: string | null; error?: 'invalid' | 'past' } {
 	const trimmed = String(raw ?? '').trim();
-	if (!trimmed) return { value: null, error: 'invalid' };
+	if (!trimmed) return { value: null };
 
 	const iso = wallTimeInZoneToUtcIso(trimmed);
 	if (!iso) return { value: null, error: 'invalid' };

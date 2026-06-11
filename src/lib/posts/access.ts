@@ -47,6 +47,11 @@ export function canSubmitPost(post: PostRow, userId: string): boolean {
 	return post.author_id === userId && post.status === 'draft';
 }
 
+/** Redaktor usuwa tylko własne wpisy przed publikacją (szkic / odrzucony). */
+export function canDeletePost(post: PostRow, userId: string): boolean {
+	return post.author_id === userId && (post.status === 'draft' || post.status === 'rejected');
+}
+
 /** Wpis do edycji lub null gdy brak dostępu. */
 export async function loadEditablePost(
 	supabase: SupabaseClient,

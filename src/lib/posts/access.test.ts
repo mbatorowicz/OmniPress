@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { canEditPost, canSubmitPost, canViewPostAssets, slugFromTitle, type PostRow } from './access';
+import {
+	canDeletePost,
+	canEditPost,
+	canSubmitPost,
+	canViewPostAssets,
+	slugFromTitle,
+	type PostRow,
+} from './access';
 
 const draftPost = (overrides: Partial<PostRow> = {}): PostRow => ({
 	id: '1',
@@ -60,5 +67,18 @@ describe('canSubmitPost', () => {
 		expect(canSubmitPost(draftPost(), 'author-1')).toBe(true);
 		expect(canSubmitPost(draftPost({ status: 'pending' }), 'author-1')).toBe(false);
 		expect(canSubmitPost(draftPost(), 'other')).toBe(false);
+	});
+});
+
+describe('canDeletePost', () => {
+	it('autor usuwa draft i rejected', () => {
+		expect(canDeletePost(draftPost(), 'author-1')).toBe(true);
+		expect(canDeletePost(draftPost({ status: 'rejected' }), 'author-1')).toBe(true);
+	});
+
+	it('nie usuwa cudzych ani wysłanych/opublikowanych', () => {
+		expect(canDeletePost(draftPost(), 'other')).toBe(false);
+		expect(canDeletePost(draftPost({ status: 'pending' }), 'author-1')).toBe(false);
+		expect(canDeletePost(draftPost({ status: 'published' }), 'author-1')).toBe(false);
 	});
 });

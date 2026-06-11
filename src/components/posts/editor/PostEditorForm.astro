@@ -22,6 +22,7 @@ interface Props {
 	categoriesUnavailable: boolean;
 	isAmendment: boolean;
 	submittable: boolean;
+	deletable: boolean;
 	postAssets: PostAsset[];
 }
 
@@ -33,6 +34,7 @@ const {
 	categoriesUnavailable,
 	isAmendment,
 	submittable,
+	deletable,
 	postAssets,
 } = Astro.props;
 const ed = dashboard.editor;
@@ -80,9 +82,9 @@ const pdfUi = ed.pdfAttachments;
 	</Label>
 	<PostPublishSchedule
 		value={post.scheduled_publish_at}
-		required
 		labels={{
 			label: ed.fields.publishAt,
+			hourLabel: ed.fields.publishAtHour,
 			hint: ed.fields.publishAtHint,
 			timezone: ed.fields.publishAtTimezone,
 		}}
@@ -96,7 +98,7 @@ const pdfUi = ed.pdfAttachments;
 		<PostGalleryPanel postId={postId} assets={postAssets} labels={gal} />
 		<PostPdfAttachments postId={postId} assets={postAssets} labels={pdfUi} />
 	</div>
-	<div class="flex flex-wrap gap-3">
+	<div class="flex flex-wrap items-center gap-3">
 		<Button type="submit">{ed.actions.save}</Button>
 		{
 			submittable && (
@@ -108,6 +110,20 @@ const pdfUi = ed.pdfAttachments;
 					confirm={ed.actions.confirmSubmit}
 				>
 					{ed.actions.submit}
+				</Button>
+			)
+		}
+		{
+			deletable && (
+				<Button
+					type="submit"
+					formaction={`/api/posts/${postId}/delete`}
+					formnovalidate
+					variant="danger"
+					class="ml-auto"
+					confirm={ed.actions.confirmDelete}
+				>
+					{ed.actions.delete}
 				</Button>
 			)
 		}

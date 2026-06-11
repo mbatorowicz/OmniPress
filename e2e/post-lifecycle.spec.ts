@@ -4,11 +4,11 @@ import { posts } from '@/i18n/pl/posts';
 
 const ed = dashboard.editor;
 
-/** Data publikacji w przyszłości w formacie datetime-local (czas lokalny). */
-function futureScheduleValue(): string {
+/** Data publikacji w przyszłości w formacie pola date (YYYY-MM-DD). */
+function futureScheduleDate(): string {
 	const date = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 	const pad = (n: number) => String(n).padStart(2, '0');
-	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
 async function deletePostAsAdmin(page: Page, baseURL: string, postId: string): Promise<void> {
@@ -58,7 +58,8 @@ test.describe('cykl życia wpisu', () => {
 			const firstCategory = await categoryOptions.first().getAttribute('value');
 			await page.locator('select[name="category_slug"]').selectOption(firstCategory!);
 			await page.locator('input[name="title"]').fill(title);
-			await page.locator('input[name="scheduled_publish_at"]').fill(futureScheduleValue());
+			await page.locator('input[name="scheduled_publish_date"]').fill(futureScheduleDate());
+			await page.locator('select[name="scheduled_publish_hour"]').selectOption('12:00');
 			await page.getByRole('button', { name: ed.actions.save }).click();
 
 			await page.waitForURL(/saved=1/);

@@ -9,7 +9,7 @@ import {
 	updateGalleryOrder,
 	updatePostAssetDisplayModes,
 } from '@/lib/posts';
-import { wallTimeInZoneToUtcIso } from '@/lib/posts/scheduled-publish';
+import { combineScheduleDateHour, wallTimeInZoneToUtcIso } from '@/lib/posts/scheduled-publish';
 import { sanitizeStorageMarkdown } from '@/lib/content/sanitize';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
@@ -34,7 +34,10 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'category_required');
 	}
 
-	const scheduleRaw = String(form.get('scheduled_publish_at') ?? '').trim();
+	const scheduleRaw = combineScheduleDateHour(
+		form.get('scheduled_publish_date'),
+		form.get('scheduled_publish_hour'),
+	);
 	let scheduled_publish_at: string | null = null;
 	if (scheduleRaw) {
 		scheduled_publish_at = wallTimeInZoneToUtcIso(scheduleRaw);

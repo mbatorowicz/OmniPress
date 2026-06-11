@@ -1,29 +1,45 @@
 ---
-import { utcIsoToWallTimeInput } from '@/lib/posts/scheduled-publish';
+import {
+	DEFAULT_PUBLISH_HOUR,
+	publishHourOptions,
+	utcIsoToWallTimeInput,
+} from '@/lib/posts/scheduled-publish';
 
 interface Props {
 	value: string | null;
 	labels: {
 		label: string;
+		hourLabel: string;
 		hint: string;
 		timezone: string;
 	};
-	required?: boolean;
 }
 
-const { value, labels, required = false } = Astro.props;
-const inputValue = utcIsoToWallTimeInput(value);
+const { value, labels } = Astro.props;
+const wall = utcIsoToWallTimeInput(value);
+const [dateValue = '', timeValue = ''] = wall ? wall.split('T') : ['', ''];
+
+const hours = publishHourOptions();
+// Starsze wpisy mogą mieć godzinę spoza siatki 6:00–20:00 — pokaż ją bez utraty wartości.
+const hourOptions = timeValue && !hours.includes(timeValue) ? [timeValue, ...hours] : hours;
+const selectedHour = timeValue || DEFAULT_PUBLISH_HOUR;
 ---
 
-<label class="ui-label">
-	<span class="font-medium ui-label-text">{labels.label}</span>
-	<input
-		type="datetime-local"
-		name="scheduled_publish_at"
-		value={inputValue}
-		required={required}
-		class="ui-input max-w-xs"
-	/>
-</label>
+<div class="flex flex-wrap gap-3">
+	<label class="ui-label">
+		<span class="font-medium ui-label-text">{labels.label}</span>
+		<input type="date" name="scheduled_publish_date" value={dateValue} class="ui-input max-w-xs" />
+	</label>
+	<label class="ui-label">
+		<span class="font-medium ui-label-text">{labels.hourLabel}</span>
+		<select name="scheduled_publish_hour" class="ui-select max-w-xs">
+			{hourOptions.map((h) => (
+				<option value={h} selected={h === selectedHour}>
+					{h}
+				</option>
+			))}
+		</select>
+	</label>
+</div>
 <p class="text-xs text-slate-500">{labels.hint}</p>
 <p class="text-xs text-slate-400">{labels.timezone}</p>

@@ -1,4 +1,5 @@
 export {
+	canDeletePost,
 	canEditPost,
 	canSubmitPost,
 	canViewPostAssets,
@@ -8,6 +9,7 @@ export {
 	slugFromTitle,
 	type PostRow,
 } from './access';
+export { deleteOwnPost } from './delete-own';
 export { resolvePostCategoryFields } from './category';
 export {
 	collectAllowedSites,

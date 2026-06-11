@@ -3,6 +3,17 @@
 Format: [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+commit`.
 
+## [0.9.1] — 2026-06-11
+
+### Dodane
+
+- Redaktor może **usuwać własne wpisy** (status *Szkic* / *Odrzucony*) wraz z plikami w Storage — przycisk „Usuń wpis” w edytorze; migracja `setup:posts-delete-own` (RLS delete dla autora).
+
+### Zmienione
+
+- Data publikacji **opcjonalna** — bez daty wpis dostaje datę publikacji w momencie wysłania do akceptacji (publikacja od razu po akceptacji).
+- Godzina publikacji wybierana z listy **co godzinę 6:00–20:00** (osobne pola: data + godzina) zamiast dowolnego `datetime-local`.
+
 ## [0.9.0] — 2026-06-11
 
 ### Zmienione

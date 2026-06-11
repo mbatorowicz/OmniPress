@@ -13,6 +13,7 @@ interface Props {
 	value?: string;
 	confirm?: string;
 	formaction?: string;
+	formnovalidate?: boolean;
 	id?: string;
 }
 
@@ -28,6 +29,7 @@ const {
 	value,
 	confirm,
 	formaction,
+	formnovalidate,
 	id,
 } = Astro.props;
 
@@ -55,6 +57,7 @@ const classes = [
 			name={name}
 			value={value}
 			formaction={formaction}
+			formnovalidate={formnovalidate}
 			id={id}
 			data-confirm={confirm}
 		>

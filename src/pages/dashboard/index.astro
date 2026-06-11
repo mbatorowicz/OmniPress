@@ -22,6 +22,7 @@ const { data: posts } = await supabase
 	.order('updated_at', { ascending: false });
 
 const submitted = Astro.url.searchParams.get('submitted') === '1';
+const deleted = Astro.url.searchParams.get('deleted') === '1';
 const errorCode = Astro.url.searchParams.get('error');
 
 const errorMessage =
@@ -34,6 +35,7 @@ const errorMessage =
 
 <AppLayout title={dashboard.title} heading={dashboard.title}>
 	{submitted && <Alert variant="success">{dashboard.submitted}</Alert>}
+	{deleted && <Alert variant="success">{dashboard.deleted}</Alert>}
 	{errorMessage && <Alert variant="warning">{errorMessage}</Alert>}
 
 	<Panel class="mb-6">

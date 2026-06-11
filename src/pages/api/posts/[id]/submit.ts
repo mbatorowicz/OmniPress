@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { guardAuthRedirect, isGuardBlocked, redirectPostError } from '@/lib/api';
 import { loadSubmittablePost } from '@/lib/posts';
-import { parseScheduledPublishAtInput } from '@/lib/posts/scheduled-publish';
+import { combineScheduleDateHour, parseScheduledPublishAtInput } from '@/lib/posts/scheduled-publish';
 import { sanitizeStorageMarkdown } from '@/lib/content/sanitize';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
@@ -28,13 +28,19 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'category_required');
 	}
 
-	const schedule = parseScheduledPublishAtInput(form.get('scheduled_publish_at'));
+	const scheduleRaw = combineScheduleDateHour(
+		form.get('scheduled_publish_date'),
+		form.get('scheduled_publish_hour'),
+	);
+	const schedule = parseScheduledPublishAtInput(scheduleRaw);
 	if (schedule.error === 'invalid') {
-		return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'schedule_required');
+		return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'schedule_invalid');
 	}
 	if (schedule.error === 'past') {
 		return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'schedule_past');
 	}
+	// Brak daty = publikacja w momencie wysłania (po akceptacji administratora).
+	const scheduled_publish_at = schedule.value ?? new Date().toISOString();
 
 	const { error } = await supabase
 		.from('posts')
@@ -42,7 +48,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 			title,
 			content_md,
 			category_slug: categorySlug,
-			scheduled_publish_at: schedule.value,
+			scheduled_publish_at,
 			status: 'pending',
 			rejection_note: null,
 		})

@@ -45,7 +45,8 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Galeria zdjęć (cover + kolejność) | ✅ |
 | Załączniki PDF (link / podgląd) | ✅ |
 | Zapis szkicu, wysłanie do akceptacji | ✅ |
-| Data i godzina publikacji (czas polski) | ✅ |
+| Data publikacji + godzina z listy 6:00–20:00 (czas polski); bez daty = publikacja w momencie wysłania | ✅ |
+| Usuwanie własnych wpisów (`draft` / `rejected`) wraz z plikami Storage | ✅ migracja `setup:posts-delete-own` |
 | Edycja tylko `draft` / `rejected`; poprawki opublikowanych (amendment) | ✅ |
 | Podgląd treści po wysłaniu / odrzuceniu | ✅ |
 
@@ -111,6 +112,7 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub.
 | `20250615000000_site_pages.sql` | `setup:site-pages` |
 | `20250616000000_storage_import_admin.sql` | `setup:storage-import-admin` |
 | `20250617000000_author_on_delete_set_null.sql` | `setup:author-on-delete` |
+| `20250618000000_posts_delete_own.sql` | `setup:posts-delete-own` |
 
 ---
 

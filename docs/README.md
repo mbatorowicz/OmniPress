@@ -58,6 +58,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | `setup:profiles-guard` | Trigger RLS — blokada eskalacji roli / site |
 | `setup:scheduled-publish` | Data publikacji wpisu + status `scheduled` |
 | `setup:site-pages` | Strony statyczne (admin) |
+| `setup:posts-delete-own` | Usuwanie własnych wpisów przez redaktora |
 | `env:pull` | Pobranie env z Vercel |
 | `test` | Vitest (jednostkowe) |
 | `test:e2e` | Playwright E2E/UI (domyślnie produkcja) |
