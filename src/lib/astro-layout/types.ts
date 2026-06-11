@@ -44,6 +44,7 @@ export type CertAdvisoriesWidgetConfig = FeedListWidget & {
 
 export type WeatherSlotWidgetConfig = BaseSlotWidget & {
 	title?: string;
+	emptyText?: string;
 	hideWhenEmpty?: boolean;
 	terytPowiat?: string;
 	terytGmina?: string;

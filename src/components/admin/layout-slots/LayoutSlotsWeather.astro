@@ -31,6 +31,14 @@ if (weatherSlots.length === 0) return null;
 					<p class="ui-label-text text-xs font-medium sm:col-span-2">
 						{slot.label} · <code class="ui-code">{slot.id}</code>
 					</p>
+					<Label>
+						<span class="font-medium">{fields.widgetTitle}</span>
+						<Input name={f.title(slot.id)} value={w.title ?? ''} />
+					</Label>
+					<Label>
+						<span class="font-medium">{fields.widgetEmptyText}</span>
+						<Input name={f.emptyText(slot.id)} value={w.emptyText ?? ''} />
+					</Label>
 					<label class="ui-label-inline flex items-center gap-2 sm:col-span-2">
 						<input type="checkbox" name={slotFormFields.hideWhenEmpty(slot.id)} checked={w.hideWhenEmpty === true} />
 						<span class="font-medium">{fields.widgetHideWhenEmpty}</span>

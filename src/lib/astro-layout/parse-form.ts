@@ -100,6 +100,10 @@ function parseBannerWidget(form: FormData, id: string, widget: SlotWidgetConfig)
 }
 
 function parseWeatherWidget(form: FormData, id: string, widget: SlotWidgetConfig): void {
+	const title = strField(form, slotFormFields.weather.title(id));
+	if (title) widget.title = title;
+	const emptyText = strField(form, slotFormFields.weather.emptyText(id));
+	if (emptyText) widget.emptyText = emptyText;
 	if (form.get(slotFormFields.hideWhenEmpty(id)) === 'on') widget.hideWhenEmpty = true;
 	const terytPowiat = strField(form, slotFormFields.weather.terytPowiat(id));
 	if (terytPowiat) widget.terytPowiat = terytPowiat;

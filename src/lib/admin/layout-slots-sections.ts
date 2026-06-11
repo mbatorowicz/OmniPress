@@ -39,6 +39,8 @@ export const slotFieldNames = {
 		externalUrl: (id: string) => field('slot_banner_external_url', id),
 	},
 	weather: {
+		title: (id: string) => field('slot_weather_title', id),
+		emptyText: (id: string) => field('slot_weather_empty_text', id),
 		terytPowiat: (id: string) => field('slot_weather_teryt_powiat', id),
 		lat: (id: string) => field('slot_weather_lat', id),
 		lon: (id: string) => field('slot_weather_lon', id),
@@ -192,6 +194,8 @@ export function buildWeatherDetailHtml(id: string, label: string, config: Sectio
 	return `
 		<div class="ui-fieldset-nested slot-detail-block" data-slot-id="${id}">
 			${slotHeaderHtml(label, id)}
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetTitle}</span><input name="${f.title(id)}" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetEmptyText}</span><input name="${f.emptyText(id)}" class="ui-input-compact w-full" /></label>
 			<label class="ui-label-inline flex items-center gap-2 sm:col-span-2"><input type="checkbox" name="${slotFieldNames.hideWhenEmpty(id)}" /><span class="font-medium">${l.widgetHideWhenEmpty}</span></label>
 			<label class="ui-label-inline"><span class="font-medium">${l.weatherTerytPowiat}</span><input name="${f.terytPowiat(id)}" class="ui-input-compact font-mono w-full" /></label>
 			<label class="ui-label-inline"><span class="font-medium">${l.weatherMapZoom}</span><input name="${f.mapZoom(id)}" type="number" min="1" max="18" value="11" class="ui-input-compact w-full" /></label>

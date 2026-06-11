@@ -39,6 +39,8 @@ export const slotFormFields = {
 		externalUrl: (slotId: string) => field('slot_banner_external_url', slotId),
 	},
 	weather: {
+		title: (slotId: string) => field('slot_weather_title', slotId),
+		emptyText: (slotId: string) => field('slot_weather_empty_text', slotId),
 		terytPowiat: (slotId: string) => field('slot_weather_teryt_powiat', slotId),
 		lat: (slotId: string) => field('slot_weather_lat', slotId),
 		lon: (slotId: string) => field('slot_weather_lon', slotId),
