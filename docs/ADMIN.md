@@ -86,7 +86,7 @@ Na podglądzie wpisu: tabela **Status publikacji**. Przy błędzie (`failed`): *
 
 ## 6. Layout, import i bulk
 
-- **Layout Astro:** `/admin/units/[id]/layout` — menu, kategorie, jedna lista komponentów (`slots[]` w `omnipress-categories.json`: `home.*`, `sidebar.weather`, `sidebar.cert_advisories`, `sidebar.recent_changes`, `sidebar.banner` itd.) → **jeden commit** do GitHub (menu + kategorie + opcjonalnie rejestr zmian — jeden deploy Vercel). Wspólne pole kolejności (`order`) dla sidebaru. Przed sync walidacja linków wewnętrznych. `sidebar.weather` i `sidebar.cert_advisories` pobierają dane **na żywo** z API na stronie Astro (`/api/weather/warnings`, `/api/cert/advisories`) — bez syncu JSON do repo.
+- **Layout Astro:** `/admin/units/[id]/layout` — menu, kategorie, jedna lista komponentów (`slots[]` w `omnipress-categories.json`: `home.*`, `sidebar.weather`, `sidebar.cert_advisories`, `sidebar.recent_changes`, `sidebar.banner` itd.) → **jeden commit** do GitHub (menu + kategorie + opcjonalnie rejestr zmian — jeden deploy Vercel). Wspólne pole kolejności (`order`) dla sidebaru. Przed sync walidacja linków wewnętrznych. `sidebar.weather` i `sidebar.cert_advisories` pobierają dane **na żywo** z API na stronie Astro (`/api/weather/warnings`, `/api/cert/advisories`) — bez syncu JSON do repo. Widget CERT zawsze dopełnia listę do limitu z panelu: feed RSS zawiera tylko komunikaty z bieżącego dnia, starsze dociągane są z listingu `moje.cert.pl/komunikaty/`.
 - **Strony statyczne:** `/admin/units/[id]/pages` — treści pod stałe URL (np. `/gmina/plan-ogolny`); publikacja od razu do `src/content/pages/` w repo Astro.
 - **Import wpisów z GitHub:** `/admin` → synchronizacja (wpisy już na stronie).
 - **Ostatnie zmiany:** `/admin/units/[id]/changes`.
