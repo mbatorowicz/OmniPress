@@ -67,8 +67,8 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Strony statyczne (admin) + publikacja do repo Astro | ✅ `/admin/units/[id]/pages` |
 | Walidacja linków menu przed sync GitHub | ✅ |
 | Ostatnie zmiany (ogłoszenia) | ✅ `/admin/units/[id]/changes` |
-| Komunikaty CERT Polska (RSS → JSON w repo Astro) | ✅ Slot `sidebar.cert_advisories`; cron `/api/worker/cert-sync`; API `/api/cert/advisories` |
-| Ostrzeżenia pogodowe IMGW (osmet-teryt → JSON w repo Astro) | ✅ Slot `sidebar.weather`; cron `/api/worker/weather-sync` raz dziennie (Hobby); sync przy zapisie layoutu; API `/api/weather/warnings` (cache 2 h) |
+| Komunikaty CERT Polska (RSS → live API na stronie Astro) | ✅ Slot `sidebar.cert_advisories`; endpoint `/api/cert/advisories` na stronie jednostki (cache 15 min) |
+| Ostrzeżenia pogodowe IMGW (osmet-teryt → live API na stronie Astro) | ✅ Slot `sidebar.weather`; endpoint `/api/weather/warnings` na stronie jednostki (cache 15 min); API OmniPress `/api/weather/warnings` dla podglądu |
 | Test połączenia GitHub | ✅ |
 | Logi publikacji + retry ręczny | ✅ |
 | Weryfikacja logów buildu Vercel po publikacji | ✅ (opcjonalnie token / project id) |

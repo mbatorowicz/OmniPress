@@ -178,9 +178,9 @@ export const adminLayout = {
 	},
 	noPublishedPages: 'Brak opublikowanych stron statycznych.',
 	certAdvisoriesHint:
-		'Komunikaty pobierane z kanału RSS CERT Polska (moje.cert.pl). Po zapisie z sync do GitHub trafia plik omnipress-cert-advisories.json — widget na stronie Astro czyta ten plik.',
+		'Komunikaty pobierane na żywo z RSS CERT Polska (moje.cert.pl). Widget na stronie Astro woła /api/cert/advisories — bez commita do GitHub i bez redeployu (cache ~15 min).',
 	weatherHint:
-		'Ostrzeżenia IMGW (meteo.imgw.pl) dla powiatu jednostki. Powiaty objęte ostrzeżeniem trafiają na mapę automatycznie. Cron raz dziennie (08:00 UTC) + sync przy zapisie layoutu aktualizuje omnipress-weather-warnings.json w repo Astro. Publiczne API (cache 2 h): /api/weather/warnings?terytPowiat=XXXX.',
+		'Ostrzeżenia IMGW (meteo.imgw.pl) dla powiatu jednostki. Widget na stronie Astro woła /api/weather/warnings — dane z API IMGW na żywo, cache ~15 min, bez redeployu przy nowym ostrzeżeniu.',
 	weatherMapHint:
 		'Lat/lon i zoom są opcjonalne — mapa na stronie dopasowuje widok do zasięgu ostrzeżenia. Dodatkowe powiaty służą tylko jako kontekst (szare obramowanie).',
 	weatherDetailsHint:

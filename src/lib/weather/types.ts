@@ -3,7 +3,7 @@ import type { WeatherSlotWidgetConfig } from '@/lib/astro-layout/types';
 export const OSMET_TERYT_URL =
 	'https://meteo.imgw.pl/api/meteo/messages/v1/osmet/latest/osmet-teryt';
 
-export const WEATHER_WARNINGS_CACHE_TTL_MS = 2 * 60 * 60 * 1000;
+export const WEATHER_WARNINGS_CACHE_TTL_MS = 15 * 60 * 1000;
 
 export type WeatherWarningLevel = 1 | 2 | 3;
 

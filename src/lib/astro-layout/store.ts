@@ -20,10 +20,6 @@ import {
 	parseNavigationJson,
 } from './parse';
 import { normalizeSiteAstroLayout } from './parse';
-import { prepareCertAdvisoriesFileWrite } from '@/lib/cert/github';
-import { prepareWeatherWarningsFileWrite } from '@/lib/weather/github';
-import { findSlotByComponent } from './slots';
-import { findWeatherSlot } from '@/lib/weather/filter';
 import { prepareRecentChangeAppendWrite } from '@/lib/recent-changes/github';
 import { buildLayoutRecentChangeEntry } from '@/lib/recent-changes/layout-entry';
 import type { SiteAstroLayout } from './types';
@@ -145,29 +141,6 @@ export async function syncSiteAstroLayoutToGitHub(
 			// Rejestr zmian nie blokuje sync layoutu
 		}
 
-		let certSummary = '';
-		try {
-			const certSlot = findSlotByComponent(layout, 'sidebar.cert_advisories');
-			const cert = await prepareCertAdvisoriesFileWrite(dest.config, certSlot?.widget);
-			if (cert) {
-				files.push({ path: cert.path, content: cert.content });
-				if (cert.count > 0) certSummary = `, ${cert.count} komunikatów CERT`;
-			}
-		} catch {
-			// Sync CERT nie blokuje layoutu
-		}
-
-		let weatherSummary = '';
-		try {
-			const weather = await prepareWeatherWarningsFileWrite(dest.config, findWeatherSlot(layout));
-			if (weather) {
-				files.push({ path: weather.path, content: weather.content });
-				if (weather.count > 0) weatherSummary = `, ${weather.count} ostrzeżeń pogodowych`;
-			}
-		} catch {
-			// Sync pogody nie blokuje layoutu
-		}
-
 		const { commitSha, written } = await putGitHubFilesBatch(
 			cfg,
 			creds.token,
@@ -175,7 +148,7 @@ export async function syncSiteAstroLayoutToGitHub(
 			LAYOUT_SYNC_COMMIT_MESSAGE,
 		);
 
-		const githubSummary = `1 commit (${written} plików): ${navPath}, ${catPath} w ${cfg.owner}/${cfg.repo}${certSummary}${weatherSummary}`;
+		const githubSummary = `1 commit (${written} plików): ${navPath}, ${catPath} w ${cfg.owner}/${cfg.repo}`;
 
 		const vercelCfg = parseVercelConfig(dest.config);
 		const vercelToken = resolveVercelTokenForDestination(creds);
