@@ -4,12 +4,13 @@ export type PanelVariant = 'default' | 'accent' | 'info' | 'danger' | 'amber' | 
 interface Props {
 	variant?: PanelVariant;
 	class?: string;
+	id?: string;
 	tag?: 'section' | 'div' | 'article' | 'form' | 'ul';
 }
 
-const { variant = 'default', class: className = '', tag: Tag = 'section' } = Astro.props;
+const { variant = 'default', class: className = '', id, tag: Tag = 'section' } = Astro.props;
 ---
 
-<Tag class={`ui-panel ui-panel--${variant} ${className}`}>
+<Tag id={id} class={`ui-panel ui-panel--${variant} ${className}`}>
 	<slot />
 </Tag>

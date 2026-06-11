@@ -58,7 +58,7 @@ src/
 - **Klasy:** `src/styles/ui.css` (importuje partiale z `src/styles/ui/`) — prefiks `ui-*`.
 - **Tokeny:** `src/styles/global.css` (`@theme`: brand, surface, radius-card).
 - **Layouty:** `src/layouts/` — `BaseLayout`, `PublicLayout`, `AuthLayout`, `AppLayout`.
-- **Powłoka:** `src/components/shell/` — header, footer, `AdminContextNav`.
+- **Powłoka:** `src/components/shell/` — header, footer, `AdminSidebar` (stała nawigacja admina), `AdminContextNav` (kontekst jednostki). Breadcrumby: `ui/navigation/Breadcrumbs` — przekazywane przez prop `breadcrumbs` w `AppLayout`.
 - **Design system:** `src/components/ui/` — podfoldery `actions/`, `feedback/`, `form/`, `table/`, `layout/`, `navigation/`.
 - **Wzorce:** `src/components/shared/` — `FlashAlerts`, `ConfirmScript`.
 - **Domena:** `src/components/admin/`, `src/components/posts/` — logika panelu; importują tylko `ui/` i `shell/`.

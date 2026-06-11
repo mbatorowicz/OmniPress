@@ -1,5 +1,6 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
+import AdminContextNav from '@/components/shell/AdminContextNav.astro';
 import PostRichEditor from '@/components/posts/PostRichEditor.astro';
 import Alert from '@/components/ui/feedback/Alert.astro';
 import Button from '@/components/ui/actions/Button.astro';
@@ -16,6 +17,12 @@ if (!page || page.site_id !== id) {
 	return Astro.redirect(`/admin/units/${id}/pages?error=not_found`);
 }
 
+const { data: site } = await Astro.locals.supabase
+	.from('sites')
+	.select('name')
+	.eq('id', id)
+	.maybeSingle();
+
 const ui = adminSitePages;
 const ed = dashboard.editor;
 const errorCode = Astro.url.searchParams.get('error');
@@ -30,9 +37,12 @@ const statusLabel = page.status === 'published' ? ui.statusPublished : ui.status
 ---
 
 <AppLayout title={page.title || ui.title} heading={page.title || ui.title}>
-	<a href={`/admin/units/${id}/pages`} class="mb-4 inline-block text-sm ui-link">
-		← {ui.title}
-	</a>
+	<AdminContextNav
+		siteId={id}
+		siteName={site?.name ?? ui.title}
+		section="pages"
+		currentLabel={page.title || ui.title}
+	/>
 
 	<p class="mb-2 text-sm text-slate-600">
 		<span class="rounded bg-slate-100 px-2 py-0.5 text-xs">{statusLabel}</span>

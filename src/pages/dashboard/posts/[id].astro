@@ -5,7 +5,7 @@ import BackLink from '@/components/ui/navigation/BackLink.astro';
 import StatusBadge from '@/components/ui/feedback/StatusBadge.astro';
 import PostEditorForm from '@/components/posts/editor/PostEditorForm.astro';
 import PostPreviewView from '@/components/posts/preview/PostPreviewView.astro';
-import { dashboard, posts } from '@/i18n';
+import { common, dashboard, layout, posts } from '@/i18n';
 import { canReopenPost } from '@/lib/admin';
 import { loadSiteCategories } from '@/lib/categories';
 import { listPublishLogsForPost } from '@/lib/publish';
@@ -72,9 +72,18 @@ const canReopen =
 	profile.role === 'admin' && (await canReopenPost(Astro.locals.supabase, post.id, post.status));
 
 const ed = dashboard.editor;
+
+const breadcrumbs = [
+	{ label: layout.breadcrumb.dashboard, href: '/dashboard' },
+	{ label: post.title || common.untitled },
+];
 ---
 
-<AppLayout title={post.title || ed.titleFallback} heading={editable ? ed.headingEdit : ed.headingView}>
+<AppLayout
+	title={post.title || ed.titleFallback}
+	heading={editable ? ed.headingEdit : ed.headingView}
+	{breadcrumbs}
+>
 	<div class="mb-4 flex flex-wrap items-center gap-3 text-sm text-slate-600">
 		<StatusBadge status={post.status as PostStatus} />
 		{site?.name && (

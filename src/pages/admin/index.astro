@@ -1,8 +1,7 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
 import AdminQueueHub from '@/components/admin/queue/AdminQueueHub.astro';
-import AdminSubnav from '@/components/ui/navigation/AdminSubnav.astro';
-import { admin, adminSites } from '@/i18n';
+import { admin } from '@/i18n';
 import { parseAdminHubFlash } from '@/lib/admin/hub-flash';
 import { listSites } from '@/lib/admin';
 import { schedulePublishWorker } from '@/lib/publish/trigger-worker';
@@ -46,14 +45,7 @@ const defaultImportSiteId =
 const flashMessages = parseAdminHubFlash(Astro.url);
 ---
 
-<AppLayout title={admin.title} heading={admin.title}>
-	<AdminSubnav
-		links={[
-			{ href: '/admin/units/new', label: adminSites.wizardLink, accent: true },
-			{ href: '/admin/sites', label: admin.sites.manage },
-			{ href: '/admin/editors', label: admin.editors.manage },
-		]}
-	/>
+<AppLayout title={admin.title} heading={admin.queueHeading}>
 	<AdminQueueHub
 		{sites}
 		pending={pending}

@@ -2,9 +2,7 @@
 import Button from '@/components/ui/actions/Button.astro';
 import Label from '@/components/ui/form/Label.astro';
 import Select from '@/components/ui/form/Select.astro';
-import PageHeader from '@/components/ui/layout/PageHeader.astro';
-import Panel from '@/components/ui/layout/Panel.astro';
-import { admin, adminSites } from '@/i18n';
+import { admin } from '@/i18n';
 import type { SiteRow } from '@/lib/posts/site';
 
 interface Props {
@@ -17,8 +15,9 @@ const { sites, defaultImportSiteId, importSiteId } = Astro.props;
 const importLabels = admin.importPosts;
 ---
 
-<Panel variant="default" class="mb-8">
-	<PageHeader title={importLabels.heading} lead={importLabels.lead} />
+<details class="ui-panel ui-panel--default mt-6" open={Boolean(importSiteId)}>
+	<summary class="ui-panel-summary">{importLabels.heading}</summary>
+	<p class="ui-lead mt-3">{importLabels.lead}</p>
 	{
 		sites.length === 0 ? (
 			<p class="mt-4 ui-muted">
@@ -51,7 +50,7 @@ const importLabels = admin.importPosts;
 			</form>
 		)
 	}
-</Panel>
+</details>
 
 {
 	sites.length > 1 && (

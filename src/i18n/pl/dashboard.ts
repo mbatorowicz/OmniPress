@@ -42,6 +42,7 @@ export const dashboard = {
 		},
 		fields: {
 			category: 'Kategoria',
+			categoryPlaceholder: '— wybierz kategorię —',
 			categoryHint: 'Lista pobierana z pliku kategorii w repozytorium Astro tej strony.',
 			categoryEmpty: 'Brak kategorii — administrator musi naprawić kanał Astro (plik kategorii w repo).',
 			title: 'Tytuł',

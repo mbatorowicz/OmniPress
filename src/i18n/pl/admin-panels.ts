@@ -1,6 +1,6 @@
 /** Teksty paneli admin CRUD (strony, destynacje, redaktorzy, akceptacja). */
 export const adminSites = {
-	title: 'Strony',
+	title: 'Jednostki (strony)',
 	edit: 'Edytuj stronę',
 	fields: {
 		name: 'Nazwa',
@@ -18,6 +18,7 @@ export const adminSites = {
 		heading: 'Usuń jednostkę organizacyjną',
 		lead: 'Trwale usuwa stronę z OmniPress. Działa tylko gdy nie ma żadnych wpisów przypisanych do tej jednostki.',
 		confirm: 'Rozumiem — usuń trwale',
+		postsCount: (n: number) => `(${n} wpisów)`,
 	},
 	errors: {
 		invalid_slug: 'Nieprawidłowy slug (min. 2 znaki, a-z, 0-9, myślnik).',
@@ -30,7 +31,6 @@ export const adminSites = {
 	wizardLink: 'Kreator: jednostka + Astro',
 	empty: 'Brak jednostek — utwórz pierwszą (np. UG Miedzna).',
 	lead: 'Kliknij nazwę jednostki, aby edytować GitHub, menu (Layout Astro), strony statyczne i ogłoszenia.',
-	back: '← Administracja',
 } as const;
 
 export const adminUnit = {
@@ -95,6 +95,7 @@ export const adminSitePages = {
 	seedFromNavHint:
 		'Tworzy brakujące strony statyczne dla linków wewnętrznych z menu Astro i publikuje je do GitHub.',
 	seedFromNavDone: 'Utworzono strony z menu i opublikowano w repozytorium.',
+	layoutSynced: 'Layout wysłany do GitHub.',
 	saved: 'Strona zapisana.',
 	published: 'Strona opublikowana w repozytorium GitHub.',
 	deleted: 'Strona usunięta.',
@@ -366,7 +367,13 @@ export const adminEditors = {
 		password: 'Hasło startowe (min. 8 znaków)',
 		sites: 'Dostępne strony',
 		defaultSite: 'Domyślna strona',
+		defaultSiteFirst: '— pierwsza zaznaczona —',
+		noSites: 'Najpierw utwórz jednostkę organizacyjną (stronę).',
 		submit: 'Utwórz redaktora',
+	},
+	list: {
+		heading: 'Konta redaktorów',
+		empty: 'Brak redaktorów — utwórz konto powyżej.',
 	},
 	errors: {
 		not_configured: 'Brak SUPABASE_SERVICE_ROLE_KEY — utwórz redaktora skryptem lub ustaw zmienną na Vercel.',

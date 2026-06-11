@@ -1,18 +1,21 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
 import UnitForm from '@/components/admin/UnitForm.astro';
-import { adminSites, adminUnit } from '@/i18n';
+import { adminUnit, layout } from '@/i18n';
 
 const errorCode = Astro.url.searchParams.get('error');
 const unitErrors = adminUnit.errors;
 const errorMessage =
 	errorCode && errorCode in unitErrors ? unitErrors[errorCode as keyof typeof unitErrors] : null;
+
+const breadcrumbs = [
+	{ label: layout.breadcrumb.admin, href: '/admin' },
+	{ label: layout.breadcrumb.units, href: '/admin/sites' },
+	{ label: layout.breadcrumb.unitNew },
+];
 ---
 
-<AppLayout title={adminUnit.title} heading={adminUnit.title}>
-	<a href="/admin/sites" class="mb-4 inline-block text-sm text-brand hover:underline">
-		← {adminSites.title}
-	</a>
+<AppLayout title={adminUnit.title} heading={adminUnit.title} {breadcrumbs}>
 	<p class="mb-4 text-sm text-slate-600">{adminUnit.lead}</p>
 
 	<UnitForm

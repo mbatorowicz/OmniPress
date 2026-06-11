@@ -6,6 +6,15 @@ Operacyjny przewodnik po panelu OmniPress. Stan funkcji: [STATUS.md](./STATUS.md
 
 ---
 
+## 0. Nawigacja panelu
+
+- **Sidebar** (stały, po lewej): *Kolejka wpisów* (`/admin`), *Panel treści* (`/dashboard`), *Jednostki (strony)* (`/admin/sites`), *+ Nowa jednostka*, *Redaktorzy* (`/admin/editors`). Na mobile — pozioma belka nad treścią.
+- **Breadcrumby** na każdej podstronie pokazują ścieżkę (np. `Administracja / Jednostki / UG Miedzna / Strony statyczne`).
+- W kontekście jednostki (`/admin/units/[id]/*`) dodatkowe zakładki: *Edytuj*, *Layout Astro*, *Strony statyczne*, *Ogłoś zmianę*.
+- `/admin` to wyłącznie kolejka wpisów — sekcje (*Do akceptacji*, *Zaplanowane*, *W toku*, *Opublikowane*) mają u góry podsumowanie z licznikami; import z GitHub jest zwijaną sekcją na dole.
+
+---
+
 ## 1. Pierwsza konfiguracja (kolejność)
 
 **Jednostka organizacyjna:** `/admin/units/new` lub edycja z listy stron — nazwa, slug, repozytorium GitHub (Astro) i opcjonalnie weryfikacja deployu Vercel w jednym formularzu.

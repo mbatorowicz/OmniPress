@@ -3,8 +3,22 @@ export const layout = {
 	navPanel: 'Panel',
 	navEditorPanel: 'Panel treści',
 	navSignOut: 'Wyloguj',
+	sidebar: {
+		groupQueue: 'Publikacja',
+		groupManage: 'Zarządzanie',
+		queue: 'Kolejka wpisów',
+		contentPanel: 'Panel treści',
+		units: 'Jednostki (strony)',
+		unitNew: '+ Nowa jednostka',
+		editors: 'Redaktorzy',
+	},
 	breadcrumb: {
 		admin: 'Administracja',
+		dashboard: 'Panel',
+		units: 'Jednostki',
+		editors: 'Redaktorzy',
+		unitNew: 'Nowa jednostka',
+		postReview: 'Podgląd wpisu',
 		unit: 'Jednostka',
 		layout: 'Layout Astro',
 		pages: 'Strony statyczne',
@@ -13,6 +27,9 @@ export const layout = {
 	},
 	aria: {
 		mainNav: 'Nawigacja główna',
+		sidebarNav: 'Nawigacja administracji',
+		breadcrumbs: 'Okruszki nawigacyjne',
 		adminContext: 'Kontekst jednostki',
+		queueSections: 'Sekcje kolejki wpisów',
 	},
 } as const;
