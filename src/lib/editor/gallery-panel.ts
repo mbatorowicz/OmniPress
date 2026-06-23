@@ -1,4 +1,5 @@
 import type { GalleryAsset } from './client-init';
+import { iconButtonHtml, stepButtonHtml } from '@/lib/ui/button-markup';
 
 type GalleryLabels = {
 	cover: string;
@@ -53,9 +54,9 @@ function renderGallery(root: HTMLElement, labels: GalleryLabels, postId: string)
 			<div class="flex items-center justify-between gap-1 border-t border-slate-100 px-2 py-1.5">
 				<span class="truncate text-xs text-slate-600" title="${asset.filename}">${asset.filename}</span>
 				<div class="flex shrink-0 gap-1">
-					<button type="button" data-gallery-up class="rounded border border-slate-200 px-1.5 py-0.5 text-xs hover:bg-slate-50" ${index === 0 ? 'disabled' : ''} aria-label="${labels.moveUp}">↑</button>
-					<button type="button" data-gallery-down class="rounded border border-slate-200 px-1.5 py-0.5 text-xs hover:bg-slate-50" ${index === order.length - 1 ? 'disabled' : ''} aria-label="${labels.moveDown}">↓</button>
-					<button type="button" data-gallery-remove class="ui-btn ui-btn--icon-danger text-xs" aria-label="${labels.remove}">×</button>
+					${stepButtonHtml({ ariaLabel: labels.moveUp, label: '↑', disabled: index === 0, attrs: { 'data-gallery-up': '' } })}
+					${stepButtonHtml({ ariaLabel: labels.moveDown, label: '↓', disabled: index === order.length - 1, attrs: { 'data-gallery-down': '' } })}
+					${iconButtonHtml({ variant: 'iconDanger', ariaLabel: labels.remove, icon: 'x', attrs: { 'data-gallery-remove': '' } })}
 				</div>
 			</div>
 		`;

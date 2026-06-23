@@ -1,24 +1,25 @@
 @layer components {
+	/* Wymaga klasy bazowej .ui-btn na elemencie (button / a). */
 	.ui-btn {
-		@apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2;
+		@apply inline-flex select-none items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-[color,background-color,border-color,transform,opacity] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 active:scale-[0.98];
 	}
 	.ui-btn--primary {
-		@apply bg-brand text-white hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50;
+		@apply bg-brand text-white hover:bg-brand-dark active:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50;
 	}
 	.ui-btn--secondary {
-		@apply border border-slate-200 bg-white text-slate-800 hover:border-brand;
+		@apply border border-slate-200 bg-white text-slate-800 hover:border-brand active:bg-slate-50;
 	}
 	.ui-btn--nav-accent {
-		@apply border border-brand bg-brand/5 font-medium text-brand hover:bg-brand/10;
+		@apply border border-brand bg-brand/5 font-medium text-brand hover:bg-brand/10 active:bg-brand/15;
 	}
 	.ui-btn--warning {
-		@apply border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-40;
+		@apply border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 active:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-40;
 	}
 	.ui-btn--danger {
-		@apply border border-red-300 bg-red-50 text-red-800 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-40;
+		@apply border border-red-300 bg-red-50 text-red-800 hover:bg-red-100 active:bg-red-200 disabled:cursor-not-allowed disabled:opacity-40;
 	}
 	.ui-btn--ghost {
-		@apply border border-slate-200 px-2 py-1 text-xs hover:bg-slate-50;
+		@apply border border-slate-200 px-2 py-1 text-xs hover:bg-slate-50 active:bg-slate-100;
 	}
 	.ui-btn--block {
 		@apply w-full;
@@ -27,21 +28,27 @@
 		@apply px-5 py-2.5;
 	}
 	.ui-btn--add {
-		@apply border border-slate-200 px-3 py-1.5 text-xs text-slate-700 hover:border-brand;
+		@apply border border-slate-200 px-3 py-1.5 text-xs text-slate-700 hover:border-brand active:bg-slate-50;
 	}
 	.ui-btn--preset {
-		@apply border border-slate-200 px-2 py-1 text-xs hover:border-brand;
+		@apply border border-slate-200 px-2 py-1 text-xs hover:border-brand active:bg-slate-50;
 	}
 	.ui-btn--file {
-		@apply cursor-pointer rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50;
+		@apply cursor-pointer rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50 active:bg-slate-100;
 	}
 	.ui-btn--icon-danger {
-		@apply shrink-0 rounded border border-red-300 p-1 text-red-800 hover:bg-red-100;
+		@apply min-h-8 min-w-8 shrink-0 rounded border border-red-300 p-1.5 text-red-800 hover:bg-red-100 active:bg-red-200;
+	}
+	.ui-btn--step {
+		@apply min-h-7 min-w-7 rounded border border-slate-200 px-1.5 py-0.5 text-xs hover:bg-slate-50 active:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40;
+	}
+	.ui-btn--toolbar {
+		@apply rounded px-2 py-1 text-sm hover:bg-white active:bg-slate-100;
 	}
 	.ui-link {
-		@apply font-medium text-brand hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2;
+		@apply font-medium text-brand hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 active:opacity-80;
 	}
 	.ui-link--danger {
-		@apply text-xs text-red-700 hover:underline;
+		@apply text-xs text-red-700 hover:underline active:opacity-80;
 	}
 }

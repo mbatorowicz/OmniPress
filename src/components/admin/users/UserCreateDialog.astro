@@ -1,6 +1,7 @@
 ---
 import Alert from '@/components/ui/feedback/Alert.astro';
 import Button from '@/components/ui/actions/Button.astro';
+import IconButton from '@/components/ui/actions/IconButton.astro';
 import { adminUsers } from '@/i18n';
 import type { SiteRow } from '@/lib/posts/site';
 
@@ -21,9 +22,7 @@ const t = adminUsers.create;
 			<h2 class="ui-heading">{t.heading}</h2>
 			<p class="ui-lead">{t.lead}</p>
 		</div>
-		<button type="button" id="user-create-close" class="ui-dialog-close" aria-label={t.closeAria}>
-			✕
-		</button>
+		<IconButton id="user-create-close" variant="iconDanger" icon="x" ariaLabel={t.closeAria} class="ui-dialog-close" />
 	</div>
 
 	{errorMessage && <Alert variant="error">{errorMessage}</Alert>}

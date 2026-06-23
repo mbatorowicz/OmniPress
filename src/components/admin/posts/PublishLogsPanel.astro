@@ -1,5 +1,6 @@
 ---
 import Panel from '@/components/ui/layout/Panel.astro';
+import Button from '@/components/ui/actions/Button.astro';
 import Table from '@/components/ui/table/Table.astro';
 import TableHead from '@/components/ui/table/TableHead.astro';
 import TableBody from '@/components/ui/table/TableBody.astro';
@@ -58,9 +59,9 @@ if (logs.length === 0) return null;
 								{
 									failed && (
 										<form method="post" action={`/api/admin/posts/${postId}/publish-logs/${log.id}/retry`}>
-											<button type="submit" class="ui-link border-0 bg-transparent p-0">
+											<Button type="submit" variant="ghost" class="border-0 bg-transparent p-0 text-brand">
 												{logsUi.retry}
-											</button>
+											</Button>
 										</form>
 									)
 								}

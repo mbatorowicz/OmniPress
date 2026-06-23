@@ -11,6 +11,6 @@ const { name, size = 16, class: className } = Astro.props;
 ---
 
 <span
-	class:list={['inline-flex shrink-0 items-center justify-center', className]}
+	class:list={['pointer-events-none inline-flex shrink-0 items-center justify-center', className]}
 	set:html={iconSvg(name, size)}
 />

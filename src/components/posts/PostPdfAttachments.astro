@@ -1,5 +1,6 @@
 ---
 import Icon from '@/components/ui/Icon.astro';
+import IconButton from '@/components/ui/actions/IconButton.astro';
 import { isPdfAsset, publicUrlForAsset, type PostAssetRow } from '@/lib/posts/assets';
 
 type Props = {
@@ -33,7 +34,7 @@ const pdfAssets = assets.filter(isPdfAsset);
 >
 	<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
 		<h3 class="ui-subheading">{labels.heading}</h3>
-		<label class="ui-btn--file">
+		<label class="ui-btn ui-btn--file">
 			{labels.add}
 			<input type="file" accept="application/pdf" class="hidden" data-pdf-upload />
 		</label>
@@ -54,7 +55,7 @@ const pdfAssets = assets.filter(isPdfAsset);
 					>
 						<div class="min-w-0 flex-1">
 							<p class="ui-subheading flex items-center gap-1.5 truncate">
-								<Icon name="file-text" size={16} class="ui-muted" />
+								<Icon name="file-text" size={16} class="ui-muted pointer-events-none" />
 								{asset.filename}
 							</p>
 							{url && (
@@ -85,14 +86,12 @@ const pdfAssets = assets.filter(isPdfAsset);
 								{labels.displayEmbed}
 							</label>
 						</fieldset>
-						<button
-							type="button"
-							data-pdf-remove
-							class="ui-btn--icon-danger"
-							aria-label={labels.remove}
-						>
-							<Icon name="x" size={14} />
-						</button>
+						<IconButton
+							variant="iconDanger"
+							icon="x"
+							ariaLabel={labels.remove}
+							dataset={{ 'pdf-remove': '' }}
+						/>
 					</li>
 				);
 			})

@@ -1,5 +1,5 @@
 ---
-export type ButtonVariant = 'primary' | 'secondary' | 'nav-accent' | 'warning' | 'danger' | 'ghost' | 'add' | 'preset';
+type ButtonVariant = 'primary' | 'secondary' | 'nav-accent' | 'warning' | 'danger' | 'ghost' | 'add' | 'preset' | 'iconDanger' | 'step' | 'toolbar';
 
 interface Props {
 	variant?: ButtonVariant;
@@ -15,6 +15,7 @@ interface Props {
 	formaction?: string;
 	formnovalidate?: boolean;
 	id?: string;
+	dataset?: Record<string, string>;
 }
 
 const {
@@ -31,11 +32,21 @@ const {
 	formaction,
 	formnovalidate,
 	id,
+	dataset = {},
 } = Astro.props;
+
+const dataAttrs = Object.fromEntries(
+	Object.entries(dataset)
+		.filter(([, value]) => value !== undefined)
+		.map(([key, value]) => [`data-${key}`, value ?? '']),
+);
+
+const variantClass =
+	variant === 'iconDanger' ? 'ui-btn--icon-danger' : `ui-btn--${variant}`;
 
 const classes = [
 	'ui-btn',
-	`ui-btn--${variant}`,
+	variantClass,
 	block ? 'ui-btn--block' : '',
 	large ? 'ui-btn--lg' : '',
 	className,
@@ -60,6 +71,7 @@ const classes = [
 			formnovalidate={formnovalidate}
 			id={id}
 			data-confirm={confirm}
+			{...dataAttrs}
 		>
 			<slot />
 		</button>

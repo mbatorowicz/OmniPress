@@ -1,4 +1,6 @@
 /** Teksty panelu zarządzania użytkownikami (administratorzy + redaktorzy). */
+import { ui } from './ui';
+
 export const adminUsers = {
 	title: 'Użytkownicy',
 	lead: 'Konta administratorów i redaktorów — dodawanie, ustawienia konta, uprawnienia.',
@@ -8,8 +10,8 @@ export const adminUsers = {
 	},
 	create: {
 		open: '+ Nowy użytkownik',
-		cancel: 'Anuluj',
-		closeAria: 'Zamknij okno',
+		cancel: ui.actions.cancel,
+		closeAria: ui.actions.close,
 		heading: 'Nowy użytkownik',
 		lead: 'Konto loguje się na /login (e-mail + hasło). Hasło przekaż użytkownikowi bezpiecznym kanałem.',
 		email: 'E-mail',
@@ -33,14 +35,14 @@ export const adminUsers = {
 		displayName: 'Imię i nazwisko',
 		role: 'Rola',
 		newPassword: 'Nowe hasło (puste = bez zmiany)',
-		save: 'Zapisz ustawienia',
+		save: ui.actions.save,
 	},
 	permissions: {
 		heading: 'Uprawnienia',
 		adminInfo: 'Administrator ma dostęp do wszystkich stron i całej administracji.',
 		sites: 'Dostępne strony',
 		defaultSite: 'Domyślna strona',
-		save: 'Zapisz uprawnienia',
+		save: `${ui.actions.save} uprawnienia`,
 	},
 	delete: {
 		heading: 'Usuń konto',

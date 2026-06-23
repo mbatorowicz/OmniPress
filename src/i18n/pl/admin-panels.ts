@@ -1,4 +1,6 @@
 /** Teksty paneli admin CRUD (strony, destynacje, akceptacja). */
+import { ui } from './ui';
+
 export const adminSites = {
 	title: 'Strony',
 	edit: 'Edytuj stronę',
@@ -9,7 +11,7 @@ export const adminSites = {
 		inactive: 'nieaktywna',
 	},
 	actions: {
-		save: 'Zapisz',
+		save: ui.actions.save,
 		create: 'Utwórz',
 		delete: 'Usuń stronę',
 	},
@@ -262,8 +264,8 @@ export const adminLayout = {
 		importFromGitHub: 'Importuj z GitHub (nadpisuje dane w OmniPress)',
 		addCategory: '+ Dodaj kategorię',
 		addComponent: '+ Dodaj komponent',
-		removeCategory: 'Usuń',
-		removeSlot: 'Usuń',
+		removeCategory: ui.actions.remove,
+		removeSlot: ui.actions.remove,
 	},
 	variants: {
 		default: 'Domyślny',

@@ -94,20 +94,12 @@ const kindLabels = adminRecentChanges.kinds;
 
 		<div class="flex flex-wrap gap-2 text-xs">
 			<span class="ui-hint">{adminRecentChanges.presets.label}:</span>
-			<button
-				type="button"
-				class="ui-btn ui-btn--preset preset-href"
-				data-href="/kontakt"
-			>
+			<Button type="button" variant="preset" class="preset-href" dataset={{ href: '/kontakt' }}>
 				{adminRecentChanges.presets.kontakt}
-			</button>
-			<button
-				type="button"
-				class="ui-btn ui-btn--preset preset-href"
-				data-href="/"
-			>
+			</Button>
+			<Button type="button" variant="preset" class="preset-href" dataset={{ href: '/' }}>
 				{adminRecentChanges.presets.home}
-			</button>
+			</Button>
 		</div>
 
 		<label class="ui-label">

@@ -63,7 +63,9 @@ src/
 - **Design system:** `src/components/ui/` — podfoldery `actions/`, `feedback/`, `form/`, `table/`, `layout/`, `navigation/`.
 - **Wzorce:** `src/components/shared/` — `FlashAlerts`, `ConfirmScript`.
 - **Domena:** `src/components/admin/`, `src/components/posts/` — logika panelu; importują tylko `ui/` i `shell/`.
-- **Logika klienta UI:** `src/lib/ui/` — `confirm.ts`, `flash.ts`, `icons.ts`.
+- **Logika klienta UI:** `src/lib/ui/` — `confirm.ts`, `dom.ts` (`eventTargetElement` — delegacja kliknięć, nie `instanceof HTMLElement` przy SVG), `button-markup.ts`, `flash.ts`, `icons.ts`.
+- **Przyciski:** `Button.astro` i `IconButton.astro` (`src/components/ui/actions/`); warianty w `src/styles/ui/buttons.css`. Ikony w przyciskach: `pointer-events-none` (`Icon.astro` / `icons.ts`). HTML z TS: `button-markup.ts`.
+- **Teksty akcji:** `src/i18n/pl/ui.ts` — wspólne etykiety (`save`, `remove`, `confirm.removeItem`); domenowe pliki składają z `ui`.
 - **Zakaz** długich stringów Tailwind w stronach — komponent `ui/*` lub klasa `ui-*`.
 - Importy wyłącznie przez alias `@/`.
 - Wyjątki: siatki flex/grid, edytor TipTap, galeria — lokalne klasy strukturalne.

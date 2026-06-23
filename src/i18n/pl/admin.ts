@@ -1,4 +1,5 @@
 import { common } from './common';
+import { ui } from './ui';
 
 export const admin = {
 	title: 'Administracja',
@@ -63,7 +64,7 @@ export const admin = {
 		bulkDeleteConfirm:
 			'Trwale usunąć {n} wpisów z OmniPress? Tej operacji nie można cofnąć.',
 		deactivate: 'Dezaktywuj',
-		delete: 'Usuń',
+		delete: ui.actions.delete,
 		deactivateConfirm:
 			'Zdjąć wpis ze strony publicznej? W CMS wróci do szkicu — można go później ponownie opublikować.',
 		deleteConfirm:

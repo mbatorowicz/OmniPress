@@ -1,0 +1,46 @@
+---
+import Icon from '@/components/ui/Icon.astro';
+import type { IconName } from '@/lib/ui/icons';
+
+export type IconButtonVariant = 'iconDanger' | 'step' | 'toolbar';
+
+interface Props {
+	variant?: IconButtonVariant;
+	icon?: IconName;
+	ariaLabel: string;
+	disabled?: boolean;
+	class?: string;
+	id?: string;
+	dataset?: Record<string, string>;
+}
+
+const {
+	variant = 'iconDanger',
+	icon = 'x',
+	ariaLabel,
+	disabled,
+	class: className = '',
+	id,
+	dataset = {},
+} = Astro.props;
+
+const dataAttrs = Object.fromEntries(
+	Object.entries(dataset)
+		.filter(([, value]) => value !== undefined)
+		.map(([key, value]) => [`data-${key}`, value ?? '']),
+);
+
+const VARIANT_CLASS: Record<IconButtonVariant, string> = {
+	iconDanger: 'ui-btn--icon-danger',
+	step: 'ui-btn--step',
+	toolbar: 'ui-btn--toolbar',
+};
+
+const classes = ['ui-btn', VARIANT_CLASS[variant], className].filter(Boolean).join(' ');
+---
+
+<button type="button" class={classes} aria-label={ariaLabel} disabled={disabled} id={id} {...dataAttrs}>
+	<slot>
+		<Icon name={icon} size={variant === 'step' ? 14 : 16} />
+	</slot>
+</button>

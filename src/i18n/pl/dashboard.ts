@@ -1,4 +1,5 @@
 import { common } from './common';
+import { ui } from './ui';
 
 export const dashboard = {
 	title: 'Panel redaktora',
@@ -67,11 +68,11 @@ export const dashboard = {
 			add: '+ Dodaj zdjęcia',
 			cover: 'Zajawka',
 			gallery: 'Galeria',
-			moveUp: 'W górę',
-			moveDown: 'W dół',
-			remove: 'Usuń zdjęcie',
-			confirmRemove: 'Usunąć to zdjęcie z galerii? Tej operacji nie można cofnąć.',
-			removeFailed: 'Nie udało się usunąć zdjęcia.',
+			moveUp: ui.actions.moveUp,
+			moveDown: ui.actions.moveDown,
+			remove: `${ui.actions.remove} zdjęcie`,
+			confirmRemove: ui.confirm.removeItem(ui.assets.photo),
+			removeFailed: ui.errors.removeFailed,
 		},
 		pdfAttachments: {
 			heading: 'Załączniki PDF',
@@ -79,9 +80,9 @@ export const dashboard = {
 			add: '+ Dodaj PDF',
 			displayLink: 'Link do pobrania',
 			displayEmbed: 'Podgląd PDF na stronie',
-			remove: 'Usuń PDF',
-			confirmRemove: 'Usunąć ten plik PDF? Tej operacji nie można cofnąć.',
-			removeFailed: 'Nie udało się usunąć pliku PDF.',
+			remove: `${ui.actions.remove} PDF`,
+			confirmRemove: ui.confirm.removeItem(ui.assets.pdf),
+			removeFailed: ui.errors.removeFailed,
 		},
 		attachments: {
 			heading: 'Załączniki',
@@ -94,11 +95,11 @@ export const dashboard = {
 			unusedImage: 'Nie wstawione w treść',
 		},
 		actions: {
-			save: 'Zapisz szkic',
+			save: ui.actions.saveDraft,
 			submit: 'Wyślij do akceptacji',
 			confirmSubmit: 'Wysłać do akceptacji? Po wysłaniu nie będziesz mógł edytować.',
 			delete: 'Usuń wpis',
-			confirmDelete: 'Usunąć ten wpis wraz z załącznikami? Tej operacji nie można cofnąć.',
+			confirmDelete: ui.confirm.deleteEntry,
 			addImage: 'Dodaj plik (zdjęcie / PDF)',
 			goToReview: 'Przejdź do akceptacji →',
 		},

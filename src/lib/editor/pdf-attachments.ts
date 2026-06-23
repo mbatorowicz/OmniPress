@@ -1,3 +1,5 @@
+import { iconButtonHtml } from '@/lib/ui/button-markup';
+import { eventTargetElement } from '@/lib/ui/dom';
 import { iconSvg } from '@/lib/ui/icons';
 
 type PdfLabels = {
@@ -26,10 +28,16 @@ function buildPdfRow(
 	li.className =
 		'flex flex-wrap items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2';
 	li.dataset.assetId = asset.id;
+	const removeBtn = iconButtonHtml({
+		variant: 'iconDanger',
+		ariaLabel: labels.remove,
+		icon: 'x',
+		attrs: { 'data-pdf-remove': '' },
+	});
 	li.innerHTML = `
 		<div class="min-w-0 flex-1">
 			<p class="ui-subheading flex items-center gap-1.5 truncate">
-				<span class="inline-flex shrink-0 ui-muted">${iconSvg('file-text', 16)}</span>
+				<span class="inline-flex shrink-0 ui-muted pointer-events-none">${iconSvg('file-text', 16)}</span>
 				<span class="truncate">${asset.filename}</span>
 			</p>
 			<a href="${asset.url}" target="_blank" rel="noopener noreferrer" class="ui-link text-xs">${asset.url}</a>
@@ -44,12 +52,7 @@ function buildPdfRow(
 				<span data-label-embed></span>
 			</label>
 		</fieldset>
-		<button
-			type="button"
-			data-pdf-remove
-			class="ui-btn--icon-danger"
-			aria-label="${labels.remove}"
-		>${iconSvg('x', 14)}</button>
+		${removeBtn}
 	`;
 	const labelLink = li.querySelector('[data-label-link]');
 	const labelEmbed = li.querySelector('[data-label-embed]');
@@ -104,8 +107,8 @@ export function mountPdfAttachments(root: HTMLElement): void {
 	const labels = readLabels(root);
 
 	list?.addEventListener('click', (event) => {
-		const target = event.target;
-		if (!(target instanceof HTMLElement)) return;
+		const target = eventTargetElement(event);
+		if (!target) return;
 		const btn = target.closest('[data-pdf-remove]');
 		if (!btn) return;
 		const li = btn.closest('li');

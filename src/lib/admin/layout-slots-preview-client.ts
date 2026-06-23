@@ -1,4 +1,5 @@
 import { swapAdjacentOrders } from '@/lib/astro-layout/slots';
+import { stepButtonHtml } from '@/lib/ui/button-markup';
 
 export interface LayoutSlotsPreviewConfig {
 	componentLabels: Record<string, string>;
@@ -109,8 +110,8 @@ function buildCardHtml(
 					<p class="truncate text-xs text-slate-500">${componentLabel}</p>
 				</div>
 				<div class="flex shrink-0 gap-1">
-					<button type="button" class="slot-preview-up rounded border border-slate-200 bg-white px-1.5 py-0.5 text-xs hover:bg-slate-100" ${index === 0 ? 'disabled' : ''} aria-label="${config.moveUp}">↑</button>
-					<button type="button" class="slot-preview-down rounded border border-slate-200 bg-white px-1.5 py-0.5 text-xs hover:bg-slate-100" ${index === total - 1 ? 'disabled' : ''} aria-label="${config.moveDown}">↓</button>
+					${stepButtonHtml({ ariaLabel: config.moveUp, label: '↑', disabled: index === 0, className: 'slot-preview-up' })}
+					${stepButtonHtml({ ariaLabel: config.moveDown, label: '↓', disabled: index === total - 1, className: 'slot-preview-down' })}
 				</div>
 			</div>
 		</div>

@@ -1,4 +1,5 @@
 ---
+import Button from '@/components/ui/actions/Button.astro';
 import { adminDestinations } from '@/i18n';
 
 interface Props {
@@ -15,9 +16,9 @@ const { destinationId } = Astro.props;
 	data-dest-field="astro_destination_id"
 	data-destination-id={destinationId ?? ''}
 >
-	<button type="button" data-test-btn class="ui-btn ui-btn--secondary px-3 py-1.5">
+	<Button type="button" variant="secondary" class="px-3 py-1.5" dataset={{ 'test-btn': '' }}>
 		{adminDestinations.actions.testChannel}
-	</button>
+	</Button>
 	<p class="mt-2 hidden text-sm" data-test-result role="status"></p>
 </div>
 

@@ -26,13 +26,13 @@ const { initialMarkdown, placeholder, toolbar } = Astro.props;
 	data-link-prompt={toolbar.linkPrompt}
 >
 	<div class="flex flex-wrap gap-1 border-b border-slate-200 bg-slate-50 px-2 py-2">
-		<button type="button" data-editor-cmd="bold" class="rounded px-2 py-1 text-sm font-bold hover:bg-white" title={toolbar.bold}>B</button>
-		<button type="button" data-editor-cmd="italic" class="rounded px-2 py-1 text-sm italic hover:bg-white" title={toolbar.italic}>I</button>
-		<button type="button" data-editor-cmd="h2" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.h2}>H2</button>
-		<button type="button" data-editor-cmd="h3" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.h3}>H3</button>
-		<button type="button" data-editor-cmd="bullet" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.bulletList}>{toolbar.bulletList}</button>
-		<button type="button" data-editor-cmd="ordered" class="rounded px-2 py-1 text-sm hover:bg-white" title={toolbar.orderedList}>{toolbar.orderedList}</button>
-		<button type="button" data-editor-cmd="link" class="rounded px-2 py-1 text-sm text-slate-600 hover:bg-white" title={toolbar.link}>
+		<button type="button" data-editor-cmd="bold" class="ui-btn ui-btn--toolbar font-bold" title={toolbar.bold}>B</button>
+		<button type="button" data-editor-cmd="italic" class="ui-btn ui-btn--toolbar italic" title={toolbar.italic}>I</button>
+		<button type="button" data-editor-cmd="h2" class="ui-btn ui-btn--toolbar" title={toolbar.h2}>H2</button>
+		<button type="button" data-editor-cmd="h3" class="ui-btn ui-btn--toolbar" title={toolbar.h3}>H3</button>
+		<button type="button" data-editor-cmd="bullet" class="ui-btn ui-btn--toolbar" title={toolbar.bulletList}>{toolbar.bulletList}</button>
+		<button type="button" data-editor-cmd="ordered" class="ui-btn ui-btn--toolbar" title={toolbar.orderedList}>{toolbar.orderedList}</button>
+		<button type="button" data-editor-cmd="link" class="ui-btn ui-btn--toolbar text-slate-600" title={toolbar.link}>
 			<Icon name="link" size={16} />
 		</button>
 	</div>
