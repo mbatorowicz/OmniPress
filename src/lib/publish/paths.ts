@@ -45,3 +45,18 @@ export function parseExternalGitHubPath(externalId: string | null): string | nul
 export function formatExternalGitHubPath(filePath: string): string {
 	return `github:${filePath}`;
 }
+
+/** Folder wpisu (bez pliku markdown), np. src/content/news/slug */
+export function postDirFromMarkdownPath(markdownPath: string): string {
+	return markdownPath.replace(/\/[^/]+$/, '');
+}
+
+/** Segment slug z pełnej ścieżki index.md (layout folder). */
+export function postSlugFromMarkdownPath(markdownPath: string, contentPath: string): string {
+	const postDir = postDirFromMarkdownPath(markdownPath);
+	const root = contentPath.replace(/^\/+|\/+$/g, '');
+	const prefix = `${root}/`;
+	if (postDir.startsWith(prefix)) return postDir.slice(prefix.length);
+	const parts = postDir.split('/').filter(Boolean);
+	return parts[parts.length - 1] ?? postDir;
+}

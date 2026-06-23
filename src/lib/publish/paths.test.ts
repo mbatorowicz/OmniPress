@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { joinContentPath, resolvePostSlug, slugFileCandidates } from './paths';
+import { joinContentPath, postDirFromMarkdownPath, postSlugFromMarkdownPath, resolvePostSlug, slugFileCandidates } from './paths';
 import type { PostForPublish } from './types';
 
 const post = (overrides: Partial<PostForPublish> = {}): PostForPublish => ({
@@ -44,5 +44,22 @@ describe('slugFileCandidates', () => {
 			'informacja/index.md',
 			'informacja-2/index.md',
 		]);
+	});
+});
+
+describe('postDirFromMarkdownPath', () => {
+	it('zwraca folder wpisu bez pliku', () => {
+		expect(postDirFromMarkdownPath('src/content/news/test/index.md')).toBe('src/content/news/test');
+	});
+});
+
+describe('postSlugFromMarkdownPath', () => {
+	it('wyciąga slug z pełnej ścieżki', () => {
+		expect(
+			postSlugFromMarkdownPath(
+				'src/content/news/mozliwosci-finansowania-projektow-realizowanych-przez-kgw/index.md',
+				'src/content/news',
+			),
+		).toBe('mozliwosci-finansowania-projektow-realizowanych-przez-kgw');
 	});
 });

@@ -18,12 +18,17 @@ import {
 	httpStatusFromError,
 	parseGitHubRepoConfig,
 	putGitHubFile,
+	deleteGitHubFilesBatch,
+	expandGitHubWithdrawPaths,
+	listGitHubTreeBlobPaths,
 	type GitHubConfig,
 } from './github-api';
 import {
 	formatExternalGitHubPath,
 	joinContentPath,
 	parseExternalGitHubPath,
+	postDirFromMarkdownPath,
+	postSlugFromMarkdownPath,
 	resolvePostSlug,
 	slugFileCandidates,
 } from './paths';
@@ -34,12 +39,17 @@ import { parseVercelConfig } from './vercel-api';
 import { waitForVercelBuild } from './vercel-deploy';
 import type { DestinationForPublish, PostForPublish, PublishResult } from './types';
 
-function publishedAssetUrl(cfg: GitHubConfig, slug: string, assetName: string): string {
+function publishedAssetUrl(
+	cfg: GitHubConfig,
+	postDir: string,
+	assetName: string,
+): string {
+	const folderSlug = postSlugFromMarkdownPath(`${postDir}/index.md`, cfg.contentPath);
 	if (cfg.assetPublicBase && cfg.contentLayout === 'folder') {
-		return `/${cfg.assetPublicBase}/${slug}/${assetName}`;
+		return `/${cfg.assetPublicBase}/${folderSlug}/${assetName}`;
 	}
 	if (cfg.contentLayout === 'folder') return `./${assetName}`;
-	return `./assets/${slug}/${assetName}`;
+	return `./assets/${folderSlug}/${assetName}`;
 }
 
 async function pickMarkdownPath(
@@ -65,10 +75,56 @@ async function pickMarkdownPath(
 	return { filePath: fallback };
 }
 
-async function uploadPostAssets(
+type MarkdownPathPick = { filePath: string; existingSha?: string; cleanupExternalId?: string };
+
+/** Wybiera ścieżkę index.md; przy zmianie slug (folder) przenosi publikację do nowego folderu. */
+async function resolvePublishMarkdownPath(
 	cfg: ReturnType<typeof parseGitHubRepoConfig> & object,
 	token: string,
 	slug: string,
+	preferredPath: string | null,
+): Promise<MarkdownPathPick> {
+	if (cfg.contentLayout === 'folder') {
+		const slugPath = joinContentPath(cfg.contentPath, slug, 'index.md');
+		if (preferredPath) {
+			const preferredDir = postDirFromMarkdownPath(preferredPath);
+			const slugDir = postDirFromMarkdownPath(slugPath);
+			if (preferredDir !== slugDir) {
+				const existing = await getGitHubFile(cfg, token, slugPath);
+				return {
+					filePath: slugPath,
+					existingSha: existing?.sha,
+					cleanupExternalId: formatExternalGitHubPath(preferredPath),
+				};
+			}
+		}
+	}
+
+	const picked = await pickMarkdownPath(cfg, token, slug, preferredPath);
+	return picked;
+}
+
+async function cleanupStalePostFolder(
+	cfg: ReturnType<typeof parseGitHubRepoConfig> & object,
+	token: string,
+	cleanupExternalId: string,
+	postTitle: string,
+): Promise<void> {
+	const allBlobPaths = await listGitHubTreeBlobPaths(cfg, token);
+	const paths = expandGitHubWithdrawPaths([cleanupExternalId], cfg, allBlobPaths);
+	if (paths.length === 0) return;
+	await deleteGitHubFilesBatch(
+		cfg,
+		token,
+		paths,
+		`OmniPress: sprzątanie starego folderu — ${postTitle}`,
+	);
+}
+
+async function uploadPostAssets(
+	cfg: ReturnType<typeof parseGitHubRepoConfig> & object,
+	token: string,
+	postDir: string,
 	assets: Awaited<ReturnType<typeof loadPostAssets>>,
 ): Promise<{ map: Map<string, string>; errors: string[] }> {
 	const map = new Map<string, string>();
@@ -89,9 +145,9 @@ async function uploadPostAssets(
 		const assetName = asset.storage_path.split('/').pop() ?? asset.filename;
 		const gitPath =
 			cfg.contentLayout === 'folder'
-				? joinContentPath(cfg.contentPath, slug, assetName)
-				: joinContentPath(cfg.contentPath, 'assets', slug, assetName);
-		const relative = publishedAssetUrl(cfg, slug, assetName);
+				? joinContentPath(postDir, assetName)
+				: joinContentPath(cfg.contentPath, 'assets', postSlugFromMarkdownPath(`${postDir}/index.md`, cfg.contentPath), assetName);
+		const relative = publishedAssetUrl(cfg, postDir, assetName);
 
 		try {
 			await putGitHubFile(
@@ -133,18 +189,28 @@ export async function publishToGitHubAstro(
 	try {
 		const slug = resolvePostSlug(post);
 		const preferredPath = parseExternalGitHubPath(existingExternalId ?? null);
-		const { filePath, existingSha } = await pickMarkdownPath(
+		const { filePath, existingSha, cleanupExternalId } = await resolvePublishMarkdownPath(
 			cfg,
 			creds.token,
 			slug,
 			preferredPath,
 		);
+		const postDir = postDirFromMarkdownPath(filePath);
+		const publishSlug = postSlugFromMarkdownPath(filePath, cfg.contentPath);
+
+		if (cleanupExternalId) {
+			try {
+				await cleanupStalePostFolder(cfg, creds.token, cleanupExternalId, post.title);
+			} catch {
+				// Sprzątanie nie blokuje publikacji — nowy folder i tak powstaje
+			}
+		}
 
 		const assets = await loadPostAssets(supabase, post.id);
 		const { map: urlMap, errors: uploadErrors } = await uploadPostAssets(
 			cfg,
 			creds.token,
-			slug,
+			postDir,
 			assets,
 		);
 		if (uploadErrors.length > 0) {
@@ -205,7 +271,7 @@ export async function publishToGitHubAstro(
 		);
 
 		try {
-			await appendRecentChangeOnGitHub(cfg, creds.token, destination.config, buildPostRecentChangeEntry(post, slug));
+			await appendRecentChangeOnGitHub(cfg, creds.token, destination.config, buildPostRecentChangeEntry(post, publishSlug));
 		} catch {
 			// Rejestr zmian nie blokuje publikacji wpisu
 		}

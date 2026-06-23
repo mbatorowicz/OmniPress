@@ -3,6 +3,14 @@
 Format: [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+commit`.
 
+## [0.9.2] — 2026-06-03
+
+### Naprawione
+
+- Publikacja GitHub (layout folder): załączniki trafiają do tego samego folderu co `index.md` (`postDir` z `pickMarkdownPath`), nie do osobnego `posts.slug` — naprawia 404 PDF na stronie gminy przy rozjechanym slug.
+- Przy zmianie slug między publikacjami: wpis publikowany do nowego folderu, stary folder sprzątany z repo (`expandGitHubWithdrawPaths` + batch delete).
+- Migracja `npm run setup:fix-kgw-slug` — synchronizacja `posts.slug` i `publish_logs.external_id` dla wpisu KGW.
+
 ## [0.9.1] — 2026-06-11
 
 ### Dodane
