@@ -22,10 +22,11 @@ describe('scheduled-publish', () => {
 		expect(text).toContain('17');
 	});
 
-	it('odrzuca przeszłą datę przy wysyłce', () => {
+	it('akceptuje przeszłą datę przy wysyłce', () => {
 		const past = utcIsoToWallTimeInput(new Date(Date.now() - 3600_000).toISOString());
 		const result = parseScheduledPublishAtInput(past);
-		expect(result.error).toBe('past');
+		expect(result.error).toBeUndefined();
+		expect(result.value).toBeTruthy();
 	});
 
 	it('pusta wartość = publikacja w momencie wysłania (bez błędu)', () => {

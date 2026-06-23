@@ -52,6 +52,11 @@ const pdfUi = ed.pdfAttachments;
 	</Alert>
 )}
 {categoriesUnavailable && <Alert variant="error">{ed.fields.categoryEmpty}</Alert>}
+{post.status === 'rejected' && post.rejection_note && (
+	<Alert variant="warning">
+		<strong>{ed.rejectionNote}</strong> {post.rejection_note}
+	</Alert>
+)}
 {isAmendment && <Alert variant="info">{ed.fields.amendmentHint}</Alert>}
 
 <form

@@ -113,6 +113,7 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub.
 | `20250616000000_storage_import_admin.sql` | `setup:storage-import-admin` |
 | `20250617000000_author_on_delete_set_null.sql` | `setup:author-on-delete` |
 | `20250618000000_posts_delete_own.sql` | `setup:posts-delete-own` |
+| `20250619000000_posts_rejected_resubmit.sql` | `setup:posts-rejected-resubmit` |
 
 ---
 

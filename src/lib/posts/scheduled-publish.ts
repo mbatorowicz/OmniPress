@@ -92,13 +92,12 @@ export function formatScheduledPublishAt(iso: string | null): string {
 /** Pusta wartość = publikacja w momencie wysłania (bez błędu). */
 export function parseScheduledPublishAtInput(
 	raw: FormDataEntryValue | null | undefined,
-): { value: string | null; error?: 'invalid' | 'past' } {
+): { value: string | null; error?: 'invalid' } {
 	const trimmed = String(raw ?? '').trim();
 	if (!trimmed) return { value: null };
 
 	const iso = wallTimeInZoneToUtcIso(trimmed);
 	if (!iso) return { value: null, error: 'invalid' };
-	if (new Date(iso).getTime() <= Date.now()) return { value: iso, error: 'past' };
 	return { value: iso };
 }
 

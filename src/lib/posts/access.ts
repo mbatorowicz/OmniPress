@@ -44,7 +44,7 @@ export function canViewPostAssets(post: PostRow, userId: string, role: UserRole)
 }
 
 export function canSubmitPost(post: PostRow, userId: string): boolean {
-	return post.author_id === userId && post.status === 'draft';
+	return post.author_id === userId && (post.status === 'draft' || post.status === 'rejected');
 }
 
 /** Redaktor usuwa tylko własne wpisy przed publikacją (szkic / odrzucony). */

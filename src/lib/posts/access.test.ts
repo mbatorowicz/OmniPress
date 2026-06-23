@@ -63,8 +63,9 @@ describe('canViewPostAssets', () => {
 });
 
 describe('canSubmitPost', () => {
-	it('tylko autor draft', () => {
+	it('autor wysyła draft i rejected', () => {
 		expect(canSubmitPost(draftPost(), 'author-1')).toBe(true);
+		expect(canSubmitPost(draftPost({ status: 'rejected' }), 'author-1')).toBe(true);
 		expect(canSubmitPost(draftPost({ status: 'pending' }), 'author-1')).toBe(false);
 		expect(canSubmitPost(draftPost(), 'other')).toBe(false);
 	});

@@ -36,9 +36,6 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	if (schedule.error === 'invalid') {
 		return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'schedule_invalid');
 	}
-	if (schedule.error === 'past') {
-		return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'schedule_past');
-	}
 	// Brak daty = publikacja w momencie wysłania (po akceptacji administratora).
 	const scheduled_publish_at = schedule.value ?? new Date().toISOString();
 

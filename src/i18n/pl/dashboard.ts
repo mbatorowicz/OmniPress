@@ -57,7 +57,7 @@ export const dashboard = {
 			publishAt: 'Data publikacji',
 			publishAtHour: 'Godzina',
 			publishAtHint:
-				'Pozostaw datę pustą, aby opublikować w momencie wysłania (po akceptacji administratora).',
+				'Pozostaw datę pustą, aby opublikować w momencie wysłania (po akceptacji administratora). Data z przeszłości — publikacja od razu z datą wsteczną; data w przyszłości — automatycznie w wybranym terminie.',
 			publishAtTimezone: 'Czas polski (Europe/Warsaw).',
 		},
 		gallery: {
