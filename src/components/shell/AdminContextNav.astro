@@ -2,15 +2,7 @@
 import Button from '@/components/ui/actions/Button.astro';
 import Breadcrumbs, { type Crumb } from '@/components/ui/navigation/Breadcrumbs.astro';
 import { adminUnit, layout } from '@/i18n';
-
-export type AdminUnitSection =
-	| 'edit'
-	| 'publish'
-	| 'navigation'
-	| 'categories'
-	| 'components'
-	| 'pages'
-	| 'changes';
+import type { AdminUnitSection } from '@/lib/admin/unit-section';
 
 interface Props {
 	siteId: string;
