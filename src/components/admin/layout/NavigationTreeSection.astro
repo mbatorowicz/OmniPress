@@ -67,7 +67,11 @@ const navTableLabels = {
 		<tbody id="navigation-body">
 			{
 				rows.map((row) => (
-					<tr class:list={['nav-row', 'ui-table-dense-row', `nav-row--depth-${row.depth}`]}>
+					<tr
+						class:list={['nav-row', 'ui-table-dense-row', `nav-row--depth-${row.depth}`]}
+						data-nav-kind={row.hrefKind}
+						data-nav-href={row.hrefValue}
+					>
 						<td class="ui-table-dense-td--wide">
 							<NavDepthSelect depth={row.depth as 0 | 1 | 2} />
 						</td>
@@ -116,6 +120,15 @@ const navTableLabels = {
 										</option>
 									))
 								)}
+								{
+									row.hrefKind === 'page' &&
+										row.hrefValue &&
+										!pageOptions.some((p) => p.path === row.hrefValue) && (
+											<option value={row.hrefValue} selected>
+												{row.hrefValue}
+											</option>
+										)
+								}
 							</select>
 							<select
 								class={`nav-href-select nav-href-field nav-href-field-static ${row.hrefKind === 'static' ? '' : 'hidden'}`}

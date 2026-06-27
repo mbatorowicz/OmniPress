@@ -155,6 +155,20 @@ describe('parseLayoutSection navigation', () => {
 		expect(tree[0].href).toBe('/gmina/plan-ogolny');
 	});
 
+	it('preferuje navigation_json gdy ma wiecej linkow niz tabela', () => {
+		const form = navForm([{ depth: '0', label: 'Uszkodzone', kind: 'none', value: '' }]);
+		form.set('section', 'navigation');
+		form.set(
+			'navigation_json',
+			'[{"label":"Plan","href":"/gmina/plan-ogolny"}]',
+		);
+
+		const result = parseLayoutSection(form, existingLayout);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.layout.navigation[0]?.href).toBe('/gmina/plan-ogolny');
+	});
+
 	it('round-trip pełniejszego drzewa gminy zachowuje hrefy liści', () => {
 		const nav = [
 			{

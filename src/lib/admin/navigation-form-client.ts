@@ -45,11 +45,22 @@ function syncHrefValueSubmit(row: HTMLElement): void {
 }
 
 function initHrefFieldsFromHidden(row: HTMLElement): void {
-	const kind = (row.querySelector('.nav-href-kind') as HTMLSelectElement | null)?.value ?? 'none';
+	const kindSelect = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
+	let kind = kindSelect?.value ?? 'none';
 	const hidden = row.querySelector('.nav-href-value-submit');
 	if (!(hidden instanceof HTMLInputElement)) return;
 
-	const value = hidden.value;
+	let value = hidden.value.trim();
+	if (!value && row.dataset.navHref) {
+		value = row.dataset.navHref.trim();
+		hidden.value = value;
+	}
+
+	if (kind === 'none' && value && row.dataset.navKind && row.dataset.navKind !== 'none') {
+		kind = row.dataset.navKind;
+		if (kindSelect) kindSelect.value = kind;
+	}
+
 	if (kind === 'none' || !value) return;
 
 	const field = row.querySelector(`.nav-href-field-${kind}`);
@@ -59,6 +70,25 @@ function initHrefFieldsFromHidden(row: HTMLElement): void {
 	} else if (field instanceof HTMLInputElement) {
 		field.value = value;
 	}
+}
+
+export function initNavigationRowFromServerState(row: HTMLElement): void {
+	const kind = row.dataset.navKind ?? 'none';
+	const href = row.dataset.navHref ?? '';
+	const kindSelect = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
+	const hidden = row.querySelector('.nav-href-value-submit') as HTMLInputElement | null;
+
+	if (kindSelect && kind !== 'none') {
+		kindSelect.value = kind;
+	}
+	if (hidden && href && !hidden.value.trim()) {
+		hidden.value = href;
+	}
+
+	syncHrefFields(row, { skipSubmitSync: true });
+	initHrefFieldsFromHidden(row);
+	syncNavDepthVisual(row);
+	syncMegaCell(row);
 }
 
 export function syncHrefFields(row: HTMLElement, options?: { skipSubmitSync?: boolean }): void {
@@ -207,9 +237,7 @@ export function mountNavigationForm(labels: NavigationTableLabels): void {
 		if (!(body instanceof HTMLElement)) return;
 
 		body.querySelectorAll('.nav-row').forEach((row) => {
-			initHrefFieldsFromHidden(row as HTMLElement);
-			syncNavDepthVisual(row as HTMLElement);
-			syncMegaCell(row as HTMLElement);
+			initNavigationRowFromServerState(row as HTMLElement);
 		});
 
 		const form = body.closest('form');

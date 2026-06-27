@@ -8,7 +8,7 @@ import {
 import { validateBannerWidget } from './banners';
 import { slotFormFields } from './slot-form-fields';
 import { mergeCategoryDisplays, sortSlotsByOrder } from './slots';
-import { isExternalHref, normalizeInternalHref } from './validate-nav';
+import { isExternalHref, normalizeInternalHref, countNavigationHrefs } from './validate-nav';
 import type { CategoryDefinition, DisplaySlot, NavItem, SiteAstroLayout, SlotWidgetConfig } from './types';
 
 export type LayoutFormSection = 'navigation' | 'categories' | 'components' | 'all';
@@ -273,14 +273,26 @@ export function parseNavigationFromForm(form: FormData): NavItem[] {
 function parseNavigationSection(form: FormData): NavItem[] | { error: 'invalid_navigation' } {
 	const labels = strFields(form, 'nav_label');
 	const hasTableRows = labels.some((label) => label.trim() !== '');
+	const jsonFallback = String(form.get('navigation_json') ?? '').trim();
 
 	if (hasTableRows) {
-		const tree = parseNavigationFromForm(form);
-		if (tree.length === 0) return { error: 'invalid_navigation' };
-		return tree;
+		const tableTree = parseNavigationFromForm(form);
+		if (tableTree.length === 0) return { error: 'invalid_navigation' };
+
+		if (jsonFallback) {
+			try {
+				const jsonTree = parseNavigationJson(jsonFallback);
+				if (countNavigationHrefs(jsonTree) > countNavigationHrefs(tableTree)) {
+					return jsonTree;
+				}
+			} catch {
+				// zostaw drzewo z tabeli
+			}
+		}
+
+		return tableTree;
 	}
 
-	const jsonFallback = String(form.get('navigation_json') ?? '').trim();
 	if (jsonFallback) {
 		try {
 			return parseNavigationJson(jsonFallback);
