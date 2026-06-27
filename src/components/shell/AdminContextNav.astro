@@ -48,12 +48,13 @@ if (currentLabel) {
 	crumbs.push({ label: currentLabel });
 }
 
-const navGroups: { title: string; sections: AdminUnitSection[] }[] = [
-	{
-		title: adminUnit.contextGroupAppearance,
-		sections: ['navigation', 'categories', 'components'],
-	},
-	{ title: adminUnit.contextGroupContent, sections: ['pages', 'changes'] },
+const navSections: AdminUnitSection[] = [
+	'navigation',
+	'categories',
+	'components',
+	'pages',
+	'changes',
+	'settings',
 ];
 
 const linkLabels: Record<AdminUnitSection, string> = {
@@ -68,31 +69,16 @@ const linkLabels: Record<AdminUnitSection, string> = {
 
 <nav class="mb-6" aria-label={layout.aria.adminContext}>
 	<Breadcrumbs items={crumbs} />
-	<div class="ui-subnav mb-0 mt-3 flex flex-col gap-2">
+	<div class="ui-subnav mb-0 mt-3 flex flex-wrap items-center gap-2">
 		{
-			navGroups.map((group) => (
-				<div class="flex flex-wrap items-center gap-2">
-					<span class="ui-nav-group-label w-full">
-						{group.title}
-					</span>
-					{group.sections.map((key) => (
-						<Button
-							href={sectionHrefs[key]}
-							variant={key === section ? 'nav-accent' : 'secondary'}
-						>
-							{linkLabels[key]}
-						</Button>
-					))}
-				</div>
+			navSections.map((key) => (
+				<Button
+					href={sectionHrefs[key]}
+					variant={key === section ? 'nav-accent' : 'secondary'}
+				>
+					{linkLabels[key]}
+				</Button>
 			))
 		}
-		<div class="ui-nav-context-footer flex flex-wrap items-center gap-2">
-			<Button
-				href={sectionHrefs.settings}
-				variant={section === 'settings' ? 'nav-accent' : 'secondary'}
-			>
-				{linkLabels.settings}
-			</Button>
-		</div>
 	</div>
 </nav>

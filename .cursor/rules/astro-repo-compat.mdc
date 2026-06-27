@@ -37,3 +37,20 @@ Domyślne ścieżki config: `src/lib/astro-layout/types.ts`. Nadpisanie: destyna
 ## Repo referencyjne
 
 Strona produkcyjna: `mbatorowicz/gmina-miedzna.pl` — przy wątpliwościach porównaj wygenerowany JSON z tym, co Astro renderuje.
+
+## Warstwy UI (z-index) — SSOT w repo Astro
+
+Skala w `src/styles/layers.css` (import w `global.css`). **Nie używaj magicznych liczb** w komponentach — tylko tokeny `--z-*`.
+
+| Token | Wartość | Zastosowanie |
+|-------|---------|--------------|
+| `--z-base` | 0 | Treść strony (`main`) |
+| `--z-sidebar` | 1 | Sidebar, widgety (mapa IMGW, CERT) |
+| `--z-site-header` | 100 | Nagłówek + pasek nawigacji |
+| `--z-nav-dropdown` | 110 | Dropdown / mega menu |
+| `--z-modal` | 1000 | Wyszukiwarka (`SearchModal`) |
+| `--z-overlay` | 10000 | Lightbox galerii |
+
+Mapy Leaflet: `isolation: isolate` na `.weather-map-block` + `.leaflet-container { z-index: 0 }` — wewnętrzne pane Leaflet (do 1000) nie mogą przykryć menu.
+
+Przy zmianie skali: commit w **repo Astro** + aktualizacja tej sekcji w OmniPress.
