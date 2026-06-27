@@ -7,7 +7,7 @@ import type { NavTargetOptions } from '@/lib/admin/nav-target-options';
 
 const navTargetOptions: NavTargetOptions = {
 	category: [{ value: 'zarzadzenia', label: 'Zarządzenia' }],
-	page: [{ value: '/gmina/urzad', label: 'Urząd Gminy' }],
+	page: [{ value: '/gmina/urzad', label: 'Urząd & Gminy' }],
 	static: [{ value: '/', label: 'Start' }],
 	emptyCategory: 'Brak kategorii',
 	emptyPage: 'Brak stron',
@@ -33,8 +33,9 @@ function buildNavigationTable(pageValue: string): void {
 	const optionsJson = JSON.stringify(navTargetOptions);
 	document.body.innerHTML = `
 		<form>
+			<script id="nav-target-options-json" type="application/json">${optionsJson}</script>
 			<table id="navigation-table">
-				<tbody id="navigation-body" data-nav-target-options="${optionsJson.replace(/"/g, '&quot;')}">
+				<tbody id="navigation-body">
 					<tr class="nav-row ui-table-dense-row nav-row--depth-0" data-nav-kind="page" data-nav-href="${pageValue}">
 						<td>
 							<select name="nav_depth" class="nav-depth">
@@ -77,7 +78,7 @@ describe('mountNavigationForm', () => {
 		document.body.innerHTML = '';
 	});
 
-	it('czyta opcje celu z navigation-body', () => {
+	it('czyta opcje celu ze script#nav-target-options-json', () => {
 		buildNavigationTable('/gmina/urzad');
 		mountNavigationForm(labels);
 
@@ -106,5 +107,20 @@ describe('mountNavigationForm', () => {
 		const target = document.querySelector('.nav-href-target-control') as HTMLSelectElement;
 		const values = [...target.options].map((o) => o.value);
 		expect(values).toEqual(['/gmina/urzad']);
+	});
+
+	it('obsługuje ampersand w tytułach stron w JSON opcji', () => {
+		buildNavigationTable('/gmina/urzad');
+		mountNavigationForm(labels);
+
+		const script = document.getElementById('nav-target-options-json');
+		expect(script?.textContent).toContain('Urząd & Gminy');
+
+		const kindSelect = document.querySelector('.nav-href-kind') as HTMLSelectElement;
+		kindSelect.value = 'static';
+		kindSelect.dispatchEvent(new Event('change', { bubbles: true }));
+
+		const target = document.querySelector('.nav-href-target-control') as HTMLSelectElement;
+		expect([...target.options].map((o) => o.value)).toEqual(['/']);
 	});
 });

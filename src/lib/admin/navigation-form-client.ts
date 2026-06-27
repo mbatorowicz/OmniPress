@@ -23,12 +23,21 @@ export type NavigationTableLabels = {
 const DEPTH_CLASSES = ['nav-row--depth-0', 'nav-row--depth-1', 'nav-row--depth-2'] as const;
 
 function readNavTargetOptions(): NavTargetOptions | null {
+	const script = document.getElementById('nav-target-options-json');
+	if (script?.textContent?.trim()) {
+		try {
+			return JSON.parse(script.textContent) as NavTargetOptions;
+		} catch {
+			/* fall through to data-attribute fallback */
+		}
+	}
+
 	const body = document.getElementById('navigation-body');
 	const table = document.getElementById('navigation-table');
 	const host =
 		body instanceof HTMLElement && body.dataset.navTargetOptions
 			? body
-			: table instanceof HTMLElement
+			: table instanceof HTMLElement && table.dataset.navTargetOptions
 				? table
 				: null;
 	if (!host) return null;
@@ -126,6 +135,23 @@ export function rebuildNavTarget(
 	host.appendChild(select);
 }
 
+function handleKindChange(row: HTMLElement): void {
+	const options = readNavTargetOptions();
+	if (!options) return;
+	const kind = readRowKind(row);
+	rebuildNavTarget(row, kind, options);
+	syncSubmitFields(row);
+}
+
+function bindKindSelect(row: HTMLElement): void {
+	const kindSelect = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
+	if (!kindSelect || kindSelect.dataset.navKindBound === '1') return;
+	kindSelect.dataset.navKindBound = '1';
+	kindSelect.addEventListener('change', () => {
+		handleKindChange(row);
+	});
+}
+
 function initNavigationRow(row: HTMLElement, options: NavTargetOptions): void {
 	const kindSelect = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
 	const kindHidden = row.querySelector('.nav-href-kind-submit') as HTMLInputElement | null;
@@ -145,6 +171,7 @@ function initNavigationRow(row: HTMLElement, options: NavTargetOptions): void {
 
 	const kind = readRowKind(row);
 	rebuildNavTarget(row, kind, options);
+	bindKindSelect(row);
 	syncSubmitFields(row);
 	syncNavDepthVisual(row);
 	syncMegaCell(row);
@@ -216,19 +243,9 @@ function appendNavRow(body: HTMLElement, labels: NavigationTableLabels, options:
 	initNavigationRow(tr, options);
 }
 
-function handleNavigationChange(event: Event, options: NavTargetOptions): void {
+function handleNavigationChange(event: Event): void {
 	const target = event.target;
 	if (!(target instanceof Element)) return;
-
-	if (target.closest('.nav-href-kind')) {
-		const row = target.closest('.nav-row');
-		if (row instanceof HTMLElement) {
-			const kind = readRowKind(row);
-			rebuildNavTarget(row, kind, options);
-			syncSubmitFields(row);
-		}
-		return;
-	}
 
 	if (target.closest('.nav-href-target-control')) {
 		const row = target.closest('.nav-row');
@@ -296,27 +313,19 @@ export function mountNavigationForm(labels: NavigationTableLabels): void {
 			);
 		}
 
-		if (body.dataset.navigationFormBound === '1') return;
-		body.dataset.navigationFormBound = '1';
-		body.addEventListener('change', (event) => {
-			const opts = readNavTargetOptions();
-			if (opts) handleNavigationChange(event, opts);
-		});
-		body.addEventListener('input', (event) => {
-			const opts = readNavTargetOptions();
-			if (opts) handleNavigationChange(event, opts);
-		});
-		body.addEventListener('click', (event) => {
-			const opts = readNavTargetOptions();
-			if (opts) handleNavigationClick(event, labels, opts);
-		});
+		if (body.dataset.navigationFormBound !== '1') {
+			body.dataset.navigationFormBound = '1';
+			body.addEventListener('change', handleNavigationChange);
+			body.addEventListener('input', handleNavigationChange);
+			body.addEventListener('click', (event) => {
+				const opts = readNavTargetOptions();
+				if (opts) handleNavigationClick(event, labels, opts);
+			});
+		}
 	};
 
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', mount, { once: true });
-	} else {
-		mount();
-	}
+	mount();
+	document.addEventListener('astro:page-load', mount);
 }
 
 /** @deprecated Użyj mountNavigationForm */

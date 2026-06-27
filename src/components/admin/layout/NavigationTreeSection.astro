@@ -61,6 +61,8 @@ const navTargetOptionsJson = JSON.stringify(navTargetOptions);
 	<SectionTitle>{adminLayout.sections.menu}</SectionTitle>
 	<p class="ui-hint">{adminLayout.menuFormHint}</p>
 
+	<script id="nav-target-options-json" type="application/json" set:html={navTargetOptionsJson} />
+
 	<Table dense wrap class="min-w-[48rem] w-full" id="navigation-table">
 		<TableHead dense>
 			<TableRow dense>
@@ -72,7 +74,7 @@ const navTargetOptionsJson = JSON.stringify(navTargetOptions);
 				<TableCell header dense>{adminLayout.fields.removeRow}</TableCell>
 			</TableRow>
 		</TableHead>
-		<tbody id="navigation-body" data-nav-target-options={navTargetOptionsJson}>
+		<tbody id="navigation-body">
 			{
 				rows.map((row) => (
 					<tr
