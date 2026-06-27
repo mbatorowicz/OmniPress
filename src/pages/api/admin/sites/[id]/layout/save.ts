@@ -4,6 +4,7 @@ import {
 	DEFAULT_STATIC_ROUTES,
 	layoutSectionReturnPath,
 } from '@/lib/admin/layout-editor-context';
+import { collectNavInternalPageOptions } from '@/lib/admin/navigation-tree';
 import { parseLayoutSection } from '@/lib/astro-layout/parse-form';
 import {
 	buildKnownNavPaths,
@@ -41,11 +42,12 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const syncGitHub = form.get('sync_github') === 'on';
 	if (syncGitHub) {
 		const categorySlugs = parsed.layout.categories.map((c) => c.slug);
+		const navInternalPaths = collectNavInternalPageOptions(parsed.layout.navigation).map((p) => p.path);
 		const knownPaths = await buildKnownNavPaths(
 			supabase,
 			siteId,
 			categorySlugs,
-			[...DEFAULT_STATIC_ROUTES],
+			[...DEFAULT_STATIC_ROUTES, ...navInternalPaths],
 		);
 		const navIssues = validateNavigationLinks(parsed.layout.navigation, knownPaths);
 		if (navIssues.length > 0) {

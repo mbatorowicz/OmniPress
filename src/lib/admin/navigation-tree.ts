@@ -33,6 +33,23 @@ export function detectNavHrefKind(
 	return { kind: 'custom', value: normalized };
 }
 
+export function collectNavInternalPageOptions(items: NavItem[]): PageOption[] {
+	const byPath = new Map<string, string>();
+
+	function walk(nodes: NavItem[]) {
+		for (const item of nodes) {
+			if (item.href?.trim() && !isExternalHref(item.href)) {
+				const path = normalizeInternalHref(item.href);
+				byPath.set(path, item.label);
+			}
+			if (item.children?.length) walk(item.children);
+		}
+	}
+
+	walk(items);
+	return [...byPath.entries()].map(([path, title]) => ({ path, title }));
+}
+
 export function flattenNavigation(
 	items: NavItem[],
 	categories: CategoryDefinition[],

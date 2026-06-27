@@ -9,8 +9,8 @@ import TableRow from '@/components/ui/table/TableRow.astro';
 import TableCell from '@/components/ui/table/TableCell.astro';
 import NavDepthSelect from '@/components/admin/layout/NavDepthSelect.astro';
 import NavMegaMenuCell from '@/components/admin/layout/NavMegaMenuCell.astro';
-import { flattenNavigation } from '@/lib/admin/navigation-tree';
-import { STATIC_ROUTE_OPTIONS, buildCategoryLinkOptions, type PageOption } from '@/lib/admin/link-options';
+import { flattenNavigation, collectNavInternalPageOptions } from '@/lib/admin/navigation-tree';
+import { STATIC_ROUTE_OPTIONS, buildCategoryLinkOptions, mergePageOptionsForNavEditor, type PageOption } from '@/lib/admin/link-options';
 import type { CategoryDefinition, NavItem } from '@/lib/astro-layout/types';
 
 interface Props {
@@ -20,9 +20,13 @@ interface Props {
 }
 
 const { navigation, categories, publishedPages } = Astro.props;
+const pageOptions = mergePageOptionsForNavEditor(
+	publishedPages,
+	collectNavInternalPageOptions(navigation),
+);
 const rows =
 	navigation.length > 0
-		? flattenNavigation(navigation, categories, publishedPages)
+		? flattenNavigation(navigation, categories, pageOptions)
 		: [{ label: '', depth: 0, hrefKind: 'none' as const, hrefValue: '', isMegaMenu: false }];
 
 const categoryOptions = buildCategoryLinkOptions(categories);
@@ -78,8 +82,14 @@ const navTableLabels = {
 						<td class="ui-table-dense-td--wide nav-href-values">
 							<input type="hidden" name="nav_href_value" class="nav-href-value-submit" value={navHrefSubmitValue(row)} />
 							<input
-								value={row.hrefKind === 'none' || row.hrefKind === 'custom' || row.hrefKind === 'external' ? row.hrefValue : ''}
-								class={`nav-href-input-default nav-href-field nav-href-field-none nav-href-field-custom nav-href-field-external ${row.hrefKind === 'category' || row.hrefKind === 'page' || row.hrefKind === 'static' ? 'hidden' : ''}`}
+								value={row.hrefKind === 'custom' ? row.hrefValue : ''}
+								class={`nav-href-input-default nav-href-field nav-href-field-custom ${row.hrefKind === 'custom' ? '' : 'hidden'}`}
+								disabled={row.hrefKind !== 'custom'}
+							/>
+							<input
+								value={row.hrefKind === 'external' ? row.hrefValue : ''}
+								class={`nav-href-input-default nav-href-field nav-href-field-external ${row.hrefKind === 'external' ? '' : 'hidden'}`}
+								disabled={row.hrefKind !== 'external'}
 							/>
 							<select
 								class={`nav-href-select nav-href-field nav-href-field-category ${row.hrefKind === 'category' ? '' : 'hidden'}`}
@@ -95,10 +105,10 @@ const navTableLabels = {
 								class={`nav-href-select nav-href-field nav-href-field-page ${row.hrefKind === 'page' ? '' : 'hidden'}`}
 								disabled={row.hrefKind !== 'page'}
 							>
-								{publishedPages.length === 0 ? (
+								{pageOptions.length === 0 ? (
 									<option value="">{adminLayout.noPublishedPages}</option>
 								) : (
-									publishedPages.map((page) => (
+									pageOptions.map((page) => (
 										<option value={page.path} selected={row.hrefKind === 'page' && row.hrefValue === page.path}>
 											{page.title}
 										</option>

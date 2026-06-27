@@ -17,6 +17,22 @@ function isNavItem(raw: unknown): raw is NavItem {
 	return typeof o.label === 'string';
 }
 
+function normalizeNavItem(raw: unknown): NavItem {
+	const o = raw as NavItem;
+	const item: NavItem = { label: String(o.label ?? '').trim() };
+	if (typeof o.href === 'string' && o.href.trim()) item.href = o.href.trim();
+	if (o.isMegaMenu === true) item.isMegaMenu = true;
+	if (Array.isArray(o.children) && o.children.length > 0) {
+		item.children = o.children.map(normalizeNavItem);
+	}
+	return item;
+}
+
+export function normalizeNavItems(raw: unknown): NavItem[] {
+	if (!Array.isArray(raw)) return [];
+	return raw.filter(isNavItem).map(normalizeNavItem);
+}
+
 function parseWidget(raw: unknown): SlotWidgetConfig | undefined {
 	if (!raw || typeof raw !== 'object') return undefined;
 	const w = raw as SlotWidgetConfig;
@@ -121,7 +137,7 @@ export function parseNavigationJson(text: string): NavItem[] {
 	const parsed = JSON.parse(text) as unknown;
 	if (!Array.isArray(parsed)) throw new Error('Menu musi być tablicą JSON');
 	if (!parsed.every(isNavItem)) throw new Error('Nieprawidłowy element menu');
-	return parsed;
+	return normalizeNavItems(parsed);
 }
 
 export function parseCategoriesFile(text: string): {
@@ -185,7 +201,7 @@ export function normalizeSiteAstroLayout(raw: unknown): SiteAstroLayout {
 	const o = raw as Partial<SiteAstroLayout>;
 	const slots = parseSlots(o.slots);
 	return {
-		navigation: Array.isArray(o.navigation) ? o.navigation : [],
+		navigation: normalizeNavItems(o.navigation),
 		categoryDisplays: mergeCategoryDisplays(slots, o.categoryDisplays ?? {}),
 		categories: Array.isArray(o.categories) ? o.categories : [],
 		slots,

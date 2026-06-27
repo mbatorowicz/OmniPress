@@ -12,6 +12,7 @@ import {
 import { listSitePages } from '@/lib/site-pages/access';
 import { buildSitePagePublicPath } from '@/lib/site-pages/url';
 import { loadSiteAstroDestination } from './sites';
+import { collectNavInternalPageOptions } from '@/lib/admin/navigation-tree';
 import type { PageOption } from './link-options';
 
 export const DEFAULT_STATIC_ROUTES = ['/', '/kontakt'] as const;
@@ -62,7 +63,7 @@ export async function loadLayoutEditorContext(
 		supabase,
 		siteId,
 		layout.categories.map((c) => c.slug),
-		[...DEFAULT_STATIC_ROUTES],
+		[...DEFAULT_STATIC_ROUTES, ...collectNavInternalPageOptions(layout.navigation).map((p) => p.path)],
 	);
 	const navWarningLines = formatNavValidationIssues(
 		validateNavigationLinks(layout.navigation, knownNavPaths),

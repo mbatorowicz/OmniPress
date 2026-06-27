@@ -16,6 +16,17 @@ export type NavigationTableLabels = {
 
 const DEPTH_CLASSES = ['nav-row--depth-0', 'nav-row--depth-1', 'nav-row--depth-2'] as const;
 
+function ensureSelectOption(select: HTMLSelectElement, value: string, label?: string): void {
+	if (!value) return;
+	for (const opt of select.options) {
+		if (opt.value === value) return;
+	}
+	const opt = document.createElement('option');
+	opt.value = value;
+	opt.textContent = label ?? value;
+	select.appendChild(opt);
+}
+
 function readActiveHrefValue(row: HTMLElement, kind: string): string {
 	if (kind === 'none') return '';
 	const field = row.querySelector(`.nav-href-field-${kind}`);
@@ -33,7 +44,24 @@ function syncHrefValueSubmit(row: HTMLElement): void {
 	}
 }
 
-export function syncHrefFields(row: HTMLElement): void {
+function initHrefFieldsFromHidden(row: HTMLElement): void {
+	const kind = (row.querySelector('.nav-href-kind') as HTMLSelectElement | null)?.value ?? 'none';
+	const hidden = row.querySelector('.nav-href-value-submit');
+	if (!(hidden instanceof HTMLInputElement)) return;
+
+	const value = hidden.value;
+	if (kind === 'none' || !value) return;
+
+	const field = row.querySelector(`.nav-href-field-${kind}`);
+	if (field instanceof HTMLSelectElement) {
+		ensureSelectOption(field, value);
+		field.value = value;
+	} else if (field instanceof HTMLInputElement) {
+		field.value = value;
+	}
+}
+
+export function syncHrefFields(row: HTMLElement, options?: { skipSubmitSync?: boolean }): void {
 	const kind = (row.querySelector('.nav-href-kind') as HTMLSelectElement | null)?.value ?? 'none';
 	row.querySelectorAll('.nav-href-field').forEach((el) => {
 		const field = el;
@@ -43,7 +71,7 @@ export function syncHrefFields(row: HTMLElement): void {
 			field.disabled = !match;
 		}
 	});
-	syncHrefValueSubmit(row);
+	if (!options?.skipSubmitSync) syncHrefValueSubmit(row);
 }
 
 function syncNavDepthVisual(row: HTMLElement): void {
@@ -101,7 +129,8 @@ function appendNavRow(body: HTMLElement, labels: NavigationTableLabels): void {
 		</td>
 		<td class="ui-table-dense-td--wide nav-href-values">
 			<input type="hidden" name="nav_href_value" class="nav-href-value-submit" value="" />
-			<input class="nav-href-input-default nav-href-field nav-href-field-none nav-href-field-custom nav-href-field-external" />
+			<input class="nav-href-input-default nav-href-field nav-href-field-custom hidden" disabled />
+			<input class="nav-href-input-default nav-href-field nav-href-field-external hidden" disabled />
 			<select class="nav-href-select nav-href-field nav-href-field-category hidden" disabled></select>
 			<select class="nav-href-select nav-href-field nav-href-field-page hidden" disabled></select>
 			<select class="nav-href-select nav-href-field nav-href-field-static hidden" disabled></select>
@@ -178,7 +207,8 @@ export function mountNavigationForm(labels: NavigationTableLabels): void {
 		if (!(body instanceof HTMLElement)) return;
 
 		body.querySelectorAll('.nav-row').forEach((row) => {
-			syncHrefFields(row as HTMLElement);
+			syncHrefFields(row as HTMLElement, { skipSubmitSync: true });
+			initHrefFieldsFromHidden(row as HTMLElement);
 			syncNavDepthVisual(row as HTMLElement);
 			syncMegaCell(row as HTMLElement);
 		});
