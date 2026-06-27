@@ -12,17 +12,17 @@ Operacyjny przewodnik po panelu OmniPress. Stan funkcji: [STATUS.md](./STATUS.md
 - **Sidebar** (tylko w `/admin/*`, po lewej): *Kolejka wpisów* (`/admin`), *Strony* (`/admin/sites`), *Użytkownicy* (`/admin/users`). Na mobile — pozioma belka nad treścią.
 - **Breadcrumby** na każdej podstronie pokazują ścieżkę (np. `Administracja / Strony / UG Miedzna / Strony statyczne`).
 - W kontekście strony (`/admin/units/[id]/*`) zakładki pogrupowane:
-  - **Ustawienia:** *Ogólne* (`/admin/units/[id]`), *Publikacja* (`/admin/units/[id]/publish`) — GitHub, tokeny, Vercel
   - **Wygląd strony:** *Menu* (`/navigation`), *Kategorie* (`/categories`), *Komponenty* (`/components`)
   - **Treść:** *Strony statyczne* (`/pages`), *Ostatnie zmiany* (`/changes`)
-- Stara trasa `/admin/units/[id]/layout` przekierowuje na *Menu*.
+  - **Ustawienia** (`/admin/units/[id]`) — nazwa, slug, kanał GitHub i tokeny w jednym formularzu (na końcu subnav)
+- Stare trasy `/admin/units/[id]/layout` → *Menu*, `/admin/units/[id]/publish` → *Ustawienia* (301).
 - `/admin` to wyłącznie kolejka wpisów — sekcje (*Do akceptacji*, *Zaplanowane*, *Opublikowane*) mają u góry podsumowanie z licznikami; wpisy w trakcie publikacji są w sekcji *Zaplanowane* ze znacznikiem **W toku**; import z GitHub jest zwijaną sekcją na dole.
 
 ---
 
 ## 1. Pierwsza konfiguracja (kolejność)
 
-**Jednostka organizacyjna:** `/admin/units/new` — nazwa, slug i kanał GitHub w jednym kroku. Po utworzeniu: *Ogólne* (nazwa/slug) i *Publikacja* (repo, tokeny) to osobne zakładki.
+**Jednostka organizacyjna:** `/admin/units/new` — nazwa, slug i kanał GitHub w jednym kroku. Po utworzeniu edycja w zakładce **Ustawienia** (`/admin/units/[id]`).
 
 ```mermaid
 flowchart LR
@@ -48,7 +48,7 @@ Lista stron jako **kafelki** — kliknięcie kafelka otwiera ustawienia strony (
 | Slug | Identyfikator techniczny (`a-z`, `0-9`, myślnik) |
 | Aktywna | Nieaktywna strona — bez nowych wpisów (docelowo) |
 
-Ustawienia strony: *Ogólne* (`/admin/units/[id]`) i *Publikacja* (`/admin/units/[id]/publish`) — repozytorium, branch, ścieżka contentu, tokeny, opcjonalnie Vercel.
+Ustawienia strony: `/admin/units/[id]` — nazwa, slug, repozytorium, branch, ścieżka contentu, tokeny, opcjonalnie Vercel.
 
 ---
 

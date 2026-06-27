@@ -1,0 +1,17 @@
+---
+import { adminLayout } from '@/i18n';
+
+interface Props {
+	depth: 0 | 1 | 2;
+	class?: string;
+}
+
+const { depth, class: className = 'ui-select-compact w-full nav-depth' } = Astro.props;
+const depthLabels = adminLayout.navDepthLabels;
+---
+
+<select name="nav_depth" class={className}>
+	<option value="0" selected={depth === 0}>{depthLabels[0]}</option>
+	<option value="1" selected={depth === 1}>{depthLabels[1]}</option>
+	<option value="2" selected={depth === 2}>{depthLabels[2]}</option>
+</select>

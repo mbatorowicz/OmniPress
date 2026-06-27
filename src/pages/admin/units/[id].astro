@@ -23,17 +23,16 @@ const flashMessages = parseQueryFlash(Astro.url, {
 });
 ---
 
-<AppLayout title={initial.name} heading={adminUnit.editTitle}>
-	<AdminContextNav siteId={id} siteName={initial.name} section="edit" />
+<AppLayout title={initial.name} heading={adminUnit.settingsLink}>
+	<AdminContextNav siteId={id} siteName={initial.name} section="settings" />
 	<FlashAlerts messages={flashMessages} />
-	<p class="mb-4 ui-muted">{adminUnit.editLead}</p>
+	<p class="mb-4 ui-muted">{adminUnit.settingsLead}</p>
 
 	<UnitForm
-		variant="basic"
+		variant="full"
 		action={`/api/admin/units/${id}/save`}
 		submitLabel={adminUnit.actions.save}
 		{initial}
-		showCredentialsNote={false}
 		errorMessage={flashMessages.find((m) => m.variant === 'error')?.message ?? null}
 	/>
 

@@ -67,6 +67,9 @@ export const adminUnit = {
 	},
 	layoutLink: 'Layout Astro (menu i komponenty)',
 	publishLink: 'Publikacja',
+	settingsLink: 'Ustawienia',
+	settingsLead:
+		'Nazwa strony, slug, kanał GitHub (repozytorium, tokeny) i opcjonalna weryfikacja deployu Vercel.',
 	navigationLink: 'Menu',
 	categoriesLink: 'Kategorie',
 	componentsLink: 'Komponenty',
@@ -177,9 +180,10 @@ export const adminLayout = {
 	menuHint:
 		'Tablica JSON — pola label, href, opcjonalnie isMegaMenu i zagnieżdżone children (do 3 poziomów). Link wewnętrzny musi wskazywać opublikowaną stronę statyczną, archiwum kategorii (/{slug}) lub znaną trasę w repo.',
 	menuFormHint:
-		'Poziom 0 = pozycja główna menu, 1 = podmenu, 2 = trzeci poziom. Link wewnętrzny musi wskazywać opublikowaną stronę, kategorię lub znaną trasę.',
+		'Menu główne to pozycje w pasku nawigacji; podmenu i podmenu zagnieżdżone to kolejne poziomy rozwijane. Link wewnętrzny musi wskazywać opublikowaną stronę, kategorię lub znaną trasę.',
 	menuJsonFallbackHint: 'Opcjonalnie — wklej pełną tablicę JSON zamiast wierszy powyżej (nadpisuje drzewo przy zapisie).',
-	navDepthLabels: ['Poziom 0', 'Podmenu', 'Poziom 2'] as const,
+	navDepthLabels: ['Menu główne', 'Podmenu', 'Podmenu zagnieżdżone'] as const,
+	megaMenuHint: 'Szerokie rozwijane menu — tylko pozycja główna.',
 	navHrefKinds: {
 		none: 'Bez linku (tylko rozwijane)',
 		category: 'Kategoria wpisów',
@@ -236,7 +240,7 @@ export const adminLayout = {
 	},
 	fields: {
 		navigationJson: 'Menu (JSON)',
-		navDepth: 'Poziom',
+		navDepth: 'Poziom menu',
 		navLabel: 'Etykieta',
 		navLinkType: 'Typ linku',
 		navLinkTarget: 'Adres / cel',

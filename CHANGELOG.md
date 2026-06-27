@@ -3,6 +3,14 @@
 Format: [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+commit`.
 
+## [0.9.4] — 2026-06-03
+
+### Zmienione
+
+- Subnav jednostki: **Menu**, **Kategorie**, **Komponenty** na początku; **Ustawienia** (jeden formularz: strona + GitHub/Vercel) na końcu.
+- Edytor menu: spójne etykiety poziomów (Menu główne / Podmenu / Podmenu zagnieżdżone); mega menu widoczne tylko na poziomie głównym.
+- `/admin/units/[id]/publish` → przekierowanie 301 na `/admin/units/[id]`.
+
 ## [0.9.3] — 2026-06-03
 
 ### Zmienione

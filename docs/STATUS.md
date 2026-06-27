@@ -68,7 +68,8 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Dezaktywacja / usunięcie opublikowanego (withdraw z GitHub) | ✅ |
 | Bulk dezaktywacja / usuwanie opublikowanych | ✅ |
 | Import wpisów z GitHub | ✅ |
-| Layout Astro (menu, kategorie, sloty) + sync do repo | ✅ `/admin/units/[id]/layout` |
+| Layout Astro (menu, kategorie, sloty) + sync do repo | ✅ `/admin/units/[id]/navigation` itd. |
+| Ustawienia strony (nazwa, slug, GitHub, tokeny) | ✅ `/admin/units/[id]` |
 | Strony statyczne (admin) + publikacja do repo Astro | ✅ `/admin/units/[id]/pages` |
 | Walidacja linków menu przed sync GitHub | ✅ |
 | Ostatnie zmiany (ogłoszenia) | ✅ `/admin/units/[id]/changes` |

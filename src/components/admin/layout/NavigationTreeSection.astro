@@ -7,6 +7,8 @@ import Table from '@/components/ui/table/Table.astro';
 import TableHead from '@/components/ui/table/TableHead.astro';
 import TableRow from '@/components/ui/table/TableRow.astro';
 import TableCell from '@/components/ui/table/TableCell.astro';
+import NavDepthSelect from '@/components/admin/layout/NavDepthSelect.astro';
+import NavMegaMenuCell from '@/components/admin/layout/NavMegaMenuCell.astro';
 import { flattenNavigation } from '@/lib/admin/navigation-tree';
 import { STATIC_ROUTE_OPTIONS, buildCategoryLinkOptions, type PageOption } from '@/lib/admin/link-options';
 import type { CategoryDefinition, NavItem } from '@/lib/astro-layout/types';
@@ -26,6 +28,14 @@ const rows =
 const categoryOptions = buildCategoryLinkOptions(categories);
 const linkKinds = adminLayout.navHrefKinds;
 const depthLabels = adminLayout.navDepthLabels;
+const navTableLabels = {
+	remove: adminLayout.actions.removeNavRow,
+	depth0: depthLabels[0],
+	depth1: depthLabels[1],
+	depth2: depthLabels[2],
+	megaHint: adminLayout.megaMenuHint,
+	hrefKinds: linkKinds,
+};
 ---
 
 <Panel class="ui-form-section">
@@ -48,11 +58,7 @@ const depthLabels = adminLayout.navDepthLabels;
 				rows.map((row) => (
 					<tr class="nav-row ui-table-dense-row">
 						<td class="ui-table-dense-td--wide">
-							<select name="nav_depth" class="ui-select-compact w-full">
-								<option value="0" selected={row.depth === 0}>{depthLabels[0]}</option>
-								<option value="1" selected={row.depth === 1}>{depthLabels[1]}</option>
-								<option value="2" selected={row.depth === 2}>{depthLabels[2]}</option>
-							</select>
+							<NavDepthSelect depth={row.depth as 0 | 1 | 2} />
 						</td>
 						<td class="ui-table-dense-td--wide">
 							<input name="nav_label" value={row.label} required class="ui-input-compact w-full" />
@@ -108,9 +114,7 @@ const depthLabels = adminLayout.navDepthLabels;
 								))}
 							</select>
 						</td>
-						<td class="ui-table-dense-td--wide text-center">
-							<input type="checkbox" name="nav_is_mega" checked={row.isMegaMenu} class="nav-mega ui-checkbox" />
-						</td>
+						<NavMegaMenuCell depth={row.depth as 0 | 1 | 2} checked={row.isMegaMenu} />
 						<td class="ui-table-dense-td--wide">
 							<button type="button" class="remove-nav-row ui-link--danger">{adminLayout.actions.removeNavRow}</button>
 						</td>
@@ -135,45 +139,7 @@ const depthLabels = adminLayout.navDepthLabels;
 	</details>
 </Panel>
 
-<script define:vars={{ depthLabels, removeNavRowLabel: adminLayout.actions.removeNavRow }}>
+<script define:vars={{ navTableLabels }}>
 	import { initNavigationTable } from '@/lib/admin/navigation-form-client';
-	initNavigationTable({
-		remove: removeNavRowLabel,
-		add: '',
-		depth0: depthLabels[0],
-		depth1: depthLabels[1],
-		depth2: depthLabels[2],
-	});
-</script>
-
-<script is:inline>
-	document.getElementById('navigation-body')?.addEventListener('change', (event) => {
-		const target = event.target;
-		if (!(target instanceof HTMLSelectElement) || !target.classList.contains('nav-href-kind')) return;
-		const row = target.closest('.nav-row');
-		if (!row) return;
-		const kind = target.value;
-		row.querySelectorAll('.nav-href-field').forEach((el) => {
-			const field = el;
-			const match = field.classList.contains(`nav-href-field-${kind}`);
-			field.classList.toggle('hidden', !match);
-			if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement) {
-				field.disabled = !match;
-				if (!match) field.removeAttribute('name');
-				else field.setAttribute('name', 'nav_href_value');
-			}
-		});
-	});
-	document.querySelectorAll('#navigation-body .nav-row').forEach((row) => {
-		row.querySelectorAll('.nav-href-field').forEach((el) => {
-			if (el instanceof HTMLInputElement || el instanceof HTMLSelectElement) {
-				if (el.classList.contains('hidden')) {
-					el.disabled = true;
-					el.removeAttribute('name');
-				} else {
-					el.setAttribute('name', 'nav_href_value');
-				}
-			}
-		});
-	});
+	initNavigationTable(navTableLabels);
 </script>

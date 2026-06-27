@@ -1,37 +1,72 @@
-export function initNavigationTable(labels: {
+export type NavigationTableLabels = {
 	remove: string;
-	add: string;
 	depth0: string;
 	depth1: string;
 	depth2: string;
-}): void {
+	megaHint: string;
+	hrefKinds: {
+		none: string;
+		category: string;
+		page: string;
+		static: string;
+		custom: string;
+		external: string;
+	};
+};
+
+function syncHrefFields(row: HTMLElement): void {
+	const kind = (row.querySelector('.nav-href-kind') as HTMLSelectElement | null)?.value ?? 'none';
+	row.querySelectorAll('.nav-href-field').forEach((el) => {
+		const field = el;
+		const match = field.classList.contains(`nav-href-field-${kind}`);
+		field.classList.toggle('hidden', !match);
+		if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement) {
+			field.disabled = !match;
+			if (!match) field.removeAttribute('name');
+			else field.setAttribute('name', 'nav_href_value');
+		}
+	});
+}
+
+function syncMegaCell(row: HTMLElement): void {
+	const depthSelect = row.querySelector('.nav-depth') as HTMLSelectElement | null;
+	const cell = row.querySelector('.nav-mega-cell');
+	const checkbox = row.querySelector('.nav-mega') as HTMLInputElement | null;
+	if (!depthSelect || !cell || !checkbox) return;
+
+	const isMain = depthSelect.value === '0';
+	cell.classList.toggle('hidden', !isMain);
+	checkbox.disabled = !isMain;
+	if (isMain) {
+		checkbox.setAttribute('name', 'nav_is_mega');
+	} else {
+		checkbox.checked = false;
+		checkbox.removeAttribute('name');
+	}
+}
+
+function bindRow(row: HTMLElement, body: HTMLElement, labels: NavigationTableLabels): void {
+	row.querySelector('.remove-nav-row')?.addEventListener('click', () => {
+		if (body.querySelectorAll('.nav-row').length <= 1) return;
+		row.remove();
+	});
+	row.querySelector('.nav-href-kind')?.addEventListener('change', () => syncHrefFields(row));
+	row.querySelector('.nav-depth')?.addEventListener('change', () => syncMegaCell(row));
+	syncHrefFields(row);
+	syncMegaCell(row);
+}
+
+export function initNavigationTable(labels: NavigationTableLabels): void {
 	const body = document.getElementById('navigation-body');
 	const addBtn = document.getElementById('add-nav-row');
 	if (!(body instanceof HTMLElement)) return;
 
-	function bindRemove(row: HTMLElement): void {
-		row.querySelector('.remove-nav-row')?.addEventListener('click', () => {
-			if (body.querySelectorAll('.nav-row').length <= 1) return;
-			row.remove();
-		});
-		row.querySelector('.nav-href-kind')?.addEventListener('change', () => syncHrefFields(row));
-		syncHrefFields(row);
-	}
-
-	function syncHrefFields(row: HTMLElement): void {
-		const kind = (row.querySelector('.nav-href-kind') as HTMLSelectElement | null)?.value ?? 'none';
-		row.querySelectorAll('.nav-href-field').forEach((el) => {
-			el.classList.add('hidden');
-		});
-		const target = row.querySelector(`.nav-href-field-${kind}`);
-		target?.classList.remove('hidden');
-	}
-
-	body.querySelectorAll('.nav-row').forEach((row) => bindRemove(row as HTMLElement));
+	body.querySelectorAll('.nav-row').forEach((row) => bindRow(row as HTMLElement, body, labels));
 
 	addBtn?.addEventListener('click', () => {
 		const tr = document.createElement('tr');
 		tr.className = 'nav-row ui-table-dense-row';
+		const { hrefKinds } = labels;
 		tr.innerHTML = `
 			<td class="ui-table-dense-td--wide">
 				<select name="nav_depth" class="ui-select-compact w-full nav-depth">
@@ -43,21 +78,26 @@ export function initNavigationTable(labels: {
 			<td class="ui-table-dense-td--wide"><input name="nav_label" required class="ui-input-compact w-full" /></td>
 			<td class="ui-table-dense-td--wide">
 				<select name="nav_href_kind" class="ui-select-compact w-full nav-href-kind">
-					<option value="none">—</option>
-					<option value="category">Kategoria</option>
-					<option value="page">Strona</option>
-					<option value="static">Stała trasa</option>
-					<option value="custom">Własny URL</option>
-					<option value="external">Zewnętrzny</option>
+					<option value="none">${hrefKinds.none}</option>
+					<option value="category">${hrefKinds.category}</option>
+					<option value="page">${hrefKinds.page}</option>
+					<option value="static">${hrefKinds.static}</option>
+					<option value="custom">${hrefKinds.custom}</option>
+					<option value="external">${hrefKinds.external}</option>
 				</select>
 			</td>
 			<td class="ui-table-dense-td--wide nav-href-values">
 				<input name="nav_href_value" class="ui-input-compact w-full nav-href-field nav-href-field-none nav-href-field-custom nav-href-field-external" />
-				<select name="nav_href_value" class="ui-select-compact w-full nav-href-field nav-href-field-category hidden"></select>
-				<select name="nav_href_value" class="ui-select-compact w-full nav-href-field nav-href-field-page hidden"></select>
-				<select name="nav_href_value" class="ui-select-compact w-full nav-href-field nav-href-field-static hidden"></select>
+				<select name="nav_href_value" class="ui-select-compact w-full nav-href-field nav-href-field-category hidden" disabled></select>
+				<select name="nav_href_value" class="ui-select-compact w-full nav-href-field nav-href-field-page hidden" disabled></select>
+				<select name="nav_href_value" class="ui-select-compact w-full nav-href-field nav-href-field-static hidden" disabled></select>
 			</td>
-			<td class="ui-table-dense-td--wide text-center"><input type="checkbox" name="nav_is_mega" class="nav-mega ui-checkbox" /></td>
+			<td class="nav-mega-cell ui-table-dense-td--wide text-center">
+				<label class="inline-flex flex-col items-center gap-1">
+					<input type="checkbox" name="nav_is_mega" class="nav-mega ui-checkbox" />
+					<span class="text-[10px] leading-tight text-slate-500 max-w-[6rem]">${labels.megaHint}</span>
+				</label>
+			</td>
 			<td class="ui-table-dense-td--wide"><button type="button" class="remove-nav-row ui-link--danger">${labels.remove}</button></td>
 		`;
 		const templateRow = body.querySelector('.nav-row');
@@ -73,6 +113,6 @@ export function initNavigationTable(labels: {
 			if (staticSelect && tplStatic) staticSelect.innerHTML = tplStatic.innerHTML;
 		}
 		body.appendChild(tr);
-		bindRemove(tr);
+		bindRow(tr, body, labels);
 	});
 }

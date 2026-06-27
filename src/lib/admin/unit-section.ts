@@ -1,6 +1,5 @@
 export type AdminUnitSection =
-	| 'edit'
-	| 'publish'
+	| 'settings'
 	| 'navigation'
 	| 'categories'
 	| 'components'

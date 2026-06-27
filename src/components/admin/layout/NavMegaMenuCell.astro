@@ -1,0 +1,24 @@
+---
+import { adminLayout } from '@/i18n';
+
+interface Props {
+	depth: 0 | 1 | 2;
+	checked?: boolean;
+}
+
+const { depth, checked = false } = Astro.props;
+const visible = depth === 0;
+---
+
+<td class={`nav-mega-cell ui-table-dense-td--wide text-center ${visible ? '' : 'hidden'}`}>
+	<label class="inline-flex flex-col items-center gap-1">
+		<input
+			type="checkbox"
+			name={visible ? 'nav_is_mega' : undefined}
+			checked={checked}
+			disabled={!visible}
+			class="nav-mega ui-checkbox"
+		/>
+		<span class="text-[10px] leading-tight text-slate-500 max-w-[6rem]">{adminLayout.megaMenuHint}</span>
+	</label>
+</td>

@@ -21,6 +21,7 @@ export const layout = {
 		categories: 'Kategorie',
 		components: 'Komponenty',
 		publish: 'Publikacja',
+		settings: 'Ustawienia',
 		pages: 'Strony statyczne',
 		changes: 'Ostatnie zmiany',
 		edit: 'Edycja',
