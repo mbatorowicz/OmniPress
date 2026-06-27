@@ -23,9 +23,16 @@ export type NavigationTableLabels = {
 const DEPTH_CLASSES = ['nav-row--depth-0', 'nav-row--depth-1', 'nav-row--depth-2'] as const;
 
 function readNavTargetOptions(): NavTargetOptions | null {
+	const body = document.getElementById('navigation-body');
 	const table = document.getElementById('navigation-table');
-	if (!(table instanceof HTMLElement)) return null;
-	const raw = table.dataset.navTargetOptions;
+	const host =
+		body instanceof HTMLElement && body.dataset.navTargetOptions
+			? body
+			: table instanceof HTMLElement
+				? table
+				: null;
+	if (!host) return null;
+	const raw = host.dataset.navTargetOptions;
 	if (!raw) return null;
 	try {
 		return JSON.parse(raw) as NavTargetOptions;
@@ -137,9 +144,7 @@ function initNavigationRow(row: HTMLElement, options: NavTargetOptions): void {
 	}
 
 	const kind = readRowKind(row);
-	if (!row.querySelector('.nav-href-target-control')) {
-		rebuildNavTarget(row, kind, options);
-	}
+	rebuildNavTarget(row, kind, options);
 	syncSubmitFields(row);
 	syncNavDepthVisual(row);
 	syncMegaCell(row);
