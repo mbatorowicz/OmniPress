@@ -36,17 +36,44 @@ function readActiveHrefValue(row: HTMLElement, kind: string): string {
 	return '';
 }
 
+function resolveRowHrefKind(row: HTMLElement): string {
+	const kindHidden = row.querySelector('.nav-href-kind-submit') as HTMLInputElement | null;
+	const kindUi = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
+	const valueHidden = row.querySelector('.nav-href-value-submit') as HTMLInputElement | null;
+
+	const uiKind = kindUi?.value ?? 'none';
+	const serverKind = kindHidden?.value || row.dataset.navKind || 'none';
+	const href =
+		valueHidden?.value.trim() || row.dataset.navHref?.trim() || '';
+
+	if (uiKind === 'none' && href && serverKind !== 'none') {
+		if (kindUi) kindUi.value = serverKind;
+		return serverKind;
+	}
+
+	return uiKind;
+}
+
 function syncHrefValueSubmit(row: HTMLElement): void {
-	const kind = (row.querySelector('.nav-href-kind') as HTMLSelectElement | null)?.value ?? 'none';
+	const kind = resolveRowHrefKind(row);
+	const kindHidden = row.querySelector('.nav-href-kind-submit') as HTMLInputElement | null;
+	if (kindHidden) kindHidden.value = kind;
+
 	const hidden = row.querySelector('.nav-href-value-submit');
-	if (hidden instanceof HTMLInputElement) {
-		hidden.value = readActiveHrefValue(row, kind);
+	if (!(hidden instanceof HTMLInputElement)) return;
+
+	const fromField = readActiveHrefValue(row, kind);
+	if (fromField) {
+		hidden.value = fromField;
+	} else if (kind === 'none') {
+		hidden.value = '';
 	}
 }
 
 function initHrefFieldsFromHidden(row: HTMLElement): void {
 	const kindSelect = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
-	let kind = kindSelect?.value ?? 'none';
+	const kindHidden = row.querySelector('.nav-href-kind-submit') as HTMLInputElement | null;
+	let kind = kindHidden?.value || row.dataset.navKind || kindSelect?.value || 'none';
 	const hidden = row.querySelector('.nav-href-value-submit');
 	if (!(hidden instanceof HTMLInputElement)) return;
 
@@ -58,7 +85,13 @@ function initHrefFieldsFromHidden(row: HTMLElement): void {
 
 	if (kind === 'none' && value && row.dataset.navKind && row.dataset.navKind !== 'none') {
 		kind = row.dataset.navKind;
-		if (kindSelect) kindSelect.value = kind;
+	}
+
+	if (kindSelect && kind !== 'none') {
+		kindSelect.value = kind;
+	}
+	if (kindHidden && kind !== 'none') {
+		kindHidden.value = kind;
 	}
 
 	if (kind === 'none' || !value) return;
@@ -76,8 +109,12 @@ export function initNavigationRowFromServerState(row: HTMLElement): void {
 	const kind = row.dataset.navKind ?? 'none';
 	const href = row.dataset.navHref ?? '';
 	const kindSelect = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
+	const kindHidden = row.querySelector('.nav-href-kind-submit') as HTMLInputElement | null;
 	const hidden = row.querySelector('.nav-href-value-submit') as HTMLInputElement | null;
 
+	if (kindHidden && kind !== 'none') {
+		kindHidden.value = kind;
+	}
 	if (kindSelect && kind !== 'none') {
 		kindSelect.value = kind;
 	}
@@ -92,7 +129,9 @@ export function initNavigationRowFromServerState(row: HTMLElement): void {
 }
 
 export function syncHrefFields(row: HTMLElement, options?: { skipSubmitSync?: boolean }): void {
-	const kind = (row.querySelector('.nav-href-kind') as HTMLSelectElement | null)?.value ?? 'none';
+	const kindUi = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
+	const kind = kindUi?.value ?? 'none';
+
 	row.querySelectorAll('.nav-href-field').forEach((el) => {
 		const field = el;
 		const match = field.classList.contains(`nav-href-field-${kind}`);
@@ -101,7 +140,12 @@ export function syncHrefFields(row: HTMLElement, options?: { skipSubmitSync?: bo
 			field.disabled = !match;
 		}
 	});
-	if (!options?.skipSubmitSync) syncHrefValueSubmit(row);
+
+	if (!options?.skipSubmitSync) {
+		const kindHidden = row.querySelector('.nav-href-kind-submit') as HTMLInputElement | null;
+		if (kindHidden) kindHidden.value = kind;
+		syncHrefValueSubmit(row);
+	}
 }
 
 function syncNavDepthVisual(row: HTMLElement): void {
@@ -138,6 +182,8 @@ function appendNavRow(body: HTMLElement, labels: NavigationTableLabels): void {
 	const { hrefKinds } = labels;
 	const tr = document.createElement('tr');
 	tr.className = 'nav-row ui-table-dense-row nav-row--depth-0';
+	tr.dataset.navKind = 'none';
+	tr.dataset.navHref = '';
 	tr.innerHTML = `
 		<td class="ui-table-dense-td--wide">
 			<select name="nav_depth" class="ui-select-compact w-full nav-depth">
@@ -148,7 +194,8 @@ function appendNavRow(body: HTMLElement, labels: NavigationTableLabels): void {
 		</td>
 		<td class="ui-table-dense-td--wide nav-label-cell"><input name="nav_label" required class="ui-input-compact w-full" /></td>
 		<td class="ui-table-dense-td--wide">
-			<select name="nav_href_kind" class="ui-select-compact w-full nav-href-kind">
+			<input type="hidden" name="nav_href_kind" class="nav-href-kind-submit" value="none" />
+			<select class="ui-select-compact w-full nav-href-kind">
 				<option value="none">${hrefKinds.none}</option>
 				<option value="category">${hrefKinds.category}</option>
 				<option value="page">${hrefKinds.page}</option>

@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
 import { layoutSectionReturnPath } from '@/lib/admin/layout-editor-context';
 import { parseLayoutSection } from '@/lib/astro-layout/parse-form';
+import { countNavigationHrefs } from '@/lib/astro-layout/validate-nav';
 import { loadSiteAstroLayout, saveSiteAstroLayout } from '@/lib/astro-layout/store';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
@@ -20,6 +21,14 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 
 	if (!parsed.ok) {
 		return redirect(`/admin/units/${siteId}/${returnSegment}?error=${parsed.error}`);
+	}
+
+	if (section === 'navigation' || section === 'all') {
+		const existingHrefs = countNavigationHrefs(existing.navigation);
+		const newHrefs = countNavigationHrefs(parsed.layout.navigation);
+		if (existingHrefs > 0 && newHrefs === 0) {
+			return redirect(`/admin/units/${siteId}/${returnSegment}?error=navigation_hrefs_lost`);
+		}
 	}
 
 	const saved = await saveSiteAstroLayout(supabase, siteId, parsed.layout);

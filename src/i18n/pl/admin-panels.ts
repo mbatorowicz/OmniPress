@@ -342,6 +342,10 @@ export const adminLayout = {
 			'Nie znaleziono pliku menu w repozytorium GitHub — sprawdź ścieżkę navigation_path w Ustawieniach strony.',
 		import_nav_empty:
 			'Plik menu w GitHub nie zawiera poprawnych linków — import przerwany, szkic nie został zmieniony.',
+		import_save_failed:
+			'Menu pobrano z GitHub, ale zapis szkicu nie powiódł się — sprawdź uprawnienia lub spróbuj ponownie.',
+		navigation_hrefs_lost:
+			'Zapis odrzucony — formularz nie zawiera linków menu. Użyj „Importuj z GitHub” zamiast „Zapisz szkic”.',
 		sync_failed: 'Publikacja do GitHub nie powiodła się — szkic zapisany w OmniPress.',
 		vercel_build_failed:
 			'GitHub zaktualizowany, ale build Vercel strony Astro nie przeszedł — produkcja może być nieaktualna.',

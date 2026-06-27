@@ -36,15 +36,21 @@ const corruptLayout = {
 };
 
 function createSupabase(): SupabaseClient {
+	let storedLayout = corruptLayout;
 	return {
 		from: vi.fn(() => ({
 			select: vi.fn().mockReturnValue({
 				eq: vi.fn().mockReturnValue({
-					maybeSingle: vi.fn().mockResolvedValue({ data: { astro_layout: corruptLayout } }),
+					maybeSingle: vi.fn().mockImplementation(async () => ({
+						data: { astro_layout: storedLayout },
+					})),
 				}),
 			}),
 			update: vi.fn().mockImplementation((payload) => {
 				mocks.updatePayload(payload);
+				if (payload?.astro_layout) {
+					storedLayout = payload.astro_layout;
+				}
 				return { eq: vi.fn().mockResolvedValue({ error: null }) };
 			}),
 		})),

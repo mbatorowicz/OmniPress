@@ -131,12 +131,20 @@ export async function importSiteAstroLayoutFromGitHub(
 		categoriesHash: catText ? hashCategoriesFileText(catText) : null,
 	});
 
-	await saveSiteAstroLayout(supabase, siteId, merged, { updateDraftMeta: false });
+	const saved = await saveSiteAstroLayout(supabase, siteId, merged, { updateDraftMeta: false });
+	if (!saved.ok) return { ok: false, error: 'save_failed' };
+
+	const persisted = await loadSiteAstroLayout(supabase, siteId);
+	const persistedHrefCount = collectNavHrefs(persisted.navigation).length;
+	if (persistedHrefCount < hrefCount) {
+		return { ok: false, error: 'import_save_failed' };
+	}
+
 	return {
 		ok: true,
-		layout: merged,
+		layout: persisted,
 		report: {
-			hrefCount,
+			hrefCount: persistedHrefCount,
 			navigationPath: layout.navigationPath,
 			navHash,
 		},
