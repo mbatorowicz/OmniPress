@@ -1,8 +1,7 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
 import AdminContextNav from '@/components/shell/AdminContextNav.astro';
-import LayoutDraftStatus from '@/components/admin/layout/LayoutDraftStatus.astro';
-import LayoutFormAlerts from '@/components/admin/layout/LayoutFormAlerts.astro';
+import LayoutEditorStatus from '@/components/admin/layout/LayoutEditorStatus.astro';
 import ComponentsLayoutForm from '@/components/admin/layout/ComponentsLayoutForm.astro';
 import { adminLayout } from '@/i18n';
 import { loadLayoutEditorContext } from '@/lib/admin/layout-editor-context';
@@ -23,15 +22,12 @@ const flash = parseLayoutPageFlash(Astro.url);
 	<AdminContextNav siteId={id} siteName={ctx.site.name} section="components" />
 	<p class="ui-muted mb-4">{adminLayout.componentsLead}</p>
 
-	<LayoutDraftStatus
+	<LayoutEditorStatus
 		draftStatus={ctx.draftStatus}
 		lastPublishedAt={ctx.lastPublishedAt}
 		lastPublishedSha={ctx.lastPublishedSha}
 		lastDraftSavedAt={ctx.lastDraftSavedAt}
 		hasAstroChannel={ctx.hasAstroChannel}
-	/>
-
-	<LayoutFormAlerts
 		{...flash}
 		imported={flash.imported || ctx.autoImported}
 		importHrefCount={flash.importHrefCount ?? ctx.autoImportHrefCount ?? null}
@@ -42,7 +38,6 @@ const flash = parseLayoutPageFlash(Astro.url);
 				? adminLayout.errors[ctx.autoImportError as keyof typeof adminLayout.errors]
 				: null)
 		}
-		hasAstroChannel={ctx.hasAstroChannel}
 	/>
 
 	<ComponentsLayoutForm

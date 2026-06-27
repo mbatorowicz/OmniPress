@@ -133,12 +133,22 @@ export const adminLayout = {
 	categoriesLead: 'Slug i nazwa kategorii wpisów oraz widoczność w sekcjach na stronie głównej.',
 	componentsLead: 'Widgety na stronie (strona główna, sidebar) — kolejność i parametry.',
 	lead: 'Menu, kategorie i komponenty — szkic w OmniPress, publikacja na żądanie do repozytorium GitHub.',
-	savedDraft: 'Zapisano szkic w OmniPress (bez wysyłki na stronę).',
-	publishedLayout: 'Opublikowano layout na stronie (commit w GitHub).',
+	savedDraft: 'Szkic zapisany — zmiany tylko w OmniPress, bez wysyłki na stronę.',
+	publishedLayout: 'Layout opublikowany na stronie',
 	syncSummaryPrefix: 'GitHub:',
-	imported: 'Zaimportowano konfigurację z GitHub do szkicu.',
+	imported: 'Konfiguracja wczytana z GitHub do szkicu.',
 	importedMenu: (hrefCount: number, path: string) =>
-		`Zaimportowano menu z GitHub: ${hrefCount} pozycji z linkiem (${path}). Szkic = stan strony live.`,
+		`Menu wczytane z GitHub · ${hrefCount} ${hrefCount === 1 ? 'link' : hrefCount < 5 ? 'linki' : 'linków'} · ${path}`,
+	flash: {
+		savedTitle: 'Szkic zapisany',
+		savedNote: 'Zmiany zapisane w OmniPress — opublikuj, aby wysłać je na stronę.',
+		importedTitle: 'Menu wczytane z GitHub',
+		importedAndSaved: 'Menu wczytane z GitHub · szkic zapisany',
+		inSyncShort: 'zgodne ze stroną live',
+		draftAheadShort: 'wymaga publikacji na stronie',
+		linkCount: (count: number) =>
+			`${count} ${count === 1 ? 'link' : count < 5 ? 'linki' : 'linków'}`,
+	},
 	noAstroChannel:
 		'Brak skonfigurowanego repozytorium GitHub — zapis szkicu tylko w OmniPress (bez publikacji na stronę).',
 	slotsHint:
@@ -317,12 +327,12 @@ export const adminLayout = {
 		alert: 'Ostrzeżenie (żółty)',
 	},
 	draftStatus: {
-		inSync: 'Szkic zgodny z opublikowanym layoutem na stronie.',
-		draftAhead: 'Szkic różni się od opublikowanego — opublikuj, aby zaktualizować stronę.',
+		inSync: 'Menu zgodne ze stroną live',
+		draftAhead: 'Szkic ma nieopublikowane zmiany — użyj „Opublikuj na stronie”, aby wysłać je na stronę.',
 		draftMissingHref:
-			'Szkic nie ma linków menu — strona live jest nadal poprawna, ale publikacja nadpisałaby ją pustym menu. Użyj „Importuj z GitHub”.',
-		lastPublished: 'Ostatnia publikacja',
-		lastDraft: 'Ostatni zapis szkicu',
+			'Menu bez linków — wczytaj menu z GitHub przed publikacją (strona live jest nadal poprawna).',
+		lastPublished: 'Publikacja',
+		lastDraft: 'Zapis szkicu',
 	},
 	errors: {
 		invalid_navigation: 'Menu: nieprawidłowy JSON lub struktura.',

@@ -1,0 +1,92 @@
+---
+import { adminLayout } from '@/i18n';
+import Alert from '@/components/ui/feedback/Alert.astro';
+import type { DraftLiveStatus } from '@/lib/astro-layout/layout-sync-meta';
+import {
+	buildLayoutEditorStatus,
+	layoutEditorStatusMessagesFromI18n,
+} from '@/lib/admin/layout-editor-status';
+
+interface Props {
+	draftStatus?: DraftLiveStatus;
+	navHasMissingHref?: boolean;
+	lastPublishedAt?: string;
+	lastPublishedSha?: string;
+	lastDraftSavedAt?: string;
+	hasAstroChannel?: boolean;
+	errorMessage?: string | null;
+	errorDetail?: string | null;
+	syncSummary?: string | null;
+	navWarningLines?: string[];
+	saved?: boolean;
+	published?: boolean;
+	imported?: boolean;
+	importHrefCount?: number | null;
+	importPath?: string | null;
+}
+
+const {
+	draftStatus = 'unknown',
+	navHasMissingHref = false,
+	lastPublishedAt,
+	lastPublishedSha,
+	lastDraftSavedAt,
+	hasAstroChannel = false,
+	errorMessage,
+	errorDetail,
+	syncSummary,
+	navWarningLines = [],
+	saved,
+	published,
+	imported,
+	importHrefCount,
+	importPath,
+} = Astro.props;
+
+const view = buildLayoutEditorStatus(
+	{
+		hasAstroChannel,
+		draftStatus,
+		navHasMissingHref,
+		lastPublishedAt,
+		lastPublishedSha,
+		lastDraftSavedAt,
+		errorMessage,
+		errorDetail,
+		syncSummary,
+		navWarningLines,
+		saved,
+		published,
+		imported,
+		importHrefCount,
+		importPath,
+	},
+	layoutEditorStatusMessagesFromI18n(adminLayout),
+);
+---
+
+{
+	view.show && (
+		<div class="mb-4">
+			<Alert variant={view.variant}>
+				<p class="font-medium">{view.title}</p>
+				{view.metaLines.map((line) => (
+					<p class="mt-1 text-sm font-normal opacity-90">{line}</p>
+				))}
+				{view.errorDetail && (
+					<p class="mt-1 text-sm font-normal opacity-90">{view.errorDetail}</p>
+				)}
+				{view.showNavIssues && view.navWarningLines.length > 0 && (
+					<ul class="mt-2 list-inside list-disc text-sm">
+						{view.navWarningLines.slice(0, 12).map((line) => (
+							<li>{line}</li>
+						))}
+					</ul>
+				)}
+				{view.showNavIssues && view.navHasMissingHref && (
+					<p class="mt-2 text-sm">{adminLayout.publishBlockedMissingHref}</p>
+				)}
+			</Alert>
+		</div>
+	)
+}
