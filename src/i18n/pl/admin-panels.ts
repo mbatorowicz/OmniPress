@@ -132,13 +132,13 @@ export const adminLayout = {
 		'Pozycje menu głównego i podmenu (do 3 poziomów). Link wewnętrzny musi wskazywać istniejącą stronę, kategorię lub znaną trasę.',
 	categoriesLead: 'Slug i nazwa kategorii wpisów oraz widoczność w sekcjach na stronie głównej.',
 	componentsLead: 'Widgety na stronie (strona główna, sidebar) — kolejność i parametry.',
-	lead: 'Menu, kategorie i komponenty — zapis w OmniPress, opcjonalny sync do repozytorium GitHub.',
-	saved: 'Zapisano w OmniPress.',
-	savedSynced: 'Zapisano i wysłano do GitHub.',
+	lead: 'Menu, kategorie i komponenty — szkic w OmniPress, publikacja na żądanie do repozytorium GitHub.',
+	savedDraft: 'Zapisano szkic w OmniPress (bez wysyłki na stronę).',
+	publishedLayout: 'Opublikowano layout na stronie (commit w GitHub).',
 	syncSummaryPrefix: 'GitHub:',
-	imported: 'Zaimportowano konfigurację z GitHub.',
+	imported: 'Zaimportowano konfigurację z GitHub do szkicu.',
 	noAstroChannel:
-		'Brak skonfigurowanego repozytorium GitHub — zapis tylko w OmniPress (bez wysyłki na GitHub).',
+		'Brak skonfigurowanego repozytorium GitHub — zapis szkicu tylko w OmniPress (bez publikacji na stronę).',
 	slotsHint:
 		'Widgety na stronie publicznej. Mniejsza liczba „kolejność” = wyżej w sidebarze. Szczegóły w sekcjach poniżej.',
 	slotsListTitle: 'Lista komponentów',
@@ -193,7 +193,7 @@ export const adminLayout = {
 	categoriesSlugWarning: 'Zmiana slug nie aktualizuje URL-i już opublikowanych wpisów — wymagają republikacji.',
 	navValidationHeading: 'Problemy w menu (linki wewnętrzne):',
 	navValidationHint:
-		'Wysyłka do GitHub jest zablokowana, dopóki menu wskazuje nieistniejące adresy. Utwórz strony statyczne lub popraw linki.',
+		'Publikacja jest zablokowana, dopóki menu wskazuje nieistniejące adresy. Utwórz strony statyczne lub popraw linki.',
 	bannerLinkTypes: {
 		category: 'Kategoria wpisów',
 		page: 'Strona statyczna',
@@ -288,14 +288,15 @@ export const adminLayout = {
 		bannerPage: 'Strona statyczna',
 		bannerExternalUrl: 'URL zewnętrzny',
 		removeRow: '',
-		syncGitHub: 'Wyślij zmiany do GitHub (menu + kategorie + komponenty)',
+		waitForVercel: 'Czekaj na zakończenie buildu Vercel (do 2 min)',
 	},
 	paths: {
 		navigation: 'Plik menu w repozytorium',
 		categories: 'Plik kategorii w repozytorium',
 	},
 	actions: {
-		save: 'Zapisz zmiany',
+		saveDraft: 'Zapisz szkic',
+		publishLayout: 'Opublikuj na stronie',
 		importFromGitHub: 'Importuj z GitHub',
 		addCategory: '+ Dodaj kategorię',
 		addComponent: '+ Dodaj komponent',
@@ -309,6 +310,12 @@ export const adminLayout = {
 		default: 'Domyślny',
 		alert: 'Ostrzeżenie (żółty)',
 	},
+	draftStatus: {
+		inSync: 'Szkic zgodny z opublikowanym layoutem na stronie.',
+		draftAhead: 'Szkic różni się od opublikowanego — opublikuj, aby zaktualizować stronę.',
+		lastPublished: 'Ostatnia publikacja',
+		lastDraft: 'Ostatni zapis szkicu',
+	},
 	errors: {
 		invalid_navigation: 'Menu: nieprawidłowy JSON lub struktura.',
 		no_categories: 'Dodaj co najmniej jedną kategorię (slug + nazwa).',
@@ -320,8 +327,8 @@ export const adminLayout = {
 		invalid_repo: 'Nieprawidłowa konfiguracja repozytorium.',
 		no_github_token: 'Brak tokenu GitHub — dodaj PAT w Ustawieniach.',
 		dead_nav_links:
-			'Menu zawiera nieistniejące linki wewnętrzne — popraw je przed wysłaniem do GitHub.',
-		sync_failed: 'Wysyłka do GitHub nie powiodła się — dane zapisane tylko w OmniPress.',
+			'Menu zawiera nieistniejące linki wewnętrzne — popraw je przed publikacją na stronie.',
+		sync_failed: 'Publikacja do GitHub nie powiodła się — szkic zapisany w OmniPress.',
 		vercel_build_failed:
 			'GitHub zaktualizowany, ale build Vercel strony Astro nie przeszedł — produkcja może być nieaktualna.',
 	},

@@ -85,6 +85,15 @@ export type DisplaySlot = {
 	widget?: SlotWidgetConfig;
 };
 
+/** Metadane szkicu vs opublikowany layout w repo GitHub */
+export type LayoutSyncMeta = {
+	lastDraftSavedAt?: string;
+	lastPublishedAt?: string;
+	lastPublishedSha?: string;
+	publishedNavHash?: string;
+	publishedCategoriesHash?: string;
+};
+
 export type SiteAstroLayout = {
 	navigation: NavItem[];
 	categoryDisplays: CategoryDisplays;
@@ -92,6 +101,7 @@ export type SiteAstroLayout = {
 	slots: DisplaySlot[];
 	navigationPath: string;
 	categoriesPath: string;
+	sync?: LayoutSyncMeta;
 };
 
 export const DEFAULT_NAVIGATION_PATH = 'src/config/omnipress-navigation.json';

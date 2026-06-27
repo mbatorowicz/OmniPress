@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { flattenNavigation } from '@/lib/admin/navigation-tree';
 import { parseNavigationFromForm, parseLayoutSection } from './parse-form';
 import type { SiteAstroLayout } from './types';
 
@@ -136,5 +137,21 @@ describe('parseLayoutSection navigation', () => {
 
 		const tree = parseNavigationFromForm(form);
 		expect(tree[0].href).toBe('/aktualnosci');
+	});
+
+	it('round-trip flatten → form → parse zachowuje href liścia menu', () => {
+		const nav = [{ label: 'Plan ogólny', href: '/gmina/plan-ogolny' }];
+		const pageOptions = [{ path: '/gmina/plan-ogolny', title: 'Plan ogólny' }];
+		const rows = flattenNavigation(nav, existingLayout.categories, pageOptions);
+		const form = navForm(
+			rows.map((r) => ({
+				depth: String(r.depth),
+				label: r.label,
+				kind: r.hrefKind,
+				value: r.hrefValue,
+			})),
+		);
+		const tree = parseNavigationFromForm(form);
+		expect(tree[0].href).toBe('/gmina/plan-ogolny');
 	});
 });

@@ -200,6 +200,31 @@ export function normalizeSiteAstroLayout(raw: unknown): SiteAstroLayout {
 	if (!raw || typeof raw !== 'object') return emptySiteAstroLayout();
 	const o = raw as Partial<SiteAstroLayout>;
 	const slots = parseSlots(o.slots);
+	const syncRaw = o.sync;
+	const sync =
+		syncRaw && typeof syncRaw === 'object'
+			? {
+					lastDraftSavedAt:
+						typeof syncRaw.lastDraftSavedAt === 'string'
+							? syncRaw.lastDraftSavedAt
+							: undefined,
+					lastPublishedAt:
+						typeof syncRaw.lastPublishedAt === 'string' ? syncRaw.lastPublishedAt : undefined,
+					lastPublishedSha:
+						typeof syncRaw.lastPublishedSha === 'string'
+							? syncRaw.lastPublishedSha
+							: undefined,
+					publishedNavHash:
+						typeof syncRaw.publishedNavHash === 'string'
+							? syncRaw.publishedNavHash
+							: undefined,
+					publishedCategoriesHash:
+						typeof syncRaw.publishedCategoriesHash === 'string'
+							? syncRaw.publishedCategoriesHash
+							: undefined,
+				}
+			: undefined;
+
 	return {
 		navigation: normalizeNavItems(o.navigation),
 		categoryDisplays: mergeCategoryDisplays(slots, o.categoryDisplays ?? {}),
@@ -207,5 +232,6 @@ export function normalizeSiteAstroLayout(raw: unknown): SiteAstroLayout {
 		slots,
 		navigationPath: o.navigationPath?.trim() || DEFAULT_NAVIGATION_PATH,
 		categoriesPath: o.categoriesPath?.trim() || DEFAULT_CATEGORIES_PATH,
+		sync,
 	};
 }

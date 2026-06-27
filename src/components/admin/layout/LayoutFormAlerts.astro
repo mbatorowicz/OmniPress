@@ -8,7 +8,7 @@ interface Props {
 	syncSummary?: string | null;
 	navWarningLines?: string[];
 	saved?: boolean;
-	synced?: boolean;
+	published?: boolean;
 	imported?: boolean;
 	hasAstroChannel?: boolean;
 }
@@ -19,16 +19,19 @@ const {
 	syncSummary,
 	navWarningLines = [],
 	saved,
-	synced,
+	published,
 	imported,
 	hasAstroChannel = true,
 } = Astro.props;
 ---
 
-{saved && (
+{saved && !published && (
+	<Alert variant="success">{adminLayout.savedDraft}</Alert>
+)}
+{published && (
 	<Alert variant="success">
-		{synced ? adminLayout.savedSynced : adminLayout.saved}
-		{synced && syncSummary && (
+		{adminLayout.publishedLayout}
+		{syncSummary && (
 			<p class="mt-1 text-sm font-normal opacity-90">
 				{adminLayout.syncSummaryPrefix} {syncSummary}
 			</p>

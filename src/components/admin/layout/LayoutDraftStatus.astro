@@ -1,0 +1,54 @@
+---
+import { adminLayout } from '@/i18n';
+import Alert from '@/components/ui/feedback/Alert.astro';
+import type { DraftLiveStatus } from '@/lib/astro-layout/layout-sync-meta';
+
+interface Props {
+	draftStatus?: DraftLiveStatus;
+	lastPublishedAt?: string;
+	lastPublishedSha?: string;
+	lastDraftSavedAt?: string;
+	hasAstroChannel?: boolean;
+}
+
+const {
+	draftStatus = 'unknown',
+	lastPublishedAt,
+	lastPublishedSha,
+	lastDraftSavedAt,
+	hasAstroChannel = false,
+} = Astro.props;
+
+function formatDate(iso?: string): string | null {
+	if (!iso) return null;
+	const d = new Date(iso);
+	if (Number.isNaN(d.getTime())) return null;
+	return d.toLocaleString('pl-PL', { dateStyle: 'short', timeStyle: 'short' });
+}
+
+const publishedLabel = formatDate(lastPublishedAt);
+const draftLabel = formatDate(lastDraftSavedAt);
+---
+
+{
+	hasAstroChannel && draftStatus !== 'unknown' && (
+		<Alert variant={draftStatus === 'in_sync' ? 'success' : 'warning'}>
+			<p class="font-medium">
+				{draftStatus === 'in_sync'
+					? adminLayout.draftStatus.inSync
+					: adminLayout.draftStatus.draftAhead}
+			</p>
+			{publishedLabel && (
+				<p class="mt-1 text-sm font-normal opacity-90">
+					{adminLayout.draftStatus.lastPublished}: {publishedLabel}
+					{lastPublishedSha && ` (${lastPublishedSha})`}
+				</p>
+			)}
+			{draftLabel && (
+				<p class="mt-1 text-sm font-normal opacity-90">
+					{adminLayout.draftStatus.lastDraft}: {draftLabel}
+				</p>
+			)}
+		</Alert>
+	)
+}

@@ -5,7 +5,7 @@ export function parseLayoutPageFlash(url: URL): {
 	errorDetail: string | null;
 	syncSummary: string | null;
 	saved: boolean;
-	synced: boolean;
+	published: boolean;
 	imported: boolean;
 } {
 	const errorCode = url.searchParams.get('error');
@@ -20,7 +20,7 @@ export function parseLayoutPageFlash(url: URL): {
 		errorDetail: url.searchParams.get('sync_detail')?.trim() || null,
 		syncSummary: url.searchParams.get('sync_summary')?.trim() || null,
 		saved: url.searchParams.get('saved') === '1',
-		synced: url.searchParams.get('synced') === '1',
+		published: url.searchParams.get('published') === '1',
 		imported: url.searchParams.get('imported') === '1',
 	};
 }

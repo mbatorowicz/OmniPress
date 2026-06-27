@@ -1,8 +1,14 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
+	fetchLiveLayoutHashes,
 	importSiteAstroLayoutFromGitHub,
 	loadSiteAstroLayout,
 } from '@/lib/astro-layout/store';
+import {
+	computeDraftLiveStatus,
+	type DraftLiveScope,
+	type DraftLiveStatus,
+} from '@/lib/astro-layout/layout-sync-meta';
 import type { SiteAstroLayout } from '@/lib/astro-layout/types';
 import {
 	buildKnownNavPaths,
@@ -23,12 +29,17 @@ export type LayoutEditorContext = {
 	hasAstroChannel: boolean;
 	publishedPages: PageOption[];
 	navWarningLines: string[];
+	draftStatus: DraftLiveStatus;
+	draftStatusScope: DraftLiveScope;
+	lastPublishedAt?: string;
+	lastPublishedSha?: string;
+	lastDraftSavedAt?: string;
 };
 
 export async function loadLayoutEditorContext(
 	supabase: SupabaseClient,
 	siteId: string,
-	options: { autoImport?: boolean } = {},
+	options: { autoImport?: boolean; draftStatusScope?: DraftLiveScope } = {},
 ): Promise<LayoutEditorContext | null> {
 	const { data: site } = await supabase
 		.from('sites')
@@ -40,6 +51,7 @@ export async function loadLayoutEditorContext(
 
 	let layout = await loadSiteAstroLayout(supabase, siteId);
 	const hasAstroChannel = Boolean(await loadSiteAstroDestination(supabase, siteId));
+	const draftStatusScope = options.draftStatusScope ?? 'navigation';
 
 	if (options.autoImport !== false) {
 		const emptyLayout =
@@ -69,12 +81,24 @@ export async function loadLayoutEditorContext(
 		validateNavigationLinks(layout.navigation, knownNavPaths),
 	);
 
+	const liveHashes = hasAstroChannel
+		? await fetchLiveLayoutHashes(supabase, siteId, layout)
+		: null;
+	const draftStatus = hasAstroChannel
+		? computeDraftLiveStatus(layout, draftStatusScope, liveHashes ?? undefined)
+		: 'unknown';
+
 	return {
 		site: { id: site.id, name: site.name, slug: site.slug },
 		layout,
 		hasAstroChannel,
 		publishedPages,
 		navWarningLines,
+		draftStatus,
+		draftStatusScope,
+		lastPublishedAt: layout.sync?.lastPublishedAt,
+		lastPublishedSha: layout.sync?.lastPublishedSha,
+		lastDraftSavedAt: layout.sync?.lastDraftSavedAt,
 	};
 }
 

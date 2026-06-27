@@ -97,13 +97,25 @@ Na podglądzie wpisu: tabela **Status publikacji**. Przy błędzie (`failed`): *
 
 ## 6. Wygląd strony, import i bulk
 
-- **Menu:** `/admin/units/[id]/navigation` — edytor drzewa nawigacji (do 3 poziomów), zapis do `omnipress-navigation.json`. Przed sync walidacja linków wewnętrznych.
-- **Kategorie:** `/admin/units/[id]/categories` — slug/nazwa kategorii + macierz widoczności w komponentach feed.
-- **Komponenty:** `/admin/units/[id]/components` — lista slotów (`home.*`, `sidebar.weather`, `sidebar.cert_advisories`, `sidebar.recent_changes`, `sidebar.banner` itd.) w `omnipress-categories.json`. Wspólne pole kolejności (`order`) dla sidebaru. Checkbox „Wyślij do GitHub” na każdej zakładce wyglądu — **jeden commit** (menu + kategorie + sloty → jeden deploy Vercel). `sidebar.weather` i `sidebar.cert_advisories` pobierają dane **na żywo** z API na stronie Astro (`/api/weather/warnings`, `/api/cert/advisories`) — bez syncu JSON do repo. Widget CERT zawsze dopełnia listę do limitu z panelu: feed RSS zawiera tylko komunikaty z bieżącego dnia, starsze dociągane są z listingu `moje.cert.pl/komunikaty/`.
-- **Strony statyczne:** `/admin/units/[id]/pages` — treści pod stałe URL (np. `/gmina/plan-ogolny`); publikacja od razu do `src/content/pages/` w repo Astro.
+Model **szkic + publikacja**: edycja zapisuje roboczy layout w Supabase; strona live czyta JSON z repozytorium GitHub. Publikacja na stronę wymaga osobnego kliknięcia **Opublikuj na stronie**.
+
+| Akcja | Supabase (szkic) | GitHub | Vercel |
+|-------|------------------|--------|--------|
+| **Zapisz szkic** | tak | nie | nie |
+| **Importuj z GitHub** | nadpisuje szkic danymi live | odczyt | nie |
+| **Opublikuj na stronie** | tak (przed sync) | commit | webhook (domyślnie bez czekania) |
+
+- **Menu:** `/admin/units/[id]/navigation` — edytor drzewa nawigacji (do 3 poziomów). Publikacja wysyła tylko `omnipress-navigation.json`. Przed publikacją walidacja linków wewnętrznych.
+- **Kategorie:** `/admin/units/[id]/categories` — slug/nazwa kategorii + macierz widoczności w komponentach feed. Publikacja wysyła tylko `omnipress-categories.json`.
+- **Komponenty:** `/admin/units/[id]/components` — lista slotów (`home.*`, `sidebar.weather`, `sidebar.cert_advisories`, `sidebar.recent_changes`, `sidebar.banner` itd.) w tym samym pliku kategorii. Publikacja jak w zakładce Kategorie. Wspólne pole kolejności (`order`) dla sidebaru. `sidebar.weather` i `sidebar.cert_advisories` pobierają dane **na żywo** z API na stronie Astro — bez syncu JSON do repo. Widget CERT zawsze dopełnia listę do limitu z panelu.
+- **Strony statyczne:** `/admin/units/[id]/pages` — treści pod stałe URL; publikacja od razu do `src/content/pages/` w repo Astro.
 - **Import wpisów z GitHub:** `/admin` → synchronizacja (wpisy już na stronie).
 - **Ostatnie zmiany:** `/admin/units/[id]/changes`.
 - **Bulk:** na liście opublikowanych — zaznacz wiele wpisów → dezaktywuj lub usuń (w tym z GitHub).
+
+**Odzyskiwanie menu po regresji:** Importuj z GitHub (nie zapisuj na starym deployu) → sprawdź typy linków w tabeli → Zapisz szkic → Opublikuj na stronie.
+
+**Procedura odzyskania menu Gminy:** po deployu OmniPress z fixami linków — Import z GitHub → weryfikacja typów linków → Zapisz szkic → Opublikuj na stronie.
 
 ---
 

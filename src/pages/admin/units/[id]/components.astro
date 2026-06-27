@@ -1,6 +1,7 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
 import AdminContextNav from '@/components/shell/AdminContextNav.astro';
+import LayoutDraftStatus from '@/components/admin/layout/LayoutDraftStatus.astro';
 import LayoutFormAlerts from '@/components/admin/layout/LayoutFormAlerts.astro';
 import ComponentsLayoutForm from '@/components/admin/layout/ComponentsLayoutForm.astro';
 import { adminLayout } from '@/i18n';
@@ -10,7 +11,9 @@ import { parseLayoutPageFlash } from '@/lib/admin/layout-page-flash';
 const { id } = Astro.params;
 if (!id) return Astro.redirect('/admin/sites');
 
-const ctx = await loadLayoutEditorContext(Astro.locals.supabase, id);
+const ctx = await loadLayoutEditorContext(Astro.locals.supabase, id, {
+	draftStatusScope: 'categories',
+});
 if (!ctx) return Astro.redirect('/admin/sites');
 
 const flash = parseLayoutPageFlash(Astro.url);
@@ -19,6 +22,14 @@ const flash = parseLayoutPageFlash(Astro.url);
 <AppLayout title={adminLayout.componentsTitle} heading={adminLayout.componentsTitle}>
 	<AdminContextNav siteId={id} siteName={ctx.site.name} section="components" />
 	<p class="ui-muted mb-4">{adminLayout.componentsLead}</p>
+
+	<LayoutDraftStatus
+		draftStatus={ctx.draftStatus}
+		lastPublishedAt={ctx.lastPublishedAt}
+		lastPublishedSha={ctx.lastPublishedSha}
+		lastDraftSavedAt={ctx.lastDraftSavedAt}
+		hasAstroChannel={ctx.hasAstroChannel}
+	/>
 
 	<LayoutFormAlerts {...flash} hasAstroChannel={ctx.hasAstroChannel} />
 

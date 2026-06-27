@@ -23,13 +23,17 @@ Domyślne ścieżki config: `src/lib/astro-layout/types.ts`. Nadpisanie: destyna
 
 1. **Nie zmieniaj formatu JSON** bez aktualizacji czytnika w repo Astro (i odwrotnie).
 2. **ID komponentów** (`home.feed`, `sidebar.weather`, `sidebar.cert_advisories`, …) — muszą istnieć po obu stronach; SSOT listy: `lib/astro-layout/components.ts`.
-3. **Sync layoutu** (`syncSiteAstroLayoutToGitHub`) zawsze wysyła **oba** pliki (menu + kategorie/sloty) — sekcje w panelu (`section=`) merge’ują w Supabase, potem pełny payload na GitHub.
+3. **Publikacja layoutu** — model szkic + publikacja na żądanie:
+   - **Zapisz szkic** → tylko Supabase (`sites.astro_layout`).
+   - **Opublikuj na stronie** → commit do GitHub; zakładka Menu wysyła tylko `navigationPath`, Kategorie/Komponenty tylko `categoriesPath`.
+   - Wpis do `omnipress-recent-changes.json` **tylko przy pełnej publikacji** (`scope=all`, domyślnie nie z UI sekcji).
+   - Vercel: domyślnie webhook bez blokowania UI; opcjonalny checkbox „Czekaj na build”.
 4. **Nowe pola widgetów** — symetria parse JSON ↔ parse FormData w `parse.ts` / `parse-form.ts`; test w `parse.test.ts`.
 5. **Live API** (pogoda, CERT) — OmniPress tylko konfiguruje slot; endpointy (`/api/weather/warnings`, `/api/cert/advisories`) są w repo Astro.
 
 ## Checklist przed merge
 
-- [ ] `npm test` — szczególnie `parse.test.ts`, `navigation-form.test.ts`, `components.test.ts`
+- [ ] `npm test` — szczególnie `parse.test.ts`, `navigation-form.test.ts`, `layout-sync-meta.test.ts`, `components.test.ts`
 - [ ] `npm run build`
 - [ ] Jeśli kontrakt się zmienił: commit w **obu** repo + wpis w CHANGELOG obu projektów
 - [ ] Produkcja: ścieżki w destynacji zgodne z faktycznymi plikami w repo Astro
