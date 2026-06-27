@@ -34,4 +34,8 @@
 	.nav-href-target-host {
 		@apply min-w-0;
 	}
+
+	.nav-parent-cell .nav-parent-root {
+		@apply inline-block min-h-[1.75rem] leading-[1.75rem];
+	}
 }

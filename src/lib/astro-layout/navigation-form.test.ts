@@ -1,21 +1,35 @@
 import { describe, expect, it } from 'vitest';
-import { flattenNavigation } from '@/lib/admin/navigation-tree';
+import { flattenNavigation, eligibleNavParentIndices } from '@/lib/admin/navigation-tree';
 import { parseNavigationFromForm, parseLayoutSection } from './parse-form';
 import type { SiteAstroLayout } from './types';
 
-function navForm(rows: {
-	depth: string;
-	label: string;
-	kind: string;
-	value: string;
-	mega?: boolean;
-}[]): FormData {
+function inferParent(depth: string, index: number, rows: { depth: string }[]): string {
+	if (depth === '0') return '';
+	const target = Number(depth) - 1;
+	for (let j = index - 1; j >= 0; j--) {
+		if (Number(rows[j]!.depth) === target) return String(j);
+	}
+	return '';
+}
+
+function navForm(
+	rows: {
+		depth: string;
+		label: string;
+		kind: string;
+		value: string;
+		parent?: string;
+		mega?: boolean;
+	}[],
+): FormData {
 	const form = new FormData();
-	for (const row of rows) {
+	for (let i = 0; i < rows.length; i++) {
+		const row = rows[i]!;
 		form.append('nav_depth', row.depth);
 		form.append('nav_label', row.label);
 		form.append('nav_href_kind', row.kind);
 		form.append('nav_href_value', row.value);
+		form.append('nav_parent', row.parent ?? inferParent(row.depth, i, rows));
 		if (row.mega) form.append('nav_is_mega', 'on');
 	}
 	return form;
@@ -48,6 +62,25 @@ describe('parseNavigationFromForm', () => {
 		expect(tree[0].children![0].children).toHaveLength(1);
 		expect(tree[0].children![0].children![0].label).toBe('Kontakt');
 		expect(tree[0].children![0].children![0].href).toBe('/kontakt');
+	});
+
+	it('przypina pozycję do wskazanej pozycji nadrzędnej', () => {
+		const form = navForm([
+			{ depth: '0', label: 'A', kind: 'none', value: '' },
+			{ depth: '0', label: 'B', kind: 'none', value: '' },
+			{ depth: '1', label: 'Pod A', kind: 'custom', value: '/a', parent: '0' },
+		]);
+
+		const tree = parseNavigationFromForm(form);
+		expect(tree).toHaveLength(2);
+		expect(tree[0].children).toHaveLength(1);
+		expect(tree[0].children![0].label).toBe('Pod A');
+		expect(tree[1].children).toBeUndefined();
+	});
+
+	it('odrzuca poziom 1 bez pozycji nadrzędnej', () => {
+		const form = navForm([{ depth: '1', label: 'Osierocona', kind: 'custom', value: '/x', parent: '' }]);
+		expect(parseNavigationFromForm(form)).toEqual([]);
 	});
 
 	it('pomija pusty wiersz bez etykiety', () => {
@@ -123,6 +156,7 @@ describe('parseLayoutSection navigation', () => {
 		form.append('nav_href_kind', 'category');
 		form.append('nav_href_value', '');
 		form.append('nav_href_value', 'aktualnosci');
+		form.append('nav_parent', '');
 
 		const tree = parseNavigationFromForm(form);
 		expect(tree[0].href).toBe('/aktualnosci');
@@ -134,6 +168,7 @@ describe('parseLayoutSection navigation', () => {
 		form.append('nav_label', 'News');
 		form.append('nav_href_kind', 'category');
 		form.append('nav_href_value', 'aktualnosci');
+		form.append('nav_parent', '');
 
 		const tree = parseNavigationFromForm(form);
 		expect(tree[0].href).toBe('/aktualnosci');
@@ -144,11 +179,12 @@ describe('parseLayoutSection navigation', () => {
 		const pageOptions = [{ path: '/gmina/plan-ogolny', title: 'Plan ogólny' }];
 		const rows = flattenNavigation(nav, existingLayout.categories, pageOptions);
 		const form = navForm(
-			rows.map((r) => ({
+			rows.map((r, i) => ({
 				depth: String(r.depth),
 				label: r.label,
 				kind: r.hrefKind,
 				value: r.hrefValue,
+				parent: r.parentRowIndex !== null ? String(r.parentRowIndex) : '',
 			})),
 		);
 		const tree = parseNavigationFromForm(form);
@@ -171,7 +207,8 @@ describe('parseLayoutSection navigation', () => {
 
 	it('zapisuje zmiane typu linku w tabeli mimo obecnego navigation_json', () => {
 		const form = navForm([
-			{ depth: '1', label: 'Zarządzenia', kind: 'category', value: 'zarzadzenia' },
+			{ depth: '0', label: 'Gmina', kind: 'none', value: '' },
+			{ depth: '1', label: 'Zarządzenia', kind: 'category', value: 'zarzadzenia', parent: '0' },
 		]);
 		form.set('section', 'navigation');
 		form.set(
@@ -182,7 +219,7 @@ describe('parseLayoutSection navigation', () => {
 		const result = parseLayoutSection(form, existingLayout);
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(result.layout.navigation[0]?.href).toBe('/zarzadzenia');
+		expect(result.layout.navigation[0]?.children?.[0]?.href).toBe('/zarzadzenia');
 	});
 
 	it('round-trip pełniejszego drzewa gminy zachowuje hrefy liści', () => {
@@ -217,6 +254,7 @@ describe('parseLayoutSection navigation', () => {
 				label: r.label,
 				kind: r.hrefKind,
 				value: r.hrefValue,
+				parent: r.parentRowIndex !== null ? String(r.parentRowIndex) : '',
 			})),
 		);
 		const tree = parseNavigationFromForm(form);
@@ -229,5 +267,16 @@ describe('parseLayoutSection navigation', () => {
 		expect(hrefs).toContain('/gmina/szkolapodstawowa');
 		expect(hrefs).toContain('/gmina/zarzadzenia');
 		expect(hrefs).toContain('/kontakt');
+	});
+});
+
+describe('eligibleNavParentIndices', () => {
+	it('zwraca tylko wcześniejsze wiersze o poziomie depth-1', () => {
+		const rows = [
+			{ label: 'A', depth: 0 },
+			{ label: 'B', depth: 0 },
+			{ label: 'C', depth: 1 },
+		];
+		expect(eligibleNavParentIndices(rows, 2, 1)).toEqual([0, 1]);
 	});
 });

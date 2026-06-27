@@ -231,16 +231,17 @@ export function parseNavigationFromForm(form: FormData): NavItem[] {
 	const labels = strFields(form, 'nav_label');
 	const kinds = strFields(form, 'nav_href_kind');
 	const values = strFields(form, 'nav_href_value');
+	const parents = strFields(form, 'nav_parent');
 	const megas = form.getAll('nav_is_mega').map((v) => String(v).trim());
 
 	if (labels.length === 0) return [];
 
-	const roots: NavItem[] = [];
-	const stack: { item: NavItem; depth: number }[] = [];
 	const rowCount = labels.length;
+	const items: (NavItem | null)[] = new Array(rowCount).fill(null);
+	const roots: NavItem[] = [];
 
-	for (let i = 0; i < labels.length; i++) {
-		const label = labels[i];
+	for (let i = 0; i < rowCount; i++) {
+		const label = labels[i]?.trim();
 		if (!label) continue;
 
 		const depth = Math.min(2, Math.max(0, Number(depths[i] ?? 0) || 0));
@@ -251,20 +252,33 @@ export function parseNavigationFromForm(form: FormData): NavItem[] {
 		);
 		if (href) item.href = href;
 		if (depth === 0 && megas[i] === 'on') item.isMegaMenu = true;
+		items[i] = item;
+	}
 
-		while (stack.length > 0 && stack[stack.length - 1]!.depth >= depth) {
-			stack.pop();
-		}
+	for (let i = 0; i < rowCount; i++) {
+		const item = items[i];
+		if (!item) continue;
 
-		if (stack.length === 0) {
+		const depth = Math.min(2, Math.max(0, Number(depths[i] ?? 0) || 0));
+		const parentRaw = parents[i]?.trim() ?? '';
+
+		if (depth === 0) {
 			roots.push(item);
-		} else {
-			const parent = stack[stack.length - 1]!.item;
-			if (!parent.children) parent.children = [];
-			parent.children.push(item);
+			continue;
 		}
 
-		stack.push({ item, depth });
+		if (!parentRaw) return [];
+		const parentIndex = Number(parentRaw);
+		if (!Number.isInteger(parentIndex) || parentIndex < 0 || parentIndex >= i) return [];
+
+		const parentItem = items[parentIndex];
+		if (!parentItem) return [];
+
+		const parentDepth = Math.min(2, Math.max(0, Number(depths[parentIndex] ?? 0) || 0));
+		if (parentDepth !== depth - 1) return [];
+
+		if (!parentItem.children) parentItem.children = [];
+		parentItem.children.push(item);
 	}
 
 	return roots;

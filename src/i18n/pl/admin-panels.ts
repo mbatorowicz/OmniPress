@@ -189,7 +189,7 @@ export const adminLayout = {
 	menuHint:
 		'Tablica JSON z polami label, href oraz opcjonalnie isMegaMenu i children (do 3 poziomów).',
 	menuFormHint:
-		'Poziom 0 = pasek nawigacji, 1 i 2 = kolejne poziomy podmenu. Wcięcie w kolumnie Etykieta pokazuje hierarchię — kolejność wierszy decyduje o zagnieżdżeniu.',
+		'Poziom 0 = pasek nawigacji, 1 i 2 = podmenu. Dla poziomów 1 i 2 wybierz pozycję nadrzędną. Wcięcie w kolumnie Etykieta pokazuje hierarchię.',
 	menuJsonFallbackHint:
 		'Wklej pełną tablicę JSON zamiast wierszy powyżej — nadpisuje drzewo przy zapisie.',
 	navDepthLabels: ['Poziom 0', 'Poziom 1', 'Poziom 2'] as const,
@@ -225,6 +225,8 @@ export const adminLayout = {
 	},
 	noPublishedPages: 'Brak opublikowanych stron statycznych.',
 	noCategoriesForNav: 'Brak kategorii — dodaj w zakładce Kategorie.',
+	navParentRoot: '—',
+	navParentMissing: 'Brak pozycji nadrzędnej powyżej',
 	certAdvisoriesHint:
 		'Komunikaty CERT Polska (RSS) — widget na stronie woła /api/cert/advisories, cache ~15 min, bez commita do GitHub.',
 	weatherHint:
@@ -256,6 +258,7 @@ export const adminLayout = {
 	fields: {
 		navigationJson: 'Menu (JSON)',
 		navDepth: 'Poziom',
+		navParent: 'Pozycja nadrzędna',
 		navLabel: 'Etykieta',
 		navLinkType: 'Typ linku',
 		navLinkTarget: 'Adres / cel',
@@ -318,6 +321,7 @@ export const adminLayout = {
 		addCategory: '+ Dodaj kategorię',
 		addComponent: '+ Dodaj komponent',
 		addNavRow: '+ Dodaj pozycję menu',
+		addNavChild: '+ Dodaj podpozycję',
 		editNavigationJson: 'Edytuj jako JSON (zaawansowane)',
 		removeCategory: ui.actions.remove,
 		removeSlot: ui.actions.remove,

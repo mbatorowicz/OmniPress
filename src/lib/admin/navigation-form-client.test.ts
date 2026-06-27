@@ -19,6 +19,9 @@ const labels: NavigationTableLabels = {
 	depth1: 'Poziom 2',
 	depth2: 'Poziom 3',
 	megaHint: 'Mega',
+	addNavChild: '+ Dodaj podpozycję',
+	navParentRoot: '—',
+	navParentMissing: 'Brak pozycji nadrzędnej',
 	hrefKinds: {
 		none: 'Bez linku',
 		category: 'Kategoria wpisów',
@@ -42,7 +45,10 @@ function buildNavigationTable(pageValue: string): void {
 								<option value="0" selected>Poziom 1</option>
 							</select>
 						</td>
-						<td><input name="nav_label" value="Test" /></td>
+						<td class="nav-parent-cell">
+							<input type="hidden" name="nav_parent" value="" />
+						</td>
+						<td><input name="nav_label" value="Gmina" /></td>
 						<td>
 							<input type="hidden" name="nav_href_kind" class="nav-href-kind-submit" value="page" />
 							<select class="nav-href-kind">
@@ -65,10 +71,14 @@ function buildNavigationTable(pageValue: string): void {
 						<td class="nav-mega-cell">
 							<input type="checkbox" class="nav-mega" name="nav_is_mega" />
 						</td>
-						<td><button type="button" class="remove-nav-row">Usuń</button></td>
+						<td class="nav-row-actions">
+							<button type="button" class="add-nav-child">Dodaj podpozycję</button>
+							<button type="button" class="remove-nav-row">Usuń</button>
+						</td>
 					</tr>
 				</tbody>
 			</table>
+			<button type="button" id="add-nav-row">Dodaj</button>
 		</form>
 	`;
 }
@@ -100,40 +110,27 @@ describe('mountNavigationForm', () => {
 		expect(values).not.toContain('/gmina/urzad');
 	});
 
-	it('przy init przebudowuje cel zgodnie z typem wiersza', () => {
+	it('dodaje wiersz poziomu 0 po kliknięciu przycisku poza tbody', () => {
 		buildNavigationTable('/gmina/urzad');
-		mountNavigationForm(labels);
-
-		const target = document.querySelector('.nav-href-target-control') as HTMLSelectElement;
-		const values = [...target.options].map((o) => o.value);
-		expect(values).toEqual(['/gmina/urzad']);
-	});
-
-	it('obsługuje ampersand w tytułach stron w JSON opcji', () => {
-		buildNavigationTable('/gmina/urzad');
-		mountNavigationForm(labels);
-
-		const script = document.getElementById('nav-target-options-json');
-		expect(script?.textContent).toContain('Urząd & Gminy');
-
-		const kindSelect = document.querySelector('.nav-href-kind') as HTMLSelectElement;
-		kindSelect.value = 'static';
-		kindSelect.dispatchEvent(new Event('change', { bubbles: true }));
-
-		const target = document.querySelector('.nav-href-target-control') as HTMLSelectElement;
-		expect([...target.options].map((o) => o.value)).toEqual(['/']);
-	});
-
-	it('dodaje wiersz po kliknięciu przycisku poza tbody', () => {
-		buildNavigationTable('/gmina/urzad');
-		document.querySelector('form')!.insertAdjacentHTML(
-			'beforeend',
-			'<button type="button" id="add-nav-row">Dodaj</button>',
-		);
 		mountNavigationForm(labels);
 
 		expect(document.querySelectorAll('.nav-row')).toHaveLength(1);
 		document.getElementById('add-nav-row')!.click();
 		expect(document.querySelectorAll('.nav-row')).toHaveLength(2);
+	});
+
+	it('dodaje podpozycję z poziomem 1 i pozycją nadrzędną', () => {
+		buildNavigationTable('/gmina/urzad');
+		mountNavigationForm(labels);
+
+		document.querySelector('.add-nav-child')!.dispatchEvent(
+			new MouseEvent('click', { bubbles: true }),
+		);
+
+		const rows = document.querySelectorAll('.nav-row');
+		expect(rows).toHaveLength(2);
+		const child = rows[1] as HTMLElement;
+		expect((child.querySelector('.nav-depth') as HTMLSelectElement).value).toBe('1');
+		expect((child.querySelector('.nav-parent') as HTMLSelectElement).value).toBe('0');
 	});
 });

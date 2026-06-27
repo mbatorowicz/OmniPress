@@ -33,18 +33,29 @@ function handleCategoriesClick(event: Event, _labels: CategoriesFormLabels): voi
 
 export function mountCategoriesForm(labels: CategoriesFormLabels): void {
 	const bind = (): void => {
+		const form = document.querySelector('[data-categories-form]');
 		const addBtn = document.getElementById('add-category');
 		const body = document.getElementById('categories-body');
 		if (!(body instanceof HTMLElement)) return;
 
-		addBtn?.addEventListener('click', (event) => {
-			event.preventDefault();
-			appendCategoryRow(body, labels.remove);
-		});
+		if (addBtn instanceof HTMLButtonElement && addBtn.dataset.categoriesAddBound !== '1') {
+			addBtn.dataset.categoriesAddBound = '1';
+			addBtn.addEventListener('click', (event) => {
+				event.preventDefault();
+				appendCategoryRow(body, labels.remove);
+			});
+		}
 
-		if (document.documentElement.dataset.categoriesFormMounted === '1') return;
-		document.documentElement.dataset.categoriesFormMounted = '1';
-		document.addEventListener('click', (event) => handleCategoriesClick(event, labels));
+		const interactionRoot = form instanceof HTMLFormElement ? form : document;
+		if (
+			interactionRoot instanceof HTMLElement &&
+			interactionRoot.dataset.categoriesFormBound !== '1'
+		) {
+			interactionRoot.dataset.categoriesFormBound = '1';
+			interactionRoot.addEventListener('click', (event) => {
+				handleCategoriesClick(event, labels);
+			});
+		}
 	};
 
 	if (document.readyState === 'loading') {
@@ -52,6 +63,7 @@ export function mountCategoriesForm(labels: CategoriesFormLabels): void {
 	} else {
 		bind();
 	}
+	document.addEventListener('astro:page-load', bind);
 }
 
 /** @deprecated Użyj mountCategoriesForm */

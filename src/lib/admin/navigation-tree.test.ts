@@ -46,4 +46,13 @@ describe('flattenNavigation', () => {
 		const rows = flattenNavigation(nav, [], []);
 		expect(rows.map((r) => r.hrefKind)).toEqual(['none', 'none', 'custom']);
 	});
+
+	it('ustawia parentRowIndex dla poziomów > 0', () => {
+		const nav = parseNavigationJson(
+			'[{"label":"Gmina","children":[{"label":"Podmenu","href":"/x"}]}]',
+		);
+		const rows = flattenNavigation(nav, [], []);
+		expect(rows[0]?.parentRowIndex).toBeNull();
+		expect(rows[1]?.parentRowIndex).toBe(0);
+	});
 });

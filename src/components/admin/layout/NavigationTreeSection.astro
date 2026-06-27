@@ -10,7 +10,7 @@ import TableCell from '@/components/ui/table/TableCell.astro';
 import NavDepthSelect from '@/components/admin/layout/NavDepthSelect.astro';
 import NavMegaMenuCell from '@/components/admin/layout/NavMegaMenuCell.astro';
 import NavLinkTypeSelect from '@/components/admin/layout/NavLinkTypeSelect.astro';
-import NavTargetCell from '@/components/admin/layout/NavTargetCell.astro';
+import NavParentSelect from '@/components/admin/layout/NavParentSelect.astro';
 import { flattenNavigation, collectNavInternalPageOptions } from '@/lib/admin/navigation-tree';
 import { buildCategoryLinkOptions, mergePageOptionsForNavEditor, type PageOption } from '@/lib/admin/link-options';
 import { buildNavTargetOptions } from '@/lib/admin/nav-target-options';
@@ -30,7 +30,9 @@ const pageOptions = mergePageOptionsForNavEditor(
 const rows =
 	navigation.length > 0
 		? flattenNavigation(navigation, categories, pageOptions)
-		: [{ label: '', depth: 0, hrefKind: 'none' as const, hrefValue: '', isMegaMenu: false }];
+		: [{ label: '', depth: 0, parentRowIndex: null, hrefKind: 'none' as const, hrefValue: '', isMegaMenu: false }];
+
+const parentRowMeta = rows.map((row) => ({ label: row.label, depth: row.depth }));
 
 const categoryOptions = buildCategoryLinkOptions(categories);
 const navigationJsonPreview =
@@ -48,6 +50,9 @@ const navTableLabels = {
 	depth1: depthLabels[1],
 	depth2: depthLabels[2],
 	megaHint: adminLayout.megaMenuHint,
+	addNavChild: adminLayout.actions.addNavChild,
+	navParentRoot: adminLayout.navParentRoot,
+	navParentMissing: adminLayout.navParentMissing,
 	hrefKinds: adminLayout.navHrefKinds,
 };
 const navTargetOptions = buildNavTargetOptions(categoryOptions, pageOptions, {
@@ -67,6 +72,7 @@ const navTargetOptionsJson = JSON.stringify(navTargetOptions);
 		<TableHead dense>
 			<TableRow dense>
 				<TableCell header dense>{adminLayout.fields.navDepth}</TableCell>
+				<TableCell header dense>{adminLayout.fields.navParent}</TableCell>
 				<TableCell header dense>{adminLayout.fields.navLabel}</TableCell>
 				<TableCell header dense>{adminLayout.fields.navLinkType}</TableCell>
 				<TableCell header dense>{adminLayout.fields.navLinkTarget}</TableCell>
@@ -76,15 +82,22 @@ const navTargetOptionsJson = JSON.stringify(navTargetOptions);
 		</TableHead>
 		<tbody id="navigation-body">
 			{
-				rows.map((row) => (
+				rows.map((row, rowIndex) => (
 					<tr
 						class:list={['nav-row', 'ui-table-dense-row', `nav-row--depth-${row.depth}`]}
 						data-nav-kind={row.hrefKind}
 						data-nav-href={row.hrefValue}
+						data-nav-parent={row.parentRowIndex ?? ''}
 					>
 						<td class="ui-table-dense-td--wide">
 							<NavDepthSelect depth={row.depth as 0 | 1 | 2} />
 						</td>
+						<NavParentSelect
+							rowIndex={rowIndex}
+							depth={row.depth as 0 | 1 | 2}
+							parentRowIndex={row.parentRowIndex}
+							rows={parentRowMeta}
+						/>
 						<td class="ui-table-dense-td--wide nav-label-cell">
 							<input name="nav_label" value={row.label} required class="ui-input-compact w-full" />
 						</td>
@@ -101,10 +114,19 @@ const navTargetOptionsJson = JSON.stringify(navTargetOptions);
 							<NavTargetCell kind={row.hrefKind} value={row.hrefValue} options={navTargetOptions} />
 						</td>
 						<NavMegaMenuCell depth={row.depth as 0 | 1 | 2} checked={row.isMegaMenu} />
-						<td class="ui-table-dense-td--wide">
-							<button type="button" class="remove-nav-row ui-btn ui-btn--link-danger">
-								{adminLayout.actions.removeNavRow}
-							</button>
+						<td class="ui-table-dense-td--wide nav-row-actions">
+							<div class="flex flex-col items-start gap-1">
+								{
+									row.depth < 2 && (
+										<button type="button" class="add-nav-child ui-btn ui-btn--link text-xs">
+											{adminLayout.actions.addNavChild}
+										</button>
+									)
+								}
+								<button type="button" class="remove-nav-row ui-btn ui-btn--link-danger">
+									{adminLayout.actions.removeNavRow}
+								</button>
+							</div>
 						</td>
 					</tr>
 				))

@@ -8,6 +8,7 @@ export type NavHrefKind = 'none' | 'category' | 'page' | 'static' | 'custom' | '
 export type FlatNavRow = {
 	label: string;
 	depth: number;
+	parentRowIndex: number | null;
 	hrefKind: NavHrefKind;
 	hrefValue: string;
 	isMegaMenu: boolean;
@@ -50,25 +51,50 @@ export function collectNavInternalPageOptions(items: NavItem[]): PageOption[] {
 	return [...byPath.entries()].map(([path, title]) => ({ path, title }));
 }
 
+export function eligibleNavParentIndices(
+	rows: { label: string; depth: number }[],
+	rowIndex: number,
+	depth: number,
+): number[] {
+	if (depth <= 0) return [];
+	const targetDepth = depth - 1;
+	const indices: number[] = [];
+	for (let i = 0; i < rowIndex; i++) {
+		if (rows[i]!.depth === targetDepth) indices.push(i);
+	}
+	return indices;
+}
+
+export function formatNavParentOptionLabel(label: string, rowNumber: number): string {
+	const trimmed = label.trim() || `Wiersz ${rowNumber}`;
+	return `${trimmed} (#${rowNumber})`;
+}
+
 export function flattenNavigation(
 	items: NavItem[],
 	categories: CategoryDefinition[],
 	publishedPages: PageOption[],
-	depth = 0,
 ): FlatNavRow[] {
 	const rows: FlatNavRow[] = [];
-	for (const item of items) {
-		const { kind, value } = detectNavHrefKind(item.href, categories, publishedPages);
-		rows.push({
-			label: item.label,
-			depth,
-			hrefKind: kind,
-			hrefValue: value,
-			isMegaMenu: depth === 0 && Boolean(item.isMegaMenu),
-		});
-		if (item.children?.length) {
-			rows.push(...flattenNavigation(item.children, categories, publishedPages, depth + 1));
+
+	function walk(nodes: NavItem[], depth: number, parentRowIndex: number | null) {
+		for (const item of nodes) {
+			const rowIndex = rows.length;
+			const { kind, value } = detectNavHrefKind(item.href, categories, publishedPages);
+			rows.push({
+				label: item.label,
+				depth,
+				parentRowIndex: depth > 0 ? parentRowIndex : null,
+				hrefKind: kind,
+				hrefValue: value,
+				isMegaMenu: depth === 0 && Boolean(item.isMegaMenu),
+			});
+			if (item.children?.length) {
+				walk(item.children, depth + 1, rowIndex);
+			}
 		}
 	}
+
+	walk(items, 0, null);
 	return rows;
 }

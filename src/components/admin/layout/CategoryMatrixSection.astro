@@ -64,6 +64,9 @@ const rows =
 </Panel>
 
 <script define:vars={{ removeCategoryLabel: adminLayout.actions.removeCategory }}>
+	globalThis.__OP_CATEGORIES_LABELS__ = { remove: removeCategoryLabel };
+</script>
+<script>
 	import { mountCategoriesForm } from '@/lib/admin/categories-form-client';
-	mountCategoriesForm({ remove: removeCategoryLabel });
+	mountCategoriesForm(globalThis.__OP_CATEGORIES_LABELS__);
 </script>
