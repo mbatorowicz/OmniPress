@@ -15,10 +15,20 @@ interface Props {
 const { siteId, layout, hasAstroChannel } = Astro.props;
 ---
 
-<form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="ui-form-stack max-w-5xl">
+<form
+	method="post"
+	action={`/api/admin/sites/${siteId}/layout/save`}
+	class="ui-form-stack max-w-5xl"
+	data-categories-form
+>
 	<input type="hidden" name="section" value="categories" />
 	<Alert variant="info" class="ui-alert--note">{adminLayout.categoriesSlugWarning}</Alert>
 	<CategoryMatrixSection {layout} />
 	<VisibilitySection {layout} />
 	<LayoutSyncActions {siteId} {hasAstroChannel} section="categories" />
 </form>
+
+<script define:vars={{ categoriesFormLabels: { remove: adminLayout.actions.removeCategory } }}>
+	import { mountCategoriesForm } from '@/lib/admin/categories-form-client';
+	mountCategoriesForm(categoriesFormLabels);
+</script>

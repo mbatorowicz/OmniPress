@@ -1,6 +1,5 @@
 ---
 import { adminLayout } from '@/i18n';
-import Button from '@/components/ui/actions/Button.astro';
 import Panel from '@/components/ui/layout/Panel.astro';
 import SectionTitle from '@/components/ui/layout/SectionTitle.astro';
 import Table from '@/components/ui/table/Table.astro';
@@ -14,6 +13,10 @@ interface Props {
 }
 
 const { layout } = Astro.props;
+const rows =
+	layout.categories.length > 0
+		? layout.categories
+		: [{ slug: '', name: '' }];
 ---
 
 <Panel class="ui-form-section">
@@ -29,31 +32,33 @@ const { layout } = Astro.props;
 		</TableHead>
 		<tbody id="categories-body">
 			{
-				layout.categories.map((cat) => (
+				rows.map((cat) => (
 					<tr class="category-row ui-table-dense-row">
 						<td class="ui-table-dense-td--wide">
-							<input name="category_slug" value={cat.slug} required class="ui-input-compact ui-input-compact--mono w-full" />
+							<input
+								name="category_slug"
+								value={cat.slug}
+								required
+								class="ui-input-compact ui-input-compact--mono w-full"
+							/>
 						</td>
 						<td class="ui-table-dense-td--wide">
 							<input name="category_name" value={cat.name} required class="ui-input-compact w-full" />
 						</td>
 						<td class="ui-table-dense-td--wide">
-							<button type="button" class="remove-category ui-link--danger">{adminLayout.actions.removeCategory}</button>
+							<button type="button" class="remove-category ui-link--danger">
+								{adminLayout.actions.removeCategory}
+							</button>
 						</td>
 					</tr>
 				))
 			}
 		</tbody>
 	</Table>
-	<Button type="button" id="add-category" variant="add">
+	<button type="button" data-add-category class="ui-btn ui-btn--add mt-2">
 		{adminLayout.actions.addCategory}
-	</Button>
-	<p class="ui-hint">
+	</button>
+	<p class="ui-hint mt-2">
 		{adminLayout.paths.categories}: <code class="ui-code">{layout.categoriesPath}</code>
 	</p>
 </Panel>
-
-<script define:vars={{ removeCategoryLabel: adminLayout.actions.removeCategory }}>
-	import { initCategoriesTable } from '@/lib/admin/categories-form-client';
-	initCategoriesTable(removeCategoryLabel);
-</script>
