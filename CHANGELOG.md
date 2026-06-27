@@ -3,6 +3,20 @@
 Format: [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+commit`.
 
+## [0.9.3] — 2026-06-03
+
+### Zmienione
+
+- Panel strony: monolit „Layout Astro” rozbity na zakładki **Menu**, **Kategorie**, **Komponenty**; ustawienia techniczne w **Publikacja**; **Ogólne** = nazwa, slug, aktywność.
+- Menu: edytor drzewa (do 3 poziomów) zamiast głównego pola JSON; zapis sekcji przez `POST layout/save?section=`.
+- Import layoutu z GitHub wraca na zakładkę, z której wywołano import (`return_section`).
+- Stara trasa `/admin/units/[id]/layout` → przekierowanie 301 na `/navigation`.
+
+### Dodane
+
+- Helpery współdzielone: `loadLayoutEditorContext`, `resolveSiteGitHubChannel`, `LayoutSyncActions`, parser menu z formularza.
+- Testy Vitest: `navigation-form.test.ts`.
+
 ## [0.9.2] — 2026-06-03
 
 ### Naprawione

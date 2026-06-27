@@ -1,0 +1,27 @@
+---
+import { adminLayout } from '@/i18n';
+import Button from '@/components/ui/actions/Button.astro';
+import LayoutSyncActions from '@/components/admin/layout/LayoutSyncActions.astro';
+import NavigationTreeSection from '@/components/admin/layout/NavigationTreeSection.astro';
+import type { SiteAstroLayout } from '@/lib/astro-layout/types';
+import type { PageOption } from '@/lib/admin/link-options';
+
+interface Props {
+	siteId: string;
+	layout: SiteAstroLayout;
+	hasAstroChannel: boolean;
+	publishedPages: PageOption[];
+}
+
+const { siteId, layout, hasAstroChannel, publishedPages } = Astro.props;
+---
+
+<form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="ui-form-stack max-w-5xl">
+	<input type="hidden" name="section" value="navigation" />
+	<NavigationTreeSection
+		navigation={layout.navigation}
+		categories={layout.categories}
+		publishedPages={publishedPages}
+	/>
+	<LayoutSyncActions {siteId} {hasAstroChannel} section="navigation" />
+</form>

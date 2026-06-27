@@ -8,7 +8,16 @@ import {
 import { validateBannerWidget } from './banners';
 import { slotFormFields } from './slot-form-fields';
 import { mergeCategoryDisplays, sortSlotsByOrder } from './slots';
-import type { CategoryDefinition, DisplaySlot, SiteAstroLayout, SlotWidgetConfig } from './types';
+import { isExternalHref, normalizeInternalHref } from './validate-nav';
+import type { CategoryDefinition, DisplaySlot, NavItem, SiteAstroLayout, SlotWidgetConfig } from './types';
+
+export type LayoutFormSection = 'navigation' | 'categories' | 'components' | 'all';
+
+export type LayoutFormError =
+	| 'invalid_navigation'
+	| 'no_categories'
+	| 'no_slots'
+	| 'invalid_section';
 
 function parseIntField(raw: FormDataEntryValue | null): number | undefined {
 	const n = Number(String(raw ?? '').trim());
@@ -22,6 +31,10 @@ function parseOrderField(raw: FormDataEntryValue | null): number | undefined {
 
 function strField(form: FormData, name: string): string {
 	return String(form.get(name) ?? '').trim();
+}
+
+function strFields(form: FormData, name: string): string[] {
+	return form.getAll(name).map((v) => String(v).trim());
 }
 
 function parseBaseWidget(form: FormData, id: string, index: number): SlotWidgetConfig {
@@ -170,20 +183,7 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 	return sortSlotsByOrder(slots);
 }
 
-export function parseLayoutFromFormData(
-	form: FormData,
-	base: Pick<SiteAstroLayout, 'navigationPath' | 'categoriesPath'>,
-): { ok: true; layout: SiteAstroLayout } | { ok: false; error: string } {
-	const navText = String(form.get('navigation_json') ?? '').trim();
-	if (!navText) return { ok: false, error: 'invalid_navigation' };
-
-	let navigation;
-	try {
-		navigation = parseNavigationJson(navText);
-	} catch {
-		return { ok: false, error: 'invalid_navigation' };
-	}
-
+function parseCategoriesFromForm(form: FormData): CategoryDefinition[] {
 	const slugs = form.getAll('category_slug').map((v) => String(v).trim());
 	const names = form.getAll('category_name').map((v) => String(v).trim());
 	const categories: CategoryDefinition[] = [];
@@ -194,29 +194,166 @@ export function parseLayoutFromFormData(
 		if (!slug || !name) continue;
 		categories.push({ slug, name });
 	}
+	return categories;
+}
 
-	if (categories.length === 0) return { ok: false, error: 'no_categories' };
+function resolveNavHref(kind: string, value: string): string | undefined {
+	const trimmed = value.trim();
+	if (kind === 'none' || !kind) return undefined;
+	if (kind === 'external') return trimmed || undefined;
+	if (kind === 'category') {
+		if (!trimmed) return undefined;
+		return normalizeInternalHref(trimmed.startsWith('/') ? trimmed : `/${trimmed}`);
+	}
+	if (kind === 'page' || kind === 'static' || kind === 'custom') {
+		if (!trimmed) return undefined;
+		if (isExternalHref(trimmed)) return trimmed;
+		return normalizeInternalHref(trimmed);
+	}
+	return undefined;
+}
 
-	const slots = parseSlotsFromForm(form);
-	if (slots.length === 0) return { ok: false, error: 'no_slots' };
+export function parseNavigationFromForm(form: FormData): NavItem[] {
+	const depths = strFields(form, 'nav_depth');
+	const labels = strFields(form, 'nav_label');
+	const kinds = strFields(form, 'nav_href_kind');
+	const values = strFields(form, 'nav_href_value');
+	const megas = form.getAll('nav_is_mega').map((v) => String(v).trim());
 
-	const categoryDisplays = mergeCategoryDisplays(slots, {});
+	if (labels.length === 0) return [];
+
+	const roots: NavItem[] = [];
+	const stack: { item: NavItem; depth: number }[] = [];
+
+	for (let i = 0; i < labels.length; i++) {
+		const label = labels[i];
+		if (!label) continue;
+
+		const depth = Math.min(2, Math.max(0, Number(depths[i] ?? 0) || 0));
+		const item: NavItem = { label };
+		const href = resolveNavHref(kinds[i] ?? 'none', values[i] ?? '');
+		if (href) item.href = href;
+		if (depth === 0 && megas[i] === 'on') item.isMegaMenu = true;
+
+		while (stack.length > 0 && stack[stack.length - 1]!.depth >= depth) {
+			stack.pop();
+		}
+
+		if (stack.length === 0) {
+			roots.push(item);
+		} else {
+			const parent = stack[stack.length - 1]!.item;
+			if (!parent.children) parent.children = [];
+			parent.children.push(item);
+		}
+
+		stack.push({ item, depth });
+	}
+
+	return roots;
+}
+
+function parseNavigationSection(form: FormData): NavItem[] | { error: 'invalid_navigation' } {
+	const jsonFallback = String(form.get('navigation_json') ?? '').trim();
+	if (jsonFallback) {
+		try {
+			return parseNavigationJson(jsonFallback);
+		} catch {
+			return { error: 'invalid_navigation' };
+		}
+	}
+
+	const tree = parseNavigationFromForm(form);
+	if (tree.length === 0) return { error: 'invalid_navigation' };
+	return tree;
+}
+
+function parseCategoryDisplaysFromForm(
+	form: FormData,
+	slots: DisplaySlot[],
+	categories: CategoryDefinition[],
+	existing: SiteAstroLayout['categoryDisplays'],
+): SiteAstroLayout['categoryDisplays'] {
+	const base = mergeCategoryDisplays(slots, existing);
 	for (const slot of slots) {
 		if (!isCategoryFeedComponent(slot.component)) continue;
-		categoryDisplays[slot.id] = categories
+		base[slot.id] = categories
 			.filter((c) => form.get(`display_${slot.id}_${c.slug}`) === 'on')
 			.map((c) => c.slug);
 	}
+	return base;
+}
 
-	return {
-		ok: true,
-		layout: {
-			navigation,
+export function mergeLayoutFromFormData(
+	form: FormData,
+	existing: SiteAstroLayout,
+	section: LayoutFormSection,
+): { ok: true; layout: SiteAstroLayout } | { ok: false; error: LayoutFormError } {
+	const layout: SiteAstroLayout = { ...existing };
+
+	if (section === 'navigation' || section === 'all') {
+		const navigation = parseNavigationSection(form);
+		if ('error' in navigation) return { ok: false, error: navigation.error };
+		layout.navigation = navigation;
+	}
+
+	if (section === 'components' || section === 'all') {
+		const slots = parseSlotsFromForm(form);
+		if (slots.length === 0) return { ok: false, error: 'no_slots' };
+		layout.slots = slots;
+	}
+
+	if (section === 'categories' || section === 'all') {
+		const categories = parseCategoriesFromForm(form);
+		if (categories.length === 0) return { ok: false, error: 'no_categories' };
+		layout.categories = categories;
+		layout.categoryDisplays = parseCategoryDisplaysFromForm(
+			form,
+			layout.slots,
 			categories,
-			categoryDisplays,
-			slots,
-			navigationPath: base.navigationPath,
-			categoriesPath: base.categoriesPath,
-		},
+			section === 'all' ? {} : existing.categoryDisplays,
+		);
+	}
+
+	if (section === 'components') {
+		layout.categoryDisplays = mergeCategoryDisplays(layout.slots, existing.categoryDisplays);
+		for (const slot of layout.slots) {
+			if (!isCategoryFeedComponent(slot.component)) continue;
+			const fromExisting = existing.categoryDisplays[slot.id];
+			if (Array.isArray(fromExisting)) {
+				layout.categoryDisplays[slot.id] = fromExisting.filter((slug) =>
+					layout.categories.some((c) => c.slug === slug),
+				);
+			}
+		}
+	}
+
+	return { ok: true, layout };
+}
+
+/** @deprecated Użyj mergeLayoutFromFormData z section=all */
+export function parseLayoutFromFormData(
+	form: FormData,
+	base: Pick<SiteAstroLayout, 'navigationPath' | 'categoriesPath'>,
+): { ok: true; layout: SiteAstroLayout } | { ok: false; error: string } {
+	const existing: SiteAstroLayout = {
+		navigation: [],
+		categories: [],
+		categoryDisplays: {},
+		slots: [],
+		navigationPath: base.navigationPath,
+		categoriesPath: base.categoriesPath,
 	};
+	const result = mergeLayoutFromFormData(form, existing, 'all');
+	if (!result.ok) return result;
+	return result;
+}
+
+export function parseLayoutSection(form: FormData, existing: SiteAstroLayout): ReturnType<typeof mergeLayoutFromFormData> {
+	const raw = String(form.get('section') ?? 'all').trim();
+	const section: LayoutFormSection =
+		raw === 'navigation' || raw === 'categories' || raw === 'components' || raw === 'all'
+			? raw
+			: 'all';
+	return mergeLayoutFromFormData(form, existing, section);
 }

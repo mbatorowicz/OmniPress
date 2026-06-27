@@ -1,6 +1,10 @@
 import type { APIRoute } from 'astro';
 import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
-import { parseLayoutFromFormData } from '@/lib/astro-layout/parse-form';
+import {
+	DEFAULT_STATIC_ROUTES,
+	layoutSectionReturnPath,
+} from '@/lib/admin/layout-editor-context';
+import { parseLayoutSection } from '@/lib/astro-layout/parse-form';
 import {
 	buildKnownNavPaths,
 	validateNavigationLinks,
@@ -11,8 +15,6 @@ import {
 	syncSiteAstroLayoutToGitHub,
 } from '@/lib/astro-layout/store';
 
-const DEFAULT_STATIC_ROUTES = ['/', '/kontakt'];
-
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const auth = guardAdminRedirect(locals, redirect);
 	if (isGuardBlocked(auth)) return auth;
@@ -22,18 +24,18 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 
 	const existing = await loadSiteAstroLayout(supabase, siteId);
 	const form = await request.formData();
-	const parsed = parseLayoutFromFormData(form, {
-		navigationPath: existing.navigationPath,
-		categoriesPath: existing.categoriesPath,
-	});
+	const section = String(form.get('section') ?? 'all').trim();
+	const returnSegment = layoutSectionReturnPath(section);
+
+	const parsed = parseLayoutSection(form, existing);
 
 	if (!parsed.ok) {
-		return redirect(`/admin/units/${siteId}/layout?error=${parsed.error}`);
+		return redirect(`/admin/units/${siteId}/${returnSegment}?error=${parsed.error}`);
 	}
 
 	const saved = await saveSiteAstroLayout(supabase, siteId, parsed.layout);
 	if (!saved.ok) {
-		return redirect(`/admin/units/${siteId}/layout?error=save_failed`);
+		return redirect(`/admin/units/${siteId}/${returnSegment}?error=save_failed`);
 	}
 
 	const syncGitHub = form.get('sync_github') === 'on';
@@ -43,23 +45,25 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 			supabase,
 			siteId,
 			categorySlugs,
-			DEFAULT_STATIC_ROUTES,
+			[...DEFAULT_STATIC_ROUTES],
 		);
 		const navIssues = validateNavigationLinks(parsed.layout.navigation, knownPaths);
 		if (navIssues.length > 0) {
-			return redirect(`/admin/units/${siteId}/layout?error=dead_nav_links&saved=1`);
+			return redirect(
+				`/admin/units/${siteId}/${returnSegment}?error=dead_nav_links&saved=1`,
+			);
 		}
 
 		const synced = await syncSiteAstroLayoutToGitHub(supabase, siteId, parsed.layout);
 		if (!synced.ok) {
 			const params = new URLSearchParams({ error: synced.error, saved: '1' });
 			if (synced.detail) params.set('sync_detail', synced.detail.slice(0, 400));
-			return redirect(`/admin/units/${siteId}/layout?${params.toString()}`);
+			return redirect(`/admin/units/${siteId}/${returnSegment}?${params.toString()}`);
 		}
 		const params = new URLSearchParams({ saved: '1', synced: '1' });
 		if (synced.summary) params.set('sync_summary', synced.summary.slice(0, 400));
-		return redirect(`/admin/units/${siteId}/layout?${params.toString()}`);
+		return redirect(`/admin/units/${siteId}/${returnSegment}?${params.toString()}`);
 	}
 
-	return redirect(`/admin/units/${siteId}/layout?saved=1`);
+	return redirect(`/admin/units/${siteId}/${returnSegment}?saved=1`);
 };

@@ -1,0 +1,31 @@
+---
+import { adminLayout } from '@/i18n';
+import Button from '@/components/ui/actions/Button.astro';
+
+interface Props {
+	siteId: string;
+	hasAstroChannel: boolean;
+	section: 'navigation' | 'categories' | 'components';
+}
+
+const { siteId, hasAstroChannel, section } = Astro.props;
+---
+
+<div class="flex flex-wrap items-center gap-4">
+	<label class="flex items-center gap-2 text-sm">
+		<input type="checkbox" name="sync_github" checked={hasAstroChannel} disabled={!hasAstroChannel} />
+		{adminLayout.fields.syncGitHub}
+	</label>
+	<Button type="submit">{adminLayout.actions.save}</Button>
+</div>
+
+{
+	hasAstroChannel && (
+		<form method="post" action={`/api/admin/sites/${siteId}/layout/import`} class="mt-4">
+			<input type="hidden" name="return_section" value={section} />
+			<button type="submit" class="ui-link text-sm">
+				{adminLayout.actions.importFromGitHub}
+			</button>
+		</form>
+	)
+}

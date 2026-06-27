@@ -38,6 +38,8 @@ export type UnitFormInitial = {
 		content_path: string;
 		content_layout: 'flat' | 'folder';
 		categories_path: string;
+		navigation_path: string;
+		recent_changes_path: string;
 		vercel_project_id: string;
 		vercel_team_id: string;
 	};
@@ -115,6 +117,14 @@ export async function loadUnitFormInitial(
 					typeof cfg.categories_path === 'string' && cfg.categories_path.trim()
 						? cfg.categories_path.trim()
 						: 'src/config/omnipress-categories.json',
+				navigation_path:
+					typeof cfg.navigation_path === 'string' && cfg.navigation_path.trim()
+						? cfg.navigation_path.trim()
+						: 'src/config/omnipress-navigation.json',
+				recent_changes_path:
+					typeof cfg.recent_changes_path === 'string' && cfg.recent_changes_path.trim()
+						? cfg.recent_changes_path.trim()
+						: 'src/config/omnipress-recent-changes.json',
 				vercel_project_id: String(cfg.vercel_project_id ?? '').trim(),
 				vercel_team_id: String(cfg.vercel_team_id ?? '').trim(),
 			};

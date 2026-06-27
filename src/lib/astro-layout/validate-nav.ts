@@ -11,11 +11,11 @@ export type NavValidationIssue = {
 	reason: 'dead_link' | 'missing_href';
 };
 
-function isExternalHref(href: string): boolean {
+export function isExternalHref(href: string): boolean {
 	return /^https?:\/\//i.test(href.trim());
 }
 
-function normalizeInternalHref(href: string): string {
+export function normalizeInternalHref(href: string): string {
 	const trimmed = href.trim().replace(/\/+$/, '');
 	if (!trimmed.startsWith('/')) return `/${trimmed}`;
 	return trimmed || '/';

@@ -1,0 +1,35 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import UnitForm from '@/components/admin/UnitForm.astro';
+import AdminContextNav from '@/components/shell/AdminContextNav.astro';
+import FlashAlerts from '@/components/shared/FlashAlerts.astro';
+import { adminUnit, adminSites, common } from '@/i18n';
+import { loadUnitFormInitial } from '@/lib/admin';
+import { parseQueryFlash } from '@/lib/ui/flash';
+
+const { id } = Astro.params;
+if (!id) return Astro.redirect('/admin/sites');
+
+const initial = await loadUnitFormInitial(Astro.locals.supabase, id);
+if (!initial) return Astro.redirect('/admin/sites');
+
+const unitErrors = { ...adminUnit.errors, ...adminSites.errors };
+const flashMessages = parseQueryFlash(Astro.url, {
+	saved: common.saved,
+	errorMap: unitErrors as Record<string, string>,
+});
+---
+
+<AppLayout title={adminUnit.publishTitle} heading={adminUnit.publishTitle}>
+	<AdminContextNav siteId={id} siteName={initial.name} section="publish" />
+	<FlashAlerts messages={flashMessages} />
+	<p class="mb-4 ui-muted">{adminUnit.publishLead}</p>
+
+	<UnitForm
+		variant="publish"
+		action={`/api/admin/units/${id}/save`}
+		submitLabel={adminUnit.actions.save}
+		{initial}
+		errorMessage={flashMessages.find((m) => m.variant === 'error')?.message ?? null}
+	/>
+</AppLayout>

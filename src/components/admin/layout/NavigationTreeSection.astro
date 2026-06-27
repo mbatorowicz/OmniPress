@@ -1,0 +1,179 @@
+---
+import { adminLayout } from '@/i18n';
+import Button from '@/components/ui/actions/Button.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+import SectionTitle from '@/components/ui/layout/SectionTitle.astro';
+import Table from '@/components/ui/table/Table.astro';
+import TableHead from '@/components/ui/table/TableHead.astro';
+import TableRow from '@/components/ui/table/TableRow.astro';
+import TableCell from '@/components/ui/table/TableCell.astro';
+import { flattenNavigation } from '@/lib/admin/navigation-tree';
+import { STATIC_ROUTE_OPTIONS, buildCategoryLinkOptions, type PageOption } from '@/lib/admin/link-options';
+import type { CategoryDefinition, NavItem } from '@/lib/astro-layout/types';
+
+interface Props {
+	navigation: NavItem[];
+	categories: CategoryDefinition[];
+	publishedPages: PageOption[];
+}
+
+const { navigation, categories, publishedPages } = Astro.props;
+const rows =
+	navigation.length > 0
+		? flattenNavigation(navigation, categories, publishedPages)
+		: [{ label: '', depth: 0, hrefKind: 'none' as const, hrefValue: '', isMegaMenu: false }];
+
+const categoryOptions = buildCategoryLinkOptions(categories);
+const linkKinds = adminLayout.navHrefKinds;
+const depthLabels = adminLayout.navDepthLabels;
+---
+
+<Panel class="ui-form-section">
+	<SectionTitle>{adminLayout.sections.menu}</SectionTitle>
+	<p class="ui-hint">{adminLayout.menuFormHint}</p>
+
+	<Table dense wrap class="min-w-[48rem] w-full" id="navigation-table">
+		<TableHead dense>
+			<TableRow dense>
+				<TableCell header dense>{adminLayout.fields.navDepth}</TableCell>
+				<TableCell header dense>{adminLayout.fields.navLabel}</TableCell>
+				<TableCell header dense>{adminLayout.fields.navLinkType}</TableCell>
+				<TableCell header dense>{adminLayout.fields.navLinkTarget}</TableCell>
+				<TableCell header dense>{adminLayout.fields.navMegaMenu}</TableCell>
+				<TableCell header dense>{adminLayout.fields.removeRow}</TableCell>
+			</TableRow>
+		</TableHead>
+		<tbody id="navigation-body">
+			{
+				rows.map((row) => (
+					<tr class="nav-row ui-table-dense-row">
+						<td class="ui-table-dense-td--wide">
+							<select name="nav_depth" class="ui-select-compact w-full">
+								<option value="0" selected={row.depth === 0}>{depthLabels[0]}</option>
+								<option value="1" selected={row.depth === 1}>{depthLabels[1]}</option>
+								<option value="2" selected={row.depth === 2}>{depthLabels[2]}</option>
+							</select>
+						</td>
+						<td class="ui-table-dense-td--wide">
+							<input name="nav_label" value={row.label} required class="ui-input-compact w-full" />
+						</td>
+						<td class="ui-table-dense-td--wide">
+							<select name="nav_href_kind" class="nav-href-kind ui-select-compact w-full">
+								{Object.entries(linkKinds).map(([value, label]) => (
+									<option value={value} selected={row.hrefKind === value}>{label}</option>
+								))}
+							</select>
+						</td>
+						<td class="ui-table-dense-td--wide nav-href-values">
+							<input
+								name="nav_href_value"
+								value={row.hrefKind === 'none' || row.hrefKind === 'custom' || row.hrefKind === 'external' ? row.hrefValue : ''}
+								class={`ui-input-compact w-full nav-href-field nav-href-field-none nav-href-field-custom nav-href-field-external ${row.hrefKind === 'category' || row.hrefKind === 'page' || row.hrefKind === 'static' ? 'hidden' : ''}`}
+							/>
+							<select
+								name="nav_href_value"
+								class={`ui-select-compact w-full nav-href-field nav-href-field-category ${row.hrefKind === 'category' ? '' : 'hidden'}`}
+								disabled={row.hrefKind !== 'category'}
+							>
+								{categoryOptions.map((opt) => (
+									<option value={opt.path.replace(/^\//, '')} selected={row.hrefKind === 'category' && row.hrefValue === opt.path.replace(/^\//, '')}>
+										{opt.title}
+									</option>
+								))}
+							</select>
+							<select
+								name="nav_href_value"
+								class={`ui-select-compact w-full nav-href-field nav-href-field-page ${row.hrefKind === 'page' ? '' : 'hidden'}`}
+								disabled={row.hrefKind !== 'page'}
+							>
+								{publishedPages.length === 0 ? (
+									<option value="">{adminLayout.noPublishedPages}</option>
+								) : (
+									publishedPages.map((page) => (
+										<option value={page.path} selected={row.hrefKind === 'page' && row.hrefValue === page.path}>
+											{page.title}
+										</option>
+									))
+								)}
+							</select>
+							<select
+								name="nav_href_value"
+								class={`ui-select-compact w-full nav-href-field nav-href-field-static ${row.hrefKind === 'static' ? '' : 'hidden'}`}
+								disabled={row.hrefKind !== 'static'}
+							>
+								{STATIC_ROUTE_OPTIONS.map((opt) => (
+									<option value={opt.path} selected={row.hrefKind === 'static' && row.hrefValue === opt.path}>
+										{opt.title}
+									</option>
+								))}
+							</select>
+						</td>
+						<td class="ui-table-dense-td--wide text-center">
+							<input type="checkbox" name="nav_is_mega" checked={row.isMegaMenu} class="nav-mega ui-checkbox" />
+						</td>
+						<td class="ui-table-dense-td--wide">
+							<button type="button" class="remove-nav-row ui-link--danger">{adminLayout.actions.removeNavRow}</button>
+						</td>
+					</tr>
+				))
+			}
+		</tbody>
+	</Table>
+	<Button type="button" id="add-nav-row" variant="add">
+		{adminLayout.actions.addNavRow}
+	</Button>
+
+	<details class="mt-4">
+		<summary class="ui-link text-sm cursor-pointer">{adminLayout.actions.editNavigationJson}</summary>
+		<p class="ui-hint mt-2">{adminLayout.menuJsonFallbackHint}</p>
+		<textarea
+			name="navigation_json"
+			rows={8}
+			class="ui-textarea ui-textarea--mono mt-2 w-full"
+			placeholder='[{"label":"Aktualności","href":"/aktualnosci"}]'
+		></textarea>
+	</details>
+</Panel>
+
+<script define:vars={{ depthLabels, removeNavRowLabel: adminLayout.actions.removeNavRow }}>
+	import { initNavigationTable } from '@/lib/admin/navigation-form-client';
+	initNavigationTable({
+		remove: removeNavRowLabel,
+		add: '',
+		depth0: depthLabels[0],
+		depth1: depthLabels[1],
+		depth2: depthLabels[2],
+	});
+</script>
+
+<script is:inline>
+	document.getElementById('navigation-body')?.addEventListener('change', (event) => {
+		const target = event.target;
+		if (!(target instanceof HTMLSelectElement) || !target.classList.contains('nav-href-kind')) return;
+		const row = target.closest('.nav-row');
+		if (!row) return;
+		const kind = target.value;
+		row.querySelectorAll('.nav-href-field').forEach((el) => {
+			const field = el;
+			const match = field.classList.contains(`nav-href-field-${kind}`);
+			field.classList.toggle('hidden', !match);
+			if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement) {
+				field.disabled = !match;
+				if (!match) field.removeAttribute('name');
+				else field.setAttribute('name', 'nav_href_value');
+			}
+		});
+	});
+	document.querySelectorAll('#navigation-body .nav-row').forEach((row) => {
+		row.querySelectorAll('.nav-href-field').forEach((el) => {
+			if (el instanceof HTMLInputElement || el instanceof HTMLSelectElement) {
+				if (el.classList.contains('hidden')) {
+					el.disabled = true;
+					el.removeAttribute('name');
+				} else {
+					el.setAttribute('name', 'nav_href_value');
+				}
+			}
+		});
+	});
+</script>

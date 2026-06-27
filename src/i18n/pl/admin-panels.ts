@@ -37,8 +37,9 @@ export const adminSites = {
 export const adminUnit = {
 	title: 'Nowa strona',
 	editTitle: 'Ustawienia strony',
-	editLead: 'Nazwa strony i repozytorium GitHub (publikacja Astro) — w jednym miejscu.',
 	lead: 'Jednym krokiem: strona logiczna + repozytorium GitHub do publikacji.',
+	editLead: 'Nazwa strony, slug i status aktywności.',
+	publishTitle: 'Publikacja (GitHub → Astro)',
 	sections: {
 		unit: 'Strona',
 		astro: 'GitHub → Astro',
@@ -65,9 +66,17 @@ export const adminUnit = {
 		vercel: 'Vercel → Project Settings → General → Project ID (prj_…). Po publikacji OmniPress sprawdza log buildu.',
 	},
 	layoutLink: 'Layout Astro (menu i komponenty)',
+	publishLink: 'Publikacja',
+	navigationLink: 'Menu',
+	categoriesLink: 'Kategorie',
+	componentsLink: 'Komponenty',
 	pagesLink: 'Strony statyczne',
 	changesLink: 'Ogłoś zmianę na stronie',
-	categoriesJsonHint: 'JSON z listą slug/name — OmniPress pobiera przy edycji wpisu.',
+	contextGroupSettings: 'Ustawienia',
+	contextGroupAppearance: 'Wygląd strony',
+	contextGroupContent: 'Treść',
+	publishLead: 'Repozytorium GitHub, tokeny i opcjonalna weryfikacja deployu Vercel.',
+	advancedPathsTitle: 'Zaawansowane — ścieżki plików w repozytorium',
 } as const;
 
 export const adminSitePages = {
@@ -118,6 +127,12 @@ export const adminSitePages = {
 
 export const adminLayout = {
 	title: 'Layout strony Astro',
+	navigationTitle: 'Menu nawigacji',
+	categoriesTitle: 'Kategorie wpisów',
+	componentsTitle: 'Komponenty strony',
+	navigationLead: 'Struktura menu głównego — poziomy, linki wewnętrzne i zewnętrzne. Sync do repozytorium GitHub.',
+	categoriesLead: 'Slug i nazwa kategorii wpisów oraz przypisanie do sekcji na stronie głównej.',
+	componentsLead: 'Komponenty Astro (home.*, sidebar.*) — kolejność i ustawienia widgetów.',
 	lead: 'Menu nawigacji, lista kategorii wpisów oraz przypisanie kategorii do sekcji na stronie (sync do repozytorium GitHub).',
 	saved: 'Layout zapisany w OmniPress.',
 	savedSynced: 'Layout zapisany i wysłany do repozytorium GitHub.',
@@ -161,6 +176,19 @@ export const adminLayout = {
 	},
 	menuHint:
 		'Tablica JSON — pola label, href, opcjonalnie isMegaMenu i zagnieżdżone children (do 3 poziomów). Link wewnętrzny musi wskazywać opublikowaną stronę statyczną, archiwum kategorii (/{slug}) lub znaną trasę w repo.',
+	menuFormHint:
+		'Poziom 0 = pozycja główna menu, 1 = podmenu, 2 = trzeci poziom. Link wewnętrzny musi wskazywać opublikowaną stronę, kategorię lub znaną trasę.',
+	menuJsonFallbackHint: 'Opcjonalnie — wklej pełną tablicę JSON zamiast wierszy powyżej (nadpisuje drzewo przy zapisie).',
+	navDepthLabels: ['Poziom 0', 'Podmenu', 'Poziom 2'] as const,
+	navHrefKinds: {
+		none: 'Bez linku (tylko rozwijane)',
+		category: 'Kategoria wpisów',
+		page: 'Strona statyczna',
+		static: 'Stała trasa',
+		custom: 'Własny URL wewnętrzny',
+		external: 'Adres zewnętrzny',
+	},
+	categoriesSlugWarning: 'Zmiana slug nie aktualizuje URL-i już opublikowanych wpisów — wymagają republikacji.',
 	navValidationHeading: 'Problemy w menu (linki wewnętrzne):',
 	navValidationHint:
 		'Sync do GitHub jest zablokowany, dopóki menu wskazuje nieistniejące adresy. Utwórz strony statyczne lub popraw href.',
@@ -208,6 +236,11 @@ export const adminLayout = {
 	},
 	fields: {
 		navigationJson: 'Menu (JSON)',
+		navDepth: 'Poziom',
+		navLabel: 'Etykieta',
+		navLinkType: 'Typ linku',
+		navLinkTarget: 'Adres / cel',
+		navMegaMenu: 'Mega menu',
 		slotId: 'ID slotu',
 		slotLabel: 'Etykieta (panel admin)',
 		slotComponent: 'Komponent (np. sidebar.weather)',
@@ -264,8 +297,11 @@ export const adminLayout = {
 		importFromGitHub: 'Importuj z GitHub (nadpisuje dane w OmniPress)',
 		addCategory: '+ Dodaj kategorię',
 		addComponent: '+ Dodaj komponent',
+		addNavRow: '+ Dodaj pozycję menu',
+		editNavigationJson: 'Edytuj jako JSON (zaawansowane)',
 		removeCategory: ui.actions.remove,
 		removeSlot: ui.actions.remove,
+		removeNavRow: ui.actions.remove,
 	},
 	variants: {
 		default: 'Domyślny',
@@ -353,6 +389,9 @@ export const adminDestinations = {
 		credentialsHint: 'Pozostaw puste, aby zachować obecne credentials.',
 		credentialsOptional: 'Credentials opcjonalne przy tworzeniu — możesz dodać przy edycji przed publikacją.',
 		noEncryption: 'Brak ENCRYPTION_KEY — credentials nie zostaną zapisane (publikacja zablokowana).',
+		categoriesPath: 'Plik kategorii w repozytorium',
+		navigationPath: 'Plik menu w repozytorium',
+		recentChangesPath: 'Plik ostatnich zmian w repozytorium',
 	},
 	actions: { testChannel: 'Testuj połączenie' },
 } as const;

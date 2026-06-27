@@ -11,14 +11,18 @@ Operacyjny przewodnik po panelu OmniPress. Stan funkcji: [STATUS.md](./STATUS.md
 - **Nagłówek** (u góry): przyciski *Administracja* (`/admin`) i *Panel treści* (`/dashboard`) — lewe menu zależy od wyboru (panel treści nie ma sidebar).
 - **Sidebar** (tylko w `/admin/*`, po lewej): *Kolejka wpisów* (`/admin`), *Strony* (`/admin/sites`), *Użytkownicy* (`/admin/users`). Na mobile — pozioma belka nad treścią.
 - **Breadcrumby** na każdej podstronie pokazują ścieżkę (np. `Administracja / Strony / UG Miedzna / Strony statyczne`).
-- W kontekście strony (`/admin/units/[id]/*`) dodatkowe zakładki: *Edytuj*, *Layout Astro*, *Strony statyczne*, *Ogłoś zmianę*.
+- W kontekście strony (`/admin/units/[id]/*`) zakładki pogrupowane:
+  - **Ustawienia:** *Ogólne* (`/admin/units/[id]`), *Publikacja* (`/admin/units/[id]/publish`) — GitHub, tokeny, Vercel
+  - **Wygląd strony:** *Menu* (`/navigation`), *Kategorie* (`/categories`), *Komponenty* (`/components`)
+  - **Treść:** *Strony statyczne* (`/pages`), *Ostatnie zmiany* (`/changes`)
+- Stara trasa `/admin/units/[id]/layout` przekierowuje na *Menu*.
 - `/admin` to wyłącznie kolejka wpisów — sekcje (*Do akceptacji*, *Zaplanowane*, *Opublikowane*) mają u góry podsumowanie z licznikami; wpisy w trakcie publikacji są w sekcji *Zaplanowane* ze znacznikiem **W toku**; import z GitHub jest zwijaną sekcją na dole.
 
 ---
 
 ## 1. Pierwsza konfiguracja (kolejność)
 
-**Jednostka organizacyjna:** `/admin/units/new` lub edycja z listy stron — nazwa, slug, repozytorium GitHub (Astro) i opcjonalnie weryfikacja deployu Vercel w jednym formularzu.
+**Jednostka organizacyjna:** `/admin/units/new` — nazwa, slug i kanał GitHub w jednym kroku. Po utworzeniu: *Ogólne* (nazwa/slug) i *Publikacja* (repo, tokeny) to osobne zakładki.
 
 ```mermaid
 flowchart LR
@@ -44,7 +48,7 @@ Lista stron jako **kafelki** — kliknięcie kafelka otwiera ustawienia strony (
 | Slug | Identyfikator techniczny (`a-z`, `0-9`, myślnik) |
 | Aktywna | Nieaktywna strona — bez nowych wpisów (docelowo) |
 
-Ustawienia strony (GitHub, layout, import): `/admin/units/[id]`.
+Ustawienia strony: *Ogólne* (`/admin/units/[id]`) i *Publikacja* (`/admin/units/[id]/publish`) — repozytorium, branch, ścieżka contentu, tokeny, opcjonalnie Vercel.
 
 ---
 
@@ -91,9 +95,11 @@ Na podglądzie wpisu: tabela **Status publikacji**. Przy błędzie (`failed`): *
 
 ---
 
-## 6. Layout, import i bulk
+## 6. Wygląd strony, import i bulk
 
-- **Layout Astro:** `/admin/units/[id]/layout` — menu, kategorie, jedna lista komponentów (`slots[]` w `omnipress-categories.json`: `home.*`, `sidebar.weather`, `sidebar.cert_advisories`, `sidebar.recent_changes`, `sidebar.banner` itd.) → **jeden commit** do GitHub (menu + kategorie + opcjonalnie rejestr zmian — jeden deploy Vercel). Wspólne pole kolejności (`order`) dla sidebaru. Przed sync walidacja linków wewnętrznych. `sidebar.weather` i `sidebar.cert_advisories` pobierają dane **na żywo** z API na stronie Astro (`/api/weather/warnings`, `/api/cert/advisories`) — bez syncu JSON do repo. Widget CERT zawsze dopełnia listę do limitu z panelu: feed RSS zawiera tylko komunikaty z bieżącego dnia, starsze dociągane są z listingu `moje.cert.pl/komunikaty/`.
+- **Menu:** `/admin/units/[id]/navigation` — edytor drzewa nawigacji (do 3 poziomów), zapis do `omnipress-navigation.json`. Przed sync walidacja linków wewnętrznych.
+- **Kategorie:** `/admin/units/[id]/categories` — slug/nazwa kategorii + macierz widoczności w komponentach feed.
+- **Komponenty:** `/admin/units/[id]/components` — lista slotów (`home.*`, `sidebar.weather`, `sidebar.cert_advisories`, `sidebar.recent_changes`, `sidebar.banner` itd.) w `omnipress-categories.json`. Wspólne pole kolejności (`order`) dla sidebaru. Checkbox „Wyślij do GitHub” na każdej zakładce wyglądu — **jeden commit** (menu + kategorie + sloty → jeden deploy Vercel). `sidebar.weather` i `sidebar.cert_advisories` pobierają dane **na żywo** z API na stronie Astro (`/api/weather/warnings`, `/api/cert/advisories`) — bez syncu JSON do repo. Widget CERT zawsze dopełnia listę do limitu z panelu: feed RSS zawiera tylko komunikaty z bieżącego dnia, starsze dociągane są z listingu `moje.cert.pl/komunikaty/`.
 - **Strony statyczne:** `/admin/units/[id]/pages` — treści pod stałe URL (np. `/gmina/plan-ogolny`); publikacja od razu do `src/content/pages/` w repo Astro.
 - **Import wpisów z GitHub:** `/admin` → synchronizacja (wpisy już na stronie).
 - **Ostatnie zmiany:** `/admin/units/[id]/changes`.
@@ -106,7 +112,7 @@ Na podglądzie wpisu: tabela **Status publikacji**. Przy błędzie (`failed`): *
 | Problem | Działanie |
 |---------|-----------|
 | Publikacja `failed` | Podgląd wpisu → kolumna podsumowania (GitHub / Vercel) → **Ponów publikację** |
-| Brak kategorii w edytorze | Layout → kategorie + plik `omnipress-categories.json` w repo |
+| Brak kategorii w edytorze | *Kategorie* → kategorie + plik `omnipress-categories.json` w repo |
 | Credentials nie zapisują się | Ustaw `ENCRYPTION_KEY` na Vercel |
 | Worker nie działa | Vercel: `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, redeploy |
 

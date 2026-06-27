@@ -29,9 +29,11 @@ const flashMessages = parseQueryFlash(Astro.url, {
 	<p class="mb-4 ui-muted">{adminUnit.editLead}</p>
 
 	<UnitForm
+		variant="basic"
 		action={`/api/admin/units/${id}/save`}
 		submitLabel={adminUnit.actions.save}
 		{initial}
+		showCredentialsNote={false}
 		errorMessage={flashMessages.find((m) => m.variant === 'error')?.message ?? null}
 	/>
 

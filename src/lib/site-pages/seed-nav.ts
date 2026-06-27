@@ -1,7 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { NavItem } from '@/lib/astro-layout/types';
 import { loadSiteAstroLayout, syncSiteAstroLayoutToGitHub } from '@/lib/astro-layout/store';
-import { collectNavHrefs } from '@/lib/astro-layout/validate-nav';
+import {
+	collectNavHrefs,
+	isExternalHref,
+	normalizeInternalHref,
+} from '@/lib/astro-layout/validate-nav';
 import {
 	createSitePage,
 	getSitePageById,
@@ -21,16 +25,6 @@ export type NavPageSpec = {
 	path_prefix: string;
 	slug: string;
 };
-
-function isExternalHref(href: string): boolean {
-	return /^https?:\/\//i.test(href.trim());
-}
-
-function normalizeInternalHref(href: string): string {
-	const trimmed = href.trim().replace(/\/+$/, '');
-	if (!trimmed.startsWith('/')) return `/${trimmed}`;
-	return trimmed || '/';
-}
 
 export function collectNavPageSpecs(navigation: NavItem[]): NavPageSpec[] {
 	const refs = collectNavHrefs(navigation);

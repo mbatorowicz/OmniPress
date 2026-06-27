@@ -1,58 +1,7 @@
-/** Nazwy pól formularza — muszą być zsynchronizowane z slot-form-fields.ts */
+/** Nazwy pól formularza — SSOT: slot-form-fields.ts */
+import { slotFormFields as slotFieldNames } from '@/lib/astro-layout/slot-form-fields';
 
-function field(prefix: string, slotId: string): string {
-	return `${prefix}__${slotId}`;
-}
-
-export const slotFieldNames = {
-	hideWhenEmpty: (slotId: string) => `slot_hide_when_empty_${slotId}`,
-	homeFeed: {
-		title: (id: string) => field('slot_home_feed_title', id),
-		sectionTitle: (id: string) => field('slot_home_feed_section_title', id),
-		limit: (id: string) => field('slot_home_feed_limit', id),
-		emptyText: (id: string) => field('slot_home_feed_empty_text', id),
-		moreLink: (id: string) => field('slot_home_feed_more_link', id),
-		variant: (id: string) => field('slot_home_feed_variant', id),
-	},
-	recentChanges: {
-		title: (id: string) => field('slot_recent_title', id),
-		limit: (id: string) => field('slot_recent_limit', id),
-		emptyText: (id: string) => field('slot_recent_empty_text', id),
-		variant: (id: string) => field('slot_recent_variant', id),
-	},
-	cert: {
-		title: (id: string) => field('slot_cert_title', id),
-		limit: (id: string) => field('slot_cert_limit', id),
-		emptyText: (id: string) => field('slot_cert_empty_text', id),
-		variant: (id: string) => field('slot_cert_variant', id),
-		categoryFilter: (id: string) => field('slot_cert_category', id),
-	},
-	banner: {
-		style: (id: string) => field('slot_banner_style', id),
-		imageUrl: (id: string) => field('slot_banner_image_url', id),
-		imageVariant: (id: string) => field('slot_banner_image_variant', id),
-		textTitle: (id: string) => field('slot_banner_text_title', id),
-		textButton: (id: string) => field('slot_banner_text_button', id),
-		linkType: (id: string) => field('slot_banner_link_type', id),
-		categorySlug: (id: string) => field('slot_banner_category_slug', id),
-		pagePath: (id: string) => field('slot_banner_page_path', id),
-		externalUrl: (id: string) => field('slot_banner_external_url', id),
-	},
-	weather: {
-		title: (id: string) => field('slot_weather_title', id),
-		emptyText: (id: string) => field('slot_weather_empty_text', id),
-		terytPowiat: (id: string) => field('slot_weather_teryt_powiat', id),
-		lat: (id: string) => field('slot_weather_lat', id),
-		lon: (id: string) => field('slot_weather_lon', id),
-		mapZoom: (id: string) => field('slot_weather_map_zoom', id),
-		mapScope: (id: string) => field('slot_weather_map_scope', id),
-		showMap: (id: string) => `slot_weather_show_map_${id}`,
-		detailsDisplay: (id: string) => field('slot_weather_details_display', id),
-		detailsLayout: (id: string) => field('slot_weather_details_layout', id),
-		detailsSummary: (id: string) => field('slot_weather_details_summary', id),
-		detailsCloseLabel: (id: string) => field('slot_weather_details_close_label', id),
-	},
-} as const;
+export { slotFieldNames };
 
 export type LayoutComponentKind = 'home_feed' | 'recent_changes' | 'cert' | 'weather' | 'banner';
 

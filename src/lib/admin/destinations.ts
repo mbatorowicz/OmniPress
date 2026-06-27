@@ -32,6 +32,12 @@ export function buildConfig(_type: DestinationType, form: FormData): Record<stri
 		categories_path:
 			String(form.get('categories_path') ?? 'src/config/omnipress-categories.json').trim() ||
 			'src/config/omnipress-categories.json',
+		navigation_path:
+			String(form.get('navigation_path') ?? 'src/config/omnipress-navigation.json').trim() ||
+			'src/config/omnipress-navigation.json',
+		recent_changes_path:
+			String(form.get('recent_changes_path') ?? 'src/config/omnipress-recent-changes.json').trim() ||
+			'src/config/omnipress-recent-changes.json',
 		vercel_project_id: String(form.get('vercel_project_id') ?? '').trim(),
 		vercel_team_id: String(form.get('vercel_team_id') ?? '').trim(),
 	};

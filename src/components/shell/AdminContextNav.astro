@@ -3,7 +3,14 @@ import Button from '@/components/ui/actions/Button.astro';
 import Breadcrumbs, { type Crumb } from '@/components/ui/navigation/Breadcrumbs.astro';
 import { adminUnit, layout } from '@/i18n';
 
-export type AdminUnitSection = 'edit' | 'layout' | 'pages' | 'changes';
+export type AdminUnitSection =
+	| 'edit'
+	| 'publish'
+	| 'navigation'
+	| 'categories'
+	| 'components'
+	| 'pages'
+	| 'changes';
 
 interface Props {
 	siteId: string;
@@ -16,14 +23,20 @@ const { siteId, siteName, section, currentLabel } = Astro.props;
 
 const sectionLabels: Record<AdminUnitSection, string> = {
 	edit: layout.breadcrumb.edit,
-	layout: layout.breadcrumb.layout,
+	publish: layout.breadcrumb.publish,
+	navigation: layout.breadcrumb.navigation,
+	categories: layout.breadcrumb.categories,
+	components: layout.breadcrumb.components,
 	pages: layout.breadcrumb.pages,
 	changes: layout.breadcrumb.changes,
 };
 
 const sectionHrefs: Record<AdminUnitSection, string> = {
 	edit: `/admin/units/${siteId}`,
-	layout: `/admin/units/${siteId}/layout`,
+	publish: `/admin/units/${siteId}/publish`,
+	navigation: `/admin/units/${siteId}/navigation`,
+	categories: `/admin/units/${siteId}/categories`,
+	components: `/admin/units/${siteId}/components`,
 	pages: `/admin/units/${siteId}/pages`,
 	changes: `/admin/units/${siteId}/changes`,
 };
@@ -45,25 +58,44 @@ if (currentLabel) {
 	crumbs.push({ label: currentLabel });
 }
 
-const links = [
-	{ href: sectionHrefs.edit, label: adminUnit.actions.edit, section: 'edit' as const },
-	{ href: sectionHrefs.layout, label: adminUnit.layoutLink, section: 'layout' as const },
-	{ href: sectionHrefs.pages, label: adminUnit.pagesLink, section: 'pages' as const },
-	{ href: sectionHrefs.changes, label: adminUnit.changesLink, section: 'changes' as const },
+const navGroups: { title: string; sections: AdminUnitSection[] }[] = [
+	{ title: adminUnit.contextGroupSettings, sections: ['edit', 'publish'] },
+	{
+		title: adminUnit.contextGroupAppearance,
+		sections: ['navigation', 'categories', 'components'],
+	},
+	{ title: adminUnit.contextGroupContent, sections: ['pages', 'changes'] },
 ];
+
+const linkLabels: Record<AdminUnitSection, string> = {
+	edit: adminUnit.actions.edit,
+	publish: adminUnit.publishLink,
+	navigation: adminUnit.navigationLink,
+	categories: adminUnit.categoriesLink,
+	components: adminUnit.componentsLink,
+	pages: adminUnit.pagesLink,
+	changes: adminUnit.changesLink,
+};
 ---
 
 <nav class="mb-6" aria-label={layout.aria.adminContext}>
 	<Breadcrumbs items={crumbs} />
-	<div class="ui-subnav mb-0 mt-3">
+	<div class="ui-subnav mb-0 mt-3 flex flex-col gap-2">
 		{
-			links.map((link) => (
-				<Button
-					href={link.href}
-					variant={link.section === section ? 'nav-accent' : 'secondary'}
-				>
-					{link.label}
-				</Button>
+			navGroups.map((group) => (
+				<div class="flex flex-wrap items-center gap-2">
+					<span class="w-full text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+						{group.title}
+					</span>
+					{group.sections.map((key) => (
+						<Button
+							href={sectionHrefs[key]}
+							variant={key === section ? 'nav-accent' : 'secondary'}
+						>
+							{linkLabels[key]}
+						</Button>
+					))}
+				</div>
 			))
 		}
 	</div>

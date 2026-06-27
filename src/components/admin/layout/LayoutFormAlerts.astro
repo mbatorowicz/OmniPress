@@ -1,0 +1,58 @@
+---
+import { adminLayout } from '@/i18n';
+import Alert from '@/components/ui/feedback/Alert.astro';
+
+interface Props {
+	errorMessage?: string | null;
+	errorDetail?: string | null;
+	syncSummary?: string | null;
+	navWarningLines?: string[];
+	saved?: boolean;
+	synced?: boolean;
+	imported?: boolean;
+	hasAstroChannel?: boolean;
+}
+
+const {
+	errorMessage,
+	errorDetail,
+	syncSummary,
+	navWarningLines = [],
+	saved,
+	synced,
+	imported,
+	hasAstroChannel = true,
+} = Astro.props;
+---
+
+{saved && (
+	<Alert variant="success">
+		{synced ? adminLayout.savedSynced : adminLayout.saved}
+		{synced && syncSummary && (
+			<p class="mt-1 text-sm font-normal opacity-90">
+				{adminLayout.syncSummaryPrefix} {syncSummary}
+			</p>
+		)}
+	</Alert>
+)}
+{imported && <Alert variant="success">{adminLayout.imported}</Alert>}
+{errorMessage && (
+	<Alert variant="error">
+		{errorMessage}
+		{errorDetail && <p class="mt-1 text-sm font-normal opacity-90">{errorDetail}</p>}
+	</Alert>
+)}
+{
+	navWarningLines.length > 0 && (
+		<Alert variant="warning">
+			<p class="font-medium">{adminLayout.navValidationHeading}</p>
+			<p class="mt-1 text-sm">{adminLayout.navValidationHint}</p>
+			<ul class="mt-2 list-inside list-disc text-sm">
+				{navWarningLines.slice(0, 12).map((line) => (
+					<li>{line}</li>
+				))}
+			</ul>
+		</Alert>
+	)
+}
+{!hasAstroChannel && <Alert variant="warning">{adminLayout.noAstroChannel}</Alert>}
