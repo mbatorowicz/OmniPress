@@ -27,7 +27,7 @@ Domyślne ścieżki config: `src/lib/astro-layout/types.ts`. Nadpisanie: destyna
    - **Zapisz szkic** → tylko Supabase (`sites.astro_layout`).
    - **Opublikuj na stronie** → commit do GitHub; zakładka Menu wysyła tylko `navigationPath`, Kategorie/Komponenty tylko `categoriesPath`.
    - Wpis do `omnipress-recent-changes.json` **tylko przy pełnej publikacji** (`scope=all`, domyślnie nie z UI sekcji).
-   - Vercel: domyślnie webhook bez blokowania UI; opcjonalny checkbox „Czekaj na build”.
+   - Vercel: webhook po pushu na GitHub (bez czekania w panelu).
 4. **Nowe pola widgetów** — symetria parse JSON ↔ parse FormData w `parse.ts` / `parse-form.ts`; test w `parse.test.ts`.
 5. **Live API** (pogoda, CERT) — OmniPress tylko konfiguruje slot; endpointy (`/api/weather/warnings`, `/api/cert/advisories`) są w repo Astro.
 

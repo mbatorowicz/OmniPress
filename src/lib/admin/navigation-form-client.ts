@@ -1,22 +1,29 @@
 import {
+	computeNavRowOrder,
 	eligibleNavParentIndices,
 	formatNavParentOptionLabel,
 } from '@/lib/admin/navigation-tree';
+import { applyNavEditorDepthAccentToElement } from '@/lib/admin/nav-editor-colors';
 import {
 	type NavTargetOptions,
+	formatNavTargetSummary,
 	optionsForNavTargetKind,
 	pickNavTargetValue,
 } from '@/lib/admin/nav-target-options';
 
 export type NavigationTableLabels = {
 	remove: string;
+	edit: string;
+	closeEdit: string;
 	depth0: string;
 	depth1: string;
 	depth2: string;
 	megaHint: string;
+	megaLabel: string;
 	addNavChild: string;
 	navParentRoot: string;
 	navParentMissing: string;
+	navParentPrefix: string;
 	hrefKinds: {
 		none: string;
 		category: string;
@@ -25,9 +32,19 @@ export type NavigationTableLabels = {
 		custom: string;
 		external: string;
 	};
+	fieldLabels: {
+		navDepth: string;
+		navParent: string;
+		navLabel: string;
+		navLinkType: string;
+		navLinkTarget: string;
+		navMegaMenu: string;
+	};
 };
 
 const DEPTH_CLASSES = ['nav-row--depth-0', 'nav-row--depth-1', 'nav-row--depth-2'] as const;
+
+let nextNavEntryId = 0;
 
 function readNavTargetOptions(): NavTargetOptions | null {
 	const script = document.getElementById('nav-target-options-json');
@@ -57,6 +74,26 @@ function readNavTargetOptions(): NavTargetOptions | null {
 	}
 }
 
+function getEditorRows(body: HTMLElement): HTMLElement[] {
+	return [...body.querySelectorAll('.nav-row-editor')];
+}
+
+function getNavEntries(body: HTMLElement): HTMLElement[] {
+	return [...body.querySelectorAll('.nav-entry')];
+}
+
+function getSummaryForEditor(editorRow: HTMLElement): HTMLElement | null {
+	const entry = editorRow.closest('.nav-entry');
+	const summary = entry?.querySelector('.nav-row-summary');
+	return summary instanceof HTMLElement ? summary : null;
+}
+
+function getEditorForSummary(summaryRow: HTMLElement): HTMLElement | null {
+	const entry = summaryRow.closest('.nav-entry');
+	const editor = entry?.querySelector('.nav-row-editor');
+	return editor instanceof HTMLElement ? editor : null;
+}
+
 function readRowKind(row: HTMLElement): string {
 	const kindUi = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
 	return kindUi?.value ?? 'none';
@@ -75,17 +112,21 @@ function readTargetControlValue(row: HTMLElement): string {
 	return '';
 }
 
-function readParentValue(row: HTMLElement): string {
+function readParentValue(row: HTMLElement): number | null {
 	const depth = readRowDepth(row);
-	if (depth === 0) return '';
+	if (depth === 0) return null;
 	const parent = row.querySelector('.nav-parent') as HTMLSelectElement | null;
-	return parent?.value ?? row.dataset.navParent ?? '';
+	const raw = parent?.value ?? row.dataset.navParent ?? '';
+	if (raw === '') return null;
+	const parsed = Number(raw);
+	return Number.isFinite(parsed) ? parsed : null;
 }
 
-function collectRowMeta(body: HTMLElement): { label: string; depth: number }[] {
-	return [...body.querySelectorAll('.nav-row')].map((row) => ({
+function collectRowMeta(body: HTMLElement): { label: string; depth: number; parentRowIndex: number | null }[] {
+	return getEditorRows(body).map((row) => ({
 		label: (row.querySelector('input[name="nav_label"]') as HTMLInputElement | null)?.value ?? '',
-		depth: readRowDepth(row as HTMLElement),
+		depth: readRowDepth(row),
+		parentRowIndex: readParentValue(row),
 	}));
 }
 
@@ -98,7 +139,8 @@ function syncSubmitFields(row: HTMLElement): void {
 	valueHidden.value = kind === 'none' ? '' : readTargetControlValue(row);
 	row.dataset.navKind = kind;
 	row.dataset.navHref = valueHidden.value;
-	row.dataset.navParent = readParentValue(row);
+	const parent = readParentValue(row);
+	row.dataset.navParent = parent === null ? '' : String(parent);
 }
 
 export function rebuildNavTarget(
@@ -171,7 +213,8 @@ function syncParentSelect(
 	if (!(cell instanceof HTMLElement)) return;
 
 	const rows = collectRowMeta(body);
-	const rowIndex = [...body.querySelectorAll('.nav-row')].indexOf(row);
+	const editorRows = getEditorRows(body);
+	const rowIndex = editorRows.indexOf(row);
 	const depth = readRowDepth(row);
 	const preferred = readParentValue(row);
 
@@ -199,7 +242,7 @@ function syncParentSelect(
 			const opt = document.createElement('option');
 			opt.value = String(index);
 			opt.textContent = formatNavParentOptionLabel(rows[index]!.label, index + 1);
-			if (preferred === String(index)) {
+			if (preferred === index) {
 				opt.selected = true;
 				picked = true;
 			}
@@ -212,16 +255,18 @@ function syncParentSelect(
 	cell.appendChild(select);
 }
 
-function syncNavChildButton(row: HTMLElement): void {
-	const btn = row.querySelector('.add-nav-child') as HTMLButtonElement | null;
+function syncNavChildButton(summaryRow: HTMLElement, depth: number): void {
+	const btn = summaryRow.querySelector('.add-nav-child') as HTMLButtonElement | null;
 	if (!btn) return;
-	btn.hidden = readRowDepth(row) >= 2;
+	btn.hidden = depth >= 2;
 }
 
 function refreshAllParentSelects(body: HTMLElement, labels: NavigationTableLabels): void {
-	body.querySelectorAll('.nav-row').forEach((row) => {
-		syncParentSelect(row as HTMLElement, body, labels);
-		syncNavChildButton(row as HTMLElement);
+	getEditorRows(body).forEach((row) => {
+		syncParentSelect(row, body, labels);
+		syncSubmitFields(row);
+		const summary = getSummaryForEditor(row);
+		if (summary) syncNavChildButton(summary, readRowDepth(row));
 	});
 }
 
@@ -242,104 +287,60 @@ function bindKindSelect(row: HTMLElement): void {
 	});
 }
 
-function createNavRowElement(labels: NavigationTableLabels): HTMLTableRowElement {
-	const { hrefKinds } = labels;
-	const tr = document.createElement('tr');
-	tr.className = 'nav-row ui-table-dense-row nav-row--depth-0';
-	tr.dataset.navKind = 'none';
-	tr.dataset.navHref = '';
-	tr.dataset.navParent = '';
-	tr.innerHTML = `
-		<td class="ui-table-dense-td--wide">
-			<select name="nav_depth" class="ui-select-compact w-full nav-depth">
-				<option value="0">${labels.depth0}</option>
-				<option value="1">${labels.depth1}</option>
-				<option value="2">${labels.depth2}</option>
-			</select>
-		</td>
-		<td class="ui-table-dense-td--wide nav-parent-cell">
-			<span class="ui-muted text-xs nav-parent-root">${labels.navParentRoot}</span>
-			<input type="hidden" name="nav_parent" class="nav-parent-submit" value="" />
-		</td>
-		<td class="ui-table-dense-td--wide nav-label-cell"><input name="nav_label" required class="ui-input-compact w-full" /></td>
-		<td class="ui-table-dense-td--wide">
-			<input type="hidden" name="nav_href_kind" class="nav-href-kind-submit" value="none" />
-			<select class="nav-href-kind ui-select-compact w-full">
-				<option value="none">${hrefKinds.none}</option>
-				<option value="category">${hrefKinds.category}</option>
-				<option value="page">${hrefKinds.page}</option>
-				<option value="static">${hrefKinds.static}</option>
-				<option value="custom">${hrefKinds.custom}</option>
-				<option value="external">${hrefKinds.external}</option>
-			</select>
-		</td>
-		<td class="ui-table-dense-td--wide nav-href-values">
-			<input type="hidden" name="nav_href_value" class="nav-href-value-submit" value="" />
-			<div class="nav-href-target-host"></div>
-		</td>
-		<td class="nav-mega-cell ui-table-dense-td--wide text-center">
-			<label class="inline-flex flex-col items-center gap-1">
-				<input type="checkbox" name="nav_is_mega" class="nav-mega ui-checkbox" />
-				<span class="ui-hint max-w-[6rem] text-[10px] leading-tight">${labels.megaHint}</span>
-			</label>
-		</td>
-		<td class="ui-table-dense-td--wide nav-row-actions">
-			<div class="flex flex-col items-start gap-1">
-				<button type="button" class="add-nav-child ui-btn ui-btn--link text-xs">${labels.addNavChild}</button>
-				<button type="button" class="remove-nav-row ui-btn ui-btn--link-danger">${labels.remove}</button>
-			</div>
-		</td>
-	`;
-	return tr;
-}
-
-function findInsertBefore(body: HTMLElement, parentRow: HTMLElement): HTMLElement | null {
-	const rows = [...body.querySelectorAll('.nav-row')];
-	const parentIndex = rows.indexOf(parentRow);
-	if (parentIndex < 0) return null;
-	const parentDepth = readRowDepth(parentRow);
-	for (let i = parentIndex + 1; i < rows.length; i++) {
-		if (readRowDepth(rows[i]!) <= parentDepth) return rows[i]!;
-	}
-	return null;
-}
-
-function initNavigationRow(
-	row: HTMLElement,
-	options: NavTargetOptions,
-	body: HTMLElement,
+function syncNavRowSummary(
+	editorRow: HTMLElement,
 	labels: NavigationTableLabels,
+	options: NavTargetOptions,
 ): void {
-	const kindSelect = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
-	const kindHidden = row.querySelector('.nav-href-kind-submit') as HTMLInputElement | null;
-	const hidden = row.querySelector('.nav-href-value-submit') as HTMLInputElement | null;
-	const initialKind = row.dataset.navKind || kindSelect?.dataset.initialKind || 'none';
-	const initialHref = row.dataset.navHref || hidden?.value || '';
+	const summary = getSummaryForEditor(editorRow);
+	if (!summary) return;
 
-	if (kindSelect && initialKind !== 'none') {
-		kindSelect.value = initialKind;
-	}
-	if (kindHidden && initialKind !== 'none') {
-		kindHidden.value = initialKind;
-	}
-	if (hidden && initialHref && !hidden.value.trim()) {
-		hidden.value = initialHref;
+	const depth = readRowDepth(editorRow);
+	const label =
+		(editorRow.querySelector('input[name="nav_label"]') as HTMLInputElement | null)?.value.trim() ||
+		'—';
+	const kind = readRowKind(editorRow);
+	const hrefValue =
+		(editorRow.querySelector('.nav-href-value-submit') as HTMLInputElement | null)?.value ?? '';
+
+	const labelEl = summary.querySelector('.nav-summary-label');
+	if (labelEl) labelEl.textContent = label;
+
+	const linkText = summary.querySelector('.nav-summary-link-text');
+	if (linkText) {
+		linkText.textContent = formatNavTargetSummary(kind, hrefValue, options, labels.hrefKinds);
 	}
 
-	const kind = readRowKind(row);
-	rebuildNavTarget(row, kind, options);
-	bindKindSelect(row);
-	syncParentSelect(row, body, labels);
-	syncSubmitFields(row);
-	syncNavDepthVisual(row);
-	syncMegaCell(row);
-	syncNavChildButton(row);
+	let megaEl = summary.querySelector('.nav-summary-mega');
+	const megaChecked = (editorRow.querySelector('.nav-mega') as HTMLInputElement | null)?.checked;
+	const tileMain = summary.querySelector('.nav-tile-main');
+	if (depth === 0 && megaChecked) {
+		if (!megaEl && tileMain) {
+			megaEl = document.createElement('span');
+			megaEl.className = 'nav-summary-mega ui-caption';
+			tileMain.appendChild(megaEl);
+		}
+		if (megaEl) megaEl.textContent = labels.megaLabel;
+	} else if (megaEl instanceof HTMLElement) {
+		megaEl.remove();
+	}
+
+	syncNavDepthVisual(editorRow);
+	syncMegaCell(editorRow);
+	if (summary) syncNavChildButton(summary, depth);
 }
 
-function syncNavDepthVisual(row: HTMLElement): void {
-	const depth = readRowDepth(row);
-	for (const cls of DEPTH_CLASSES) row.classList.remove(cls);
-	row.classList.add(DEPTH_CLASSES[depth]!);
+function getNavEntry(element: HTMLElement): HTMLElement | null {
+	const entry = element.closest('.nav-entry');
+	return entry instanceof HTMLElement ? entry : null;
+}
+
+function syncNavDepthVisual(editorRow: HTMLElement): void {
+	const entry = getNavEntry(editorRow);
+	if (!entry) return;
+	const depth = readRowDepth(editorRow);
+	for (const cls of DEPTH_CLASSES) entry.classList.remove(cls);
+	entry.classList.add(DEPTH_CLASSES[depth]!);
 }
 
 function syncMegaCell(row: HTMLElement): void {
@@ -359,48 +360,250 @@ function syncMegaCell(row: HTMLElement): void {
 	}
 }
 
-function appendNavRow(body: HTMLElement, labels: NavigationTableLabels, options: NavTargetOptions): void {
-	const tr = createNavRowElement(labels);
-	body.appendChild(tr);
-	initNavigationRow(tr, options, body, labels);
+function closeAllEditors(body: HTMLElement, labels: NavigationTableLabels, options: NavTargetOptions): void {
+	getEditorRows(body).forEach((row) => {
+		if (!row.classList.contains('hidden')) {
+			syncNavRowSummary(row, labels, options);
+		}
+		row.classList.add('hidden');
+	});
 }
 
-function appendNavChildRow(
-	parentRow: HTMLElement,
+function openNavEditor(
+	editorRow: HTMLElement,
 	body: HTMLElement,
 	labels: NavigationTableLabels,
 	options: NavTargetOptions,
 ): void {
-	const parentDepth = readRowDepth(parentRow);
-	if (parentDepth >= 2) return;
+	closeAllEditors(body, labels, options);
+	editorRow.classList.remove('hidden');
+	editorRow.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
+}
 
-	const parentIndex = [...body.querySelectorAll('.nav-row')].indexOf(parentRow);
-	const tr = createNavRowElement(labels);
-	const depthSelect = tr.querySelector('.nav-depth') as HTMLSelectElement | null;
-	if (depthSelect) depthSelect.value = String(parentDepth + 1);
-	tr.dataset.navParent = String(parentIndex);
+function reorderNavEntries(body: HTMLElement, labels: NavigationTableLabels): void {
+	const meta = collectRowMeta(body);
+	const order = computeNavRowOrder(meta);
+	const entries = getNavEntries(body);
 
-	const insertBefore = findInsertBefore(body, parentRow);
-	if (insertBefore) body.insertBefore(tr, insertBefore);
-	else body.appendChild(tr);
+	if (order.length !== entries.length) return;
+	if (order.every((value, index) => value === index)) return;
 
-	initNavigationRow(tr, options, body, labels);
+	for (const index of order) {
+		body.appendChild(entries[index]!);
+	}
+
 	refreshAllParentSelects(body, labels);
 }
 
-function handleNavigationChange(event: Event, body: HTMLElement, labels: NavigationTableLabels): void {
+function buildEditorPanelHtml(labels: NavigationTableLabels): string {
+	const { hrefKinds, fieldLabels } = labels;
+	return `
+		<div class="nav-row-editor-panel">
+			<div class="nav-row-editor-grid">
+				<label class="nav-row-editor-field">
+					<span class="nav-row-editor-label">${fieldLabels.navDepth}</span>
+					<select name="nav_depth" class="ui-select-compact w-full nav-depth">
+						<option value="0">${labels.depth0}</option>
+						<option value="1">${labels.depth1}</option>
+						<option value="2">${labels.depth2}</option>
+					</select>
+				</label>
+				<div class="nav-row-editor-field">
+					<span class="nav-row-editor-label">${fieldLabels.navParent}</span>
+					<div class="nav-parent-cell ui-table-dense-td--wide">
+						<span class="ui-muted text-xs nav-parent-root">${labels.navParentRoot}</span>
+						<input type="hidden" name="nav_parent" class="nav-parent-submit" value="" />
+					</div>
+				</div>
+				<label class="nav-row-editor-field nav-row-editor-field--wide">
+					<span class="nav-row-editor-label">${fieldLabels.navLabel}</span>
+					<input name="nav_label" required class="ui-input-compact w-full" />
+				</label>
+				<label class="nav-row-editor-field">
+					<span class="nav-row-editor-label">${fieldLabels.navLinkType}</span>
+					<input type="hidden" name="nav_href_kind" class="nav-href-kind-submit" value="none" />
+					<select class="nav-href-kind ui-select-compact w-full">
+						<option value="none">${hrefKinds.none}</option>
+						<option value="category">${hrefKinds.category}</option>
+						<option value="page">${hrefKinds.page}</option>
+						<option value="static">${hrefKinds.static}</option>
+						<option value="custom">${hrefKinds.custom}</option>
+						<option value="external">${hrefKinds.external}</option>
+					</select>
+				</label>
+				<label class="nav-row-editor-field nav-row-editor-field--wide">
+					<span class="nav-row-editor-label">${fieldLabels.navLinkTarget}</span>
+					<div class="nav-href-values">
+						<input type="hidden" name="nav_href_value" class="nav-href-value-submit" value="" />
+						<div class="nav-href-target-host"></div>
+					</div>
+				</label>
+				<div class="nav-row-editor-field nav-mega-field">
+					<span class="nav-row-editor-label">${fieldLabels.navMegaMenu}</span>
+					<div class="nav-mega-cell ui-table-dense-td--wide text-center">
+						<label class="inline-flex flex-col items-center gap-1">
+							<input type="checkbox" name="nav_is_mega" class="nav-mega ui-checkbox" />
+							<span class="ui-hint max-w-[6rem] text-[10px] leading-tight">${labels.megaHint}</span>
+						</label>
+					</div>
+				</div>
+			</div>
+			<div class="nav-row-editor-footer">
+				<button type="button" class="close-nav-row ui-btn ui-btn--ghost text-xs">${labels.closeEdit}</button>
+			</div>
+		</div>
+	`;
+}
+
+function createNavEntryElement(
+	labels: NavigationTableLabels,
+	openEditor: boolean,
+): HTMLElement {
+	const entryId = String(nextNavEntryId++);
+	const entry = document.createElement('div');
+	entry.className = 'nav-entry nav-row--depth-0';
+	entry.dataset.navEntry = entryId;
+	entry.innerHTML = `
+		<div class="nav-tile nav-row-summary">
+			<div class="nav-tile-main">
+				<span class="nav-summary-label">—</span>
+				<span class="nav-summary-sep" aria-hidden="true">·</span>
+				<span class="nav-summary-link-text">${labels.hrefKinds.none}</span>
+			</div>
+			<div class="nav-tile-actions">
+				<button type="button" class="edit-nav-row ui-btn ui-btn--link text-xs">${labels.edit}</button>
+				<button type="button" class="add-nav-child ui-btn ui-btn--link text-xs">${labels.addNavChild}</button>
+				<button type="button" class="remove-nav-row ui-btn ui-btn--link-danger text-xs">${labels.remove}</button>
+			</div>
+		</div>
+		<div class="nav-row-editor${openEditor ? '' : ' hidden'}" data-nav-kind="none" data-nav-href="" data-nav-parent="">
+			${buildEditorPanelHtml(labels)}
+		</div>
+	`;
+	return entry;
+}
+
+function findInsertBefore(body: HTMLElement, parentEditorRow: HTMLElement): HTMLElement | null {
+	const editorRows = getEditorRows(body);
+	const parentIndex = editorRows.indexOf(parentEditorRow);
+	if (parentIndex < 0) return null;
+	const parentDepth = readRowDepth(parentEditorRow);
+	for (let i = parentIndex + 1; i < editorRows.length; i++) {
+		if (readRowDepth(editorRows[i]!) <= parentDepth) {
+			return editorRows[i]!.closest('.nav-entry');
+		}
+	}
+	return null;
+}
+
+function initNavigationRow(
+	editorRow: HTMLElement,
+	options: NavTargetOptions,
+	body: HTMLElement,
+	labels: NavigationTableLabels,
+): void {
+	const kindSelect = editorRow.querySelector('.nav-href-kind') as HTMLSelectElement | null;
+	const kindHidden = editorRow.querySelector('.nav-href-kind-submit') as HTMLInputElement | null;
+	const hidden = editorRow.querySelector('.nav-href-value-submit') as HTMLInputElement | null;
+	const initialKind = editorRow.dataset.navKind || kindSelect?.dataset.initialKind || 'none';
+	const initialHref = editorRow.dataset.navHref || hidden?.value || '';
+
+	if (kindSelect && initialKind !== 'none') {
+		kindSelect.value = initialKind;
+	}
+	if (kindHidden && initialKind !== 'none') {
+		kindHidden.value = initialKind;
+	}
+	if (hidden && initialHref && !hidden.value.trim()) {
+		hidden.value = initialHref;
+	}
+
+	const kind = readRowKind(editorRow);
+	rebuildNavTarget(editorRow, kind, options);
+	bindKindSelect(editorRow);
+	syncParentSelect(editorRow, body, labels);
+	syncSubmitFields(editorRow);
+	const summary = getSummaryForEditor(editorRow);
+	syncNavDepthVisual(editorRow);
+	syncMegaCell(editorRow);
+	if (summary) syncNavChildButton(summary, readRowDepth(editorRow));
+}
+
+function appendNavEntry(
+	body: HTMLElement,
+	labels: NavigationTableLabels,
+	options: NavTargetOptions,
+	openEditor = true,
+): HTMLElement {
+	const entry = createNavEntryElement(labels, openEditor);
+	body.appendChild(entry);
+	const editor = entry.querySelector('.nav-row-editor');
+	if (!(editor instanceof HTMLElement)) return entry;
+	initNavigationRow(editor, options, body, labels);
+	if (openEditor) openNavEditor(editor, body, labels, options);
+	return entry;
+}
+
+function appendNavChildRow(
+	parentSummaryRow: HTMLElement,
+	body: HTMLElement,
+	labels: NavigationTableLabels,
+	options: NavTargetOptions,
+): void {
+	const parentEditor = getEditorForSummary(parentSummaryRow);
+	if (!parentEditor) return;
+	const parentDepth = readRowDepth(parentEditor);
+	if (parentDepth >= 2) return;
+
+	const parentIndex = getEditorRows(body).indexOf(parentEditor);
+	const entry = createNavEntryElement(labels, true);
+	const editor = entry.querySelector('.nav-row-editor');
+	if (!(editor instanceof HTMLElement)) return;
+
+	const depthSelect = editor.querySelector('.nav-depth') as HTMLSelectElement | null;
+	if (depthSelect) depthSelect.value = String(parentDepth + 1);
+	editor.dataset.navParent = String(parentIndex);
+	entry.classList.remove('nav-row--depth-0');
+	entry.classList.add(`nav-row--depth-${parentDepth + 1}`);
+
+	const insertBefore = findInsertBefore(body, parentEditor);
+	if (insertBefore) body.insertBefore(entry, insertBefore);
+	else body.appendChild(entry);
+
+	initNavigationRow(editor, options, body, labels);
+	openNavEditor(editor, body, labels, options);
+	refreshAllParentSelects(body, labels);
+	reorderNavEntries(body, labels);
+}
+
+function removeNavEntry(summaryRow: HTMLElement, body: HTMLElement, labels: NavigationTableLabels): void {
+	if (getEditorRows(body).length <= 1) return;
+	const entry = summaryRow.closest('.nav-entry');
+	entry?.remove();
+	refreshAllParentSelects(body, labels);
+	reorderNavEntries(body, labels);
+}
+
+function handleNavigationChange(
+	event: Event,
+	body: HTMLElement,
+	labels: NavigationTableLabels,
+): void {
 	const target = event.target;
 	if (!(target instanceof Element)) return;
 
 	if (target.closest('.nav-href-target-control')) {
-		const row = target.closest('.nav-row');
+		const row = target.closest('.nav-row-editor');
 		if (row instanceof HTMLElement) syncSubmitFields(row);
 		return;
 	}
 
 	if (target.closest('.nav-parent')) {
-		const row = target.closest('.nav-row');
-		if (row instanceof HTMLElement) syncSubmitFields(row);
+		const row = target.closest('.nav-row-editor');
+		if (row instanceof HTMLElement) {
+			syncSubmitFields(row);
+			reorderNavEntries(body, labels);
+		}
 		return;
 	}
 
@@ -410,12 +613,13 @@ function handleNavigationChange(event: Event, body: HTMLElement, labels: Navigat
 	}
 
 	if (target.closest('.nav-depth')) {
-		const row = target.closest('.nav-row');
+		const row = target.closest('.nav-row-editor');
 		if (row instanceof HTMLElement) {
 			syncNavDepthVisual(row);
 			syncMegaCell(row);
 			refreshAllParentSelects(body, labels);
 			syncSubmitFields(row);
+			reorderNavEntries(body, labels);
 		}
 	}
 }
@@ -433,27 +637,63 @@ function handleNavigationClick(
 
 	if (target.closest('#add-nav-row')) {
 		event.preventDefault();
-		appendNavRow(body, labels, options);
+		appendNavEntry(body, labels, options, true);
+		return;
+	}
+
+	const editBtn = target.closest('.edit-nav-row');
+	if (editBtn) {
+		event.preventDefault();
+		const summary = editBtn.closest('.nav-row-summary');
+		const editor = summary instanceof HTMLElement ? getEditorForSummary(summary) : null;
+		if (editor) openNavEditor(editor, body, labels, options);
+		return;
+	}
+
+	const closeBtn = target.closest('.close-nav-row');
+	if (closeBtn) {
+		event.preventDefault();
+		const editor = closeBtn.closest('.nav-row-editor');
+		if (editor instanceof HTMLElement) {
+			syncNavRowSummary(editor, labels, options);
+			editor.classList.add('hidden');
+			reorderNavEntries(body, labels);
+		}
 		return;
 	}
 
 	const addChildBtn = target.closest('.add-nav-child');
 	if (addChildBtn) {
 		event.preventDefault();
-		const parentRow = addChildBtn.closest('.nav-row');
-		if (parentRow instanceof HTMLElement) {
-			appendNavChildRow(parentRow, body, labels, options);
+		const parentSummary = addChildBtn.closest('.nav-row-summary');
+		if (parentSummary instanceof HTMLElement) {
+			appendNavChildRow(parentSummary, body, labels, options);
 		}
 		return;
 	}
 
 	const removeBtn = target.closest('.remove-nav-row');
 	if (!removeBtn) return;
-	const row = removeBtn.closest('.nav-row');
-	if (!(row instanceof HTMLElement)) return;
-	if (body.querySelectorAll('.nav-row').length <= 1) return;
-	row.remove();
-	refreshAllParentSelects(body, labels);
+	const summary = removeBtn.closest('.nav-row-summary');
+	if (!(summary instanceof HTMLElement)) return;
+	removeNavEntry(summary, body, labels);
+}
+
+function bindDepthColorInputs(body: HTMLElement): void {
+	const form = body.closest('form');
+	const interactionRoot = form instanceof HTMLFormElement ? form : document;
+	interactionRoot.querySelectorAll('.nav-depth-color-input').forEach((input) => {
+		if (!(input instanceof HTMLInputElement)) return;
+		if (input.dataset.navColorBound === '1') return;
+		input.dataset.navColorBound = '1';
+		input.addEventListener('input', () => {
+			const depthRaw = input.dataset.navDepthColor;
+			if (depthRaw === undefined) return;
+			const depth = Number.parseInt(depthRaw, 10);
+			if (Number.isNaN(depth)) return;
+			applyNavEditorDepthAccentToElement(body, depth, input.value);
+		});
+	});
 }
 
 export function mountNavigationForm(labels: NavigationTableLabels): void {
@@ -462,12 +702,16 @@ export function mountNavigationForm(labels: NavigationTableLabels): void {
 		const options = readNavTargetOptions();
 		if (!(body instanceof HTMLElement) || !options) return;
 
+		nextNavEntryId = getNavEntries(body).length;
+		bindDepthColorInputs(body);
+
 		const form = body.closest('form');
 		const interactionRoot =
 			form instanceof HTMLFormElement ? form : (body.parentElement ?? document);
 
-		body.querySelectorAll('.nav-row').forEach((row) => {
-			initNavigationRow(row as HTMLElement, options, body, labels);
+		getEditorRows(body).forEach((row) => {
+			initNavigationRow(row, options, body, labels);
+			syncNavRowSummary(row, labels, options);
 		});
 		refreshAllParentSelects(body, labels);
 
@@ -476,8 +720,8 @@ export function mountNavigationForm(labels: NavigationTableLabels): void {
 			form.addEventListener(
 				'submit',
 				() => {
-					body.querySelectorAll('.nav-row').forEach((row) => {
-						syncSubmitFields(row as HTMLElement);
+					getEditorRows(body).forEach((row) => {
+						syncSubmitFields(row);
 					});
 					const json = form.querySelector('[name=navigation_json]');
 					if (json instanceof HTMLTextAreaElement) json.value = '';
@@ -526,13 +770,17 @@ export function initNavigationRowFromServerState(
 	if (!(body instanceof HTMLElement)) return;
 	const fallbackLabels: NavigationTableLabels = {
 		remove: 'Usuń',
+		edit: 'Edytuj',
+		closeEdit: 'Zamknij',
 		depth0: 'Poziom 0',
 		depth1: 'Poziom 1',
 		depth2: 'Poziom 2',
 		megaHint: '',
+		megaLabel: 'Szerokie menu',
 		addNavChild: '+ Dodaj podpozycję',
 		navParentRoot: '—',
 		navParentMissing: 'Brak pozycji nadrzędnej',
+		navParentPrefix: 'pod:',
 		hrefKinds: {
 			none: 'Bez linku',
 			category: 'Kategoria',
@@ -540,6 +788,14 @@ export function initNavigationRowFromServerState(
 			static: 'Stała trasa',
 			custom: 'URL',
 			external: 'Zewnętrzny',
+		},
+		fieldLabels: {
+			navDepth: 'Poziom',
+			navParent: 'Pozycja nadrzędna',
+			navLabel: 'Etykieta',
+			navLinkType: 'Typ linku',
+			navLinkTarget: 'Adres / cel',
+			navMegaMenu: 'Szerokie menu',
 		},
 	};
 	initNavigationRow(row, options, body, fallbackLabels);

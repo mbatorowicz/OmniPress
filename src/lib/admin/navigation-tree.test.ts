@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { flattenNavigation, collectNavInternalPageOptions } from './navigation-tree';
+import { flattenNavigation, collectNavInternalPageOptions, computeNavRowOrder } from './navigation-tree';
 import { parseNavigationJson } from '@/lib/astro-layout/parse';
 import { mergePageOptionsForNavEditor } from './link-options';
 
@@ -54,5 +54,26 @@ describe('flattenNavigation', () => {
 		const rows = flattenNavigation(nav, [], []);
 		expect(rows[0]?.parentRowIndex).toBeNull();
 		expect(rows[1]?.parentRowIndex).toBe(0);
+	});
+});
+
+describe('computeNavRowOrder', () => {
+	it('sortuje wiersze w kolejności DFS wg parentRowIndex', () => {
+		const rows = [
+			{ depth: 0, parentRowIndex: null },
+			{ depth: 1, parentRowIndex: 0 },
+			{ depth: 0, parentRowIndex: null },
+			{ depth: 1, parentRowIndex: 2 },
+		];
+		expect(computeNavRowOrder(rows)).toEqual([0, 1, 2, 3]);
+	});
+
+	it('przenosi dziecko pod rodzica po zmianie parentRowIndex', () => {
+		const rows = [
+			{ depth: 0, parentRowIndex: null },
+			{ depth: 0, parentRowIndex: null },
+			{ depth: 1, parentRowIndex: 0 },
+		];
+		expect(computeNavRowOrder(rows)).toEqual([0, 2, 1]);
 	});
 });

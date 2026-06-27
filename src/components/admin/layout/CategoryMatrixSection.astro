@@ -1,5 +1,5 @@
 ---
-import { adminLayout } from '@/i18n';
+import { adminLayout, ui } from '@/i18n';
 import Panel from '@/components/ui/layout/Panel.astro';
 import SectionTitle from '@/components/ui/layout/SectionTitle.astro';
 import Table from '@/components/ui/table/Table.astro';
@@ -17,6 +17,14 @@ const rows =
 	layout.categories.length > 0
 		? layout.categories
 		: [{ slug: '', name: '' }];
+
+const categoryLabels = {
+	remove: adminLayout.actions.removeCategory,
+	edit: adminLayout.actions.editCategory,
+	closeEdit: ui.actions.close,
+	fieldSlug: adminLayout.fields.categorySlug,
+	fieldName: adminLayout.fields.categoryName,
+};
 ---
 
 <Panel class="ui-form-section">
@@ -25,32 +33,66 @@ const rows =
 	<Table dense wrap class="min-w-[28rem] w-full" id="categories-table">
 		<TableHead dense>
 			<TableRow dense>
-				<TableCell header dense wide>{adminLayout.fields.categorySlug}</TableCell>
 				<TableCell header dense wide>{adminLayout.fields.categoryName}</TableCell>
-				<TableCell header dense wide>{adminLayout.fields.removeRow}</TableCell>
+				<TableCell header dense wide>{adminLayout.fields.navSummaryActions}</TableCell>
 			</TableRow>
 		</TableHead>
 		<tbody id="categories-body">
 			{
-				rows.map((cat) => (
-					<tr class="category-row ui-table-dense-row">
-						<td class="ui-table-dense-td--wide">
-							<input
-								name="category_slug"
-								value={cat.slug}
-								required
-								class="ui-input-compact ui-input-compact--mono w-full"
-							/>
-						</td>
-						<td class="ui-table-dense-td--wide">
-							<input name="category_name" value={cat.name} required class="ui-input-compact w-full" />
-						</td>
-						<td class="ui-table-dense-td--wide">
-							<button type="button" class="remove-category ui-btn ui-btn--link-danger">
-								{adminLayout.actions.removeCategory}
-							</button>
-						</td>
-					</tr>
+				rows.map((cat, rowIndex) => (
+					<>
+						<tr class="category-row-summary ui-table-dense-row" data-category-entry={String(rowIndex)}>
+							<td class="ui-table-dense-td--wide">
+								<div class="flex min-w-0 flex-col gap-0.5">
+									<span class="category-summary-name">{cat.name.trim() || '—'}</span>
+									<span class="category-summary-slug ui-caption ui-input-compact--mono">
+										{cat.slug.trim() || '—'}
+									</span>
+								</div>
+							</td>
+							<td class="ui-table-dense-td--wide category-row-actions">
+								<div class="flex flex-col items-start gap-1">
+									<button type="button" class="edit-category ui-btn ui-btn--link text-xs">
+										{adminLayout.actions.editCategory}
+									</button>
+									<button type="button" class="remove-category ui-btn ui-btn--link-danger text-xs">
+										{adminLayout.actions.removeCategory}
+									</button>
+								</div>
+							</td>
+						</tr>
+						<tr class="category-row-editor hidden ui-table-dense-row" data-category-entry={String(rowIndex)}>
+							<td colspan="2" class="ui-table-dense-td--wide">
+								<div class="category-row-editor-panel">
+									<div class="category-row-editor-grid">
+										<label class="category-row-editor-field">
+											<span class="category-row-editor-label">{adminLayout.fields.categorySlug}</span>
+											<input
+												name="category_slug"
+												value={cat.slug}
+												required
+												class="ui-input-compact ui-input-compact--mono w-full"
+											/>
+										</label>
+										<label class="category-row-editor-field">
+											<span class="category-row-editor-label">{adminLayout.fields.categoryName}</span>
+											<input
+												name="category_name"
+												value={cat.name}
+												required
+												class="ui-input-compact w-full"
+											/>
+										</label>
+									</div>
+									<div class="category-row-editor-footer">
+										<button type="button" class="close-category ui-btn ui-btn--ghost text-xs">
+											{ui.actions.close}
+										</button>
+									</div>
+								</div>
+							</td>
+						</tr>
+					</>
 				))
 			}
 		</tbody>
@@ -63,8 +105,8 @@ const rows =
 	</p>
 </Panel>
 
-<script define:vars={{ removeCategoryLabel: adminLayout.actions.removeCategory }}>
-	globalThis.__OP_CATEGORIES_LABELS__ = { remove: removeCategoryLabel };
+<script define:vars={{ categoryLabels }}>
+	globalThis.__OP_CATEGORIES_LABELS__ = categoryLabels;
 </script>
 <script>
 	import { mountCategoriesForm } from '@/lib/admin/categories-form-client';

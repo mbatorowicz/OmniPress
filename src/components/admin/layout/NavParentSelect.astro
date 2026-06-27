@@ -10,9 +10,10 @@ interface Props {
 	depth: 0 | 1 | 2;
 	parentRowIndex: number | null;
 	rows: { label: string; depth: number }[];
+	asCell?: boolean;
 }
 
-const { rowIndex, depth, parentRowIndex, rows } = Astro.props;
+const { rowIndex, depth, parentRowIndex, rows, asCell = true } = Astro.props;
 const rootLabel = adminLayout.navParentRoot;
 const eligible = eligibleNavParentIndices(rows, rowIndex, depth);
 const selectedParent =
@@ -21,36 +22,74 @@ const selectedParent =
 		: eligible.length > 0
 			? eligible[eligible.length - 1]!
 			: null;
+
+const cellClass = 'ui-table-dense-td--wide nav-parent-cell';
 ---
 
-<td class="ui-table-dense-td--wide nav-parent-cell">
-	{
-		depth === 0 ? (
-			<>
-				<span class="ui-muted text-xs nav-parent-root">{rootLabel}</span>
-				<input type="hidden" name="nav_parent" class="nav-parent-submit" value="" />
-			</>
-		) : (
-			<select
-				name="nav_parent"
-				class="nav-parent nav-href-select ui-select-compact w-full"
-				required
-				data-row-index={rowIndex}
-			>
-				{
-					eligible.length === 0 ? (
-						<option value="" selected disabled>
-							{adminLayout.navParentMissing}
-						</option>
-					) : (
-						eligible.map((index) => (
-							<option value={index} selected={index === selectedParent}>
-								{formatNavParentOptionLabel(rows[index]!.label, index + 1)}
-							</option>
-						))
-					)
-				}
-			</select>
-		)
-	}
-</td>
+{
+	asCell ? (
+		<td class={cellClass}>
+			{
+				depth === 0 ? (
+					<>
+						<span class="ui-muted text-xs nav-parent-root">{rootLabel}</span>
+						<input type="hidden" name="nav_parent" class="nav-parent-submit" value="" />
+					</>
+				) : (
+					<select
+						name="nav_parent"
+						class="nav-parent nav-href-select ui-select-compact w-full"
+						required
+						data-row-index={rowIndex}
+					>
+						{
+							eligible.length === 0 ? (
+								<option value="" selected disabled>
+									{adminLayout.navParentMissing}
+								</option>
+							) : (
+								eligible.map((index) => (
+									<option value={index} selected={index === selectedParent}>
+										{formatNavParentOptionLabel(rows[index]!.label, index + 1)}
+									</option>
+								))
+							)
+						}
+					</select>
+				)
+			}
+		</td>
+	) : (
+		<div class={cellClass}>
+			{
+				depth === 0 ? (
+					<>
+						<span class="ui-muted text-xs nav-parent-root">{rootLabel}</span>
+						<input type="hidden" name="nav_parent" class="nav-parent-submit" value="" />
+					</>
+				) : (
+					<select
+						name="nav_parent"
+						class="nav-parent nav-href-select ui-select-compact w-full"
+						required
+						data-row-index={rowIndex}
+					>
+						{
+							eligible.length === 0 ? (
+								<option value="" selected disabled>
+									{adminLayout.navParentMissing}
+								</option>
+							) : (
+								eligible.map((index) => (
+									<option value={index} selected={index === selectedParent}>
+										{formatNavParentOptionLabel(rows[index]!.label, index + 1)}
+									</option>
+								))
+							)
+						}
+					</select>
+				)
+			}
+		</div>
+	)
+}

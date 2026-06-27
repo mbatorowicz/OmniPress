@@ -29,7 +29,6 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const form = await request.formData();
 	const section = String(form.get('section') ?? 'all').trim();
 	const returnSegment = layoutSectionReturnPath(section);
-	const waitForVercel = form.get('wait_for_vercel') === 'on';
 	const scope = layoutSectionToSyncScope(section);
 
 	const parsed = parseLayoutSection(form, existing);
@@ -63,7 +62,6 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 
 	const synced = await syncSiteAstroLayoutToGitHub(supabase, siteId, parsed.layout, {
 		scope,
-		waitForVercel,
 	});
 	if (!synced.ok) {
 		const query = new URLSearchParams({ error: synced.error, saved: '1' });

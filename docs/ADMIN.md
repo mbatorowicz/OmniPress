@@ -103,7 +103,7 @@ Model **szkic + publikacja**: edycja zapisuje roboczy layout w Supabase; strona 
 |-------|------------------|--------|--------|
 | **Zapisz szkic** | tak | nie | nie |
 | **Importuj z GitHub** | nadpisuje szkic danymi live | odczyt | nie |
-| **Opublikuj na stronie** | tak (przed sync) | commit | webhook (domyślnie bez czekania) |
+| **Opublikuj na stronie** | tak (przed sync) | commit | webhook |
 
 - **Menu:** `/admin/units/[id]/navigation` — edytor drzewa nawigacji (do 3 poziomów). Publikacja wysyła tylko `omnipress-navigation.json`. Przed publikacją walidacja linków wewnętrznych.
 - **Kategorie:** `/admin/units/[id]/categories` — slug/nazwa kategorii + macierz widoczności w komponentach feed. Publikacja wysyła tylko `omnipress-categories.json`.

@@ -4,7 +4,6 @@ import { loadSiteAstroDestination } from '@/lib/admin/sites';
 import {
 	decryptDestinationCredentials,
 	isGitHubCredentials,
-	resolveVercelTokenForDestination,
 } from '@/lib/publish/credentials';
 import {
 	getGitHubFileText,
@@ -12,8 +11,6 @@ import {
 	putGitHubFilesBatch,
 	type GitHubTextFileWrite,
 } from '@/lib/publish/github-api';
-import { parseVercelConfig } from '@/lib/publish/vercel-api';
-import { waitForVercelBuild } from '@/lib/publish/vercel-deploy';
 import {
 	buildCategoriesFilePayload,
 	buildNavigationFilePayload,
@@ -153,7 +150,6 @@ export async function importSiteAstroLayoutFromGitHub(
 
 export type LayoutGitHubSyncOptions = {
 	scope?: LayoutSyncScope;
-	waitForVercel?: boolean;
 	includeRecentChanges?: boolean;
 };
 
@@ -174,7 +170,6 @@ export async function syncSiteAstroLayoutToGitHub(
 	options: LayoutGitHubSyncOptions = {},
 ): Promise<LayoutGitHubSyncResult> {
 	const scope = options.scope ?? 'all';
-	const waitForVercel = options.waitForVercel === true;
 	const includeRecentChanges =
 		options.includeRecentChanges ?? (scope === 'all');
 
@@ -228,30 +223,7 @@ export async function syncSiteAstroLayoutToGitHub(
 		);
 
 		const writtenPaths = files.map((f) => f.path).join(', ');
-		let githubSummary = `1 commit (${written} plików): ${writtenPaths} w ${cfg.owner}/${cfg.repo}`;
-
-		if (waitForVercel) {
-			const vercelCfg = parseVercelConfig(dest.config);
-			const vercelToken = resolveVercelTokenForDestination(creds);
-			if (vercelCfg && vercelToken) {
-				const vercel = await waitForVercelBuild({
-					cfg: vercelCfg,
-					token: vercelToken,
-					commitSha,
-					maxWaitMs: 120_000,
-				});
-				if (!vercel.ok) {
-					return {
-						ok: false,
-						error: 'vercel_build_failed',
-						detail: `${githubSummary} | ${vercel.summary}`,
-					};
-				}
-				githubSummary = `${githubSummary} | ${vercel.summary}`;
-			}
-		} else {
-			githubSummary = `${githubSummary} | Vercel zbuduje stronę automatycznie (webhook).`;
-		}
+		const githubSummary = `1 commit (${written} plików): ${writtenPaths} w ${cfg.owner}/${cfg.repo} | Vercel zbuduje stronę automatycznie (webhook).`;
 
 		const publishedLayout = withPublishedMeta(layout, { commitSha, scope });
 		await saveSiteAstroLayout(supabase, siteId, publishedLayout, { updateDraftMeta: false });

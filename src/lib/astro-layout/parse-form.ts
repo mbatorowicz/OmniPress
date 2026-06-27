@@ -1,4 +1,5 @@
 import { parseNavigationJson } from './parse';
+import { parseNavEditorDepthColorsFromForm } from '@/lib/admin/nav-editor-colors';
 import {
 	getComponentKind,
 	isCategoryFeedComponent,
@@ -347,6 +348,7 @@ export function mergeLayoutFromFormData(
 		const navigation = parseNavigationSection(form);
 		if ('error' in navigation) return { ok: false, error: navigation.error };
 		layout.navigation = navigation;
+		layout.navEditorDepthColors = parseNavEditorDepthColorsFromForm(form);
 	}
 
 	if (section === 'components' || section === 'all') {

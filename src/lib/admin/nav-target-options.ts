@@ -43,6 +43,37 @@ export function optionsForNavTargetKind(
 	}
 }
 
+export type NavHrefKindLabels = {
+	none: string;
+	category: string;
+	page: string;
+	static: string;
+	custom: string;
+	external: string;
+};
+
+export function formatNavTargetSummary(
+	kind: string,
+	value: string,
+	options: NavTargetOptions,
+	hrefKindLabels: NavHrefKindLabels,
+): string {
+	if (kind === 'none') return hrefKindLabels.none;
+
+	const kindLabel = hrefKindLabels[kind as keyof NavHrefKindLabels] ?? kind;
+
+	if (kind === 'custom' || kind === 'external') {
+		const trimmed = value.trim();
+		return trimmed ? `${kindLabel} · ${trimmed}` : kindLabel;
+	}
+
+	const list = optionsForNavTargetKind(kind, options);
+	const picked = list.length > 0 ? pickNavTargetValue(kind, value, list) : value.trim();
+	const match = list.find((item) => item.value === picked);
+	const targetLabel = match?.label ?? picked;
+	return targetLabel ? `${kindLabel} · ${targetLabel}` : kindLabel;
+}
+
 export function pickNavTargetValue(
 	kind: string,
 	raw: string,

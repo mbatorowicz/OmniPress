@@ -189,7 +189,9 @@ export const adminLayout = {
 	menuHint:
 		'Tablica JSON z polami label, href oraz opcjonalnie isMegaMenu i children (do 3 poziomów).',
 	menuFormHint:
-		'Poziom 0 = pasek nawigacji, 1 i 2 = podmenu. Dla poziomów 1 i 2 wybierz pozycję nadrzędną. Wcięcie w kolumnie Etykieta pokazuje hierarchię.',
+		'Każda pozycja to jedna linia — cały kafelek jest wcięty wg hierarchii (poziom 0–2). Kolory poziomów: „Palety kolorów”.',
+	navDepthColorsHint:
+		'Jeden kolor na poziom — tło i obramowanie. Tekst dobierany automatycznie. Zapisz szkic, aby zachować kolory.',
 	menuJsonFallbackHint:
 		'Wklej pełną tablicę JSON zamiast wierszy powyżej — nadpisuje drzewo przy zapisie.',
 	navDepthLabels: ['Poziom 0', 'Poziom 1', 'Poziom 2'] as const,
@@ -251,6 +253,7 @@ export const adminLayout = {
 	displaysRefreshHint: 'Po dodaniu nowej kategorii zapisz formularz — macierz odświeży się przy następnym otwarciu.',
 	sections: {
 		menu: 'Menu główne',
+		navDepthColors: 'Kolory poziomów menu',
 		slots: 'Komponenty strony',
 		categories: 'Kategorie wpisów',
 		displays: 'Kategorie w komponentach',
@@ -260,6 +263,10 @@ export const adminLayout = {
 		navDepth: 'Poziom',
 		navParent: 'Pozycja nadrzędna',
 		navLabel: 'Etykieta',
+		navSummaryPosition: 'Pozycja',
+		navSummaryLink: 'Link',
+		navSummaryActions: 'Akcje',
+		navDepthColor: 'Kolor',
 		navLinkType: 'Typ linku',
 		navLinkTarget: 'Adres / cel',
 		navMegaMenu: 'Szerokie menu',
@@ -308,7 +315,6 @@ export const adminLayout = {
 		bannerPage: 'Strona statyczna',
 		bannerExternalUrl: 'URL zewnętrzny',
 		removeRow: '',
-		waitForVercel: 'Czekaj na zakończenie buildu Vercel (do 2 min)',
 	},
 	paths: {
 		navigation: 'Plik menu w repozytorium',
@@ -322,6 +328,9 @@ export const adminLayout = {
 		addComponent: '+ Dodaj komponent',
 		addNavRow: '+ Dodaj pozycję menu',
 		addNavChild: '+ Dodaj podpozycję',
+		editNavRow: 'Edytuj',
+		editCategory: 'Edytuj',
+		navDepthColorPalettes: 'Palety kolorów',
 		editNavigationJson: 'Edytuj jako JSON (zaawansowane)',
 		removeCategory: ui.actions.remove,
 		removeSlot: ui.actions.remove,
@@ -362,8 +371,6 @@ export const adminLayout = {
 		navigation_hrefs_lost:
 			'Zapis odrzucony — formularz nie zawiera linków menu. Użyj „Importuj z GitHub” zamiast „Zapisz szkic”.',
 		sync_failed: 'Publikacja do GitHub nie powiodła się — szkic zapisany w OmniPress.',
-		vercel_build_failed:
-			'GitHub zaktualizowany, ale build Vercel strony Astro nie przeszedł — produkcja może być nieaktualna.',
 	},
 } as const;
 

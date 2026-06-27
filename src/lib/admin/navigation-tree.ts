@@ -70,6 +70,40 @@ export function formatNavParentOptionLabel(label: string, rowNumber: number): st
 	return `${trimmed} (#${rowNumber})`;
 }
 
+export function computeNavRowOrder(
+	rows: { depth: number; parentRowIndex: number | null }[],
+): number[] {
+	const result: number[] = [];
+	const used = new Set<number>();
+
+	function walk(parentIndex: number | null, expectedDepth: number): void {
+		const candidates: number[] = [];
+		for (let i = 0; i < rows.length; i++) {
+			if (used.has(i)) continue;
+			const row = rows[i]!;
+			if (expectedDepth === 0) {
+				if (row.depth === 0) candidates.push(i);
+			} else if (row.parentRowIndex === parentIndex && row.depth === expectedDepth) {
+				candidates.push(i);
+			}
+		}
+		candidates.sort((a, b) => a - b);
+		for (const index of candidates) {
+			used.add(index);
+			result.push(index);
+			walk(index, rows[index]!.depth + 1);
+		}
+	}
+
+	walk(null, 0);
+
+	for (let i = 0; i < rows.length; i++) {
+		if (!used.has(i)) result.push(i);
+	}
+
+	return result;
+}
+
 export function flattenNavigation(
 	items: NavItem[],
 	categories: CategoryDefinition[],

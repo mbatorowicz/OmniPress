@@ -10,6 +10,10 @@ import { DEFAULT_CATEGORIES_PATH, DEFAULT_NAVIGATION_PATH, emptySiteAstroLayout 
 import { isLayoutComponentId } from './components';
 import { validateBannerWidget } from './banners';
 import { mergeCategoryDisplays, sortSlotsByOrder } from './slots';
+import {
+	resolveNavEditorDepthColors,
+	type NavEditorDepthColors,
+} from '@/lib/admin/nav-editor-colors';
 
 function isNavItem(raw: unknown): raw is NavItem {
 	if (!raw || typeof raw !== 'object') return false;
@@ -232,6 +236,17 @@ export function normalizeSiteAstroLayout(raw: unknown): SiteAstroLayout {
 		slots,
 		navigationPath: o.navigationPath?.trim() || DEFAULT_NAVIGATION_PATH,
 		categoriesPath: o.categoriesPath?.trim() || DEFAULT_CATEGORIES_PATH,
+		navEditorDepthColors: parseNavEditorDepthColorsRaw(o.navEditorDepthColors),
 		sync,
 	};
+}
+
+function parseNavEditorDepthColorsRaw(raw: unknown): NavEditorDepthColors | undefined {
+	if (!Array.isArray(raw) || raw.length < 3) return undefined;
+	const parsed = raw.slice(0, 3).map((item) => {
+		if (!item || typeof item !== 'object') return null;
+		return item as Record<string, unknown>;
+	});
+	if (parsed.some((item) => item === null)) return undefined;
+	return resolveNavEditorDepthColors(parsed as NavEditorDepthColors);
 }

@@ -4,6 +4,14 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { mountCategoriesForm } from '@/lib/admin/categories-form-client';
 
+const labels = {
+	remove: 'Usuń',
+	edit: 'Edytuj',
+	closeEdit: 'Zamknij',
+	fieldSlug: 'Slug',
+	fieldName: 'Nazwa',
+};
+
 describe('mountCategoriesForm', () => {
 	beforeEach(() => {
 		document.body.innerHTML = '';
@@ -14,10 +22,16 @@ describe('mountCategoriesForm', () => {
 			<form data-categories-form>
 				<table>
 					<tbody id="categories-body">
-						<tr class="category-row">
-							<td><input name="category_slug" value="aktualnosci" /></td>
-							<td><input name="category_name" value="Aktualności" /></td>
+						<tr class="category-row-summary" data-category-entry="0">
+							<td><span class="category-summary-name">Aktualności</span></td>
 							<td><button type="button" class="remove-category">Usuń</button></td>
+						</tr>
+						<tr class="category-row-editor hidden" data-category-entry="0">
+							<td colspan="2">
+								<input name="category_slug" value="aktualnosci" />
+								<input name="category_name" value="Aktualności" />
+								<button type="button" class="close-category">Zamknij</button>
+							</td>
 						</tr>
 					</tbody>
 				</table>
@@ -25,9 +39,39 @@ describe('mountCategoriesForm', () => {
 			</form>
 		`;
 
-		mountCategoriesForm({ remove: 'Usuń' });
-		expect(document.querySelectorAll('.category-row')).toHaveLength(1);
+		mountCategoriesForm(labels);
+		expect(document.querySelectorAll('.category-row-editor')).toHaveLength(1);
 		document.getElementById('add-category')!.click();
-		expect(document.querySelectorAll('.category-row')).toHaveLength(2);
+		expect(document.querySelectorAll('.category-row-editor')).toHaveLength(2);
+	});
+
+	it('otwiera edycję nowej kategorii od razu po dodaniu', () => {
+		document.body.innerHTML = `
+			<form data-categories-form>
+				<table>
+					<tbody id="categories-body">
+						<tr class="category-row-summary" data-category-entry="0">
+							<td><span class="category-summary-name">Aktualności</span></td>
+							<td><button type="button" class="edit-category">Edytuj</button></td>
+						</tr>
+						<tr class="category-row-editor hidden" data-category-entry="0">
+							<td colspan="2">
+								<input name="category_slug" value="aktualnosci" />
+								<input name="category_name" value="Aktualności" />
+								<button type="button" class="close-category">Zamknij</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<button type="button" id="add-category">Dodaj</button>
+			</form>
+		`;
+
+		mountCategoriesForm(labels);
+		document.getElementById('add-category')!.click();
+
+		const editors = document.querySelectorAll('.category-row-editor');
+		const newEditor = editors[1] as HTMLElement;
+		expect(newEditor.classList.contains('hidden')).toBe(false);
 	});
 });

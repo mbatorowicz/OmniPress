@@ -1,12 +1,8 @@
 ---
-import { adminLayout } from '@/i18n';
+import { adminLayout, ui } from '@/i18n';
 import Button from '@/components/ui/actions/Button.astro';
 import Panel from '@/components/ui/layout/Panel.astro';
 import SectionTitle from '@/components/ui/layout/SectionTitle.astro';
-import Table from '@/components/ui/table/Table.astro';
-import TableHead from '@/components/ui/table/TableHead.astro';
-import TableRow from '@/components/ui/table/TableRow.astro';
-import TableCell from '@/components/ui/table/TableCell.astro';
 import NavDepthSelect from '@/components/admin/layout/NavDepthSelect.astro';
 import NavMegaMenuCell from '@/components/admin/layout/NavMegaMenuCell.astro';
 import NavLinkTypeSelect from '@/components/admin/layout/NavLinkTypeSelect.astro';
@@ -14,16 +10,22 @@ import NavTargetCell from '@/components/admin/layout/NavTargetCell.astro';
 import NavParentSelect from '@/components/admin/layout/NavParentSelect.astro';
 import { flattenNavigation, collectNavInternalPageOptions } from '@/lib/admin/navigation-tree';
 import { buildCategoryLinkOptions, mergePageOptionsForNavEditor, type PageOption } from '@/lib/admin/link-options';
-import { buildNavTargetOptions } from '@/lib/admin/nav-target-options';
+import { buildNavTargetOptions, formatNavTargetSummary } from '@/lib/admin/nav-target-options';
+import {
+	navEditorDepthColorsToStyle,
+	resolveNavEditorDepthColors,
+	type NavEditorDepthColors,
+} from '@/lib/admin/nav-editor-colors';
 import type { CategoryDefinition, NavItem } from '@/lib/astro-layout/types';
 
 interface Props {
 	navigation: NavItem[];
 	categories: CategoryDefinition[];
 	publishedPages: PageOption[];
+	navEditorDepthColors?: NavEditorDepthColors;
 }
 
-const { navigation, categories, publishedPages } = Astro.props;
+const { navigation, categories, publishedPages, navEditorDepthColors } = Astro.props;
 const pageOptions = mergePageOptionsForNavEditor(
 	publishedPages,
 	collectNavInternalPageOptions(navigation),
@@ -45,16 +47,30 @@ function navHrefSubmitValue(row: (typeof rows)[number]): string {
 }
 
 const depthLabels = adminLayout.navDepthLabels;
+const depthColors = resolveNavEditorDepthColors(navEditorDepthColors);
+const navBodyStyle = navEditorDepthColorsToStyle(depthColors);
 const navTableLabels = {
 	remove: adminLayout.actions.removeNavRow,
+	edit: adminLayout.actions.editNavRow,
+	closeEdit: ui.actions.close,
 	depth0: depthLabels[0],
 	depth1: depthLabels[1],
 	depth2: depthLabels[2],
 	megaHint: adminLayout.megaMenuHint,
+	megaLabel: adminLayout.fields.navMegaMenu,
 	addNavChild: adminLayout.actions.addNavChild,
 	navParentRoot: adminLayout.navParentRoot,
 	navParentMissing: adminLayout.navParentMissing,
+	navParentPrefix: 'pod:',
 	hrefKinds: adminLayout.navHrefKinds,
+	fieldLabels: {
+		navDepth: adminLayout.fields.navDepth,
+		navParent: adminLayout.fields.navParent,
+		navLabel: adminLayout.fields.navLabel,
+		navLinkType: adminLayout.fields.navLinkType,
+		navLinkTarget: adminLayout.fields.navLinkTarget,
+		navMegaMenu: adminLayout.fields.navMegaMenu,
+	},
 };
 const navTargetOptions = buildNavTargetOptions(categoryOptions, pageOptions, {
 	emptyCategory: adminLayout.noCategoriesForNav,
@@ -69,54 +85,61 @@ const navTargetOptionsJson = JSON.stringify(navTargetOptions);
 
 	<script id="nav-target-options-json" type="application/json" is:inline set:html={navTargetOptionsJson} />
 
-	<Table dense wrap class="min-w-[48rem] w-full" id="navigation-table">
-		<TableHead dense>
-			<TableRow dense>
-				<TableCell header dense>{adminLayout.fields.navDepth}</TableCell>
-				<TableCell header dense>{adminLayout.fields.navParent}</TableCell>
-				<TableCell header dense>{adminLayout.fields.navLabel}</TableCell>
-				<TableCell header dense>{adminLayout.fields.navLinkType}</TableCell>
-				<TableCell header dense>{adminLayout.fields.navLinkTarget}</TableCell>
-				<TableCell header dense>{adminLayout.fields.navMegaMenu}</TableCell>
-				<TableCell header dense>{adminLayout.fields.removeRow}</TableCell>
-			</TableRow>
-		</TableHead>
-		<tbody id="navigation-body">
-			{
-				rows.map((row, rowIndex) => (
-					<tr
-						class:list={['nav-row', 'ui-table-dense-row', `nav-row--depth-${row.depth}`]}
-						data-nav-kind={row.hrefKind}
-						data-nav-href={row.hrefValue}
-						data-nav-parent={row.parentRowIndex ?? ''}
-					>
-						<td class="ui-table-dense-td--wide">
-							<NavDepthSelect depth={row.depth as 0 | 1 | 2} />
-						</td>
-						<NavParentSelect
-							rowIndex={rowIndex}
-							depth={row.depth as 0 | 1 | 2}
-							parentRowIndex={row.parentRowIndex}
-							rows={parentRowMeta}
-						/>
-						<td class="ui-table-dense-td--wide nav-label-cell">
-							<input name="nav_label" value={row.label} required class="ui-input-compact w-full" />
-						</td>
-						<td class="ui-table-dense-td--wide">
-							<NavLinkTypeSelect kind={row.hrefKind} />
-						</td>
-						<td class="ui-table-dense-td--wide nav-href-values">
+	<details class="nav-depth-colors-details mb-2">
+		<summary class="ui-link inline-block text-xs cursor-pointer">
+			{adminLayout.actions.navDepthColorPalettes}
+		</summary>
+		<div class="nav-depth-colors-panel mt-2">
+			<p class="ui-hint">{adminLayout.navDepthColorsHint}</p>
+			<div class="nav-depth-colors-grid">
+				{
+					depthColors.map((colors, depth) => (
+						<label class="nav-depth-color-row">
+							<span class="nav-depth-color-row-label">{depthLabels[depth]}</span>
 							<input
-								type="hidden"
-								name="nav_href_value"
-								class="nav-href-value-submit"
-								value={navHrefSubmitValue(row)}
+								type="color"
+								name={`nav_editor_depth_${depth}_accent`}
+								value={colors.accent}
+								class="nav-depth-color-input"
+								data-nav-depth-color={String(depth)}
+								aria-label={`${depthLabels[depth]} — ${adminLayout.fields.navDepthColor}`}
 							/>
-							<NavTargetCell kind={row.hrefKind} value={row.hrefValue} options={navTargetOptions} />
-						</td>
-						<NavMegaMenuCell depth={row.depth as 0 | 1 | 2} checked={row.isMegaMenu} />
-						<td class="ui-table-dense-td--wide nav-row-actions">
-							<div class="flex flex-col items-start gap-1">
+						</label>
+					))
+				}
+			</div>
+		</div>
+	</details>
+
+	<div id="navigation-body" class="nav-tile-list w-full" style={navBodyStyle}>
+		{
+			rows.map((row, rowIndex) => {
+				const linkSummary = formatNavTargetSummary(
+					row.hrefKind,
+					row.hrefValue,
+					navTargetOptions,
+					adminLayout.navHrefKinds,
+				);
+				return (
+					<div
+						class:list={['nav-entry', `nav-row--depth-${row.depth}`]}
+						data-nav-entry={String(rowIndex)}
+					>
+						<div class="nav-tile nav-row-summary">
+							<div class="nav-tile-main">
+								<span class="nav-summary-label">{row.label.trim() || '—'}</span>
+								<span class="nav-summary-sep" aria-hidden="true">·</span>
+								<span class="nav-summary-link-text">{linkSummary}</span>
+								{
+									row.depth === 0 && row.isMegaMenu && (
+										<span class="nav-summary-mega ui-caption">{adminLayout.fields.navMegaMenu}</span>
+									)
+								}
+							</div>
+							<div class="nav-tile-actions">
+								<button type="button" class="edit-nav-row ui-btn ui-btn--link text-xs">
+									{adminLayout.actions.editNavRow}
+								</button>
 								{
 									row.depth < 2 && (
 										<button type="button" class="add-nav-child ui-btn ui-btn--link text-xs">
@@ -124,16 +147,83 @@ const navTargetOptionsJson = JSON.stringify(navTargetOptions);
 										</button>
 									)
 								}
-								<button type="button" class="remove-nav-row ui-btn ui-btn--link-danger">
+								<button type="button" class="remove-nav-row ui-btn ui-btn--link-danger text-xs">
 									{adminLayout.actions.removeNavRow}
 								</button>
 							</div>
-						</td>
-					</tr>
-				))
-			}
-		</tbody>
-	</Table>
+						</div>
+						<div
+							class="nav-row-editor hidden"
+							data-nav-kind={row.hrefKind}
+							data-nav-href={row.hrefValue}
+							data-nav-parent={row.parentRowIndex ?? ''}
+						>
+							<div class="nav-row-editor-panel">
+								<div class="nav-row-editor-grid">
+									<label class="nav-row-editor-field">
+										<span class="nav-row-editor-label">{adminLayout.fields.navDepth}</span>
+										<NavDepthSelect depth={row.depth as 0 | 1 | 2} />
+									</label>
+									<div class="nav-row-editor-field">
+										<span class="nav-row-editor-label">{adminLayout.fields.navParent}</span>
+										<NavParentSelect
+											asCell={false}
+											rowIndex={rowIndex}
+											depth={row.depth as 0 | 1 | 2}
+											parentRowIndex={row.parentRowIndex}
+											rows={parentRowMeta}
+										/>
+									</div>
+									<label class="nav-row-editor-field nav-row-editor-field--wide">
+										<span class="nav-row-editor-label">{adminLayout.fields.navLabel}</span>
+										<input
+											name="nav_label"
+											value={row.label}
+											required
+											class="ui-input-compact w-full"
+										/>
+									</label>
+									<label class="nav-row-editor-field">
+										<span class="nav-row-editor-label">{adminLayout.fields.navLinkType}</span>
+										<NavLinkTypeSelect kind={row.hrefKind} />
+									</label>
+									<label class="nav-row-editor-field nav-row-editor-field--wide">
+										<span class="nav-row-editor-label">{adminLayout.fields.navLinkTarget}</span>
+										<div class="nav-href-values">
+											<input
+												type="hidden"
+												name="nav_href_value"
+												class="nav-href-value-submit"
+												value={navHrefSubmitValue(row)}
+											/>
+											<NavTargetCell
+												kind={row.hrefKind}
+												value={row.hrefValue}
+												options={navTargetOptions}
+											/>
+										</div>
+									</label>
+									<div class="nav-row-editor-field nav-mega-field">
+										<span class="nav-row-editor-label">{adminLayout.fields.navMegaMenu}</span>
+										<NavMegaMenuCell
+											asCell={false}
+											depth={row.depth as 0 | 1 | 2}
+											checked={row.isMegaMenu}
+										/>
+									</div>
+								</div>
+								<div class="nav-row-editor-footer">
+									<button type="button" class="close-nav-row ui-btn ui-btn--ghost text-xs">
+										{ui.actions.close}
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				);
+			})
+		}
+	</div>
 	<Button type="button" id="add-nav-row" variant="add">
 		{adminLayout.actions.addNavRow}
 	</Button>

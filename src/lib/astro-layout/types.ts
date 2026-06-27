@@ -94,6 +94,12 @@ export type LayoutSyncMeta = {
 	publishedCategoriesHash?: string;
 };
 
+export type NavEditorDepthColor = {
+	accent: string;
+};
+
+export type NavEditorDepthColors = [NavEditorDepthColor, NavEditorDepthColor, NavEditorDepthColor];
+
 export type SiteAstroLayout = {
 	navigation: NavItem[];
 	categoryDisplays: CategoryDisplays;
@@ -101,6 +107,8 @@ export type SiteAstroLayout = {
 	slots: DisplaySlot[];
 	navigationPath: string;
 	categoriesPath: string;
+	/** Kolory kafelków edytora menu (poziom 0–2) — tylko panel admina */
+	navEditorDepthColors?: NavEditorDepthColors;
 	sync?: LayoutSyncMeta;
 };
 

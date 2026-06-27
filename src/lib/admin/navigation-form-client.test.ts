@@ -15,13 +15,17 @@ const navTargetOptions: NavTargetOptions = {
 
 const labels: NavigationTableLabels = {
 	remove: 'Usuń',
+	edit: 'Edytuj',
+	closeEdit: 'Zamknij',
 	depth0: 'Poziom 1',
 	depth1: 'Poziom 2',
 	depth2: 'Poziom 3',
 	megaHint: 'Mega',
+	megaLabel: 'Szerokie menu',
 	addNavChild: '+ Dodaj podpozycję',
 	navParentRoot: '—',
 	navParentMissing: 'Brak pozycji nadrzędnej',
+	navParentPrefix: 'pod:',
 	hrefKinds: {
 		none: 'Bez linku',
 		category: 'Kategoria wpisów',
@@ -30,26 +34,44 @@ const labels: NavigationTableLabels = {
 		custom: 'Własny URL',
 		external: 'Adres zewnętrzny',
 	},
+	fieldLabels: {
+		navDepth: 'Poziom',
+		navParent: 'Pozycja nadrzędna',
+		navLabel: 'Etykieta',
+		navLinkType: 'Typ linku',
+		navLinkTarget: 'Adres / cel',
+		navMegaMenu: 'Szerokie menu',
+	},
 };
 
-function buildNavigationTable(pageValue: string): void {
+function buildNavigationList(pageValue: string): void {
 	const optionsJson = JSON.stringify(navTargetOptions);
 	document.body.innerHTML = `
 		<form>
 			<script id="nav-target-options-json" type="application/json">${optionsJson}</script>
-			<table id="navigation-table">
-				<tbody id="navigation-body">
-					<tr class="nav-row ui-table-dense-row nav-row--depth-0" data-nav-kind="page" data-nav-href="${pageValue}">
-						<td>
+			<div id="navigation-body" class="nav-tile-list">
+				<div class="nav-entry nav-row--depth-0" data-nav-entry="0">
+					<div class="nav-tile nav-row-summary">
+						<div class="nav-tile-main">
+							<span class="nav-summary-label">Gmina</span>
+							<span class="nav-summary-sep">·</span>
+							<span class="nav-summary-link-text">Strona</span>
+						</div>
+						<div class="nav-tile-actions">
+							<button type="button" class="edit-nav-row">Edytuj</button>
+							<button type="button" class="add-nav-child">Dodaj podpozycję</button>
+							<button type="button" class="remove-nav-row">Usuń</button>
+						</div>
+					</div>
+					<div class="nav-row-editor hidden" data-nav-kind="page" data-nav-href="${pageValue}">
+						<div class="nav-row-editor-panel">
 							<select name="nav_depth" class="nav-depth">
 								<option value="0" selected>Poziom 1</option>
 							</select>
-						</td>
-						<td class="nav-parent-cell">
-							<input type="hidden" name="nav_parent" value="" />
-						</td>
-						<td><input name="nav_label" value="Gmina" /></td>
-						<td>
+							<div class="nav-parent-cell">
+								<input type="hidden" name="nav_parent" value="" />
+							</div>
+							<input name="nav_label" value="Gmina" />
 							<input type="hidden" name="nav_href_kind" class="nav-href-kind-submit" value="page" />
 							<select class="nav-href-kind">
 								<option value="none">Bez linku</option>
@@ -59,25 +81,22 @@ function buildNavigationTable(pageValue: string): void {
 								<option value="custom">Własny URL</option>
 								<option value="external">Adres zewnętrzny</option>
 							</select>
-						</td>
-						<td class="nav-href-values">
-							<input type="hidden" name="nav_href_value" class="nav-href-value-submit" value="${pageValue}" />
-							<div class="nav-href-target-host">
-								<select class="nav-href-target-control">
-									<option value="/gmina/urzad" selected>Urząd Gminy</option>
-								</select>
+							<div class="nav-href-values">
+								<input type="hidden" name="nav_href_value" class="nav-href-value-submit" value="${pageValue}" />
+								<div class="nav-href-target-host">
+									<select class="nav-href-target-control">
+										<option value="/gmina/urzad" selected>Urząd Gminy</option>
+									</select>
+								</div>
 							</div>
-						</td>
-						<td class="nav-mega-cell">
-							<input type="checkbox" class="nav-mega" name="nav_is_mega" />
-						</td>
-						<td class="nav-row-actions">
-							<button type="button" class="add-nav-child">Dodaj podpozycję</button>
-							<button type="button" class="remove-nav-row">Usuń</button>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+							<div class="nav-mega-cell">
+								<input type="checkbox" class="nav-mega" name="nav_is_mega" />
+							</div>
+							<button type="button" class="close-nav-row">Zamknij</button>
+						</div>
+					</div>
+				</div>
+			</div>
 			<button type="button" id="add-nav-row">Dodaj</button>
 		</form>
 	`;
@@ -89,7 +108,7 @@ describe('mountNavigationForm', () => {
 	});
 
 	it('czyta opcje celu ze script#nav-target-options-json', () => {
-		buildNavigationTable('/gmina/urzad');
+		buildNavigationList('/gmina/urzad');
 		mountNavigationForm(labels);
 
 		const form = document.querySelector('form');
@@ -97,8 +116,12 @@ describe('mountNavigationForm', () => {
 	});
 
 	it('po zmianie typu na category podmienia opcje celu na kategorie', () => {
-		buildNavigationTable('/gmina/urzad');
+		buildNavigationList('/gmina/urzad');
 		mountNavigationForm(labels);
+
+		document.querySelector('.edit-nav-row')!.dispatchEvent(
+			new MouseEvent('click', { bubbles: true }),
+		);
 
 		const kindSelect = document.querySelector('.nav-href-kind') as HTMLSelectElement;
 		kindSelect.value = 'category';
@@ -110,27 +133,44 @@ describe('mountNavigationForm', () => {
 		expect(values).not.toContain('/gmina/urzad');
 	});
 
-	it('dodaje wiersz poziomu 0 po kliknięciu przycisku poza tbody', () => {
-		buildNavigationTable('/gmina/urzad');
+	it('dodaje wiersz poziomu 0 po kliknięciu przycisku poza listą', () => {
+		buildNavigationList('/gmina/urzad');
 		mountNavigationForm(labels);
 
-		expect(document.querySelectorAll('.nav-row')).toHaveLength(1);
+		expect(document.querySelectorAll('.nav-entry')).toHaveLength(1);
 		document.getElementById('add-nav-row')!.click();
-		expect(document.querySelectorAll('.nav-row')).toHaveLength(2);
+		expect(document.querySelectorAll('.nav-entry')).toHaveLength(2);
 	});
 
 	it('dodaje podpozycję z poziomem 1 i pozycją nadrzędną', () => {
-		buildNavigationTable('/gmina/urzad');
+		buildNavigationList('/gmina/urzad');
 		mountNavigationForm(labels);
 
 		document.querySelector('.add-nav-child')!.dispatchEvent(
 			new MouseEvent('click', { bubbles: true }),
 		);
 
-		const rows = document.querySelectorAll('.nav-row');
-		expect(rows).toHaveLength(2);
-		const child = rows[1] as HTMLElement;
-		expect((child.querySelector('.nav-depth') as HTMLSelectElement).value).toBe('1');
-		expect((child.querySelector('.nav-parent') as HTMLSelectElement).value).toBe('0');
+		expect(document.querySelectorAll('.nav-entry')).toHaveLength(2);
+		const childEditor = document.querySelectorAll('.nav-row-editor')[1] as HTMLElement;
+		expect((childEditor.querySelector('.nav-depth') as HTMLSelectElement).value).toBe('1');
+		expect((childEditor.querySelector('.nav-parent') as HTMLSelectElement).value).toBe('0');
+	});
+
+	it('otwiera edycję po kliknięciu Edytuj i zamyka po Zamknij', () => {
+		buildNavigationList('/gmina/urzad');
+		mountNavigationForm(labels);
+
+		const editor = document.querySelector('.nav-row-editor') as HTMLElement;
+		expect(editor.classList.contains('hidden')).toBe(true);
+
+		document.querySelector('.edit-nav-row')!.dispatchEvent(
+			new MouseEvent('click', { bubbles: true }),
+		);
+		expect(editor.classList.contains('hidden')).toBe(false);
+
+		document.querySelector('.close-nav-row')!.dispatchEvent(
+			new MouseEvent('click', { bubbles: true }),
+		);
+		expect(editor.classList.contains('hidden')).toBe(true);
 	});
 });
