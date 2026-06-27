@@ -1,0 +1,14 @@
+@layer components {
+	.ui-title-brand {
+		@apply text-lg font-semibold text-brand;
+	}
+	.ui-title-page {
+		@apply text-2xl font-semibold text-brand;
+	}
+	.ui-title-preview {
+		@apply text-xl font-semibold text-text;
+	}
+	.ui-nav-group-label {
+		@apply text-[10px] font-semibold uppercase tracking-wide text-text-subtle;
+	}
+}

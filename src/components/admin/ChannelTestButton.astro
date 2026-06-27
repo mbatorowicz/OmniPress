@@ -16,7 +16,7 @@ const { destinationId } = Astro.props;
 	data-dest-field="astro_destination_id"
 	data-destination-id={destinationId ?? ''}
 >
-	<Button type="button" variant="secondary" class="px-3 py-1.5" dataset={{ 'test-btn': '' }}>
+	<Button type="button" variant="sm" dataset={{ 'test-btn': '' }}>
 		{adminDestinations.actions.testChannel}
 	</Button>
 	<p class="mt-2 hidden text-sm" data-test-result role="status"></p>

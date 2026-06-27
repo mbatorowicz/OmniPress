@@ -6,16 +6,16 @@
 		@apply bg-green-50 text-green-800;
 	}
 	.ui-alert--error {
-		@apply bg-red-50 text-red-800;
+		@apply bg-danger-surface text-danger-text;
 	}
 	.ui-alert--warning {
-		@apply bg-amber-50 text-amber-900;
+		@apply bg-warning-surface text-warning-text;
 	}
 	.ui-alert--info {
-		@apply bg-sky-50 text-sky-900;
+		@apply bg-info-surface text-info-text;
 	}
 	.ui-alert--note {
-		@apply bg-slate-50 text-slate-700;
+		@apply bg-surface-subtle text-text-secondary;
 	}
 	.ui-alert-detail {
 		@apply mt-1 block font-mono text-xs;

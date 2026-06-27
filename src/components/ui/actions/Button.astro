@@ -1,5 +1,20 @@
 ---
-type ButtonVariant = 'primary' | 'secondary' | 'nav-accent' | 'warning' | 'danger' | 'ghost' | 'add' | 'preset' | 'iconDanger' | 'step' | 'toolbar';
+type ButtonVariant =
+	| 'primary'
+	| 'secondary'
+	| 'nav-accent'
+	| 'warning'
+	| 'danger'
+	| 'ghost'
+	| 'add'
+	| 'preset'
+	| 'iconDanger'
+	| 'step'
+	| 'toolbar'
+	| 'link'
+	| 'linkDanger'
+	| 'linkGhost'
+	| 'sm';
 
 interface Props {
 	variant?: ButtonVariant;
@@ -42,10 +57,18 @@ const dataAttrs = Object.fromEntries(
 );
 
 const variantClass =
-	variant === 'iconDanger' ? 'ui-btn--icon-danger' : `ui-btn--${variant}`;
+	variant === 'iconDanger'
+		? 'ui-btn--icon-danger'
+		: variant === 'linkDanger'
+			? 'ui-btn--link-danger'
+			: variant === 'linkGhost'
+				? 'ui-btn--link-ghost'
+				: variant === 'sm'
+					? 'ui-btn--sm ui-btn--secondary'
+					: `ui-btn--${variant}`;
 
 const classes = [
-	'ui-btn',
+	variant === 'link' || variant === 'linkDanger' || variant === 'linkGhost' ? '' : 'ui-btn',
 	variantClass,
 	block ? 'ui-btn--block' : '',
 	large ? 'ui-btn--lg' : '',

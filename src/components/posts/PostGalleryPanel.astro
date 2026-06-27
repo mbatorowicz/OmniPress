@@ -29,7 +29,7 @@ const initialOrder = galleryAssets.map((a) => a.id).join(',');
 ---
 
 <div
-	class="mt-4 rounded-lg border border-slate-200 bg-slate-50/80 p-4"
+	class="ui-gallery-panel"
 	data-gallery-panel
 	data-post-id={postId}
 	data-initial-assets={JSON.stringify(galleryAssets)}
@@ -45,8 +45,8 @@ const initialOrder = galleryAssets.map((a) => a.id).join(',');
 >
 	<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
 		<div>
-			<h3 class="text-sm font-medium text-slate-700">{labels.heading}</h3>
-			<p class="mt-0.5 text-xs text-slate-500">{labels.hint}</p>
+			<h3 class="ui-subheading">{labels.heading}</h3>
+			<p class="ui-hint mt-0.5">{labels.hint}</p>
 		</div>
 		<label
 			class="ui-btn ui-btn--file cursor-pointer"
@@ -57,7 +57,7 @@ const initialOrder = galleryAssets.map((a) => a.id).join(',');
 		</label>
 	</div>
 
-	<p class="text-xs text-slate-500 hidden" data-gallery-empty>{labels.empty}</p>
+	<p class="ui-hint hidden" data-gallery-empty>{labels.empty}</p>
 
 	<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4" data-gallery-grid></div>
 

@@ -50,16 +50,16 @@ if (logs.length === 0) return null;
 						<TableRow error={failed}>
 							<TableCell>
 								{log.destinations?.name}
-								<span class="ml-1 text-slate-400">({log.destinations?.type})</span>
+								<span class="ui-caption ml-1">({log.destinations?.type})</span>
 							</TableCell>
 							<TableCell>{logLabels[st]}</TableCell>
-							<TableCell class="text-slate-600">{log.response_summary ?? '—'}</TableCell>
+							<TableCell class="ui-muted">{log.response_summary ?? '—'}</TableCell>
 							<TableCell>{log.retry_count}</TableCell>
 							<TableCell>
 								{
 									failed && (
 										<form method="post" action={`/api/admin/posts/${postId}/publish-logs/${log.id}/retry`}>
-											<Button type="submit" variant="ghost" class="border-0 bg-transparent p-0 text-brand">
+											<Button type="submit" variant="linkGhost">
 												{logsUi.retry}
 											</Button>
 										</form>

@@ -101,13 +101,13 @@ function buildCardHtml(
 	const safeLabel = escapeHtml(slot.label);
 	const disabledBadge = slot.enabled
 		? ''
-		: `<span class="ml-1 rounded bg-slate-200 px-1.5 py-0.5 text-xs text-slate-600">${escapeHtml(config.disabledLabel)}</span>`;
+		: `<span class="slot-preview-disabled-badge">${escapeHtml(config.disabledLabel)}</span>`;
 	return `
-		<div class="slot-preview-card rounded border border-slate-200 bg-slate-50 p-2 shadow-sm" data-slot-id="${escapeHtml(slot.id)}" role="button" tabindex="0">
+		<div class="slot-preview-card" data-slot-id="${escapeHtml(slot.id)}" role="button" tabindex="0">
 			<div class="flex items-start justify-between gap-2">
 				<div class="min-w-0 flex-1">
-					<p class="truncate text-sm font-medium text-slate-800">${safeLabel}${disabledBadge}</p>
-					<p class="truncate text-xs text-slate-500">${componentLabel}</p>
+					<p class="ui-subheading truncate">${safeLabel}${disabledBadge}</p>
+					<p class="ui-hint truncate">${componentLabel}</p>
 				</div>
 				<div class="flex shrink-0 gap-1">
 					${stepButtonHtml({ ariaLabel: config.moveUp, label: '↑', disabled: index === 0, className: 'slot-preview-up' })}
@@ -127,7 +127,7 @@ function renderZone(
 	container.innerHTML = '';
 	if (slots.length === 0) {
 		const empty = document.createElement('p');
-		empty.className = 'text-sm text-slate-400 italic';
+		empty.className = 'slot-preview-empty';
 		empty.textContent = config.emptyZone;
 		container.appendChild(empty);
 		return;

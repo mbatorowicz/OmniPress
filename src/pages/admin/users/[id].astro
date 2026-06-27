@@ -51,8 +51,8 @@ const breadcrumbs = [
 	{
 		!isSelf && (
 			<Panel variant="danger">
-				<h2 class="text-sm font-medium text-red-900">{adminUsers.delete.heading}</h2>
-				<p class="mt-1 text-sm text-red-800">{adminUsers.delete.lead}</p>
+				<h2 class="ui-danger-heading">{adminUsers.delete.heading}</h2>
+				<p class="ui-danger-lead mt-1">{adminUsers.delete.lead}</p>
 				<form method="post" action={`/api/admin/users/${id}/delete`} class="mt-4">
 					<Button type="submit" variant="danger" confirm={adminUsers.delete.confirm}>
 						{adminUsers.delete.submit}

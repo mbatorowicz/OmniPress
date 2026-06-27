@@ -45,22 +45,22 @@ const siteName = (post.sites as { name: string } | null)?.name ?? '—';
 		</a>
 		{post.status === 'publishing' && <Badge variant="publishing">{admin.inProgressBadge}</Badge>}
 	</TableCell>
-	<TableCell class="text-slate-700">
+	<TableCell class="ui-subheading">
 		{
 			post.category_name ? (
 				<span>
 					{post.category_name}
 					{post.category_slug && (
-						<span class="ml-1 font-mono text-xs text-slate-400">{post.category_slug}</span>
+						<span class="ui-caption ml-1 font-mono">{post.category_slug}</span>
 					)}
 				</span>
 			) : (
-				<span class="text-slate-400">{labels.noCategory}</span>
+				<span class="ui-caption">{labels.noCategory}</span>
 			)
 		}
 	</TableCell>
-	<TableCell class="hidden text-slate-600 sm:table-cell">{siteName}</TableCell>
-	<TableCell class="whitespace-nowrap text-slate-500">{when}</TableCell>
+	<TableCell class="ui-muted hidden sm:table-cell">{siteName}</TableCell>
+	<TableCell class="ui-muted whitespace-nowrap">{when}</TableCell>
 	{
 		selectable && (
 			<TableCell>

@@ -7,19 +7,19 @@
 		@apply bg-brand text-white hover:bg-brand-dark active:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50;
 	}
 	.ui-btn--secondary {
-		@apply border border-slate-200 bg-white text-slate-800 hover:border-brand active:bg-slate-50;
+		@apply border border-border bg-surface text-text-emphasis hover:border-brand active:bg-surface-subtle;
 	}
 	.ui-btn--nav-accent {
 		@apply border border-brand bg-brand/5 font-medium text-brand hover:bg-brand/10 active:bg-brand/15;
 	}
 	.ui-btn--warning {
-		@apply border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 active:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-40;
+		@apply border border-warning-border bg-warning-surface text-warning-text hover:bg-amber-100 active:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-40;
 	}
 	.ui-btn--danger {
-		@apply border border-red-300 bg-red-50 text-red-800 hover:bg-red-100 active:bg-red-200 disabled:cursor-not-allowed disabled:opacity-40;
+		@apply border border-danger-border bg-danger-surface text-danger-text hover:bg-red-100 active:bg-red-200 disabled:cursor-not-allowed disabled:opacity-40;
 	}
 	.ui-btn--ghost {
-		@apply border border-slate-200 px-2 py-1 text-xs hover:bg-slate-50 active:bg-slate-100;
+		@apply border border-border px-2 py-1 text-xs hover:bg-surface-subtle active:bg-surface-muted;
 	}
 	.ui-btn--block {
 		@apply w-full;
@@ -27,28 +27,40 @@
 	.ui-btn--lg {
 		@apply px-5 py-2.5;
 	}
+	.ui-btn--sm {
+		@apply px-3 py-1.5 text-xs;
+	}
 	.ui-btn--add {
-		@apply border border-slate-200 px-3 py-1.5 text-xs text-slate-700 hover:border-brand active:bg-slate-50;
+		@apply border border-border px-3 py-1.5 text-xs text-text-secondary hover:border-brand active:bg-surface-subtle;
 	}
 	.ui-btn--preset {
-		@apply border border-slate-200 px-2 py-1 text-xs hover:border-brand active:bg-slate-50;
+		@apply border border-border px-2 py-1 text-xs hover:border-brand active:bg-surface-subtle;
 	}
 	.ui-btn--file {
-		@apply cursor-pointer rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50 active:bg-slate-100;
+		@apply cursor-pointer rounded-lg border border-border-strong bg-surface px-3 py-1.5 text-sm hover:bg-surface-subtle active:bg-surface-muted;
 	}
 	.ui-btn--icon-danger {
-		@apply min-h-8 min-w-8 shrink-0 rounded border border-red-300 p-1.5 text-red-800 hover:bg-red-100 active:bg-red-200;
+		@apply min-h-8 min-w-8 shrink-0 rounded border border-danger-border p-1.5 text-danger-text hover:bg-red-100 active:bg-red-200;
 	}
 	.ui-btn--step {
-		@apply min-h-7 min-w-7 rounded border border-slate-200 px-1.5 py-0.5 text-xs hover:bg-slate-50 active:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40;
+		@apply min-h-7 min-w-7 rounded border border-border px-1.5 py-0.5 text-xs hover:bg-surface-subtle active:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-40;
 	}
 	.ui-btn--toolbar {
-		@apply rounded px-2 py-1 text-sm hover:bg-white active:bg-slate-100;
+		@apply rounded px-2 py-1 text-sm hover:bg-surface active:bg-surface-muted;
+	}
+	.ui-btn--link {
+		@apply inline-flex min-h-8 items-center rounded-md px-1 font-medium text-brand hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 active:opacity-80;
+	}
+	.ui-btn--link-danger {
+		@apply inline-flex min-h-8 items-center rounded-md px-1 text-xs text-danger hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 active:opacity-80;
+	}
+	.ui-btn--link-ghost {
+		@apply inline-flex min-h-8 items-center rounded-md border-0 bg-transparent p-0 font-medium text-brand hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 active:opacity-80;
 	}
 	.ui-link {
 		@apply font-medium text-brand hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 active:opacity-80;
 	}
 	.ui-link--danger {
-		@apply text-xs text-red-700 hover:underline active:opacity-80;
+		@apply text-xs text-danger hover:underline active:opacity-80;
 	}
 }

@@ -42,7 +42,7 @@ const saved = Astro.url.searchParams.get('saved') === '1';
 
 <AppLayout title={adminRecentChanges.title} heading={adminRecentChanges.title}>
 	<AdminContextNav siteId={id} siteName={site.name} section="changes" />
-	<p class="mb-4 text-sm text-slate-600">{adminRecentChanges.lead}</p>
+	<p class="ui-muted mb-4">{adminRecentChanges.lead}</p>
 
 	<RecentChangesForm
 		siteId={id}

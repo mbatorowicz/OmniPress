@@ -16,7 +16,7 @@ const breadcrumbs = [
 ---
 
 <AppLayout title={adminUnit.title} heading={adminUnit.title} {breadcrumbs}>
-	<p class="mb-4 text-sm text-slate-600">{adminUnit.lead}</p>
+	<p class="ui-muted mb-4">{adminUnit.lead}</p>
 
 	<UnitForm
 		action="/api/admin/units/create"

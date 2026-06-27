@@ -1,13 +1,33 @@
 @layer components {
 	.nav-row--depth-0 .nav-label-cell {
-		@apply bg-slate-50/40;
+		@apply bg-surface-subtle/40;
 	}
 
 	.nav-row--depth-1 .nav-label-cell {
-		@apply border-l-2 border-slate-200 pl-5;
+		@apply border-l-2 border-nav-depth-1-border pl-5 bg-nav-depth-1-surface/30;
 	}
 
 	.nav-row--depth-2 .nav-label-cell {
-		@apply border-l-2 border-slate-300 pl-10;
+		@apply border-l-2 border-nav-depth-2-border pl-10 bg-nav-depth-2-surface/40;
+	}
+
+	.nav-row--depth-0 .nav-depth {
+		@apply border-brand/40 bg-brand/10 font-medium text-brand-dark;
+	}
+
+	.nav-row--depth-1 .nav-depth {
+		@apply border-nav-depth-1-border bg-nav-depth-1-surface font-medium text-nav-depth-1-text;
+	}
+
+	.nav-row--depth-2 .nav-depth {
+		@apply border-nav-depth-2-border bg-nav-depth-2-surface font-medium text-nav-depth-2-text;
+	}
+
+	.nav-href-input-default {
+		@apply w-full rounded border border-border-strong px-2 py-1 text-xs;
+	}
+
+	.nav-href-select {
+		@apply w-full rounded border border-border-strong px-2 py-1 text-xs;
 	}
 }

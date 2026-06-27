@@ -25,8 +25,7 @@ function buildPdfRow(
 	labels: PdfLabels,
 ): HTMLLIElement {
 	const li = document.createElement('li');
-	li.className =
-		'flex flex-wrap items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2';
+	li.className = 'ui-inline-card';
 	li.dataset.assetId = asset.id;
 	const removeBtn = iconButtonHtml({
 		variant: 'iconDanger',

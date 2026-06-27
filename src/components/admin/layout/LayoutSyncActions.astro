@@ -23,7 +23,7 @@ const { siteId, hasAstroChannel, section } = Astro.props;
 	hasAstroChannel && (
 		<form method="post" action={`/api/admin/sites/${siteId}/layout/import`} class="mt-4">
 			<input type="hidden" name="return_section" value={section} />
-			<button type="submit" class="ui-link text-sm">
+			<button type="submit" class="ui-btn ui-btn--link text-sm">
 				{adminLayout.actions.importFromGitHub}
 			</button>
 		</form>

@@ -44,9 +44,9 @@ const statusLabel = page.status === 'published' ? ui.statusPublished : ui.status
 		currentLabel={page.title || ui.title}
 	/>
 
-	<p class="mb-2 text-sm text-slate-600">
-		<span class="rounded bg-slate-100 px-2 py-0.5 text-xs">{statusLabel}</span>
-		<span class="ml-2 font-mono text-xs text-slate-500">{publicPath}</span>
+	<p class="ui-muted mb-2">
+		<span class="ui-status-badge">{statusLabel}</span>
+		<span class="ui-hint ml-2 font-mono">{publicPath}</span>
 	</p>
 
 	{saved && <Alert variant="success">{ui.saved}</Alert>}
@@ -73,7 +73,7 @@ const statusLabel = page.status === 'published' ? ui.statusPublished : ui.status
 					placeholder="gmina"
 					class="ui-input font-mono text-sm"
 				/>
-				<p class="mt-1 text-xs text-slate-500">{ui.fields.pathPrefixHint}</p>
+				<p class="ui-hint mt-1">{ui.fields.pathPrefixHint}</p>
 			</label>
 			<label class="ui-label">
 				<span class="font-medium ui-label-text">{ui.fields.slug}</span>
@@ -86,12 +86,12 @@ const statusLabel = page.status === 'published' ? ui.statusPublished : ui.status
 				/>
 			</label>
 		</div>
-		<p class="text-xs text-slate-500">
-			{ui.fields.publicPath}: <code class="rounded bg-slate-100 px-1">{publicPath}</code>
+		<p class="ui-hint">
+			{ui.fields.publicPath}: <code class="ui-code">{publicPath}</code>
 		</p>
 		<div>
-			<span class="text-sm font-medium text-slate-700">{ui.fields.content}</span>
-			<p class="mt-0.5 text-xs text-slate-500">{ui.fields.contentHint}</p>
+			<span class="ui-subheading">{ui.fields.content}</span>
+			<p class="ui-hint mt-0.5">{ui.fields.contentHint}</p>
 			<div class="mt-2">
 				<PostRichEditor
 					initialMarkdown={page.content_md}

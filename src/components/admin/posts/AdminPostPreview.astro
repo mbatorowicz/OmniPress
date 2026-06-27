@@ -18,25 +18,25 @@ const preview = admin.preview;
 ---
 
 <Panel tag="article">
-	<h2 class="text-xl font-semibold">{post.title || common.untitled}</h2>
+	<h2 class="ui-title-preview">{post.title || common.untitled}</h2>
 	{
 		post.category_name && (
-			<p class="mt-1 text-sm text-slate-600">
+			<p class="ui-muted mt-1">
 				{preview.categoryLabel} <strong>{post.category_name}</strong>
-				{post.category_slug && <span class="font-mono text-slate-500"> ({post.category_slug})</span>}
+				{post.category_slug && <span class="ui-code font-mono"> ({post.category_slug})</span>}
 			</p>
 		)
 	}
-	{post.slug && <p class="mt-1 font-mono text-sm text-slate-500">/{post.slug}</p>}
+	{post.slug && <p class="ui-muted mt-1 font-mono">/{post.slug}</p>}
 	{
 		post.scheduled_publish_at && (
-			<p class="mt-2 text-sm text-violet-800">
+			<p class="ui-status-line-scheduled mt-2">
 				{adminReview.scheduledAt}: <strong>{formatScheduledPublishAt(post.scheduled_publish_at)}</strong>
 			</p>
 		)
 	}
-	<div class="mt-6 rounded-lg border border-slate-100 bg-slate-50/50 p-4">
-		{contentHtml ? <PostContentHtml html={contentHtml} /> : <p class="text-sm text-slate-500">{preview.emptyContent}</p>}
+	<div class="ui-preview-content mt-6">
+		{contentHtml ? <PostContentHtml html={contentHtml} /> : <p class="ui-muted">{preview.emptyContent}</p>}
 	</div>
 	<PostGalleryPreview
 		assets={galleryAssets}

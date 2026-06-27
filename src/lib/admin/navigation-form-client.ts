@@ -54,7 +54,7 @@ function syncMegaCell(row: HTMLElement): void {
 	}
 }
 
-function bindRow(row: HTMLElement, body: HTMLElement, labels: NavigationTableLabels): void {
+function bindRow(row: HTMLElement, body: HTMLElement, _labels: NavigationTableLabels): void {
 	row.querySelector('.remove-nav-row')?.addEventListener('click', () => {
 		if (body.querySelectorAll('.nav-row').length <= 1) return;
 		row.remove();
@@ -100,18 +100,18 @@ export function initNavigationTable(labels: NavigationTableLabels): void {
 				</select>
 			</td>
 			<td class="ui-table-dense-td--wide nav-href-values">
-				<input name="nav_href_value" class="ui-input-compact w-full nav-href-field nav-href-field-none nav-href-field-custom nav-href-field-external" />
-				<select name="nav_href_value" class="ui-select-compact w-full nav-href-field nav-href-field-category hidden" disabled></select>
-				<select name="nav_href_value" class="ui-select-compact w-full nav-href-field nav-href-field-page hidden" disabled></select>
-				<select name="nav_href_value" class="ui-select-compact w-full nav-href-field nav-href-field-static hidden" disabled></select>
+				<input name="nav_href_value" class="nav-href-input-default nav-href-field nav-href-field-none nav-href-field-custom nav-href-field-external" />
+				<select name="nav_href_value" class="nav-href-select nav-href-field nav-href-field-category hidden" disabled></select>
+				<select name="nav_href_value" class="nav-href-select nav-href-field nav-href-field-page hidden" disabled></select>
+				<select name="nav_href_value" class="nav-href-select nav-href-field nav-href-field-static hidden" disabled></select>
 			</td>
 			<td class="nav-mega-cell ui-table-dense-td--wide text-center">
 				<label class="inline-flex flex-col items-center gap-1">
 					<input type="checkbox" name="nav_is_mega" class="nav-mega ui-checkbox" />
-					<span class="text-[10px] leading-tight text-slate-500 max-w-[6rem]">${labels.megaHint}</span>
+					<span class="ui-hint max-w-[6rem] text-[10px] leading-tight">${labels.megaHint}</span>
 				</label>
 			</td>
-			<td class="ui-table-dense-td--wide"><button type="button" class="remove-nav-row ui-link--danger">${labels.remove}</button></td>
+			<td class="ui-table-dense-td--wide"><button type="button" class="remove-nav-row ui-btn ui-btn--link-danger">${labels.remove}</button></td>
 		`;
 		const templateRow = body.querySelector('.nav-row');
 		if (templateRow) {

@@ -74,11 +74,11 @@ const navTableLabels = {
 							<input
 								name="nav_href_value"
 								value={row.hrefKind === 'none' || row.hrefKind === 'custom' || row.hrefKind === 'external' ? row.hrefValue : ''}
-								class={`ui-input-compact w-full nav-href-field nav-href-field-none nav-href-field-custom nav-href-field-external ${row.hrefKind === 'category' || row.hrefKind === 'page' || row.hrefKind === 'static' ? 'hidden' : ''}`}
+								class={`nav-href-input-default nav-href-field nav-href-field-none nav-href-field-custom nav-href-field-external ${row.hrefKind === 'category' || row.hrefKind === 'page' || row.hrefKind === 'static' ? 'hidden' : ''}`}
 							/>
 							<select
 								name="nav_href_value"
-								class={`ui-select-compact w-full nav-href-field nav-href-field-category ${row.hrefKind === 'category' ? '' : 'hidden'}`}
+								class={`nav-href-select nav-href-field nav-href-field-category ${row.hrefKind === 'category' ? '' : 'hidden'}`}
 								disabled={row.hrefKind !== 'category'}
 							>
 								{categoryOptions.map((opt) => (
@@ -89,7 +89,7 @@ const navTableLabels = {
 							</select>
 							<select
 								name="nav_href_value"
-								class={`ui-select-compact w-full nav-href-field nav-href-field-page ${row.hrefKind === 'page' ? '' : 'hidden'}`}
+								class={`nav-href-select nav-href-field nav-href-field-page ${row.hrefKind === 'page' ? '' : 'hidden'}`}
 								disabled={row.hrefKind !== 'page'}
 							>
 								{publishedPages.length === 0 ? (
@@ -104,7 +104,7 @@ const navTableLabels = {
 							</select>
 							<select
 								name="nav_href_value"
-								class={`ui-select-compact w-full nav-href-field nav-href-field-static ${row.hrefKind === 'static' ? '' : 'hidden'}`}
+								class={`nav-href-select nav-href-field nav-href-field-static ${row.hrefKind === 'static' ? '' : 'hidden'}`}
 								disabled={row.hrefKind !== 'static'}
 							>
 								{STATIC_ROUTE_OPTIONS.map((opt) => (
@@ -116,7 +116,7 @@ const navTableLabels = {
 						</td>
 						<NavMegaMenuCell depth={row.depth as 0 | 1 | 2} checked={row.isMegaMenu} />
 						<td class="ui-table-dense-td--wide">
-							<button type="button" class="remove-nav-row ui-link--danger">{adminLayout.actions.removeNavRow}</button>
+							<button type="button" class="remove-nav-row ui-btn ui-btn--link-danger">{adminLayout.actions.removeNavRow}</button>
 						</td>
 					</tr>
 				))

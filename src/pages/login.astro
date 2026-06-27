@@ -45,7 +45,7 @@ const showReset = mode === 'reset';
 >
 	{
 		!configured ? (
-			<p class="mt-4 text-sm text-amber-800">{auth.login.notConfigured}</p>
+			<p class="ui-warning-text mt-4">{auth.login.notConfigured}</p>
 		) : (
 			<>
 				{errorMessage && <Alert variant="error" class="mt-4 mb-0">{errorMessage}</Alert>}

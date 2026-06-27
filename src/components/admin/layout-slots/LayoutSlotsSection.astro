@@ -41,7 +41,7 @@ const componentOptionsHtml = LAYOUT_COMPONENT_IDS.map(
 
 	<LayoutSlotsPreview />
 
-	<h3 class="mt-2 text-sm font-semibold text-slate-800">{adminLayout.slotsListTitle}</h3>
+	<SectionTitle class="mt-2">{adminLayout.slotsListTitle}</SectionTitle>
 
 	<Table dense wrap class="min-w-[40rem]" id="slots-table">
 		<TableHead dense>
@@ -72,7 +72,7 @@ const componentOptionsHtml = LAYOUT_COMPONENT_IDS.map(
 		</Button>
 	</div>
 
-	<h3 class="mt-6 text-sm font-semibold text-slate-800">{adminLayout.slotsConfigTitle}</h3>
+	<SectionTitle class="mt-6">{adminLayout.slotsConfigTitle}</SectionTitle>
 	<p class="ui-hint">{adminLayout.slotsConfigHint}</p>
 
 	<div id="slots-kind-sections">

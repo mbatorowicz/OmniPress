@@ -6,46 +6,46 @@
 		@apply text-sm;
 	}
 	.ui-label-text {
-		@apply text-slate-700;
+		@apply text-text-secondary;
 	}
 	.ui-label-muted {
-		@apply text-slate-600;
+		@apply text-text-muted;
 	}
 	.ui-input {
-		@apply mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2;
+		@apply mt-1 w-full rounded-lg border border-border-strong px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2;
 	}
 	.ui-input--inline {
-		@apply ml-2 rounded-lg border border-slate-300 px-2 py-2;
+		@apply ml-2 rounded-lg border border-border-strong px-2 py-2;
 	}
 	.ui-input--error {
 		@apply border-red-400 focus-visible:ring-red-300;
 	}
 	.ui-select {
-		@apply rounded-lg border border-slate-300 px-2 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2;
+		@apply rounded-lg border border-border-strong px-2 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2;
 	}
 	.ui-checkbox {
-		@apply rounded border-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2;
+		@apply rounded border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2;
 	}
 	.ui-textarea {
-		@apply mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2;
+		@apply mt-1 w-full rounded-lg border border-border-strong px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2;
 	}
 	.ui-textarea--mono {
 		@apply font-mono text-xs;
 	}
 	.ui-input-compact {
-		@apply rounded border border-slate-300 px-2 py-1 text-xs;
+		@apply rounded border border-border-strong px-2 py-1 text-xs;
 	}
 	.ui-input-compact--mono {
 		@apply font-mono;
 	}
 	.ui-select-compact {
-		@apply rounded border border-slate-300 px-2 py-1 text-xs;
+		@apply rounded border border-border-strong px-2 py-1 text-xs;
 	}
 	.ui-help-box {
-		@apply rounded-lg bg-slate-50 p-3 text-xs text-slate-700;
+		@apply rounded-lg bg-surface-subtle p-3 text-xs text-text-secondary;
 	}
 	.ui-fieldset-dashed {
-		@apply rounded-lg border border-dashed border-slate-200 p-3;
+		@apply rounded-lg border border-dashed border-border p-3;
 	}
 	.ui-form-stack {
 		@apply max-w-2xl space-y-6;
@@ -54,18 +54,18 @@
 		@apply space-y-4;
 	}
 	.ui-form-nested {
-		@apply space-y-3 border-l-2 border-slate-100 pl-4;
+		@apply space-y-3 border-l-2 border-border-soft pl-4;
 	}
 	.ui-fieldset-nested {
-		@apply grid max-w-2xl gap-3 rounded-lg border border-slate-100 p-4 sm:grid-cols-2;
+		@apply grid max-w-2xl gap-3 rounded-lg border border-border-soft p-4 sm:grid-cols-2;
 	}
 	.ui-hint {
-		@apply text-xs text-slate-500;
+		@apply text-xs text-text-muted;
 	}
 	.ui-hint--warning {
-		@apply text-xs text-amber-800;
+		@apply text-xs text-warning-text;
 	}
 	.ui-hint--error {
-		@apply text-xs text-red-700;
+		@apply text-xs text-danger;
 	}
 }

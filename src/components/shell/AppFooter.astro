@@ -5,10 +5,8 @@ const { version, commit, versionLabel } = getBuildInfo();
 const commitHref = commit !== 'unknown' ? getCommitUrl(commit) : null;
 ---
 
-<footer class="mt-auto border-t border-slate-200 bg-surface">
-	<div
-		class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-3 text-xs text-slate-500"
-	>
+<footer class="ui-footer">
+	<div class="ui-footer-inner">
 		<span>{APP.name}</span>
 		<span class="font-mono" title={`Wersja ${version}, build ${commit}`}>
 			{

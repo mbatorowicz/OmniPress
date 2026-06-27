@@ -36,7 +36,7 @@ export function createPostEditor(opts: CreatePostEditorOptions): Editor {
 		editorProps: {
 			attributes: {
 				class:
-					'prose prose-sm max-w-none min-h-[280px] px-4 py-3 focus:outline-none text-slate-800',
+					'prose prose-sm max-w-none min-h-[280px] px-4 py-3 focus:outline-none text-text-emphasis',
 			},
 		},
 		onUpdate: ({ editor: ed }) => {

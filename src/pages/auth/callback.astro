@@ -1,6 +1,6 @@
 ---
-import '../../styles/global.css';
-import { auth, callbackPage, common } from '@/i18n';
+import AuthLayout from '@/layouts/AuthLayout.astro';
+import { auth, callbackPage } from '@/i18n';
 import { getProfile, roleHomePath } from '@/lib/auth';
 import { getSupabaseEnv } from '@/lib/supabase/env';
 
@@ -36,77 +36,71 @@ const authError =
 	errorParam ?? (Astro.url.searchParams.get('error') ? auth.callback.failed : null);
 ---
 
-<!doctype html>
-<html lang="pl">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>{callbackPage.pageTitle} · {common.appName}</title>
-	</head>
-	<body
-		class="flex min-h-screen items-center justify-center bg-slate-100 p-6 font-sans"
+<AuthLayout title={callbackPage.pageTitle} heading={callbackPage.pageTitle}>
+	<div
+		id="auth-callback-root"
+		class="text-center"
 		data-supabase-url={supabaseUrl}
 		data-supabase-key={supabaseAnonKey}
 		data-has-code={hasCode ? '1' : '0'}
 	>
-		<div class="max-w-sm rounded-xl bg-white p-8 text-center shadow-sm">
-			{
-				authError ? (
-					<>
-						<p class="text-red-700">{authError}</p>
-						<a href="/login" class="mt-4 inline-block text-brand hover:underline">
-							{callbackPage.backToLogin}
-						</a>
-					</>
-				) : (
-					<>
-						<p class="text-slate-700">{callbackPage.processing}</p>
-						<p class="mt-2 text-sm text-slate-500">{callbackPage.redirectHint}</p>
-					</>
-				)
-			}
-		</div>
 		{
-			!authError && !hasCode && supabaseUrl && supabaseAnonKey && (
-				<script>
-					import { createBrowserClient } from '@supabase/ssr';
-
-					const body = document.body;
-					const url = body.dataset.supabaseUrl!;
-					const key = body.dataset.supabaseKey!;
-
-					const supabase = createBrowserClient(url, key);
-
-					async function finishAuth() {
-						const hash = window.location.hash.replace(/^#/, '');
-						if (hash) {
-							const params = new URLSearchParams(hash);
-							const access_token = params.get('access_token');
-							const refresh_token = params.get('refresh_token');
-							if (access_token && refresh_token) {
-								const { error } = await supabase.auth.setSession({
-									access_token,
-									refresh_token,
-								});
-								if (error) {
-									window.location.href = '/login?error=session';
-									return;
-								}
-								window.location.replace('/');
-								return;
-							}
-						}
-						const code = new URL(window.location.href).searchParams.get('code');
-						if (code) {
-							window.location.reload();
-							return;
-						}
-						window.location.href = '/login?error=missing_token';
-					}
-
-					finishAuth();
-				</script>
+			authError ? (
+				<>
+					<p class="ui-hint--error">{authError}</p>
+					<a href="/login" class="ui-link mt-4 inline-block">
+						{callbackPage.backToLogin}
+					</a>
+				</>
+			) : (
+				<>
+					<p class="ui-subheading">{callbackPage.processing}</p>
+					<p class="ui-muted mt-2">{callbackPage.redirectHint}</p>
+				</>
 			)
 		}
-	</body>
-</html>
+	</div>
+	{
+		!authError && !hasCode && supabaseUrl && supabaseAnonKey && (
+			<script>
+				import { createBrowserClient } from '@supabase/ssr';
+
+				const root = document.getElementById('auth-callback-root');
+				if (!root) throw new Error('auth-callback-root missing');
+				const url = root.dataset.supabaseUrl!;
+				const key = root.dataset.supabaseKey!;
+
+				const supabase = createBrowserClient(url, key);
+
+				async function finishAuth() {
+					const hash = window.location.hash.replace(/^#/, '');
+					if (hash) {
+						const params = new URLSearchParams(hash);
+						const access_token = params.get('access_token');
+						const refresh_token = params.get('refresh_token');
+						if (access_token && refresh_token) {
+							const { error } = await supabase.auth.setSession({
+								access_token,
+								refresh_token,
+							});
+							if (error) {
+								window.location.href = '/login?error=session';
+								return;
+							}
+							window.location.replace('/');
+							return;
+						}
+					}
+					const code = new URL(window.location.href).searchParams.get('code');
+					if (code) {
+						window.location.reload();
+						return;
+					}
+					window.location.href = '/login?error=missing_token';
+				}
+
+				finishAuth();
+			</script>
+		)
+	}
+</AuthLayout>

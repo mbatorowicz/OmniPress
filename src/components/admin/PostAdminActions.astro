@@ -22,7 +22,7 @@ const show = status === 'published';
 					action={`/api/admin/posts/${postId}/deactivate`}
 					data-confirm={adminReview.deactivateConfirm}
 				>
-					<p class="text-sm text-slate-700">{adminReview.deactivateHint}</p>
+					<p class="ui-subheading">{adminReview.deactivateHint}</p>
 					<Button type="submit" variant="warning" class="mt-3">
 						{adminReview.deactivate}
 					</Button>
@@ -35,7 +35,7 @@ const show = status === 'published';
 					action={`/api/admin/posts/${postId}/delete`}
 					data-confirm={adminReview.deleteConfirm}
 				>
-					<p class="text-sm text-slate-700">{adminReview.deleteHint}</p>
+					<p class="ui-subheading">{adminReview.deleteHint}</p>
 					<Button type="submit" variant="danger" class="mt-3">
 						{adminReview.delete}
 					</Button>

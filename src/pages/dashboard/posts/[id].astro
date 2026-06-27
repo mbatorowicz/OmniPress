@@ -86,7 +86,7 @@ const breadcrumbs = [
 	heading={editable ? ed.headingEdit : ed.headingView}
 	{breadcrumbs}
 >
-	<div class="mb-4 flex flex-wrap items-center gap-3 text-sm text-slate-600">
+	<div class="ui-muted mb-4 flex flex-wrap items-center gap-3">
 		<StatusBadge status={post.status as PostStatus} />
 		{site?.name && (
 			<span>

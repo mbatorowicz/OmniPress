@@ -134,7 +134,7 @@ function buildListRowHtml(config: LayoutSlotsClientConfig, id: string, order: nu
 		<td class="ui-table-dense-td"><select name="slot_component" class="slot-component ui-select-compact w-48">${config.componentOptionsHtml}</select></td>
 		<td class="ui-table-dense-td"><input name="slot_widget_order" type="number" min="0" value="${order}" class="ui-input-compact w-16" /></td>
 		<td class="ui-table-dense-td text-center"><input type="checkbox" name="slot_enabled_${id}" checked /></td>
-		<td class="ui-table-dense-td"><button type="button" class="remove-slot ui-link--danger">${config.removeSlotLabel}</button></td>
+		<td class="ui-table-dense-td"><button type="button" class="remove-slot ui-btn ui-btn--link-danger">${config.removeSlotLabel}</button></td>
 	`;
 }
 

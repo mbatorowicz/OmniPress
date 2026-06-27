@@ -67,7 +67,7 @@ const errorMessage =
 				)
 			}
 		</div>
-		<div class="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
+		<div class="ui-list-toolbar">
 			<span class="ui-muted">{dashboard.sites.heading}:</span>
 			{
 				allowedSites.length === 0 ? (
@@ -91,7 +91,7 @@ const errorMessage =
 							<a href={`/dashboard/posts/${post.id}`} class="ui-link">
 								{post.title || common.untitled}
 							</a>
-							<div class="flex items-center gap-3 text-sm text-slate-500">
+							<div class="ui-muted flex items-center gap-3">
 								<span>{(post.sites as { name: string } | null)?.name}</span>
 								<StatusBadge status={post.status as PostStatus} />
 							</div>

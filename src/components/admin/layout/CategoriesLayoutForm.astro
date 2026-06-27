@@ -27,8 +27,3 @@ const { siteId, layout, hasAstroChannel } = Astro.props;
 	<VisibilitySection {layout} />
 	<LayoutSyncActions {siteId} {hasAstroChannel} section="categories" />
 </form>
-
-<script define:vars={{ categoriesFormLabels: { remove: adminLayout.actions.removeCategory } }}>
-	import { mountCategoriesForm } from '@/lib/admin/categories-form-client';
-	mountCategoriesForm(categoriesFormLabels);
-</script>

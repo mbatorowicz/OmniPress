@@ -39,20 +39,19 @@ function renderGallery(root: HTMLElement, labels: GalleryLabels, postId: string)
 
 	order.forEach((asset, index) => {
 		const card = document.createElement('div');
-		card.className =
-			'relative overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm';
+		card.className = 'ui-gallery-card';
 		card.dataset.assetId = asset.id;
 
 		const badge =
 			index === 0
-				? `<span class="absolute left-2 top-2 z-10 rounded bg-brand px-2 py-0.5 text-xs font-medium text-white">${labels.cover}</span>`
-				: `<span class="absolute left-2 top-2 z-10 rounded bg-slate-700/80 px-2 py-0.5 text-xs text-white">${labels.gallery}</span>`;
+				? `<span class="ui-gallery-cover-badge">${labels.cover}</span>`
+				: `<span class="ui-gallery-badge-secondary">${labels.gallery}</span>`;
 
 		card.innerHTML = `
 			${badge}
 			<img src="${asset.url}" alt="${asset.filename}" class="aspect-[4/3] w-full object-cover" loading="lazy" />
-			<div class="flex items-center justify-between gap-1 border-t border-slate-100 px-2 py-1.5">
-				<span class="truncate text-xs text-slate-600" title="${asset.filename}">${asset.filename}</span>
+			<div class="ui-gallery-card-footer">
+				<span class="ui-hint truncate" title="${asset.filename}">${asset.filename}</span>
 				<div class="flex shrink-0 gap-1">
 					${stepButtonHtml({ ariaLabel: labels.moveUp, label: '↑', disabled: index === 0, attrs: { 'data-gallery-up': '' } })}
 					${stepButtonHtml({ ariaLabel: labels.moveDown, label: '↓', disabled: index === order.length - 1, attrs: { 'data-gallery-down': '' } })}

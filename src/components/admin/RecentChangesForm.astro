@@ -49,7 +49,7 @@ const kindLabels = adminRecentChanges.kinds;
 											? kindLabels[entry.kind as keyof typeof kindLabels]
 											: entry.kind}
 									</td>
-									<td class="ui-table-dense-td--wide text-xs text-slate-500">
+									<td class="ui-table-dense-td--wide ui-hint">
 										{new Date(entry.changedAt).toLocaleString('pl-PL')}
 									</td>
 								</tr>

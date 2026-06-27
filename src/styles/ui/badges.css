@@ -3,7 +3,7 @@
 		@apply rounded-full px-2 py-0.5 text-xs font-medium;
 	}
 	.ui-badge--draft {
-		@apply bg-slate-100 text-slate-700;
+		@apply bg-surface-muted text-text-secondary;
 	}
 	.ui-badge--pending {
 		@apply bg-amber-100 text-amber-900;
@@ -12,12 +12,12 @@
 		@apply bg-violet-100 text-violet-900;
 	}
 	.ui-badge--publishing {
-		@apply bg-sky-100 text-sky-900;
+		@apply bg-info-surface text-info-text;
 	}
 	.ui-badge--published {
 		@apply bg-green-100 text-green-800;
 	}
 	.ui-badge--rejected {
-		@apply bg-red-100 text-red-800;
+		@apply bg-red-100 text-danger-text;
 	}
 }

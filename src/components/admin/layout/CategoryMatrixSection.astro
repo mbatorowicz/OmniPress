@@ -46,7 +46,7 @@ const rows =
 							<input name="category_name" value={cat.name} required class="ui-input-compact w-full" />
 						</td>
 						<td class="ui-table-dense-td--wide">
-							<button type="button" class="remove-category ui-link--danger">
+							<button type="button" class="remove-category ui-btn ui-btn--link-danger">
 								{adminLayout.actions.removeCategory}
 							</button>
 						</td>
@@ -55,10 +55,15 @@ const rows =
 			}
 		</tbody>
 	</Table>
-	<button type="button" data-add-category class="ui-btn ui-btn--add mt-2">
+	<button type="button" id="add-category" data-add-category class="ui-btn ui-btn--add mt-2">
 		{adminLayout.actions.addCategory}
 	</button>
 	<p class="ui-hint mt-2">
 		{adminLayout.paths.categories}: <code class="ui-code">{layout.categoriesPath}</code>
 	</p>
 </Panel>
+
+<script define:vars={{ removeCategoryLabel: adminLayout.actions.removeCategory }}>
+	import { mountCategoriesForm } from '@/lib/admin/categories-form-client';
+	mountCategoriesForm({ remove: removeCategoryLabel });
+</script>

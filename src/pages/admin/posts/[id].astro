@@ -91,7 +91,7 @@ const breadcrumbs = [
 ---
 
 <AppLayout title={preview.title} heading={preview.heading} {breadcrumbs}>
-	<div class="mb-4 flex flex-wrap gap-3 text-sm text-slate-600">
+	<div class="ui-muted mb-4 flex flex-wrap gap-3">
 		<StatusBadge status={post.status as PostStatus} />
 		{site?.name && <span>{preview.siteLabel} {site.name}</span>}
 		{authorName && <span>{preview.authorLabel} {authorName}</span>}

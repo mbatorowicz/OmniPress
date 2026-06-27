@@ -37,17 +37,17 @@ const flashMessages = parseQueryFlash(Astro.url, {
 	/>
 
 	<Panel variant="danger" class="mt-8 max-w-2xl">
-		<h3 class="text-sm font-medium text-red-900">{adminSites.delete.heading}</h3>
-		<p class="mt-1 text-sm text-red-800">{adminSites.delete.lead}</p>
+		<h3 class="ui-danger-heading">{adminSites.delete.heading}</h3>
+		<p class="ui-danger-lead mt-1">{adminSites.delete.lead}</p>
 		{
 			postCount > 0 && (
-				<p class="mt-2 text-sm font-medium text-red-900">
+				<p class="ui-danger-heading mt-2">
 					{adminSites.errors.has_posts} {adminSites.delete.postsCount(postCount)}
 				</p>
 			)
 		}
 		<form method="post" action={`/api/admin/sites/${id}/delete`} class="mt-4 space-y-3">
-			<label class="flex items-start gap-2 text-sm text-red-900">
+			<label class="ui-danger-label">
 				<input type="checkbox" name="confirm" class="ui-checkbox mt-1" disabled={postCount > 0} />
 				{adminSites.delete.confirm}
 			</label>

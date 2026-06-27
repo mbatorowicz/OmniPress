@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.9.0** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.10.0** (kod + baza + panel).
 
 Produkcja: https://omni-press.vercel.app
 
@@ -165,6 +165,17 @@ E2E domyślnie biegnie na produkcji (`E2E_BASE_URL` zmienia cel); dane logowania
 | Audit log akcji administratora | — |
 | Testy integracyjne RLS | — |
 | SSO redaktorów | — |
+
+---
+
+## 0.10.0 — SSOT stylów UI
+
+- Semantyczne tokeny w `src/styles/global.css` (`text`, `border`, `link`, `danger`, nav depth itd.).
+- Partiale `ui/*.css` bez surowych `slate-*`; nowe: `typography.css`, `rich-content.css`, `layout-slots-preview.css`.
+- Warianty przycisków: `ui-btn--link`, `ui-btn--link-danger`, `ui-btn--link-ghost`, `ui-btn--sm`.
+- Migracja komponentów domenowych na klasy `ui-*`; linki w treści = kolor brand.
+- PDF viewer i callback auth na tokenach CSS / `AuthLayout`.
+- Lint: `npm run lint` (ESLint TS + `scripts/lint-ui-classes.mjs`); workflow CI `.github/workflows/ci.yml`.
 
 ---
 

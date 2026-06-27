@@ -20,73 +20,25 @@ const { initialMarkdown, placeholder, toolbar } = Astro.props;
 ---
 
 <div
-	class="rich-editor rounded-lg border border-slate-300 bg-white"
+	class="rich-editor ui-editor-shell"
 	data-rich-editor
 	data-placeholder={placeholder}
 	data-link-prompt={toolbar.linkPrompt}
 >
-	<div class="flex flex-wrap gap-1 border-b border-slate-200 bg-slate-50 px-2 py-2">
+	<div class="ui-editor-toolbar">
 		<button type="button" data-editor-cmd="bold" class="ui-btn ui-btn--toolbar font-bold" title={toolbar.bold}>B</button>
 		<button type="button" data-editor-cmd="italic" class="ui-btn ui-btn--toolbar italic" title={toolbar.italic}>I</button>
 		<button type="button" data-editor-cmd="h2" class="ui-btn ui-btn--toolbar" title={toolbar.h2}>H2</button>
 		<button type="button" data-editor-cmd="h3" class="ui-btn ui-btn--toolbar" title={toolbar.h3}>H3</button>
 		<button type="button" data-editor-cmd="bullet" class="ui-btn ui-btn--toolbar" title={toolbar.bulletList}>{toolbar.bulletList}</button>
 		<button type="button" data-editor-cmd="ordered" class="ui-btn ui-btn--toolbar" title={toolbar.orderedList}>{toolbar.orderedList}</button>
-		<button type="button" data-editor-cmd="link" class="ui-btn ui-btn--toolbar text-slate-600" title={toolbar.link}>
+		<button type="button" data-editor-cmd="link" class="ui-btn ui-btn--toolbar ui-muted" title={toolbar.link}>
 			<Icon name="link" size={16} />
 		</button>
 	</div>
 	<div data-tiptap-mount class="min-h-[280px]"></div>
 	<textarea name="content_md" class="hidden" data-content-md>{initialMarkdown}</textarea>
 </div>
-
-<style is:global>
-	.rich-editor .tiptap {
-		min-height: 280px;
-	}
-
-	.rich-editor .tiptap:focus {
-		outline: none;
-	}
-
-	.rich-editor .tiptap p.is-editor-empty:first-child::before {
-		color: #94a3b8;
-		content: attr(data-placeholder);
-		float: left;
-		height: 0;
-		pointer-events: none;
-	}
-
-	.rich-editor .tiptap h2 {
-		font-size: 1.35rem;
-		font-weight: 600;
-		margin: 1rem 0 0.5rem;
-	}
-
-	.rich-editor .tiptap h3 {
-		font-size: 1.15rem;
-		font-weight: 600;
-		margin: 0.75rem 0 0.5rem;
-	}
-
-	.rich-editor .tiptap ul,
-	.rich-editor .tiptap ol {
-		padding-left: 1.5rem;
-		margin: 0.5rem 0;
-	}
-
-	.rich-editor .tiptap a {
-		color: #1d4ed8;
-		text-decoration: underline;
-	}
-
-	.rich-editor .tiptap blockquote {
-		border-left: 3px solid #cbd5e1;
-		margin: 0.75rem 0;
-		padding-left: 1rem;
-		color: #475569;
-	}
-</style>
 
 <script>
 	import { initPostRichEditor } from '@/lib/editor/client-init';

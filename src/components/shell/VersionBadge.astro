@@ -5,7 +5,7 @@ const { versionLabel, commit } = getBuildInfo();
 const commitHref = commit !== 'unknown' ? getCommitUrl(commit) : null;
 ---
 
-<p class="text-center font-mono text-xs text-slate-400">
+<p class="ui-caption text-center font-mono">
 	{
 		commitHref ? (
 			<a href={commitHref} target="_blank" rel="noopener noreferrer" class="hover:text-brand">

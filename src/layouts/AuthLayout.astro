@@ -16,7 +16,7 @@ const { title, heading, lead, wide } = Astro.props;
 <BaseLayout title={title} bodyClass="ui-auth-shell">
 	<div class:list={['ui-auth-card', wide && 'max-w-md']}>
 		<h1 class="ui-auth-title">{heading ?? common.appName}</h1>
-		{lead && <p class="mt-1 text-sm text-slate-600">{lead}</p>}
+		{lead && <p class="ui-muted mt-1">{lead}</p>}
 		<slot />
 	</div>
 	<VersionBadge />

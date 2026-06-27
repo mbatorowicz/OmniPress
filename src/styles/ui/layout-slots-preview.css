@@ -1,0 +1,28 @@
+@layer components {
+	.slots-preview-frame {
+		@apply mb-6 rounded-lg border border-border bg-surface p-4;
+	}
+
+	.slot-row--highlighted {
+		outline: 2px solid var(--color-brand);
+		outline-offset: -2px;
+		background-color: color-mix(in srgb, var(--color-brand) 8%, white);
+	}
+
+	.slot-preview-card:focus-visible {
+		outline: 2px solid var(--color-brand);
+		outline-offset: 2px;
+	}
+
+	.slot-preview-card {
+		@apply rounded border border-border bg-surface-subtle p-2 shadow-sm;
+	}
+
+	.slot-preview-disabled-badge {
+		@apply ml-1 rounded bg-border px-1.5 py-0.5 text-xs text-text-muted;
+	}
+
+	.slot-preview-empty {
+		@apply text-sm text-text-subtle italic;
+	}
+}

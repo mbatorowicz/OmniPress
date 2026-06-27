@@ -18,7 +18,7 @@ const flash = parseLayoutPageFlash(Astro.url);
 
 <AppLayout title={adminLayout.componentsTitle} heading={adminLayout.componentsTitle}>
 	<AdminContextNav siteId={id} siteName={ctx.site.name} section="components" />
-	<p class="mb-4 text-sm text-slate-600">{adminLayout.componentsLead}</p>
+	<p class="ui-muted mb-4">{adminLayout.componentsLead}</p>
 
 	<LayoutFormAlerts {...flash} hasAstroChannel={ctx.hasAstroChannel} />
 

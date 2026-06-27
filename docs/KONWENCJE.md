@@ -57,18 +57,21 @@ src/
 ## 7. UI (SSOT stylów)
 
 - **Klasy:** `src/styles/ui.css` (importuje partiale z `src/styles/ui/`) — prefiks `ui-*`.
-- **Tokeny:** `src/styles/global.css` (`@theme`: brand, surface, radius-card).
+- **Tokeny:** `src/styles/global.css` (`@theme`) — brand, surface, tekst, obramowania, link, danger, info, warning, nav depth.
+- **Typografia:** `src/styles/ui/typography.css` — `ui-title-brand`, `ui-title-page`, `ui-title-preview`, `ui-nav-group-label`.
+- **Treść:** `src/styles/ui/rich-content.css` — edytor TipTap i render HTML postów.
 - **Layouty:** `src/layouts/` — `BaseLayout`, `PublicLayout`, `AuthLayout`, `AppLayout`.
 - **Powłoka:** `src/components/shell/` — header, footer, `AdminSidebar` (stała nawigacja admina), `AdminContextNav` (kontekst jednostki). Breadcrumby: `ui/navigation/Breadcrumbs` — przekazywane przez prop `breadcrumbs` w `AppLayout`.
 - **Design system:** `src/components/ui/` — podfoldery `actions/`, `feedback/`, `form/`, `table/`, `layout/`, `navigation/`.
 - **Wzorce:** `src/components/shared/` — `FlashAlerts`, `ConfirmScript`.
 - **Domena:** `src/components/admin/`, `src/components/posts/` — logika panelu; importują tylko `ui/` i `shell/`.
 - **Logika klienta UI:** `src/lib/ui/` — `confirm.ts`, `dom.ts` (`eventTargetElement` — delegacja kliknięć, nie `instanceof HTMLElement` przy SVG), `button-markup.ts`, `flash.ts`, `icons.ts`.
-- **Przyciski:** `Button.astro` i `IconButton.astro` (`src/components/ui/actions/`); warianty w `src/styles/ui/buttons.css`. Ikony w przyciskach: `pointer-events-none` (`Icon.astro` / `icons.ts`). HTML z TS: `button-markup.ts`.
+- **Przyciski:** `Button.astro` i `IconButton.astro` (`src/components/ui/actions/`); warianty w `src/styles/ui/buttons.css` (`ui-btn--link`, `ui-btn--link-danger`, `ui-btn--link-ghost`). Ikony w przyciskach: `pointer-events-none` (`Icon.astro` / `icons.ts`). HTML z TS: `button-markup.ts`.
 - **Teksty akcji:** `src/i18n/pl/ui.ts` — wspólne etykiety (`save`, `remove`, `confirm.removeItem`); domenowe pliki składają z `ui`.
-- **Zakaz** długich stringów Tailwind w stronach — komponent `ui/*` lub klasa `ui-*`.
+- **Zakaz** długich stringów Tailwind i surowych utility kolorów (`text-slate-*`, `bg-red-*` itd.) w plikach domenowych — komponent `ui/*` lub klasa `ui-*`.
+- **Lint:** `npm run lint` — ESLint (`src/**/*.{ts,tsx}`) + `scripts/lint-ui-classes.mjs` (kolory Tailwind w plikach domenowych).
 - Importy wyłącznie przez alias `@/`.
-- Wyjątki: siatki flex/grid, edytor TipTap, galeria — lokalne klasy strukturalne.
+- Wyjątki: siatki flex/grid, edytor TipTap (`rich-editor`, `tiptap`), galeria, podgląd slotów (`layout-slots-preview.css`) — klasy strukturalne; kolory tylko przez tokeny/`ui-*`.
 
 ## 8. Agent AI
 
