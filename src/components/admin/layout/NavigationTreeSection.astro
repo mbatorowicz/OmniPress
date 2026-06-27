@@ -90,26 +90,46 @@ const navTableLabels = {
 							<input type="hidden" name="nav_href_value" class="nav-href-value-submit" value={navHrefSubmitValue(row)} />
 							<input
 								value={row.hrefKind === 'custom' ? row.hrefValue : ''}
-								class={`nav-href-input-default nav-href-field nav-href-field-custom ${row.hrefKind === 'custom' ? '' : 'hidden'}`}
+								class:list={[
+									'nav-href-input-default nav-href-field nav-href-field-custom',
+									{ 'nav-href-field--active': row.hrefKind === 'custom' },
+								]}
+								hidden={row.hrefKind !== 'custom'}
 								disabled={row.hrefKind !== 'custom'}
 							/>
 							<input
 								value={row.hrefKind === 'external' ? row.hrefValue : ''}
-								class={`nav-href-input-default nav-href-field nav-href-field-external ${row.hrefKind === 'external' ? '' : 'hidden'}`}
+								class:list={[
+									'nav-href-input-default nav-href-field nav-href-field-external',
+									{ 'nav-href-field--active': row.hrefKind === 'external' },
+								]}
+								hidden={row.hrefKind !== 'external'}
 								disabled={row.hrefKind !== 'external'}
 							/>
 							<select
-								class={`nav-href-select nav-href-field nav-href-field-category ${row.hrefKind === 'category' ? '' : 'hidden'}`}
+								class:list={[
+									'nav-href-select nav-href-field nav-href-field-category',
+									{ 'nav-href-field--active': row.hrefKind === 'category' },
+								]}
+								hidden={row.hrefKind !== 'category'}
 								disabled={row.hrefKind !== 'category'}
 							>
-								{categoryOptions.map((opt) => (
-									<option value={opt.path.replace(/^\//, '')} selected={row.hrefKind === 'category' && row.hrefValue === opt.path.replace(/^\//, '')}>
-										{opt.title}
-									</option>
-								))}
+								{categoryOptions.length === 0 ? (
+									<option value="">{adminLayout.noCategoriesForNav}</option>
+								) : (
+									categoryOptions.map((opt) => (
+										<option value={opt.path.replace(/^\//, '')} selected={row.hrefKind === 'category' && row.hrefValue === opt.path.replace(/^\//, '')}>
+											{opt.title}
+										</option>
+									))
+								)}
 							</select>
 							<select
-								class={`nav-href-select nav-href-field nav-href-field-page ${row.hrefKind === 'page' ? '' : 'hidden'}`}
+								class:list={[
+									'nav-href-select nav-href-field nav-href-field-page',
+									{ 'nav-href-field--active': row.hrefKind === 'page' },
+								]}
+								hidden={row.hrefKind !== 'page'}
 								disabled={row.hrefKind !== 'page'}
 							>
 								{pageOptions.length === 0 ? (
@@ -132,7 +152,11 @@ const navTableLabels = {
 								}
 							</select>
 							<select
-								class={`nav-href-select nav-href-field nav-href-field-static ${row.hrefKind === 'static' ? '' : 'hidden'}`}
+								class:list={[
+									'nav-href-select nav-href-field nav-href-field-static',
+									{ 'nav-href-field--active': row.hrefKind === 'static' },
+								]}
+								hidden={row.hrefKind !== 'static'}
 								disabled={row.hrefKind !== 'static'}
 							>
 								{STATIC_ROUTE_OPTIONS.map((opt) => (

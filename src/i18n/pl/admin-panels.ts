@@ -197,8 +197,8 @@ export const adminLayout = {
 	navHrefKinds: {
 		none: 'Bez linku (tylko rozwijane)',
 		category: 'Kategoria wpisów',
-		page: 'Strona statyczna',
-		static: 'Stała trasa',
+		page: 'Strona z menu / CMS',
+		static: 'Stała trasa (/, /kontakt)',
 		custom: 'Własny URL wewnętrzny',
 		external: 'Adres zewnętrzny',
 	},
@@ -224,6 +224,7 @@ export const adminLayout = {
 		blue: 'Niebieskie tło',
 	},
 	noPublishedPages: 'Brak opublikowanych stron statycznych.',
+	noCategoriesForNav: 'Brak kategorii — dodaj w zakładce Kategorie.',
 	certAdvisoriesHint:
 		'Komunikaty CERT Polska (RSS) — widget na stronie woła /api/cert/advisories, cache ~15 min, bez commita do GitHub.',
 	weatherHint:

@@ -174,8 +174,19 @@ export function initNavigationRowFromServerState(row: HTMLElement): void {
 
 	syncHrefFields(row, { skipSubmitSync: true });
 	initHrefFieldsFromHidden(row);
+	syncHrefFields(row);
 	syncNavDepthVisual(row);
 	syncMegaCell(row);
+}
+
+function setHrefFieldActive(field: Element, active: boolean): void {
+	if (!(field instanceof HTMLElement)) return;
+	field.classList.toggle('nav-href-field--active', active);
+	field.classList.toggle('hidden', !active);
+	field.hidden = !active;
+	if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement) {
+		field.disabled = !active;
+	}
 }
 
 export function syncHrefFields(row: HTMLElement, options?: { skipSubmitSync?: boolean }): void {
@@ -183,12 +194,8 @@ export function syncHrefFields(row: HTMLElement, options?: { skipSubmitSync?: bo
 	const kind = kindUi?.value ?? 'none';
 
 	row.querySelectorAll('.nav-href-field').forEach((el) => {
-		const field = el;
-		const match = field.classList.contains(`nav-href-field-${kind}`);
-		field.classList.toggle('hidden', !match);
-		if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement) {
-			field.disabled = !match;
-		}
+		const match = el.classList.contains(`nav-href-field-${kind}`);
+		setHrefFieldActive(el, match);
 	});
 
 	row.dataset.navKind = kind;
@@ -299,7 +306,12 @@ function handleNavigationChange(event: Event): void {
 
 	if (target.closest('.nav-href-kind') || target.closest('.nav-href-field')) {
 		const row = target.closest('.nav-row');
-		if (row instanceof HTMLElement) syncHrefFields(row);
+		if (row instanceof HTMLElement) {
+			syncHrefFields(row);
+			if (target.closest('.nav-href-kind')) {
+				requestAnimationFrame(() => syncHrefFields(row));
+			}
+		}
 		return;
 	}
 
@@ -359,6 +371,7 @@ export function mountNavigationForm(labels: NavigationTableLabels): void {
 		if (document.documentElement.dataset.navigationFormMounted === '1') return;
 		document.documentElement.dataset.navigationFormMounted = '1';
 		document.addEventListener('change', handleNavigationChange);
+		document.addEventListener('input', handleNavigationChange);
 		document.addEventListener('click', (event) => handleNavigationClick(event, labels));
 	};
 
