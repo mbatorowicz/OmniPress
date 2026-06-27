@@ -5,6 +5,7 @@ import type { DraftLiveStatus } from '@/lib/astro-layout/layout-sync-meta';
 
 interface Props {
 	draftStatus?: DraftLiveStatus;
+	navHasMissingHref?: boolean;
 	lastPublishedAt?: string;
 	lastPublishedSha?: string;
 	lastDraftSavedAt?: string;
@@ -13,6 +14,7 @@ interface Props {
 
 const {
 	draftStatus = 'unknown',
+	navHasMissingHref = false,
 	lastPublishedAt,
 	lastPublishedSha,
 	lastDraftSavedAt,
@@ -28,16 +30,20 @@ function formatDate(iso?: string): string | null {
 
 const publishedLabel = formatDate(lastPublishedAt);
 const draftLabel = formatDate(lastDraftSavedAt);
+
+const showStatus = hasAstroChannel && (draftStatus !== 'unknown' || navHasMissingHref);
+const statusVariant = navHasMissingHref ? 'error' : draftStatus === 'in_sync' ? 'success' : 'warning';
+const statusMessage = navHasMissingHref
+	? adminLayout.draftStatus.draftMissingHref
+	: draftStatus === 'in_sync'
+		? adminLayout.draftStatus.inSync
+		: adminLayout.draftStatus.draftAhead;
 ---
 
 {
-	hasAstroChannel && draftStatus !== 'unknown' && (
-		<Alert variant={draftStatus === 'in_sync' ? 'success' : 'warning'}>
-			<p class="font-medium">
-				{draftStatus === 'in_sync'
-					? adminLayout.draftStatus.inSync
-					: adminLayout.draftStatus.draftAhead}
-			</p>
+	showStatus && (
+		<Alert variant={statusVariant}>
+			<p class="font-medium">{statusMessage}</p>
 			{publishedLabel && (
 				<p class="mt-1 text-sm font-normal opacity-90">
 					{adminLayout.draftStatus.lastPublished}: {publishedLabel}

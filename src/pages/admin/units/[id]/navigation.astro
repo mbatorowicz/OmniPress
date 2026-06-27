@@ -25,18 +25,27 @@ const flash = parseLayoutPageFlash(Astro.url);
 
 	<LayoutDraftStatus
 		draftStatus={ctx.draftStatus}
+		navHasMissingHref={ctx.navHasMissingHref}
 		lastPublishedAt={ctx.lastPublishedAt}
 		lastPublishedSha={ctx.lastPublishedSha}
 		lastDraftSavedAt={ctx.lastDraftSavedAt}
 		hasAstroChannel={ctx.hasAstroChannel}
 	/>
 
-	<LayoutFormAlerts {...flash} hasAstroChannel={ctx.hasAstroChannel} navWarningLines={ctx.navWarningLines} />
+	<LayoutFormAlerts
+		{...flash}
+		hasAstroChannel={ctx.hasAstroChannel}
+		navWarningLines={ctx.navWarningLines}
+		navHasMissingHref={ctx.navHasMissingHref}
+	/>
 
 	<NavigationLayoutForm
 		siteId={id}
 		layout={ctx.layout}
 		hasAstroChannel={ctx.hasAstroChannel}
 		publishedPages={ctx.publishedPages}
+		draftHrefCount={ctx.draftHrefCount}
+		liveHrefCount={ctx.liveHrefCount}
+		navHasMissingHref={ctx.navHasMissingHref}
 	/>
 </AppLayout>

@@ -11,9 +11,20 @@ interface Props {
 	layout: SiteAstroLayout;
 	hasAstroChannel: boolean;
 	publishedPages: PageOption[];
+	draftHrefCount?: number;
+	liveHrefCount?: number | null;
+	navHasMissingHref?: boolean;
 }
 
-const { siteId, layout, hasAstroChannel, publishedPages } = Astro.props;
+const {
+	siteId,
+	layout,
+	hasAstroChannel,
+	publishedPages,
+	draftHrefCount = 0,
+	liveHrefCount = null,
+	navHasMissingHref = false,
+} = Astro.props;
 ---
 
 <form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="ui-form-stack max-w-5xl">
@@ -23,5 +34,12 @@ const { siteId, layout, hasAstroChannel, publishedPages } = Astro.props;
 		categories={layout.categories}
 		publishedPages={publishedPages}
 	/>
-	<LayoutSyncActions {siteId} {hasAstroChannel} section="navigation" />
+	<LayoutSyncActions
+		{siteId}
+		{hasAstroChannel}
+		section="navigation"
+		{draftHrefCount}
+		{liveHrefCount}
+		{navHasMissingHref}
+	/>
 </form>

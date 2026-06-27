@@ -7,9 +7,12 @@ interface Props {
 	errorDetail?: string | null;
 	syncSummary?: string | null;
 	navWarningLines?: string[];
+	navHasMissingHref?: boolean;
 	saved?: boolean;
 	published?: boolean;
 	imported?: boolean;
+	importHrefCount?: number | null;
+	importPath?: string | null;
 	hasAstroChannel?: boolean;
 }
 
@@ -18,11 +21,21 @@ const {
 	errorDetail,
 	syncSummary,
 	navWarningLines = [],
+	navHasMissingHref = false,
 	saved,
 	published,
 	imported,
+	importHrefCount,
+	importPath,
 	hasAstroChannel = true,
 } = Astro.props;
+
+const importMessage =
+	imported && importHrefCount !== null && importPath
+		? adminLayout.importedMenu(importHrefCount, importPath)
+		: imported
+			? adminLayout.imported
+			: null;
 ---
 
 {saved && !published && (
@@ -38,7 +51,7 @@ const {
 		)}
 	</Alert>
 )}
-{imported && <Alert variant="success">{adminLayout.imported}</Alert>}
+{importMessage && <Alert variant="success">{importMessage}</Alert>}
 {errorMessage && (
 	<Alert variant="error">
 		{errorMessage}
@@ -47,9 +60,13 @@ const {
 )}
 {
 	navWarningLines.length > 0 && (
-		<Alert variant="warning">
+		<Alert variant={navHasMissingHref ? 'error' : 'warning'}>
 			<p class="font-medium">{adminLayout.navValidationHeading}</p>
-			<p class="mt-1 text-sm">{adminLayout.navValidationHint}</p>
+			<p class="mt-1 text-sm">
+				{navHasMissingHref
+					? adminLayout.publishBlockedMissingHref
+					: adminLayout.navValidationHint}
+			</p>
 			<ul class="mt-2 list-inside list-disc text-sm">
 				{navWarningLines.slice(0, 12).map((line) => (
 					<li>{line}</li>

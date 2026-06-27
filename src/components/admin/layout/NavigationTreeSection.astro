@@ -31,6 +31,8 @@ const rows =
 
 const categoryOptions = buildCategoryLinkOptions(categories);
 const linkKinds = adminLayout.navHrefKinds;
+const navigationJsonPreview =
+	navigation.length > 0 ? `${JSON.stringify(navigation, null, '\t')}\n` : '';
 
 function navHrefSubmitValue(row: (typeof rows)[number]): string {
 	if (row.hrefKind === 'none') return '';
@@ -147,7 +149,7 @@ const navTableLabels = {
 			rows={8}
 			class="ui-textarea ui-textarea--mono mt-2 w-full"
 			placeholder='[{"label":"Aktualności","href":"/aktualnosci"}]'
-		></textarea>
+		>{navigationJsonPreview}</textarea>
 	</details>
 </Panel>
 

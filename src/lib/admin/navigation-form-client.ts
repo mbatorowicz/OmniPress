@@ -207,7 +207,6 @@ export function mountNavigationForm(labels: NavigationTableLabels): void {
 		if (!(body instanceof HTMLElement)) return;
 
 		body.querySelectorAll('.nav-row').forEach((row) => {
-			syncHrefFields(row as HTMLElement, { skipSubmitSync: true });
 			initHrefFieldsFromHidden(row as HTMLElement);
 			syncNavDepthVisual(row as HTMLElement);
 			syncMegaCell(row as HTMLElement);

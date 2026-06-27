@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
 	fetchLiveLayoutHashes,
+	fetchLiveNavigationHrefCount,
 	importSiteAstroLayoutFromGitHub,
 	loadSiteAstroLayout,
 } from '@/lib/astro-layout/store';
@@ -12,7 +13,9 @@ import {
 import type { SiteAstroLayout } from '@/lib/astro-layout/types';
 import {
 	buildKnownNavPaths,
+	countNavigationHrefs,
 	formatNavValidationIssues,
+	hasMissingHrefIssues,
 	validateNavigationLinks,
 } from '@/lib/astro-layout/validate-nav';
 import { listSitePages } from '@/lib/site-pages/access';
@@ -29,6 +32,9 @@ export type LayoutEditorContext = {
 	hasAstroChannel: boolean;
 	publishedPages: PageOption[];
 	navWarningLines: string[];
+	navHasMissingHref: boolean;
+	draftHrefCount: number;
+	liveHrefCount: number | null;
 	draftStatus: DraftLiveStatus;
 	draftStatusScope: DraftLiveScope;
 	lastPublishedAt?: string;
@@ -77,12 +83,16 @@ export async function loadLayoutEditorContext(
 		layout.categories.map((c) => c.slug),
 		[...DEFAULT_STATIC_ROUTES, ...collectNavInternalPageOptions(layout.navigation).map((p) => p.path)],
 	);
-	const navWarningLines = formatNavValidationIssues(
-		validateNavigationLinks(layout.navigation, knownNavPaths),
-	);
+	const navIssues = validateNavigationLinks(layout.navigation, knownNavPaths);
+	const navWarningLines = formatNavValidationIssues(navIssues);
+	const navHasMissingHref = hasMissingHrefIssues(navIssues);
+	const draftHrefCount = countNavigationHrefs(layout.navigation);
 
 	const liveHashes = hasAstroChannel
 		? await fetchLiveLayoutHashes(supabase, siteId, layout)
+		: null;
+	const liveHrefCount = hasAstroChannel
+		? await fetchLiveNavigationHrefCount(supabase, siteId, layout)
 		: null;
 	const draftStatus = hasAstroChannel
 		? computeDraftLiveStatus(layout, draftStatusScope, liveHashes ?? undefined)
@@ -94,6 +104,9 @@ export async function loadLayoutEditorContext(
 		hasAstroChannel,
 		publishedPages,
 		navWarningLines,
+		navHasMissingHref,
+		draftHrefCount,
+		liveHrefCount,
 		draftStatus,
 		draftStatusScope,
 		lastPublishedAt: layout.sync?.lastPublishedAt,

@@ -19,5 +19,10 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		return redirect(`/admin/units/${siteId}/${returnSegment}?error=${result.error}`);
 	}
 
-	return redirect(`/admin/units/${siteId}/${returnSegment}?imported=1`);
+	const query = new URLSearchParams({
+		imported: '1',
+		import_hrefs: String(result.report.hrefCount),
+		import_path: result.report.navigationPath,
+	});
+	return redirect(`/admin/units/${siteId}/${returnSegment}?${query.toString()}`);
 };

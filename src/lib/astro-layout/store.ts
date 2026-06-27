@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { categoriesConfigPath, navigationConfigPath } from '@/lib/admin/config-paths';
 import { loadSiteAstroDestination } from '@/lib/admin/sites';
 import {
 	decryptDestinationCredentials,
@@ -32,6 +33,17 @@ import { prepareRecentChangeAppendWrite } from '@/lib/recent-changes/github';
 import { buildLayoutRecentChangeEntry } from '@/lib/recent-changes/layout-entry';
 import type { SiteAstroLayout } from './types';
 import { emptySiteAstroLayout } from './types';
+import { collectNavHrefs } from './validate-nav';
+
+export type LayoutImportReport = {
+	hrefCount: number;
+	navigationPath: string;
+	navHash: string;
+};
+
+export type LayoutImportResult =
+	| { ok: true; layout: SiteAstroLayout; report: LayoutImportReport }
+	| { ok: false; error: string };
 
 export async function loadSiteAstroLayout(
 	supabase: SupabaseClient,
@@ -69,7 +81,7 @@ export async function saveSiteAstroLayout(
 export async function importSiteAstroLayoutFromGitHub(
 	supabase: SupabaseClient,
 	siteId: string,
-): Promise<{ ok: true; layout: SiteAstroLayout } | { ok: false; error: string }> {
+): Promise<LayoutImportResult> {
 	const dest = await loadSiteAstroDestination(supabase, siteId);
 	if (!dest?.is_active) return { ok: false, error: 'no_astro_destination' };
 
@@ -83,19 +95,27 @@ export async function importSiteAstroLayoutFromGitHub(
 
 	const existing = await loadSiteAstroLayout(supabase, siteId);
 	const layout: SiteAstroLayout = { ...existing };
-	layout.navigationPath =
-		typeof dest.config.navigation_path === 'string' && dest.config.navigation_path.trim()
-			? dest.config.navigation_path.trim()
-			: layout.navigationPath;
-	layout.categoriesPath =
-		typeof dest.config.categories_path === 'string' && dest.config.categories_path.trim()
-			? dest.config.categories_path.trim()
-			: layout.categoriesPath;
+	layout.navigationPath = navigationConfigPath(dest.config);
+	layout.categoriesPath = categoriesConfigPath(dest.config);
 
 	const navText = await getGitHubFileText(cfg, creds.token, layout.navigationPath);
-	if (navText) {
-		layout.navigation = parseNavigationJson(navText);
+	if (!navText) {
+		return { ok: false, error: 'import_nav_missing' };
 	}
+
+	let navigation;
+	try {
+		navigation = parseNavigationJson(navText);
+	} catch {
+		return { ok: false, error: 'invalid_navigation' };
+	}
+
+	const hrefCount = collectNavHrefs(navigation).length;
+	if (hrefCount === 0 && navText.includes('"href"')) {
+		return { ok: false, error: 'import_nav_empty' };
+	}
+
+	layout.navigation = navigation;
 
 	const catText = await getGitHubFileText(cfg, creds.token, layout.categoriesPath);
 	if (catText) {
@@ -105,13 +125,22 @@ export async function importSiteAstroLayoutFromGitHub(
 		layout.slots = parsed.slots;
 	}
 
+	const navHash = hashNavigationFileText(navText) ?? '';
 	const merged = withImportedLiveMeta(layout, {
-		navHash: navText ? hashNavigationFileText(navText) : null,
+		navHash: navHash || null,
 		categoriesHash: catText ? hashCategoriesFileText(catText) : null,
 	});
 
 	await saveSiteAstroLayout(supabase, siteId, merged, { updateDraftMeta: false });
-	return { ok: true, layout: merged };
+	return {
+		ok: true,
+		layout: merged,
+		report: {
+			hrefCount,
+			navigationPath: layout.navigationPath,
+			navHash,
+		},
+	};
 }
 
 export type LayoutGitHubSyncOptions = {
@@ -223,6 +252,29 @@ export async function syncSiteAstroLayoutToGitHub(
 	} catch (err) {
 		const detail = err instanceof Error ? err.message : 'sync_failed';
 		return { ok: false, error: 'sync_failed', detail: detail.slice(0, 300) };
+	}
+}
+
+export async function fetchLiveNavigationHrefCount(
+	supabase: SupabaseClient,
+	siteId: string,
+	layout: SiteAstroLayout,
+): Promise<number | null> {
+	const dest = await loadSiteAstroDestination(supabase, siteId);
+	if (!dest?.is_active) return null;
+
+	const cfg = parseGitHubRepoConfig(dest.config);
+	if (!cfg) return null;
+
+	const creds = await decryptDestinationCredentials(dest);
+	if (!creds || !isGitHubCredentials(dest.type, creds)) return null;
+
+	try {
+		const navText = await getGitHubFileText(cfg, creds.token, layout.navigationPath);
+		if (!navText) return null;
+		return collectNavHrefs(parseNavigationJson(navText)).length;
+	} catch {
+		return null;
 	}
 }
 

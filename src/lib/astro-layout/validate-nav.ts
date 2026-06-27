@@ -35,6 +35,14 @@ export function collectNavHrefs(items: NavItem[], parentLabels: string[] = []): 
 	return refs;
 }
 
+export function countNavigationHrefs(items: NavItem[]): number {
+	return collectNavHrefs(items).length;
+}
+
+export function hasMissingHrefIssues(issues: NavValidationIssue[]): boolean {
+	return issues.some((issue) => issue.reason === 'missing_href');
+}
+
 export function validateNavigationLinks(
 	navigation: NavItem[],
 	knownInternalPaths: Set<string>,

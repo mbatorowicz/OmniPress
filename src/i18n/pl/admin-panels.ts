@@ -137,6 +137,8 @@ export const adminLayout = {
 	publishedLayout: 'Opublikowano layout na stronie (commit w GitHub).',
 	syncSummaryPrefix: 'GitHub:',
 	imported: 'Zaimportowano konfigurację z GitHub do szkicu.',
+	importedMenu: (hrefCount: number, path: string) =>
+		`Zaimportowano menu z GitHub: ${hrefCount} pozycji z linkiem (${path}). Szkic = stan strony live.`,
 	noAstroChannel:
 		'Brak skonfigurowanego repozytorium GitHub — zapis szkicu tylko w OmniPress (bez publikacji na stronę).',
 	slotsHint:
@@ -194,6 +196,10 @@ export const adminLayout = {
 	navValidationHeading: 'Problemy w menu (linki wewnętrzne):',
 	navValidationHint:
 		'Publikacja jest zablokowana, dopóki menu wskazuje nieistniejące adresy. Utwórz strony statyczne lub popraw linki.',
+	publishBlockedMissingHref:
+		'Publikacja zablokowana — szkic nie ma linków, które są na stronie live. Użyj „Importuj z GitHub”, aby przywrócić menu ze strony.',
+	publishConfirmFewerLinks: (draftCount: number, liveCount: number) =>
+		`Szkic ma ${draftCount} linków, strona live ma ${liveCount}. Opublikować mimo to?`,
 	bannerLinkTypes: {
 		category: 'Kategoria wpisów',
 		page: 'Strona statyczna',
@@ -313,6 +319,8 @@ export const adminLayout = {
 	draftStatus: {
 		inSync: 'Szkic zgodny z opublikowanym layoutem na stronie.',
 		draftAhead: 'Szkic różni się od opublikowanego — opublikuj, aby zaktualizować stronę.',
+		draftMissingHref:
+			'Szkic nie ma linków menu — strona live jest nadal poprawna, ale publikacja nadpisałaby ją pustym menu. Użyj „Importuj z GitHub”.',
 		lastPublished: 'Ostatnia publikacja',
 		lastDraft: 'Ostatni zapis szkicu',
 	},
@@ -328,6 +336,12 @@ export const adminLayout = {
 		no_github_token: 'Brak tokenu GitHub — dodaj PAT w Ustawieniach.',
 		dead_nav_links:
 			'Menu zawiera nieistniejące linki wewnętrzne — popraw je przed publikacją na stronie.',
+		missing_nav_hrefs:
+			'Menu w szkicu nie ma linków — użyj „Importuj z GitHub”, aby przywrócić menu ze strony live.',
+		import_nav_missing:
+			'Nie znaleziono pliku menu w repozytorium GitHub — sprawdź ścieżkę navigation_path w Ustawieniach strony.',
+		import_nav_empty:
+			'Plik menu w GitHub nie zawiera poprawnych linków — import przerwany, szkic nie został zmieniony.',
 		sync_failed: 'Publikacja do GitHub nie powiodła się — szkic zapisany w OmniPress.',
 		vercel_build_failed:
 			'GitHub zaktualizowany, ale build Vercel strony Astro nie przeszedł — produkcja może być nieaktualna.',

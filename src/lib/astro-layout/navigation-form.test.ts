@@ -116,7 +116,7 @@ describe('parseLayoutSection navigation', () => {
 		expect(result.layout.navigation).toEqual([{ label: 'Tabela', href: '/tabela' }]);
 	});
 
-	it('ignoruje pusty drugi nav_href_value (ukryte pole + select)', () => {
+	it('ignoruje pusty pierwszy nav_href_value gdy drugi ma wartość (duplikat pola)', () => {
 		const form = new FormData();
 		form.append('nav_depth', '0');
 		form.append('nav_label', 'News');
@@ -125,7 +125,7 @@ describe('parseLayoutSection navigation', () => {
 		form.append('nav_href_value', 'aktualnosci');
 
 		const tree = parseNavigationFromForm(form);
-		expect(tree[0].href).toBeUndefined();
+		expect(tree[0].href).toBe('/aktualnosci');
 	});
 
 	it('zapisuje kategorię gdy jest jeden nav_href_value na wiersz', () => {
@@ -153,5 +153,51 @@ describe('parseLayoutSection navigation', () => {
 		);
 		const tree = parseNavigationFromForm(form);
 		expect(tree[0].href).toBe('/gmina/plan-ogolny');
+	});
+
+	it('round-trip pełniejszego drzewa gminy zachowuje hrefy liści', () => {
+		const nav = [
+			{
+				label: 'Gmina',
+				children: [
+					{ label: 'Plan ogólny Gminy Miedzna', href: '/gmina/plan-ogolny' },
+					{
+						label: 'Jednostki organizacyjne',
+						children: [
+							{
+								label: 'Szkoła Podstawowa',
+								href: '/gmina/szkolapodstawowa',
+							},
+						],
+					},
+					{ label: 'Zarządzenia', href: '/gmina/zarzadzenia' },
+				],
+			},
+			{ label: 'Kontakt', href: '/kontakt' },
+		];
+		const pageOptions = [
+			{ path: '/gmina/plan-ogolny', title: 'Plan ogólny' },
+			{ path: '/gmina/szkolapodstawowa', title: 'Szkoła' },
+			{ path: '/gmina/zarzadzenia', title: 'Zarządzenia' },
+		];
+		const rows = flattenNavigation(nav, existingLayout.categories, pageOptions);
+		const form = navForm(
+			rows.map((r) => ({
+				depth: String(r.depth),
+				label: r.label,
+				kind: r.hrefKind,
+				value: r.hrefValue,
+			})),
+		);
+		const tree = parseNavigationFromForm(form);
+		const hrefs = tree.flatMap(function collect(item: (typeof tree)[number]): string[] {
+			const out = item.href ? [item.href] : [];
+			for (const child of item.children ?? []) out.push(...collect(child));
+			return out;
+		});
+		expect(hrefs).toContain('/gmina/plan-ogolny');
+		expect(hrefs).toContain('/gmina/szkolapodstawowa');
+		expect(hrefs).toContain('/gmina/zarzadzenia');
+		expect(hrefs).toContain('/kontakt');
 	});
 });

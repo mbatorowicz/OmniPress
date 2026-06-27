@@ -213,6 +213,19 @@ function resolveNavHref(kind: string, value: string): string | undefined {
 	return undefined;
 }
 
+function resolveRowHrefValue(values: string[], rowIndex: number, rowCount: number): string {
+	const direct = values[rowIndex]?.trim() ?? '';
+	if (direct) return direct;
+	if (values.length > rowCount) {
+		const stride = Math.max(1, Math.floor(values.length / rowCount));
+		for (let offset = 1; offset < stride; offset++) {
+			const candidate = values[rowIndex + offset * rowCount]?.trim() ?? '';
+			if (candidate) return candidate;
+		}
+	}
+	return '';
+}
+
 export function parseNavigationFromForm(form: FormData): NavItem[] {
 	const depths = strFields(form, 'nav_depth');
 	const labels = strFields(form, 'nav_label');
@@ -224,6 +237,7 @@ export function parseNavigationFromForm(form: FormData): NavItem[] {
 
 	const roots: NavItem[] = [];
 	const stack: { item: NavItem; depth: number }[] = [];
+	const rowCount = labels.length;
 
 	for (let i = 0; i < labels.length; i++) {
 		const label = labels[i];
@@ -231,7 +245,10 @@ export function parseNavigationFromForm(form: FormData): NavItem[] {
 
 		const depth = Math.min(2, Math.max(0, Number(depths[i] ?? 0) || 0));
 		const item: NavItem = { label };
-		const href = resolveNavHref(kinds[i] ?? 'none', values[i] ?? '');
+		const href = resolveNavHref(
+			kinds[i] ?? 'none',
+			resolveRowHrefValue(values, i, rowCount),
+		);
 		if (href) item.href = href;
 		if (depth === 0 && megas[i] === 'on') item.isMegaMenu = true;
 

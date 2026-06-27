@@ -9,6 +9,7 @@ import { layoutSectionToSyncScope } from '@/lib/astro-layout/layout-sync-meta';
 import { parseLayoutSection } from '@/lib/astro-layout/parse-form';
 import {
 	buildKnownNavPaths,
+	hasMissingHrefIssues,
 	validateNavigationLinks,
 } from '@/lib/astro-layout/validate-nav';
 import {
@@ -54,8 +55,9 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	);
 	const navIssues = validateNavigationLinks(parsed.layout.navigation, knownPaths);
 	if (navIssues.length > 0) {
+		const errorCode = hasMissingHrefIssues(navIssues) ? 'missing_nav_hrefs' : 'dead_nav_links';
 		return redirect(
-			`/admin/units/${siteId}/${returnSegment}?error=dead_nav_links&saved=1`,
+			`/admin/units/${siteId}/${returnSegment}?error=${errorCode}&saved=1`,
 		);
 	}
 
