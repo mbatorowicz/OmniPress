@@ -1,0 +1,13 @@
+@layer components {
+	.nav-row--depth-0 .nav-label-cell {
+		@apply bg-slate-50/40;
+	}
+
+	.nav-row--depth-1 .nav-label-cell {
+		@apply border-l-2 border-slate-200 pl-5;
+	}
+
+	.nav-row--depth-2 .nav-label-cell {
+		@apply border-l-2 border-slate-300 pl-10;
+	}
+}

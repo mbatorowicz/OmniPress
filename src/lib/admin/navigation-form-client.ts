@@ -14,6 +14,8 @@ export type NavigationTableLabels = {
 	};
 };
 
+const DEPTH_CLASSES = ['nav-row--depth-0', 'nav-row--depth-1', 'nav-row--depth-2'] as const;
+
 function syncHrefFields(row: HTMLElement): void {
 	const kind = (row.querySelector('.nav-href-kind') as HTMLSelectElement | null)?.value ?? 'none';
 	row.querySelectorAll('.nav-href-field').forEach((el) => {
@@ -26,6 +28,13 @@ function syncHrefFields(row: HTMLElement): void {
 			else field.setAttribute('name', 'nav_href_value');
 		}
 	});
+}
+
+function syncNavDepthVisual(row: HTMLElement): void {
+	const depthSelect = row.querySelector('.nav-depth') as HTMLSelectElement | null;
+	const depth = Math.min(2, Math.max(0, Number(depthSelect?.value ?? 0) || 0));
+	for (const cls of DEPTH_CLASSES) row.classList.remove(cls);
+	row.classList.add(DEPTH_CLASSES[depth]!);
 }
 
 function syncMegaCell(row: HTMLElement): void {
@@ -51,8 +60,12 @@ function bindRow(row: HTMLElement, body: HTMLElement, labels: NavigationTableLab
 		row.remove();
 	});
 	row.querySelector('.nav-href-kind')?.addEventListener('change', () => syncHrefFields(row));
-	row.querySelector('.nav-depth')?.addEventListener('change', () => syncMegaCell(row));
+	row.querySelector('.nav-depth')?.addEventListener('change', () => {
+		syncNavDepthVisual(row);
+		syncMegaCell(row);
+	});
 	syncHrefFields(row);
+	syncNavDepthVisual(row);
 	syncMegaCell(row);
 }
 
@@ -65,7 +78,7 @@ export function initNavigationTable(labels: NavigationTableLabels): void {
 
 	addBtn?.addEventListener('click', () => {
 		const tr = document.createElement('tr');
-		tr.className = 'nav-row ui-table-dense-row';
+		tr.className = 'nav-row ui-table-dense-row nav-row--depth-0';
 		const { hrefKinds } = labels;
 		tr.innerHTML = `
 			<td class="ui-table-dense-td--wide">
@@ -75,7 +88,7 @@ export function initNavigationTable(labels: NavigationTableLabels): void {
 					<option value="2">${labels.depth2}</option>
 				</select>
 			</td>
-			<td class="ui-table-dense-td--wide"><input name="nav_label" required class="ui-input-compact w-full" /></td>
+			<td class="ui-table-dense-td--wide nav-label-cell"><input name="nav_label" required class="ui-input-compact w-full" /></td>
 			<td class="ui-table-dense-td--wide">
 				<select name="nav_href_kind" class="ui-select-compact w-full nav-href-kind">
 					<option value="none">${hrefKinds.none}</option>

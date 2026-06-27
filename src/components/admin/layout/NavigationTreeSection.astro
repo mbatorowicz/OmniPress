@@ -56,11 +56,11 @@ const navTableLabels = {
 		<tbody id="navigation-body">
 			{
 				rows.map((row) => (
-					<tr class="nav-row ui-table-dense-row">
+					<tr class:list={['nav-row', 'ui-table-dense-row', `nav-row--depth-${row.depth}`]}>
 						<td class="ui-table-dense-td--wide">
 							<NavDepthSelect depth={row.depth as 0 | 1 | 2} />
 						</td>
-						<td class="ui-table-dense-td--wide">
+						<td class="ui-table-dense-td--wide nav-label-cell">
 							<input name="nav_label" value={row.label} required class="ui-input-compact w-full" />
 						</td>
 						<td class="ui-table-dense-td--wide">

@@ -177,10 +177,10 @@ export const adminLayout = {
 	menuHint:
 		'Tablica JSON z polami label, href oraz opcjonalnie isMegaMenu i children (do 3 poziomów).',
 	menuFormHint:
-		'Menu główne to pozycje w pasku nawigacji; podmenu i podmenu zagnieżdżone to kolejne poziomy rozwijane.',
+		'Poziom 0 = pasek nawigacji, 1 i 2 = kolejne poziomy podmenu. Wcięcie w kolumnie Etykieta pokazuje hierarchię — kolejność wierszy decyduje o zagnieżdżeniu.',
 	menuJsonFallbackHint:
 		'Wklej pełną tablicę JSON zamiast wierszy powyżej — nadpisuje drzewo przy zapisie.',
-	navDepthLabels: ['Menu główne', 'Podmenu', 'Podmenu zagnieżdżone'] as const,
+	navDepthLabels: ['Poziom 0', 'Poziom 1', 'Poziom 2'] as const,
 	megaMenuHint: 'Szerokie menu',
 	navHrefKinds: {
 		none: 'Bez linku (tylko rozwijane)',
@@ -238,7 +238,7 @@ export const adminLayout = {
 	},
 	fields: {
 		navigationJson: 'Menu (JSON)',
-		navDepth: 'Poziom menu',
+		navDepth: 'Poziom',
 		navLabel: 'Etykieta',
 		navLinkType: 'Typ linku',
 		navLinkTarget: 'Adres / cel',
