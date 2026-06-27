@@ -1,0 +1,39 @@
+---
+description: Kompatybilność OmniPress ↔ repo Astro strony (gmina-miedzna.pl)
+alwaysApply: true
+---
+
+# OmniPress ↔ repo Astro — kompatybilność
+
+OmniPress **pisze** do repo strony; Astro **czyta**. Każda zmiana formatu, ścieżek lub ID komponentów wymaga zgodności w **obu** repozytoriach.
+
+## Kontrakt plików (repo Astro)
+
+| Plik | Format | SSOT parsera w OmniPress |
+|------|--------|--------------------------|
+| `src/config/omnipress-navigation.json` | tablica `NavItem[]` | `parseNavigationJson`, `buildNavigationFilePayload` |
+| `src/config/omnipress-categories.json` | `{ categories, displays, slots }` | `parseCategoriesFile`, `buildCategoriesFilePayload` |
+| `src/config/omnipress-recent-changes.json` | rejestr ogłoszeń | `lib/recent-changes/` |
+| Wpisy | `src/content/news/` (`folder`: `slug/index.md`) | `lib/publish/github-astro.ts` |
+| Strony statyczne | `src/content/pages/` | `lib/site-pages/` |
+
+Domyślne ścieżki config: `src/lib/astro-layout/types.ts`. Nadpisanie: destynacja (`categories_path`, `navigation_path`, `recent_changes_path`).
+
+## Zasady przy zmianach
+
+1. **Nie zmieniaj formatu JSON** bez aktualizacji czytnika w repo Astro (i odwrotnie).
+2. **ID komponentów** (`home.feed`, `sidebar.weather`, `sidebar.cert_advisories`, …) — muszą istnieć po obu stronach; SSOT listy: `lib/astro-layout/components.ts`.
+3. **Sync layoutu** (`syncSiteAstroLayoutToGitHub`) zawsze wysyła **oba** pliki (menu + kategorie/sloty) — sekcje w panelu (`section=`) merge’ują w Supabase, potem pełny payload na GitHub.
+4. **Nowe pola widgetów** — symetria parse JSON ↔ parse FormData w `parse.ts` / `parse-form.ts`; test w `parse.test.ts`.
+5. **Live API** (pogoda, CERT) — OmniPress tylko konfiguruje slot; endpointy (`/api/weather/warnings`, `/api/cert/advisories`) są w repo Astro.
+
+## Checklist przed merge
+
+- [ ] `npm test` — szczególnie `parse.test.ts`, `navigation-form.test.ts`, `components.test.ts`
+- [ ] `npm run build`
+- [ ] Jeśli kontrakt się zmienił: commit w **obu** repo + wpis w CHANGELOG obu projektów
+- [ ] Produkcja: ścieżki w destynacji zgodne z faktycznymi plikami w repo Astro
+
+## Repo referencyjne
+
+Strona produkcyjna: `mbatorowicz/gmina-miedzna.pl` — przy wątpliwościach porównaj wygenerowany JSON z tym, co Astro renderuje.
