@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
+	layoutSectionToSyncScope,
+	withDraftSavedMeta,
+} from './layout-sync-meta';
+import {
 	computeDraftLiveStatus,
 	hashCategoriesLayout,
 	hashNavigationLayout,
-	layoutSectionToSyncScope,
-	withDraftSavedMeta,
 	withPublishedMeta,
-} from './layout-sync-meta';
+} from './layout-sync-meta.server';
 import type { SiteAstroLayout } from './types';
 
 const sampleLayout: SiteAstroLayout = {

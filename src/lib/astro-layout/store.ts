@@ -19,13 +19,15 @@ import {
 } from './parse';
 import { normalizeSiteAstroLayout } from './parse';
 import {
-	hashCategoriesFileText,
-	hashNavigationFileText,
 	withDraftSavedMeta,
-	withImportedLiveMeta,
-	withPublishedMeta,
 	type LayoutSyncScope,
 } from './layout-sync-meta';
+import {
+	hashCategoriesFileText,
+	hashNavigationFileText,
+	withImportedLiveMeta,
+	withPublishedMeta,
+} from './layout-sync-meta.server';
 import { prepareRecentChangeAppendWrite } from '@/lib/recent-changes/github';
 import { buildLayoutRecentChangeEntry } from '@/lib/recent-changes/layout-entry';
 import type { SiteAstroLayout } from './types';

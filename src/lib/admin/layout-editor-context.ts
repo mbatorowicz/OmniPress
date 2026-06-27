@@ -5,11 +5,8 @@ import {
 	loadSiteAstroLayout,
 } from '@/lib/astro-layout/store';
 import { ensureLayoutFromGitHub } from '@/lib/admin/layout-auto-import';
-import {
-	computeDraftLiveStatus,
-	type DraftLiveScope,
-	type DraftLiveStatus,
-} from '@/lib/astro-layout/layout-sync-meta';
+import type { DraftLiveScope, DraftLiveStatus } from '@/lib/astro-layout/layout-sync-meta';
+import { computeDraftLiveStatus } from '@/lib/astro-layout/layout-sync-meta.server';
 import type { SiteAstroLayout } from '@/lib/astro-layout/types';
 import {
 	buildKnownNavPaths,
