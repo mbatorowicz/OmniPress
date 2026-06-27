@@ -16,7 +16,24 @@ export type NavigationTableLabels = {
 
 const DEPTH_CLASSES = ['nav-row--depth-0', 'nav-row--depth-1', 'nav-row--depth-2'] as const;
 
-function syncHrefFields(row: HTMLElement): void {
+function readActiveHrefValue(row: HTMLElement, kind: string): string {
+	if (kind === 'none') return '';
+	const field = row.querySelector(`.nav-href-field-${kind}`);
+	if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement) {
+		return field.value;
+	}
+	return '';
+}
+
+function syncHrefValueSubmit(row: HTMLElement): void {
+	const kind = (row.querySelector('.nav-href-kind') as HTMLSelectElement | null)?.value ?? 'none';
+	const hidden = row.querySelector('.nav-href-value-submit');
+	if (hidden instanceof HTMLInputElement) {
+		hidden.value = readActiveHrefValue(row, kind);
+	}
+}
+
+export function syncHrefFields(row: HTMLElement): void {
 	const kind = (row.querySelector('.nav-href-kind') as HTMLSelectElement | null)?.value ?? 'none';
 	row.querySelectorAll('.nav-href-field').forEach((el) => {
 		const field = el;
@@ -24,10 +41,9 @@ function syncHrefFields(row: HTMLElement): void {
 		field.classList.toggle('hidden', !match);
 		if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement) {
 			field.disabled = !match;
-			if (!match) field.removeAttribute('name');
-			else field.setAttribute('name', 'nav_href_value');
 		}
 	});
+	syncHrefValueSubmit(row);
 }
 
 function syncNavDepthVisual(row: HTMLElement): void {
@@ -54,78 +70,145 @@ function syncMegaCell(row: HTMLElement): void {
 	}
 }
 
-function bindRow(row: HTMLElement, body: HTMLElement, _labels: NavigationTableLabels): void {
-	row.querySelector('.remove-nav-row')?.addEventListener('click', () => {
-		if (body.querySelectorAll('.nav-row').length <= 1) return;
-		row.remove();
+function syncAllHrefSubmitValues(body: HTMLElement): void {
+	body.querySelectorAll('.nav-row').forEach((row) => {
+		syncHrefValueSubmit(row as HTMLElement);
 	});
-	row.querySelector('.nav-href-kind')?.addEventListener('change', () => syncHrefFields(row));
-	row.querySelector('.nav-depth')?.addEventListener('change', () => {
-		syncNavDepthVisual(row);
-		syncMegaCell(row);
-	});
-	syncHrefFields(row);
-	syncNavDepthVisual(row);
-	syncMegaCell(row);
 }
 
-export function initNavigationTable(labels: NavigationTableLabels): void {
-	const body = document.getElementById('navigation-body');
-	const addBtn = document.getElementById('add-nav-row');
-	if (!(body instanceof HTMLElement)) return;
+function appendNavRow(body: HTMLElement, labels: NavigationTableLabels): void {
+	const { hrefKinds } = labels;
+	const tr = document.createElement('tr');
+	tr.className = 'nav-row ui-table-dense-row nav-row--depth-0';
+	tr.innerHTML = `
+		<td class="ui-table-dense-td--wide">
+			<select name="nav_depth" class="ui-select-compact w-full nav-depth">
+				<option value="0">${labels.depth0}</option>
+				<option value="1">${labels.depth1}</option>
+				<option value="2">${labels.depth2}</option>
+			</select>
+		</td>
+		<td class="ui-table-dense-td--wide nav-label-cell"><input name="nav_label" required class="ui-input-compact w-full" /></td>
+		<td class="ui-table-dense-td--wide">
+			<select name="nav_href_kind" class="ui-select-compact w-full nav-href-kind">
+				<option value="none">${hrefKinds.none}</option>
+				<option value="category">${hrefKinds.category}</option>
+				<option value="page">${hrefKinds.page}</option>
+				<option value="static">${hrefKinds.static}</option>
+				<option value="custom">${hrefKinds.custom}</option>
+				<option value="external">${hrefKinds.external}</option>
+			</select>
+		</td>
+		<td class="ui-table-dense-td--wide nav-href-values">
+			<input type="hidden" name="nav_href_value" class="nav-href-value-submit" value="" />
+			<input class="nav-href-input-default nav-href-field nav-href-field-none nav-href-field-custom nav-href-field-external" />
+			<select class="nav-href-select nav-href-field nav-href-field-category hidden" disabled></select>
+			<select class="nav-href-select nav-href-field nav-href-field-page hidden" disabled></select>
+			<select class="nav-href-select nav-href-field nav-href-field-static hidden" disabled></select>
+		</td>
+		<td class="nav-mega-cell ui-table-dense-td--wide text-center">
+			<label class="inline-flex flex-col items-center gap-1">
+				<input type="checkbox" name="nav_is_mega" class="nav-mega ui-checkbox" />
+				<span class="ui-hint max-w-[6rem] text-[10px] leading-tight">${labels.megaHint}</span>
+			</label>
+		</td>
+		<td class="ui-table-dense-td--wide"><button type="button" class="remove-nav-row ui-btn ui-btn--link-danger">${labels.remove}</button></td>
+	`;
+	const templateRow = body.querySelector('.nav-row');
+	if (templateRow) {
+		const catSelect = tr.querySelector('.nav-href-field-category');
+		const pageSelect = tr.querySelector('.nav-href-field-page');
+		const staticSelect = tr.querySelector('.nav-href-field-static');
+		const tplCat = templateRow.querySelector('.nav-href-field-category');
+		const tplPage = templateRow.querySelector('.nav-href-field-page');
+		const tplStatic = templateRow.querySelector('.nav-href-field-static');
+		if (catSelect && tplCat) catSelect.innerHTML = tplCat.innerHTML;
+		if (pageSelect && tplPage) pageSelect.innerHTML = tplPage.innerHTML;
+		if (staticSelect && tplStatic) staticSelect.innerHTML = tplStatic.innerHTML;
+	}
+	body.appendChild(tr);
+	syncHrefFields(tr);
+	syncNavDepthVisual(tr);
+	syncMegaCell(tr);
+}
 
-	body.querySelectorAll('.nav-row').forEach((row) => bindRow(row as HTMLElement, body, labels));
+function handleNavigationChange(event: Event): void {
+	const target = event.target;
+	if (!(target instanceof Element)) return;
 
-	addBtn?.addEventListener('click', () => {
-		const tr = document.createElement('tr');
-		tr.className = 'nav-row ui-table-dense-row nav-row--depth-0';
-		const { hrefKinds } = labels;
-		tr.innerHTML = `
-			<td class="ui-table-dense-td--wide">
-				<select name="nav_depth" class="ui-select-compact w-full nav-depth">
-					<option value="0">${labels.depth0}</option>
-					<option value="1">${labels.depth1}</option>
-					<option value="2">${labels.depth2}</option>
-				</select>
-			</td>
-			<td class="ui-table-dense-td--wide nav-label-cell"><input name="nav_label" required class="ui-input-compact w-full" /></td>
-			<td class="ui-table-dense-td--wide">
-				<select name="nav_href_kind" class="ui-select-compact w-full nav-href-kind">
-					<option value="none">${hrefKinds.none}</option>
-					<option value="category">${hrefKinds.category}</option>
-					<option value="page">${hrefKinds.page}</option>
-					<option value="static">${hrefKinds.static}</option>
-					<option value="custom">${hrefKinds.custom}</option>
-					<option value="external">${hrefKinds.external}</option>
-				</select>
-			</td>
-			<td class="ui-table-dense-td--wide nav-href-values">
-				<input name="nav_href_value" class="nav-href-input-default nav-href-field nav-href-field-none nav-href-field-custom nav-href-field-external" />
-				<select name="nav_href_value" class="nav-href-select nav-href-field nav-href-field-category hidden" disabled></select>
-				<select name="nav_href_value" class="nav-href-select nav-href-field nav-href-field-page hidden" disabled></select>
-				<select name="nav_href_value" class="nav-href-select nav-href-field nav-href-field-static hidden" disabled></select>
-			</td>
-			<td class="nav-mega-cell ui-table-dense-td--wide text-center">
-				<label class="inline-flex flex-col items-center gap-1">
-					<input type="checkbox" name="nav_is_mega" class="nav-mega ui-checkbox" />
-					<span class="ui-hint max-w-[6rem] text-[10px] leading-tight">${labels.megaHint}</span>
-				</label>
-			</td>
-			<td class="ui-table-dense-td--wide"><button type="button" class="remove-nav-row ui-btn ui-btn--link-danger">${labels.remove}</button></td>
-		`;
-		const templateRow = body.querySelector('.nav-row');
-		if (templateRow) {
-			const catSelect = tr.querySelector('.nav-href-field-category');
-			const pageSelect = tr.querySelector('.nav-href-field-page');
-			const staticSelect = tr.querySelector('.nav-href-field-static');
-			const tplCat = templateRow.querySelector('.nav-href-field-category');
-			const tplPage = templateRow.querySelector('.nav-href-field-page');
-			const tplStatic = templateRow.querySelector('.nav-href-field-static');
-			if (catSelect && tplCat) catSelect.innerHTML = tplCat.innerHTML;
-			if (pageSelect && tplPage) pageSelect.innerHTML = tplPage.innerHTML;
-			if (staticSelect && tplStatic) staticSelect.innerHTML = tplStatic.innerHTML;
+	if (target.closest('.nav-href-kind') || target.closest('.nav-href-field')) {
+		const row = target.closest('.nav-row');
+		if (row instanceof HTMLElement) syncHrefFields(row);
+		return;
+	}
+
+	if (target.closest('.nav-depth')) {
+		const row = target.closest('.nav-row');
+		if (row instanceof HTMLElement) {
+			syncNavDepthVisual(row);
+			syncMegaCell(row);
 		}
-		body.appendChild(tr);
-		bindRow(tr, body, labels);
-	});
+	}
+}
+
+function handleNavigationClick(event: Event, labels: NavigationTableLabels): void {
+	const target = event.target;
+	if (!(target instanceof Element)) return;
+
+	if (target.closest('#add-nav-row')) {
+		event.preventDefault();
+		const body = document.getElementById('navigation-body');
+		if (body instanceof HTMLElement) appendNavRow(body, labels);
+		return;
+	}
+
+	const removeBtn = target.closest('.remove-nav-row');
+	if (!removeBtn) return;
+	const body = document.getElementById('navigation-body');
+	if (!(body instanceof HTMLElement)) return;
+	const row = removeBtn.closest('.nav-row');
+	if (!(row instanceof HTMLElement)) return;
+	if (body.querySelectorAll('.nav-row').length <= 1) return;
+	row.remove();
+}
+
+export function mountNavigationForm(labels: NavigationTableLabels): void {
+	const mount = (): void => {
+		const body = document.getElementById('navigation-body');
+		if (!(body instanceof HTMLElement)) return;
+
+		body.querySelectorAll('.nav-row').forEach((row) => {
+			syncHrefFields(row as HTMLElement);
+			syncNavDepthVisual(row as HTMLElement);
+			syncMegaCell(row as HTMLElement);
+		});
+
+		const form = body.closest('form');
+		if (form instanceof HTMLFormElement && form.dataset.navigationSubmitSync !== '1') {
+			form.dataset.navigationSubmitSync = '1';
+			form.addEventListener(
+				'submit',
+				() => {
+					syncAllHrefSubmitValues(body);
+				},
+				{ capture: true },
+			);
+		}
+
+		if (document.documentElement.dataset.navigationFormMounted === '1') return;
+		document.documentElement.dataset.navigationFormMounted = '1';
+		document.addEventListener('change', handleNavigationChange);
+		document.addEventListener('click', (event) => handleNavigationClick(event, labels));
+	};
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', mount, { once: true });
+	} else {
+		mount();
+	}
+}
+
+/** @deprecated Użyj mountNavigationForm */
+export function initNavigationTable(labels: NavigationTableLabels): void {
+	mountNavigationForm(labels);
 }

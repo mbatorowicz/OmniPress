@@ -103,4 +103,38 @@ describe('parseLayoutSection navigation', () => {
 		if (!result.ok) return;
 		expect(result.layout.navigation[0].label).toBe('JSON');
 	});
+
+	it('preferuje tabelę nad navigation_json gdy są wiersze z etykietą', () => {
+		const form = navForm([{ depth: '0', label: 'Tabela', kind: 'custom', value: '/tabela' }]);
+		form.set('section', 'navigation');
+		form.set('navigation_json', '[{"label":"JSON","href":"/json"}]');
+
+		const result = parseLayoutSection(form, existingLayout);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.layout.navigation).toEqual([{ label: 'Tabela', href: '/tabela' }]);
+	});
+
+	it('ignoruje pusty drugi nav_href_value (ukryte pole + select)', () => {
+		const form = new FormData();
+		form.append('nav_depth', '0');
+		form.append('nav_label', 'News');
+		form.append('nav_href_kind', 'category');
+		form.append('nav_href_value', '');
+		form.append('nav_href_value', 'aktualnosci');
+
+		const tree = parseNavigationFromForm(form);
+		expect(tree[0].href).toBeUndefined();
+	});
+
+	it('zapisuje kategorię gdy jest jeden nav_href_value na wiersz', () => {
+		const form = new FormData();
+		form.append('nav_depth', '0');
+		form.append('nav_label', 'News');
+		form.append('nav_href_kind', 'category');
+		form.append('nav_href_value', 'aktualnosci');
+
+		const tree = parseNavigationFromForm(form);
+		expect(tree[0].href).toBe('/aktualnosci');
+	});
 });

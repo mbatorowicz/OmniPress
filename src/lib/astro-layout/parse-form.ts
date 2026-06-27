@@ -254,6 +254,15 @@ export function parseNavigationFromForm(form: FormData): NavItem[] {
 }
 
 function parseNavigationSection(form: FormData): NavItem[] | { error: 'invalid_navigation' } {
+	const labels = strFields(form, 'nav_label');
+	const hasTableRows = labels.some((label) => label.trim() !== '');
+
+	if (hasTableRows) {
+		const tree = parseNavigationFromForm(form);
+		if (tree.length === 0) return { error: 'invalid_navigation' };
+		return tree;
+	}
+
 	const jsonFallback = String(form.get('navigation_json') ?? '').trim();
 	if (jsonFallback) {
 		try {
@@ -263,9 +272,7 @@ function parseNavigationSection(form: FormData): NavItem[] | { error: 'invalid_n
 		}
 	}
 
-	const tree = parseNavigationFromForm(form);
-	if (tree.length === 0) return { error: 'invalid_navigation' };
-	return tree;
+	return { error: 'invalid_navigation' };
 }
 
 function parseCategoryDisplaysFromForm(

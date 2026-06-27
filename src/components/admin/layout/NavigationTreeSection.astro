@@ -27,6 +27,11 @@ const rows =
 
 const categoryOptions = buildCategoryLinkOptions(categories);
 const linkKinds = adminLayout.navHrefKinds;
+
+function navHrefSubmitValue(row: (typeof rows)[number]): string {
+	if (row.hrefKind === 'none') return '';
+	return row.hrefValue;
+}
 const depthLabels = adminLayout.navDepthLabels;
 const navTableLabels = {
 	remove: adminLayout.actions.removeNavRow,
@@ -71,13 +76,12 @@ const navTableLabels = {
 							</select>
 						</td>
 						<td class="ui-table-dense-td--wide nav-href-values">
+							<input type="hidden" name="nav_href_value" class="nav-href-value-submit" value={navHrefSubmitValue(row)} />
 							<input
-								name="nav_href_value"
 								value={row.hrefKind === 'none' || row.hrefKind === 'custom' || row.hrefKind === 'external' ? row.hrefValue : ''}
 								class={`nav-href-input-default nav-href-field nav-href-field-none nav-href-field-custom nav-href-field-external ${row.hrefKind === 'category' || row.hrefKind === 'page' || row.hrefKind === 'static' ? 'hidden' : ''}`}
 							/>
 							<select
-								name="nav_href_value"
 								class={`nav-href-select nav-href-field nav-href-field-category ${row.hrefKind === 'category' ? '' : 'hidden'}`}
 								disabled={row.hrefKind !== 'category'}
 							>
@@ -88,7 +92,6 @@ const navTableLabels = {
 								))}
 							</select>
 							<select
-								name="nav_href_value"
 								class={`nav-href-select nav-href-field nav-href-field-page ${row.hrefKind === 'page' ? '' : 'hidden'}`}
 								disabled={row.hrefKind !== 'page'}
 							>
@@ -103,7 +106,6 @@ const navTableLabels = {
 								)}
 							</select>
 							<select
-								name="nav_href_value"
 								class={`nav-href-select nav-href-field nav-href-field-static ${row.hrefKind === 'static' ? '' : 'hidden'}`}
 								disabled={row.hrefKind !== 'static'}
 							>
@@ -140,6 +142,6 @@ const navTableLabels = {
 </Panel>
 
 <script define:vars={{ navTableLabels }}>
-	import { initNavigationTable } from '@/lib/admin/navigation-form-client';
-	initNavigationTable(navTableLabels);
+	import { mountNavigationForm } from '@/lib/admin/navigation-form-client';
+	mountNavigationForm(navTableLabels);
 </script>
