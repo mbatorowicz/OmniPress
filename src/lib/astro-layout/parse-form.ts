@@ -1,5 +1,6 @@
 import { parseNavigationJson } from './parse';
 import { parseNavEditorDepthColorsFromForm } from '@/lib/admin/nav-editor-colors';
+import { applyNavDropdownFieldsFromForm } from '@/lib/admin/nav-dropdown-layout';
 import {
 	getComponentKind,
 	isCategoryFeedComponent,
@@ -233,7 +234,9 @@ export function parseNavigationFromForm(form: FormData): NavItem[] {
 	const kinds = strFields(form, 'nav_href_kind');
 	const values = strFields(form, 'nav_href_value');
 	const parents = strFields(form, 'nav_parent');
-	const megas = form.getAll('nav_is_mega').map((v) => String(v).trim());
+	const menuColumns = strFields(form, 'nav_menu_columns');
+	const menuColWidth0 = strFields(form, 'nav_menu_col_width_0');
+	const menuColWidth1 = strFields(form, 'nav_menu_col_width_1');
 
 	if (labels.length === 0) return [];
 
@@ -252,7 +255,17 @@ export function parseNavigationFromForm(form: FormData): NavItem[] {
 			resolveRowHrefValue(values, i, rowCount),
 		);
 		if (href) item.href = href;
-		if (depth === 0 && megas[i] === 'on') item.isMegaMenu = true;
+		if (depth === 0) {
+			applyNavDropdownFieldsFromForm(
+				item,
+				menuColumns[i] ?? '1',
+				menuColWidth0[i] ?? '',
+				menuColWidth1[i] ?? '',
+			);
+			if (item.menuColumns === 1 && !item.menuColumnWidths?.length) {
+				delete item.menuColumns;
+			}
+		}
 		items[i] = item;
 	}
 

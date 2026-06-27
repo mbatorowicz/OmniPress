@@ -19,7 +19,9 @@ function navForm(
 		kind: string;
 		value: string;
 		parent?: string;
-		mega?: boolean;
+		columns?: string;
+		colWidth0?: string;
+		colWidth1?: string;
 	}[],
 ): FormData {
 	const form = new FormData();
@@ -30,7 +32,9 @@ function navForm(
 		form.append('nav_href_kind', row.kind);
 		form.append('nav_href_value', row.value);
 		form.append('nav_parent', row.parent ?? inferParent(row.depth, i, rows));
-		if (row.mega) form.append('nav_is_mega', 'on');
+		form.append('nav_menu_columns', row.columns ?? '1');
+		form.append('nav_menu_col_width_0', row.colWidth0 ?? '');
+		form.append('nav_menu_col_width_1', row.colWidth1 ?? '');
 	}
 	return form;
 }
@@ -94,15 +98,24 @@ describe('parseNavigationFromForm', () => {
 		expect(tree[0].label).toBe('Start');
 	});
 
-	it('ustawia isMegaMenu tylko na poziomie 0', () => {
+	it('ustawia menuColumns tylko na poziomie 0', () => {
 		const form = navForm([
-			{ depth: '0', label: 'Aktualności', kind: 'category', value: 'aktualnosci', mega: true },
+			{
+				depth: '0',
+				label: 'Aktualności',
+				kind: 'category',
+				value: 'aktualnosci',
+				columns: '2',
+				colWidth0: '1fr',
+				colWidth1: '1fr',
+			},
 			{ depth: '1', label: 'Podmenu', kind: 'custom', value: '/x' },
 		]);
 
 		const tree = parseNavigationFromForm(form);
-		expect(tree[0].isMegaMenu).toBe(true);
-		expect(tree[0].children![0].isMegaMenu).toBeUndefined();
+		expect(tree[0].menuColumns).toBe(2);
+		expect(tree[0].menuColumnWidths).toEqual(['1fr', '1fr']);
+		expect(tree[0].children![0].menuColumns).toBeUndefined();
 	});
 
 	it('normalizuje slug kategorii do href', () => {

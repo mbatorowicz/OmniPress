@@ -14,6 +14,12 @@ import {
 	resolveNavEditorDepthColors,
 	type NavEditorDepthColors,
 } from '@/lib/admin/nav-editor-colors';
+import {
+	DEFAULT_NAV_MENU_COLUMN_WIDTH,
+	readNavMenuColumns,
+	resolveNavDropdownLayout,
+	sanitizeNavMenuColumnWidth,
+} from '@/lib/admin/nav-dropdown-layout';
 
 function isNavItem(raw: unknown): raw is NavItem {
 	if (!raw || typeof raw !== 'object') return false;
@@ -21,15 +27,51 @@ function isNavItem(raw: unknown): raw is NavItem {
 	return typeof o.label === 'string';
 }
 
-function normalizeNavItem(raw: unknown): NavItem {
+function normalizeNavItem(raw: unknown, isRoot = true): NavItem {
 	const o = raw as NavItem;
 	const item: NavItem = { label: String(o.label ?? '').trim() };
 	if (typeof o.href === 'string' && o.href.trim()) item.href = o.href.trim();
-	if (o.isMegaMenu === true) item.isMegaMenu = true;
+
+	if (isRoot) {
+		const columns =
+			readNavMenuColumns(o.menuColumns) ?? (o.isMegaMenu === true ? 2 : undefined);
+		if (columns === 2) item.menuColumns = 2;
+		else if (columns === 1) item.menuColumns = 1;
+
+		if (Array.isArray(o.menuColumnWidths)) {
+			const widths = o.menuColumnWidths
+				.filter((w): w is string => typeof w === 'string')
+				.map((w) => sanitizeNavMenuColumnWidth(w))
+				.filter((w): w is string => Boolean(w))
+				.slice(0, 2);
+			if (widths.length > 0) item.menuColumnWidths = widths;
+		}
+	}
+
 	if (Array.isArray(o.children) && o.children.length > 0) {
-		item.children = o.children.map(normalizeNavItem);
+		item.children = o.children.map((child) => normalizeNavItem(child, false));
 	}
 	return item;
+}
+
+function exportNavItem(item: NavItem, isRoot: boolean): NavItem {
+	const out: NavItem = { label: item.label };
+	if (item.href) out.href = item.href;
+
+	if (isRoot && item.children?.length) {
+		const layout = resolveNavDropdownLayout(item);
+		if (layout.columns === 2) {
+			out.menuColumns = 2;
+			out.menuColumnWidths = [...layout.columnWidths];
+		} else if (layout.columnWidths[0] !== DEFAULT_NAV_MENU_COLUMN_WIDTH) {
+			out.menuColumnWidths = [layout.columnWidths[0]];
+		}
+	}
+
+	if (item.children?.length) {
+		out.children = item.children.map((child) => exportNavItem(child, false));
+	}
+	return out;
 }
 
 export function normalizeNavItems(raw: unknown): NavItem[] {
@@ -197,7 +239,8 @@ export function buildCategoriesFilePayload(layout: SiteAstroLayout): string {
 }
 
 export function buildNavigationFilePayload(navigation: NavItem[]): string {
-	return `${JSON.stringify(navigation, null, '\t')}\n`;
+	const payload = navigation.map((item) => exportNavItem(item, true));
+	return `${JSON.stringify(payload, null, '\t')}\n`;
 }
 
 export function normalizeSiteAstroLayout(raw: unknown): SiteAstroLayout {

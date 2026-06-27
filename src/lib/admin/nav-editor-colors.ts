@@ -9,6 +9,9 @@ export type NavEditorDepthCssVars = {
 	surface: string;
 	text: string;
 	muted: string;
+	badgeBg: string;
+	badgeBorder: string;
+	actionDanger: string;
 };
 
 export const DEFAULT_NAV_EDITOR_DEPTH_COLORS: NavEditorDepthColors = [
@@ -57,11 +60,15 @@ function mixHex(fg: string, bg: string, fgWeight: number): string {
 export function expandNavEditorDepthColor(accent: string): NavEditorDepthCssVars {
 	const normalized = normalizeHexColor(accent, DEFAULT_NAV_EDITOR_DEPTH_COLORS[0].accent);
 	const text = pickContrastText(normalized);
+	const onDark = text === '#ffffff';
 	return {
 		border: normalized,
 		surface: normalized,
 		text,
-		muted: mixHex(text, normalized, 0.72),
+		muted: mixHex(text, normalized, onDark ? 0.82 : 0.76),
+		badgeBg: mixHex(text, normalized, onDark ? 0.2 : 0.12),
+		badgeBorder: mixHex(text, normalized, onDark ? 0.48 : 0.34),
+		actionDanger: onDark ? '#fca5a5' : '#dc2626',
 	};
 }
 
@@ -109,6 +116,9 @@ function cssVarsForDepth(depth: number, accent: string): string {
 		`--nav-editor-depth-${depth}-surface:${vars.surface}`,
 		`--nav-editor-depth-${depth}-text:${vars.text}`,
 		`--nav-editor-depth-${depth}-text-muted:${vars.muted}`,
+		`--nav-editor-depth-${depth}-badge-bg:${vars.badgeBg}`,
+		`--nav-editor-depth-${depth}-badge-border:${vars.badgeBorder}`,
+		`--nav-editor-depth-${depth}-action-danger:${vars.actionDanger}`,
 	].join(';');
 }
 
@@ -126,6 +136,9 @@ export function applyNavEditorDepthAccentToElement(
 	element.style.setProperty(`--nav-editor-depth-${depth}-surface`, vars.surface);
 	element.style.setProperty(`--nav-editor-depth-${depth}-text`, vars.text);
 	element.style.setProperty(`--nav-editor-depth-${depth}-text-muted`, vars.muted);
+	element.style.setProperty(`--nav-editor-depth-${depth}-badge-bg`, vars.badgeBg);
+	element.style.setProperty(`--nav-editor-depth-${depth}-badge-border`, vars.badgeBorder);
+	element.style.setProperty(`--nav-editor-depth-${depth}-action-danger`, vars.actionDanger);
 }
 
 export function applyNavEditorDepthColorsToElement(

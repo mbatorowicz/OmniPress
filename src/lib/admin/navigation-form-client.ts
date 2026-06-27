@@ -5,6 +5,10 @@ import {
 } from '@/lib/admin/navigation-tree';
 import { applyNavEditorDepthAccentToElement } from '@/lib/admin/nav-editor-colors';
 import {
+	formatNavDropdownLayoutSummary,
+	resolveNavDropdownLayout,
+} from '@/lib/admin/nav-dropdown-layout';
+import {
 	type NavTargetOptions,
 	formatNavTargetSummary,
 	optionsForNavTargetKind,
@@ -18,8 +22,9 @@ export type NavigationTableLabels = {
 	depth0: string;
 	depth1: string;
 	depth2: string;
-	megaHint: string;
-	megaLabel: string;
+	menuColumnOne: string;
+	menuColumnTwo: string;
+	menuColumnsHint: string;
 	addNavChild: string;
 	navParentRoot: string;
 	navParentMissing: string;
@@ -38,7 +43,10 @@ export type NavigationTableLabels = {
 		navLabel: string;
 		navLinkType: string;
 		navLinkTarget: string;
-		navMegaMenu: string;
+		navMenuColumns: string;
+		navMenuColumnCount: string;
+		navMenuColumnWidth1: string;
+		navMenuColumnWidth2: string;
 	};
 };
 
@@ -311,22 +319,26 @@ function syncNavRowSummary(
 		linkText.textContent = formatNavTargetSummary(kind, hrefValue, options, labels.hrefKinds);
 	}
 
-	let megaEl = summary.querySelector('.nav-summary-mega');
-	const megaChecked = (editorRow.querySelector('.nav-mega') as HTMLInputElement | null)?.checked;
+	let layoutEl = summary.querySelector('.nav-summary-layout');
 	const tileMain = summary.querySelector('.nav-tile-main');
-	if (depth === 0 && megaChecked) {
-		if (!megaEl && tileMain) {
-			megaEl = document.createElement('span');
-			megaEl.className = 'nav-summary-mega ui-caption';
-			tileMain.appendChild(megaEl);
+	if (depth === 0) {
+		const layout = readDropdownLayoutFromRow(editorRow);
+		const layoutSummary = formatNavDropdownLayoutSummary(layout, {
+			oneColumn: labels.menuColumnOne,
+			twoColumns: labels.menuColumnTwo,
+		});
+		if (!layoutEl && tileMain) {
+			layoutEl = document.createElement('span');
+			layoutEl.className = 'nav-summary-layout';
+			tileMain.appendChild(layoutEl);
 		}
-		if (megaEl) megaEl.textContent = labels.megaLabel;
-	} else if (megaEl instanceof HTMLElement) {
-		megaEl.remove();
+		if (layoutEl) layoutEl.textContent = layoutSummary;
+	} else if (layoutEl instanceof HTMLElement) {
+		layoutEl.remove();
 	}
 
 	syncNavDepthVisual(editorRow);
-	syncMegaCell(editorRow);
+	syncDropdownLayoutCell(editorRow);
 	if (summary) syncNavChildButton(summary, depth);
 }
 
@@ -343,20 +355,77 @@ function syncNavDepthVisual(editorRow: HTMLElement): void {
 	entry.classList.add(DEPTH_CLASSES[depth]!);
 }
 
-function syncMegaCell(row: HTMLElement): void {
+function readDropdownLayoutFromRow(row: HTMLElement) {
+	const columnsSelect = row.querySelector('.nav-menu-columns') as HTMLSelectElement | null;
+	const width0 = row.querySelector('.nav-menu-col-width-0') as HTMLInputElement | null;
+	const width1 = row.querySelector('.nav-menu-col-width-1') as HTMLInputElement | null;
+	const columns = columnsSelect?.value === '2' ? 2 : 1;
+	const columnWidths = [width0?.value.trim(), width1?.value.trim()].filter(
+		(value): value is string => Boolean(value),
+	);
+	return resolveNavDropdownLayout({ menuColumns: columns, menuColumnWidths: columnWidths });
+}
+
+function syncDropdownLayoutSubmit(row: HTMLElement): void {
+	const columnsSubmit = row.querySelector('.nav-menu-columns-submit') as HTMLInputElement | null;
+	const width0Submit = row.querySelector('.nav-menu-col-width-0-submit') as HTMLInputElement | null;
+	const width1Submit = row.querySelector('.nav-menu-col-width-1-submit') as HTMLInputElement | null;
+	const columnsSelect = row.querySelector('.nav-menu-columns') as HTMLSelectElement | null;
+	const width0 = row.querySelector('.nav-menu-col-width-0') as HTMLInputElement | null;
+	const width1 = row.querySelector('.nav-menu-col-width-1') as HTMLInputElement | null;
+	if (!columnsSubmit) return;
+
+	const columns = columnsSelect?.value === '2' ? '2' : '1';
+	columnsSubmit.value = columns;
+	if (width0Submit) width0Submit.value = width0?.value.trim() ?? '';
+	if (width1Submit) width1Submit.value = columns === '2' ? (width1?.value.trim() ?? '') : '';
+}
+
+function syncDropdownLayoutCell(row: HTMLElement): void {
 	const depthSelect = row.querySelector('.nav-depth') as HTMLSelectElement | null;
-	const cell = row.querySelector('.nav-mega-cell');
-	const checkbox = row.querySelector('.nav-mega') as HTMLInputElement | null;
-	if (!depthSelect || !cell || !checkbox) return;
+	const cell = row.querySelector('.nav-dropdown-layout-cell');
+	const columnsSelect = row.querySelector('.nav-menu-columns') as HTMLSelectElement | null;
+	const width1Field = row.querySelector('.nav-menu-col-width-1-field');
+	if (!depthSelect || !cell) return;
 
 	const isMain = depthSelect.value === '0';
 	cell.classList.toggle('hidden', !isMain);
-	checkbox.disabled = !isMain;
-	if (isMain) {
-		checkbox.setAttribute('name', 'nav_is_mega');
-	} else {
-		checkbox.checked = false;
-		checkbox.removeAttribute('name');
+
+	if (columnsSelect) columnsSelect.disabled = !isMain;
+	for (const input of row.querySelectorAll('.nav-menu-col-width-0, .nav-menu-col-width-1')) {
+		if (input instanceof HTMLInputElement) input.disabled = !isMain;
+	}
+
+	if (!isMain) {
+		const columnsSubmit = row.querySelector('.nav-menu-columns-submit') as HTMLInputElement | null;
+		const width0Submit = row.querySelector('.nav-menu-col-width-0-submit') as HTMLInputElement | null;
+		const width1Submit = row.querySelector('.nav-menu-col-width-1-submit') as HTMLInputElement | null;
+		if (columnsSubmit) columnsSubmit.value = '1';
+		if (width0Submit) width0Submit.value = '';
+		if (width1Submit) width1Submit.value = '';
+		return;
+	}
+
+	const twoColumns = columnsSelect?.value === '2';
+	width1Field?.classList.toggle('hidden', !twoColumns);
+	const width1Input = row.querySelector('.nav-menu-col-width-1') as HTMLInputElement | null;
+	if (width1Input) width1Input.disabled = !twoColumns;
+
+	syncDropdownLayoutSubmit(row);
+}
+
+function bindDropdownLayoutInputs(row: HTMLElement): void {
+	const cell = row.querySelector('.nav-dropdown-layout-cell');
+	if (!(cell instanceof HTMLElement) || cell.dataset.dropdownLayoutBound === '1') return;
+	cell.dataset.dropdownLayoutBound = '1';
+
+	const columnsSelect = row.querySelector('.nav-menu-columns');
+	columnsSelect?.addEventListener('change', () => {
+		syncDropdownLayoutCell(row);
+	});
+
+	for (const input of row.querySelectorAll('.nav-menu-col-width-0, .nav-menu-col-width-1')) {
+		input.addEventListener('input', () => syncDropdownLayoutSubmit(row));
 	}
 }
 
@@ -438,13 +507,30 @@ function buildEditorPanelHtml(labels: NavigationTableLabels): string {
 						<div class="nav-href-target-host"></div>
 					</div>
 				</label>
-				<div class="nav-row-editor-field nav-mega-field">
-					<span class="nav-row-editor-label">${fieldLabels.navMegaMenu}</span>
-					<div class="nav-mega-cell ui-table-dense-td--wide text-center">
-						<label class="inline-flex flex-col items-center gap-1">
-							<input type="checkbox" name="nav_is_mega" class="nav-mega ui-checkbox" />
-							<span class="ui-hint max-w-[6rem] text-[10px] leading-tight">${labels.megaHint}</span>
-						</label>
+				<div class="nav-row-editor-field nav-row-editor-field--wide nav-dropdown-layout-field-wrap">
+					<span class="nav-row-editor-label">${fieldLabels.navMenuColumns}</span>
+					<div class="nav-dropdown-layout-cell">
+						<input type="hidden" name="nav_menu_columns" class="nav-menu-columns-submit" value="1" />
+						<input type="hidden" name="nav_menu_col_width_0" class="nav-menu-col-width-0-submit" value="" />
+						<input type="hidden" name="nav_menu_col_width_1" class="nav-menu-col-width-1-submit" value="" />
+						<div class="nav-dropdown-layout-grid">
+							<label class="nav-dropdown-layout-field">
+								<span class="nav-dropdown-layout-label">${fieldLabels.navMenuColumnCount}</span>
+								<select class="nav-menu-columns ui-select-compact w-full">
+									<option value="1">${labels.menuColumnOne}</option>
+									<option value="2">${labels.menuColumnTwo}</option>
+								</select>
+							</label>
+							<label class="nav-dropdown-layout-field">
+								<span class="nav-dropdown-layout-label">${fieldLabels.navMenuColumnWidth1}</span>
+								<input type="text" placeholder="320px" class="nav-menu-col-width-0 ui-input-compact w-full" autocomplete="off" />
+							</label>
+							<label class="nav-dropdown-layout-field nav-menu-col-width-1-field hidden">
+								<span class="nav-dropdown-layout-label">${fieldLabels.navMenuColumnWidth2}</span>
+								<input type="text" placeholder="1fr" class="nav-menu-col-width-1 ui-input-compact w-full" autocomplete="off" />
+							</label>
+						</div>
+						<p class="ui-hint mt-1 text-[10px] leading-tight">${labels.menuColumnsHint}</p>
 					</div>
 				</div>
 			</div>
@@ -469,6 +555,7 @@ function createNavEntryElement(
 				<span class="nav-summary-label">—</span>
 				<span class="nav-summary-sep" aria-hidden="true">·</span>
 				<span class="nav-summary-link-text">${labels.hrefKinds.none}</span>
+				<span class="nav-summary-layout">${labels.menuColumnOne} (320px)</span>
 			</div>
 			<div class="nav-tile-actions">
 				<button type="button" class="edit-nav-row ui-btn ui-btn--link text-xs">${labels.edit}</button>
@@ -525,7 +612,8 @@ function initNavigationRow(
 	syncSubmitFields(editorRow);
 	const summary = getSummaryForEditor(editorRow);
 	syncNavDepthVisual(editorRow);
-	syncMegaCell(editorRow);
+	syncDropdownLayoutCell(editorRow);
+	bindDropdownLayoutInputs(editorRow);
 	if (summary) syncNavChildButton(summary, readRowDepth(editorRow));
 }
 
@@ -616,10 +704,20 @@ function handleNavigationChange(
 		const row = target.closest('.nav-row-editor');
 		if (row instanceof HTMLElement) {
 			syncNavDepthVisual(row);
-			syncMegaCell(row);
+			syncDropdownLayoutCell(row);
 			refreshAllParentSelects(body, labels);
 			syncSubmitFields(row);
 			reorderNavEntries(body, labels);
+		}
+		return;
+	}
+
+	if (target.closest('.nav-menu-columns, .nav-menu-col-width-0, .nav-menu-col-width-1')) {
+		const row = target.closest('.nav-row-editor');
+		const options = readNavTargetOptions();
+		if (row instanceof HTMLElement) {
+			syncDropdownLayoutCell(row);
+			if (options) syncNavRowSummary(row, labels, options);
 		}
 	}
 }
@@ -722,6 +820,7 @@ export function mountNavigationForm(labels: NavigationTableLabels): void {
 				() => {
 					getEditorRows(body).forEach((row) => {
 						syncSubmitFields(row);
+						syncDropdownLayoutSubmit(row);
 					});
 					const json = form.querySelector('[name=navigation_json]');
 					if (json instanceof HTMLTextAreaElement) json.value = '';
@@ -775,8 +874,9 @@ export function initNavigationRowFromServerState(
 		depth0: 'Poziom 0',
 		depth1: 'Poziom 1',
 		depth2: 'Poziom 2',
-		megaHint: '',
-		megaLabel: 'Szerokie menu',
+		menuColumnOne: '1 kolumna',
+		menuColumnTwo: '2 kolumny',
+		menuColumnsHint: '',
 		addNavChild: '+ Dodaj podpozycję',
 		navParentRoot: '—',
 		navParentMissing: 'Brak pozycji nadrzędnej',
@@ -795,7 +895,10 @@ export function initNavigationRowFromServerState(
 			navLabel: 'Etykieta',
 			navLinkType: 'Typ linku',
 			navLinkTarget: 'Adres / cel',
-			navMegaMenu: 'Szerokie menu',
+			navMenuColumns: 'Układ dropdownu',
+			navMenuColumnCount: 'Liczba kolumn',
+			navMenuColumnWidth1: 'Szerokość kolumny 1',
+			navMenuColumnWidth2: 'Szerokość kolumny 2',
 		},
 	};
 	initNavigationRow(row, options, body, fallbackLabels);

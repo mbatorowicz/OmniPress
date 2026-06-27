@@ -1,0 +1,73 @@
+---
+import { adminLayout } from '@/i18n';
+import {
+	DEFAULT_NAV_MENU_COLUMN_WIDTH,
+	DEFAULT_NAV_MENU_COLUMN_WIDTHS_2,
+	resolveNavDropdownLayout,
+} from '@/lib/admin/nav-dropdown-layout';
+import type { NavItem } from '@/lib/astro-layout/types';
+
+interface Props {
+	depth: 0 | 1 | 2;
+	item?: Pick<NavItem, 'menuColumns' | 'menuColumnWidths' | 'isMegaMenu'>;
+	asCell?: boolean;
+}
+
+const { depth, item, asCell = true } = Astro.props;
+const visible = depth === 0;
+const layout = item ? resolveNavDropdownLayout(item) : resolveNavDropdownLayout({});
+const columns = visible ? layout.columns : 1;
+const width0 = visible ? layout.columnWidths[0] : '';
+const width1 = visible && layout.columns === 2 ? layout.columnWidths[1] : '';
+const cellClass = `nav-dropdown-layout-cell ${visible ? '' : 'hidden'}`;
+const Wrapper = asCell ? 'td' : 'div';
+---
+
+<Wrapper class:list={[cellClass, asCell && 'ui-table-dense-td--wide']}>
+	<input type="hidden" name="nav_menu_columns" class="nav-menu-columns-submit" value={String(columns)} />
+	<input type="hidden" name="nav_menu_col_width_0" class="nav-menu-col-width-0-submit" value={width0} />
+	<input type="hidden" name="nav_menu_col_width_1" class="nav-menu-col-width-1-submit" value={width1} />
+
+	{
+		visible && (
+			<div class="nav-dropdown-layout-grid">
+				<label class="nav-dropdown-layout-field">
+					<span class="nav-dropdown-layout-label">{adminLayout.fields.navMenuColumnCount}</span>
+					<select class="nav-menu-columns ui-select-compact w-full" data-initial-columns={String(columns)}>
+						<option value="1" selected={columns === 1}>{adminLayout.navMenuColumnOptions.one}</option>
+						<option value="2" selected={columns === 2}>{adminLayout.navMenuColumnOptions.two}</option>
+					</select>
+				</label>
+				<label class="nav-dropdown-layout-field">
+					<span class="nav-dropdown-layout-label">{adminLayout.fields.navMenuColumnWidth1}</span>
+					<input
+						type="text"
+						value={width0}
+						placeholder={DEFAULT_NAV_MENU_COLUMN_WIDTH}
+						class="nav-menu-col-width-0 ui-input-compact w-full"
+						inputmode="text"
+						autocomplete="off"
+					/>
+				</label>
+				<label
+					class:list={[
+						'nav-dropdown-layout-field',
+						'nav-menu-col-width-1-field',
+						columns !== 2 && 'hidden',
+					]}
+				>
+					<span class="nav-dropdown-layout-label">{adminLayout.fields.navMenuColumnWidth2}</span>
+					<input
+						type="text"
+						value={width1}
+						placeholder={DEFAULT_NAV_MENU_COLUMN_WIDTHS_2[1]}
+						class="nav-menu-col-width-1 ui-input-compact w-full"
+						inputmode="text"
+						autocomplete="off"
+					/>
+				</label>
+			</div>
+		)
+	}
+	{visible && <p class="ui-hint mt-1 text-[10px] leading-tight">{adminLayout.navMenuColumnsHint}</p>}
+</Wrapper>

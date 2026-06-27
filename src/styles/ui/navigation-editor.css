@@ -60,17 +60,17 @@
 
 	.nav-entry.nav-row--depth-0 .nav-summary-sep,
 	.nav-entry.nav-row--depth-0 .nav-summary-link-text {
-		color: var(--nav-editor-depth-0-text-muted, rgba(255, 255, 255, 0.72));
+		color: var(--nav-editor-depth-0-text-muted, rgba(255, 255, 255, 0.82));
 	}
 
 	.nav-entry.nav-row--depth-1 .nav-summary-sep,
 	.nav-entry.nav-row--depth-1 .nav-summary-link-text {
-		color: var(--nav-editor-depth-1-text-muted, rgba(15, 23, 42, 0.72));
+		color: var(--nav-editor-depth-1-text-muted, rgba(15, 23, 42, 0.76));
 	}
 
 	.nav-entry.nav-row--depth-2 .nav-summary-sep,
 	.nav-entry.nav-row--depth-2 .nav-summary-link-text {
-		color: var(--nav-editor-depth-2-text-muted, rgba(15, 23, 42, 0.72));
+		color: var(--nav-editor-depth-2-text-muted, rgba(15, 23, 42, 0.76));
 	}
 
 	.nav-summary-sep {
@@ -81,12 +81,114 @@
 		@apply min-w-0 truncate text-xs;
 	}
 
-	.nav-summary-mega {
-		@apply ml-1 shrink-0 rounded border border-border-strong bg-surface-subtle px-1 py-0 text-[10px];
+	.nav-summary-layout {
+		@apply ml-1 shrink-0 rounded px-1 py-0 text-[10px] font-medium;
+	}
+
+	.nav-entry.nav-row--depth-0 .nav-summary-layout {
+		color: var(--nav-editor-depth-0-text, #ffffff);
+		border: 1px solid var(--nav-editor-depth-0-badge-border, rgba(255, 255, 255, 0.48));
+		background-color: var(--nav-editor-depth-0-badge-bg, rgba(255, 255, 255, 0.2));
+	}
+
+	.nav-entry.nav-row--depth-1 .nav-summary-layout {
+		color: var(--nav-editor-depth-1-text, #0f172a);
+		border: 1px solid var(--nav-editor-depth-1-badge-border, rgba(15, 23, 42, 0.34));
+		background-color: var(--nav-editor-depth-1-badge-bg, rgba(15, 23, 42, 0.12));
+	}
+
+	.nav-entry.nav-row--depth-2 .nav-summary-layout {
+		color: var(--nav-editor-depth-2-text, #0f172a);
+		border: 1px solid var(--nav-editor-depth-2-badge-border, rgba(15, 23, 42, 0.34));
+		background-color: var(--nav-editor-depth-2-badge-bg, rgba(15, 23, 42, 0.12));
+	}
+
+	.nav-dropdown-layout-grid {
+		@apply grid gap-2 sm:grid-cols-3;
+	}
+
+	.nav-dropdown-layout-field {
+		@apply flex min-w-0 flex-col gap-1;
+	}
+
+	.nav-dropdown-layout-label {
+		@apply text-[10px] font-medium text-text-secondary;
+	}
+
+	.nav-dropdown-layout-field-wrap .nav-dropdown-layout-cell.hidden {
+		@apply block;
+	}
+
+	.nav-dropdown-layout-field-wrap .nav-dropdown-layout-cell.hidden .nav-dropdown-layout-grid,
+	.nav-dropdown-layout-field-wrap .nav-dropdown-layout-cell.hidden .ui-hint {
+		display: none;
 	}
 
 	.nav-tile-actions {
 		@apply flex shrink-0 items-center gap-2;
+	}
+
+	.nav-entry.nav-row--depth-0 .nav-tile-actions .ui-btn--link,
+	.nav-entry.nav-row--depth-1 .nav-tile-actions .ui-btn--link,
+	.nav-entry.nav-row--depth-2 .nav-tile-actions .ui-btn--link {
+		@apply hover:no-underline;
+	}
+
+	.nav-entry.nav-row--depth-0 .nav-tile-actions .ui-btn--link {
+		color: var(--nav-editor-depth-0-text, #ffffff);
+		--tw-ring-offset-color: var(--nav-editor-depth-0-surface, #1e4d7b);
+	}
+
+	.nav-entry.nav-row--depth-1 .nav-tile-actions .ui-btn--link {
+		color: var(--nav-editor-depth-1-text, #0f172a);
+		--tw-ring-offset-color: var(--nav-editor-depth-1-surface, #7dd3fc);
+	}
+
+	.nav-entry.nav-row--depth-2 .nav-tile-actions .ui-btn--link {
+		color: var(--nav-editor-depth-2-text, #0f172a);
+		--tw-ring-offset-color: var(--nav-editor-depth-2-surface, #c4b5fd);
+	}
+
+	.nav-entry.nav-row--depth-0 .nav-tile-actions .ui-btn--link:hover,
+	.nav-entry.nav-row--depth-0 .nav-tile-actions .ui-btn--link:focus-visible {
+		color: var(--nav-editor-depth-0-text-muted, rgba(255, 255, 255, 0.82));
+	}
+
+	.nav-entry.nav-row--depth-1 .nav-tile-actions .ui-btn--link:hover,
+	.nav-entry.nav-row--depth-1 .nav-tile-actions .ui-btn--link:focus-visible {
+		color: var(--nav-editor-depth-1-text-muted, rgba(15, 23, 42, 0.76));
+	}
+
+	.nav-entry.nav-row--depth-2 .nav-tile-actions .ui-btn--link:hover,
+	.nav-entry.nav-row--depth-2 .nav-tile-actions .ui-btn--link:focus-visible {
+		color: var(--nav-editor-depth-2-text-muted, rgba(15, 23, 42, 0.76));
+	}
+
+	.nav-entry.nav-row--depth-0 .nav-tile-actions .ui-btn--link-danger {
+		color: var(--nav-editor-depth-0-action-danger, #fca5a5);
+		--tw-ring-offset-color: var(--nav-editor-depth-0-surface, #1e4d7b);
+	}
+
+	.nav-entry.nav-row--depth-1 .nav-tile-actions .ui-btn--link-danger {
+		color: var(--nav-editor-depth-1-action-danger, #dc2626);
+		--tw-ring-offset-color: var(--nav-editor-depth-1-surface, #7dd3fc);
+	}
+
+	.nav-entry.nav-row--depth-2 .nav-tile-actions .ui-btn--link-danger {
+		color: var(--nav-editor-depth-2-action-danger, #dc2626);
+		--tw-ring-offset-color: var(--nav-editor-depth-2-surface, #c4b5fd);
+	}
+
+	.nav-entry.nav-row--depth-0 .nav-tile-actions .ui-btn--link-danger:hover,
+	.nav-entry.nav-row--depth-0 .nav-tile-actions .ui-btn--link-danger:focus-visible {
+		color: var(--nav-editor-depth-0-text, #ffffff);
+	}
+
+	.nav-entry.nav-row--depth-1 .nav-tile-actions .ui-btn--link-danger:hover,
+	.nav-entry.nav-row--depth-1 .nav-tile-actions .ui-btn--link-danger:focus-visible,
+	.nav-entry.nav-row--depth-2 .nav-tile-actions .ui-btn--link-danger:hover,
+	.nav-entry.nav-row--depth-2 .nav-tile-actions .ui-btn--link-danger:focus-visible {
+		opacity: 0.85;
 	}
 
 	.nav-depth-colors-details summary {
@@ -143,22 +245,22 @@
 
 	.nav-entry.nav-row--depth-0 .nav-depth {
 		border-color: var(--nav-editor-depth-0-border, #1e4d7b);
-		background-color: var(--nav-editor-depth-0-surface, #eff6ff);
-		color: var(--nav-editor-depth-0-text, #153a5e);
+		background-color: var(--nav-editor-depth-0-surface, #1e4d7b);
+		color: var(--nav-editor-depth-0-text, #ffffff);
 		@apply font-medium;
 	}
 
 	.nav-entry.nav-row--depth-1 .nav-depth {
 		border-color: var(--nav-editor-depth-1-border, #7dd3fc);
-		background-color: var(--nav-editor-depth-1-surface, #f0f9ff);
-		color: var(--nav-editor-depth-1-text, #0c4a6e);
+		background-color: var(--nav-editor-depth-1-surface, #7dd3fc);
+		color: var(--nav-editor-depth-1-text, #0f172a);
 		@apply font-medium;
 	}
 
 	.nav-entry.nav-row--depth-2 .nav-depth {
 		border-color: var(--nav-editor-depth-2-border, #c4b5fd);
-		background-color: var(--nav-editor-depth-2-surface, #f5f3ff);
-		color: var(--nav-editor-depth-2-text, #4c1d95);
+		background-color: var(--nav-editor-depth-2-surface, #c4b5fd);
+		color: var(--nav-editor-depth-2-text, #0f172a);
 		@apply font-medium;
 	}
 

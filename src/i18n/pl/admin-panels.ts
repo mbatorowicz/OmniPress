@@ -187,7 +187,7 @@ export const adminLayout = {
 		'sidebar.banner': 'Sidebar — baner',
 	},
 	menuHint:
-		'Tablica JSON z polami label, href oraz opcjonalnie isMegaMenu i children (do 3 poziomów).',
+		'Tablica JSON z polami label, href, opcjonalnie menuColumns (1|2), menuColumnWidths i children (do 3 poziomów).',
 	menuFormHint:
 		'Każda pozycja to jedna linia — cały kafelek jest wcięty wg hierarchii (poziom 0–2). Kolory poziomów: „Palety kolorów”.',
 	navDepthColorsHint:
@@ -195,7 +195,11 @@ export const adminLayout = {
 	menuJsonFallbackHint:
 		'Wklej pełną tablicę JSON zamiast wierszy powyżej — nadpisuje drzewo przy zapisie.',
 	navDepthLabels: ['Poziom 0', 'Poziom 1', 'Poziom 2'] as const,
-	megaMenuHint: 'Szerokie menu',
+	navMenuColumnOptions: {
+		one: '1 kolumna',
+		two: '2 kolumny',
+	},
+	navMenuColumnsHint: 'Szerokości w CSS: px, %, fr (np. 320px, 1fr, 50%).',
 	navHrefKinds: {
 		none: 'Bez linku (tylko rozwijane)',
 		category: 'Kategoria wpisów',
@@ -269,7 +273,10 @@ export const adminLayout = {
 		navDepthColor: 'Kolor',
 		navLinkType: 'Typ linku',
 		navLinkTarget: 'Adres / cel',
-		navMegaMenu: 'Szerokie menu',
+		navMenuColumns: 'Układ dropdownu',
+		navMenuColumnCount: 'Liczba kolumn',
+		navMenuColumnWidth1: 'Szerokość kolumny 1',
+		navMenuColumnWidth2: 'Szerokość kolumny 2',
 		slotId: 'ID slotu',
 		slotLabel: 'Etykieta (panel admin)',
 		slotComponent: 'Komponent (np. sidebar.weather)',

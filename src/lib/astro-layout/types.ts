@@ -3,7 +3,12 @@ import type { LayoutComponentId } from './components';
 export type NavItem = {
 	label: string;
 	href?: string;
+	/** @deprecated czytane przy imporcie — zapis jako menuColumns */
 	isMegaMenu?: boolean;
+	/** Układ dropdownu poziomu 0: 1 lub 2 kolumny */
+	menuColumns?: 1 | 2;
+	/** Szerokości kolumn (CSS), np. 320px, 1fr, 50% */
+	menuColumnWidths?: string[];
 	children?: NavItem[];
 };
 

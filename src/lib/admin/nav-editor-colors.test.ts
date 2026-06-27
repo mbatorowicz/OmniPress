@@ -69,5 +69,14 @@ describe('nav-editor-colors', () => {
 		expect(expanded.surface).toBe('#1e4d7b');
 		expect(expanded.text).toBe('#ffffff');
 		expect(expanded.muted).toMatch(/^#[0-9a-f]{6}$/);
+		expect(expanded.badgeBg).toMatch(/^#[0-9a-f]{6}$/);
+		expect(expanded.badgeBorder).toMatch(/^#[0-9a-f]{6}$/);
+		expect(expanded.actionDanger).toBe('#fca5a5');
+	});
+
+	it('expandNavEditorDepthColor ustawia ciemny danger na jasnym tle', () => {
+		const expanded = expandNavEditorDepthColor('#7dd3fc');
+		expect(expanded.text).toBe('#0f172a');
+		expect(expanded.actionDanger).toBe('#dc2626');
 	});
 });

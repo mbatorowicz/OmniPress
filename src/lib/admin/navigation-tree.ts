@@ -2,6 +2,7 @@ import type { CategoryDefinition, NavItem } from '@/lib/astro-layout/types';
 import { isExternalHref, normalizeInternalHref } from '@/lib/astro-layout/validate-nav';
 import type { PageOption } from '@/lib/admin/link-options';
 import { STATIC_ROUTE_OPTIONS } from '@/lib/admin/link-options';
+import { resolveNavDropdownLayout } from '@/lib/admin/nav-dropdown-layout';
 
 export type NavHrefKind = 'none' | 'category' | 'page' | 'static' | 'custom' | 'external';
 
@@ -11,7 +12,9 @@ export type FlatNavRow = {
 	parentRowIndex: number | null;
 	hrefKind: NavHrefKind;
 	hrefValue: string;
-	isMegaMenu: boolean;
+	menuColumns: 1 | 2;
+	menuColumnWidth0: string;
+	menuColumnWidth1: string;
 };
 
 export function detectNavHrefKind(
@@ -115,13 +118,17 @@ export function flattenNavigation(
 		for (const item of nodes) {
 			const rowIndex = rows.length;
 			const { kind, value } = detectNavHrefKind(item.href, categories, publishedPages);
+			const dropdownLayout = depth === 0 ? resolveNavDropdownLayout(item) : null;
 			rows.push({
 				label: item.label,
 				depth,
 				parentRowIndex: depth > 0 ? parentRowIndex : null,
 				hrefKind: kind,
 				hrefValue: value,
-				isMegaMenu: depth === 0 && Boolean(item.isMegaMenu),
+				menuColumns: dropdownLayout?.columns ?? 1,
+				menuColumnWidth0: dropdownLayout?.columnWidths[0] ?? '',
+				menuColumnWidth1:
+					dropdownLayout?.columns === 2 ? (dropdownLayout.columnWidths[1] ?? '') : '',
 			});
 			if (item.children?.length) {
 				walk(item.children, depth + 1, rowIndex);

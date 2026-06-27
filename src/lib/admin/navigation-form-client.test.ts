@@ -20,8 +20,9 @@ const labels: NavigationTableLabels = {
 	depth0: 'Poziom 1',
 	depth1: 'Poziom 2',
 	depth2: 'Poziom 3',
-	megaHint: 'Mega',
-	megaLabel: 'Szerokie menu',
+	menuColumnOne: '1 kolumna',
+	menuColumnTwo: '2 kolumny',
+	menuColumnsHint: '',
 	addNavChild: '+ Dodaj podpozycję',
 	navParentRoot: '—',
 	navParentMissing: 'Brak pozycji nadrzędnej',
@@ -40,7 +41,9 @@ const labels: NavigationTableLabels = {
 		navLabel: 'Etykieta',
 		navLinkType: 'Typ linku',
 		navLinkTarget: 'Adres / cel',
-		navMegaMenu: 'Szerokie menu',
+		navMenuColumns: 'Układ dropdownu',
+		navMenuColumnWidth1: 'Szerokość kolumny 1',
+		navMenuColumnWidth2: 'Szerokość kolumny 2',
 	},
 };
 
@@ -89,8 +92,13 @@ function buildNavigationList(pageValue: string): void {
 									</select>
 								</div>
 							</div>
-							<div class="nav-mega-cell">
-								<input type="checkbox" class="nav-mega" name="nav_is_mega" />
+							<div class="nav-dropdown-layout-cell">
+								<input type="hidden" name="nav_menu_columns" class="nav-menu-columns-submit" value="1" />
+								<input type="hidden" name="nav_menu_col_width_0" class="nav-menu-col-width-0-submit" value="" />
+								<input type="hidden" name="nav_menu_col_width_1" class="nav-menu-col-width-1-submit" value="" />
+								<select class="nav-menu-columns"><option value="1">1</option></select>
+								<input type="text" class="nav-menu-col-width-0" />
+								<input type="text" class="nav-menu-col-width-1" />
 							</div>
 							<button type="button" class="close-nav-row">Zamknij</button>
 						</div>
