@@ -31,18 +31,7 @@
 		@apply w-full rounded border border-border-strong px-2 py-1 text-xs;
 	}
 
-	.nav-href-values {
-		@apply grid;
-		grid-template-columns: minmax(0, 1fr);
-	}
-
-	.nav-href-values > .nav-href-field {
-		grid-column: 1;
-		grid-row: 1;
-		min-width: 0;
-	}
-
-	.nav-href-values > .nav-href-field:not(.nav-href-field--active) {
-		display: none !important;
+	.nav-href-target-host {
+		@apply min-w-0;
 	}
 }

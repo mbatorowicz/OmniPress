@@ -10,7 +10,8 @@ import TableCell from '@/components/ui/table/TableCell.astro';
 import NavDepthSelect from '@/components/admin/layout/NavDepthSelect.astro';
 import NavMegaMenuCell from '@/components/admin/layout/NavMegaMenuCell.astro';
 import { flattenNavigation, collectNavInternalPageOptions } from '@/lib/admin/navigation-tree';
-import { STATIC_ROUTE_OPTIONS, buildCategoryLinkOptions, mergePageOptionsForNavEditor, type PageOption } from '@/lib/admin/link-options';
+import { buildCategoryLinkOptions, mergePageOptionsForNavEditor, type PageOption } from '@/lib/admin/link-options';
+import { buildNavTargetOptions } from '@/lib/admin/nav-target-options';
 import type { CategoryDefinition, NavItem } from '@/lib/astro-layout/types';
 
 interface Props {
@@ -47,6 +48,10 @@ const navTableLabels = {
 	megaHint: adminLayout.megaMenuHint,
 	hrefKinds: linkKinds,
 };
+const navTargetOptions = buildNavTargetOptions(categoryOptions, pageOptions, {
+	emptyCategory: adminLayout.noCategoriesForNav,
+	emptyPage: adminLayout.noPublishedPages,
+});
 ---
 
 <Panel class="ui-form-section">
@@ -88,83 +93,7 @@ const navTableLabels = {
 						</td>
 						<td class="ui-table-dense-td--wide nav-href-values">
 							<input type="hidden" name="nav_href_value" class="nav-href-value-submit" value={navHrefSubmitValue(row)} />
-							<input
-								value={row.hrefKind === 'custom' ? row.hrefValue : ''}
-								class:list={[
-									'nav-href-input-default nav-href-field nav-href-field-custom',
-									{ 'nav-href-field--active': row.hrefKind === 'custom' },
-								]}
-								hidden={row.hrefKind !== 'custom'}
-								disabled={row.hrefKind !== 'custom'}
-							/>
-							<input
-								value={row.hrefKind === 'external' ? row.hrefValue : ''}
-								class:list={[
-									'nav-href-input-default nav-href-field nav-href-field-external',
-									{ 'nav-href-field--active': row.hrefKind === 'external' },
-								]}
-								hidden={row.hrefKind !== 'external'}
-								disabled={row.hrefKind !== 'external'}
-							/>
-							<select
-								class:list={[
-									'nav-href-select nav-href-field nav-href-field-category',
-									{ 'nav-href-field--active': row.hrefKind === 'category' },
-								]}
-								hidden={row.hrefKind !== 'category'}
-								disabled={row.hrefKind !== 'category'}
-							>
-								{categoryOptions.length === 0 ? (
-									<option value="">{adminLayout.noCategoriesForNav}</option>
-								) : (
-									categoryOptions.map((opt) => (
-										<option value={opt.path.replace(/^\//, '')} selected={row.hrefKind === 'category' && row.hrefValue === opt.path.replace(/^\//, '')}>
-											{opt.title}
-										</option>
-									))
-								)}
-							</select>
-							<select
-								class:list={[
-									'nav-href-select nav-href-field nav-href-field-page',
-									{ 'nav-href-field--active': row.hrefKind === 'page' },
-								]}
-								hidden={row.hrefKind !== 'page'}
-								disabled={row.hrefKind !== 'page'}
-							>
-								{pageOptions.length === 0 ? (
-									<option value="">{adminLayout.noPublishedPages}</option>
-								) : (
-									pageOptions.map((page) => (
-										<option value={page.path} selected={row.hrefKind === 'page' && row.hrefValue === page.path}>
-											{page.title}
-										</option>
-									))
-								)}
-								{
-									row.hrefKind === 'page' &&
-										row.hrefValue &&
-										!pageOptions.some((p) => p.path === row.hrefValue) && (
-											<option value={row.hrefValue} selected>
-												{row.hrefValue}
-											</option>
-										)
-								}
-							</select>
-							<select
-								class:list={[
-									'nav-href-select nav-href-field nav-href-field-static',
-									{ 'nav-href-field--active': row.hrefKind === 'static' },
-								]}
-								hidden={row.hrefKind !== 'static'}
-								disabled={row.hrefKind !== 'static'}
-							>
-								{STATIC_ROUTE_OPTIONS.map((opt) => (
-									<option value={opt.path} selected={row.hrefKind === 'static' && row.hrefValue === opt.path}>
-										{opt.title}
-									</option>
-								))}
-							</select>
+							<div class="nav-href-target-host" aria-live="polite"></div>
 						</td>
 						<NavMegaMenuCell depth={row.depth as 0 | 1 | 2} checked={row.isMegaMenu} />
 						<td class="ui-table-dense-td--wide">
@@ -191,7 +120,7 @@ const navTableLabels = {
 	</details>
 </Panel>
 
-<script define:vars={{ navTableLabels }}>
+<script define:vars={{ navTableLabels, navTargetOptions }}>
 	import { mountNavigationForm } from '@/lib/admin/navigation-form-client';
-	mountNavigationForm(navTableLabels);
+	mountNavigationForm(navTableLabels, navTargetOptions);
 </script>

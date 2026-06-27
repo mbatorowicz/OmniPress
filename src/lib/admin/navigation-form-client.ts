@@ -1,3 +1,9 @@
+import {
+	type NavTargetOptions,
+	optionsForNavTargetKind,
+	pickNavTargetValue,
+} from '@/lib/admin/nav-target-options';
+
 export type NavigationTableLabels = {
 	remove: string;
 	depth0: string;
@@ -16,198 +22,101 @@ export type NavigationTableLabels = {
 
 const DEPTH_CLASSES = ['nav-row--depth-0', 'nav-row--depth-1', 'nav-row--depth-2'] as const;
 
-function ensureSelectOption(select: HTMLSelectElement, value: string, label?: string): void {
-	if (!value) return;
-	for (const opt of select.options) {
-		if (opt.value === value) return;
-	}
-	const opt = document.createElement('option');
-	opt.value = value;
-	opt.textContent = label ?? value;
-	select.appendChild(opt);
+function readRowKind(row: HTMLElement): string {
+	const kindUi = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
+	return kindUi?.value ?? 'none';
 }
 
-function readActiveHrefValue(row: HTMLElement, kind: string): string {
-	if (kind === 'none') return '';
-	const field = row.querySelector(`.nav-href-field-${kind}`);
-	if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement) {
-		return field.value;
+function readTargetControlValue(row: HTMLElement): string {
+	const control = row.querySelector('.nav-href-target-control');
+	if (control instanceof HTMLInputElement || control instanceof HTMLSelectElement) {
+		return control.value;
 	}
 	return '';
 }
 
-function pickSelectValueForKind(
-	kind: string,
-	raw: string,
-	select: HTMLSelectElement,
-): string {
-	const trimmed = raw.trim();
-	if (!trimmed) return select.options[0]?.value ?? '';
-
-	if (kind === 'category') {
-		const slug = trimmed.replace(/^\//, '').split('/').filter(Boolean).pop() ?? trimmed;
-		for (const candidate of [slug, trimmed.replace(/^\//, '')]) {
-			if (candidate && [...select.options].some((o) => o.value === candidate)) {
-				return candidate;
-			}
-		}
-	}
-
-	for (const opt of select.options) {
-		if (opt.value === trimmed) return opt.value;
-	}
-
-	return select.options[0]?.value ?? trimmed;
+function syncSubmitFields(row: HTMLElement): void {
+	const kind = readRowKind(row);
+	const kindHidden = row.querySelector('.nav-href-kind-submit') as HTMLInputElement | null;
+	const valueHidden = row.querySelector('.nav-href-value-submit') as HTMLInputElement | null;
+	if (kindHidden) kindHidden.value = kind;
+	if (!valueHidden) return;
+	valueHidden.value = kind === 'none' ? '' : readTargetControlValue(row);
+	row.dataset.navKind = kind;
+	row.dataset.navHref = valueHidden.value;
 }
 
-function syncTargetFieldForKind(row: HTMLElement, kind: string): void {
-	if (kind === 'none') return;
-
+export function rebuildNavTarget(
+	row: HTMLElement,
+	kind: string,
+	options: NavTargetOptions,
+): void {
+	const host = row.querySelector('.nav-href-target-host');
 	const hidden = row.querySelector('.nav-href-value-submit') as HTMLInputElement | null;
-	const field = row.querySelector(`.nav-href-field-${kind}`);
-	if (!(hidden instanceof HTMLInputElement)) return;
+	if (!(host instanceof HTMLElement) || !hidden) return;
 
-	if (field instanceof HTMLSelectElement) {
-		const picked = pickSelectValueForKind(kind, hidden.value, field);
-		if (picked) {
-			ensureSelectOption(field, picked);
-			field.value = picked;
-			hidden.value = picked;
-		}
+	host.innerHTML = '';
+
+	if (kind === 'none') {
+		hidden.value = '';
 		return;
 	}
 
-	if (field instanceof HTMLInputElement && hidden.value.trim()) {
-		field.value = hidden.value.trim();
+	if (kind === 'custom' || kind === 'external') {
+		const input = document.createElement('input');
+		input.type = 'text';
+		input.className =
+			'nav-href-input-default nav-href-target-control ui-input-compact w-full';
+		input.placeholder = kind === 'external' ? 'https://…' : '/sciezka';
+		input.value = hidden.value;
+		host.appendChild(input);
+		return;
 	}
+
+	const list = optionsForNavTargetKind(kind, options);
+	const select = document.createElement('select');
+	select.className = 'nav-href-select nav-href-target-control ui-select-compact w-full';
+
+	if (list.length === 0) {
+		const empty = document.createElement('option');
+		empty.value = '';
+		empty.textContent = kind === 'category' ? options.emptyCategory : options.emptyPage;
+		select.appendChild(empty);
+	} else {
+		for (const item of list) {
+			const opt = document.createElement('option');
+			opt.value = item.value;
+			opt.textContent = item.label;
+			select.appendChild(opt);
+		}
+		select.value = pickNavTargetValue(kind, hidden.value, list);
+		hidden.value = select.value;
+	}
+
+	host.appendChild(select);
 }
 
-function resolveRowHrefKind(row: HTMLElement): string {
-	const kindHidden = row.querySelector('.nav-href-kind-submit') as HTMLInputElement | null;
-	const kindUi = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
-	const valueHidden = row.querySelector('.nav-href-value-submit') as HTMLInputElement | null;
-
-	const uiKind = kindUi?.value ?? 'none';
-	const serverKind = kindHidden?.value || row.dataset.navKind || 'none';
-	const href =
-		valueHidden?.value.trim() || row.dataset.navHref?.trim() || '';
-
-	if (uiKind !== 'none') return uiKind;
-
-	if (href && serverKind !== 'none') {
-		if (kindUi) kindUi.value = serverKind;
-		return serverKind;
-	}
-
-	return uiKind;
-}
-
-function syncHrefValueSubmit(row: HTMLElement): void {
-	const kind = resolveRowHrefKind(row);
-	const kindHidden = row.querySelector('.nav-href-kind-submit') as HTMLInputElement | null;
-	if (kindHidden) kindHidden.value = kind;
-
-	const hidden = row.querySelector('.nav-href-value-submit');
-	if (!(hidden instanceof HTMLInputElement)) return;
-
-	const fromField = readActiveHrefValue(row, kind);
-	hidden.value = kind === 'none' ? '' : fromField;
-}
-
-function initHrefFieldsFromHidden(row: HTMLElement): void {
-	const kindSelect = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
-	const kindHidden = row.querySelector('.nav-href-kind-submit') as HTMLInputElement | null;
-	let kind = kindHidden?.value || row.dataset.navKind || kindSelect?.value || 'none';
-	const hidden = row.querySelector('.nav-href-value-submit');
-	if (!(hidden instanceof HTMLInputElement)) return;
-
-	let value = hidden.value.trim();
-	if (!value && row.dataset.navHref) {
-		value = row.dataset.navHref.trim();
-		hidden.value = value;
-	}
-
-	if (kind === 'none' && value && row.dataset.navKind && row.dataset.navKind !== 'none') {
-		kind = row.dataset.navKind;
-	}
-
-	if (kindSelect && kind !== 'none') {
-		kindSelect.value = kind;
-	}
-	if (kindHidden && kind !== 'none') {
-		kindHidden.value = kind;
-	}
-
-	if (kind === 'none' || !value) return;
-
-	const field = row.querySelector(`.nav-href-field-${kind}`);
-	if (field instanceof HTMLSelectElement) {
-		ensureSelectOption(field, value);
-		field.value = value;
-	} else if (field instanceof HTMLInputElement) {
-		field.value = value;
-	}
-}
-
-export function initNavigationRowFromServerState(row: HTMLElement): void {
-	const kindSelectEarly = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
-	const initialKind = kindSelectEarly?.dataset.initialKind;
-	if (kindSelectEarly && initialKind && initialKind !== 'none') {
-		kindSelectEarly.value = initialKind;
-	}
-
-	const kind = row.dataset.navKind ?? initialKind ?? 'none';
-	const href = row.dataset.navHref ?? '';
+function initNavigationRow(row: HTMLElement, options: NavTargetOptions): void {
 	const kindSelect = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
 	const kindHidden = row.querySelector('.nav-href-kind-submit') as HTMLInputElement | null;
 	const hidden = row.querySelector('.nav-href-value-submit') as HTMLInputElement | null;
+	const initialKind = row.dataset.navKind || kindSelect?.dataset.initialKind || 'none';
+	const initialHref = row.dataset.navHref || hidden?.value || '';
 
-	if (kindHidden && kind !== 'none') {
-		kindHidden.value = kind;
+	if (kindSelect && initialKind !== 'none') {
+		kindSelect.value = initialKind;
 	}
-	if (kindSelect && kind !== 'none') {
-		kindSelect.value = kind;
+	if (kindHidden && initialKind !== 'none') {
+		kindHidden.value = initialKind;
 	}
-	if (hidden && href && !hidden.value.trim()) {
-		hidden.value = href;
+	if (hidden && initialHref && !hidden.value.trim()) {
+		hidden.value = initialHref;
 	}
 
-	syncHrefFields(row, { skipSubmitSync: true });
-	initHrefFieldsFromHidden(row);
-	syncHrefFields(row);
+	rebuildNavTarget(row, readRowKind(row), options);
+	syncSubmitFields(row);
 	syncNavDepthVisual(row);
 	syncMegaCell(row);
-}
-
-function setHrefFieldActive(field: Element, active: boolean): void {
-	if (!(field instanceof HTMLElement)) return;
-	field.classList.toggle('nav-href-field--active', active);
-	field.classList.toggle('hidden', !active);
-	field.hidden = !active;
-	if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement) {
-		field.disabled = !active;
-	}
-}
-
-export function syncHrefFields(row: HTMLElement, options?: { skipSubmitSync?: boolean }): void {
-	const kindUi = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
-	const kind = kindUi?.value ?? 'none';
-
-	row.querySelectorAll('.nav-href-field').forEach((el) => {
-		const match = el.classList.contains(`nav-href-field-${kind}`);
-		setHrefFieldActive(el, match);
-	});
-
-	row.dataset.navKind = kind;
-
-	if (!options?.skipSubmitSync) {
-		const kindHidden = row.querySelector('.nav-href-kind-submit') as HTMLInputElement | null;
-		if (kindHidden) kindHidden.value = kind;
-		syncTargetFieldForKind(row, kind);
-		syncHrefValueSubmit(row);
-		const hidden = row.querySelector('.nav-href-value-submit') as HTMLInputElement | null;
-		if (hidden) row.dataset.navHref = hidden.value;
-	}
 }
 
 function syncNavDepthVisual(row: HTMLElement): void {
@@ -234,13 +143,7 @@ function syncMegaCell(row: HTMLElement): void {
 	}
 }
 
-function syncAllHrefSubmitValues(body: HTMLElement): void {
-	body.querySelectorAll('.nav-row').forEach((row) => {
-		syncHrefValueSubmit(row as HTMLElement);
-	});
-}
-
-function appendNavRow(body: HTMLElement, labels: NavigationTableLabels): void {
+function appendNavRow(body: HTMLElement, labels: NavigationTableLabels, options: NavTargetOptions): void {
 	const { hrefKinds } = labels;
 	const tr = document.createElement('tr');
 	tr.className = 'nav-row ui-table-dense-row nav-row--depth-0';
@@ -257,7 +160,7 @@ function appendNavRow(body: HTMLElement, labels: NavigationTableLabels): void {
 		<td class="ui-table-dense-td--wide nav-label-cell"><input name="nav_label" required class="ui-input-compact w-full" /></td>
 		<td class="ui-table-dense-td--wide">
 			<input type="hidden" name="nav_href_kind" class="nav-href-kind-submit" value="none" />
-			<select class="ui-select-compact w-full nav-href-kind">
+			<select class="nav-href-kind ui-select-compact w-full">
 				<option value="none">${hrefKinds.none}</option>
 				<option value="category">${hrefKinds.category}</option>
 				<option value="page">${hrefKinds.page}</option>
@@ -268,11 +171,7 @@ function appendNavRow(body: HTMLElement, labels: NavigationTableLabels): void {
 		</td>
 		<td class="ui-table-dense-td--wide nav-href-values">
 			<input type="hidden" name="nav_href_value" class="nav-href-value-submit" value="" />
-			<input class="nav-href-input-default nav-href-field nav-href-field-custom hidden" disabled />
-			<input class="nav-href-input-default nav-href-field nav-href-field-external hidden" disabled />
-			<select class="nav-href-select nav-href-field nav-href-field-category hidden" disabled></select>
-			<select class="nav-href-select nav-href-field nav-href-field-page hidden" disabled></select>
-			<select class="nav-href-select nav-href-field nav-href-field-static hidden" disabled></select>
+			<div class="nav-href-target-host"></div>
 		</td>
 		<td class="nav-mega-cell ui-table-dense-td--wide text-center">
 			<label class="inline-flex flex-col items-center gap-1">
@@ -282,36 +181,27 @@ function appendNavRow(body: HTMLElement, labels: NavigationTableLabels): void {
 		</td>
 		<td class="ui-table-dense-td--wide"><button type="button" class="remove-nav-row ui-btn ui-btn--link-danger">${labels.remove}</button></td>
 	`;
-	const templateRow = body.querySelector('.nav-row');
-	if (templateRow) {
-		const catSelect = tr.querySelector('.nav-href-field-category');
-		const pageSelect = tr.querySelector('.nav-href-field-page');
-		const staticSelect = tr.querySelector('.nav-href-field-static');
-		const tplCat = templateRow.querySelector('.nav-href-field-category');
-		const tplPage = templateRow.querySelector('.nav-href-field-page');
-		const tplStatic = templateRow.querySelector('.nav-href-field-static');
-		if (catSelect && tplCat) catSelect.innerHTML = tplCat.innerHTML;
-		if (pageSelect && tplPage) pageSelect.innerHTML = tplPage.innerHTML;
-		if (staticSelect && tplStatic) staticSelect.innerHTML = tplStatic.innerHTML;
-	}
 	body.appendChild(tr);
-	syncHrefFields(tr);
-	syncNavDepthVisual(tr);
-	syncMegaCell(tr);
+	initNavigationRow(tr, options);
 }
 
-function handleNavigationChange(event: Event): void {
+function handleNavigationChange(event: Event, options: NavTargetOptions): void {
 	const target = event.target;
 	if (!(target instanceof Element)) return;
 
-	if (target.closest('.nav-href-kind') || target.closest('.nav-href-field')) {
+	if (target.closest('.nav-href-kind')) {
 		const row = target.closest('.nav-row');
 		if (row instanceof HTMLElement) {
-			syncHrefFields(row);
-			if (target.closest('.nav-href-kind')) {
-				requestAnimationFrame(() => syncHrefFields(row));
-			}
+			const kind = readRowKind(row);
+			rebuildNavTarget(row, kind, options);
+			syncSubmitFields(row);
 		}
+		return;
+	}
+
+	if (target.closest('.nav-href-target-control')) {
+		const row = target.closest('.nav-row');
+		if (row instanceof HTMLElement) syncSubmitFields(row);
 		return;
 	}
 
@@ -324,14 +214,18 @@ function handleNavigationChange(event: Event): void {
 	}
 }
 
-function handleNavigationClick(event: Event, labels: NavigationTableLabels): void {
+function handleNavigationClick(
+	event: Event,
+	labels: NavigationTableLabels,
+	options: NavTargetOptions,
+): void {
 	const target = event.target;
 	if (!(target instanceof Element)) return;
 
 	if (target.closest('#add-nav-row')) {
 		event.preventDefault();
 		const body = document.getElementById('navigation-body');
-		if (body instanceof HTMLElement) appendNavRow(body, labels);
+		if (body instanceof HTMLElement) appendNavRow(body, labels, options);
 		return;
 	}
 
@@ -345,13 +239,16 @@ function handleNavigationClick(event: Event, labels: NavigationTableLabels): voi
 	row.remove();
 }
 
-export function mountNavigationForm(labels: NavigationTableLabels): void {
+export function mountNavigationForm(
+	labels: NavigationTableLabels,
+	options: NavTargetOptions,
+): void {
 	const mount = (): void => {
 		const body = document.getElementById('navigation-body');
 		if (!(body instanceof HTMLElement)) return;
 
 		body.querySelectorAll('.nav-row').forEach((row) => {
-			initNavigationRowFromServerState(row as HTMLElement);
+			initNavigationRow(row as HTMLElement, options);
 		});
 
 		const form = body.closest('form');
@@ -360,7 +257,9 @@ export function mountNavigationForm(labels: NavigationTableLabels): void {
 			form.addEventListener(
 				'submit',
 				() => {
-					syncAllHrefSubmitValues(body);
+					body.querySelectorAll('.nav-row').forEach((row) => {
+						syncSubmitFields(row as HTMLElement);
+					});
 					const json = form.querySelector('[name=navigation_json]');
 					if (json instanceof HTMLTextAreaElement) json.value = '';
 				},
@@ -368,11 +267,11 @@ export function mountNavigationForm(labels: NavigationTableLabels): void {
 			);
 		}
 
-		if (document.documentElement.dataset.navigationFormMounted === '1') return;
-		document.documentElement.dataset.navigationFormMounted = '1';
-		document.addEventListener('change', handleNavigationChange);
-		document.addEventListener('input', handleNavigationChange);
-		document.addEventListener('click', (event) => handleNavigationClick(event, labels));
+		if (body.dataset.navigationFormBound === '1') return;
+		body.dataset.navigationFormBound = '1';
+		body.addEventListener('change', (event) => handleNavigationChange(event, options));
+		body.addEventListener('input', (event) => handleNavigationChange(event, options));
+		body.addEventListener('click', (event) => handleNavigationClick(event, labels, options));
 	};
 
 	if (document.readyState === 'loading') {
@@ -383,6 +282,17 @@ export function mountNavigationForm(labels: NavigationTableLabels): void {
 }
 
 /** @deprecated Użyj mountNavigationForm */
-export function initNavigationTable(labels: NavigationTableLabels): void {
-	mountNavigationForm(labels);
+export function initNavigationTable(
+	labels: NavigationTableLabels,
+	options: NavTargetOptions,
+): void {
+	mountNavigationForm(labels, options);
+}
+
+/** @deprecated */
+export function syncHrefFields(_row: HTMLElement): void {}
+
+/** @deprecated */
+export function initNavigationRowFromServerState(row: HTMLElement, options: NavTargetOptions): void {
+	initNavigationRow(row, options);
 }
