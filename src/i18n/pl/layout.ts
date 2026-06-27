@@ -16,7 +16,7 @@ export const layout = {
 		unitNew: 'Nowa strona',
 		postReview: 'Podgląd wpisu',
 		unit: 'Strona',
-		layout: 'Layout Astro',
+		layout: 'Wygląd strony',
 		navigation: 'Menu',
 		categories: 'Kategorie',
 		components: 'Komponenty',
@@ -30,7 +30,7 @@ export const layout = {
 		mainNav: 'Nawigacja główna',
 		sidebarNav: 'Nawigacja administracji',
 		breadcrumbs: 'Okruszki nawigacyjne',
-		adminContext: 'Kontekst jednostki',
+		adminContext: 'Kontekst strony',
 		queueSections: 'Sekcje kolejki wpisów',
 	},
 } as const;

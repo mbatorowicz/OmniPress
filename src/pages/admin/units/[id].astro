@@ -23,7 +23,7 @@ const flashMessages = parseQueryFlash(Astro.url, {
 });
 ---
 
-<AppLayout title={initial.name} heading={adminUnit.settingsLink}>
+<AppLayout title={`${initial.name} — ${adminUnit.settingsTitle}`} heading={adminUnit.settingsTitle}>
 	<AdminContextNav siteId={id} siteName={initial.name} section="settings" />
 	<FlashAlerts messages={flashMessages} />
 	<p class="mb-4 ui-muted">{adminUnit.settingsLead}</p>

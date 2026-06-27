@@ -31,20 +31,20 @@ export const adminSites = {
 	deleted: 'Strona usunięta.',
 	addTile: '+ Dodaj stronę',
 	empty: 'Brak stron — utwórz pierwszą (np. UG Miedzna).',
-	lead: 'Kliknij kafelek, aby otworzyć ustawienia strony — GitHub, menu (Layout Astro), strony statyczne i ogłoszenia.',
+	lead: 'Kliknij kafelek, aby otworzyć ustawienia strony — menu, kategorie, komponenty, strony statyczne i ogłoszenia.',
 } as const;
 
 export const adminUnit = {
 	title: 'Nowa strona',
-	editTitle: 'Ustawienia strony',
-	lead: 'Jednym krokiem: strona logiczna + repozytorium GitHub do publikacji.',
-	editLead: 'Nazwa strony, slug i status aktywności.',
-	publishTitle: 'Publikacja (GitHub → Astro)',
+	settingsTitle: 'Ustawienia strony',
+	lead: 'Nazwa, slug i kanał GitHub do publikacji wpisów — w jednym kroku.',
+	settingsLead:
+		'Nazwa i slug strony oraz kanał publikacji: repozytorium GitHub, tokeny i opcjonalna weryfikacja deployu Vercel.',
 	sections: {
-		unit: 'Strona',
-		astro: 'GitHub → Astro',
+		unit: 'Dane strony',
+		astro: 'Publikacja na GitHub',
 	},
-	actions: { create: 'Utwórz stronę', save: 'Zapisz zmiany', edit: 'Edytuj' },
+	actions: { create: 'Utwórz stronę', save: 'Zapisz zmiany' },
 	errors: {
 		name_required: 'Podaj nazwę strony.',
 		invalid_slug: 'Nieprawidłowy slug (min. 2 znaki, a-z, 0-9, myślnik).',
@@ -55,9 +55,9 @@ export const adminUnit = {
 		mapping_failed: 'Nie udało się powiązać destynacji ze stroną.',
 		not_found: 'Strona nie istnieje.',
 	},
-	credentialsNote: 'Token GitHub opcjonalny — możesz dodać później w edycji destynacji.',
+	credentialsNote: 'Token GitHub opcjonalny przy tworzeniu — dodasz go później w Ustawieniach.',
 	astroHelp: {
-		title: 'Skąd wziąć dane kanału Astro?',
+		title: 'Skąd wziąć dane publikacji?',
 		repo: 'GitHub → repozytorium strony w formacie owner/nazwa (np. mbatorowicz/gmina-miedzna.pl).',
 		branch: 'Branch — zwykle main.',
 		contentPath: 'Ścieżka contentu — dla gminy-miedzna.pl: src/content/news',
@@ -65,20 +65,15 @@ export const adminUnit = {
 		token: 'GitHub → Settings → Developer settings → Personal access tokens → token z uprawnieniem repo (zapis do repozytorium).',
 		vercel: 'Vercel → Project Settings → General → Project ID (prj_…). Po publikacji OmniPress sprawdza log buildu.',
 	},
-	layoutLink: 'Layout Astro (menu i komponenty)',
-	publishLink: 'Publikacja',
+	layoutLink: 'Wygląd strony',
 	settingsLink: 'Ustawienia',
-	settingsLead:
-		'Nazwa strony, slug, kanał GitHub (repozytorium, tokeny) i opcjonalna weryfikacja deployu Vercel.',
 	navigationLink: 'Menu',
 	categoriesLink: 'Kategorie',
 	componentsLink: 'Komponenty',
 	pagesLink: 'Strony statyczne',
-	changesLink: 'Ogłoś zmianę na stronie',
-	contextGroupSettings: 'Ustawienia',
+	changesLink: 'Ostatnie zmiany',
 	contextGroupAppearance: 'Wygląd strony',
 	contextGroupContent: 'Treść',
-	publishLead: 'Repozytorium GitHub, tokeny i opcjonalna weryfikacja deployu Vercel.',
 	advancedPathsTitle: 'Zaawansowane — ścieżki plików w repozytorium',
 } as const;
 
@@ -129,26 +124,28 @@ export const adminSitePages = {
 } as const;
 
 export const adminLayout = {
-	title: 'Layout strony Astro',
-	navigationTitle: 'Menu nawigacji',
-	categoriesTitle: 'Kategorie wpisów',
-	componentsTitle: 'Komponenty strony',
-	navigationLead: 'Struktura menu głównego — poziomy, linki wewnętrzne i zewnętrzne. Sync do repozytorium GitHub.',
-	categoriesLead: 'Slug i nazwa kategorii wpisów oraz przypisanie do sekcji na stronie głównej.',
-	componentsLead: 'Komponenty Astro (home.*, sidebar.*) — kolejność i ustawienia widgetów.',
-	lead: 'Menu nawigacji, lista kategorii wpisów oraz przypisanie kategorii do sekcji na stronie (sync do repozytorium GitHub).',
-	saved: 'Layout zapisany w OmniPress.',
-	savedSynced: 'Layout zapisany i wysłany do repozytorium GitHub.',
-	syncSummaryPrefix: 'Sync:',
-	imported: 'Zaimportowano layout z repozytorium GitHub.',
-	noAstroChannel: 'Brak aktywnego kanału Astro — zapis tylko w OmniPress (bez sync do GitHub).',
+	title: 'Wygląd strony',
+	navigationTitle: 'Menu',
+	categoriesTitle: 'Kategorie',
+	componentsTitle: 'Komponenty',
+	navigationLead:
+		'Pozycje menu głównego i podmenu (do 3 poziomów). Link wewnętrzny musi wskazywać istniejącą stronę, kategorię lub znaną trasę.',
+	categoriesLead: 'Slug i nazwa kategorii wpisów oraz widoczność w sekcjach na stronie głównej.',
+	componentsLead: 'Widgety na stronie (strona główna, sidebar) — kolejność i parametry.',
+	lead: 'Menu, kategorie i komponenty — zapis w OmniPress, opcjonalny sync do repozytorium GitHub.',
+	saved: 'Zapisano w OmniPress.',
+	savedSynced: 'Zapisano i wysłano do GitHub.',
+	syncSummaryPrefix: 'GitHub:',
+	imported: 'Zaimportowano konfigurację z GitHub.',
+	noAstroChannel:
+		'Brak skonfigurowanego repozytorium GitHub — zapis tylko w OmniPress (bez wysyłki na GitHub).',
 	slotsHint:
-		'Komponenty strony Astro w jednej liście. Wybierz typ (home.*, sidebar.*) i kolejność — mniejsza liczba = wyżej w sidebarze. Szczegóły konfiguracji są w sekcjach poniżej, pogrupowanych według typu komponentu.',
+		'Widgety na stronie publicznej. Mniejsza liczba „kolejność” = wyżej w sidebarze. Szczegóły w sekcjach poniżej.',
 	slotsListTitle: 'Lista komponentów',
 	slotsConfigHint:
 		'Pola ustawień są podzielone na sekcje według typu komponentu. Każdy slot ma własny blok w odpowiedniej sekcji.',
 	recentChangesHint:
-		'Widget pokazuje ostatnie zmiany opublikowane w OmniPress (ogłoszenia jednostki).',
+		'Widget w sidebarze pokazuje ogłoszenia dodane w OmniPress (ta zakładka) oraz wpisy z publikacji.',
 	sectionTitles: {
 		home_feed: 'Feedy strony głównej',
 		recent_changes: 'Ostatnie zmiany (sidebar)',
@@ -178,12 +175,13 @@ export const adminLayout = {
 		'sidebar.banner': 'Sidebar — baner',
 	},
 	menuHint:
-		'Tablica JSON — pola label, href, opcjonalnie isMegaMenu i zagnieżdżone children (do 3 poziomów). Link wewnętrzny musi wskazywać opublikowaną stronę statyczną, archiwum kategorii (/{slug}) lub znaną trasę w repo.',
+		'Tablica JSON z polami label, href oraz opcjonalnie isMegaMenu i children (do 3 poziomów).',
 	menuFormHint:
-		'Menu główne to pozycje w pasku nawigacji; podmenu i podmenu zagnieżdżone to kolejne poziomy rozwijane. Link wewnętrzny musi wskazywać opublikowaną stronę, kategorię lub znaną trasę.',
-	menuJsonFallbackHint: 'Opcjonalnie — wklej pełną tablicę JSON zamiast wierszy powyżej (nadpisuje drzewo przy zapisie).',
+		'Menu główne to pozycje w pasku nawigacji; podmenu i podmenu zagnieżdżone to kolejne poziomy rozwijane.',
+	menuJsonFallbackHint:
+		'Wklej pełną tablicę JSON zamiast wierszy powyżej — nadpisuje drzewo przy zapisie.',
 	navDepthLabels: ['Menu główne', 'Podmenu', 'Podmenu zagnieżdżone'] as const,
-	megaMenuHint: 'Szerokie rozwijane menu — tylko pozycja główna.',
+	megaMenuHint: 'Szerokie menu',
 	navHrefKinds: {
 		none: 'Bez linku (tylko rozwijane)',
 		category: 'Kategoria wpisów',
@@ -195,7 +193,7 @@ export const adminLayout = {
 	categoriesSlugWarning: 'Zmiana slug nie aktualizuje URL-i już opublikowanych wpisów — wymagają republikacji.',
 	navValidationHeading: 'Problemy w menu (linki wewnętrzne):',
 	navValidationHint:
-		'Sync do GitHub jest zablokowany, dopóki menu wskazuje nieistniejące adresy. Utwórz strony statyczne lub popraw href.',
+		'Wysyłka do GitHub jest zablokowana, dopóki menu wskazuje nieistniejące adresy. Utwórz strony statyczne lub popraw linki.',
 	bannerLinkTypes: {
 		category: 'Kategoria wpisów',
 		page: 'Strona statyczna',
@@ -211,9 +209,9 @@ export const adminLayout = {
 	},
 	noPublishedPages: 'Brak opublikowanych stron statycznych.',
 	certAdvisoriesHint:
-		'Komunikaty pobierane na żywo z RSS CERT Polska (moje.cert.pl). Widget na stronie Astro woła /api/cert/advisories — bez commita do GitHub i bez redeployu (cache ~15 min).',
+		'Komunikaty CERT Polska (RSS) — widget na stronie woła /api/cert/advisories, cache ~15 min, bez commita do GitHub.',
 	weatherHint:
-		'Ostrzeżenia IMGW (meteo.imgw.pl) dla powiatu jednostki. Widget na stronie Astro woła /api/weather/warnings — dane z API IMGW na żywo, cache ~15 min, bez redeployu przy nowym ostrzeżeniu.',
+		'Ostrzeżenia IMGW (meteo.imgw.pl) dla powiatu przypisanego do strony. Widget woła /api/weather/warnings — dane na żywo, cache ~15 min.',
 	weatherMapHint:
 		'Lat/lon i zoom są opcjonalne — mapa na stronie dopasowuje widok do zasięgu ostrzeżenia. Dodatkowe powiaty służą tylko jako kontekst (szare obramowanie).',
 	weatherDetailsHint:
@@ -230,7 +228,7 @@ export const adminLayout = {
 		all: 'Wszystkie kategorie',
 	},
 	categoriesHint: 'Slug musi odpowiadać segmentowi URL wpisu (/{category}/{slug}).',
-	displaysHint: 'Zaznacz, które kategorie mają trafiać do danego komponentu na stronie Astro.',
+	displaysHint: 'Zaznacz, które kategorie mają pojawiać się w danym komponencie na stronie.',
 	displaysRefreshHint: 'Po dodaniu nowej kategorii zapisz formularz — macierz odświeży się przy następnym otwarciu.',
 	sections: {
 		menu: 'Menu główne',
@@ -244,7 +242,7 @@ export const adminLayout = {
 		navLabel: 'Etykieta',
 		navLinkType: 'Typ linku',
 		navLinkTarget: 'Adres / cel',
-		navMegaMenu: 'Mega menu',
+		navMegaMenu: 'Szerokie menu',
 		slotId: 'ID slotu',
 		slotLabel: 'Etykieta (panel admin)',
 		slotComponent: 'Komponent (np. sidebar.weather)',
@@ -290,15 +288,15 @@ export const adminLayout = {
 		bannerPage: 'Strona statyczna',
 		bannerExternalUrl: 'URL zewnętrzny',
 		removeRow: '',
-		syncGitHub: 'Wyślij zmiany do repozytorium GitHub (omnipress-navigation.json + omnipress-categories.json)',
+		syncGitHub: 'Wyślij zmiany do GitHub (menu + kategorie + komponenty)',
 	},
 	paths: {
-		navigation: 'Plik menu w repo',
-		categories: 'Plik kategorii w repo',
+		navigation: 'Plik menu w repozytorium',
+		categories: 'Plik kategorii w repozytorium',
 	},
 	actions: {
-		save: 'Zapisz layout',
-		importFromGitHub: 'Importuj z GitHub (nadpisuje dane w OmniPress)',
+		save: 'Zapisz zmiany',
+		importFromGitHub: 'Importuj z GitHub',
 		addCategory: '+ Dodaj kategorię',
 		addComponent: '+ Dodaj komponent',
 		addNavRow: '+ Dodaj pozycję menu',
@@ -315,13 +313,15 @@ export const adminLayout = {
 		invalid_navigation: 'Menu: nieprawidłowy JSON lub struktura.',
 		no_categories: 'Dodaj co najmniej jedną kategorię (slug + nazwa).',
 		no_slots: 'Dodaj co najmniej jeden komponent.',
-		no_category_feed_slots: 'Dodaj komponent home.pinned lub home.latest, aby przypisywać kategorie.',
-		save_failed: 'Zapis layoutu nie powiódł się.',
-		no_astro_destination: 'Brak aktywnego kanału Astro — skonfiguruj go w edycji jednostki.',
-		invalid_repo: 'Nieprawidłowa konfiguracja repozytorium Astro.',
-		no_github_token: 'Brak tokenu GitHub — dodaj PAT w destynacji Astro.',
-		dead_nav_links: 'Menu zawiera nieistniejące linki wewnętrzne — popraw przed wysłaniem do GitHub.',
-		sync_failed: 'Zapis do GitHub nie powiódł się — layout zapisany tylko w OmniPress.',
+		no_category_feed_slots:
+			'Dodaj komponent „Przypięte” lub „Najnowsze”, aby przypisywać kategorie.',
+		save_failed: 'Zapis nie powiódł się.',
+		no_astro_destination: 'Brak repozytorium GitHub — skonfiguruj je w Ustawieniach strony.',
+		invalid_repo: 'Nieprawidłowa konfiguracja repozytorium.',
+		no_github_token: 'Brak tokenu GitHub — dodaj PAT w Ustawieniach.',
+		dead_nav_links:
+			'Menu zawiera nieistniejące linki wewnętrzne — popraw je przed wysłaniem do GitHub.',
+		sync_failed: 'Wysyłka do GitHub nie powiodła się — dane zapisane tylko w OmniPress.',
 		vercel_build_failed:
 			'GitHub zaktualizowany, ale build Vercel strony Astro nie przeszedł — produkcja może być nieaktualna.',
 	},
@@ -329,9 +329,9 @@ export const adminLayout = {
 
 export const adminRecentChanges = {
 	title: 'Ostatnie zmiany na stronie',
-	lead: 'Ogłoś odwiedzającym aktualizację treści (np. nowy nr konta na stronie Kontakt). Wpisy trafiają do widgetu w sidebarze strony Astro.',
-	saved: 'Ogłoszenie dodane do rejestru i wysłane do repozytorium GitHub.',
-	noAstroChannel: 'Brak aktywnego kanału Astro — nie można zapisać ogłoszenia na stronie.',
+	lead: 'Ogłoś odwiedzającym aktualizację treści (np. nowy numer konta). Wpisy trafiają do widgetu w sidebarze.',
+	saved: 'Ogłoszenie dodane do rejestru i wysłane do GitHub.',
+	noAstroChannel: 'Brak repozytorium GitHub — nie można zapisać ogłoszenia na stronie.',
 	currentHeading: 'Aktualny rejestr (z GitHub)',
 	currentEmpty: 'Brak wpisów — pojawią się po publikacji aktualności lub ogłoszeniu zmiany.',
 	announceHeading: 'Nowe ogłoszenie',
@@ -341,11 +341,11 @@ export const adminRecentChanges = {
 		href: 'Link docelowy (ścieżka)',
 		kind: 'Typ',
 	},
-	kinds: {
+		kinds: {
 		page: 'Strona informacyjna',
 		manual: 'Inna zmiana',
 		news: 'Aktualność',
-		layout: 'Konfiguracja',
+		layout: 'Wygląd strony',
 	},
 	presets: {
 		label: 'Szybki wybór linku',
@@ -354,7 +354,6 @@ export const adminRecentChanges = {
 	},
 	actions: {
 		announce: 'Dodaj ogłoszenie',
-		backLayout: 'Layout Astro',
 	},
 	table: {
 		title: 'Tytuł',
@@ -391,7 +390,7 @@ export const adminDestinations = {
 		vercelTeamId: 'ID zespołu Vercel (opcjonalnie)',
 		vercelToken: 'Token Vercel (opcjonalnie)',
 		credentialsHint: 'Pozostaw puste, aby zachować obecne credentials.',
-		credentialsOptional: 'Credentials opcjonalne przy tworzeniu — możesz dodać przy edycji przed publikacją.',
+		credentialsOptional: 'Tokeny opcjonalne przy tworzeniu — dodasz je w Ustawieniach przed publikacją.',
 		noEncryption: 'Brak ENCRYPTION_KEY — credentials nie zostaną zapisane (publikacja zablokowana).',
 		categoriesPath: 'Plik kategorii w repozytorium',
 		navigationPath: 'Plik menu w repozytorium',
@@ -447,7 +446,7 @@ export const adminReview = {
 	errors: {
 		not_pending: 'Wpis nie oczekuje na akceptację.',
 		no_destinations: 'Strona nie ma skonfigurowanego repozytorium GitHub.',
-		no_site_channel: 'Strona nie ma skonfigurowanego repozytorium GitHub — edytuj jednostkę.',
+		no_site_channel: 'Strona nie ma skonfigurowanego repozytorium GitHub — przejdź do Ustawień.',
 		note_required: 'Podaj uwagi (min. 3 znaki).',
 		invalid_destinations: 'Niedozwolona destynacja dla tej strony.',
 		retry_failed: 'Nie udało się ponowić (log nie jest w stanie failed).',

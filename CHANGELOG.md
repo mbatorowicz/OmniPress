@@ -3,6 +3,12 @@
 Format: [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+commit`.
 
+## [0.9.5] — 2026-06-03
+
+### Zmienione
+
+- Spójne nazewnictwo w panelu admina: „strona” zamiast „jednostka”, „Wygląd strony” zamiast „Layout Astro”, „Szerokie menu” zamiast „Mega menu”, krótsze komunikaty zapisu i syncu.
+
 ## [0.9.4] — 2026-06-03
 
 ### Zmienione
