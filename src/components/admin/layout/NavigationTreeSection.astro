@@ -61,7 +61,7 @@ const navTargetOptionsJson = JSON.stringify(navTargetOptions);
 	<SectionTitle>{adminLayout.sections.menu}</SectionTitle>
 	<p class="ui-hint">{adminLayout.menuFormHint}</p>
 
-	<script id="nav-target-options-json" type="application/json" set:html={navTargetOptionsJson} />
+	<script id="nav-target-options-json" type="application/json" is:inline set:html={navTargetOptionsJson} />
 
 	<Table dense wrap class="min-w-[48rem] w-full" id="navigation-table">
 		<TableHead dense>
@@ -128,6 +128,9 @@ const navTargetOptionsJson = JSON.stringify(navTargetOptions);
 </Panel>
 
 <script define:vars={{ navTableLabels }}>
+	globalThis.__OP_NAV_TABLE_LABELS__ = navTableLabels;
+</script>
+<script>
 	import { mountNavigationForm } from '@/lib/admin/navigation-form-client';
-	mountNavigationForm(navTableLabels);
+	mountNavigationForm(globalThis.__OP_NAV_TABLE_LABELS__);
 </script>

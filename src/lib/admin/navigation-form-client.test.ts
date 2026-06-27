@@ -82,8 +82,8 @@ describe('mountNavigationForm', () => {
 		buildNavigationTable('/gmina/urzad');
 		mountNavigationForm(labels);
 
-		const body = document.getElementById('navigation-body');
-		expect(body?.dataset.navigationFormBound).toBe('1');
+		const form = document.querySelector('form');
+		expect(form?.dataset.navigationFormBound).toBe('1');
 	});
 
 	it('po zmianie typu na category podmienia opcje celu na kategorie', () => {
@@ -122,5 +122,18 @@ describe('mountNavigationForm', () => {
 
 		const target = document.querySelector('.nav-href-target-control') as HTMLSelectElement;
 		expect([...target.options].map((o) => o.value)).toEqual(['/']);
+	});
+
+	it('dodaje wiersz po kliknięciu przycisku poza tbody', () => {
+		buildNavigationTable('/gmina/urzad');
+		document.querySelector('form')!.insertAdjacentHTML(
+			'beforeend',
+			'<button type="button" id="add-nav-row">Dodaj</button>',
+		);
+		mountNavigationForm(labels);
+
+		expect(document.querySelectorAll('.nav-row')).toHaveLength(1);
+		document.getElementById('add-nav-row')!.click();
+		expect(document.querySelectorAll('.nav-row')).toHaveLength(2);
 	});
 });

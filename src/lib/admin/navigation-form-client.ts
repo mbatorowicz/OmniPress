@@ -293,11 +293,14 @@ export function mountNavigationForm(labels: NavigationTableLabels): void {
 		const options = readNavTargetOptions();
 		if (!(body instanceof HTMLElement) || !options) return;
 
+		const form = body.closest('form');
+		const interactionRoot =
+			form instanceof HTMLFormElement ? form : (body.parentElement ?? document);
+
 		body.querySelectorAll('.nav-row').forEach((row) => {
 			initNavigationRow(row as HTMLElement, options);
 		});
 
-		const form = body.closest('form');
 		if (form instanceof HTMLFormElement && form.dataset.navigationSubmitSync !== '1') {
 			form.dataset.navigationSubmitSync = '1';
 			form.addEventListener(
@@ -313,18 +316,22 @@ export function mountNavigationForm(labels: NavigationTableLabels): void {
 			);
 		}
 
-		if (body.dataset.navigationFormBound !== '1') {
-			body.dataset.navigationFormBound = '1';
-			body.addEventListener('change', handleNavigationChange);
-			body.addEventListener('input', handleNavigationChange);
-			body.addEventListener('click', (event) => {
+		if (interactionRoot instanceof HTMLElement && interactionRoot.dataset.navigationFormBound !== '1') {
+			interactionRoot.dataset.navigationFormBound = '1';
+			interactionRoot.addEventListener('change', handleNavigationChange);
+			interactionRoot.addEventListener('input', handleNavigationChange);
+			interactionRoot.addEventListener('click', (event) => {
 				const opts = readNavTargetOptions();
 				if (opts) handleNavigationClick(event, labels, opts);
 			});
 		}
 	};
 
-	mount();
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', mount, { once: true });
+	} else {
+		mount();
+	}
 	document.addEventListener('astro:page-load', mount);
 }
 
