@@ -22,6 +22,18 @@ export type NavigationTableLabels = {
 
 const DEPTH_CLASSES = ['nav-row--depth-0', 'nav-row--depth-1', 'nav-row--depth-2'] as const;
 
+function readNavTargetOptions(): NavTargetOptions | null {
+	const table = document.getElementById('navigation-table');
+	if (!(table instanceof HTMLElement)) return null;
+	const raw = table.dataset.navTargetOptions;
+	if (!raw) return null;
+	try {
+		return JSON.parse(raw) as NavTargetOptions;
+	} catch {
+		return null;
+	}
+}
+
 function readRowKind(row: HTMLElement): string {
 	const kindUi = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
 	return kindUi?.value ?? 'none';
@@ -91,6 +103,17 @@ export function rebuildNavTarget(
 		}
 		select.value = pickNavTargetValue(kind, hidden.value, list);
 		hidden.value = select.value;
+		if (
+			kind === 'page' &&
+			select.value &&
+			![...select.options].some((o) => o.value === select.value)
+		) {
+			const extra = document.createElement('option');
+			extra.value = select.value;
+			extra.textContent = select.value;
+			select.appendChild(extra);
+			select.value = extra.value;
+		}
 	}
 
 	host.appendChild(select);
@@ -113,7 +136,10 @@ function initNavigationRow(row: HTMLElement, options: NavTargetOptions): void {
 		hidden.value = initialHref;
 	}
 
-	rebuildNavTarget(row, readRowKind(row), options);
+	const kind = readRowKind(row);
+	if (!row.querySelector('.nav-href-target-control')) {
+		rebuildNavTarget(row, kind, options);
+	}
 	syncSubmitFields(row);
 	syncNavDepthVisual(row);
 	syncMegaCell(row);
@@ -239,13 +265,11 @@ function handleNavigationClick(
 	row.remove();
 }
 
-export function mountNavigationForm(
-	labels: NavigationTableLabels,
-	options: NavTargetOptions,
-): void {
+export function mountNavigationForm(labels: NavigationTableLabels): void {
 	const mount = (): void => {
 		const body = document.getElementById('navigation-body');
-		if (!(body instanceof HTMLElement)) return;
+		const options = readNavTargetOptions();
+		if (!(body instanceof HTMLElement) || !options) return;
 
 		body.querySelectorAll('.nav-row').forEach((row) => {
 			initNavigationRow(row as HTMLElement, options);
@@ -269,9 +293,18 @@ export function mountNavigationForm(
 
 		if (body.dataset.navigationFormBound === '1') return;
 		body.dataset.navigationFormBound = '1';
-		body.addEventListener('change', (event) => handleNavigationChange(event, options));
-		body.addEventListener('input', (event) => handleNavigationChange(event, options));
-		body.addEventListener('click', (event) => handleNavigationClick(event, labels, options));
+		body.addEventListener('change', (event) => {
+			const opts = readNavTargetOptions();
+			if (opts) handleNavigationChange(event, opts);
+		});
+		body.addEventListener('input', (event) => {
+			const opts = readNavTargetOptions();
+			if (opts) handleNavigationChange(event, opts);
+		});
+		body.addEventListener('click', (event) => {
+			const opts = readNavTargetOptions();
+			if (opts) handleNavigationClick(event, labels, opts);
+		});
 	};
 
 	if (document.readyState === 'loading') {
@@ -282,11 +315,8 @@ export function mountNavigationForm(
 }
 
 /** @deprecated Użyj mountNavigationForm */
-export function initNavigationTable(
-	labels: NavigationTableLabels,
-	options: NavTargetOptions,
-): void {
-	mountNavigationForm(labels, options);
+export function initNavigationTable(labels: NavigationTableLabels): void {
+	mountNavigationForm(labels);
 }
 
 /** @deprecated */

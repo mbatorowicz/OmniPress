@@ -1,0 +1,22 @@
+---
+import { adminLayout } from '@/i18n';
+import type { NavHrefKind } from '@/lib/admin/navigation-tree';
+
+interface Props {
+	kind: NavHrefKind;
+}
+
+const { kind } = Astro.props;
+const linkKinds = adminLayout.navHrefKinds;
+---
+
+<input type="hidden" name="nav_href_kind" class="nav-href-kind-submit" value={kind} />
+<select class="nav-href-kind ui-select-compact w-full" data-initial-kind={kind}>
+	{
+		Object.entries(linkKinds).map(([value, label]) => (
+			<option value={value} selected={kind === value}>
+				{label}
+			</option>
+		))
+	}
+</select>

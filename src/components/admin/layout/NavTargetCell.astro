@@ -1,0 +1,59 @@
+---
+import type { NavHrefKind } from '@/lib/admin/navigation-tree';
+import {
+	optionsForNavTargetKind,
+	pickNavTargetValue,
+	type NavTargetOptions,
+} from '@/lib/admin/nav-target-options';
+
+interface Props {
+	kind: NavHrefKind;
+	value: string;
+	options: NavTargetOptions;
+}
+
+const { kind, value, options } = Astro.props;
+const list = optionsForNavTargetKind(kind, options);
+const picked = list.length > 0 ? pickNavTargetValue(kind, value, list) : value;
+const hasPickedInList = list.some((item) => item.value === picked);
+---
+
+<div class="nav-href-target-host" aria-live="polite">
+	{
+		kind === 'none' ? (
+			<span class="ui-muted text-xs">—</span>
+		) : kind === 'custom' || kind === 'external' ? (
+			<input
+				type="text"
+				class="nav-href-input-default nav-href-target-control ui-input-compact w-full"
+				value={value}
+				placeholder={kind === 'external' ? 'https://…' : '/sciezka'}
+			/>
+		) : (
+			<select class="nav-href-select nav-href-target-control ui-select-compact w-full">
+				{
+					list.length === 0 ? (
+						<option value="">
+							{kind === 'category' ? options.emptyCategory : options.emptyPage}
+						</option>
+					) : (
+						list.map((item) => (
+							<option value={item.value} selected={item.value === picked}>
+								{item.label}
+							</option>
+						))
+					)
+				}
+				{
+					kind === 'page' &&
+						picked &&
+						!hasPickedInList && (
+							<option value={picked} selected>
+								{picked}
+							</option>
+						)
+				}
+			</select>
+		)
+	}
+</div>
