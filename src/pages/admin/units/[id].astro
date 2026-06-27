@@ -5,8 +5,9 @@ import AdminContextNav from '@/components/shell/AdminContextNav.astro';
 import FlashAlerts from '@/components/shared/FlashAlerts.astro';
 import Panel from '@/components/ui/layout/Panel.astro';
 import Button from '@/components/ui/actions/Button.astro';
-import { adminUnit, adminSites, common } from '@/i18n';
+import { adminLayout, adminUnit, adminSites, common } from '@/i18n';
 import { countSitePosts, loadUnitFormInitial } from '@/lib/admin';
+import { ensureLayoutFromGitHub } from '@/lib/admin/layout-auto-import';
 import { parseQueryFlash } from '@/lib/ui/flash';
 
 const { id } = Astro.params;
@@ -15,12 +16,34 @@ if (!id) return Astro.redirect('/admin/sites');
 const initial = await loadUnitFormInitial(Astro.locals.supabase, id);
 if (!initial) return Astro.redirect('/admin/sites');
 
+const layoutImport = await ensureLayoutFromGitHub(Astro.locals.supabase, id);
 const postCount = await countSitePosts(Astro.locals.supabase, id);
-const unitErrors = { ...adminUnit.errors, ...adminSites.errors };
+const unitErrors = {
+	...adminUnit.errors,
+	...adminSites.errors,
+	...adminLayout.errors,
+};
 const flashMessages = parseQueryFlash(Astro.url, {
 	saved: common.saved,
 	errorMap: unitErrors as Record<string, string>,
 });
+if (layoutImport.imported && layoutImport.importReport) {
+	flashMessages.unshift({
+		variant: 'success',
+		message: adminLayout.importedMenu(
+			layoutImport.importReport.hrefCount,
+			layoutImport.importReport.navigationPath,
+		),
+	});
+} else if (layoutImport.importError) {
+	flashMessages.unshift({
+		variant: 'error',
+		message:
+			layoutImport.importError in adminLayout.errors
+				? adminLayout.errors[layoutImport.importError as keyof typeof adminLayout.errors]
+				: adminLayout.errors.save_failed,
+	});
+}
 ---
 
 <AppLayout title={`${initial.name} — ${adminUnit.settingsTitle}`} heading={adminUnit.settingsTitle}>

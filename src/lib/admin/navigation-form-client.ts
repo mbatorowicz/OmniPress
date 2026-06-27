@@ -106,7 +106,13 @@ function initHrefFieldsFromHidden(row: HTMLElement): void {
 }
 
 export function initNavigationRowFromServerState(row: HTMLElement): void {
-	const kind = row.dataset.navKind ?? 'none';
+	const kindSelectEarly = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
+	const initialKind = kindSelectEarly?.dataset.initialKind;
+	if (kindSelectEarly && initialKind && initialKind !== 'none') {
+		kindSelectEarly.value = initialKind;
+	}
+
+	const kind = row.dataset.navKind ?? initialKind ?? 'none';
 	const href = row.dataset.navHref ?? '';
 	const kindSelect = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
 	const kindHidden = row.querySelector('.nav-href-kind-submit') as HTMLInputElement | null;

@@ -2,9 +2,9 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import {
 	fetchLiveLayoutHashes,
 	fetchLiveNavigationHrefCount,
-	importSiteAstroLayoutFromGitHub,
 	loadSiteAstroLayout,
 } from '@/lib/astro-layout/store';
+import { ensureLayoutFromGitHub } from '@/lib/admin/layout-auto-import';
 import {
 	computeDraftLiveStatus,
 	type DraftLiveScope,
@@ -40,6 +40,10 @@ export type LayoutEditorContext = {
 	lastPublishedAt?: string;
 	lastPublishedSha?: string;
 	lastDraftSavedAt?: string;
+	autoImported?: boolean;
+	autoImportHrefCount?: number;
+	autoImportPath?: string;
+	autoImportError?: string;
 };
 
 export async function loadLayoutEditorContext(
@@ -55,20 +59,25 @@ export async function loadLayoutEditorContext(
 
 	if (!site) return null;
 
-	let layout = await loadSiteAstroLayout(supabase, siteId);
+	let autoImported = false;
+	let autoImportHrefCount: number | undefined;
+	let autoImportPath: string | undefined;
+	let autoImportError: string | undefined;
+
+	let layout: SiteAstroLayout;
+	if (options.autoImport !== false) {
+		const ensured = await ensureLayoutFromGitHub(supabase, siteId);
+		layout = ensured.layout;
+		autoImported = ensured.imported;
+		autoImportHrefCount = ensured.importReport?.hrefCount;
+		autoImportPath = ensured.importReport?.navigationPath;
+		autoImportError = ensured.importError;
+	} else {
+		layout = await loadSiteAstroLayout(supabase, siteId);
+	}
+
 	const hasAstroChannel = Boolean(await loadSiteAstroDestination(supabase, siteId));
 	const draftStatusScope = options.draftStatusScope ?? 'navigation';
-
-	if (options.autoImport !== false) {
-		const emptyLayout =
-			layout.navigation.length === 0 &&
-			layout.categories.length === 0 &&
-			layout.slots.length === 0;
-		if (emptyLayout && hasAstroChannel) {
-			const imported = await importSiteAstroLayoutFromGitHub(supabase, siteId);
-			if (imported.ok) layout = imported.layout;
-		}
-	}
 
 	const publishedPages = (await listSitePages(supabase, siteId))
 		.filter((p) => p.status === 'published')
@@ -112,6 +121,10 @@ export async function loadLayoutEditorContext(
 		lastPublishedAt: layout.sync?.lastPublishedAt,
 		lastPublishedSha: layout.sync?.lastPublishedSha,
 		lastDraftSavedAt: layout.sync?.lastDraftSavedAt,
+		autoImported,
+		autoImportHrefCount,
+		autoImportPath,
+		autoImportError,
 	};
 }
 

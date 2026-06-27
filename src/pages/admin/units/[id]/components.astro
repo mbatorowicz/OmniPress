@@ -31,7 +31,19 @@ const flash = parseLayoutPageFlash(Astro.url);
 		hasAstroChannel={ctx.hasAstroChannel}
 	/>
 
-	<LayoutFormAlerts {...flash} hasAstroChannel={ctx.hasAstroChannel} />
+	<LayoutFormAlerts
+		{...flash}
+		imported={flash.imported || ctx.autoImported}
+		importHrefCount={flash.importHrefCount ?? ctx.autoImportHrefCount ?? null}
+		importPath={flash.importPath ?? ctx.autoImportPath ?? null}
+		errorMessage={
+			flash.errorMessage ??
+			(ctx.autoImportError && ctx.autoImportError in adminLayout.errors
+				? adminLayout.errors[ctx.autoImportError as keyof typeof adminLayout.errors]
+				: null)
+		}
+		hasAstroChannel={ctx.hasAstroChannel}
+	/>
 
 	<ComponentsLayoutForm
 		siteId={id}

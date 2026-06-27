@@ -39,6 +39,17 @@ export function countNavigationHrefs(items: NavItem[]): number {
 	return collectNavHrefs(items).length;
 }
 
+export function navigationHasLeafWithoutHref(items: NavItem[]): boolean {
+	for (const item of items) {
+		if (item.children?.length) {
+			if (navigationHasLeafWithoutHref(item.children)) return true;
+		} else if (!item.href?.trim()) {
+			return true;
+		}
+	}
+	return false;
+}
+
 export function hasMissingHrefIssues(issues: NavValidationIssue[]): boolean {
 	return issues.some((issue) => issue.reason === 'missing_href');
 }

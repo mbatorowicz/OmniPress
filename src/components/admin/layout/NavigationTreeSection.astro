@@ -80,7 +80,7 @@ const navTableLabels = {
 						</td>
 						<td class="ui-table-dense-td--wide">
 							<input type="hidden" name="nav_href_kind" class="nav-href-kind-submit" value={row.hrefKind} />
-							<select class="nav-href-kind ui-select-compact w-full">
+							<select class="nav-href-kind ui-select-compact w-full" data-initial-kind={row.hrefKind}>
 								{Object.entries(linkKinds).map(([value, label]) => (
 									<option value={value} selected={row.hrefKind === value}>{label}</option>
 								))}
