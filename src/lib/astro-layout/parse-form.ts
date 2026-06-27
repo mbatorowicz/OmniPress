@@ -284,7 +284,7 @@ function parseNavigationSection(form: FormData): NavItem[] | { error: 'invalid_n
 				const jsonTree = parseNavigationJson(jsonFallback);
 				const tableHrefs = countNavigationHrefs(tableTree);
 				const jsonHrefs = countNavigationHrefs(jsonTree);
-				if (jsonHrefs > tableHrefs || (tableHrefs === 0 && jsonHrefs > 0)) {
+				if (tableHrefs === 0 && jsonHrefs > 0) {
 					return jsonTree;
 				}
 			} catch {

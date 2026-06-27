@@ -36,6 +36,52 @@ function readActiveHrefValue(row: HTMLElement, kind: string): string {
 	return '';
 }
 
+function pickSelectValueForKind(
+	kind: string,
+	raw: string,
+	select: HTMLSelectElement,
+): string {
+	const trimmed = raw.trim();
+	if (!trimmed) return select.options[0]?.value ?? '';
+
+	if (kind === 'category') {
+		const slug = trimmed.replace(/^\//, '').split('/').filter(Boolean).pop() ?? trimmed;
+		for (const candidate of [slug, trimmed.replace(/^\//, '')]) {
+			if (candidate && [...select.options].some((o) => o.value === candidate)) {
+				return candidate;
+			}
+		}
+	}
+
+	for (const opt of select.options) {
+		if (opt.value === trimmed) return opt.value;
+	}
+
+	return select.options[0]?.value ?? trimmed;
+}
+
+function syncTargetFieldForKind(row: HTMLElement, kind: string): void {
+	if (kind === 'none') return;
+
+	const hidden = row.querySelector('.nav-href-value-submit') as HTMLInputElement | null;
+	const field = row.querySelector(`.nav-href-field-${kind}`);
+	if (!(hidden instanceof HTMLInputElement)) return;
+
+	if (field instanceof HTMLSelectElement) {
+		const picked = pickSelectValueForKind(kind, hidden.value, field);
+		if (picked) {
+			ensureSelectOption(field, picked);
+			field.value = picked;
+			hidden.value = picked;
+		}
+		return;
+	}
+
+	if (field instanceof HTMLInputElement && hidden.value.trim()) {
+		field.value = hidden.value.trim();
+	}
+}
+
 function resolveRowHrefKind(row: HTMLElement): string {
 	const kindHidden = row.querySelector('.nav-href-kind-submit') as HTMLInputElement | null;
 	const kindUi = row.querySelector('.nav-href-kind') as HTMLSelectElement | null;
@@ -46,7 +92,9 @@ function resolveRowHrefKind(row: HTMLElement): string {
 	const href =
 		valueHidden?.value.trim() || row.dataset.navHref?.trim() || '';
 
-	if (uiKind === 'none' && href && serverKind !== 'none') {
+	if (uiKind !== 'none') return uiKind;
+
+	if (href && serverKind !== 'none') {
 		if (kindUi) kindUi.value = serverKind;
 		return serverKind;
 	}
@@ -63,11 +111,7 @@ function syncHrefValueSubmit(row: HTMLElement): void {
 	if (!(hidden instanceof HTMLInputElement)) return;
 
 	const fromField = readActiveHrefValue(row, kind);
-	if (fromField) {
-		hidden.value = fromField;
-	} else if (kind === 'none') {
-		hidden.value = '';
-	}
+	hidden.value = kind === 'none' ? '' : fromField;
 }
 
 function initHrefFieldsFromHidden(row: HTMLElement): void {
@@ -147,10 +191,15 @@ export function syncHrefFields(row: HTMLElement, options?: { skipSubmitSync?: bo
 		}
 	});
 
+	row.dataset.navKind = kind;
+
 	if (!options?.skipSubmitSync) {
 		const kindHidden = row.querySelector('.nav-href-kind-submit') as HTMLInputElement | null;
 		if (kindHidden) kindHidden.value = kind;
+		syncTargetFieldForKind(row, kind);
 		syncHrefValueSubmit(row);
+		const hidden = row.querySelector('.nav-href-value-submit') as HTMLInputElement | null;
+		if (hidden) row.dataset.navHref = hidden.value;
 	}
 }
 
@@ -300,6 +349,8 @@ export function mountNavigationForm(labels: NavigationTableLabels): void {
 				'submit',
 				() => {
 					syncAllHrefSubmitValues(body);
+					const json = form.querySelector('[name=navigation_json]');
+					if (json instanceof HTMLTextAreaElement) json.value = '';
 				},
 				{ capture: true },
 			);

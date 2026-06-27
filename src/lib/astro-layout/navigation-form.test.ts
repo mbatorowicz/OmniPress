@@ -155,7 +155,7 @@ describe('parseLayoutSection navigation', () => {
 		expect(tree[0].href).toBe('/gmina/plan-ogolny');
 	});
 
-	it('preferuje navigation_json gdy ma wiecej linkow niz tabela', () => {
+	it('preferuje navigation_json tylko gdy tabela nie ma linkow', () => {
 		const form = navForm([{ depth: '0', label: 'Uszkodzone', kind: 'none', value: '' }]);
 		form.set('section', 'navigation');
 		form.set(
@@ -167,6 +167,22 @@ describe('parseLayoutSection navigation', () => {
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		expect(result.layout.navigation[0]?.href).toBe('/gmina/plan-ogolny');
+	});
+
+	it('zapisuje zmiane typu linku w tabeli mimo obecnego navigation_json', () => {
+		const form = navForm([
+			{ depth: '1', label: 'Zarządzenia', kind: 'category', value: 'zarzadzenia' },
+		]);
+		form.set('section', 'navigation');
+		form.set(
+			'navigation_json',
+			'[{"label":"Gmina","children":[{"label":"Zarządzenia","href":"/gmina/zarzadzenia"}]}]',
+		);
+
+		const result = parseLayoutSection(form, existingLayout);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.layout.navigation[0]?.href).toBe('/zarzadzenia');
 	});
 
 	it('round-trip pełniejszego drzewa gminy zachowuje hrefy liści', () => {
