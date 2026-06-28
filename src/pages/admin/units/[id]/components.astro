@@ -2,6 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.astro';
 import AdminContextNav from '@/components/shell/AdminContextNav.astro';
 import LayoutEditorStatus from '@/components/admin/layout/LayoutEditorStatus.astro';
+import LayoutSiteSyncBar from '@/components/admin/layout/LayoutSiteSyncBar.astro';
 import ComponentsLayoutForm from '@/components/admin/layout/ComponentsLayoutForm.astro';
 import { adminLayout } from '@/i18n';
 import { loadLayoutEditorContext } from '@/lib/admin/layout-editor-context';
@@ -20,10 +21,24 @@ const flash = parseLayoutPageFlash(Astro.url);
 
 <AppLayout title={adminLayout.componentsTitle} heading={adminLayout.componentsTitle}>
 	<AdminContextNav siteId={id} siteName={ctx.site.name} section="components" />
+
+	<LayoutSiteSyncBar
+		siteId={id}
+		hasAstroChannel={ctx.hasAstroChannel}
+		currentSection="components"
+		combinedDraftStatus={ctx.combinedDraftStatus}
+		navDraftStatus={ctx.navDraftStatus}
+		categoriesDraftStatus={ctx.categoriesDraftStatus}
+		navHasMissingHref={ctx.navHasMissingHref}
+		lastPublishedAt={ctx.lastPublishedAt}
+		lastPublishedSha={ctx.lastPublishedSha}
+		lastDraftSavedAt={ctx.lastDraftSavedAt}
+	/>
+
 	<p class="ui-muted mb-4">{adminLayout.componentsLead}</p>
 
 	<LayoutEditorStatus
-		draftStatus={ctx.draftStatus}
+		draftStatus={ctx.combinedDraftStatus}
 		lastPublishedAt={ctx.lastPublishedAt}
 		lastPublishedSha={ctx.lastPublishedSha}
 		lastDraftSavedAt={ctx.lastDraftSavedAt}

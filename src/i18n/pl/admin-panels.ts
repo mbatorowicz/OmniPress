@@ -139,11 +139,29 @@ export const adminLayout = {
 	imported: 'Konfiguracja wczytana z GitHub do szkicu.',
 	importedMenu: (hrefCount: number, path: string) =>
 		`Menu wczytane z GitHub · ${hrefCount} ${hrefCount === 1 ? 'link' : hrefCount < 5 ? 'linki' : 'linków'} · ${path}`,
+	importedLayout: (hrefCount: number) =>
+		`Layout wczytany ze strony (menu + kategorie) · ${hrefCount} ${hrefCount === 1 ? 'link' : hrefCount < 5 ? 'linki' : 'linków'}`,
+	syncBar: {
+		inSyncCombined: 'Szkic zgodny ze stroną (menu i kategorie)',
+		draftAheadCombined: 'Szkic różni się od strony — opublikuj lub pobierz ze strony',
+		draftAheadDetail: (nav: boolean, categories: boolean) => {
+			const parts: string[] = [];
+			if (nav) parts.push('menu');
+			if (categories) parts.push('kategorie');
+			return `Różnice: ${parts.join(' · ')}`;
+		},
+		unknown: 'Status synchronizacji ze stroną nieznany — skonfiguruj GitHub w Ustawieniach',
+		saveBeforePublish: 'Zapisz szkic w formularzu przed publikacją, aby wysłać bieżące zmiany.',
+		pullFromSite: 'Pobierz ze strony',
+		publishAllLayout: 'Opublikuj cały layout',
+		importConfirmOverwrite:
+			'Szkic różni się od strony. Pobranie nadpisze lokalny szkic danymi z GitHub. Kontynuować?',
+	},
 	flash: {
 		savedTitle: 'Szkic zapisany',
 		savedNote: 'Zmiany zapisane w OmniPress — opublikuj, aby wysłać je na stronę.',
-		importedTitle: 'Menu wczytane z GitHub',
-		importedAndSaved: 'Menu wczytane z GitHub · szkic zapisany',
+		importedTitle: 'Layout wczytany ze strony',
+		importedAndSaved: 'Layout wczytany ze strony · szkic zapisany',
 		inSyncShort: 'zgodne ze stroną live',
 		draftAheadShort: 'wymaga publikacji na stronie',
 		linkCount: (count: number) =>
@@ -215,7 +233,7 @@ export const adminLayout = {
 	navValidationHint:
 		'Publikacja jest zablokowana, dopóki menu wskazuje nieistniejące adresy. Utwórz strony statyczne lub popraw linki.',
 	publishBlockedMissingHref:
-		'Publikacja zablokowana — szkic nie ma linków, które są na stronie live. Użyj „Importuj z GitHub”, aby przywrócić menu ze strony.',
+		'Publikacja zablokowana — szkic nie ma linków, które są na stronie live. Użyj „Pobierz ze strony”, aby przywrócić menu ze strony.',
 	publishConfirmFewerLinks: (draftCount: number, liveCount: number) =>
 		`Szkic ma ${draftCount} linków, strona live ma ${liveCount}. Opublikować mimo to?`,
 	bannerLinkTypes: {
@@ -331,6 +349,9 @@ export const adminLayout = {
 	},
 	actions: {
 		saveDraft: 'Zapisz szkic',
+		saveDraftNavigation: 'Zapisz szkic menu',
+		saveDraftCategories: 'Zapisz szkic kategorii',
+		saveDraftComponents: 'Zapisz szkic komponentów',
 		publishLayout: 'Opublikuj na stronie',
 		importFromGitHub: 'Importuj z GitHub',
 		addCategory: '+ Dodaj kategorię',
@@ -351,7 +372,8 @@ export const adminLayout = {
 	},
 	draftStatus: {
 		inSync: 'Menu zgodne ze stroną live',
-		draftAhead: 'Szkic ma nieopublikowane zmiany — użyj „Opublikuj na stronie”, aby wysłać je na stronę.',
+		inSyncCombined: 'Szkic zgodny ze stroną (menu i kategorie)',
+		draftAhead: 'Szkic ma nieopublikowane zmiany — użyj „Opublikuj cały layout”, aby wysłać je na stronę.',
 		draftMissingHref:
 			'Menu bez linków — wczytaj menu z GitHub przed publikacją (strona live jest nadal poprawna).',
 		lastPublished: 'Publikacja',
@@ -370,7 +392,7 @@ export const adminLayout = {
 		dead_nav_links:
 			'Menu zawiera nieistniejące linki wewnętrzne — popraw je przed publikacją na stronie.',
 		missing_nav_hrefs:
-			'Menu w szkicu nie ma linków — użyj „Importuj z GitHub”, aby przywrócić menu ze strony live.',
+			'Menu w szkicu nie ma linków — użyj „Pobierz ze strony”, aby przywrócić menu ze strony live.',
 		import_nav_missing:
 			'Nie znaleziono pliku menu w repozytorium GitHub — sprawdź ścieżkę navigation_path w Ustawieniach strony.',
 		import_nav_empty:
@@ -378,7 +400,7 @@ export const adminLayout = {
 		import_save_failed:
 			'Menu pobrano z GitHub, ale zapis szkicu nie powiódł się — sprawdź uprawnienia lub spróbuj ponownie.',
 		navigation_hrefs_lost:
-			'Zapis odrzucony — formularz nie zawiera linków menu. Użyj „Importuj z GitHub” zamiast „Zapisz szkic”.',
+			'Zapis odrzucony — formularz nie zawiera linków menu. Użyj „Pobierz ze strony” zamiast „Zapisz szkic”.',
 		sync_failed: 'Publikacja do GitHub nie powiodła się — szkic zapisany w OmniPress.',
 	},
 } as const;

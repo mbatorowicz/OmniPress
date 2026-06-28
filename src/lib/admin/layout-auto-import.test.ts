@@ -2,6 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { shouldAutoImportLayoutFromGitHub } from './layout-auto-import';
 import type { SiteAstroLayout } from '@/lib/astro-layout/types';
 import { navigationHasLeafWithoutHref } from '@/lib/astro-layout/validate-nav';
+import {
+	hashCategoriesLayout,
+	hashNavigationLayout,
+} from '@/lib/astro-layout/layout-sync-meta.server';
 
 const baseLayout: SiteAstroLayout = {
 	navigation: [],
@@ -31,37 +35,99 @@ describe('navigationHasLeafWithoutHref', () => {
 describe('shouldAutoImportLayoutFromGitHub', () => {
 	it('importuje pusty layout', () => {
 		expect(
-			shouldAutoImportLayoutFromGitHub(baseLayout, { draftHrefCount: 0, liveHrefCount: null }),
+			shouldAutoImportLayoutFromGitHub(baseLayout, {
+				draftHrefCount: 0,
+				hashes: {
+					draftNavHash: hashNavigationLayout(baseLayout.navigation),
+					draftCategoriesHash: hashCategoriesLayout(baseLayout),
+				},
+			}),
 		).toBe(true);
 	});
 
-	it('importuje uszkodzone menu bez linków gdy live ma hrefy', () => {
+	it('importuje uszkodzone menu bez linków', () => {
 		const layout: SiteAstroLayout = {
 			...baseLayout,
 			navigation: [{ label: 'Gmina', children: [{ label: 'Plan ogólny' }] }],
 		};
 		expect(
-			shouldAutoImportLayoutFromGitHub(layout, { draftHrefCount: 0, liveHrefCount: 35 }),
+			shouldAutoImportLayoutFromGitHub(layout, {
+				draftHrefCount: 0,
+				hashes: {
+					draftNavHash: hashNavigationLayout(layout.navigation),
+					draftCategoriesHash: hashCategoriesLayout(layout),
+				},
+			}),
 		).toBe(true);
 	});
 
-	it('importuje gdy live ma wiecej linkow niz szkic', () => {
+	it('importuje gdy live rozni sie od szkicu bez lokalnych zmian', () => {
 		const layout: SiteAstroLayout = {
 			...baseLayout,
 			navigation: [{ label: 'Kontakt', href: '/kontakt' }],
+			sync: { publishedNavHash: hashNavigationLayout([{ label: 'Kontakt', href: '/kontakt' }]) },
 		};
+		const liveNav = hashNavigationLayout([
+			{
+				label: 'Kontakt',
+				href: '/kontakt',
+				menuColumns: 2,
+				menuColumnWidths: ['320px', '320px'],
+				children: [{ label: 'Pod', href: '/pod' }],
+			},
+		]);
 		expect(
-			shouldAutoImportLayoutFromGitHub(layout, { draftHrefCount: 1, liveHrefCount: 35 }),
+			shouldAutoImportLayoutFromGitHub(layout, {
+				draftHrefCount: 1,
+				hashes: {
+					draftNavHash: hashNavigationLayout(layout.navigation),
+					draftCategoriesHash: hashCategoriesLayout(layout),
+					liveNavHash: liveNav,
+					publishedNavHash: layout.sync?.publishedNavHash,
+				},
+			}),
 		).toBe(true);
 	});
 
-	it('nie importuje gdy szkic ma linki i live nie ma wiecej', () => {
+	it('nie importuje gdy szkic ma lokalne zmiany wzgledem ostatniego znanego stanu', () => {
+		const publishedNav = hashNavigationLayout([{ label: 'Kontakt', href: '/kontakt' }]);
 		const layout: SiteAstroLayout = {
 			...baseLayout,
-			navigation: [{ label: 'Kontakt', href: '/kontakt' }],
+			navigation: [{ label: 'Edytowane', href: '/edit' }],
+			sync: { publishedNavHash: publishedNav },
 		};
+		const liveNav = hashNavigationLayout([{ label: 'Kontakt', href: '/kontakt' }]);
 		expect(
-			shouldAutoImportLayoutFromGitHub(layout, { draftHrefCount: 1, liveHrefCount: 1 }),
+			shouldAutoImportLayoutFromGitHub(layout, {
+				draftHrefCount: 1,
+				hashes: {
+					draftNavHash: hashNavigationLayout(layout.navigation),
+					draftCategoriesHash: hashCategoriesLayout(layout),
+					liveNavHash: liveNav,
+					publishedNavHash: publishedNav,
+				},
+			}),
+		).toBe(false);
+	});
+
+	it('nie importuje gdy szkic i live sa zgodne', () => {
+		const navigation = [{ label: 'Kontakt', href: '/kontakt' }];
+		const layout: SiteAstroLayout = {
+			...baseLayout,
+			navigation,
+			sync: { publishedNavHash: hashNavigationLayout(navigation) },
+		};
+		const liveNav = hashNavigationLayout(navigation);
+		expect(
+			shouldAutoImportLayoutFromGitHub(layout, {
+				draftHrefCount: 1,
+				hashes: {
+					draftNavHash: liveNav,
+					draftCategoriesHash: hashCategoriesLayout(layout),
+					liveNavHash: liveNav,
+					publishedNavHash: liveNav,
+				},
+			}),
 		).toBe(false);
 	});
 });

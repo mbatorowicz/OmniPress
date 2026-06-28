@@ -4,6 +4,7 @@ import {
 	withDraftSavedMeta,
 } from './layout-sync-meta';
 import {
+	computeCombinedDraftLiveStatus,
 	computeDraftLiveStatus,
 	hashCategoriesLayout,
 	hashNavigationLayout,
@@ -64,5 +65,17 @@ describe('layout-sync-meta', () => {
 		const liveNav = hashNavigationLayout(sampleLayout.navigation);
 		const status = computeDraftLiveStatus(sampleLayout, 'navigation', { navHash: liveNav });
 		expect(status).toBe('in_sync');
+	});
+
+	it('computeCombinedDraftLiveStatus wymaga zgodnosci menu i kategorii', () => {
+		const liveNav = hashNavigationLayout(sampleLayout.navigation);
+		const liveCat = hashCategoriesLayout(sampleLayout);
+		const status = computeCombinedDraftLiveStatus(sampleLayout, {
+			navHash: liveNav,
+			categoriesHash: liveCat,
+		});
+		expect(status.combined).toBe('in_sync');
+		expect(status.nav).toBe('in_sync');
+		expect(status.categories).toBe('in_sync');
 	});
 });

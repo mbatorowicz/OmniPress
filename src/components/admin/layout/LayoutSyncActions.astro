@@ -3,59 +3,21 @@ import { adminLayout } from '@/i18n';
 import Button from '@/components/ui/actions/Button.astro';
 
 interface Props {
-	siteId: string;
-	hasAstroChannel: boolean;
 	section: 'navigation' | 'categories' | 'components';
-	draftHrefCount?: number;
-	liveHrefCount?: number | null;
-	navHasMissingHref?: boolean;
 }
 
-const {
-	siteId,
-	hasAstroChannel,
-	section,
-	draftHrefCount = 0,
-	liveHrefCount = null,
-	navHasMissingHref = false,
-} = Astro.props;
-const publishAction = `/api/admin/sites/${siteId}/layout/publish`;
-const publishBlocked = section === 'navigation' && navHasMissingHref;
-const publishConfirm =
-	section === 'navigation' &&
-	!publishBlocked &&
-	liveHrefCount !== null &&
-	draftHrefCount < liveHrefCount
-		? adminLayout.publishConfirmFewerLinks(draftHrefCount, liveHrefCount)
-		: undefined;
+const { section } = Astro.props;
+
+const saveLabel =
+	section === 'navigation'
+		? adminLayout.actions.saveDraftNavigation
+		: section === 'categories'
+			? adminLayout.actions.saveDraftCategories
+			: adminLayout.actions.saveDraftComponents;
 ---
 
 <div class="flex flex-wrap items-center gap-3">
 	<Button type="submit" variant="secondary">
-		{adminLayout.actions.saveDraft}
+		{saveLabel}
 	</Button>
-	{
-		hasAstroChannel && (
-			<Button
-				type="submit"
-				variant="primary"
-				formaction={publishAction}
-				disabled={publishBlocked}
-				confirm={publishConfirm}
-			>
-				{adminLayout.actions.publishLayout}
-			</Button>
-		)
-	}
 </div>
-
-{
-	hasAstroChannel && (
-		<form method="post" action={`/api/admin/sites/${siteId}/layout/import`} class="mt-4">
-			<input type="hidden" name="return_section" value={section} />
-			<button type="submit" class="ui-btn ui-btn--link text-sm">
-				{adminLayout.actions.importFromGitHub}
-			</button>
-		</form>
-	)
-}

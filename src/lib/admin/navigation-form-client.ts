@@ -605,6 +605,12 @@ function initNavigationRow(
 		hidden.value = initialHref;
 	}
 
+	const columnsSelect = editorRow.querySelector('.nav-menu-columns') as HTMLSelectElement | null;
+	const initialColumns = columnsSelect?.dataset.initialColumns;
+	if (columnsSelect && (initialColumns === '1' || initialColumns === '2')) {
+		columnsSelect.value = initialColumns;
+	}
+
 	const kind = readRowKind(editorRow);
 	rebuildNavTarget(editorRow, kind, options);
 	bindKindSelect(editorRow);

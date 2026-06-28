@@ -1,0 +1,68 @@
+import type { APIRoute } from 'astro';
+import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
+import {
+	buildLayoutEditorReturnUrl,
+	DEFAULT_STATIC_ROUTES,
+} from '@/lib/admin/layout-editor-context';
+import { collectNavInternalPageOptions } from '@/lib/admin/navigation-tree';
+import {
+	buildKnownNavPaths,
+	hasMissingHrefIssues,
+	validateNavigationLinks,
+} from '@/lib/astro-layout/validate-nav';
+import {
+	loadSiteAstroLayout,
+	saveSiteAstroLayout,
+	syncSiteAstroLayoutToGitHub,
+} from '@/lib/astro-layout/store';
+import { withPublishedMeta } from '@/lib/astro-layout/layout-sync-meta.server';
+
+export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
+	const auth = guardAdminRedirect(locals, redirect);
+	if (isGuardBlocked(auth)) return auth;
+	const { supabase } = auth;
+	const siteId = params.id;
+	if (!siteId) return redirect('/admin/sites');
+
+	const form = await request.formData();
+	const section = String(form.get('return_section') ?? 'navigation').trim();
+	const returnUrl = buildLayoutEditorReturnUrl(siteId, section);
+
+	const layout = await loadSiteAstroLayout(supabase, siteId);
+
+	const categorySlugs = layout.categories.map((c) => c.slug);
+	const navInternalPaths = collectNavInternalPageOptions(layout.navigation).map((p) => p.path);
+	const knownPaths = await buildKnownNavPaths(
+		supabase,
+		siteId,
+		categorySlugs,
+		[...DEFAULT_STATIC_ROUTES, ...navInternalPaths],
+	);
+	const navIssues = validateNavigationLinks(layout.navigation, knownPaths);
+	if (navIssues.length > 0) {
+		const errorCode = hasMissingHrefIssues(navIssues) ? 'missing_nav_hrefs' : 'dead_nav_links';
+		return redirect(`${returnUrl}?error=${errorCode}`);
+	}
+
+	const synced = await syncSiteAstroLayoutToGitHub(supabase, siteId, layout, {
+		scope: 'all',
+	});
+	if (!synced.ok) {
+		const query = new URLSearchParams({ error: synced.error });
+		if (synced.detail) query.set('sync_detail', synced.detail.slice(0, 400));
+		return redirect(`${returnUrl}?${query.toString()}`);
+	}
+
+	const publishedLayout = withPublishedMeta(layout, {
+		commitSha: synced.commitSha,
+		scope: 'all',
+	});
+	const saved = await saveSiteAstroLayout(supabase, siteId, publishedLayout);
+	if (!saved.ok) {
+		return redirect(`${returnUrl}?error=save_failed&published=1`);
+	}
+
+	const query = new URLSearchParams({ published: '1' });
+	if (synced.summary) query.set('sync_summary', synced.summary.slice(0, 400));
+	return redirect(`${returnUrl}?${query.toString()}`);
+};

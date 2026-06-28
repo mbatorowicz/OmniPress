@@ -235,7 +235,7 @@ export function layoutEditorStatusMessagesFromI18n(adminLayout: {
 }): LayoutEditorStatusMessages {
 	return {
 		draftMissingHref: adminLayout.draftStatus.draftMissingHref,
-		inSync: adminLayout.draftStatus.inSync,
+		inSync: adminLayout.draftStatus.inSyncCombined,
 		inSyncShort: adminLayout.flash.inSyncShort,
 		draftAhead: adminLayout.draftStatus.draftAhead,
 		draftAheadShort: adminLayout.flash.draftAheadShort,

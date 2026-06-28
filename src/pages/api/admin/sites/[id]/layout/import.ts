@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
-import { layoutSectionReturnPath } from '@/lib/admin/layout-editor-context';
+import { buildLayoutEditorReturnUrl } from '@/lib/admin/layout-editor-context';
 import { importSiteAstroLayoutFromGitHub } from '@/lib/astro-layout/store';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
@@ -12,11 +12,11 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 
 	const form = await request.formData();
 	const section = String(form.get('return_section') ?? 'navigation').trim();
-	const returnSegment = layoutSectionReturnPath(section);
+	const returnUrl = buildLayoutEditorReturnUrl(siteId, section);
 
 	const result = await importSiteAstroLayoutFromGitHub(supabase, siteId);
 	if (!result.ok) {
-		return redirect(`/admin/units/${siteId}/${returnSegment}?error=${result.error}`);
+		return redirect(`${returnUrl}?error=${result.error}`);
 	}
 
 	const query = new URLSearchParams({
@@ -24,5 +24,5 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		import_hrefs: String(result.report.hrefCount),
 		import_path: result.report.navigationPath,
 	});
-	return redirect(`/admin/units/${siteId}/${returnSegment}?${query.toString()}`);
+	return redirect(`${returnUrl}?${query.toString()}`);
 };

@@ -76,7 +76,7 @@ function exportNavItem(item: NavItem, isRoot: boolean): NavItem {
 
 export function normalizeNavItems(raw: unknown): NavItem[] {
 	if (!Array.isArray(raw)) return [];
-	return raw.filter(isNavItem).map(normalizeNavItem);
+	return raw.filter(isNavItem).map((item) => normalizeNavItem(item, true));
 }
 
 function parseWidget(raw: unknown): SlotWidgetConfig | undefined {

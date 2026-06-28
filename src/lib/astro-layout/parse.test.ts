@@ -21,6 +21,14 @@ describe('astro-layout parse', () => {
 		expect(nav[0].label).toBe('Kontakt');
 	});
 
+	it('parsuje menuColumns i menuColumnWidths na poziomie root', () => {
+		const nav = parseNavigationJson(
+			'[{"label":"Gmina","menuColumns":2,"menuColumnWidths":["320px","320px"],"children":[{"label":"Plan","href":"/plan"}]}]',
+		);
+		expect(nav[0]?.menuColumns).toBe(2);
+		expect(nav[0]?.menuColumnWidths).toEqual(['320px', '320px']);
+	});
+
 	it('parsuje hideWhenEmpty w slocie', () => {
 		const text = JSON.stringify({
 			categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],

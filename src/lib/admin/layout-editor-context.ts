@@ -6,7 +6,10 @@ import {
 } from '@/lib/astro-layout/store';
 import { ensureLayoutFromGitHub } from '@/lib/admin/layout-auto-import';
 import type { DraftLiveScope, DraftLiveStatus } from '@/lib/astro-layout/layout-sync-meta';
-import { computeDraftLiveStatus } from '@/lib/astro-layout/layout-sync-meta.server';
+import {
+	computeCombinedDraftLiveStatus,
+	computeDraftLiveStatus,
+} from '@/lib/astro-layout/layout-sync-meta.server';
 import type { SiteAstroLayout } from '@/lib/astro-layout/types';
 import {
 	buildKnownNavPaths,
@@ -23,6 +26,13 @@ import type { PageOption } from './link-options';
 
 export const DEFAULT_STATIC_ROUTES = ['/', '/kontakt'] as const;
 
+export type LayoutEditorSection =
+	| 'navigation'
+	| 'categories'
+	| 'components'
+	| 'settings'
+	| 'all';
+
 export type LayoutEditorContext = {
 	site: { id: string; name: string; slug: string };
 	layout: SiteAstroLayout;
@@ -34,6 +44,9 @@ export type LayoutEditorContext = {
 	liveHrefCount: number | null;
 	draftStatus: DraftLiveStatus;
 	draftStatusScope: DraftLiveScope;
+	combinedDraftStatus: DraftLiveStatus;
+	navDraftStatus: DraftLiveStatus;
+	categoriesDraftStatus: DraftLiveStatus;
 	lastPublishedAt?: string;
 	lastPublishedSha?: string;
 	lastDraftSavedAt?: string;
@@ -100,6 +113,9 @@ export async function loadLayoutEditorContext(
 	const liveHrefCount = hasAstroChannel
 		? await fetchLiveNavigationHrefCount(supabase, siteId, layout)
 		: null;
+	const combined = hasAstroChannel
+		? computeCombinedDraftLiveStatus(layout, liveHashes ?? undefined)
+		: { combined: 'unknown' as const, nav: 'unknown' as const, categories: 'unknown' as const };
 	const draftStatus = hasAstroChannel
 		? computeDraftLiveStatus(layout, draftStatusScope, liveHashes ?? undefined)
 		: 'unknown';
@@ -115,6 +131,9 @@ export async function loadLayoutEditorContext(
 		liveHrefCount,
 		draftStatus,
 		draftStatusScope,
+		combinedDraftStatus: combined.combined,
+		navDraftStatus: combined.nav,
+		categoriesDraftStatus: combined.categories,
 		lastPublishedAt: layout.sync?.lastPublishedAt,
 		lastPublishedSha: layout.sync?.lastPublishedSha,
 		lastDraftSavedAt: layout.sync?.lastDraftSavedAt,
@@ -125,12 +144,29 @@ export async function loadLayoutEditorContext(
 	};
 }
 
+export function buildLayoutEditorReturnUrl(siteId: string, section: string): string {
+	switch (section) {
+		case 'categories':
+			return `/admin/units/${siteId}/categories`;
+		case 'components':
+			return `/admin/units/${siteId}/components`;
+		case 'settings':
+			return `/admin/units/${siteId}`;
+		case 'navigation':
+		case 'all':
+		default:
+			return `/admin/units/${siteId}/navigation`;
+	}
+}
+
 export function layoutSectionReturnPath(section: string): string {
 	switch (section) {
 		case 'categories':
 			return 'categories';
 		case 'components':
 			return 'components';
+		case 'settings':
+			return 'settings';
 		case 'navigation':
 		case 'all':
 		default:

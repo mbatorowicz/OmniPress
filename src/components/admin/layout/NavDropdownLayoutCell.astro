@@ -1,5 +1,6 @@
 ---
 import { adminLayout } from '@/i18n';
+import { resolveNavMenuColumns } from '@/lib/admin/nav-dropdown-layout';
 import type { NavItem } from '@/lib/astro-layout/types';
 
 interface Props {
@@ -10,8 +11,7 @@ interface Props {
 
 const { depth, item, asCell = true } = Astro.props;
 const visible = depth === 0;
-const columns =
-	visible && (item?.menuColumns === 2 || item?.isMegaMenu === true) ? 2 : visible ? 1 : 1;
+const columns = visible ? resolveNavMenuColumns(item ?? {}) : 1;
 const width0 = visible ? (item?.menuColumnWidths?.[0] ?? '') : '';
 const width1 = visible ? (item?.menuColumnWidths?.[1] ?? '') : '';
 const cellClass = `nav-dropdown-layout-cell ${visible ? '' : 'hidden'}`;

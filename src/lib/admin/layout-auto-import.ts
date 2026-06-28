@@ -1,6 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
-	fetchLiveNavigationHrefCount,
+	hashCategoriesLayout,
+	hashNavigationLayout,
+} from '@/lib/astro-layout/layout-sync-meta.server';
+import {
+	fetchLiveLayoutHashes,
 	importSiteAstroLayoutFromGitHub,
 	loadSiteAstroLayout,
 	type LayoutImportReport,
@@ -19,9 +23,18 @@ export type LayoutAutoImportResult = {
 	importReport?: LayoutImportReport;
 };
 
+export type LayoutAutoImportHashes = {
+	draftNavHash: string;
+	draftCategoriesHash: string;
+	liveNavHash?: string | null;
+	liveCategoriesHash?: string | null;
+	publishedNavHash?: string;
+	publishedCategoriesHash?: string;
+};
+
 export function shouldAutoImportLayoutFromGitHub(
 	layout: SiteAstroLayout,
-	options: { draftHrefCount: number; liveHrefCount: number | null },
+	options: { draftHrefCount: number; hashes: LayoutAutoImportHashes },
 ): boolean {
 	const emptyLayout =
 		layout.navigation.length === 0 &&
@@ -37,9 +50,24 @@ export function shouldAutoImportLayoutFromGitHub(
 		return true;
 	}
 
-	if (options.liveHrefCount !== null && options.liveHrefCount > options.draftHrefCount) {
-		return true;
-	}
+	const {
+		draftNavHash,
+		draftCategoriesHash,
+		liveNavHash,
+		liveCategoriesHash,
+		publishedNavHash,
+		publishedCategoriesHash,
+	} = options.hashes;
+
+	const liveDiffers =
+		(Boolean(liveNavHash) && draftNavHash !== liveNavHash) ||
+		(Boolean(liveCategoriesHash) && draftCategoriesHash !== liveCategoriesHash);
+
+	const localEditsAhead =
+		(Boolean(publishedNavHash) && draftNavHash !== publishedNavHash) ||
+		(Boolean(publishedCategoriesHash) && draftCategoriesHash !== publishedCategoriesHash);
+
+	if (liveDiffers && !localEditsAhead) return true;
 
 	return false;
 }
@@ -53,14 +81,17 @@ export async function ensureLayoutFromGitHub(
 	if (!hasAstroChannel) return { layout, imported: false };
 
 	const draftHrefCount = countNavigationHrefs(layout.navigation);
-	const needsLiveCheck =
-		layout.navigation.length > 0 &&
-		(draftHrefCount === 0 || navigationHasLeafWithoutHref(layout.navigation));
-	const liveHrefCount = needsLiveCheck
-		? await fetchLiveNavigationHrefCount(supabase, siteId, layout)
-		: null;
+	const liveHashes = await fetchLiveLayoutHashes(supabase, siteId, layout);
+	const hashes: LayoutAutoImportHashes = {
+		draftNavHash: hashNavigationLayout(layout.navigation),
+		draftCategoriesHash: hashCategoriesLayout(layout),
+		liveNavHash: liveHashes?.navHash,
+		liveCategoriesHash: liveHashes?.categoriesHash,
+		publishedNavHash: layout.sync?.publishedNavHash,
+		publishedCategoriesHash: layout.sync?.publishedCategoriesHash,
+	};
 
-	if (!shouldAutoImportLayoutFromGitHub(layout, { draftHrefCount, liveHrefCount })) {
+	if (!shouldAutoImportLayoutFromGitHub(layout, { draftHrefCount, hashes })) {
 		return { layout, imported: false };
 	}
 

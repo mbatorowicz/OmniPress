@@ -24,9 +24,8 @@ export function readNavMenuColumns(raw: unknown): NavMenuColumns | undefined {
 
 /** Migruje isMegaMenu → menuColumns: 2 */
 export function resolveNavMenuColumns(item: Pick<NavItem, 'menuColumns' | 'isMegaMenu'>): NavMenuColumns {
-	if (item.menuColumns === 2 || item.isMegaMenu === true) return 2;
-	if (item.menuColumns === 1) return 1;
-	return 1;
+	if (item.isMegaMenu === true) return 2;
+	return readNavMenuColumns(item.menuColumns) ?? 1;
 }
 
 export function resolveNavDropdownLayout(

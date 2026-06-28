@@ -3,11 +3,14 @@ import AppLayout from '@/layouts/AppLayout.astro';
 import UnitForm from '@/components/admin/UnitForm.astro';
 import AdminContextNav from '@/components/shell/AdminContextNav.astro';
 import FlashAlerts from '@/components/shared/FlashAlerts.astro';
+import LayoutEditorStatus from '@/components/admin/layout/LayoutEditorStatus.astro';
+import LayoutSiteSyncBar from '@/components/admin/layout/LayoutSiteSyncBar.astro';
 import Panel from '@/components/ui/layout/Panel.astro';
 import Button from '@/components/ui/actions/Button.astro';
 import { adminLayout, adminUnit, adminSites, common } from '@/i18n';
 import { countSitePosts, loadUnitFormInitial } from '@/lib/admin';
-import { ensureLayoutFromGitHub } from '@/lib/admin/layout-auto-import';
+import { loadLayoutEditorContext } from '@/lib/admin/layout-editor-context';
+import { parseLayoutPageFlash } from '@/lib/admin/layout-page-flash';
 import { parseQueryFlash } from '@/lib/ui/flash';
 
 const { id } = Astro.params;
@@ -16,31 +19,37 @@ if (!id) return Astro.redirect('/admin/sites');
 const initial = await loadUnitFormInitial(Astro.locals.supabase, id);
 if (!initial) return Astro.redirect('/admin/sites');
 
-const layoutImport = await ensureLayoutFromGitHub(Astro.locals.supabase, id);
+const ctx = await loadLayoutEditorContext(Astro.locals.supabase, id);
+if (!ctx) return Astro.redirect('/admin/sites');
+
 const postCount = await countSitePosts(Astro.locals.supabase, id);
 const unitErrors = {
 	...adminUnit.errors,
 	...adminSites.errors,
 	...adminLayout.errors,
 };
+const layoutFlash = parseLayoutPageFlash(Astro.url);
 const flashMessages = parseQueryFlash(Astro.url, {
 	saved: common.saved,
 	errorMap: unitErrors as Record<string, string>,
 });
-if (layoutImport.imported && layoutImport.importReport) {
+
+if (layoutFlash.errorMessage) {
+	flashMessages.unshift({ variant: 'error', message: layoutFlash.errorMessage });
+} else if (layoutFlash.published) {
+	flashMessages.unshift({ variant: 'success', message: adminLayout.publishedLayout });
+} else if (layoutFlash.imported || ctx.autoImported) {
+	const hrefCount = layoutFlash.importHrefCount ?? ctx.autoImportHrefCount ?? 0;
 	flashMessages.unshift({
 		variant: 'success',
-		message: adminLayout.importedMenu(
-			layoutImport.importReport.hrefCount,
-			layoutImport.importReport.navigationPath,
-		),
+		message: adminLayout.importedLayout(hrefCount),
 	});
-} else if (layoutImport.importError) {
+} else if (ctx.autoImportError) {
 	flashMessages.unshift({
 		variant: 'error',
 		message:
-			layoutImport.importError in adminLayout.errors
-				? adminLayout.errors[layoutImport.importError as keyof typeof adminLayout.errors]
+			ctx.autoImportError in adminLayout.errors
+				? adminLayout.errors[ctx.autoImportError as keyof typeof adminLayout.errors]
 				: adminLayout.errors.save_failed,
 	});
 }
@@ -48,7 +57,37 @@ if (layoutImport.imported && layoutImport.importReport) {
 
 <AppLayout title={`${initial.name} — ${adminUnit.settingsTitle}`} heading={adminUnit.settingsTitle}>
 	<AdminContextNav siteId={id} siteName={initial.name} section="settings" />
+
+	<LayoutSiteSyncBar
+		siteId={id}
+		hasAstroChannel={ctx.hasAstroChannel}
+		currentSection="settings"
+		combinedDraftStatus={ctx.combinedDraftStatus}
+		navDraftStatus={ctx.navDraftStatus}
+		categoriesDraftStatus={ctx.categoriesDraftStatus}
+		navHasMissingHref={ctx.navHasMissingHref}
+		lastPublishedAt={ctx.lastPublishedAt}
+		lastPublishedSha={ctx.lastPublishedSha}
+		lastDraftSavedAt={ctx.lastDraftSavedAt}
+	/>
+
 	<FlashAlerts messages={flashMessages} />
+
+	<LayoutEditorStatus
+		draftStatus={ctx.combinedDraftStatus}
+		navHasMissingHref={ctx.navHasMissingHref}
+		lastPublishedAt={ctx.lastPublishedAt}
+		lastPublishedSha={ctx.lastPublishedSha}
+		lastDraftSavedAt={ctx.lastDraftSavedAt}
+		hasAstroChannel={ctx.hasAstroChannel}
+		navWarningLines={ctx.navWarningLines}
+		{...layoutFlash}
+		imported={layoutFlash.imported || ctx.autoImported}
+		importHrefCount={layoutFlash.importHrefCount ?? ctx.autoImportHrefCount ?? null}
+		importPath={layoutFlash.importPath ?? ctx.autoImportPath ?? null}
+		errorMessage={null}
+	/>
+
 	<p class="mb-4 ui-muted">{adminUnit.settingsLead}</p>
 
 	<UnitForm

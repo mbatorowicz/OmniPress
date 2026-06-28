@@ -25,5 +25,5 @@ const { siteId, layout, hasAstroChannel } = Astro.props;
 	<Alert variant="info" class="ui-alert--note">{adminLayout.categoriesSlugWarning}</Alert>
 	<CategoryMatrixSection {layout} />
 	<VisibilitySection {layout} />
-	<LayoutSyncActions {siteId} {hasAstroChannel} section="categories" />
+	<LayoutSyncActions section="categories" />
 </form>

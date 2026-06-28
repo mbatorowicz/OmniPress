@@ -101,3 +101,28 @@ export function computeDraftLiveStatus(
 	if (!liveCat) return 'unknown';
 	return draftCat === liveCat ? 'in_sync' : 'draft_ahead';
 }
+
+export type CombinedDraftLiveStatus = {
+	combined: DraftLiveStatus;
+	nav: DraftLiveStatus;
+	categories: DraftLiveStatus;
+};
+
+export function computeCombinedDraftLiveStatus(
+	layout: SiteAstroLayout,
+	liveHashes?: { navHash?: string | null; categoriesHash?: string | null },
+): CombinedDraftLiveStatus {
+	const nav = computeDraftLiveStatus(layout, 'navigation', liveHashes);
+	const categories = computeDraftLiveStatus(layout, 'categories', liveHashes);
+
+	let combined: DraftLiveStatus;
+	if (nav === 'in_sync' && categories === 'in_sync') {
+		combined = 'in_sync';
+	} else if (nav === 'draft_ahead' || categories === 'draft_ahead') {
+		combined = 'draft_ahead';
+	} else {
+		combined = 'unknown';
+	}
+
+	return { combined, nav, categories };
+}

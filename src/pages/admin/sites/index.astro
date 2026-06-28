@@ -23,7 +23,7 @@ const breadcrumbs = [
 	<div class="ui-tile-grid">
 		{
 			sites.map((s) => (
-				<a href={`/admin/units/${s.id}`} class="ui-tile">
+				<a href={`/admin/units/${s.id}/navigation`} class="ui-tile">
 					<span class="ui-tile-title">{s.name}</span>
 					<span class="ui-muted font-mono">{s.slug}</span>
 					{!s.is_active && <span class="ui-tag self-start text-xs">{adminSites.fields.inactive}</span>}

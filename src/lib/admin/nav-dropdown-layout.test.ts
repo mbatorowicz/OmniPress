@@ -33,4 +33,8 @@ describe('nav-dropdown-layout', () => {
 		expect(item.menuColumnWidths).toEqual(['1fr', '1fr']);
 		expect(item.isMegaMenu).toBeUndefined();
 	});
+
+	it('resolveNavMenuColumns akceptuje string "2"', () => {
+		expect(resolveNavMenuColumns({ menuColumns: '2' as unknown as 2 })).toBe(2);
+	});
 });

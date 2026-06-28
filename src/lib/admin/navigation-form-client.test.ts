@@ -47,7 +47,7 @@ const labels: NavigationTableLabels = {
 	},
 };
 
-function buildNavigationList(pageValue: string): void {
+function buildNavigationList(pageValue: string, menuColumns = '1'): void {
 	const optionsJson = JSON.stringify(navTargetOptions);
 	document.body.innerHTML = `
 		<form>
@@ -59,6 +59,7 @@ function buildNavigationList(pageValue: string): void {
 							<span class="nav-summary-label">Gmina</span>
 							<span class="nav-summary-sep">·</span>
 							<span class="nav-summary-link-text">Strona</span>
+							<span class="nav-summary-layout">2 kolumny</span>
 						</div>
 						<div class="nav-tile-actions">
 							<button type="button" class="edit-nav-row">Edytuj</button>
@@ -93,10 +94,13 @@ function buildNavigationList(pageValue: string): void {
 								</div>
 							</div>
 							<div class="nav-dropdown-layout-cell">
-								<input type="hidden" name="nav_menu_columns" class="nav-menu-columns-submit" value="1" />
+								<input type="hidden" name="nav_menu_columns" class="nav-menu-columns-submit" value="${menuColumns}" />
 								<input type="hidden" name="nav_menu_col_width_0" class="nav-menu-col-width-0-submit" value="" />
 								<input type="hidden" name="nav_menu_col_width_1" class="nav-menu-col-width-1-submit" value="" />
-								<select class="nav-menu-columns"><option value="1">1</option></select>
+								<select class="nav-menu-columns" data-initial-columns="${menuColumns}">
+									<option value="1">1 kolumna</option>
+									<option value="2">2 kolumny</option>
+								</select>
 								<input type="text" class="nav-menu-col-width-0" />
 								<input type="text" class="nav-menu-col-width-1" />
 							</div>
@@ -180,5 +184,15 @@ describe('mountNavigationForm', () => {
 			new MouseEvent('click', { bubbles: true }),
 		);
 		expect(editor.classList.contains('hidden')).toBe(true);
+	});
+
+	it('po mount zachowuje 2 kolumny w podsumowaniu gdy data-initial-columns=2', () => {
+		buildNavigationList('/gmina/urzad', '2');
+		mountNavigationForm(labels);
+
+		const layoutSummary = document.querySelector('.nav-summary-layout');
+		expect(layoutSummary?.textContent).toBe('2 kolumny');
+		const columnsSubmit = document.querySelector('.nav-menu-columns-submit') as HTMLInputElement;
+		expect(columnsSubmit.value).toBe('2');
 	});
 });

@@ -1,0 +1,96 @@
+---
+import { adminLayout } from '@/i18n';
+import Button from '@/components/ui/actions/Button.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+import type { DraftLiveStatus } from '@/lib/astro-layout/layout-sync-meta';
+import type { LayoutEditorSection } from '@/lib/admin/layout-editor-context';
+import { formatLayoutStatusDate } from '@/lib/admin/layout-editor-status';
+
+interface Props {
+	siteId: string;
+	hasAstroChannel: boolean;
+	currentSection: LayoutEditorSection;
+	combinedDraftStatus: DraftLiveStatus;
+	navDraftStatus: DraftLiveStatus;
+	categoriesDraftStatus: DraftLiveStatus;
+	navHasMissingHref?: boolean;
+	lastPublishedAt?: string;
+	lastPublishedSha?: string;
+	lastDraftSavedAt?: string;
+}
+
+const {
+	siteId,
+	hasAstroChannel,
+	currentSection,
+	combinedDraftStatus,
+	navDraftStatus,
+	categoriesDraftStatus,
+	navHasMissingHref = false,
+	lastPublishedAt,
+	lastPublishedSha,
+	lastDraftSavedAt,
+} = Astro.props;
+
+const importAction = `/api/admin/sites/${siteId}/layout/import`;
+const publishAllAction = `/api/admin/sites/${siteId}/layout/publish-all`;
+const publishBlocked = navHasMissingHref;
+
+const statusTitle =
+	combinedDraftStatus === 'in_sync'
+		? adminLayout.syncBar.inSyncCombined
+		: combinedDraftStatus === 'draft_ahead'
+			? adminLayout.syncBar.draftAheadCombined
+			: adminLayout.syncBar.unknown;
+
+const statusDetail =
+	combinedDraftStatus === 'draft_ahead'
+		? adminLayout.syncBar.draftAheadDetail(
+				navDraftStatus === 'draft_ahead',
+				categoriesDraftStatus === 'draft_ahead',
+			)
+		: null;
+
+const publishedLabel = formatLayoutStatusDate(lastPublishedAt);
+const draftLabel = formatLayoutStatusDate(lastDraftSavedAt);
+const metaParts = [
+	draftLabel ? `${adminLayout.draftStatus.lastDraft} ${draftLabel}` : null,
+	publishedLabel
+		? `${adminLayout.draftStatus.lastPublished} ${publishedLabel}${lastPublishedSha ? ` (${lastPublishedSha})` : ''}`
+		: null,
+].filter(Boolean);
+
+const importConfirm =
+	combinedDraftStatus === 'draft_ahead' ? adminLayout.syncBar.importConfirmOverwrite : undefined;
+---
+
+{
+	hasAstroChannel && (
+		<Panel class="mb-4 max-w-5xl">
+			<div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+				<div>
+					<p class="font-medium">{statusTitle}</p>
+					{statusDetail && <p class="ui-muted mt-1 text-sm">{statusDetail}</p>}
+					{metaParts.length > 0 && (
+						<p class="ui-muted mt-1 text-sm">{metaParts.join(' · ')}</p>
+					)}
+					<p class="ui-hint mt-2 text-sm">{adminLayout.syncBar.saveBeforePublish}</p>
+				</div>
+				<div class="flex flex-wrap gap-2">
+					<form method="post" action={importAction}>
+						<input type="hidden" name="return_section" value={currentSection} />
+						<Button type="submit" variant="secondary" confirm={importConfirm}>
+							{adminLayout.syncBar.pullFromSite}
+						</Button>
+					</form>
+					<form method="post" action={publishAllAction}>
+						<input type="hidden" name="return_section" value={currentSection} />
+						<Button type="submit" variant="primary" disabled={publishBlocked}>
+							{adminLayout.syncBar.publishAllLayout}
+						</Button>
+					</form>
+				</div>
+			</div>
+		</Panel>
+	)
+}
