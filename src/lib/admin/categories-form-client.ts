@@ -4,6 +4,15 @@ export type CategoriesFormLabels = {
 	closeEdit: string;
 	fieldSlug: string;
 	fieldName: string;
+	fieldArchiveLayout: string;
+	fieldArchiveColumns: string;
+	layoutTiles: string;
+	layoutTitleList: string;
+	columnsOne: string;
+	columnsTwo: string;
+	columnsThree: string;
+	summaryTilesPrefix: string;
+	summaryTitleList: string;
 };
 
 let nextCategoryEntryId = 0;
@@ -33,7 +42,57 @@ function getEditorForSummary(summaryRow: HTMLElement): HTMLElement | null {
 	return editor instanceof HTMLElement ? editor : null;
 }
 
-function syncCategorySummary(editorRow: HTMLElement): void {
+function formatArchiveSummary(
+	layout: string,
+	columns: string,
+	labels: CategoriesFormLabels,
+): string {
+	if (layout === 'title-list') return labels.summaryTitleList;
+	const colLabel =
+		columns === '1' ? labels.columnsOne : columns === '3' ? labels.columnsThree : labels.columnsTwo;
+	return `${labels.summaryTilesPrefix} · ${colLabel}`;
+}
+
+function syncArchiveColumnsField(editorRow: HTMLElement): void {
+	const layoutSelect = editorRow.querySelector('.category-archive-layout') as HTMLSelectElement | null;
+	const columnsSelect = editorRow.querySelector('.category-archive-columns') as HTMLSelectElement | null;
+	if (!layoutSelect || !columnsSelect) return;
+	const isTitleList = layoutSelect.value === 'title-list';
+	columnsSelect.disabled = isTitleList;
+}
+
+function initCategoryArchiveFields(editorRow: HTMLElement): void {
+	const layoutSelect = editorRow.querySelector('.category-archive-layout') as HTMLSelectElement | null;
+	const columnsSelect = editorRow.querySelector('.category-archive-columns') as HTMLSelectElement | null;
+	const initialLayout = layoutSelect?.dataset.initialLayout;
+	if (layoutSelect && (initialLayout === 'tiles' || initialLayout === 'title-list')) {
+		layoutSelect.value = initialLayout;
+	}
+	const initialColumns = columnsSelect?.dataset.initialColumns;
+	if (columnsSelect && (initialColumns === '1' || initialColumns === '2' || initialColumns === '3')) {
+		columnsSelect.value = initialColumns;
+	}
+	syncArchiveColumnsField(editorRow);
+}
+
+function bindCategoryArchiveFields(editorRow: HTMLElement, labels: CategoriesFormLabels): void {
+	const layoutSelect = editorRow.querySelector('.category-archive-layout');
+	if (!(layoutSelect instanceof HTMLSelectElement)) return;
+	if (layoutSelect.dataset.archiveLayoutBound === '1') return;
+	layoutSelect.dataset.archiveLayoutBound = '1';
+	layoutSelect.addEventListener('change', () => {
+		syncArchiveColumnsField(editorRow);
+		syncCategorySummary(editorRow, labels);
+	});
+	const columnsSelect = editorRow.querySelector('.category-archive-columns');
+	if (columnsSelect instanceof HTMLSelectElement) {
+		columnsSelect.addEventListener('change', () => {
+			syncCategorySummary(editorRow, labels);
+		});
+	}
+}
+
+function syncCategorySummary(editorRow: HTMLElement, labels: CategoriesFormLabels): void {
 	const summary = getSummaryForEditor(editorRow);
 	if (!summary) return;
 
@@ -43,23 +102,30 @@ function syncCategorySummary(editorRow: HTMLElement): void {
 	const name =
 		(editorRow.querySelector('input[name="category_name"]') as HTMLInputElement | null)?.value.trim() ||
 		'—';
+	const layout =
+		(editorRow.querySelector('.category-archive-layout') as HTMLSelectElement | null)?.value ?? 'tiles';
+	const columns =
+		(editorRow.querySelector('.category-archive-columns') as HTMLSelectElement | null)?.value ?? '2';
 
 	const nameEl = summary.querySelector('.category-summary-name');
 	if (nameEl) nameEl.textContent = name;
 
 	const slugEl = summary.querySelector('.category-summary-slug');
 	if (slugEl) slugEl.textContent = slug;
+
+	const layoutEl = summary.querySelector('.category-summary-layout');
+	if (layoutEl) layoutEl.textContent = formatArchiveSummary(layout, columns, labels);
 }
 
-function closeAllCategoryEditors(body: HTMLElement): void {
+function closeAllCategoryEditors(body: HTMLElement, labels: CategoriesFormLabels): void {
 	getEditorRows(body).forEach((row) => {
-		if (!row.classList.contains('hidden')) syncCategorySummary(row);
+		if (!row.classList.contains('hidden')) syncCategorySummary(row, labels);
 		row.classList.add('hidden');
 	});
 }
 
-function openCategoryEditor(editorRow: HTMLElement, body: HTMLElement): void {
-	closeAllCategoryEditors(body);
+function openCategoryEditor(editorRow: HTMLElement, body: HTMLElement, labels: CategoriesFormLabels): void {
+	closeAllCategoryEditors(body, labels);
 	editorRow.classList.remove('hidden');
 	editorRow.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
 	const slugInput = editorRow.querySelector('input[name="category_slug"]');
@@ -77,6 +143,21 @@ function buildCategoryEditorHtml(labels: CategoriesFormLabels): string {
 				<label class="category-row-editor-field">
 					<span class="category-row-editor-label">${labels.fieldName}</span>
 					<input name="category_name" required class="ui-input-compact w-full" />
+				</label>
+				<label class="category-row-editor-field">
+					<span class="category-row-editor-label">${labels.fieldArchiveLayout}</span>
+					<select name="category_archive_layout" class="category-archive-layout ui-select-compact w-full" data-initial-layout="tiles">
+						<option value="tiles">${labels.layoutTiles}</option>
+						<option value="title-list">${labels.layoutTitleList}</option>
+					</select>
+				</label>
+				<label class="category-row-editor-field">
+					<span class="category-row-editor-label">${labels.fieldArchiveColumns}</span>
+					<select name="category_archive_columns" class="category-archive-columns ui-select-compact w-full" data-initial-columns="2">
+						<option value="1">${labels.columnsOne}</option>
+						<option value="2" selected>${labels.columnsTwo}</option>
+						<option value="3">${labels.columnsThree}</option>
+					</select>
 				</label>
 			</div>
 			<div class="category-row-editor-footer">
@@ -100,6 +181,7 @@ function createCategoryEntryElements(
 			<div class="flex min-w-0 flex-col gap-0.5">
 				<span class="category-summary-name">—</span>
 				<span class="category-summary-slug ui-caption ui-input-compact--mono">—</span>
+				<span class="category-summary-layout ui-caption">${labels.summaryTilesPrefix} · ${labels.columnsTwo}</span>
 			</div>
 		</td>
 		<td class="ui-table-dense-td--wide category-row-actions">
@@ -118,11 +200,18 @@ function createCategoryEntryElements(
 	return [summaryTr, editorTr];
 }
 
+function initCategoryRow(editorRow: HTMLElement, labels: CategoriesFormLabels): void {
+	initCategoryArchiveFields(editorRow);
+	bindCategoryArchiveFields(editorRow, labels);
+	syncCategorySummary(editorRow, labels);
+}
+
 function appendCategoryEntry(body: HTMLElement, labels: CategoriesFormLabels, openEditor = true): void {
 	const [summaryTr, editorTr] = createCategoryEntryElements(labels, openEditor);
 	body.appendChild(summaryTr);
 	body.appendChild(editorTr);
-	if (openEditor) openCategoryEditor(editorTr, body);
+	initCategoryRow(editorTr, labels);
+	if (openEditor) openCategoryEditor(editorTr, body, labels);
 }
 
 function removeCategoryEntry(summaryRow: HTMLElement, body: HTMLElement): void {
@@ -152,7 +241,7 @@ function handleCategoriesClick(event: Event, labels: CategoriesFormLabels): void
 		event.preventDefault();
 		const summary = editBtn.closest('.category-row-summary');
 		const editor = summary instanceof HTMLElement ? getEditorForSummary(summary) : null;
-		if (editor) openCategoryEditor(editor, body);
+		if (editor) openCategoryEditor(editor, body, labels);
 		return;
 	}
 
@@ -161,7 +250,7 @@ function handleCategoriesClick(event: Event, labels: CategoriesFormLabels): void
 		event.preventDefault();
 		const editor = closeBtn.closest('.category-row-editor');
 		if (editor instanceof HTMLElement) {
-			syncCategorySummary(editor);
+			syncCategorySummary(editor, labels);
 			editor.classList.add('hidden');
 		}
 		return;
@@ -183,7 +272,7 @@ export function mountCategoriesForm(labels: CategoriesFormLabels): void {
 		nextCategoryEntryId = getEditorRows(body).length;
 
 		getEditorRows(body).forEach((row) => {
-			syncCategorySummary(row);
+			initCategoryRow(row, labels);
 		});
 
 		const interactionRoot = form instanceof HTMLFormElement ? form : document;
@@ -214,5 +303,14 @@ export function initCategoriesTable(removeCategoryLabel: string): void {
 		closeEdit: 'Zamknij',
 		fieldSlug: 'Slug',
 		fieldName: 'Nazwa',
+		fieldArchiveLayout: 'Wyświetlanie',
+		fieldArchiveColumns: 'Kolumny',
+		layoutTiles: 'Kafelki',
+		layoutTitleList: 'Lista tytułów',
+		columnsOne: '1 kolumna',
+		columnsTwo: '2 kolumny',
+		columnsThree: '3 kolumny',
+		summaryTilesPrefix: 'Kafelki',
+		summaryTitleList: 'Lista tytułów',
 	});
 }

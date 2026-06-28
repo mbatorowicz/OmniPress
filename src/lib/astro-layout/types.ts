@@ -12,9 +12,16 @@ export type NavItem = {
 	children?: NavItem[];
 };
 
+export type CategoryArchiveLayout = 'tiles' | 'title-list';
+export type CategoryArchiveColumns = 1 | 2 | 3;
+
 export type CategoryDefinition = {
 	slug: string;
 	name: string;
+	/** Sposób listy wpisów na stronie /{slug}/ */
+	archiveLayout?: CategoryArchiveLayout;
+	/** Liczba kolumn kafelków (ignorowane przy title-list) */
+	archiveColumns?: CategoryArchiveColumns;
 };
 
 /** slotId → lista slugów kategorii widocznych w danym komponencie */

@@ -11,6 +11,7 @@ import { validateBannerWidget } from './banners';
 import { slotFormFields } from './slot-form-fields';
 import { mergeCategoryDisplays, sortSlotsByOrder } from './slots';
 import { isExternalHref, normalizeInternalHref, countNavigationHrefs } from './validate-nav';
+import { applyCategoryArchiveFieldsFromForm } from './category-archive';
 import type { CategoryDefinition, DisplaySlot, NavItem, SiteAstroLayout, SlotWidgetConfig } from './types';
 
 export type LayoutFormSection = 'navigation' | 'categories' | 'components' | 'all';
@@ -188,13 +189,27 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 function parseCategoriesFromForm(form: FormData): CategoryDefinition[] {
 	const slugs = form.getAll('category_slug').map((v) => String(v).trim());
 	const names = form.getAll('category_name').map((v) => String(v).trim());
+	const layouts = form.getAll('category_archive_layout').map((v) => String(v).trim());
+	const columns = form.getAll('category_archive_columns').map((v) => String(v).trim());
 	const categories: CategoryDefinition[] = [];
 
 	for (let i = 0; i < slugs.length; i++) {
 		const slug = slugs[i];
 		const name = names[i] ?? '';
 		if (!slug || !name) continue;
-		categories.push({ slug, name });
+		const item: CategoryDefinition = { slug, name };
+		applyCategoryArchiveFieldsFromForm(
+			item,
+			layouts[i] ?? 'tiles',
+			columns[i] ?? '2',
+		);
+		if (item.archiveLayout === 'title-list') {
+			delete item.archiveColumns;
+		} else {
+			delete item.archiveLayout;
+			if (item.archiveColumns === 2) delete item.archiveColumns;
+		}
+		categories.push(item);
 	}
 	return categories;
 }

@@ -92,6 +92,22 @@ describe('astro-layout parse', () => {
 		expect(parsed.slots).toEqual([]);
 	});
 
+	it('parsuje archiveLayout i archiveColumns w pliku kategorii', () => {
+		const parsed = parseCategoriesFile(
+			JSON.stringify({
+				categories: [
+					{ slug: 'aktualnosci', name: 'Aktualności' },
+					{ slug: 'zarządzenia', name: 'Zarządzenia', archiveLayout: 'title-list' },
+					{ slug: 'informacje', name: 'Informacje', archiveColumns: 1 },
+				],
+				displays: {},
+				slots: [],
+			}),
+		);
+		expect(parsed.categories[1]?.archiveLayout).toBe('title-list');
+		expect(parsed.categories[2]?.archiveColumns).toBe(1);
+	});
+
 	it('buduje payloady do GitHub bez widgets/banners', () => {
 		const layout: SiteAstroLayout = {
 			navigation: [{ label: 'BIP', href: 'https://bip.example.pl' }],
@@ -196,5 +212,29 @@ describe('parseLayoutFromFormData', () => {
 		expect(weather?.widget?.detailsLayout).toBe('stacked');
 		expect(weather?.widget?.detailsSummary).toBe('Szczegóły');
 		expect(weather?.widget?.detailsCloseLabel).toBe('Zamknij okno');
+	});
+
+	it('parsuje archiveLayout i archiveColumns z formularza kategorii', () => {
+		const form = new FormData();
+		form.set('navigation_json', '[{"label":"Kontakt","href":"/kontakt"}]');
+		form.append('category_slug', 'aktualnosci');
+		form.append('category_name', 'Aktualności');
+		form.append('category_archive_layout', 'tiles');
+		form.append('category_archive_columns', '2');
+		form.append('category_slug', 'zarządzenia');
+		form.append('category_name', 'Zarządzenia');
+		form.append('category_archive_layout', 'title-list');
+		form.append('category_archive_columns', '2');
+		form.append('slot_id', 'home_pinned');
+		form.append('slot_label', 'Przypięte');
+		form.append('slot_component', 'home.pinned');
+		form.set('slot_enabled_home_pinned', 'on');
+
+		const result = parseLayoutFromFormData(form, base);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.layout.categories[0]?.archiveLayout).toBeUndefined();
+		expect(result.layout.categories[1]?.archiveLayout).toBe('title-list');
+		expect(result.layout.categories[1]?.archiveColumns).toBeUndefined();
 	});
 });

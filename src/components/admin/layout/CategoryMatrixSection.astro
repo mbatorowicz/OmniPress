@@ -6,6 +6,7 @@ import Table from '@/components/ui/table/Table.astro';
 import TableHead from '@/components/ui/table/TableHead.astro';
 import TableRow from '@/components/ui/table/TableRow.astro';
 import TableCell from '@/components/ui/table/TableCell.astro';
+import { resolveCategoryArchiveSettings } from '@/lib/astro-layout/category-archive';
 import type { SiteAstroLayout } from '@/lib/astro-layout/types';
 
 interface Props {
@@ -18,18 +19,41 @@ const rows =
 		? layout.categories
 		: [{ slug: '', name: '' }];
 
+function formatCategoryArchiveSummary(
+	cat: (typeof rows)[number],
+): string {
+	const settings = resolveCategoryArchiveSettings(cat);
+	if (settings.layout === 'title-list') {
+		return adminLayout.categoryArchiveLayoutOptions.titleList;
+	}
+	const cols = adminLayout.categoryArchiveColumnsOptions;
+	if (settings.columns === 1) return `${adminLayout.categoryArchiveLayoutOptions.tiles} · ${cols.one}`;
+	if (settings.columns === 3) return `${adminLayout.categoryArchiveLayoutOptions.tiles} · ${cols.three}`;
+	return `${adminLayout.categoryArchiveLayoutOptions.tiles} · ${cols.two}`;
+}
+
 const categoryLabels = {
 	remove: adminLayout.actions.removeCategory,
 	edit: adminLayout.actions.editCategory,
 	closeEdit: ui.actions.close,
 	fieldSlug: adminLayout.fields.categorySlug,
 	fieldName: adminLayout.fields.categoryName,
+	fieldArchiveLayout: adminLayout.fields.categoryArchiveLayout,
+	fieldArchiveColumns: adminLayout.fields.categoryArchiveColumns,
+	layoutTiles: adminLayout.categoryArchiveLayoutOptions.tiles,
+	layoutTitleList: adminLayout.categoryArchiveLayoutOptions.titleList,
+	columnsOne: adminLayout.categoryArchiveColumnsOptions.one,
+	columnsTwo: adminLayout.categoryArchiveColumnsOptions.two,
+	columnsThree: adminLayout.categoryArchiveColumnsOptions.three,
+	summaryTilesPrefix: adminLayout.categoryArchiveLayoutOptions.tiles,
+	summaryTitleList: adminLayout.categoryArchiveLayoutOptions.titleList,
 };
 ---
 
 <Panel class="ui-form-section">
 	<SectionTitle>{adminLayout.sections.categories}</SectionTitle>
 	<p class="ui-hint">{adminLayout.categoriesHint}</p>
+	<p class="ui-hint">{adminLayout.categoryArchiveHint}</p>
 	<Table dense wrap class="min-w-[28rem] w-full" id="categories-table">
 		<TableHead dense>
 			<TableRow dense>
@@ -39,61 +63,99 @@ const categoryLabels = {
 		</TableHead>
 		<tbody id="categories-body">
 			{
-				rows.map((cat, rowIndex) => (
-					<>
-						<tr class="category-row-summary ui-table-dense-row" data-category-entry={String(rowIndex)}>
-							<td class="ui-table-dense-td--wide">
-								<div class="flex min-w-0 flex-col gap-0.5">
-									<span class="category-summary-name">{cat.name.trim() || '—'}</span>
-									<span class="category-summary-slug ui-caption ui-input-compact--mono">
-										{cat.slug.trim() || '—'}
-									</span>
-								</div>
-							</td>
-							<td class="ui-table-dense-td--wide category-row-actions">
-								<div class="flex flex-col items-start gap-1">
-									<button type="button" class="edit-category ui-btn ui-btn--link text-xs">
-										{adminLayout.actions.editCategory}
-									</button>
-									<button type="button" class="remove-category ui-btn ui-btn--link-danger text-xs">
-										{adminLayout.actions.removeCategory}
-									</button>
-								</div>
-							</td>
-						</tr>
-						<tr class="category-row-editor hidden ui-table-dense-row" data-category-entry={String(rowIndex)}>
-							<td colspan="2" class="ui-table-dense-td--wide">
-								<div class="category-row-editor-panel">
-									<div class="category-row-editor-grid">
-										<label class="category-row-editor-field">
-											<span class="category-row-editor-label">{adminLayout.fields.categorySlug}</span>
-											<input
-												name="category_slug"
-												value={cat.slug}
-												required
-												class="ui-input-compact ui-input-compact--mono w-full"
-											/>
-										</label>
-										<label class="category-row-editor-field">
-											<span class="category-row-editor-label">{adminLayout.fields.categoryName}</span>
-											<input
-												name="category_name"
-												value={cat.name}
-												required
-												class="ui-input-compact w-full"
-											/>
-										</label>
+				rows.map((cat, rowIndex) => {
+					const settings = resolveCategoryArchiveSettings(cat);
+					return (
+						<>
+							<tr class="category-row-summary ui-table-dense-row" data-category-entry={String(rowIndex)}>
+								<td class="ui-table-dense-td--wide">
+									<div class="flex min-w-0 flex-col gap-0.5">
+										<span class="category-summary-name">{cat.name.trim() || '—'}</span>
+										<span class="category-summary-slug ui-caption ui-input-compact--mono">
+											{cat.slug.trim() || '—'}
+										</span>
+										<span class="category-summary-layout ui-caption">{formatCategoryArchiveSummary(cat)}</span>
 									</div>
-									<div class="category-row-editor-footer">
-										<button type="button" class="close-category ui-btn ui-btn--ghost text-xs">
-											{ui.actions.close}
+								</td>
+								<td class="ui-table-dense-td--wide category-row-actions">
+									<div class="flex flex-col items-start gap-1">
+										<button type="button" class="edit-category ui-btn ui-btn--link text-xs">
+											{adminLayout.actions.editCategory}
+										</button>
+										<button type="button" class="remove-category ui-btn ui-btn--link-danger text-xs">
+											{adminLayout.actions.removeCategory}
 										</button>
 									</div>
-								</div>
-							</td>
-						</tr>
-					</>
-				))
+								</td>
+							</tr>
+							<tr class="category-row-editor hidden ui-table-dense-row" data-category-entry={String(rowIndex)}>
+								<td colspan="2" class="ui-table-dense-td--wide">
+									<div class="category-row-editor-panel">
+										<div class="category-row-editor-grid">
+											<label class="category-row-editor-field">
+												<span class="category-row-editor-label">{adminLayout.fields.categorySlug}</span>
+												<input
+													name="category_slug"
+													value={cat.slug}
+													required
+													class="ui-input-compact ui-input-compact--mono w-full"
+												/>
+											</label>
+											<label class="category-row-editor-field">
+												<span class="category-row-editor-label">{adminLayout.fields.categoryName}</span>
+												<input
+													name="category_name"
+													value={cat.name}
+													required
+													class="ui-input-compact w-full"
+												/>
+											</label>
+											<label class="category-row-editor-field">
+												<span class="category-row-editor-label">{adminLayout.fields.categoryArchiveLayout}</span>
+												<select
+													name="category_archive_layout"
+													class="category-archive-layout ui-select-compact w-full"
+													data-initial-layout={settings.layout}
+												>
+													<option value="tiles" selected={settings.layout === 'tiles'}>
+														{adminLayout.categoryArchiveLayoutOptions.tiles}
+													</option>
+													<option value="title-list" selected={settings.layout === 'title-list'}>
+														{adminLayout.categoryArchiveLayoutOptions.titleList}
+													</option>
+												</select>
+											</label>
+											<label class="category-row-editor-field">
+												<span class="category-row-editor-label">{adminLayout.fields.categoryArchiveColumns}</span>
+												<select
+													name="category_archive_columns"
+													class="category-archive-columns ui-select-compact w-full"
+													data-initial-columns={String(settings.columns)}
+													disabled={settings.layout === 'title-list'}
+												>
+													<option value="1" selected={settings.columns === 1}>
+														{adminLayout.categoryArchiveColumnsOptions.one}
+													</option>
+													<option value="2" selected={settings.columns === 2}>
+														{adminLayout.categoryArchiveColumnsOptions.two}
+													</option>
+													<option value="3" selected={settings.columns === 3}>
+														{adminLayout.categoryArchiveColumnsOptions.three}
+													</option>
+												</select>
+											</label>
+										</div>
+										<div class="category-row-editor-footer">
+											<button type="button" class="close-category ui-btn ui-btn--ghost text-xs">
+												{ui.actions.close}
+											</button>
+										</div>
+									</div>
+								</td>
+							</tr>
+						</>
+					);
+				})
 			}
 		</tbody>
 	</Table>

@@ -19,6 +19,7 @@ import {
 	resolveNavMenuColumns,
 	sanitizeNavMenuColumnWidth,
 } from '@/lib/admin/nav-dropdown-layout';
+import { normalizeCategoryDefinition } from './category-archive';
 
 function isNavItem(raw: unknown): raw is NavItem {
 	if (!raw || typeof raw !== 'object') return false;
@@ -196,11 +197,8 @@ export function parseCategoriesFile(text: string): {
 	if (Array.isArray(parsed)) {
 		return {
 			categories: parsed
-				.filter((r) => r && typeof r === 'object' && 'slug' in r && 'name' in r)
-				.map((r) => ({
-					slug: String((r as CategoryDefinition).slug),
-					name: String((r as CategoryDefinition).name),
-				})),
+				.map(normalizeCategoryDefinition)
+				.filter((c): c is CategoryDefinition => c !== null),
 			slots: [],
 			displays: {},
 		};
@@ -217,8 +215,8 @@ export function parseCategoriesFile(text: string): {
 	};
 
 	const categories = (obj.categories ?? [])
-		.filter((c) => c?.slug && c?.name)
-		.map((c) => ({ slug: String(c.slug), name: String(c.name) }));
+		.map(normalizeCategoryDefinition)
+		.filter((c): c is CategoryDefinition => c !== null);
 
 	const slots = parseSlots(obj.slots);
 	const displays = mergeCategoryDisplays(slots, obj.displays ?? {});
@@ -275,7 +273,11 @@ export function normalizeSiteAstroLayout(raw: unknown): SiteAstroLayout {
 	return {
 		navigation: normalizeNavItems(o.navigation),
 		categoryDisplays: mergeCategoryDisplays(slots, o.categoryDisplays ?? {}),
-		categories: Array.isArray(o.categories) ? o.categories : [],
+		categories: Array.isArray(o.categories)
+			? o.categories
+					.map(normalizeCategoryDefinition)
+					.filter((c): c is CategoryDefinition => c !== null)
+			: [],
 		slots,
 		navigationPath: o.navigationPath?.trim() || DEFAULT_NAVIGATION_PATH,
 		categoriesPath: o.categoriesPath?.trim() || DEFAULT_CATEGORIES_PATH,

@@ -274,6 +274,17 @@ export const adminLayout = {
 		all: 'Wszystkie kategorie',
 	},
 	categoriesHint: 'Slug musi odpowiadać segmentowi URL wpisu (/{category}/{slug}).',
+	categoryArchiveHint:
+		'Dotyczy listy wpisów na stronie /{slug}/ — kafelki (z miniaturą i zajawką) lub lista tytułów z datą.',
+	categoryArchiveLayoutOptions: {
+		tiles: 'Kafelki',
+		titleList: 'Lista tytułów',
+	},
+	categoryArchiveColumnsOptions: {
+		one: '1 kolumna',
+		two: '2 kolumny',
+		three: '3 kolumny',
+	},
 	displaysHint: 'Zaznacz, które kategorie mają pojawiać się w danym komponencie na stronie.',
 	displaysRefreshHint: 'Po dodaniu nowej kategorii zapisz formularz — macierz odświeży się przy następnym otwarciu.',
 	sections: {
@@ -331,6 +342,8 @@ export const adminLayout = {
 		weatherDetailsCloseLabel: 'Etykieta zamknięcia okna',
 		categorySlug: 'Slug',
 		categoryName: 'Nazwa',
+		categoryArchiveLayout: 'Sposób wyświetlania',
+		categoryArchiveColumns: 'Kolumny kafelków',
 		category: 'Kategoria',
 		bannerLabel: 'Etykieta (alt)',
 		bannerStyle: 'Typ banera',
