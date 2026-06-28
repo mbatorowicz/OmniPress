@@ -6,7 +6,7 @@ import {
 	parseNavigationJson,
 } from './parse';
 import { mergeCategoryDisplays } from './slots';
-import { parseLayoutFromFormData } from './parse-form';
+import { parseLayoutFromFormData, mergeLayoutFromFormData } from './parse-form';
 import type { SiteAstroLayout } from './types';
 
 const sampleSlots = [
@@ -236,5 +236,47 @@ describe('parseLayoutFromFormData', () => {
 		expect(result.layout.categories[0]?.archiveLayout).toBeUndefined();
 		expect(result.layout.categories[1]?.archiveLayout).toBe('title-list');
 		expect(result.layout.categories[1]?.archiveColumns).toBeUndefined();
+	});
+});
+
+describe('mergeLayoutFromFormData', () => {
+	const existing: SiteAstroLayout = {
+		navigation: [],
+		categories: [
+			{ slug: 'aktualnosci', name: 'Aktualności' },
+			{ slug: 'odpady', name: 'Odpady' },
+		],
+		categoryDisplays: { home_latest: ['aktualnosci'] },
+		slots: [
+			{ id: 'home_latest', label: 'Aktualności', component: 'home.latest', widget: { enabled: true } },
+		],
+		navigationPath: 'src/config/omnipress-navigation.json',
+		categoriesPath: 'src/config/omnipress-categories.json',
+	};
+
+	it('parsuje categoryDisplays przy zapisie sekcji components', () => {
+		const form = new FormData();
+		form.append('slot_id', 'home_latest');
+		form.append('slot_label', 'Aktualności');
+		form.append('slot_component', 'home.latest');
+		form.set('slot_enabled_home_latest', 'on');
+		form.set('display_home_latest_aktualnosci', 'on');
+		form.set('display_home_latest_odpady', 'on');
+
+		const result = mergeLayoutFromFormData(form, existing, 'components');
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.layout.categoryDisplays.home_latest).toEqual(['aktualnosci', 'odpady']);
+	});
+
+	it('zachowuje categoryDisplays przy zapisie sekcji categories bez macierzy', () => {
+		const form = new FormData();
+		form.append('category_slug', 'aktualnosci');
+		form.append('category_name', 'Aktualności');
+
+		const result = mergeLayoutFromFormData(form, existing, 'categories');
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.layout.categoryDisplays.home_latest).toEqual(['aktualnosci']);
 	});
 });

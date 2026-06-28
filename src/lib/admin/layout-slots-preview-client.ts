@@ -7,6 +7,10 @@ export interface LayoutSlotsPreviewConfig {
 	moveDown: string;
 	disabledLabel: string;
 	emptyZone: string;
+	chipNoCategories: string;
+	chipCategoriesPrefix: string;
+	chipPinnedOnly: string;
+	chipLinkPrefix: string;
 }
 
 type SlotArea = 'home' | 'sidebar';
@@ -22,6 +26,7 @@ interface SlotRowData {
 }
 
 const HIGHLIGHT_CLASS = 'slot-row--highlighted';
+const PANEL_HIGHLIGHT_CLASS = 'slot-config-panel--highlighted';
 
 function escapeHtml(text: string): string {
 	return text
@@ -80,15 +85,82 @@ function sortByOrder(slots: SlotRowData[]): SlotRowData[] {
 	});
 }
 
-function highlightRow(row: HTMLElement): void {
-	const slotsBody = row.closest('#slots-body');
-	const slotId = (row.querySelector('input[name="slot_id"]') as HTMLInputElement | null)?.value?.trim();
+function readSelectedCategoryNames(slotId: string): string[] {
+	const panel = document.getElementById(`slot-panel-${slotId}`);
+	if (!panel) return [];
+	const names: string[] = [];
+	panel.querySelectorAll('.home-feed-categories-field input[type="checkbox"]').forEach((input) => {
+		const checkbox = input as HTMLInputElement;
+		if (!checkbox.checked) return;
+		const label = checkbox.closest('label');
+		const name = label?.querySelector('span')?.childNodes[0]?.textContent?.trim();
+		if (name) names.push(name);
+	});
+	return names;
+}
+
+function readBannerLinkSummary(slotId: string): string {
+	const panel = document.getElementById(`slot-panel-${slotId}`);
+	if (!panel) return '';
+	const linkType =
+		(panel.querySelector('.slot-banner-link-type') as HTMLSelectElement | null)?.value ?? 'category';
+	if (linkType === 'category') {
+		const select = panel.querySelector('.slot-banner-field-category select') as HTMLSelectElement | null;
+		const text = select?.selectedOptions[0]?.textContent?.trim();
+		return text && text !== '—' ? text : '';
+	}
+	if (linkType === 'page') {
+		const select = panel.querySelector('.slot-banner-field-page select') as HTMLSelectElement | null;
+		return select?.selectedOptions[0]?.textContent?.trim() ?? '';
+	}
+	const input = panel.querySelector('.slot-banner-field-external input') as HTMLInputElement | null;
+	return input?.value?.trim() ?? '';
+}
+
+function readCertFilterSummary(slotId: string): string {
+	const panel = document.getElementById(`slot-panel-${slotId}`);
+	if (!panel) return '';
+	const select = panel.querySelector('select[name*="slot_cert_category"]') as HTMLSelectElement | null;
+	return select?.selectedOptions[0]?.textContent?.trim() ?? '';
+}
+
+function buildContentChip(slot: SlotRowData, config: LayoutSlotsPreviewConfig): string {
+	if (slot.component === 'home.pinned' || slot.component === 'home.latest') {
+		const names = readSelectedCategoryNames(slot.id);
+		const categoriesText =
+			names.length > 0
+				? `${config.chipCategoriesPrefix} ${names.join(', ')}`
+				: config.chipNoCategories;
+		const pinned =
+			slot.component === 'home.pinned'
+				? `<span class="slot-preview-chip slot-preview-chip--muted">${escapeHtml(config.chipPinnedOnly)}</span>`
+				: '';
+		return `<p class="slot-preview-chips"><span class="slot-preview-chip">${escapeHtml(categoriesText)}</span>${pinned}</p>`;
+	}
+	if (slot.component === 'sidebar.banner') {
+		const link = readBannerLinkSummary(slot.id);
+		if (!link) return '';
+		return `<p class="slot-preview-chips"><span class="slot-preview-chip">${escapeHtml(config.chipLinkPrefix)} ${escapeHtml(link)}</span></p>`;
+	}
+	if (slot.component === 'sidebar.cert_advisories') {
+		const filter = readCertFilterSummary(slot.id);
+		if (!filter) return '';
+		return `<p class="slot-preview-chips"><span class="slot-preview-chip">${escapeHtml(filter)}</span></p>`;
+	}
+	return '';
+}
+
+function highlightSlot(slot: SlotRowData): void {
+	const slotsBody = slot.row.closest('#slots-body');
 	slotsBody?.querySelectorAll('.slot-row').forEach((tr) => tr.classList.remove(HIGHLIGHT_CLASS));
-	row.classList.add(HIGHLIGHT_CLASS);
-	const detail = slotId
-		? document.querySelector(`.slot-detail-block[data-slot-id="${slotId}"]`)
-		: null;
-	(detail ?? row).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+	slot.row.classList.add(HIGHLIGHT_CLASS);
+
+	document.querySelectorAll('.slot-config-panel').forEach((panel) => {
+		panel.classList.remove(PANEL_HIGHLIGHT_CLASS);
+	});
+	const detail = document.getElementById(`slot-panel-${slot.id}`);
+	detail?.classList.add(PANEL_HIGHLIGHT_CLASS);
+	(detail ?? slot.row).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function buildCardHtml(
@@ -102,12 +174,14 @@ function buildCardHtml(
 	const disabledBadge = slot.enabled
 		? ''
 		: `<span class="slot-preview-disabled-badge">${escapeHtml(config.disabledLabel)}</span>`;
+	const contentChip = buildContentChip(slot, config);
 	return `
 		<div class="slot-preview-card" data-slot-id="${escapeHtml(slot.id)}" role="button" tabindex="0">
 			<div class="flex items-start justify-between gap-2">
 				<div class="min-w-0 flex-1">
 					<p class="ui-subheading truncate">${safeLabel}${disabledBadge}</p>
 					<p class="ui-hint truncate">${componentLabel}</p>
+					${contentChip}
 				</div>
 				<div class="flex shrink-0 gap-1">
 					${stepButtonHtml({ ariaLabel: config.moveUp, label: '↑', disabled: index === 0, className: 'slot-preview-up' })}
@@ -158,7 +232,7 @@ function renderZone(
 			onReorder();
 		});
 
-		const activate = () => highlightRow(slot.row);
+		const activate = () => highlightSlot(slot);
 		card.addEventListener('click', activate);
 		card.addEventListener('keydown', (event) => {
 			if (event.key === 'Enter' || event.key === ' ') {
@@ -194,6 +268,7 @@ export function refreshLayoutSlotsPreview(): void {
 export function initLayoutSlotsPreview(config: LayoutSlotsPreviewConfig): void {
 	previewConfig = config;
 	const slotsBody = document.getElementById('slots-body');
+	const slotsByZone = document.getElementById('slots-by-zone');
 	if (!(slotsBody instanceof HTMLElement)) return;
 
 	refreshLayoutSlotsPreview();
@@ -212,6 +287,26 @@ export function initLayoutSlotsPreview(config: LayoutSlotsPreviewConfig): void {
 		const target = event.target;
 		if (!(target instanceof HTMLElement)) return;
 		if (target.matches('.slot-component, input[type="checkbox"][name^="slot_enabled_"]')) {
+			refreshLayoutSlotsPreview();
+		}
+	});
+
+	slotsByZone?.addEventListener('change', (event) => {
+		const target = event.target;
+		if (!(target instanceof HTMLElement)) return;
+		if (
+			target.matches(
+				'.home-feed-categories-field input, .slot-banner-link-type, .slot-banner-field-category select, .slot-banner-field-page select, .slot-banner-field-external input, select[name*="category_filter"]',
+			)
+		) {
+			refreshLayoutSlotsPreview();
+		}
+	});
+
+	slotsByZone?.addEventListener('input', (event) => {
+		const target = event.target;
+		if (!(target instanceof HTMLElement)) return;
+		if (target.matches('.slot-banner-field-external input')) {
 			refreshLayoutSlotsPreview();
 		}
 	});

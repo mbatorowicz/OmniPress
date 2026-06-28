@@ -57,6 +57,30 @@ export function getCategoryFeedSlots(slots: DisplaySlot[]): DisplaySlot[] {
 	return slots.filter((s) => isCategoryFeedComponent(s.component));
 }
 
+export function resolveHomeFeedSectionTitle(slot: DisplaySlot): string {
+	const w = slot.widget ?? {};
+	return (w.sectionTitle ?? w.title ?? slot.label).trim();
+}
+
+export type SlotEditorZone = 'home' | 'sidebar';
+
+export function readSlotEditorZone(component: string): SlotEditorZone {
+	return component.startsWith('sidebar.') ? 'sidebar' : 'home';
+}
+
+/** Kolejność slotów w edytorze i na stronie (strefa home przed sidebar). */
+export function sortSlotsForEditor(slots: DisplaySlot[]): DisplaySlot[] {
+	return [...slots].sort((a, b) => {
+		const zoneA = readSlotEditorZone(a.component);
+		const zoneB = readSlotEditorZone(b.component);
+		if (zoneA !== zoneB) return zoneA === 'home' ? -1 : 1;
+		const ao = a.widget?.order ?? Number.MAX_SAFE_INTEGER;
+		const bo = b.widget?.order ?? Number.MAX_SAFE_INTEGER;
+		if (ao !== bo) return ao - bo;
+		return a.id.localeCompare(b.id);
+	});
+}
+
 export function isValidSlotComponent(component: string): boolean {
 	return isLayoutComponentId(component);
 }

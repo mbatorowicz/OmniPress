@@ -1,0 +1,64 @@
+---
+import { adminLayout } from '@/i18n';
+import { slotFormFields } from '@/lib/astro-layout/slot-form-fields';
+import type { CategoryDefinition, DisplaySlot } from '@/lib/astro-layout/types';
+import HomeFeedCategoriesField from './HomeFeedCategoriesField.astro';
+import LayoutSlotPanelHeader from './LayoutSlotPanelHeader.astro';
+
+interface Props {
+	slot: DisplaySlot;
+	categories: CategoryDefinition[];
+	selectedSlugs: string[];
+}
+
+const { slot, categories, selectedSlugs } = Astro.props;
+const w = slot.widget ?? {};
+const f = slotFormFields.homeFeed;
+const { fields, variants } = adminLayout;
+---
+
+<div
+	id={`slot-panel-${slot.id}`}
+	class="ui-fieldset-nested slot-config-panel slot-detail-block"
+	data-slot-id={slot.id}
+	data-component={slot.component}
+>
+	<LayoutSlotPanelHeader slot={slot} />
+	<label class="ui-label-inline">
+		<span class="font-medium">{fields.widgetTitle}</span>
+		<input name={f.title(slot.id)} value={w.title ?? ''} class="ui-input-compact w-full" />
+	</label>
+	<label class="ui-label-inline">
+		<span class="font-medium">{fields.widgetSectionTitle}</span>
+		<input name={f.sectionTitle(slot.id)} value={w.sectionTitle ?? ''} class="ui-input-compact w-full" />
+	</label>
+	<label class="ui-label-inline">
+		<span class="font-medium">{fields.widgetLimit}</span>
+		<input name={f.limit(slot.id)} type="number" min="1" value={w.limit ?? ''} class="ui-input-compact w-full" />
+	</label>
+	<label class="ui-label-inline">
+		<span class="font-medium">{fields.widgetEmptyText}</span>
+		<input name={f.emptyText(slot.id)} value={w.emptyText ?? ''} class="ui-input-compact w-full" />
+	</label>
+	<label class="ui-label-inline flex items-center gap-2">
+		<input type="checkbox" name={slotFormFields.hideWhenEmpty(slot.id)} checked={w.hideWhenEmpty === true} />
+		<span class="font-medium">{fields.widgetHideWhenEmpty}</span>
+	</label>
+	<label class="ui-label-inline">
+		<span class="font-medium">{fields.widgetMoreLink}</span>
+		<input name={f.moreLink(slot.id)} value={w.moreLink ?? ''} class="ui-input-compact ui-input-compact--mono w-full" />
+	</label>
+	<label class="ui-label-inline">
+		<span class="font-medium">{fields.widgetVariant}</span>
+		<select name={f.variant(slot.id)} class="ui-select-compact w-full">
+			<option value="default" selected={w.variant !== 'alert'}>{variants.default}</option>
+			<option value="alert" selected={w.variant === 'alert'}>{variants.alert}</option>
+		</select>
+	</label>
+	<HomeFeedCategoriesField
+		slotId={slot.id}
+		component={slot.component}
+		categories={categories}
+		selectedSlugs={selectedSlugs}
+	/>
+</div>

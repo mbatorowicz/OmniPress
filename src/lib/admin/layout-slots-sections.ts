@@ -67,19 +67,59 @@ export interface SectionBuildConfig {
 	categoryOptionsHtml: string;
 	pageOptionsHtml: string;
 	certOptionsHtml: string;
+	componentLabels: Record<string, string>;
+	slotPanelSectionTitleLabel: string;
+	homeFeedCategoriesLabel: string;
+	homeFeedCategoriesHint: string;
+	homeFeedPinnedHint: string;
+	homeFeedCategoryCheckboxesHtml: string;
 }
 
-function slotHeaderHtml(label: string, id: string): string {
+function panelOpenHtml(id: string, component: string): string {
+	return `<div id="slot-panel-${id}" class="ui-fieldset-nested slot-config-panel slot-detail-block" data-slot-id="${id}" data-component="${component}">`;
+}
+
+function panelCloseHtml(): string {
+	return '</div>';
+}
+
+function slotPanelHeaderHtml(id: string, label: string, component: string, config: SectionBuildConfig): string {
+	const componentLabel = config.componentLabels[component] ?? component;
 	const safeLabel = label || id;
-	return `<p class="ui-label-text text-xs font-medium sm:col-span-2">${safeLabel} · <code class="ui-code">${id}</code></p>`;
+	return `
+		<header class="slot-panel-header sm:col-span-2">
+			<p class="ui-subheading">${componentLabel}</p>
+			<p class="ui-hint">${config.slotPanelSectionTitleLabel}: ${safeLabel}</p>
+			<p class="ui-caption font-mono">${id}</p>
+		</header>`;
 }
 
-export function buildHomeFeedDetailHtml(id: string, label: string, config: SectionBuildConfig): string {
+function buildHomeFeedCategoriesHtml(id: string, component: string, config: SectionBuildConfig): string {
+	const checkboxes = config.homeFeedCategoryCheckboxesHtml.replaceAll('__SLOTID__', id);
+	const pinnedHint =
+		component === 'home.pinned'
+			? `<p class="ui-hint">${config.homeFeedPinnedHint}</p>`
+			: '';
+	return `
+		<fieldset class="home-feed-categories-field sm:col-span-2">
+			<legend class="font-medium">${config.homeFeedCategoriesLabel}</legend>
+			<p class="ui-hint">${config.homeFeedCategoriesHint}</p>
+			${pinnedHint}
+			<div class="mt-2 flex flex-col gap-1">${checkboxes}</div>
+		</fieldset>`;
+}
+
+export function buildHomeFeedDetailHtml(
+	id: string,
+	label: string,
+	component: string,
+	config: SectionBuildConfig,
+): string {
 	const f = slotFieldNames.homeFeed;
 	const l = config.fieldLabels;
 	return `
-		<div class="ui-fieldset-nested slot-detail-block" data-slot-id="${id}">
-			${slotHeaderHtml(label, id)}
+		${panelOpenHtml(id, component)}
+			${slotPanelHeaderHtml(id, label, component, config)}
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetTitle}</span><input name="${f.title(id)}" class="ui-input-compact w-full" /></label>
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetSectionTitle}</span><input name="${f.sectionTitle(id)}" class="ui-input-compact w-full" /></label>
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetLimit}</span><input name="${f.limit(id)}" type="number" min="1" class="ui-input-compact w-full" /></label>
@@ -87,44 +127,60 @@ export function buildHomeFeedDetailHtml(id: string, label: string, config: Secti
 			<label class="ui-label-inline flex items-center gap-2"><input type="checkbox" name="${slotFieldNames.hideWhenEmpty(id)}" /><span class="font-medium">${l.widgetHideWhenEmpty}</span></label>
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetMoreLink}</span><input name="${f.moreLink(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetVariant}</span><select name="${f.variant(id)}" class="ui-select-compact w-full"><option value="default">${config.variantDefault}</option><option value="alert">${config.variantAlert}</option></select></label>
-		</div>`;
+			${buildHomeFeedCategoriesHtml(id, component, config)}
+		${panelCloseHtml()}`;
 }
 
-export function buildRecentDetailHtml(id: string, label: string, config: SectionBuildConfig): string {
+export function buildRecentDetailHtml(
+	id: string,
+	label: string,
+	component: string,
+	config: SectionBuildConfig,
+): string {
 	const f = slotFieldNames.recentChanges;
 	const l = config.fieldLabels;
 	return `
-		<div class="ui-fieldset-nested slot-detail-block" data-slot-id="${id}">
-			${slotHeaderHtml(label, id)}
+		${panelOpenHtml(id, component)}
+			${slotPanelHeaderHtml(id, label, component, config)}
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetTitle}</span><input name="${f.title(id)}" class="ui-input-compact w-full" /></label>
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetLimit}</span><input name="${f.limit(id)}" type="number" min="1" class="ui-input-compact w-full" /></label>
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetEmptyText}</span><input name="${f.emptyText(id)}" class="ui-input-compact w-full" /></label>
 			<label class="ui-label-inline flex items-center gap-2"><input type="checkbox" name="${slotFieldNames.hideWhenEmpty(id)}" /><span class="font-medium">${l.widgetHideWhenEmpty}</span></label>
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetVariant}</span><select name="${f.variant(id)}" class="ui-select-compact w-full"><option value="default">${config.variantDefault}</option><option value="alert">${config.variantAlert}</option></select></label>
-		</div>`;
+		${panelCloseHtml()}`;
 }
 
-export function buildCertDetailHtml(id: string, label: string, config: SectionBuildConfig): string {
+export function buildCertDetailHtml(
+	id: string,
+	label: string,
+	component: string,
+	config: SectionBuildConfig,
+): string {
 	const f = slotFieldNames.cert;
 	const l = config.fieldLabels;
 	return `
-		<div class="ui-fieldset-nested slot-detail-block" data-slot-id="${id}">
-			${slotHeaderHtml(label, id)}
+		${panelOpenHtml(id, component)}
+			${slotPanelHeaderHtml(id, label, component, config)}
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetTitle}</span><input name="${f.title(id)}" class="ui-input-compact w-full" /></label>
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetLimit}</span><input name="${f.limit(id)}" type="number" min="1" class="ui-input-compact w-full" /></label>
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetEmptyText}</span><input name="${f.emptyText(id)}" class="ui-input-compact w-full" /></label>
 			<label class="ui-label-inline flex items-center gap-2"><input type="checkbox" name="${slotFieldNames.hideWhenEmpty(id)}" /><span class="font-medium">${l.widgetHideWhenEmpty}</span></label>
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetVariant}</span><select name="${f.variant(id)}" class="ui-select-compact w-full"><option value="default">${config.variantDefault}</option><option value="alert">${config.variantAlert}</option></select></label>
 			<label class="ui-label-inline"><span class="font-medium">${l.certAdvisoriesCategory}</span><select name="${f.categoryFilter(id)}" class="ui-select-compact w-full">${config.certOptionsHtml}</select></label>
-		</div>`;
+		${panelCloseHtml()}`;
 }
 
-export function buildBannerDetailHtml(id: string, label: string, config: SectionBuildConfig): string {
+export function buildBannerDetailHtml(
+	id: string,
+	label: string,
+	component: string,
+	config: SectionBuildConfig,
+): string {
 	const f = slotFieldNames.banner;
 	const l = config.fieldLabels;
 	return `
-		<div class="ui-fieldset-nested slot-detail-block" data-slot-id="${id}">
-			${slotHeaderHtml(label, id)}
+		${panelOpenHtml(id, component)}
+			${slotPanelHeaderHtml(id, label, component, config)}
 			<label class="ui-label-inline"><span class="font-medium">${l.bannerStyle}</span><select name="${f.style(id)}" class="slot-banner-style ui-select-compact w-full"><option value="image">${config.styleImage}</option><option value="text">${config.styleText}</option></select></label>
 			<label class="ui-label-inline slot-banner-field-image"><span class="font-medium">${l.bannerImageUrl}</span><input name="${f.imageUrl(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
 			<label class="ui-label-inline slot-banner-field-image"><span class="font-medium">${l.bannerImageVariant}</span><select name="${f.imageVariant(id)}" class="ui-select-compact w-full"><option value="default">${config.variantBannerDefault}</option><option value="blue">${config.variantBannerBlue}</option></select></label>
@@ -134,15 +190,20 @@ export function buildBannerDetailHtml(id: string, label: string, config: Section
 			<label class="ui-label-inline slot-banner-field-category"><span class="font-medium">${l.bannerCategory}</span><select name="${f.categorySlug(id)}" class="ui-select-compact w-full">${config.categoryOptionsHtml}</select></label>
 			<label class="ui-label-inline slot-banner-field-page hidden"><span class="font-medium">${l.bannerPage}</span><select name="${f.pagePath(id)}" class="ui-select-compact w-full">${config.pageOptionsHtml}</select></label>
 			<label class="ui-label-inline slot-banner-field-external hidden"><span class="font-medium">${l.bannerExternalUrl}</span><input name="${f.externalUrl(id)}" class="ui-input-compact ui-input-compact--mono w-full" placeholder="https://" /></label>
-		</div>`;
+		${panelCloseHtml()}`;
 }
 
-export function buildWeatherDetailHtml(id: string, label: string, config: SectionBuildConfig): string {
+export function buildWeatherDetailHtml(
+	id: string,
+	label: string,
+	component: string,
+	config: SectionBuildConfig,
+): string {
 	const f = slotFieldNames.weather;
 	const l = config.fieldLabels;
 	return `
-		<div class="ui-fieldset-nested slot-detail-block" data-slot-id="${id}">
-			${slotHeaderHtml(label, id)}
+		${panelOpenHtml(id, component)}
+			${slotPanelHeaderHtml(id, label, component, config)}
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetTitle}</span><input name="${f.title(id)}" class="ui-input-compact w-full" /></label>
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetEmptyText}</span><input name="${f.emptyText(id)}" class="ui-input-compact w-full" /></label>
 			<label class="ui-label-inline flex items-center gap-2 sm:col-span-2"><input type="checkbox" name="${slotFieldNames.hideWhenEmpty(id)}" /><span class="font-medium">${l.widgetHideWhenEmpty}</span></label>
@@ -156,25 +217,26 @@ export function buildWeatherDetailHtml(id: string, label: string, config: Sectio
 			<label class="ui-label-inline"><span class="font-medium">${l.weatherDetailsLayout}</span><select name="${f.detailsLayout(id)}" class="ui-select-compact w-full"><option value="stacked">${config.weatherDetailsLayoutStacked}</option><option value="grid">${config.weatherDetailsLayoutGrid}</option></select></label>
 			<label class="ui-label-inline"><span class="font-medium">${l.weatherDetailsSummary}</span><input name="${f.detailsSummary(id)}" class="ui-input-compact w-full" /></label>
 			<label class="ui-label-inline"><span class="font-medium">${l.weatherDetailsCloseLabel}</span><input name="${f.detailsCloseLabel(id)}" class="ui-input-compact w-full" /></label>
-		</div>`;
+		${panelCloseHtml()}`;
 }
 
 export function buildDetailHtml(
 	kind: LayoutComponentKind,
 	id: string,
 	label: string,
+	component: string,
 	config: SectionBuildConfig,
 ): string {
 	switch (kind) {
 		case 'home_feed':
-			return buildHomeFeedDetailHtml(id, label, config);
+			return buildHomeFeedDetailHtml(id, label, component, config);
 		case 'recent_changes':
-			return buildRecentDetailHtml(id, label, config);
+			return buildRecentDetailHtml(id, label, component, config);
 		case 'cert':
-			return buildCertDetailHtml(id, label, config);
+			return buildCertDetailHtml(id, label, component, config);
 		case 'banner':
-			return buildBannerDetailHtml(id, label, config);
+			return buildBannerDetailHtml(id, label, component, config);
 		case 'weather':
-			return buildWeatherDetailHtml(id, label, config);
+			return buildWeatherDetailHtml(id, label, component, config);
 	}
 }

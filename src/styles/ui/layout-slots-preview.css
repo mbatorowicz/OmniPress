@@ -25,4 +25,21 @@
 	.slot-preview-empty {
 		@apply text-sm text-text-subtle italic;
 	}
+
+	.slot-preview-chips {
+		@apply mt-1.5 flex flex-wrap gap-1;
+	}
+
+	.slot-preview-chip {
+		@apply inline-block rounded bg-border px-1.5 py-0.5 text-xs text-text-muted;
+	}
+
+	.slot-preview-chip--muted {
+		@apply bg-surface-subtle text-text-subtle;
+	}
+
+	.slot-config-panel--highlighted {
+		outline: 2px solid var(--color-brand);
+		outline-offset: 2px;
+	}
 }

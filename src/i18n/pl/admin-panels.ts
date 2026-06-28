@@ -130,8 +130,11 @@ export const adminLayout = {
 	componentsTitle: 'Komponenty',
 	navigationLead:
 		'Pozycje menu głównego i podmenu (do 3 poziomów). Link wewnętrzny musi wskazywać istniejącą stronę, kategorię lub znaną trasę.',
-	categoriesLead: 'Slug i nazwa kategorii wpisów oraz widoczność w sekcjach na stronie głównej.',
-	componentsLead: 'Widgety na stronie (strona główna, sidebar) — kolejność i parametry.',
+	categoriesLead: 'Definicje kategorii wpisów (slug, nazwa, sposób archiwum).',
+	componentsLead:
+		'Sloty strony głównej i sidebaru — podgląd układu, treść i parametry każdego slotu.',
+	categoriesFeedAssignHint:
+		'Przypisanie kategorii do sekcji strony głównej ustawiasz w zakładce Komponenty → Konfiguracja slotów (przy feedzie strony głównej).',
 	lead: 'Menu, kategorie i komponenty — szkic w OmniPress, publikacja na żądanie do repozytorium GitHub.',
 	savedDraft: 'Szkic zapisany — zmiany tylko w OmniPress, bez wysyłki na stronę.',
 	publishedLayout: 'Layout opublikowany na stronie',
@@ -170,10 +173,10 @@ export const adminLayout = {
 	noAstroChannel:
 		'Brak skonfigurowanego repozytorium GitHub — zapis szkicu tylko w OmniPress (bez publikacji na stronę).',
 	slotsHint:
-		'Widgety na stronie publicznej. Mniejsza liczba „kolejność” = wyżej w sidebarze. Szczegóły w sekcjach poniżej.',
-	slotsListTitle: 'Lista komponentów',
-	slotsConfigHint:
-		'Pola ustawień są podzielone na sekcje według typu komponentu. Każdy slot ma własny blok w odpowiedniej sekcji.',
+		'Kliknij kartę slotu na podglądzie, aby przejść do jego konfiguracji. Kolejność sidebaru: mniejsza liczba = wyżej.',
+	slotsListTitle: 'Zarządzanie slotami',
+	slotsManageHint:
+		'Dodawaj i usuwaj sloty, ustawiaj identyfikator techniczny i kolejność w sidebarze. Treść slotu edytujesz w sekcji powyżej.',
 	recentChangesHint:
 		'Widget w sidebarze pokazuje ogłoszenia dodane w OmniPress (ta zakładka) oraz wpisy z publikacji.',
 	sectionTitles: {
@@ -187,13 +190,27 @@ export const adminLayout = {
 		'Kolejność (order) dotyczy wszystkich komponentów sidebar.* — banery, ostrzeżenia meteo, CERT i ostatnie zmiany sortują się wspólnie. Możesz też zmieniać kolejność strzałkami w podglądzie szablonu.',
 	slotsPreviewTitle: 'Podgląd szablonu',
 	slotsPreviewHint:
-		'Schemat układu strony Astro — strefa główna i sidebar. Kliknij kartę, aby przejść do szczegółów w sekcji konfiguracji poniżej.',
+		'Schemat układu strony — strefa główna i sidebar. Kliknij kartę, aby przejść do konfiguracji slotu poniżej.',
 	slotsPreviewMenuPlaceholder: 'Nagłówek / menu nawigacji',
 	slotsPreviewHomeZone: 'Strefa główna',
 	slotsPreviewSidebarZone: 'Sidebar',
 	slotsPreviewDisabled: 'wyłączony',
 	slotsPreviewEmpty: 'Brak komponentów w tej strefie',
-	slotsConfigTitle: 'Szczegóły konfiguracji',
+	slotsConfigTitle: 'Konfiguracja slotów',
+	slotsConfigHint:
+		'Każdy slot ma własny panel — nagłówek na stronie, parametry widgetu i źródło treści (kategorie wpisów, link banera itd.).',
+	slotsZoneEmptyHome: 'Brak slotów w strefie głównej — dodaj slot w sekcji „Zarządzanie slotami”.',
+	slotsZoneEmptySidebar: 'Brak slotów w sidebarze — dodaj slot w sekcji „Zarządzanie slotami”.',
+	slotPanelSectionTitleLabel: 'Nazwa robocza slotu',
+	homeFeedCategoriesLabel: 'Kategorie wpisów w tym slocie',
+	homeFeedCategoriesHint:
+		'Zaznacz kategorie, z których wpisy mają trafiać do tej sekcji strony głównej.',
+	homeFeedPinnedHint:
+		'W sekcji przypiętych wyświetlają się tylko wpisy z flagą przypięcia — sam checkbox kategorii nie wystarczy.',
+	previewChipNoCategories: 'Brak przypisanych kategorii',
+	previewChipCategoriesPrefix: 'Kategorie:',
+	previewChipPinnedOnly: 'tylko przypięte',
+	previewChipLinkPrefix: 'Link:',
 	slotsPreviewMoveUp: 'Przesuń wyżej',
 	slotsPreviewMoveDown: 'Przesuń niżej',
 	componentLabels: {
@@ -285,18 +302,11 @@ export const adminLayout = {
 		two: '2 kolumny',
 		three: '3 kolumny',
 	},
-	displaysHint:
-		'Kolumny to sekcje strony głównej, nie nazwy kategorii. Zaznacz, z których kategorii mają pochodzić wpisy w danej sekcji.',
-	displaysSectionTitleLabel: 'Tytuł na stronie',
-	displaysPinnedNote:
-		'Sekcja „Strona główna — przypięte”: wpis musi mieć flagę przypięcia, sam checkbox kategorii nie wystarczy.',
-	displaysRefreshHint: 'Po dodaniu nowej kategorii zapisz formularz — macierz odświeży się przy następnym otwarciu.',
 	sections: {
 		menu: 'Menu główne',
 		navDepthColors: 'Kolory poziomów menu',
-		slots: 'Komponenty strony',
+		slots: 'Układ strony',
 		categories: 'Kategorie wpisów',
-		displays: 'Kategorie w komponentach',
 	},
 	fields: {
 		navigationJson: 'Menu (JSON)',
@@ -313,9 +323,9 @@ export const adminLayout = {
 		navMenuColumnCount: 'Liczba kolumn',
 		navMenuColumnWidth1: 'Szerokość kolumny 1',
 		navMenuColumnWidth2: 'Szerokość kolumny 2',
-		slotId: 'ID slotu',
-		slotLabel: 'Etykieta (panel admin)',
-		slotComponent: 'Komponent (np. sidebar.weather)',
+		slotId: 'Identyfikator slotu',
+		slotLabel: 'Nazwa robocza slotu',
+		slotComponent: 'Typ komponentu',
 		widgetTitle: 'Tytuł widgetu',
 		widgetSectionTitle: 'Nagłówek sekcji (strona główna)',
 		widgetLimit: 'Limit wpisów',

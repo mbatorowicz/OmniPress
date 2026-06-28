@@ -27,16 +27,3 @@ import { adminLayout } from '@/i18n';
 		</div>
 	</div>
 </div>
-
-<script
-	define:vars={{
-		componentLabels: adminLayout.componentLabels,
-		moveUp: adminLayout.slotsPreviewMoveUp,
-		moveDown: adminLayout.slotsPreviewMoveDown,
-		disabledLabel: adminLayout.slotsPreviewDisabled,
-		emptyZone: adminLayout.slotsPreviewEmpty,
-	}}
->
-	import { initLayoutSlotsPreview } from '@/lib/admin/layout-slots-preview-client';
-	initLayoutSlotsPreview({ componentLabels, moveUp, moveDown, disabledLabel, emptyZone });
-</script>

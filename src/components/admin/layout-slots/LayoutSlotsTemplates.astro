@@ -13,6 +13,20 @@ interface Props {
 const { categories, publishedPages } = Astro.props;
 ---
 
+<template id="slot-home-feed-category-checkboxes">
+	{
+		categories.map((cat) => (
+			<label class="flex items-start gap-2 text-sm">
+				<input type="checkbox" name={`display___SLOTID___${cat.slug}`} class="mt-0.5" />
+				<span>
+					{cat.name}
+					<span class="ui-caption font-mono ml-1">{cat.slug}</span>
+				</span>
+			</label>
+		))
+	}
+</template>
+
 <template id="slot-cert-category-options">
 	<option value="">{adminLayout.certCategories.all}</option>
 	{CERT_CATEGORIES.map((category) => (

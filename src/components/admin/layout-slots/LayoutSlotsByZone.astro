@@ -1,0 +1,58 @@
+---
+import { adminLayout } from '@/i18n';
+import SectionTitle from '@/components/ui/layout/SectionTitle.astro';
+import { readSlotEditorZone, sortSlotsForEditor } from '@/lib/astro-layout/slots';
+import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from '@/lib/astro-layout/types';
+import LayoutSlotConfigPanel from './LayoutSlotConfigPanel.astro';
+
+type PageOption = { path: string; title: string };
+
+interface Props {
+	slots: DisplaySlot[];
+	categories: CategoryDefinition[];
+	categoryDisplays: SiteAstroLayout['categoryDisplays'];
+	publishedPages: PageOption[];
+}
+
+const { slots, categories, categoryDisplays, publishedPages } = Astro.props;
+const sorted = sortSlotsForEditor(slots);
+const homeSlots = sorted.filter((s) => readSlotEditorZone(s.component) === 'home');
+const sidebarSlots = sorted.filter((s) => readSlotEditorZone(s.component) === 'sidebar');
+---
+
+<div id="slots-by-zone" class="flex flex-col gap-6">
+	<div id="slots-zone-home" data-zone="home" class="flex flex-col gap-4">
+		<SectionTitle class="!mb-0">{adminLayout.slotsPreviewHomeZone}</SectionTitle>
+		{
+			homeSlots.length === 0 ? (
+				<p class="ui-hint">{adminLayout.slotsZoneEmptyHome}</p>
+			) : (
+				homeSlots.map((slot) => (
+					<LayoutSlotConfigPanel
+						slot={slot}
+						categories={categories}
+						categoryDisplays={categoryDisplays}
+						publishedPages={publishedPages}
+					/>
+				))
+			)
+		}
+	</div>
+	<div id="slots-zone-sidebar" data-zone="sidebar" class="flex flex-col gap-4">
+		<SectionTitle class="!mb-0">{adminLayout.slotsPreviewSidebarZone}</SectionTitle>
+		{
+			sidebarSlots.length === 0 ? (
+				<p class="ui-hint">{adminLayout.slotsZoneEmptySidebar}</p>
+			) : (
+				sidebarSlots.map((slot) => (
+					<LayoutSlotConfigPanel
+						slot={slot}
+						categories={categories}
+						categoryDisplays={categoryDisplays}
+						publishedPages={publishedPages}
+					/>
+				))
+			)
+		}
+	</div>
+</div>

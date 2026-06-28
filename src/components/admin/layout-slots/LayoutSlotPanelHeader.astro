@@ -1,0 +1,22 @@
+---
+import { adminLayout } from '@/i18n';
+import { resolveHomeFeedSectionTitle } from '@/lib/astro-layout/slots';
+import type { DisplaySlot } from '@/lib/astro-layout/types';
+
+interface Props {
+	slot: DisplaySlot;
+}
+
+const { slot } = Astro.props;
+const { componentLabels } = adminLayout;
+const componentLabel = componentLabels[slot.component as keyof typeof componentLabels] ?? slot.component;
+const sectionTitle = resolveHomeFeedSectionTitle(slot);
+---
+
+<header class="slot-panel-header sm:col-span-2">
+	<p class="ui-subheading">{componentLabel}</p>
+	<p class="ui-hint">
+		{adminLayout.slotPanelSectionTitleLabel}: {sectionTitle || '—'}
+	</p>
+	<p class="ui-caption font-mono">{slot.id}</p>
+</header>

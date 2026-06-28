@@ -3,7 +3,6 @@ import { adminLayout } from '@/i18n';
 import Alert from '@/components/ui/feedback/Alert.astro';
 import LayoutSyncActions from '@/components/admin/layout/LayoutSyncActions.astro';
 import CategoryMatrixSection from '@/components/admin/layout/CategoryMatrixSection.astro';
-import VisibilitySection from '@/components/admin/layout/VisibilitySection.astro';
 import type { SiteAstroLayout } from '@/lib/astro-layout/types';
 
 interface Props {
@@ -23,7 +22,7 @@ const { siteId, layout, hasAstroChannel } = Astro.props;
 >
 	<input type="hidden" name="section" value="categories" />
 	<Alert variant="info" class="ui-alert--note">{adminLayout.categoriesSlugWarning}</Alert>
+	<Alert variant="info" class="ui-alert--note">{adminLayout.categoriesFeedAssignHint}</Alert>
 	<CategoryMatrixSection {layout} />
-	<VisibilitySection {layout} />
 	<LayoutSyncActions section="categories" />
 </form>

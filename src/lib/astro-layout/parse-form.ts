@@ -389,25 +389,27 @@ export function mergeLayoutFromFormData(
 		const categories = parseCategoriesFromForm(form);
 		if (categories.length === 0) return { ok: false, error: 'no_categories' };
 		layout.categories = categories;
-		layout.categoryDisplays = parseCategoryDisplaysFromForm(
-			form,
-			layout.slots,
-			categories,
-			section === 'all' ? {} : existing.categoryDisplays,
-		);
-	}
-
-	if (section === 'components') {
-		layout.categoryDisplays = mergeCategoryDisplays(layout.slots, existing.categoryDisplays);
-		for (const slot of layout.slots) {
-			if (!isCategoryFeedComponent(slot.component)) continue;
-			const fromExisting = existing.categoryDisplays[slot.id];
-			if (Array.isArray(fromExisting)) {
-				layout.categoryDisplays[slot.id] = fromExisting.filter((slug) =>
-					layout.categories.some((c) => c.slug === slug),
+		if (section === 'all') {
+			layout.categoryDisplays = parseCategoryDisplaysFromForm(form, layout.slots, categories, {});
+		} else {
+			layout.categoryDisplays = mergeCategoryDisplays(existing.slots, existing.categoryDisplays);
+			for (const slot of existing.slots) {
+				if (!isCategoryFeedComponent(slot.component)) continue;
+				const slugs = existing.categoryDisplays[slot.id] ?? [];
+				layout.categoryDisplays[slot.id] = slugs.filter((slug) =>
+					categories.some((c) => c.slug === slug),
 				);
 			}
 		}
+	}
+
+	if (section === 'components') {
+		layout.categoryDisplays = parseCategoryDisplaysFromForm(
+			form,
+			layout.slots,
+			existing.categories,
+			existing.categoryDisplays,
+		);
 	}
 
 	return { ok: true, layout };

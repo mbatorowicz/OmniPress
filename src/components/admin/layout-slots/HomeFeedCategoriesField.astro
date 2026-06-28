@@ -1,0 +1,41 @@
+---
+import { adminLayout } from '@/i18n';
+import type { CategoryDefinition } from '@/lib/astro-layout/types';
+
+interface Props {
+	slotId: string;
+	component: string;
+	categories: CategoryDefinition[];
+	selectedSlugs: string[];
+}
+
+const { slotId, component, categories, selectedSlugs } = Astro.props;
+---
+
+<fieldset class="home-feed-categories-field sm:col-span-2">
+	<legend class="font-medium">{adminLayout.homeFeedCategoriesLabel}</legend>
+	<p class="ui-hint">{adminLayout.homeFeedCategoriesHint}</p>
+	{
+		component === 'home.pinned' ? (
+			<p class="ui-hint">{adminLayout.homeFeedPinnedHint}</p>
+		) : null
+	}
+	<div class="mt-2 flex flex-col gap-1">
+		{
+			categories.map((cat) => (
+				<label class="flex items-start gap-2 text-sm">
+					<input
+						type="checkbox"
+						name={`display_${slotId}_${cat.slug}`}
+						checked={selectedSlugs.includes(cat.slug)}
+						class="mt-0.5"
+					/>
+					<span>
+						{cat.name}
+						<span class="ui-caption font-mono ml-1">{cat.slug}</span>
+					</span>
+				</label>
+			))
+		}
+	</div>
+</fieldset>
