@@ -182,9 +182,8 @@ export const adminLayout = {
 	sectionTitles: {
 		home_feed: 'Feedy strony głównej',
 		recent_changes: 'Ostatnie zmiany (sidebar)',
-		cert: 'Komunikaty CERT Polska',
+		live_feed: 'Widgety na żywo (CERT / IMGW)',
 		banner: 'Banery (sidebar)',
-		weather: 'Ostrzeżenia meteorologiczne IMGW',
 	},
 	slotsOrderHint:
 		'Kolejność (order) dotyczy wszystkich komponentów sidebar.* — banery, ostrzeżenia meteo, CERT i ostatnie zmiany sortują się wspólnie. Możesz też zmieniać kolejność strzałkami w podglądzie szablonu.',

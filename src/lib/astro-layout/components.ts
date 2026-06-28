@@ -1,29 +1,27 @@
 export type LayoutComponentKind =
 	| 'home_feed'
 	| 'recent_changes'
-	| 'cert'
-	| 'weather'
+	| 'live_feed'
 	| 'banner';
 
 export const LAYOUT_COMPONENT_KINDS = [
 	'home_feed',
 	'recent_changes',
-	'cert',
-	'weather',
+	'live_feed',
 	'banner',
 ] as const satisfies readonly LayoutComponentKind[];
 
 export const LAYOUT_COMPONENTS = {
 	'home.pinned': { kind: 'home_feed', area: 'home', singleton: false, categoryFeed: true },
 	'home.latest': { kind: 'home_feed', area: 'home', singleton: false, categoryFeed: true },
-	'sidebar.weather': { kind: 'weather', area: 'sidebar', singleton: true, categoryFeed: false },
+	'sidebar.weather': { kind: 'live_feed', area: 'sidebar', singleton: true, categoryFeed: false },
 	'sidebar.recent_changes': {
 		kind: 'recent_changes',
 		area: 'sidebar',
 		singleton: true,
 		categoryFeed: false,
 	},
-	'sidebar.cert_advisories': { kind: 'cert', area: 'sidebar', singleton: true, categoryFeed: false },
+	'sidebar.cert_advisories': { kind: 'live_feed', area: 'sidebar', singleton: true, categoryFeed: false },
 	'sidebar.banner': { kind: 'banner', area: 'sidebar', singleton: false, categoryFeed: false },
 } as const;
 

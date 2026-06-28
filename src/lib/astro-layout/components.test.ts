@@ -9,14 +9,15 @@ import {
 describe('layout component kinds', () => {
 	it('mapuje komponenty na kind', () => {
 		expect(getComponentKind('home.pinned')).toBe('home_feed');
-		expect(getComponentKind('sidebar.weather')).toBe('weather');
+		expect(getComponentKind('sidebar.weather')).toBe('live_feed');
+		expect(getComponentKind('sidebar.cert_advisories')).toBe('live_feed');
 		expect(getComponentKind('sidebar.banner')).toBe('banner');
 		expect(getComponentKind('unknown')).toBeNull();
 	});
 
 	it('zwraca komponenty danego kind', () => {
 		expect(getComponentsOfKind('home_feed')).toEqual(['home.pinned', 'home.latest']);
-		expect(getComponentsOfKind('cert')).toEqual(['sidebar.cert_advisories']);
+		expect(getComponentsOfKind('live_feed')).toEqual(['sidebar.weather', 'sidebar.cert_advisories']);
 	});
 
 	it('wyprowadza categoryFeed z home_feed', () => {

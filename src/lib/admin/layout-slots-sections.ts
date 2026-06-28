@@ -3,14 +3,14 @@ import { slotFormFields as slotFieldNames } from '@/lib/astro-layout/slot-form-f
 
 export { slotFieldNames };
 
-export type LayoutComponentKind = 'home_feed' | 'recent_changes' | 'cert' | 'weather' | 'banner';
+export type LayoutComponentKind = 'home_feed' | 'recent_changes' | 'live_feed' | 'banner';
 
 const COMPONENT_KIND: Record<string, LayoutComponentKind> = {
 	'home.pinned': 'home_feed',
 	'home.latest': 'home_feed',
 	'sidebar.recent_changes': 'recent_changes',
-	'sidebar.cert_advisories': 'cert',
-	'sidebar.weather': 'weather',
+	'sidebar.cert_advisories': 'live_feed',
+	'sidebar.weather': 'live_feed',
 	'sidebar.banner': 'banner',
 };
 
@@ -220,6 +220,18 @@ export function buildWeatherDetailHtml(
 		${panelCloseHtml()}`;
 }
 
+export function buildLiveFeedDetailHtml(
+	id: string,
+	label: string,
+	component: string,
+	config: SectionBuildConfig,
+): string {
+	if (component === 'sidebar.cert_advisories') {
+		return buildCertDetailHtml(id, label, component, config);
+	}
+	return buildWeatherDetailHtml(id, label, component, config);
+}
+
 export function buildDetailHtml(
 	kind: LayoutComponentKind,
 	id: string,
@@ -232,11 +244,9 @@ export function buildDetailHtml(
 			return buildHomeFeedDetailHtml(id, label, component, config);
 		case 'recent_changes':
 			return buildRecentDetailHtml(id, label, component, config);
-		case 'cert':
-			return buildCertDetailHtml(id, label, component, config);
+		case 'live_feed':
+			return buildLiveFeedDetailHtml(id, label, component, config);
 		case 'banner':
 			return buildBannerDetailHtml(id, label, component, config);
-		case 'weather':
-			return buildWeatherDetailHtml(id, label, component, config);
 	}
 }

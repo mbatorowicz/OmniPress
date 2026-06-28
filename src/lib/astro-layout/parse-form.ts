@@ -82,6 +82,16 @@ function parseRecentChangesWidget(form: FormData, id: string, widget: SlotWidget
 	parseFeedListFields(form, id, slotFormFields.recentChanges, widget);
 }
 
+function parseLiveFeedWidget(
+	form: FormData,
+	id: string,
+	component: string,
+	widget: SlotWidgetConfig,
+): void {
+	if (component === 'sidebar.cert_advisories') parseCertWidget(form, id, widget);
+	else if (component === 'sidebar.weather') parseWeatherWidget(form, id, widget);
+}
+
 function parseCertWidget(form: FormData, id: string, widget: SlotWidgetConfig): void {
 	parseFeedListFields(form, id, slotFormFields.cert, widget);
 	const categoryFilter = strField(form, slotFormFields.cert.categoryFilter(id));
@@ -169,8 +179,7 @@ function parseSlotsFromForm(form: FormData): DisplaySlot[] {
 
 		if (kind === 'home_feed') parseHomeFeedWidget(form, id, widget);
 		if (kind === 'recent_changes') parseRecentChangesWidget(form, id, widget);
-		if (kind === 'cert') parseCertWidget(form, id, widget);
-		if (kind === 'weather') parseWeatherWidget(form, id, widget);
+		if (kind === 'live_feed') parseLiveFeedWidget(form, id, component, widget);
 		if (kind === 'banner') {
 			parseBannerWidget(form, id, widget);
 			if (!validateBannerWidget(widget, label)) continue;
