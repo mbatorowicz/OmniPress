@@ -285,7 +285,11 @@ export const adminLayout = {
 		two: '2 kolumny',
 		three: '3 kolumny',
 	},
-	displaysHint: 'Zaznacz, które kategorie mają pojawiać się w danym komponencie na stronie.',
+	displaysHint:
+		'Kolumny to sekcje strony głównej, nie nazwy kategorii. Zaznacz, z których kategorii mają pochodzić wpisy w danej sekcji.',
+	displaysSectionTitleLabel: 'Tytuł na stronie',
+	displaysPinnedNote:
+		'Sekcja „Strona główna — przypięte”: wpis musi mieć flagę przypięcia, sam checkbox kategorii nie wystarczy.',
 	displaysRefreshHint: 'Po dodaniu nowej kategorii zapisz formularz — macierz odświeży się przy następnym otwarciu.',
 	sections: {
 		menu: 'Menu główne',
