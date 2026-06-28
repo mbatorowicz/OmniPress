@@ -81,7 +81,7 @@ export const adminUnit = {
 
 export const adminUnitPosts = {
 	title: 'Wpisy',
-	lead: 'Wpisy przypisane do tej strony — akceptacja, harmonogram publikacji i import z GitHub.',
+	lead: 'Kategorie wpisów oraz kolejka akceptacji, harmonogramu i importu z GitHub.',
 } as const;
 
 export const adminSitePages = {
@@ -228,7 +228,8 @@ export const adminLayout = {
 	layoutTabSite: 'Meta strony',
 	layoutTabCategories: 'Kategorie',
 	layoutTabTopbarLead: 'Tekst w górnym pasku strony — tagline portalu.',
-	layoutTabHeaderLead: 'Logo i identyfikacja wizualna w nagłówku strony.',
+	layoutTabHeaderLead:
+		'Pasek górny z narzędziami ułatwień dostępu (WCAG), logo, menu główne i nawigacja.',
 	layoutTabMenuLead: 'Struktura menu głównego — linki do stron, kategorii i adresów zewnętrznych.',
 	layoutTabHomeLead: 'Feedy strony głównej — przypięte wpisy i najnowsze aktualności.',
 	layoutTabSidebarLead: 'Widgety boczne — ostrzeżenia, banery i automatyczne ostatnie zmiany.',
@@ -245,7 +246,10 @@ export const adminLayout = {
 	slotCardEnabledShort: 'Wł.',
 	navInHeaderHint: 'Pozycje menu — linki do stron statycznych, kategorii wpisów lub adresów zewnętrznych.',
 	navInMenuHint: 'Pozycje menu — linki do stron statycznych, kategorii wpisów lub adresów zewnętrznych.',
-	slotsZoneDescTopbar: 'Tekst wyświetlany w górnym pasku strony (np. nazwa portalu).',
+	slotsZoneDescTopbar:
+		'Tagline portalu i narzędzia ułatwień dostępu (kontrast, rozmiar czcionki). Checkbox „Wł.” wyłącza cały pasek.',
+	topbarAccessibilityToolsHint:
+		'Po wyłączeniu na stronie publicznej znikają przyciski kontrastu i zmiany czcionki (A+/A−). Tagline pozostaje widoczny.',
 	slotsZoneDescHeader: 'Logo i identyfikacja wizualna nagłówka.',
 	slotsZoneDescHome: 'Sekcje strony głównej — przypisz kategorie wpisów do każdego feedu.',
 	slotsZoneDescSidebar: 'Widgety boczne — ostrzeżenia, banery, ostatnie zmiany. Źródło treści zależy od typu elementu.',
@@ -434,7 +438,9 @@ export const adminLayout = {
 		bannerCategory: 'Kategoria',
 		bannerPage: 'Strona statyczna',
 		bannerExternalUrl: 'URL zewnętrzny',
-		removeRow: '',
+		topbarText: 'Tekst paska górnego',
+		topbarAccessibilityTools: 'Narzędzia ułatwień dostępu (kontrast, czcionka)',
+		siteMetaName: 'Nazwa strony (SEO)',
 	},
 	paths: {
 		navigation: 'Plik menu w repozytorium',

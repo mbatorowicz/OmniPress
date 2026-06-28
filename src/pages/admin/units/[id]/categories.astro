@@ -1,5 +1,5 @@
 ---
 const { id } = Astro.params;
 if (!id) return Astro.redirect('/admin/sites');
-return Astro.redirect(`/admin/units/${id}/layout/categories`, 301);
+return Astro.redirect(`/admin/units/${id}/posts#categories`, 301);
 ---

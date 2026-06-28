@@ -177,12 +177,14 @@ export function buildLayoutEditorReturnUrl(
 	returnTab?: string | null,
 ): string {
 	if (section === 'settings') return `/admin/units/${siteId}`;
+	if (section === 'categories') return `/admin/units/${siteId}/posts`;
 	const tab = resolveLayoutReturnTab(section, returnTab);
 	return layoutTabHref(siteId, tab);
 }
 
 export function layoutSectionReturnPath(section: string, returnTab?: string | null): string {
 	if (section === 'settings') return 'settings';
+	if (section === 'categories') return 'posts';
 	const tab = resolveLayoutReturnTab(section, returnTab);
 	return `layout/${tab}`;
 }

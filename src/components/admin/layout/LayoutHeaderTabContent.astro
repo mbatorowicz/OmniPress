@@ -2,7 +2,7 @@
 import { adminLayout } from '@/i18n';
 import LayoutZoneForm from '@/components/admin/layout/LayoutZoneForm.astro';
 import NavigationLayoutForm from '@/components/admin/layout/NavigationLayoutForm.astro';
-import { HEADER_NAV_COMPONENTS } from '@/lib/admin/layout-editor-tabs';
+import { HEADER_TAB_COMPONENTS, TOPBAR_COMPONENTS } from '@/lib/admin/layout-editor-tabs';
 import type { LayoutEditorContext } from '@/lib/admin/layout-editor-context';
 
 interface Props {
@@ -13,25 +13,38 @@ interface Props {
 const { siteId, ctx } = Astro.props;
 ---
 
-<NavigationLayoutForm
+<LayoutZoneForm
 	siteId={siteId}
+	returnTab="header"
+	zone="topbar"
 	layout={ctx.layout}
-	hasAstroChannel={ctx.hasAstroChannel}
+	categories={ctx.layout.categories}
+	categoryDisplays={ctx.layout.categoryDisplays}
 	publishedPages={ctx.publishedPages}
-	returnTab="menu"
+	includeComponents={TOPBAR_COMPONENTS}
 />
+
+<div class="mt-8 max-w-5xl">
+	<NavigationLayoutForm
+		siteId={siteId}
+		layout={ctx.layout}
+		hasAstroChannel={ctx.hasAstroChannel}
+		publishedPages={ctx.publishedPages}
+		returnTab="header"
+	/>
+</div>
 
 <div class="mt-8 max-w-5xl">
 	<h3 class="ui-section-title">{adminLayout.layoutMenuNavSlotTitle}</h3>
 	<p class="ui-hint mb-3">{adminLayout.layoutMenuNavSlotHint}</p>
 	<LayoutZoneForm
 		siteId={siteId}
-		returnTab="menu"
+		returnTab="header"
 		zone="header"
 		layout={ctx.layout}
 		categories={ctx.layout.categories}
 		categoryDisplays={ctx.layout.categoryDisplays}
 		publishedPages={ctx.publishedPages}
-		includeComponents={HEADER_NAV_COMPONENTS}
+		includeComponents={HEADER_TAB_COMPONENTS}
 	/>
 </div>

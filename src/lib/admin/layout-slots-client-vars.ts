@@ -66,6 +66,7 @@ export function buildLayoutSlotsClientScriptVars(componentOptionsHtml: string) {
 			weatherDetailsSummary: fields.weatherDetailsSummary,
 			weatherDetailsCloseLabel: fields.weatherDetailsCloseLabel,
 			topbarText: fields.topbarText,
+			topbarAccessibilityTools: fields.topbarAccessibilityTools,
 			siteMetaName: fields.siteMetaName,
 			siteMetaDescription: fields.siteMetaDescription,
 			siteMetaUrl: fields.siteMetaUrl,

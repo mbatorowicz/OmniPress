@@ -3,10 +3,15 @@ import AppLayout from '@/layouts/AppLayout.astro';
 import AdminContextNav from '@/components/shell/AdminContextNav.astro';
 import AdminImportSection from '@/components/admin/queue/AdminImportSection.astro';
 import AdminQueueSection from '@/components/admin/queue/AdminQueueSection.astro';
+import CategoriesLayoutForm from '@/components/admin/layout/CategoriesLayoutForm.astro';
+import LayoutEditorStatus from '@/components/admin/layout/LayoutEditorStatus.astro';
 import FlashAlerts from '@/components/shared/FlashAlerts.astro';
 import { admin, adminUnitPosts } from '@/i18n';
+import { loadLayoutEditorContext } from '@/lib/admin/layout-editor-context';
+import { parseLayoutPageFlash } from '@/lib/admin/layout-page-flash';
 import { parseAdminHubFlash } from '@/lib/admin/hub-flash';
 import { schedulePublishWorker } from '@/lib/publish/trigger-worker';
+import type { FlashMessage } from '@/lib/ui/flash';
 
 const { id } = Astro.params;
 if (!id || Astro.locals.profile?.role !== 'admin') return Astro.redirect('/admin');
@@ -17,6 +22,11 @@ const { data: site } = await Astro.locals.supabase
 	.eq('id', id)
 	.maybeSingle();
 if (!site) return Astro.redirect('/admin/sites');
+
+const ctx = await loadLayoutEditorContext(Astro.locals.supabase, id, {
+	draftStatusScope: 'categories',
+});
+if (!ctx) return Astro.redirect('/admin/sites');
 
 schedulePublishWorker();
 
@@ -44,7 +54,9 @@ const { data: published } = await postsForSite()
 	.limit(30);
 
 const scheduledQueue = [...(publishing ?? []), ...(scheduled ?? [])];
-const flashMessages = parseAdminHubFlash(Astro.url);
+const layoutFlash = parseLayoutPageFlash(Astro.url);
+const flashMessages: FlashMessage[] = parseAdminHubFlash(Astro.url);
+
 const listLabels = admin.postList;
 const ui = adminUnitPosts;
 
@@ -62,7 +74,21 @@ const summary = [
 
 	<FlashAlerts messages={flashMessages} />
 
-	<nav class="ui-queue-summary" aria-label={admin.queueNav.pending}>
+	<LayoutEditorStatus
+		draftStatus={ctx.categoriesDraftStatus}
+		navHasMissingHref={false}
+		lastPublishedAt={ctx.lastPublishedAt}
+		lastPublishedSha={ctx.lastPublishedSha}
+		lastDraftSavedAt={ctx.lastDraftSavedAt}
+		hasAstroChannel={ctx.hasAstroChannel}
+		navWarningLines={[]}
+		{...layoutFlash}
+		errorMessage={layoutFlash.errorMessage}
+	/>
+
+	<CategoriesLayoutForm siteId={id} layout={ctx.layout} />
+
+	<nav class="ui-queue-summary mt-8" aria-label={admin.queueNav.pending}>
 		{
 			summary.map((s) => (
 				<a href={`#${s.id}`} class="ui-queue-summary-link">

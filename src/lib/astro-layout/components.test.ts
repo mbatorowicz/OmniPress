@@ -10,6 +10,7 @@ import {
 	isCategoryFeedComponent,
 	isComponentAllowedInZone,
 	LAYOUT_EDITOR_ZONE_ORDER,
+	slotHasSettingsPanel,
 	supportsHideWhenEmpty,
 } from './components';
 
@@ -70,5 +71,12 @@ describe('layout component kinds', () => {
 		expect(LAYOUT_EDITOR_ZONE_ORDER[0]).toBe('topbar');
 		expect(LAYOUT_EDITOR_ZONE_ORDER).toContain('header');
 		expect(LAYOUT_EDITOR_ZONE_ORDER.at(-1)).toBe('site');
+	});
+
+	it('slotHasSettingsPanel ukrywa panel dla nawigacji', () => {
+		expect(slotHasSettingsPanel('header.navigation')).toBe(false);
+		expect(slotHasSettingsPanel('topbar.tagline')).toBe(true);
+		expect(slotHasSettingsPanel('header.brand')).toBe(true);
+		expect(slotHasSettingsPanel('sidebar.weather')).toBe(true);
 	});
 });

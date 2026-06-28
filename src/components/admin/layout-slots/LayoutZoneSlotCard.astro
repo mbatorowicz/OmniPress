@@ -1,6 +1,7 @@
 ---
 import { adminLayout } from '@/i18n';
 import { buildSlotSummaryHtml } from '@/lib/admin/layout-slot-summary';
+import { slotHasSettingsPanel } from '@/lib/astro-layout/components';
 import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from '@/lib/astro-layout/types';
 import LayoutSlotSettingsDialog from './LayoutSlotSettingsDialog.astro';
 
@@ -26,6 +27,7 @@ const summaryHtml = buildSlotSummaryHtml(slot, categories, categoryDisplays, {
 	disabled: adminLayout.slotsPreviewDisabled,
 	linkPrefix: adminLayout.previewChipLinkPrefix,
 });
+const showSettings = slotHasSettingsPanel(slot.component);
 ---
 
 <article class="layout-slot-card" data-slot-id={slot.id} data-component={slot.component}>
@@ -54,19 +56,27 @@ const summaryHtml = buildSlotSummaryHtml(slot, categories, categoryDisplays, {
 				/>
 				<span>{adminLayout.slotCardEnabledShort ?? 'Wł.'}</span>
 			</label>
-			<button
-				type="button"
-				class="slot-settings-open ui-btn ui-btn--secondary ui-btn--compact"
-				data-dialog-id={`slot-dialog-${slot.id}`}
-			>
-				{adminLayout.slotDialogOpen ?? 'Ustawienia'}
-			</button>
+			{
+				showSettings && (
+					<button
+						type="button"
+						class="slot-settings-open ui-btn ui-btn--secondary ui-btn--compact"
+						data-dialog-id={`slot-dialog-${slot.id}`}
+					>
+						{adminLayout.slotDialogOpen ?? 'Ustawienia'}
+					</button>
+				)
+			}
 		</div>
 	</div>
-	<LayoutSlotSettingsDialog
-		slot={slot}
-		categories={categories}
-		categoryDisplays={categoryDisplays}
-		publishedPages={publishedPages}
-	/>
+	{
+		showSettings && (
+			<LayoutSlotSettingsDialog
+				slot={slot}
+				categories={categories}
+				categoryDisplays={categoryDisplays}
+				publishedPages={publishedPages}
+			/>
+		)
+	}
 </article>

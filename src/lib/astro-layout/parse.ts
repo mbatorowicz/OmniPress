@@ -158,6 +158,7 @@ function parseWidget(raw: unknown): SlotWidgetConfig | undefined {
 	if (typeof w.pagePath === 'string' && w.pagePath.trim()) widget.pagePath = w.pagePath.trim();
 	if (typeof w.externalUrl === 'string' && w.externalUrl.trim()) widget.externalUrl = w.externalUrl.trim();
 	if (typeof w.text === 'string' && w.text.trim()) widget.text = w.text.trim();
+	if (w.accessibilityTools === false) widget.accessibilityTools = false;
 	if (typeof w.name === 'string' && w.name.trim()) widget.name = w.name.trim();
 	if (typeof w.description === 'string' && w.description.trim()) widget.description = w.description.trim();
 	if (typeof w.url === 'string' && w.url.trim()) widget.url = w.url.trim();

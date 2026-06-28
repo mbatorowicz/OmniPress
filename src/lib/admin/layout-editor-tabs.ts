@@ -1,20 +1,13 @@
 import type { LayoutComponentId } from '@/lib/astro-layout/components';
 
-export const LAYOUT_EDITOR_TABS = [
-	'topbar',
-	'header',
-	'menu',
-	'home',
-	'sidebar',
-	'footer',
-	'site',
-	'categories',
-] as const;
+export const LAYOUT_EDITOR_TABS = ['header', 'home', 'sidebar', 'footer', 'site'] as const;
 
 export type LayoutEditorTab = (typeof LAYOUT_EDITOR_TABS)[number];
 
-export const DEFAULT_LAYOUT_TAB: LayoutEditorTab = 'topbar';
+export const DEFAULT_LAYOUT_TAB: LayoutEditorTab = 'header';
 
+export const TOPBAR_COMPONENTS: LayoutComponentId[] = ['topbar.tagline'];
+export const HEADER_TAB_COMPONENTS: LayoutComponentId[] = ['header.brand', 'header.navigation'];
 export const HEADER_BRAND_COMPONENTS: LayoutComponentId[] = ['header.brand'];
 export const HEADER_NAV_COMPONENTS: LayoutComponentId[] = ['header.navigation'];
 
@@ -30,9 +23,10 @@ export function sectionToDefaultTab(section: string): LayoutEditorTab {
 	if (isLayoutEditorTab(section)) return section;
 	switch (section) {
 		case 'navigation':
-			return 'menu';
+		case 'topbar':
+			return 'header';
 		case 'categories':
-			return 'categories';
+			return DEFAULT_LAYOUT_TAB;
 		case 'components':
 			return 'home';
 		case 'sidebar':
@@ -41,8 +35,6 @@ export function sectionToDefaultTab(section: string): LayoutEditorTab {
 			return 'footer';
 		case 'header':
 			return 'header';
-		case 'topbar':
-			return 'topbar';
 		case 'site':
 			return 'site';
 		default:
@@ -58,12 +50,11 @@ export function resolveLayoutReturnTab(
 	return sectionToDefaultTab(section);
 }
 
-export function tabToLayoutZone(tab: LayoutEditorTab): import('@/lib/astro-layout/components').LayoutZone | null {
+export function tabToLayoutZone(
+	tab: LayoutEditorTab,
+): import('@/lib/astro-layout/components').LayoutZone | null {
 	switch (tab) {
-		case 'topbar':
-			return 'topbar';
 		case 'header':
-		case 'menu':
 			return 'header';
 		case 'home':
 			return 'home';

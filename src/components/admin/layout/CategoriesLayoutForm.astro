@@ -9,20 +9,19 @@ interface Props {
 	siteId: string;
 	layout: SiteAstroLayout;
 	hasAstroChannel: boolean;
-	returnTab?: import('@/lib/admin/layout-editor-tabs').LayoutEditorTab;
 }
 
-const { siteId, layout, hasAstroChannel, returnTab = 'categories' } = Astro.props;
+const { siteId, layout } = Astro.props;
 ---
 
 <form
 	method="post"
 	action={`/api/admin/sites/${siteId}/layout/save`}
-	class="ui-form-stack max-w-5xl"
+	class="ui-form-stack max-w-5xl scroll-mt-6"
+	id="categories"
 	data-categories-form
 >
 	<input type="hidden" name="section" value="categories" />
-	<input type="hidden" name="return_tab" value={returnTab} />
 	<h2 class="ui-section-title">{adminLayout.categoriesTitle}</h2>
 	<Alert variant="info" class="ui-alert--note">{adminLayout.categoriesSlugWarning}</Alert>
 	<Alert variant="info" class="ui-alert--note">{adminLayout.categoriesFeedAssignHint}</Alert>

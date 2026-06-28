@@ -2,11 +2,9 @@
 import LayoutEditorShell from '@/components/admin/layout/LayoutEditorShell.astro';
 import LayoutZoneForm from '@/components/admin/layout/LayoutZoneForm.astro';
 import LayoutAdvancedSlotsSection from '@/components/admin/layout/LayoutAdvancedSlotsSection.astro';
-import LayoutMenuTabContent from '@/components/admin/layout/LayoutMenuTabContent.astro';
-import CategoriesLayoutForm from '@/components/admin/layout/CategoriesLayoutForm.astro';
+import LayoutHeaderTabContent from '@/components/admin/layout/LayoutHeaderTabContent.astro';
 import { loadLayoutEditorContext } from '@/lib/admin/layout-editor-context';
 import {
-	HEADER_BRAND_COMPONENTS,
 	isLayoutEditorTab,
 	layoutTabHref,
 	tabToLayoutZone,
@@ -14,15 +12,20 @@ import {
 } from '@/lib/admin/layout-editor-tabs';
 
 const { id, tab } = Astro.params;
-if (!id || !tab || !isLayoutEditorTab(tab)) {
-	if (id) return Astro.redirect(layoutTabHref(id, 'topbar'));
-	return Astro.redirect('/admin/sites');
+if (!id) return Astro.redirect('/admin/sites');
+
+if (tab === 'menu') return Astro.redirect(layoutTabHref(id, 'header'), 301);
+if (tab === 'categories') return Astro.redirect(`/admin/units/${id}/posts`, 301);
+if (tab === 'topbar') return Astro.redirect(layoutTabHref(id, 'header'), 301);
+
+if (!tab || !isLayoutEditorTab(tab)) {
+	return Astro.redirect(layoutTabHref(id, 'header'));
 }
 
 const activeTab = tab as LayoutEditorTab;
 
 const ctx = await loadLayoutEditorContext(Astro.locals.supabase, id, {
-	draftStatusScope: activeTab === 'categories' ? 'categories' : 'navigation',
+	draftStatusScope: 'navigation',
 });
 if (!ctx) return Astro.redirect('/admin/sites');
 
@@ -31,15 +34,8 @@ const zone = tabToLayoutZone(activeTab);
 
 <LayoutEditorShell siteId={id} {ctx} {activeTab}>
 	{
-		activeTab === 'menu' ? (
-			<LayoutMenuTabContent siteId={id} {ctx} />
-		) : activeTab === 'categories' ? (
-			<CategoriesLayoutForm
-				siteId={id}
-				layout={ctx.layout}
-				hasAstroChannel={ctx.hasAstroChannel}
-				returnTab="categories"
-			/>
+		activeTab === 'header' ? (
+			<LayoutHeaderTabContent siteId={id} {ctx} />
 		) : zone ? (
 			<>
 				<LayoutZoneForm
@@ -50,7 +46,6 @@ const zone = tabToLayoutZone(activeTab);
 					categories={ctx.layout.categories}
 					categoryDisplays={ctx.layout.categoryDisplays}
 					publishedPages={ctx.publishedPages}
-					includeComponents={activeTab === 'header' ? HEADER_BRAND_COMPONENTS : undefined}
 				/>
 				{activeTab === 'home' ? (
 					<LayoutAdvancedSlotsSection

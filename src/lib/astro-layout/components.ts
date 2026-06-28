@@ -198,3 +198,22 @@ export function getSingletonComponentIds(): LayoutComponentId[] {
 export function zoneSupportsAddComponent(zone: LayoutZone): boolean {
 	return getComponentsAddableInZone(zone).length > 0;
 }
+
+const CHROME_SETTINGS_COMPONENTS = new Set<LayoutComponentId>([
+	'topbar.tagline',
+	'site.meta',
+	'header.brand',
+	'footer.main',
+]);
+
+export function slotHasSettingsPanel(component: string): boolean {
+	if (!isLayoutComponentId(component)) return false;
+	if (component === 'header.navigation') return false;
+	const kind = getComponentKind(component);
+	if (kind === 'navigation') return false;
+	if (kind === 'home_feed' || kind === 'local_feed' || kind === 'live_feed' || kind === 'banner') {
+		return true;
+	}
+	if (kind === 'chrome') return CHROME_SETTINGS_COMPONENTS.has(component);
+	return false;
+}

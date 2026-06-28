@@ -108,10 +108,14 @@ describe('mergeLayoutFromFormData — layout_zone', () => {
 		zones: migrateFlatSlotsToZones([
 			{ id: 'home_pinned', label: 'Przypięte', component: 'home.pinned' },
 			{ id: 'sidebar_weather', label: 'Pogoda', component: 'sidebar.weather' },
+			{ id: 'header_brand', label: 'Logo', component: 'header.brand' },
+			{ id: 'header_navigation', label: 'Menu główne', component: 'header.navigation' },
 		]),
 		slots: [
 			{ id: 'home_pinned', label: 'Przypięte', component: 'home.pinned' },
 			{ id: 'sidebar_weather', label: 'Pogoda', component: 'sidebar.weather' },
+			{ id: 'header_brand', label: 'Logo', component: 'header.brand' },
+			{ id: 'header_navigation', label: 'Menu główne', component: 'header.navigation' },
 		],
 	};
 
@@ -129,5 +133,22 @@ describe('mergeLayoutFromFormData — layout_zone', () => {
 		if (!result.ok) return;
 		expect(result.layout.zones.home.components[0]?.label).toBe('Zmienione przypięte');
 		expect(result.layout.zones.sidebar.components[0]?.id).toBe('sidebar_weather');
+	});
+
+	it('merge w tej samej strefie zachowuje sloty spoza formularza', () => {
+		const form = new FormData();
+		form.set('section', 'components');
+		form.set('layout_zone', 'header');
+		form.append('slot_id', 'header_brand');
+		form.append('slot_label', 'Logo');
+		form.append('slot_component', 'header.brand');
+		form.set('slot_enabled_header_brand', 'on');
+
+		const result = mergeLayoutFromFormData(form, existing, 'components');
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		const headerIds = result.layout.zones.header.components.map((s) => s.id);
+		expect(headerIds).toContain('header_brand');
+		expect(headerIds).toContain('header_navigation');
 	});
 });

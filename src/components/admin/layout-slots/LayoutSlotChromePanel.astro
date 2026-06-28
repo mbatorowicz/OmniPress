@@ -21,10 +21,22 @@ const component = slot.component;
 >
 	{
 		component === 'topbar.tagline' ? (
-			<label class="ui-label-inline sm:col-span-2">
-				<span class="font-medium">{fields.topbarText ?? 'Tekst paska górnego'}</span>
-				<input name={slotFormFields.topbar.text(slot.id)} value={w.text ?? ''} class="ui-input-compact w-full" />
-			</label>
+			<>
+				<label class="ui-label-inline sm:col-span-2">
+					<span class="font-medium">{fields.topbarText ?? 'Tekst paska górnego'}</span>
+					<input name={slotFormFields.topbar.text(slot.id)} value={w.text ?? ''} class="ui-input-compact w-full" />
+				</label>
+				<label class="ui-label-inline sm:col-span-2 flex items-center gap-2">
+					<input
+						type="checkbox"
+						name={slotFormFields.topbar.accessibilityTools(slot.id)}
+						checked={w.accessibilityTools !== false}
+						class="ui-checkbox"
+					/>
+					<span class="font-medium">{fields.topbarAccessibilityTools ?? 'Narzędzia ułatwień dostępu'}</span>
+				</label>
+				<p class="ui-hint sm:col-span-2">{adminLayout.topbarAccessibilityToolsHint ?? ''}</p>
+			</>
 		) : component === 'site.meta' ? (
 			<>
 				<label class="ui-label-inline">

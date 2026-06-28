@@ -45,6 +45,7 @@ export interface SectionFieldLabels {
 	weatherDetailsSummary: string;
 	weatherDetailsCloseLabel: string;
 	topbarText: string;
+	topbarAccessibilityTools: string;
 	siteMetaName: string;
 	siteMetaDescription: string;
 	siteMetaUrl: string;
@@ -253,6 +254,7 @@ export function buildChromeDetailHtml(
 			${panelOpenHtml(id, component)}
 				${slotPanelHeaderHtml(id, label, component, config)}
 				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.topbarText}</span><input name="${f.text(id)}" class="ui-input-compact w-full" /></label>
+				<label class="ui-label-inline sm:col-span-2 flex items-center gap-2"><input type="checkbox" name="${f.accessibilityTools(id)}" class="ui-checkbox" checked /><span class="font-medium">${l.topbarAccessibilityTools}</span></label>
 			${panelCloseHtml()}`;
 	}
 	if (component === 'site.meta') {

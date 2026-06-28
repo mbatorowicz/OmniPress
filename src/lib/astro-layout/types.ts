@@ -89,6 +89,8 @@ export type SiteMetaWidgetConfig = BaseSlotWidget & {
 
 export type TopbarWidgetConfig = BaseSlotWidget & {
 	text?: string;
+	/** Narzędzia WCAG (kontrast, czcionka) — domyślnie włączone */
+	accessibilityTools?: boolean;
 };
 
 export type HeaderBrandWidgetConfig = BaseSlotWidget & {

@@ -54,6 +54,7 @@ export const slotFormFields = {
 	},
 	topbar: {
 		text: (slotId: string) => field('slot_topbar_text', slotId),
+		accessibilityTools: (slotId: string) => field('slot_topbar_accessibility_tools', slotId),
 	},
 	siteMeta: {
 		name: (slotId: string) => field('slot_site_meta_name', slotId),

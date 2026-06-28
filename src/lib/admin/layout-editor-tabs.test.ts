@@ -10,25 +10,28 @@ import {
 
 describe('layout-editor-tabs', () => {
 	it('layoutTabHref buduje ścieżkę zakładki', () => {
-		expect(layoutTabHref('site-1', 'menu')).toBe('/admin/units/site-1/layout/menu');
+		expect(layoutTabHref('site-1', 'header')).toBe('/admin/units/site-1/layout/header');
 	});
 
 	it('sectionToDefaultTab mapuje sekcje zapisu', () => {
-		expect(sectionToDefaultTab('navigation')).toBe('menu');
-		expect(sectionToDefaultTab('categories')).toBe('categories');
+		expect(sectionToDefaultTab('navigation')).toBe('header');
+		expect(sectionToDefaultTab('topbar')).toBe('header');
+		expect(sectionToDefaultTab('categories')).toBe(DEFAULT_LAYOUT_TAB);
 		expect(sectionToDefaultTab('components')).toBe('home');
 		expect(sectionToDefaultTab('layout')).toBe(DEFAULT_LAYOUT_TAB);
-		expect(sectionToDefaultTab('topbar')).toBe('topbar');
 	});
 
 	it('resolveLayoutReturnTab preferuje return_tab', () => {
 		expect(resolveLayoutReturnTab('components', 'footer')).toBe('footer');
 		expect(resolveLayoutReturnTab('components', null)).toBe('home');
-		expect(resolveLayoutReturnTab('navigation', 'menu')).toBe('menu');
+		expect(resolveLayoutReturnTab('navigation', 'header')).toBe('header');
 	});
 
 	it('isLayoutEditorTab waliduje tab', () => {
-		expect(isLayoutEditorTab('topbar')).toBe(true);
+		expect(isLayoutEditorTab('header')).toBe(true);
+		expect(isLayoutEditorTab('topbar')).toBe(false);
+		expect(isLayoutEditorTab('menu')).toBe(false);
+		expect(isLayoutEditorTab('categories')).toBe(false);
 		expect(isLayoutEditorTab('invalid')).toBe(false);
 	});
 });
@@ -38,7 +41,8 @@ describe('buildLayoutEditorReturnUrl', () => {
 		expect(buildLayoutEditorReturnUrl('x', 'components', 'sidebar')).toBe(
 			'/admin/units/x/layout/sidebar',
 		);
-		expect(buildLayoutEditorReturnUrl('x', 'navigation')).toBe('/admin/units/x/layout/menu');
-		expect(buildLayoutEditorReturnUrl('x', 'topbar')).toBe('/admin/units/x/layout/topbar');
+		expect(buildLayoutEditorReturnUrl('x', 'navigation')).toBe('/admin/units/x/layout/header');
+		expect(buildLayoutEditorReturnUrl('x', 'categories')).toBe('/admin/units/x/posts');
+		expect(buildLayoutEditorReturnUrl('x', 'topbar')).toBe('/admin/units/x/layout/header');
 	});
 });

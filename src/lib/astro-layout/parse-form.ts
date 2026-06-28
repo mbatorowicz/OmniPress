@@ -123,6 +123,9 @@ function parseChromeWidget(form: FormData, id: string, component: string, widget
 	if (component === 'topbar.tagline') {
 		const text = strField(form, slotFormFields.topbar.text(id));
 		if (text) widget.text = text;
+		if (form.get(slotFormFields.topbar.accessibilityTools(id)) !== 'on') {
+			widget.accessibilityTools = false;
+		}
 	}
 	if (component === 'site.meta') {
 		const name = strField(form, slotFormFields.siteMeta.name(id));
@@ -454,8 +457,11 @@ function mergeZoneComponentsFromForm(
 	existing: SiteAstroLayout,
 ): SiteAstroLayout['zones'] {
 	const zones = resolveLayoutZones(existing);
-	const parsed = parseSlotsFromForm(form, zones[zone].components);
-	return mergeZoneComponents(zones, zone, parsed);
+	const existingZone = zones[zone].components;
+	const parsed = parseSlotsFromForm(form, existingZone);
+	const parsedIds = new Set(parsed.map((s) => s.id));
+	const preserved = existingZone.filter((s) => !parsedIds.has(s.id));
+	return mergeZoneComponents(zones, zone, sortSlotsByOrder([...preserved, ...parsed]));
 }
 
 export function mergeLayoutFromFormData(
