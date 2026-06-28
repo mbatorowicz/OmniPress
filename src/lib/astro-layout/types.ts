@@ -1,13 +1,14 @@
 import type { LayoutComponentId } from './components';
+import type { RecentChangeEntry } from '@/lib/recent-changes/types';
+
+export type { RecentChangeEntry };
 
 export type NavItem = {
 	label: string;
 	href?: string;
 	/** @deprecated czytane przy imporcie — zapis jako menuColumns */
 	isMegaMenu?: boolean;
-	/** Układ dropdownu poziomu 0: 1 lub 2 kolumny */
 	menuColumns?: 1 | 2;
-	/** Szerokości kolumn (CSS), np. 320px, 1fr, 50% */
 	menuColumnWidths?: string[];
 	children?: NavItem[];
 };
@@ -18,13 +19,10 @@ export type CategoryArchiveColumns = 1 | 2 | 3;
 export type CategoryDefinition = {
 	slug: string;
 	name: string;
-	/** Sposób listy wpisów na stronie /{slug}/ */
 	archiveLayout?: CategoryArchiveLayout;
-	/** Liczba kolumn kafelków (ignorowane przy title-list) */
 	archiveColumns?: CategoryArchiveColumns;
 };
 
-/** slotId → lista slugów kategorii widocznych w danym komponencie */
 export type CategoryDisplays = Record<string, string[]>;
 
 export type BannerLinkType = 'category' | 'page' | 'external';
@@ -48,7 +46,7 @@ export type HomeFeedWidgetConfig = FeedListWidget & {
 	pinnedOnly?: boolean;
 };
 
-export type RecentChangesWidgetConfig = FeedListWidget;
+export type LocalFeedWidgetConfig = FeedListWidget;
 
 export type CertAdvisoriesWidgetConfig = FeedListWidget & {
 	categoryFilter?: string;
@@ -83,27 +81,101 @@ export type BannerWidgetConfig = BaseSlotWidget & {
 	externalUrl?: string;
 };
 
-/** Płaski obiekt w JSON — suma pól wszystkich typów widgetów */
+export type SiteMetaWidgetConfig = BaseSlotWidget & {
+	name?: string;
+	description?: string;
+	url?: string;
+};
+
+export type TopbarWidgetConfig = BaseSlotWidget & {
+	text?: string;
+};
+
+export type HeaderBrandWidgetConfig = BaseSlotWidget & {
+	logoUrl?: string;
+	logoAlt?: string;
+	homeHref?: string;
+};
+
+export type NavigationWidgetConfig = BaseSlotWidget & {
+	navigation?: NavItem[];
+};
+
+export type FooterContactBlock = {
+	addressLine1?: string;
+	addressLine2?: string;
+	phones?: string[];
+	email?: string;
+	nip?: string;
+	regon?: string;
+	epuap?: string;
+	eDoreczenia?: string;
+};
+
+export type FooterBankAccount = {
+	name?: string;
+	number?: string;
+};
+
+export type FooterOfficeHours = {
+	day?: string;
+	hours?: string;
+};
+
+export type FooterInvoiceParty = {
+	title?: string;
+	name?: string;
+	address?: string;
+	nip?: string;
+};
+
+export type FooterLegalLink = {
+	label: string;
+	href: string;
+};
+
+export type FooterMainWidgetConfig = BaseSlotWidget & {
+	contact?: FooterContactBlock;
+	bankAccounts?: FooterBankAccount[];
+	officeHours?: FooterOfficeHours[];
+	invoiceData?: {
+		buyer?: FooterInvoiceParty;
+		recipient?: FooterInvoiceParty;
+	};
+	legalLinks?: FooterLegalLink[];
+	copyrightSuffix?: string;
+	contactCtaLabel?: string;
+	contactCtaHref?: string;
+};
+
 export type SlotWidgetConfig = HomeFeedWidgetConfig &
-	RecentChangesWidgetConfig &
+	LocalFeedWidgetConfig &
 	CertAdvisoriesWidgetConfig &
 	WeatherSlotWidgetConfig &
-	BannerWidgetConfig;
+	BannerWidgetConfig &
+	SiteMetaWidgetConfig &
+	TopbarWidgetConfig &
+	HeaderBrandWidgetConfig &
+	NavigationWidgetConfig &
+	FooterMainWidgetConfig;
 
 export type DisplaySlot = {
 	id: string;
 	label: string;
 	component: LayoutComponentId | string;
 	widget?: SlotWidgetConfig;
+	entries?: RecentChangeEntry[];
 };
 
-/** Metadane szkicu vs opublikowany layout w repo GitHub */
 export type LayoutSyncMeta = {
 	lastDraftSavedAt?: string;
 	lastPublishedAt?: string;
 	lastPublishedSha?: string;
+	/** @deprecated użyj publishedLayoutHash */
 	publishedNavHash?: string;
+	/** @deprecated użyj publishedLayoutHash */
 	publishedCategoriesHash?: string;
+	publishedLayoutHash?: string;
 };
 
 export type NavEditorDepthColor = {
@@ -113,18 +185,24 @@ export type NavEditorDepthColor = {
 export type NavEditorDepthColors = [NavEditorDepthColor, NavEditorDepthColor, NavEditorDepthColor];
 
 export type SiteAstroLayout = {
+	/** @deprecated treść w slocie header.navigation — utrzymywane dla kompatybilności edytora */
 	navigation: NavItem[];
 	categoryDisplays: CategoryDisplays;
 	categories: CategoryDefinition[];
 	slots: DisplaySlot[];
+	layoutPath: string;
+	/** @deprecated użyj layoutPath */
 	navigationPath: string;
+	/** @deprecated użyj layoutPath */
 	categoriesPath: string;
-	/** Kolory kafelków edytora menu (poziom 0–2) — tylko panel admina */
 	navEditorDepthColors?: NavEditorDepthColors;
 	sync?: LayoutSyncMeta;
 };
 
+export const DEFAULT_LAYOUT_PATH = 'src/config/omnipress-layout.json';
+/** @deprecated */
 export const DEFAULT_NAVIGATION_PATH = 'src/config/omnipress-navigation.json';
+/** @deprecated */
 export const DEFAULT_CATEGORIES_PATH = 'src/config/omnipress-categories.json';
 
 export function emptySiteAstroLayout(): SiteAstroLayout {
@@ -133,6 +211,7 @@ export function emptySiteAstroLayout(): SiteAstroLayout {
 		categoryDisplays: {},
 		categories: [],
 		slots: [],
+		layoutPath: DEFAULT_LAYOUT_PATH,
 		navigationPath: DEFAULT_NAVIGATION_PATH,
 		categoriesPath: DEFAULT_CATEGORIES_PATH,
 	};

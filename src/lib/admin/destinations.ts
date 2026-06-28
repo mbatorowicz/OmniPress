@@ -29,6 +29,9 @@ export function buildConfig(_type: DestinationType, form: FormData): Record<stri
 		branch: String(form.get('branch') ?? 'main').trim() || 'main',
 		content_path: String(form.get('content_path') ?? 'src/content').trim() || 'src/content',
 		content_layout: String(form.get('content_layout') ?? 'flat').trim() === 'folder' ? 'folder' : 'flat',
+		layout_path:
+			String(form.get('layout_path') ?? 'src/config/omnipress-layout.json').trim() ||
+			'src/config/omnipress-layout.json',
 		categories_path:
 			String(form.get('categories_path') ?? 'src/config/omnipress-categories.json').trim() ||
 			'src/config/omnipress-categories.json',

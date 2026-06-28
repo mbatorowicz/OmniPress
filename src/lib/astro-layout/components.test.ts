@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
 	getComponentKind,
+	getComponentZone,
 	getComponentsOfKind,
+	getComponentsOfZone,
 	isCategoryFeedComponent,
+	LAYOUT_EDITOR_ZONE_ORDER,
 	supportsHideWhenEmpty,
 } from './components';
 
@@ -11,13 +14,29 @@ describe('layout component kinds', () => {
 		expect(getComponentKind('home.pinned')).toBe('home_feed');
 		expect(getComponentKind('sidebar.weather')).toBe('live_feed');
 		expect(getComponentKind('sidebar.cert_advisories')).toBe('live_feed');
+		expect(getComponentKind('sidebar.recent_changes')).toBe('local_feed');
+		expect(getComponentKind('topbar.tagline')).toBe('chrome');
+		expect(getComponentKind('header.navigation')).toBe('navigation');
 		expect(getComponentKind('sidebar.banner')).toBe('banner');
 		expect(getComponentKind('unknown')).toBeNull();
+	});
+
+	it('mapuje komponenty na strefę', () => {
+		expect(getComponentZone('home.latest')).toBe('home');
+		expect(getComponentZone('sidebar.weather')).toBe('sidebar');
+		expect(getComponentZone('footer.main')).toBe('footer');
+		expect(getComponentZone('site.meta')).toBe('site');
 	});
 
 	it('zwraca komponenty danego kind', () => {
 		expect(getComponentsOfKind('home_feed')).toEqual(['home.pinned', 'home.latest']);
 		expect(getComponentsOfKind('live_feed')).toEqual(['sidebar.weather', 'sidebar.cert_advisories']);
+		expect(getComponentsOfKind('local_feed')).toEqual(['sidebar.recent_changes']);
+	});
+
+	it('zwraca komponenty strefy', () => {
+		expect(getComponentsOfZone('topbar')).toEqual(['topbar.tagline']);
+		expect(getComponentsOfZone('header')).toEqual(['header.brand', 'header.navigation']);
 	});
 
 	it('wyprowadza categoryFeed z home_feed', () => {
@@ -25,8 +44,15 @@ describe('layout component kinds', () => {
 		expect(isCategoryFeedComponent('sidebar.recent_changes')).toBe(false);
 	});
 
-	it('wyklucza baner z hideWhenEmpty', () => {
+	it('wyklucza chrome i baner z hideWhenEmpty', () => {
 		expect(supportsHideWhenEmpty('sidebar.weather')).toBe(true);
+		expect(supportsHideWhenEmpty('topbar.tagline')).toBe(false);
 		expect(supportsHideWhenEmpty('sidebar.banner')).toBe(false);
+	});
+
+	it('LAYOUT_EDITOR_ZONE_ORDER odpowiada kolejności renderu strony', () => {
+		expect(LAYOUT_EDITOR_ZONE_ORDER[0]).toBe('topbar');
+		expect(LAYOUT_EDITOR_ZONE_ORDER).toContain('header');
+		expect(LAYOUT_EDITOR_ZONE_ORDER.at(-1)).toBe('site');
 	});
 });

@@ -27,6 +27,7 @@ import type { PageOption } from './link-options';
 export const DEFAULT_STATIC_ROUTES = ['/', '/kontakt'] as const;
 
 export type LayoutEditorSection =
+	| 'layout'
 	| 'navigation'
 	| 'categories'
 	| 'components'
@@ -145,31 +146,36 @@ export async function loadLayoutEditorContext(
 }
 
 export function buildLayoutEditorReturnUrl(siteId: string, section: string): string {
+	const base = `/admin/units/${siteId}/layout`;
 	switch (section) {
 		case 'categories':
-			return `/admin/units/${siteId}/categories`;
+			return `${base}#zone-categories`;
 		case 'components':
-			return `/admin/units/${siteId}/components`;
+			return `${base}#zone-home`;
+		case 'navigation':
+			return `${base}#zone-header`;
 		case 'settings':
 			return `/admin/units/${siteId}`;
-		case 'navigation':
+		case 'layout':
 		case 'all':
 		default:
-			return `/admin/units/${siteId}/navigation`;
+			return base;
 	}
 }
 
 export function layoutSectionReturnPath(section: string): string {
 	switch (section) {
 		case 'categories':
-			return 'categories';
+			return 'layout#zone-categories';
 		case 'components':
-			return 'components';
+			return 'layout#zone-home';
+		case 'navigation':
+			return 'layout#zone-header';
 		case 'settings':
 			return 'settings';
-		case 'navigation':
+		case 'layout':
 		case 'all':
 		default:
-			return 'navigation';
+			return 'layout';
 	}
 }

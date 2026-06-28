@@ -1,0 +1,108 @@
+---
+import Button from '@/components/ui/actions/Button.astro';
+import SectionTitle from '@/components/ui/layout/SectionTitle.astro';
+import { adminLayout } from '@/i18n';
+import {
+	LAYOUT_EDITOR_ZONE_ORDER,
+	getComponentsOfZone,
+	isSingletonComponent,
+	type LayoutZone,
+} from '@/lib/astro-layout/components';
+import { getSlotsByZone, sortSlotsForEditor } from '@/lib/astro-layout/slots';
+import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from '@/lib/astro-layout/types';
+import LayoutZoneSlotCard from './LayoutZoneSlotCard.astro';
+
+type PageOption = { path: string; title: string };
+
+interface Props {
+	zone: LayoutZone;
+	slots: DisplaySlot[];
+	categories: CategoryDefinition[];
+	categoryDisplays: SiteAstroLayout['categoryDisplays'];
+	publishedPages: PageOption[];
+}
+
+const { zone, slots, categories, categoryDisplays, publishedPages } = Astro.props;
+const sorted = sortSlotsForEditor(slots);
+const zoneSlots = getSlotsByZone(sorted, zone);
+
+const zoneTitles: Record<LayoutZone, string> = {
+	site: adminLayout.slotsZoneSite ?? 'Meta strony',
+	topbar: adminLayout.slotsZoneTopbar ?? 'Pasek górny',
+	header: adminLayout.slotsZoneHeader ?? 'Nagłówek',
+	home: adminLayout.slotsPreviewHomeZone,
+	sidebar: adminLayout.slotsPreviewSidebarZone,
+	footer: adminLayout.slotsZoneFooter ?? 'Stopka',
+};
+
+const zoneDesc: Record<LayoutZone, string> = {
+	topbar: adminLayout.slotsZoneDescTopbar ?? '',
+	header: adminLayout.slotsZoneDescHeader ?? '',
+	home: adminLayout.slotsZoneDescHome ?? '',
+	sidebar: adminLayout.slotsZoneDescSidebar ?? '',
+	footer: adminLayout.slotsZoneDescFooter ?? '',
+	site: adminLayout.slotsZoneDescSite ?? '',
+};
+
+const zoneEmpty: Record<LayoutZone, string> = {
+	site: adminLayout.slotsZoneEmptySite ?? 'Brak slotu meta.',
+	topbar: adminLayout.slotsZoneEmptyTopbar ?? 'Brak slotu paska górnego.',
+	header: adminLayout.slotsZoneEmptyHeader ?? 'Brak slotów nagłówka.',
+	home: adminLayout.slotsZoneEmptyHome,
+	sidebar: adminLayout.slotsZoneEmptySidebar,
+	footer: adminLayout.slotsZoneEmptyFooter ?? 'Brak slotu stopki.',
+};
+
+const addableComponents = getComponentsOfZone(zone).filter((id) => {
+	if (zone !== 'home' && zone !== 'sidebar') return false;
+	if (!isSingletonComponent(id)) return true;
+	return !zoneSlots.some((s) => s.component === id);
+});
+---
+
+<section id={`zone-${zone}`} data-zone={zone} class="layout-zone-section scroll-mt-24">
+	<SectionTitle class="!mb-0">{zoneTitles[zone]}</SectionTitle>
+	{zoneDesc[zone] && <p class="layout-zone-section__desc">{zoneDesc[zone]}</p>}
+
+	{
+		zone === 'header' && (
+			<div class="layout-zone-header-extra">
+				<slot name="header-extra" />
+			</div>
+		)
+	}
+
+	<div class="layout-zone-cards" id={`zone-${zone}-cards`} data-zone-cards={zone}>
+		{
+			zoneSlots.length === 0 ? (
+				<p class="ui-hint">{zoneEmpty[zone]}</p>
+			) : (
+				zoneSlots.map((slot) => (
+					<LayoutZoneSlotCard
+						slot={slot}
+						categories={categories}
+						categoryDisplays={categoryDisplays}
+						publishedPages={publishedPages}
+					/>
+				))
+			)
+		}
+	</div>
+
+	{
+		addableComponents.length > 0 && (
+			<div class="layout-zone-add">
+				<select class="zone-add-component ui-select-compact" data-zone={zone}>
+					{
+						addableComponents.map((id) => (
+							<option value={id}>{adminLayout.componentLabels[id]}</option>
+						))
+					}
+				</select>
+				<Button type="button" variant="add" class="zone-add-slot" data-zone={zone}>
+					{adminLayout.zoneAddElement ?? '+ Dodaj element'}
+				</Button>
+			</div>
+		)
+	}
+</section>

@@ -6,9 +6,16 @@ import type {
 	SiteAstroLayout,
 	SlotWidgetConfig,
 } from './types';
-import { DEFAULT_CATEGORIES_PATH, DEFAULT_NAVIGATION_PATH, emptySiteAstroLayout } from './types';
+import {
+	DEFAULT_CATEGORIES_PATH,
+	DEFAULT_LAYOUT_PATH,
+	DEFAULT_NAVIGATION_PATH,
+	emptySiteAstroLayout,
+} from './types';
+import type { RecentChangeEntry } from '@/lib/recent-changes/types';
 import { isLayoutComponentId } from './components';
 import { validateBannerWidget } from './banners';
+import { mergeLegacyLayoutParts, normalizeLayoutSlots } from './migrate-layout';
 import { mergeCategoryDisplays, sortSlotsByOrder } from './slots';
 import {
 	resolveNavEditorDepthColors,
@@ -150,7 +157,64 @@ function parseWidget(raw: unknown): SlotWidgetConfig | undefined {
 	}
 	if (typeof w.pagePath === 'string' && w.pagePath.trim()) widget.pagePath = w.pagePath.trim();
 	if (typeof w.externalUrl === 'string' && w.externalUrl.trim()) widget.externalUrl = w.externalUrl.trim();
+	if (typeof w.text === 'string' && w.text.trim()) widget.text = w.text.trim();
+	if (typeof w.name === 'string' && w.name.trim()) widget.name = w.name.trim();
+	if (typeof w.description === 'string' && w.description.trim()) widget.description = w.description.trim();
+	if (typeof w.url === 'string' && w.url.trim()) widget.url = w.url.trim();
+	if (typeof w.logoUrl === 'string' && w.logoUrl.trim()) widget.logoUrl = w.logoUrl.trim();
+	if (typeof w.logoAlt === 'string' && w.logoAlt.trim()) widget.logoAlt = w.logoAlt.trim();
+	if (typeof w.homeHref === 'string' && w.homeHref.trim()) widget.homeHref = w.homeHref.trim();
+	if (typeof w.copyrightSuffix === 'string' && w.copyrightSuffix.trim()) {
+		widget.copyrightSuffix = w.copyrightSuffix.trim();
+	}
+	if (typeof w.contactCtaLabel === 'string' && w.contactCtaLabel.trim()) {
+		widget.contactCtaLabel = w.contactCtaLabel.trim();
+	}
+	if (typeof w.contactCtaHref === 'string' && w.contactCtaHref.trim()) {
+		widget.contactCtaHref = w.contactCtaHref.trim();
+	}
+	if (w.contact && typeof w.contact === 'object') widget.contact = w.contact as SlotWidgetConfig['contact'];
+	if (Array.isArray(w.bankAccounts)) widget.bankAccounts = w.bankAccounts as SlotWidgetConfig['bankAccounts'];
+	if (Array.isArray(w.officeHours)) widget.officeHours = w.officeHours as SlotWidgetConfig['officeHours'];
+	if (w.invoiceData && typeof w.invoiceData === 'object') {
+		widget.invoiceData = w.invoiceData as SlotWidgetConfig['invoiceData'];
+	}
+	if (Array.isArray(w.legalLinks)) {
+		widget.legalLinks = w.legalLinks
+			.filter((link): link is { label: string; href: string } => {
+				if (!link || typeof link !== 'object') return false;
+				const l = link as { label?: unknown; href?: unknown };
+				return typeof l.label === 'string' && typeof l.href === 'string';
+			})
+			.map((link) => ({ label: link.label.trim(), href: link.href.trim() }));
+	}
+	if (Array.isArray(w.navigation)) {
+		widget.navigation = normalizeNavItems(w.navigation);
+	}
 	return Object.keys(widget).length > 0 ? widget : undefined;
+}
+
+function isRecentChangeEntry(raw: unknown): raw is RecentChangeEntry {
+	if (!raw || typeof raw !== 'object') return false;
+	const o = raw as RecentChangeEntry;
+	return (
+		typeof o.title === 'string' &&
+		typeof o.href === 'string' &&
+		typeof o.kind === 'string' &&
+		typeof o.changedAt === 'string'
+	);
+}
+
+function parseRecentChangeEntries(raw: unknown): RecentChangeEntry[] | undefined {
+	if (!Array.isArray(raw)) return undefined;
+	const entries = raw.filter(isRecentChangeEntry).map((e) => ({
+		title: e.title.trim(),
+		href: e.href.trim(),
+		kind: e.kind,
+		changedAt: e.changedAt,
+		sourceId: e.sourceId?.trim() || undefined,
+	}));
+	return entries.length > 0 ? entries : undefined;
 }
 
 function parseSlot(raw: unknown): DisplaySlot | null {
@@ -166,6 +230,7 @@ function parseSlot(raw: unknown): DisplaySlot | null {
 		label: o.label.trim(),
 		component: o.component.trim(),
 		widget: parseWidget(o.widget),
+		entries: parseRecentChangeEntries((o as DisplaySlot).entries),
 	};
 
 	if (slot.component === 'sidebar.banner' && !validateBannerWidget(slot.widget ?? {}, slot.label)) {
@@ -192,6 +257,14 @@ export function parseCategoriesFile(text: string): {
 	displays: CategoryDisplays;
 	slots: DisplaySlot[];
 } {
+	return parseLayoutFile(text);
+}
+
+export function parseLayoutFile(text: string): {
+	categories: CategoryDefinition[];
+	displays: CategoryDisplays;
+	slots: DisplaySlot[];
+} {
 	const parsed = JSON.parse(text) as unknown;
 
 	if (Array.isArray(parsed)) {
@@ -205,7 +278,7 @@ export function parseCategoriesFile(text: string): {
 	}
 
 	if (!parsed || typeof parsed !== 'object') {
-		throw new Error('Nieprawidłowy plik kategorii');
+		throw new Error('Nieprawidłowy plik layoutu');
 	}
 
 	const obj = parsed as {
@@ -224,16 +297,21 @@ export function parseCategoriesFile(text: string): {
 	return { categories, displays, slots };
 }
 
-export function buildCategoriesFilePayload(layout: SiteAstroLayout): string {
+export function buildLayoutFilePayload(layout: SiteAstroLayout): string {
+	const normalized = normalizeLayoutSlots(layout);
 	return `${JSON.stringify(
 		{
-			categories: layout.categories,
-			displays: layout.categoryDisplays,
-			slots: sortSlotsByOrder(layout.slots),
+			categories: normalized.categories,
+			displays: normalized.categoryDisplays,
+			slots: sortSlotsByOrder(normalized.slots),
 		},
 		null,
 		'\t',
 	)}\n`;
+}
+
+export function buildCategoriesFilePayload(layout: SiteAstroLayout): string {
+	return buildLayoutFilePayload(layout);
 }
 
 export function buildNavigationFilePayload(navigation: NavItem[]): string {
@@ -244,7 +322,7 @@ export function buildNavigationFilePayload(navigation: NavItem[]): string {
 export function normalizeSiteAstroLayout(raw: unknown): SiteAstroLayout {
 	if (!raw || typeof raw !== 'object') return emptySiteAstroLayout();
 	const o = raw as Partial<SiteAstroLayout>;
-	const slots = parseSlots(o.slots);
+	let slots = parseSlots(o.slots);
 	const syncRaw = o.sync;
 	const sync =
 		syncRaw && typeof syncRaw === 'object'
@@ -267,10 +345,16 @@ export function normalizeSiteAstroLayout(raw: unknown): SiteAstroLayout {
 						typeof syncRaw.publishedCategoriesHash === 'string'
 							? syncRaw.publishedCategoriesHash
 							: undefined,
+					publishedLayoutHash:
+						typeof syncRaw.publishedLayoutHash === 'string'
+							? syncRaw.publishedLayoutHash
+							: undefined,
 				}
 			: undefined;
 
-	return {
+	const layoutPath = o.layoutPath?.trim() || o.categoriesPath?.trim() || DEFAULT_LAYOUT_PATH;
+
+	let layout: SiteAstroLayout = {
 		navigation: normalizeNavItems(o.navigation),
 		categoryDisplays: mergeCategoryDisplays(slots, o.categoryDisplays ?? {}),
 		categories: Array.isArray(o.categories)
@@ -279,11 +363,16 @@ export function normalizeSiteAstroLayout(raw: unknown): SiteAstroLayout {
 					.filter((c): c is CategoryDefinition => c !== null)
 			: [],
 		slots,
+		layoutPath,
 		navigationPath: o.navigationPath?.trim() || DEFAULT_NAVIGATION_PATH,
 		categoriesPath: o.categoriesPath?.trim() || DEFAULT_CATEGORIES_PATH,
 		navEditorDepthColors: parseNavEditorDepthColorsRaw(o.navEditorDepthColors),
 		sync,
 	};
+
+	layout = normalizeLayoutSlots(layout);
+	layout.categoryDisplays = mergeCategoryDisplays(layout.slots, layout.categoryDisplays);
+	return layout;
 }
 
 function parseNavEditorDepthColorsRaw(raw: unknown): NavEditorDepthColors | undefined {

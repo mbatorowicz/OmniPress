@@ -1,0 +1,71 @@
+---
+import { adminLayout } from '@/i18n';
+import LayoutSyncActions from '@/components/admin/layout/LayoutSyncActions.astro';
+import NavigationTreeSection from '@/components/admin/layout/NavigationTreeSection.astro';
+import CategoryMatrixSection from '@/components/admin/layout/CategoryMatrixSection.astro';
+import Alert from '@/components/ui/feedback/Alert.astro';
+import LayoutSlotsSection from '@/components/admin/layout-slots/LayoutSlotsSection.astro';
+import RecentChangesAnnounce from '@/components/admin/layout/RecentChangesAnnounce.astro';
+import type { SiteAstroLayout } from '@/lib/astro-layout/types';
+import type { PageOption } from '@/lib/admin/link-options';
+
+interface Props {
+	siteId: string;
+	layout: SiteAstroLayout;
+	hasAstroChannel: boolean;
+	publishedPages: PageOption[];
+	draftHrefCount?: number;
+	liveHrefCount?: number | null;
+	navHasMissingHref?: boolean;
+	changeErrorMessage?: string | null;
+	changeSaved?: boolean;
+}
+
+const {
+	siteId,
+	layout,
+	hasAstroChannel,
+	publishedPages,
+	changeErrorMessage = null,
+	changeSaved = false,
+} = Astro.props;
+---
+
+<form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="ui-form-stack max-w-5xl">
+	<input type="hidden" name="section" value="layout" />
+
+	<LayoutSlotsSection
+		slots={layout.slots}
+		categories={layout.categories}
+		categoryDisplays={layout.categoryDisplays}
+		publishedPages={publishedPages}
+	>
+		<div slot="header-extra">
+			<h3 class="ui-section-title mt-4">{adminLayout.navigationTitle}</h3>
+			<p class="ui-hint mb-3">{adminLayout.navInHeaderHint ?? adminLayout.menuFormHint}</p>
+			<NavigationTreeSection
+				navigation={layout.navigation}
+				categories={layout.categories}
+				publishedPages={publishedPages}
+				navEditorDepthColors={layout.navEditorDepthColors}
+			/>
+		</div>
+	</LayoutSlotsSection>
+
+	<div id="zone-categories" class="scroll-mt-24 mt-8">
+		<h2 class="ui-section-title">{adminLayout.categoriesTitle}</h2>
+		<Alert variant="info" class="ui-alert--note">{adminLayout.categoriesSlugWarning}</Alert>
+		<CategoryMatrixSection layout={layout} />
+	</div>
+
+	<LayoutSyncActions section="layout" />
+</form>
+
+<div id="zone-changes" class="scroll-mt-24 mt-8 max-w-5xl">
+	<RecentChangesAnnounce
+		siteId={siteId}
+		hasAstroChannel={hasAstroChannel}
+		errorMessage={changeErrorMessage}
+		saved={changeSaved}
+	/>
+</div>

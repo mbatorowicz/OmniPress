@@ -1,42 +1,79 @@
 ---
 import { adminLayout } from '@/i18n';
-import { LAYOUT_COMPONENT_IDS } from '@/lib/astro-layout/components';
+import { isSingletonComponent } from '@/lib/astro-layout/components';
+import { buildComponentOptionsGroupedHtml } from '@/lib/admin/layout-slots-sections';
+import type { LayoutZone } from '@/lib/astro-layout/components';
 import type { DisplaySlot } from '@/lib/astro-layout/types';
 
 interface Props {
 	slot: DisplaySlot;
+	zoneTitles: Record<LayoutZone, string>;
 }
 
-const { slot } = Astro.props;
+const { slot, zoneTitles } = Astro.props;
 const w = slot.widget ?? {};
-const { fields, actions, componentLabels } = adminLayout;
+const { actions, componentLabels } = adminLayout;
+const isSingleton = isSingletonComponent(slot.component);
+const componentLabel = componentLabels[slot.component as keyof typeof componentLabels] ?? slot.component;
+const componentOptionsHtml = buildComponentOptionsGroupedHtml(componentLabels, zoneTitles, undefined, slot.component);
 ---
 
 <tr class="slot-row ui-table-dense-row" data-slot-id={slot.id}>
 	<td class="ui-table-dense-td">
-		<input name="slot_id" value={slot.id} required class="ui-input-compact ui-input-compact--mono w-24" />
+		<input
+			name="slot_id"
+			value={slot.id}
+			required
+			readonly={isSingleton}
+			class="ui-input-compact ui-input-compact--mono w-24"
+		/>
 	</td>
 	<td class="ui-table-dense-td">
-		<input name="slot_label" value={slot.label} required class="ui-input-compact w-32" />
+		<input
+			name="slot_label"
+			value={slot.label}
+			required
+			class="ui-input-compact w-32 slot-row-label"
+		/>
 	</td>
 	<td class="ui-table-dense-td">
-		<select name="slot_component" class="slot-component ui-select-compact w-48">
-			{
-				LAYOUT_COMPONENT_IDS.map((id) => (
-					<option value={id} selected={slot.component === id}>
-						{componentLabels[id]}
-					</option>
-				))
-			}
-		</select>
+		{
+			isSingleton ? (
+				<>
+					<input type="hidden" name="slot_component" value={slot.component} />
+					<span class="text-sm">{componentLabel}</span>
+				</>
+			) : (
+				<select name="slot_component" class="slot-component ui-select-compact w-48">
+					<Fragment set:html={componentOptionsHtml} />
+				</select>
+			)
+		}
 	</td>
 	<td class="ui-table-dense-td">
-		<input name="slot_widget_order" type="number" min="0" value={w.order ?? ''} class="ui-input-compact w-16" />
+		<input
+			name="slot_widget_order"
+			type="number"
+			min="0"
+			value={w.order ?? ''}
+			class="ui-input-compact w-16 slot-row-order"
+		/>
 	</td>
 	<td class="ui-table-dense-td text-center">
-		<input type="checkbox" name={`slot_enabled_${slot.id}`} checked={w.enabled !== false} />
+		<input
+			type="checkbox"
+			name={`slot_enabled_${slot.id}`}
+			checked={w.enabled !== false}
+			class="slot-row-enabled"
+		/>
 	</td>
 	<td class="ui-table-dense-td">
-		<button type="button" class="remove-slot ui-btn ui-btn--link-danger">{actions.removeSlot}</button>
+		{
+			isSingleton ? null : (
+				<button type="button" class="remove-slot ui-btn ui-btn--link-danger">
+					{actions.removeSlot}
+				</button>
+			)
+		}
 	</td>
 </tr>

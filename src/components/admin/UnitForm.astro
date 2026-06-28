@@ -1,7 +1,6 @@
 ---
 import { adminDestinations, adminSites, adminUnit } from '@/i18n';
-import { DEFAULT_CATEGORIES_PATH, DEFAULT_NAVIGATION_PATH } from '@/lib/astro-layout/types';
-import { DEFAULT_RECENT_CHANGES_PATH } from '@/lib/recent-changes/types';
+import { DEFAULT_LAYOUT_PATH } from '@/lib/astro-layout/types';
 import ChannelTestButton from '@/components/admin/ChannelTestButton.astro';
 import Alert from '@/components/ui/feedback/Alert.astro';
 import Button from '@/components/ui/actions/Button.astro';
@@ -28,9 +27,7 @@ const {
 const i = initial;
 const showBasic = variant === 'basic' || variant === 'full';
 const showPublish = variant === 'publish' || variant === 'full';
-const categoriesPath = i?.astro?.categories_path ?? DEFAULT_CATEGORIES_PATH;
-const navigationPath = i?.astro?.navigation_path ?? DEFAULT_NAVIGATION_PATH;
-const recentChangesPath = i?.astro?.recent_changes_path ?? DEFAULT_RECENT_CHANGES_PATH;
+const layoutPath = i?.astro?.layout_path ?? DEFAULT_LAYOUT_PATH;
 ---
 
 {showCredentialsNote && showPublish && (
@@ -60,9 +57,7 @@ const recentChangesPath = i?.astro?.recent_changes_path ?? DEFAULT_RECENT_CHANGE
 				<input type="hidden" name="branch" value={i.astro.branch} />
 				<input type="hidden" name="content_path" value={i.astro.content_path} />
 				<input type="hidden" name="content_layout" value={i.astro.content_layout} />
-				<input type="hidden" name="categories_path" value={categoriesPath} />
-				<input type="hidden" name="navigation_path" value={navigationPath} />
-				<input type="hidden" name="recent_changes_path" value={recentChangesPath} />
+				<input type="hidden" name="layout_path" value={layoutPath} />
 				<input type="hidden" name="vercel_project_id" value={i.astro.vercel_project_id} />
 				<input type="hidden" name="vercel_team_id" value={i.astro.vercel_team_id} />
 			</>
@@ -188,16 +183,8 @@ const recentChangesPath = i?.astro?.recent_changes_path ?? DEFAULT_RECENT_CHANGE
 						<summary class="ui-link cursor-pointer text-sm">{adminUnit.advancedPathsTitle}</summary>
 						<div class="mt-3 space-y-3">
 							<label class="ui-label">
-								<span>{adminDestinations.fields.categoriesPath}</span>
-								<input name="categories_path" value={categoriesPath} class="ui-input font-mono text-sm" />
-							</label>
-							<label class="ui-label">
-								<span>{adminDestinations.fields.navigationPath}</span>
-								<input name="navigation_path" value={navigationPath} class="ui-input font-mono text-sm" />
-							</label>
-							<label class="ui-label">
-								<span>{adminDestinations.fields.recentChangesPath}</span>
-								<input name="recent_changes_path" value={recentChangesPath} class="ui-input font-mono text-sm" />
+								<span>{adminDestinations.fields.layoutPath}</span>
+								<input name="layout_path" value={layoutPath} class="ui-input font-mono text-sm" />
 							</label>
 						</div>
 					</details>

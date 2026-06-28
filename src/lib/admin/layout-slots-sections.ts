@@ -1,21 +1,18 @@
-/** Nazwy pól formularza — SSOT: slot-form-fields.ts */
+/** Nazwy pól formularza — SSOT: slot-form-fields.ts + components.ts */
 import { slotFormFields as slotFieldNames } from '@/lib/astro-layout/slot-form-fields';
+import {
+	getComponentKind,
+	getComponentsOfZone,
+	type LayoutComponentKind,
+	type LayoutZone,
+} from '@/lib/astro-layout/components';
 
 export { slotFieldNames };
 
-export type LayoutComponentKind = 'home_feed' | 'recent_changes' | 'live_feed' | 'banner';
-
-const COMPONENT_KIND: Record<string, LayoutComponentKind> = {
-	'home.pinned': 'home_feed',
-	'home.latest': 'home_feed',
-	'sidebar.recent_changes': 'recent_changes',
-	'sidebar.cert_advisories': 'live_feed',
-	'sidebar.weather': 'live_feed',
-	'sidebar.banner': 'banner',
-};
+export type { LayoutComponentKind, LayoutZone };
 
 export function componentToKind(component: string): LayoutComponentKind | null {
-	return COMPONENT_KIND[component] ?? null;
+	return getComponentKind(component);
 }
 
 export interface SectionFieldLabels {
@@ -46,6 +43,16 @@ export interface SectionFieldLabels {
 	weatherDetailsLayout: string;
 	weatherDetailsSummary: string;
 	weatherDetailsCloseLabel: string;
+	topbarText: string;
+	siteMetaName: string;
+	siteMetaDescription: string;
+	siteMetaUrl: string;
+	headerBrandLogoUrl: string;
+	headerBrandLogoAlt: string;
+	headerBrandHomeHref: string;
+	footerContactCtaLabel: string;
+	footerContactCtaHref: string;
+	footerCopyrightSuffix: string;
 }
 
 export interface SectionBuildConfig {
@@ -131,7 +138,7 @@ export function buildHomeFeedDetailHtml(
 		${panelCloseHtml()}`;
 }
 
-export function buildRecentDetailHtml(
+export function buildLocalFeedDetailHtml(
 	id: string,
 	label: string,
 	component: string,
@@ -232,6 +239,54 @@ export function buildLiveFeedDetailHtml(
 	return buildWeatherDetailHtml(id, label, component, config);
 }
 
+export function buildChromeDetailHtml(
+	id: string,
+	label: string,
+	component: string,
+	config: SectionBuildConfig,
+): string {
+	const l = config.fieldLabels;
+	if (component === 'topbar.tagline') {
+		const f = slotFieldNames.topbar;
+		return `
+			${panelOpenHtml(id, component)}
+				${slotPanelHeaderHtml(id, label, component, config)}
+				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.topbarText}</span><input name="${f.text(id)}" class="ui-input-compact w-full" /></label>
+			${panelCloseHtml()}`;
+	}
+	if (component === 'site.meta') {
+		const f = slotFieldNames.siteMeta;
+		return `
+			${panelOpenHtml(id, component)}
+				${slotPanelHeaderHtml(id, label, component, config)}
+				<label class="ui-label-inline"><span class="font-medium">${l.siteMetaName}</span><input name="${f.name(id)}" class="ui-input-compact w-full" /></label>
+				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.siteMetaDescription}</span><input name="${f.description(id)}" class="ui-input-compact w-full" /></label>
+				<label class="ui-label-inline"><span class="font-medium">${l.siteMetaUrl}</span><input name="${f.url(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
+			${panelCloseHtml()}`;
+	}
+	if (component === 'header.brand') {
+		const f = slotFieldNames.headerBrand;
+		return `
+			${panelOpenHtml(id, component)}
+				${slotPanelHeaderHtml(id, label, component, config)}
+				<label class="ui-label-inline"><span class="font-medium">${l.headerBrandLogoUrl}</span><input name="${f.logoUrl(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
+				<label class="ui-label-inline"><span class="font-medium">${l.headerBrandLogoAlt}</span><input name="${f.logoAlt(id)}" class="ui-input-compact w-full" /></label>
+				<label class="ui-label-inline"><span class="font-medium">${l.headerBrandHomeHref}</span><input name="${f.homeHref(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
+			${panelCloseHtml()}`;
+	}
+	if (component === 'footer.main') {
+		const f = slotFieldNames.footer;
+		return `
+			${panelOpenHtml(id, component)}
+				${slotPanelHeaderHtml(id, label, component, config)}
+				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.footerContactCtaLabel}</span><input name="${f.contactCtaLabel(id)}" class="ui-input-compact w-full" /></label>
+				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.footerContactCtaHref}</span><input name="${f.contactCtaHref(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
+				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.footerCopyrightSuffix}</span><input name="${f.copyrightSuffix(id)}" class="ui-input-compact w-full" /></label>
+			${panelCloseHtml()}`;
+	}
+	return panelOpenHtml(id, component) + panelCloseHtml();
+}
+
 export function buildDetailHtml(
 	kind: LayoutComponentKind,
 	id: string,
@@ -242,11 +297,111 @@ export function buildDetailHtml(
 	switch (kind) {
 		case 'home_feed':
 			return buildHomeFeedDetailHtml(id, label, component, config);
-		case 'recent_changes':
-			return buildRecentDetailHtml(id, label, component, config);
+		case 'local_feed':
+			return buildLocalFeedDetailHtml(id, label, component, config);
 		case 'live_feed':
 			return buildLiveFeedDetailHtml(id, label, component, config);
 		case 'banner':
 			return buildBannerDetailHtml(id, label, component, config);
+		case 'chrome':
+			return buildChromeDetailHtml(id, label, component, config);
+		case 'navigation':
+			return panelOpenHtml(id, component) + slotPanelHeaderHtml(id, label, component, config) + panelCloseHtml();
 	}
+}
+
+export function editableZoneComponents(zone: LayoutZone): string[] {
+	if (zone === 'home' || zone === 'sidebar') {
+		return getComponentsOfZone(zone);
+	}
+	return [];
+}
+
+export function buildComponentOptionsGroupedHtml(
+	componentLabels: Record<string, string>,
+	zoneTitles: Record<LayoutZone, string>,
+	zones: LayoutZone[] = ['topbar', 'header', 'home', 'sidebar', 'footer', 'site'],
+	selectedComponent?: string,
+): string {
+	return zones
+		.map((zone) => {
+			const ids = getComponentsOfZone(zone);
+			if (ids.length === 0) return '';
+			const options = ids
+				.map(
+					(id) =>
+						`<option value="${id}"${selectedComponent === id ? ' selected' : ''}>${componentLabels[id] ?? id}</option>`,
+				)
+				.join('');
+			return `<optgroup label="${zoneTitles[zone] ?? zone}">${options}</optgroup>`;
+		})
+		.join('');
+}
+
+export function buildZoneComponentOptionsHtml(
+	zone: LayoutZone,
+	componentLabels: Record<string, string>,
+): string {
+	return getComponentsOfZone(zone)
+		.map((id) => `<option value="${id}">${componentLabels[id] ?? id}</option>`)
+		.join('');
+}
+
+export function buildSlotCardHtml(
+	id: string,
+	label: string,
+	component: string,
+	config: {
+		componentLabels: Record<string, string>;
+		settingsLabel: string;
+		disabledLabel: string;
+		enabled?: boolean;
+		order?: number;
+		summaryHtml?: string;
+	},
+): string {
+	const componentLabel = config.componentLabels[component] ?? component;
+	const safeLabel = label || id;
+	const enabled = config.enabled !== false;
+	const order = config.order ?? 0;
+	const summary = config.summaryHtml ?? '';
+	return `
+		<article class="layout-slot-card" data-slot-id="${id}" data-component="${component}">
+			<input type="hidden" name="slot_id" value="${id}" />
+			<input type="hidden" name="slot_label" value="${safeLabel}" class="slot-card-label-input" />
+			<input type="hidden" name="slot_component" value="${component}" />
+			<input type="hidden" name="slot_widget_order" value="${order}" class="slot-card-order-input" />
+			<div class="layout-slot-card__main">
+				<div>
+					<p class="layout-slot-card__type">${componentLabel}</p>
+					<p class="layout-slot-card__label">${safeLabel}</p>
+					<div class="layout-slot-card__chips">${summary}</div>
+				</div>
+				<div class="layout-slot-card__actions">
+					<label class="layout-slot-card__enabled flex items-center gap-1.5 text-sm">
+						<input type="checkbox" name="slot_enabled_${id}" ${enabled ? 'checked' : ''} class="slot-card-enabled" />
+						<span>Wł.</span>
+					</label>
+					<button type="button" class="slot-settings-open ui-btn ui-btn--secondary ui-btn--compact" data-dialog-id="slot-dialog-${id}">${config.settingsLabel}</button>
+				</div>
+			</div>
+		</article>`;
+}
+
+export function buildSlotDialogShellHtml(
+	id: string,
+	title: string,
+	closeLabel: string,
+	panelHtml: string,
+): string {
+	return `
+		<dialog id="slot-dialog-${id}" class="slot-settings-dialog">
+			<div class="slot-settings-dialog__panel">
+				<header class="slot-settings-dialog__header">
+					<h3 class="slot-settings-dialog__title">${title}</h3>
+					<button type="button" class="slot-dialog-close ui-btn ui-btn--secondary ui-btn--compact">${closeLabel}</button>
+				</header>
+				<div class="slot-settings-dialog__body">${panelHtml}</div>
+			</div>
+		</dialog>`;
 }

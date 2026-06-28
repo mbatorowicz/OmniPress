@@ -1,0 +1,83 @@
+---
+import { adminRecentChanges } from '@/i18n';
+import Alert from '@/components/ui/feedback/Alert.astro';
+import Button from '@/components/ui/actions/Button.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+
+interface Props {
+	siteId: string;
+	hasAstroChannel: boolean;
+	errorMessage?: string | null;
+	saved?: boolean;
+}
+
+const { siteId, hasAstroChannel, errorMessage, saved } = Astro.props;
+---
+
+{saved && <Alert variant="success">{adminRecentChanges.saved}</Alert>}
+{errorMessage && <Alert variant="error">{errorMessage}</Alert>}
+{!hasAstroChannel && <Alert variant="warning">{adminRecentChanges.noAstroChannel}</Alert>}
+
+<Panel class="ui-form-section max-w-2xl">
+	<h2 class="ui-section-title">{adminRecentChanges.announceHeading}</h2>
+	<p class="ui-hint">{adminRecentChanges.announceHint}</p>
+
+	<form method="post" action={`/api/admin/sites/${siteId}/changes/announce`} class="space-y-4">
+		<label class="ui-label">
+			<span class="font-medium">{adminRecentChanges.fields.title}</span>
+			<input
+				name="change_title"
+				required
+				minlength={3}
+				placeholder="Zaktualizowano numery rachunków bankowych"
+				class="ui-input"
+				disabled={!hasAstroChannel}
+			/>
+		</label>
+
+		<label class="ui-label">
+			<span class="font-medium">{adminRecentChanges.fields.href}</span>
+			<input
+				name="change_href"
+				id="change-href"
+				required
+				value="/kontakt"
+				placeholder="/kontakt"
+				class="ui-input font-mono"
+				disabled={!hasAstroChannel}
+			/>
+		</label>
+
+		<div class="flex flex-wrap gap-2 text-xs">
+			<span class="ui-hint">{adminRecentChanges.presets.label}:</span>
+			<Button type="button" variant="preset" class="preset-href" dataset={{ href: '/kontakt' }}>
+				{adminRecentChanges.presets.kontakt}
+			</Button>
+			<Button type="button" variant="preset" class="preset-href" dataset={{ href: '/' }}>
+				{adminRecentChanges.presets.home}
+			</Button>
+		</div>
+
+		<label class="ui-label">
+			<span class="font-medium">{adminRecentChanges.fields.kind}</span>
+			<select name="change_kind" class="ui-input" disabled={!hasAstroChannel}>
+				<option value="page">{adminRecentChanges.kinds.page}</option>
+				<option value="manual">{adminRecentChanges.kinds.manual}</option>
+			</select>
+		</label>
+
+		<Button type="submit" disabled={!hasAstroChannel}>
+			{adminRecentChanges.actions.announce}
+		</Button>
+	</form>
+</Panel>
+
+<script>
+	document.querySelectorAll('.preset-href').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			const href = btn.getAttribute('data-href');
+			const input = document.getElementById('change-href');
+			if (href && input instanceof HTMLInputElement) input.value = href;
+		});
+	});
+</script>

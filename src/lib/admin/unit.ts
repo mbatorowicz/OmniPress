@@ -12,6 +12,7 @@ import { getSiteById, getSiteDestinations } from './sites';
 import { isValidSlug, normalizeSlug } from './slug';
 import { normalizeGitHubRepo } from './github-repo';
 import { syncSiteDestinations } from './user-sites';
+import { DEFAULT_LAYOUT_PATH } from '@/lib/astro-layout/types';
 
 export type UnitError =
 	| 'invalid_slug'
@@ -37,6 +38,7 @@ export type UnitFormInitial = {
 		branch: string;
 		content_path: string;
 		content_layout: 'flat' | 'folder';
+		layout_path: string;
 		categories_path: string;
 		navigation_path: string;
 		recent_changes_path: string;
@@ -113,6 +115,10 @@ export async function loadUnitFormInitial(
 				branch: cfg.branch ?? 'main',
 				content_path: cfg.content_path ?? 'src/content/news',
 				content_layout: cfg.content_layout === 'folder' ? 'folder' : 'flat',
+				layout_path:
+					typeof cfg.layout_path === 'string' && cfg.layout_path.trim()
+						? cfg.layout_path.trim()
+						: DEFAULT_LAYOUT_PATH,
 				categories_path:
 					typeof cfg.categories_path === 'string' && cfg.categories_path.trim()
 						? cfg.categories_path.trim()

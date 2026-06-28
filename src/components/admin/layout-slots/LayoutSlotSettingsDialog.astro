@@ -1,0 +1,39 @@
+---
+import LayoutSlotConfigPanel from './LayoutSlotConfigPanel.astro';
+import { adminLayout } from '@/i18n';
+import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from '@/lib/astro-layout/types';
+
+type PageOption = { path: string; title: string };
+
+interface Props {
+	slot: DisplaySlot;
+	categories: CategoryDefinition[];
+	categoryDisplays: SiteAstroLayout['categoryDisplays'];
+	publishedPages: PageOption[];
+}
+
+const { slot, categories, categoryDisplays, publishedPages } = Astro.props;
+const componentLabel =
+	adminLayout.componentLabels[slot.component as keyof typeof adminLayout.componentLabels] ??
+	slot.component;
+const dialogTitle = `${adminLayout.slotDialogTitle ?? 'Ustawienia elementu'} — ${componentLabel}`;
+---
+
+<dialog id={`slot-dialog-${slot.id}`} class="slot-settings-dialog">
+	<div class="slot-settings-dialog__panel">
+		<header class="slot-settings-dialog__header">
+			<h3 class="slot-settings-dialog__title">{dialogTitle}</h3>
+			<button type="button" class="slot-dialog-close ui-btn ui-btn--secondary ui-btn--compact">
+				{adminLayout.slotDialogClose ?? 'Zamknij'}
+			</button>
+		</header>
+		<div class="slot-settings-dialog__body">
+			<LayoutSlotConfigPanel
+				slot={slot}
+				categories={categories}
+				categoryDisplays={categoryDisplays}
+				publishedPages={publishedPages}
+			/>
+		</div>
+	</div>
+</dialog>

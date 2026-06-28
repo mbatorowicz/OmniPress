@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { categoriesConfigPath, navigationConfigPath } from '@/lib/admin/config-paths';
+import { categoriesConfigPath, layoutConfigPath, navigationConfigPath } from '@/lib/admin/config-paths';
 import { loadSiteAstroDestination } from '@/lib/admin/sites';
 import {
 	decryptDestinationCredentials,
@@ -12,31 +12,38 @@ import {
 	type GitHubTextFileWrite,
 } from '@/lib/publish/github-api';
 import {
-	buildCategoriesFilePayload,
-	buildNavigationFilePayload,
+	buildLayoutFilePayload,
 	parseCategoriesFile,
+	parseLayoutFile,
 	parseNavigationJson,
+	normalizeSiteAstroLayout,
 } from './parse';
-import { normalizeSiteAstroLayout } from './parse';
 import {
 	withDraftSavedMeta,
 	type LayoutSyncScope,
 } from './layout-sync-meta';
 import {
-	hashCategoriesFileText,
+	hashLayoutFileText,
 	hashNavigationFileText,
 	withImportedLiveMeta,
 	withPublishedMeta,
 } from './layout-sync-meta.server';
-import { prepareRecentChangeAppendWrite } from '@/lib/recent-changes/github';
+import { mergeLegacyLayoutParts, syncNavigationInLayout } from './migrate-layout';
 import { buildLayoutRecentChangeEntry } from '@/lib/recent-changes/layout-entry';
+import { parseRecentChangesFile } from '@/lib/recent-changes/parse';
+import { recentChangesPath } from '@/lib/recent-changes/types';
+import { upsertRecentChange } from '@/lib/recent-changes/upsert';
 import type { SiteAstroLayout } from './types';
 import { emptySiteAstroLayout } from './types';
 import { collectNavHrefs } from './validate-nav';
 
 export type LayoutImportReport = {
 	hrefCount: number;
+	layoutPath: string;
+	layoutHash: string;
+	/** @deprecated */
 	navigationPath: string;
+	/** @deprecated */
 	navHash: string;
 };
 
@@ -77,6 +84,101 @@ export async function saveSiteAstroLayout(
 	return { ok: true };
 }
 
+async function importLegacyLayoutFromGitHub(
+	cfg: Parameters<typeof getGitHubFileText>[0],
+	token: string,
+	destConfig: Record<string, unknown>,
+	layout: SiteAstroLayout,
+): Promise<{ layout: SiteAstroLayout; layoutHash: string } | { error: string }> {
+	const navPath = navigationConfigPath(destConfig);
+	const catPath = categoriesConfigPath(destConfig);
+	const layoutPath = layoutConfigPath(destConfig);
+
+	const layoutText = await getGitHubFileText(cfg, token, layoutPath);
+	if (layoutText) {
+		try {
+			const parsed = parseLayoutFile(layoutText);
+			const merged: SiteAstroLayout = {
+				...layout,
+				categories: parsed.categories,
+				categoryDisplays: parsed.displays,
+				slots: parsed.slots,
+				layoutPath,
+			};
+			const normalized = normalizeSiteAstroLayout(merged);
+			const hash = hashLayoutFileText(layoutText) ?? '';
+			return { layout: normalized, layoutHash: hash };
+		} catch {
+			return { error: 'invalid_layout' };
+		}
+	}
+
+	const navText = await getGitHubFileText(cfg, token, navPath);
+	if (!navText) return { error: 'import_nav_missing' };
+
+	let navigation;
+	try {
+		navigation = parseNavigationJson(navText);
+	} catch {
+		return { error: 'invalid_navigation' };
+	}
+
+	const hrefCount = collectNavHrefs(navigation).length;
+	if (hrefCount === 0 && navText.includes('"href"')) {
+		return { error: 'import_nav_empty' };
+	}
+
+	let categories = layout.categories;
+	let displays = layout.categoryDisplays;
+	let slots = layout.slots;
+
+	const catText = await getGitHubFileText(cfg, token, catPath);
+	if (catText) {
+		try {
+			const parsed = parseCategoriesFile(catText);
+			categories = parsed.categories;
+			displays = parsed.displays;
+			slots = parsed.slots;
+		} catch {
+			return { error: 'invalid_layout' };
+		}
+	}
+
+	let recentEntries = undefined;
+	const rcText = await getGitHubFileText(cfg, token, recentChangesPath(destConfig));
+	if (rcText) {
+		try {
+			recentEntries = parseRecentChangesFile(rcText).entries;
+		} catch {
+			// ignore broken recent changes file
+		}
+	}
+
+	slots = mergeLegacyLayoutParts({
+		categories,
+		displays,
+		slots,
+		navigation,
+		recentEntries,
+	});
+
+	const merged = syncNavigationInLayout(
+		{
+			...layout,
+			categories,
+			categoryDisplays: displays,
+			slots,
+			navigation,
+			layoutPath,
+		},
+		navigation,
+	);
+
+	const normalized = normalizeSiteAstroLayout(merged);
+	const hash = hashLayoutFileText(buildLayoutFilePayload(normalized)) ?? '';
+	return { layout: normalized, layoutHash: hash };
+}
+
 export async function importSiteAstroLayoutFromGitHub(
 	supabase: SupabaseClient,
 	siteId: string,
@@ -94,40 +196,15 @@ export async function importSiteAstroLayoutFromGitHub(
 
 	const existing = await loadSiteAstroLayout(supabase, siteId);
 	const layout: SiteAstroLayout = { ...existing };
+	layout.layoutPath = layoutConfigPath(dest.config);
 	layout.navigationPath = navigationConfigPath(dest.config);
 	layout.categoriesPath = categoriesConfigPath(dest.config);
 
-	const navText = await getGitHubFileText(cfg, creds.token, layout.navigationPath);
-	if (!navText) {
-		return { ok: false, error: 'import_nav_missing' };
-	}
+	const imported = await importLegacyLayoutFromGitHub(cfg, creds.token, dest.config, layout);
+	if ('error' in imported) return { ok: false, error: imported.error };
 
-	let navigation;
-	try {
-		navigation = parseNavigationJson(navText);
-	} catch {
-		return { ok: false, error: 'invalid_navigation' };
-	}
-
-	const hrefCount = collectNavHrefs(navigation).length;
-	if (hrefCount === 0 && navText.includes('"href"')) {
-		return { ok: false, error: 'import_nav_empty' };
-	}
-
-	layout.navigation = navigation;
-
-	const catText = await getGitHubFileText(cfg, creds.token, layout.categoriesPath);
-	if (catText) {
-		const parsed = parseCategoriesFile(catText);
-		layout.categories = parsed.categories;
-		layout.categoryDisplays = parsed.displays;
-		layout.slots = parsed.slots;
-	}
-
-	const navHash = hashNavigationFileText(navText) ?? '';
-	const merged = withImportedLiveMeta(layout, {
-		navHash: navHash || null,
-		categoriesHash: catText ? hashCategoriesFileText(catText) : null,
+	const merged = withImportedLiveMeta(imported.layout, {
+		layoutHash: imported.layoutHash || null,
 	});
 
 	const saved = await saveSiteAstroLayout(supabase, siteId, merged, { updateDraftMeta: false });
@@ -135,17 +212,16 @@ export async function importSiteAstroLayoutFromGitHub(
 
 	const persisted = await loadSiteAstroLayout(supabase, siteId);
 	const persistedHrefCount = collectNavHrefs(persisted.navigation).length;
-	if (persistedHrefCount < hrefCount) {
-		return { ok: false, error: 'import_save_failed' };
-	}
 
 	return {
 		ok: true,
 		layout: persisted,
 		report: {
 			hrefCount: persistedHrefCount,
+			layoutPath: layout.layoutPath,
+			layoutHash: imported.layoutHash,
 			navigationPath: layout.navigationPath,
-			navHash,
+			navHash: imported.layoutHash,
 		},
 	};
 }
@@ -160,9 +236,10 @@ export type LayoutGitHubSyncResult =
 	| { ok: false; error: string; detail?: string };
 
 const LAYOUT_SYNC_COMMIT_MESSAGES: Record<LayoutSyncScope, string> = {
-	navigation: 'OmniPress: publikacja menu',
-	categories: 'OmniPress: publikacja kategorii i komponentów',
+	layout: 'OmniPress: publikacja layoutu',
 	all: 'OmniPress: publikacja layoutu',
+	navigation: 'OmniPress: publikacja layoutu',
+	categories: 'OmniPress: publikacja layoutu',
 };
 
 export async function syncSiteAstroLayoutToGitHub(
@@ -173,7 +250,7 @@ export async function syncSiteAstroLayoutToGitHub(
 ): Promise<LayoutGitHubSyncResult> {
 	const scope = options.scope ?? 'all';
 	const includeRecentChanges =
-		options.includeRecentChanges ?? (scope === 'all');
+		options.includeRecentChanges ?? (scope === 'all' || scope === 'layout');
 
 	const dest = await loadSiteAstroDestination(supabase, siteId);
 	if (!dest?.is_active) return { ok: false, error: 'no_astro_destination' };
@@ -186,36 +263,29 @@ export async function syncSiteAstroLayoutToGitHub(
 		return { ok: false, error: 'no_github_token' };
 	}
 
-	const navPath = layout.navigationPath;
-	const catPath = layout.categoriesPath;
+	const layoutPath = layout.layoutPath || layoutConfigPath(dest.config);
+	let publishLayout = syncNavigationInLayout(layout, layout.navigation);
+
+	if (includeRecentChanges) {
+		try {
+			const entry = buildLayoutRecentChangeEntry();
+			const rcSlot = publishLayout.slots.find((s) => s.component === 'sidebar.recent_changes');
+			const entries = upsertRecentChange(rcSlot?.entries ?? [], entry);
+			publishLayout = {
+				...publishLayout,
+				slots: publishLayout.slots.map((slot) =>
+					slot.component === 'sidebar.recent_changes' ? { ...slot, entries } : slot,
+				),
+			};
+		} catch {
+			// Rejestr zmian nie blokuje sync layoutu
+		}
+	}
 
 	try {
-		const files: GitHubTextFileWrite[] = [];
-
-		if (scope === 'navigation' || scope === 'all') {
-			files.push({ path: navPath, content: buildNavigationFilePayload(layout.navigation) });
-		}
-		if (scope === 'categories' || scope === 'all') {
-			files.push({ path: catPath, content: buildCategoriesFilePayload(layout) });
-		}
-
-		if (files.length === 0) {
-			return { ok: false, error: 'sync_failed', detail: 'Brak plików do publikacji.' };
-		}
-
-		if (includeRecentChanges) {
-			try {
-				const recent = await prepareRecentChangeAppendWrite(
-					cfg,
-					creds.token,
-					dest.config,
-					buildLayoutRecentChangeEntry(),
-				);
-				files.push(recent);
-			} catch {
-				// Rejestr zmian nie blokuje sync layoutu
-			}
-		}
+		const files: GitHubTextFileWrite[] = [
+			{ path: layoutPath, content: buildLayoutFilePayload(publishLayout) },
+		];
 
 		const { commitSha, written } = await putGitHubFilesBatch(
 			cfg,
@@ -227,7 +297,7 @@ export async function syncSiteAstroLayoutToGitHub(
 		const writtenPaths = files.map((f) => f.path).join(', ');
 		const githubSummary = `1 commit (${written} plików): ${writtenPaths} w ${cfg.owner}/${cfg.repo} | Vercel zbuduje stronę automatycznie (webhook).`;
 
-		const publishedLayout = withPublishedMeta(layout, { commitSha, scope });
+		const publishedLayout = withPublishedMeta(publishLayout, { commitSha, scope: 'layout' });
 		await saveSiteAstroLayout(supabase, siteId, publishedLayout, { updateDraftMeta: false });
 
 		return { ok: true, summary: githubSummary, commitSha };
@@ -252,6 +322,15 @@ export async function fetchLiveNavigationHrefCount(
 	if (!creds || !isGitHubCredentials(dest.type, creds)) return null;
 
 	try {
+		const layoutPath = layout.layoutPath || layoutConfigPath(dest.config);
+		const layoutText = await getGitHubFileText(cfg, creds.token, layoutPath);
+		if (layoutText) {
+			const parsed = parseLayoutFile(layoutText);
+			const navSlot = parsed.slots.find((s) => s.component === 'header.navigation');
+			const navigation = navSlot?.widget?.navigation ?? [];
+			return collectNavHrefs(navigation).length;
+		}
+
 		const navText = await getGitHubFileText(cfg, creds.token, layout.navigationPath);
 		if (!navText) return null;
 		return collectNavHrefs(parseNavigationJson(navText)).length;
@@ -264,7 +343,7 @@ export async function fetchLiveLayoutHashes(
 	supabase: SupabaseClient,
 	siteId: string,
 	layout: SiteAstroLayout,
-): Promise<{ navHash?: string; categoriesHash?: string } | null> {
+): Promise<{ layoutHash?: string; navHash?: string; categoriesHash?: string } | null> {
 	const dest = await loadSiteAstroDestination(supabase, siteId);
 	if (!dest?.is_active) return null;
 
@@ -275,15 +354,22 @@ export async function fetchLiveLayoutHashes(
 	if (!creds || !isGitHubCredentials(dest.type, creds)) return null;
 
 	try {
+		const layoutPath = layout.layoutPath || layoutConfigPath(dest.config);
+		const layoutText = await getGitHubFileText(cfg, creds.token, layoutPath);
+		if (layoutText) {
+			const hash = hashLayoutFileText(layoutText) ?? undefined;
+			return { layoutHash: hash, navHash: hash, categoriesHash: hash };
+		}
+
 		const [navText, catText] = await Promise.all([
 			getGitHubFileText(cfg, creds.token, layout.navigationPath),
 			getGitHubFileText(cfg, creds.token, layout.categoriesPath),
 		]);
 
-		return {
-			navHash: navText ? (hashNavigationFileText(navText) ?? undefined) : undefined,
-			categoriesHash: catText ? (hashCategoriesFileText(catText) ?? undefined) : undefined,
-		};
+		const navHash = navText ? (hashNavigationFileText(navText) ?? undefined) : undefined;
+		const catHash = catText ? (hashLayoutFileText(catText) ?? undefined) : undefined;
+		const layoutHash = catHash ?? navHash;
+		return { layoutHash, navHash, categoriesHash: catHash };
 	} catch {
 		return null;
 	}

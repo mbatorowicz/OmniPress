@@ -2,9 +2,10 @@
 import { getComponentKind } from '@/lib/astro-layout/components';
 import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from '@/lib/astro-layout/types';
 import LayoutSlotBannerPanel from './LayoutSlotBannerPanel.astro';
+import LayoutSlotChromePanel from './LayoutSlotChromePanel.astro';
 import LayoutSlotHomeFeedPanel from './LayoutSlotHomeFeedPanel.astro';
 import LayoutSlotLiveFeedPanel from './LayoutSlotLiveFeedPanel.astro';
-import LayoutSlotRecentPanel from './LayoutSlotRecentPanel.astro';
+import LayoutSlotLocalFeedPanel from './LayoutSlotLocalFeedPanel.astro';
 
 type PageOption = { path: string; title: string };
 
@@ -23,11 +24,13 @@ const selectedSlugs = categoryDisplays[slot.id] ?? [];
 {
 	kind === 'home_feed' ? (
 		<LayoutSlotHomeFeedPanel slot={slot} categories={categories} selectedSlugs={selectedSlugs} />
-	) : kind === 'recent_changes' ? (
-		<LayoutSlotRecentPanel slot={slot} />
+	) : kind === 'local_feed' ? (
+		<LayoutSlotLocalFeedPanel slot={slot} />
 	) : kind === 'live_feed' ? (
 		<LayoutSlotLiveFeedPanel slot={slot} />
 	) : kind === 'banner' ? (
 		<LayoutSlotBannerPanel slot={slot} categories={categories} publishedPages={publishedPages} />
+	) : kind === 'chrome' ? (
+		<LayoutSlotChromePanel slot={slot} />
 	) : null
 }

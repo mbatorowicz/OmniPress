@@ -6,7 +6,7 @@ import {
 	parseNavigationJson,
 } from './parse';
 import { mergeCategoryDisplays } from './slots';
-import { parseLayoutFromFormData, mergeLayoutFromFormData } from './parse-form';
+import { parseLayoutFromFormData, mergeLayoutFromFormData, collectSlotIdentities } from './parse-form';
 import type { SiteAstroLayout } from './types';
 
 const sampleSlots = [
@@ -122,6 +122,22 @@ describe('astro-layout parse', () => {
 		expect(catPayload).toContain('"slots"');
 		expect(catPayload).not.toContain('"widgets"');
 		expect(catPayload).not.toContain('"banners"');
+	});
+});
+
+describe('collectSlotIdentities', () => {
+	it('deduplikuje slot_id — wygrywa ostatnie wystąpienie (tabela zaawansowana)', () => {
+		const form = new FormData();
+		form.append('slot_id', 'chrome_meta');
+		form.append('slot_label', 'Stara nazwa');
+		form.append('slot_component', 'site.meta');
+		form.append('slot_id', 'chrome_meta');
+		form.append('slot_label', 'Meta strony');
+		form.append('slot_component', 'site.meta');
+
+		const identities = collectSlotIdentities(form);
+		expect(identities).toHaveLength(1);
+		expect(identities[0]?.label).toBe('Meta strony');
 	});
 });
 

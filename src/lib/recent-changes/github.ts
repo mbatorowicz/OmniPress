@@ -1,3 +1,4 @@
+import { layoutConfigPath } from '@/lib/admin/config-paths';
 import {
 	getGitHubFile,
 	getGitHubFileText,
@@ -5,10 +6,10 @@ import {
 	type GitHubConfig,
 	type GitHubTextFileWrite,
 } from '@/lib/publish/github-api';
-import { buildRecentChangesPayload, parseRecentChangesFile } from './parse';
-import type { RecentChangeEntry } from './types';
-import { emptyRecentChangesFile, recentChangesPath } from './types';
+import { buildLayoutFilePayload, parseLayoutFile } from '@/lib/astro-layout/parse';
+import { upsertRecentChangeEntriesInLayout } from '@/lib/astro-layout/migrate-layout';
 import { upsertRecentChange } from './upsert';
+import type { RecentChangeEntry } from './types';
 
 export async function prepareRecentChangeAppendWrite(
 	cfg: GitHubConfig,
@@ -16,19 +17,36 @@ export async function prepareRecentChangeAppendWrite(
 	destinationConfig: Record<string, unknown>,
 	entry: RecentChangeEntry,
 ): Promise<GitHubTextFileWrite> {
-	const path = recentChangesPath(destinationConfig);
+	const path = layoutConfigPath(destinationConfig);
 	const existing = await getGitHubFile(cfg, token, path);
 	const text = existing ? await getGitHubFileText(cfg, token, path) : null;
 
-	let file;
+	let layoutPayload;
 	try {
-		file = text ? parseRecentChangesFile(text) : emptyRecentChangesFile();
+		layoutPayload = text
+			? parseLayoutFile(text)
+			: { categories: [], displays: {}, slots: [] };
 	} catch {
-		file = emptyRecentChangesFile();
+		layoutPayload = { categories: [], displays: {}, slots: [] };
 	}
 
-	file.entries = upsertRecentChange(file.entries, entry);
-	return { path, content: buildRecentChangesPayload(file) };
+	const rcSlot = layoutPayload.slots.find((s) => s.component === 'sidebar.recent_changes');
+	const entries = upsertRecentChange(rcSlot?.entries ?? [], entry);
+	const slots = layoutPayload.slots.map((slot) =>
+		slot.component === 'sidebar.recent_changes' ? { ...slot, entries } : slot,
+	);
+
+	const content = buildLayoutFilePayload({
+		categories: layoutPayload.categories,
+		categoryDisplays: layoutPayload.displays,
+		slots,
+		navigation: [],
+		layoutPath: path,
+		navigationPath: '',
+		categoriesPath: '',
+	});
+
+	return { path, content };
 }
 
 export async function appendRecentChangeOnGitHub(
@@ -48,4 +66,23 @@ export async function appendRecentChangeOnGitHub(
 		'OmniPress: rejestr ostatnich zmian',
 		existing?.sha,
 	);
+}
+
+export function appendRecentChangeToLayoutText(text: string, entry: RecentChangeEntry): string {
+	const parsed = parseLayoutFile(text);
+	const rcSlot = parsed.slots.find((s) => s.component === 'sidebar.recent_changes');
+	const entries = upsertRecentChange(rcSlot?.entries ?? [], entry);
+	const layout = upsertRecentChangeEntriesInLayout(
+		{
+			categories: parsed.categories,
+			categoryDisplays: parsed.displays,
+			slots: parsed.slots,
+			navigation: [],
+			layoutPath: '',
+			navigationPath: '',
+			categoriesPath: '',
+		},
+		entries,
+	);
+	return buildLayoutFilePayload(layout);
 }

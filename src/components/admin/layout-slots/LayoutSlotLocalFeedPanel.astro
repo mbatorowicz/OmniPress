@@ -1,0 +1,96 @@
+---
+import { adminLayout, adminRecentChanges } from '@/i18n';
+import { slotFormFields } from '@/lib/astro-layout/slot-form-fields';
+import type { DisplaySlot } from '@/lib/astro-layout/types';
+import LayoutSlotPanelHeader from './LayoutSlotPanelHeader.astro';
+
+interface Props {
+	slot: DisplaySlot;
+}
+
+const { slot } = Astro.props;
+const w = slot.widget ?? {};
+const f = slotFormFields.recentChanges;
+const { fields, variants } = adminLayout;
+const entries = slot.entries ?? [];
+const kindLabels = adminRecentChanges.kinds;
+---
+
+<div
+	id={`slot-panel-${slot.id}`}
+	class="ui-fieldset-nested slot-config-panel slot-detail-block"
+	data-slot-id={slot.id}
+	data-component={slot.component}
+>
+	<input type="hidden" name="slot_id" value={slot.id} />
+	<input type="hidden" name="slot_label" value={slot.label} />
+	<input type="hidden" name="slot_component" value={slot.component} />
+	<input type="hidden" name="slot_widget_order" value={String(w.order ?? 0)} />
+
+	<LayoutSlotPanelHeader slot={slot} />
+	<p class="ui-hint sm:col-span-2">{adminLayout.recentChangesHint}</p>
+	<label class="ui-label-inline">
+		<span class="font-medium">{fields.widgetTitle}</span>
+		<input name={f.title(slot.id)} value={w.title ?? ''} class="ui-input-compact w-full" />
+	</label>
+	<label class="ui-label-inline">
+		<span class="font-medium">{fields.widgetLimit}</span>
+		<input name={f.limit(slot.id)} type="number" min="1" value={w.limit ?? ''} class="ui-input-compact w-full" />
+	</label>
+	<label class="ui-label-inline">
+		<span class="font-medium">{fields.widgetEmptyText}</span>
+		<input name={f.emptyText(slot.id)} value={w.emptyText ?? ''} class="ui-input-compact w-full" />
+	</label>
+	<label class="ui-label-inline flex items-center gap-2">
+		<input type="checkbox" name={slotFormFields.hideWhenEmpty(slot.id)} checked={w.hideWhenEmpty === true} />
+		<span class="font-medium">{fields.widgetHideWhenEmpty}</span>
+	</label>
+	<label class="ui-label-inline">
+		<span class="font-medium">{fields.widgetVariant}</span>
+		<select name={f.variant(slot.id)} class="ui-select-compact w-full">
+			<option value="default" selected={w.variant !== 'alert'}>{variants.default}</option>
+			<option value="alert" selected={w.variant === 'alert'}>{variants.alert}</option>
+		</select>
+	</label>
+
+	<div class="sm:col-span-2">
+		<h4 class="font-medium mt-2">{adminRecentChanges.currentHeading}</h4>
+		{
+			entries.length === 0 ? (
+				<p class="ui-hint">{adminRecentChanges.currentEmpty}</p>
+			) : (
+				<div class="overflow-x-auto mt-2">
+					<table class="ui-table-dense min-w-[32rem]">
+						<thead>
+							<tr class="ui-table-dense-head">
+								<th class="ui-table-dense-th--wide">{adminRecentChanges.table.title}</th>
+								<th class="ui-table-dense-th--wide">{adminRecentChanges.table.href}</th>
+								<th class="ui-table-dense-th--wide">{adminRecentChanges.table.kind}</th>
+								<th class="ui-table-dense-th--wide">{adminRecentChanges.table.date}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{
+								entries.map((entry) => (
+									<tr class="ui-table-dense-row">
+										<td class="ui-table-dense-td--wide">{entry.title}</td>
+										<td class="ui-table-dense-td--wide font-mono text-xs">{entry.href}</td>
+										<td class="ui-table-dense-td--wide text-xs">
+											{entry.kind in kindLabels
+												? kindLabels[entry.kind as keyof typeof kindLabels]
+												: entry.kind}
+										</td>
+										<td class="ui-table-dense-td--wide ui-hint">
+											{new Date(entry.changedAt).toLocaleString('pl-PL')}
+										</td>
+									</tr>
+								))
+							}
+						</tbody>
+					</table>
+				</div>
+			)
+		}
+		<p class="ui-hint mt-2">{adminLayout.localFeedEntriesHint ?? 'Wpisy są zapisywane w pliku layoutu przy publikacji. Nowe ogłoszenie dodasz w sekcji poniżej.'}</p>
+	</div>
+</div>

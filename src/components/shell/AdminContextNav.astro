@@ -15,6 +15,7 @@ const { siteId, siteName, section, currentLabel } = Astro.props;
 
 const sectionLabels: Record<AdminUnitSection, string> = {
 	settings: layout.breadcrumb.settings,
+	layout: layout.breadcrumb.layout,
 	navigation: layout.breadcrumb.navigation,
 	categories: layout.breadcrumb.categories,
 	components: layout.breadcrumb.components,
@@ -24,11 +25,12 @@ const sectionLabels: Record<AdminUnitSection, string> = {
 
 const sectionHrefs: Record<AdminUnitSection, string> = {
 	settings: `/admin/units/${siteId}`,
-	navigation: `/admin/units/${siteId}/navigation`,
-	categories: `/admin/units/${siteId}/categories`,
-	components: `/admin/units/${siteId}/components`,
+	layout: `/admin/units/${siteId}/layout`,
+	navigation: `/admin/units/${siteId}/layout#zone-header`,
+	categories: `/admin/units/${siteId}/layout#zone-categories`,
+	components: `/admin/units/${siteId}/layout#zone-home`,
 	pages: `/admin/units/${siteId}/pages`,
-	changes: `/admin/units/${siteId}/changes`,
+	changes: `/admin/units/${siteId}/layout#zone-changes`,
 };
 
 const crumbs: Crumb[] = [
@@ -48,17 +50,11 @@ if (currentLabel) {
 	crumbs.push({ label: currentLabel });
 }
 
-const navSections: AdminUnitSection[] = [
-	'navigation',
-	'categories',
-	'components',
-	'pages',
-	'changes',
-	'settings',
-];
+const navSections: AdminUnitSection[] = ['layout', 'pages', 'settings'];
 
 const linkLabels: Record<AdminUnitSection, string> = {
 	settings: adminUnit.settingsLink,
+	layout: adminUnit.layoutLink,
 	navigation: adminUnit.navigationLink,
 	categories: adminUnit.categoriesLink,
 	components: adminUnit.componentsLink,

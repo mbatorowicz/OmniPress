@@ -23,7 +23,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		return redirect(`/admin/units/${siteId}/${returnSegment}?error=${parsed.error}`);
 	}
 
-	if (section === 'navigation' || section === 'all') {
+	if (section === 'navigation' || section === 'all' || section === 'layout') {
 		const existingHrefs = countNavigationHrefs(existing.navigation);
 		const newHrefs = countNavigationHrefs(parsed.layout.navigation);
 		if (existingHrefs > 0 && newHrefs === 0) {

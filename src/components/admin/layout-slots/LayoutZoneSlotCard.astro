@@ -1,0 +1,72 @@
+---
+import { adminLayout } from '@/i18n';
+import { buildSlotSummaryHtml } from '@/lib/admin/layout-slot-summary';
+import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from '@/lib/astro-layout/types';
+import LayoutSlotSettingsDialog from './LayoutSlotSettingsDialog.astro';
+
+type PageOption = { path: string; title: string };
+
+interface Props {
+	slot: DisplaySlot;
+	categories: CategoryDefinition[];
+	categoryDisplays: SiteAstroLayout['categoryDisplays'];
+	publishedPages: PageOption[];
+}
+
+const { slot, categories, categoryDisplays, publishedPages } = Astro.props;
+const w = slot.widget ?? {};
+const componentLabel =
+	adminLayout.componentLabels[slot.component as keyof typeof adminLayout.componentLabels] ??
+	slot.component;
+
+const summaryHtml = buildSlotSummaryHtml(slot, categories, categoryDisplays, {
+	noCategories: adminLayout.previewChipNoCategories,
+	categoriesPrefix: adminLayout.previewChipCategoriesPrefix,
+	pinnedOnly: adminLayout.previewChipPinnedOnly,
+	disabled: adminLayout.slotsPreviewDisabled,
+	linkPrefix: adminLayout.previewChipLinkPrefix,
+});
+---
+
+<article class="layout-slot-card" data-slot-id={slot.id} data-component={slot.component}>
+	<input type="hidden" name="slot_id" value={slot.id} />
+	<input type="hidden" name="slot_label" value={slot.label} class="slot-card-label-input" />
+	<input type="hidden" name="slot_component" value={slot.component} />
+	<input
+		type="hidden"
+		name="slot_widget_order"
+		value={String(w.order ?? 0)}
+		class="slot-card-order-input"
+	/>
+	<div class="layout-slot-card__main">
+		<div>
+			<p class="layout-slot-card__type">{componentLabel}</p>
+			<p class="layout-slot-card__label">{slot.label}</p>
+			<div class="layout-slot-card__chips" data-slot-summary={slot.id} set:html={summaryHtml} />
+		</div>
+		<div class="layout-slot-card__actions">
+			<label class="layout-slot-card__enabled flex items-center gap-1.5 text-sm">
+				<input
+					type="checkbox"
+					name={`slot_enabled_${slot.id}`}
+					checked={w.enabled !== false}
+					class="slot-card-enabled"
+				/>
+				<span>{adminLayout.slotCardEnabledShort ?? 'Wł.'}</span>
+			</label>
+			<button
+				type="button"
+				class="slot-settings-open ui-btn ui-btn--secondary ui-btn--compact"
+				data-dialog-id={`slot-dialog-${slot.id}`}
+			>
+				{adminLayout.slotDialogOpen ?? 'Ustawienia'}
+			</button>
+		</div>
+	</div>
+	<LayoutSlotSettingsDialog
+		slot={slot}
+		categories={categories}
+		categoryDisplays={categoryDisplays}
+		publishedPages={publishedPages}
+	/>
+</article>

@@ -13,13 +13,13 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const form = await request.formData();
 	const parsed = parseAnnounceForm(form);
 	if (!parsed.ok) {
-		return redirect(`/admin/units/${siteId}/changes?error=${parsed.error}`);
+		return redirect(`/admin/units/${siteId}/layout?change_error=${parsed.error}#zone-changes`);
 	}
 
 	const result = await announceRecentChangeOnGitHub(supabase, siteId, parsed.entry);
 	if (!result.ok) {
-		return redirect(`/admin/units/${siteId}/changes?error=${result.error}`);
+		return redirect(`/admin/units/${siteId}/layout?change_error=${result.error}#zone-changes`);
 	}
 
-	return redirect(`/admin/units/${siteId}/changes?saved=1`);
+	return redirect(`/admin/units/${siteId}/layout?change_saved=1#zone-changes`);
 };

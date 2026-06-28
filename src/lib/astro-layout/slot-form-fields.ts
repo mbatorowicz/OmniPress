@@ -52,4 +52,22 @@ export const slotFormFields = {
 		detailsSummary: (slotId: string) => field('slot_weather_details_summary', slotId),
 		detailsCloseLabel: (slotId: string) => field('slot_weather_details_close_label', slotId),
 	},
+	topbar: {
+		text: (slotId: string) => field('slot_topbar_text', slotId),
+	},
+	siteMeta: {
+		name: (slotId: string) => field('slot_site_meta_name', slotId),
+		description: (slotId: string) => field('slot_site_meta_description', slotId),
+		url: (slotId: string) => field('slot_site_meta_url', slotId),
+	},
+	headerBrand: {
+		logoUrl: (slotId: string) => field('slot_header_brand_logo_url', slotId),
+		logoAlt: (slotId: string) => field('slot_header_brand_logo_alt', slotId),
+		homeHref: (slotId: string) => field('slot_header_brand_home_href', slotId),
+	},
+	footer: {
+		contactCtaLabel: (slotId: string) => field('slot_footer_contact_cta_label', slotId),
+		contactCtaHref: (slotId: string) => field('slot_footer_contact_cta_href', slotId),
+		copyrightSuffix: (slotId: string) => field('slot_footer_copyright_suffix', slotId),
+	},
 } as const;

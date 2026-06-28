@@ -11,10 +11,11 @@ import { validateBannerWidget } from './banners';
 import { slotFormFields } from './slot-form-fields';
 import { mergeCategoryDisplays, sortSlotsByOrder } from './slots';
 import { isExternalHref, normalizeInternalHref, countNavigationHrefs } from './validate-nav';
+import { syncNavigationInLayout } from './migrate-layout';
 import { applyCategoryArchiveFieldsFromForm } from './category-archive';
 import type { CategoryDefinition, DisplaySlot, NavItem, SiteAstroLayout, SlotWidgetConfig } from './types';
 
-export type LayoutFormSection = 'navigation' | 'categories' | 'components' | 'all';
+export type LayoutFormSection = 'navigation' | 'categories' | 'components' | 'layout' | 'all';
 
 export type LayoutFormError =
 	| 'invalid_navigation'
@@ -40,12 +41,39 @@ function strFields(form: FormData, name: string): string[] {
 	return form.getAll(name).map((v) => String(v).trim());
 }
 
-function parseBaseWidget(form: FormData, id: string, index: number): SlotWidgetConfig {
+function parseBaseWidget(form: FormData, id: string, orderHint?: number): SlotWidgetConfig {
 	const widget: SlotWidgetConfig = {};
-	const order = parseOrderField(form.getAll('slot_widget_order')[index] ?? null);
-	widget.order = order ?? (index + 1) * 10;
+	widget.order = orderHint ?? 10;
 	if (form.get(`slot_enabled_${id}`) !== 'on') widget.enabled = false;
 	return widget;
+}
+
+export type SlotIdentity = {
+	id: string;
+	label: string;
+	component: string;
+	order?: number;
+};
+
+/** Zbiera tożsamość slotów po ID — przy duplikatach wygrywa ostatnie wystąpienie (tabela zaawansowana). */
+export function collectSlotIdentities(form: FormData): SlotIdentity[] {
+	const ids = form.getAll('slot_id').map((v) => String(v).trim());
+	const labels = form.getAll('slot_label').map((v) => String(v).trim());
+	const components = form.getAll('slot_component').map((v) => String(v).trim());
+	const orders = form.getAll('slot_widget_order');
+
+	const byId = new Map<string, SlotIdentity>();
+	for (let i = 0; i < ids.length; i++) {
+		const id = ids[i];
+		if (!id) continue;
+		byId.set(id, {
+			id,
+			label: labels[i] ?? '',
+			component: components[i] ?? '',
+			order: parseOrderField(orders[i] ?? null),
+		});
+	}
+	return [...byId.values()];
 }
 
 function parseFeedListFields(
@@ -78,8 +106,39 @@ function parseHomeFeedWidget(form: FormData, id: string, widget: SlotWidgetConfi
 	if (moreLink) widget.moreLink = moreLink;
 }
 
-function parseRecentChangesWidget(form: FormData, id: string, widget: SlotWidgetConfig): void {
+function parseLocalFeedWidget(form: FormData, id: string, widget: SlotWidgetConfig): void {
 	parseFeedListFields(form, id, slotFormFields.recentChanges, widget);
+}
+
+function parseChromeWidget(form: FormData, id: string, component: string, widget: SlotWidgetConfig): void {
+	if (component === 'topbar.tagline') {
+		const text = strField(form, slotFormFields.topbar.text(id));
+		if (text) widget.text = text;
+	}
+	if (component === 'site.meta') {
+		const name = strField(form, slotFormFields.siteMeta.name(id));
+		const description = strField(form, slotFormFields.siteMeta.description(id));
+		const url = strField(form, slotFormFields.siteMeta.url(id));
+		if (name) widget.name = name;
+		if (description) widget.description = description;
+		if (url) widget.url = url;
+	}
+	if (component === 'header.brand') {
+		const logoUrl = strField(form, slotFormFields.headerBrand.logoUrl(id));
+		const logoAlt = strField(form, slotFormFields.headerBrand.logoAlt(id));
+		const homeHref = strField(form, slotFormFields.headerBrand.homeHref(id));
+		if (logoUrl) widget.logoUrl = logoUrl;
+		if (logoAlt) widget.logoAlt = logoAlt;
+		if (homeHref) widget.homeHref = homeHref;
+	}
+	if (component === 'footer.main') {
+		const contactCtaLabel = strField(form, slotFormFields.footer.contactCtaLabel(id));
+		const contactCtaHref = strField(form, slotFormFields.footer.contactCtaHref(id));
+		const copyrightSuffix = strField(form, slotFormFields.footer.copyrightSuffix(id));
+		if (contactCtaLabel) widget.contactCtaLabel = contactCtaLabel;
+		if (contactCtaHref) widget.contactCtaHref = contactCtaHref;
+		if (copyrightSuffix) widget.copyrightSuffix = copyrightSuffix;
+	}
 }
 
 function parseLiveFeedWidget(
@@ -156,43 +215,49 @@ function parseWeatherWidget(form: FormData, id: string, widget: SlotWidgetConfig
 	if (detailsCloseLabel) widget.detailsCloseLabel = detailsCloseLabel;
 }
 
-function parseSlotsFromForm(form: FormData): DisplaySlot[] {
-	const ids = form.getAll('slot_id').map((v) => String(v).trim());
-	const labels = form.getAll('slot_label').map((v) => String(v).trim());
-	const components = form.getAll('slot_component').map((v) => String(v).trim());
-
+function parseSlotsFromForm(form: FormData, existing: DisplaySlot[] = []): DisplaySlot[] {
+	const identities = collectSlotIdentities(form);
 	const seenSingletons = new Set<string>();
 	const slots: DisplaySlot[] = [];
 
-	for (let i = 0; i < ids.length; i++) {
-		const id = ids[i];
-		const label = labels[i] ?? '';
-		const component = components[i] ?? '';
+	for (let i = 0; i < identities.length; i++) {
+		const { id, label, component, order } = identities[i]!;
 		if (!id || !label || !isLayoutComponentId(component)) continue;
 		if (isSingletonComponent(component)) {
 			if (seenSingletons.has(component)) continue;
 			seenSingletons.add(component);
 		}
 
-		const widget = parseBaseWidget(form, id, i);
+		const widget = parseBaseWidget(form, id, order ?? (i + 1) * 10);
 		const kind = getComponentKind(component);
 
 		if (kind === 'home_feed') parseHomeFeedWidget(form, id, widget);
-		if (kind === 'recent_changes') parseRecentChangesWidget(form, id, widget);
+		if (kind === 'local_feed') parseLocalFeedWidget(form, id, widget);
 		if (kind === 'live_feed') parseLiveFeedWidget(form, id, component, widget);
+		if (kind === 'chrome') parseChromeWidget(form, id, component, widget);
 		if (kind === 'banner') {
 			parseBannerWidget(form, id, widget);
 			if (!validateBannerWidget(widget, label)) continue;
 		}
+
+		const prior = existing.find((s) => s.id === id);
 
 		slots.push({
 			id,
 			label,
 			component,
 			widget: Object.keys(widget).length > 0 ? widget : undefined,
+			entries: component === 'sidebar.recent_changes' ? prior?.entries : undefined,
 		});
 	}
 	return sortSlotsByOrder(slots);
+}
+
+function mergeSlotsFromForm(form: FormData, existing: DisplaySlot[]): DisplaySlot[] {
+	const parsed = parseSlotsFromForm(form, existing);
+	const parsedIds = new Set(parsed.map((s) => s.id));
+	const preserved = existing.filter((s) => !parsedIds.has(s.id));
+	return sortSlotsByOrder([...preserved, ...parsed]);
 }
 
 function parseCategoriesFromForm(form: FormData): CategoryDefinition[] {
@@ -379,17 +444,17 @@ export function mergeLayoutFromFormData(
 	existing: SiteAstroLayout,
 	section: LayoutFormSection,
 ): { ok: true; layout: SiteAstroLayout } | { ok: false; error: LayoutFormError } {
-	const layout: SiteAstroLayout = { ...existing };
+	let layout: SiteAstroLayout = { ...existing };
 
-	if (section === 'navigation' || section === 'all') {
+	if (section === 'navigation' || section === 'all' || section === 'layout') {
 		const navigation = parseNavigationSection(form);
 		if ('error' in navigation) return { ok: false, error: navigation.error };
-		layout.navigation = navigation;
 		layout.navEditorDepthColors = parseNavEditorDepthColorsFromForm(form);
+		layout = syncNavigationInLayout(layout, navigation);
 	}
 
-	if (section === 'components' || section === 'all') {
-		const slots = parseSlotsFromForm(form);
+	if (section === 'components' || section === 'all' || section === 'layout') {
+		const slots = mergeSlotsFromForm(form, existing.slots);
 		if (slots.length === 0) return { ok: false, error: 'no_slots' };
 		layout.slots = slots;
 	}
@@ -427,13 +492,14 @@ export function mergeLayoutFromFormData(
 /** @deprecated Użyj mergeLayoutFromFormData z section=all */
 export function parseLayoutFromFormData(
 	form: FormData,
-	base: Pick<SiteAstroLayout, 'navigationPath' | 'categoriesPath'>,
+	base: Pick<SiteAstroLayout, 'navigationPath' | 'categoriesPath' | 'layoutPath'>,
 ): { ok: true; layout: SiteAstroLayout } | { ok: false; error: string } {
 	const existing: SiteAstroLayout = {
 		navigation: [],
 		categories: [],
 		categoryDisplays: {},
 		slots: [],
+		layoutPath: base.layoutPath,
 		navigationPath: base.navigationPath,
 		categoriesPath: base.categoriesPath,
 	};
@@ -445,7 +511,11 @@ export function parseLayoutFromFormData(
 export function parseLayoutSection(form: FormData, existing: SiteAstroLayout): ReturnType<typeof mergeLayoutFromFormData> {
 	const raw = String(form.get('section') ?? 'all').trim();
 	const section: LayoutFormSection =
-		raw === 'navigation' || raw === 'categories' || raw === 'components' || raw === 'all'
+		raw === 'navigation' ||
+		raw === 'categories' ||
+		raw === 'components' ||
+		raw === 'layout' ||
+		raw === 'all'
 			? raw
 			: 'all';
 	return mergeLayoutFromFormData(form, existing, section);

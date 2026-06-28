@@ -7,6 +7,7 @@ import {
 	computeCombinedDraftLiveStatus,
 	computeDraftLiveStatus,
 	hashCategoriesLayout,
+	hashLayoutFile,
 	hashNavigationLayout,
 	withPublishedMeta,
 } from './layout-sync-meta.server';
@@ -16,9 +17,10 @@ const sampleLayout: SiteAstroLayout = {
 	navigation: [{ label: 'Start', href: '/' }],
 	categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],
 	categoryDisplays: { home_feed: ['aktualnosci'] },
-	slots: [{ id: 'home_feed', label: 'Feed', component: 'home.feed' }],
+	slots: [{ id: 'home_feed', label: 'Feed', component: 'home.latest' }],
 	navigationPath: 'src/config/omnipress-navigation.json',
 	categoriesPath: 'src/config/omnipress-categories.json',
+	layoutPath: 'src/config/omnipress-layout.json',
 };
 
 describe('layout-sync-meta', () => {
@@ -30,9 +32,10 @@ describe('layout-sync-meta', () => {
 	});
 
 	it('layoutSectionToSyncScope mapuje sekcje panelu', () => {
-		expect(layoutSectionToSyncScope('navigation')).toBe('navigation');
-		expect(layoutSectionToSyncScope('categories')).toBe('categories');
-		expect(layoutSectionToSyncScope('components')).toBe('categories');
+		expect(layoutSectionToSyncScope('navigation')).toBe('layout');
+		expect(layoutSectionToSyncScope('categories')).toBe('layout');
+		expect(layoutSectionToSyncScope('components')).toBe('layout');
+		expect(layoutSectionToSyncScope('layout')).toBe('layout');
 		expect(layoutSectionToSyncScope('all')).toBe('all');
 	});
 
@@ -47,32 +50,31 @@ describe('layout-sync-meta', () => {
 			scope: 'all',
 		});
 		expect(next.sync?.lastPublishedSha).toBe('abcdef1');
-		expect(next.sync?.publishedNavHash).toBe(hashNavigationLayout(sampleLayout.navigation));
+		expect(next.sync?.publishedLayoutHash).toBe(hashLayoutFile(sampleLayout));
+		expect(next.sync?.publishedNavHash).toBe(hashLayoutFile(sampleLayout));
 		expect(next.sync?.publishedCategoriesHash).toBe(hashCategoriesLayout(sampleLayout));
 	});
 
 	it('computeDraftLiveStatus wykrywa rozjazd szkicu', () => {
-		const liveNav = hashNavigationLayout(sampleLayout.navigation);
+		const liveHash = hashLayoutFile(sampleLayout);
 		const status = computeDraftLiveStatus(
 			{ ...sampleLayout, navigation: [{ label: 'Inne', href: '/inne' }] },
 			'navigation',
-			{ navHash: liveNav },
+			{ layoutHash: liveHash },
 		);
 		expect(status).toBe('draft_ahead');
 	});
 
 	it('computeDraftLiveStatus zwraca in_sync gdy hash się zgadza', () => {
-		const liveNav = hashNavigationLayout(sampleLayout.navigation);
-		const status = computeDraftLiveStatus(sampleLayout, 'navigation', { navHash: liveNav });
+		const liveHash = hashLayoutFile(sampleLayout);
+		const status = computeDraftLiveStatus(sampleLayout, 'navigation', { layoutHash: liveHash });
 		expect(status).toBe('in_sync');
 	});
 
-	it('computeCombinedDraftLiveStatus wymaga zgodnosci menu i kategorii', () => {
-		const liveNav = hashNavigationLayout(sampleLayout.navigation);
-		const liveCat = hashCategoriesLayout(sampleLayout);
+	it('computeCombinedDraftLiveStatus wymaga zgodnosci layoutu', () => {
+		const liveHash = hashLayoutFile(sampleLayout);
 		const status = computeCombinedDraftLiveStatus(sampleLayout, {
-			navHash: liveNav,
-			categoriesHash: liveCat,
+			layoutHash: liveHash,
 		});
 		expect(status.combined).toBe('in_sync');
 		expect(status.nav).toBe('in_sync');

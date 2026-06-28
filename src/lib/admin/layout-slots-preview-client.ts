@@ -155,6 +155,12 @@ function highlightSlot(slot: SlotRowData): void {
 	slotsBody?.querySelectorAll('.slot-row').forEach((tr) => tr.classList.remove(HIGHLIGHT_CLASS));
 	slot.row.classList.add(HIGHLIGHT_CLASS);
 
+	const dialog = document.getElementById(`slot-dialog-${slot.id}`) as HTMLDialogElement | null;
+	if (dialog) {
+		dialog.showModal();
+		return;
+	}
+
 	document.querySelectorAll('.slot-config-panel').forEach((panel) => {
 		panel.classList.remove(PANEL_HIGHLIGHT_CLASS);
 	});

@@ -1,5 +1,78 @@
 ---
-const id = Astro.params.id;
+import AppLayout from '@/layouts/AppLayout.astro';
+import AdminContextNav from '@/components/shell/AdminContextNav.astro';
+import LayoutEditorStatus from '@/components/admin/layout/LayoutEditorStatus.astro';
+import LayoutSiteSyncBar from '@/components/admin/layout/LayoutSiteSyncBar.astro';
+import LayoutEditorForm from '@/components/admin/layout/LayoutEditorForm.astro';
+import { adminLayout, adminRecentChanges } from '@/i18n';
+import { loadLayoutEditorContext } from '@/lib/admin/layout-editor-context';
+import { parseLayoutPageFlash } from '@/lib/admin/layout-page-flash';
+
+const { id } = Astro.params;
 if (!id) return Astro.redirect('/admin/sites');
-return Astro.redirect(`/admin/units/${id}/navigation`, 301);
+
+const ctx = await loadLayoutEditorContext(Astro.locals.supabase, id, {
+	draftStatusScope: 'categories',
+});
+if (!ctx) return Astro.redirect('/admin/sites');
+
+const flash = parseLayoutPageFlash(Astro.url);
+
+const changeErrorCode = Astro.url.searchParams.get('change_error');
+const changeErrorMessage =
+	changeErrorCode && changeErrorCode in adminRecentChanges.errors
+		? adminRecentChanges.errors[changeErrorCode as keyof typeof adminRecentChanges.errors]
+		: null;
+const changeSaved = Astro.url.searchParams.get('change_saved') === '1';
 ---
+
+<AppLayout title={adminLayout.layoutTitle} heading={adminLayout.layoutTitle}>
+	<AdminContextNav siteId={id} siteName={ctx.site.name} section="layout" />
+
+	<LayoutSiteSyncBar
+		siteId={id}
+		hasAstroChannel={ctx.hasAstroChannel}
+		currentSection="layout"
+		combinedDraftStatus={ctx.combinedDraftStatus}
+		navDraftStatus={ctx.navDraftStatus}
+		categoriesDraftStatus={ctx.categoriesDraftStatus}
+		navHasMissingHref={ctx.navHasMissingHref}
+		lastPublishedAt={ctx.lastPublishedAt}
+		lastPublishedSha={ctx.lastPublishedSha}
+		lastDraftSavedAt={ctx.lastDraftSavedAt}
+	/>
+
+	<p class="ui-muted mb-4">{adminLayout.layoutLead}</p>
+
+	<LayoutEditorStatus
+		draftStatus={ctx.combinedDraftStatus}
+		navHasMissingHref={ctx.navHasMissingHref}
+		lastPublishedAt={ctx.lastPublishedAt}
+		lastPublishedSha={ctx.lastPublishedSha}
+		lastDraftSavedAt={ctx.lastDraftSavedAt}
+		hasAstroChannel={ctx.hasAstroChannel}
+		navWarningLines={ctx.navWarningLines}
+		{...flash}
+		imported={flash.imported || ctx.autoImported}
+		importHrefCount={flash.importHrefCount ?? ctx.autoImportHrefCount ?? null}
+		importPath={flash.importPath ?? ctx.autoImportPath ?? null}
+		errorMessage={
+			flash.errorMessage ??
+			(ctx.autoImportError && ctx.autoImportError in adminLayout.errors
+				? adminLayout.errors[ctx.autoImportError as keyof typeof adminLayout.errors]
+				: null)
+		}
+	/>
+
+	<LayoutEditorForm
+		siteId={id}
+		layout={ctx.layout}
+		hasAstroChannel={ctx.hasAstroChannel}
+		publishedPages={ctx.publishedPages}
+		draftHrefCount={ctx.draftHrefCount}
+		liveHrefCount={ctx.liveHrefCount}
+		navHasMissingHref={ctx.navHasMissingHref}
+		changeErrorMessage={changeErrorMessage}
+		changeSaved={changeSaved}
+	/>
+</AppLayout>

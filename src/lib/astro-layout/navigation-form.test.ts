@@ -43,7 +43,7 @@ const existingLayout: SiteAstroLayout = {
 	navigation: [{ label: 'Stare', href: '/stare' }],
 	categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],
 	categoryDisplays: { home_feed: ['aktualnosci'] },
-	slots: [{ id: 'home_feed', label: 'Feed', component: 'home.feed' }],
+	slots: [{ id: 'home_feed', label: 'Feed', component: 'home.latest' }],
 	navigationPath: 'src/config/omnipress-navigation.json',
 	categoriesPath: 'src/config/omnipress-categories.json',
 };
@@ -136,8 +136,10 @@ describe('parseLayoutSection navigation', () => {
 
 		expect(result.layout.navigation).toEqual([{ label: 'Kontakt', href: '/kontakt' }]);
 		expect(result.layout.categories).toEqual(existingLayout.categories);
-		expect(result.layout.slots).toEqual(existingLayout.slots);
 		expect(result.layout.categoryDisplays).toEqual(existingLayout.categoryDisplays);
+		const navSlot = result.layout.slots.find((s) => s.component === 'header.navigation');
+		expect(navSlot?.widget?.navigation).toEqual([{ label: 'Kontakt', href: '/kontakt' }]);
+		expect(result.layout.slots.find((s) => s.component === 'home.latest')).toEqual(existingLayout.slots[0]);
 	});
 
 	it('używa navigation_json jako fallback', () => {

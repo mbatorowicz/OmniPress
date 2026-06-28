@@ -28,13 +28,17 @@ const GMINA_NAV = `[{"label":"Gmina","children":[{"href":"/gmina/plan-ogolny","l
 
 const GMINA_NAV_TWO_COLUMNS = `[{"label":"Gmina","menuColumns":2,"menuColumnWidths":["320px","320px"],"children":[{"href":"/gmina/plan-ogolny","label":"Plan ogólny"}]}]`;
 
+const LAYOUT_PATH = 'src/config/omnipress-layout.json';
+const NAV_PATH = 'src/config/omnipress-navigation.json';
+
 const corruptLayout = {
 	navigation: [{ label: 'Uszkodzone', children: [{ label: 'Bez linku' }] }],
 	categories: [],
 	categoryDisplays: {},
 	slots: [],
-	navigationPath: 'src/config/omnipress-navigation.json',
+	navigationPath: NAV_PATH,
 	categoriesPath: 'src/config/omnipress-categories.json',
+	layoutPath: LAYOUT_PATH,
 };
 
 function createSupabase(): SupabaseClient {
@@ -72,7 +76,7 @@ describe('importSiteAstroLayoutFromGitHub', () => {
 		mocks.isGitHubCredentials.mockReturnValue(true);
 	});
 
-	it('zwraca błąd gdy plik menu nie istnieje w GitHub', async () => {
+	it('zwraca błąd gdy brak layoutu i menu w GitHub', async () => {
 		mocks.getGitHubFileText.mockResolvedValue(null);
 		const { importSiteAstroLayoutFromGitHub } = await import('./store');
 		const result = await importSiteAstroLayoutFromGitHub(createSupabase(), 'site-1');
@@ -84,6 +88,7 @@ describe('importSiteAstroLayoutFromGitHub', () => {
 
 	it('nadpisuje uszkodzone menu danymi z GitHub i zwraca raport', async () => {
 		mocks.getGitHubFileText.mockImplementation(async (_cfg, _token, path: string) => {
+			if (path === LAYOUT_PATH) return null;
 			if (path.includes('navigation')) return GMINA_NAV;
 			return null;
 		});
@@ -95,7 +100,7 @@ describe('importSiteAstroLayoutFromGitHub', () => {
 
 		expect(result.layout.navigation[0]?.children?.[0]?.href).toBe('/gmina/plan-ogolny');
 		expect(result.report.hrefCount).toBe(1);
-		expect(result.report.navigationPath).toBe('src/config/omnipress-navigation.json');
+		expect(result.report.layoutPath).toBe(LAYOUT_PATH);
 		expect(mocks.updatePayload).toHaveBeenCalledOnce();
 		const saved = mocks.updatePayload.mock.calls[0]?.[0]?.astro_layout;
 		expect(saved.navigation[0]?.children?.[0]?.href).toBe('/gmina/plan-ogolny');
@@ -103,6 +108,7 @@ describe('importSiteAstroLayoutFromGitHub', () => {
 
 	it('zachowuje menuColumns i menuColumnWidths z GitHub', async () => {
 		mocks.getGitHubFileText.mockImplementation(async (_cfg, _token, path: string) => {
+			if (path === LAYOUT_PATH) return null;
 			if (path.includes('navigation')) return GMINA_NAV_TWO_COLUMNS;
 			return null;
 		});
@@ -120,9 +126,13 @@ describe('importSiteAstroLayoutFromGitHub', () => {
 	});
 
 	it('zwraca import_nav_empty gdy plik zawiera href ale drzewo nie ma linków', async () => {
-		mocks.getGitHubFileText.mockResolvedValue(
-			'[{"label":"X","href":"","children":[{"label":"Liść bez href"}]}]',
-		);
+		mocks.getGitHubFileText.mockImplementation(async (_cfg, _token, path: string) => {
+			if (path === LAYOUT_PATH) return null;
+			if (path.includes('navigation')) {
+				return '[{"label":"X","href":"","children":[{"label":"Liść bez href"}]}]';
+			}
+			return null;
+		});
 		const { importSiteAstroLayoutFromGitHub } = await import('./store');
 		const result = await importSiteAstroLayoutFromGitHub(createSupabase(), 'site-1');
 		expect(result.ok).toBe(false);

@@ -1,6 +1,6 @@
 import type { SiteAstroLayout } from './types';
 
-export type LayoutSyncScope = 'navigation' | 'categories' | 'all';
+export type LayoutSyncScope = 'navigation' | 'categories' | 'layout' | 'all';
 
 export type DraftLiveScope = 'navigation' | 'categories';
 
@@ -9,10 +9,10 @@ export type DraftLiveStatus = 'in_sync' | 'draft_ahead' | 'unknown';
 export function layoutSectionToSyncScope(section: string): LayoutSyncScope {
 	switch (section) {
 		case 'navigation':
-			return 'navigation';
 		case 'categories':
 		case 'components':
-			return 'categories';
+		case 'layout':
+			return 'layout';
 		default:
 			return 'all';
 	}

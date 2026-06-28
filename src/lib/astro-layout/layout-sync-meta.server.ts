@@ -1,44 +1,42 @@
 import { sha256HexPrefix } from '@/lib/crypto/sha256-hex';
 import {
-	buildCategoriesFilePayload,
-	buildNavigationFilePayload,
-	parseCategoriesFile,
+	buildLayoutFilePayload,
+	parseLayoutFile,
 	parseNavigationJson,
 } from './parse';
 import type { DraftLiveScope, DraftLiveStatus, LayoutSyncScope } from './layout-sync-meta';
 import type { LayoutSyncMeta, SiteAstroLayout } from './types';
+import { normalizeLayoutSlots } from './migrate-layout';
 
 function hashPayload(content: string): string {
 	return sha256HexPrefix(content, 16);
 }
 
+export function hashLayoutFile(layout: SiteAstroLayout): string {
+	return hashPayload(buildLayoutFilePayload(normalizeLayoutSlots(layout)));
+}
+
+/** @deprecated */
 export function hashNavigationLayout(navigation: SiteAstroLayout['navigation']): string {
-	return hashPayload(buildNavigationFilePayload(navigation));
+	return hashPayload(JSON.stringify(navigation));
 }
 
+/** @deprecated */
 export function hashCategoriesLayout(layout: SiteAstroLayout): string {
-	return hashPayload(buildCategoriesFilePayload(layout));
+	return hashLayoutFile(layout);
 }
 
-export function hashNavigationFileText(text: string): string | null {
+export function hashLayoutFileText(text: string): string | null {
 	if (!text.trim()) return null;
 	try {
-		return hashNavigationLayout(parseNavigationJson(text));
-	} catch {
-		return null;
-	}
-}
-
-export function hashCategoriesFileText(text: string): string | null {
-	if (!text.trim()) return null;
-	try {
-		const parsed = parseCategoriesFile(text);
+		const parsed = parseLayoutFile(text);
 		return hashPayload(
-			buildCategoriesFilePayload({
+			buildLayoutFilePayload({
 				categories: parsed.categories,
 				categoryDisplays: parsed.displays,
 				slots: parsed.slots,
 				navigation: [],
+				layoutPath: '',
 				navigationPath: '',
 				categoriesPath: '',
 			}),
@@ -46,6 +44,21 @@ export function hashCategoriesFileText(text: string): string | null {
 	} catch {
 		return null;
 	}
+}
+
+/** @deprecated */
+export function hashNavigationFileText(text: string): string | null {
+	if (!text.trim()) return null;
+	try {
+		return hashPayload(JSON.stringify(parseNavigationJson(text)));
+	} catch {
+		return null;
+	}
+}
+
+/** @deprecated */
+export function hashCategoriesFileText(text: string): string | null {
+	return hashLayoutFileText(text);
 }
 
 export function withPublishedMeta(
@@ -56,50 +69,49 @@ export function withPublishedMeta(
 	},
 ): SiteAstroLayout {
 	const now = new Date().toISOString();
+	const layoutHash = hashLayoutFile(layout);
 	const sync: LayoutSyncMeta = {
 		...layout.sync,
 		lastPublishedAt: now,
 		lastPublishedSha: options.commitSha.slice(0, 7),
+		publishedLayoutHash: layoutHash,
+		publishedNavHash: layoutHash,
+		publishedCategoriesHash: layoutHash,
 	};
-
-	if (options.scope === 'navigation' || options.scope === 'all') {
-		sync.publishedNavHash = hashNavigationLayout(layout.navigation);
-	}
-	if (options.scope === 'categories' || options.scope === 'all') {
-		sync.publishedCategoriesHash = hashCategoriesLayout(layout);
-	}
 
 	return { ...layout, sync };
 }
 
 export function withImportedLiveMeta(
 	layout: SiteAstroLayout,
-	options: { navHash?: string | null; categoriesHash?: string | null },
+	options: { layoutHash?: string | null; navHash?: string | null; categoriesHash?: string | null },
 ): SiteAstroLayout {
+	const hash = options.layoutHash ?? options.navHash ?? options.categoriesHash;
 	const sync: LayoutSyncMeta = { ...layout.sync };
-	if (options.navHash) sync.publishedNavHash = options.navHash;
-	if (options.categoriesHash) sync.publishedCategoriesHash = options.categoriesHash;
+	if (hash) {
+		sync.publishedLayoutHash = hash;
+		sync.publishedNavHash = hash;
+		sync.publishedCategoriesHash = hash;
+	}
 	return { ...layout, sync };
 }
 
 export function computeDraftLiveStatus(
 	layout: SiteAstroLayout,
 	scope: DraftLiveScope,
-	liveHashes?: { navHash?: string | null; categoriesHash?: string | null },
+	liveHashes?: { layoutHash?: string | null; navHash?: string | null; categoriesHash?: string | null },
 ): DraftLiveStatus {
-	const draftNav = hashNavigationLayout(layout.navigation);
-	const draftCat = hashCategoriesLayout(layout);
+	const draftHash = hashLayoutFile(layout);
+	const liveHash =
+		liveHashes?.layoutHash ??
+		liveHashes?.navHash ??
+		liveHashes?.categoriesHash ??
+		layout.sync?.publishedLayoutHash ??
+		layout.sync?.publishedCategoriesHash ??
+		layout.sync?.publishedNavHash;
 
-	const liveNav = liveHashes?.navHash ?? layout.sync?.publishedNavHash;
-	const liveCat = liveHashes?.categoriesHash ?? layout.sync?.publishedCategoriesHash;
-
-	if (scope === 'navigation') {
-		if (!liveNav) return 'unknown';
-		return draftNav === liveNav ? 'in_sync' : 'draft_ahead';
-	}
-
-	if (!liveCat) return 'unknown';
-	return draftCat === liveCat ? 'in_sync' : 'draft_ahead';
+	if (!liveHash) return 'unknown';
+	return draftHash === liveHash ? 'in_sync' : 'draft_ahead';
 }
 
 export type CombinedDraftLiveStatus = {
@@ -110,19 +122,8 @@ export type CombinedDraftLiveStatus = {
 
 export function computeCombinedDraftLiveStatus(
 	layout: SiteAstroLayout,
-	liveHashes?: { navHash?: string | null; categoriesHash?: string | null },
+	liveHashes?: { layoutHash?: string | null; navHash?: string | null; categoriesHash?: string | null },
 ): CombinedDraftLiveStatus {
-	const nav = computeDraftLiveStatus(layout, 'navigation', liveHashes);
-	const categories = computeDraftLiveStatus(layout, 'categories', liveHashes);
-
-	let combined: DraftLiveStatus;
-	if (nav === 'in_sync' && categories === 'in_sync') {
-		combined = 'in_sync';
-	} else if (nav === 'draft_ahead' || categories === 'draft_ahead') {
-		combined = 'draft_ahead';
-	} else {
-		combined = 'unknown';
-	}
-
-	return { combined, nav, categories };
+	const status = computeDraftLiveStatus(layout, 'categories', liveHashes);
+	return { combined: status, nav: status, categories: status };
 }

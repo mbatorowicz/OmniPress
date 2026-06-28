@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { layoutConfigPath } from '@/lib/admin/config-paths';
 import { loadSiteAstroDestination } from '@/lib/admin/sites';
 import {
 	decryptDestinationCredentials,
@@ -8,10 +9,13 @@ import {
 	getGitHubFileText,
 	parseGitHubRepoConfig,
 } from '@/lib/publish/github-api';
+import { parseLayoutFile } from '@/lib/astro-layout/parse';
+import { getRecentChangeEntriesFromLayout } from '@/lib/astro-layout/migrate-layout';
 import { appendRecentChangeOnGitHub } from './github';
 import { parseRecentChangesFile } from './parse';
+import { recentChangesPath } from './types';
 import type { RecentChangeEntry, RecentChangesFile } from './types';
-import { emptyRecentChangesFile, recentChangesPath } from './types';
+import { emptyRecentChangesFile } from './types';
 
 export async function loadRecentChangesFromGitHub(
 	supabase: SupabaseClient,
@@ -28,8 +32,26 @@ export async function loadRecentChangesFromGitHub(
 		return { ok: false, error: 'no_github_token' };
 	}
 
-	const path = recentChangesPath(dest.config);
-	const text = await getGitHubFileText(cfg, creds.token, path);
+	const layoutPath = layoutConfigPath(dest.config);
+	const layoutText = await getGitHubFileText(cfg, creds.token, layoutPath);
+	if (layoutText) {
+		try {
+			const parsed = parseLayoutFile(layoutText);
+			const entries = getRecentChangeEntriesFromLayout({
+				categories: parsed.categories,
+				categoryDisplays: parsed.displays,
+				slots: parsed.slots,
+				navigation: [],
+				layoutPath,
+			});
+			return { ok: true, file: { entries } };
+		} catch {
+			return { ok: false, error: 'invalid_file' };
+		}
+	}
+
+	const legacyPath = recentChangesPath(dest.config);
+	const text = await getGitHubFileText(cfg, creds.token, legacyPath);
 	if (!text) return { ok: true, file: emptyRecentChangesFile() };
 
 	try {
