@@ -6,12 +6,21 @@ import {
 	isCategoryFeedComponent,
 	isLayoutComponentId,
 	isSingletonComponent,
+	type LayoutZone,
 } from './components';
 import { validateBannerWidget } from './banners';
 import { slotFormFields } from './slot-form-fields';
 import { mergeCategoryDisplays, sortSlotsByOrder } from './slots';
 import { isExternalHref, normalizeInternalHref, countNavigationHrefs } from './validate-nav';
-import { syncNavigationInLayout } from './migrate-layout';
+import { normalizeLayoutSlots, syncNavigationInLayout } from './migrate-layout';
+import {
+	flattenSlots,
+	isLayoutZone,
+	mergeZoneComponents,
+	migrateFlatSlotsToZones,
+	resolveLayoutZones,
+	emptyZones,
+} from './zones';
 import { applyCategoryArchiveFieldsFromForm } from './category-archive';
 import type { CategoryDefinition, DisplaySlot, NavItem, SiteAstroLayout, SlotWidgetConfig } from './types';
 
@@ -439,12 +448,22 @@ function parseCategoryDisplaysFromForm(
 	return base;
 }
 
+function mergeZoneComponentsFromForm(
+	form: FormData,
+	zone: LayoutZone,
+	existing: SiteAstroLayout,
+): SiteAstroLayout['zones'] {
+	const zones = resolveLayoutZones(existing);
+	const parsed = parseSlotsFromForm(form, zones[zone].components);
+	return mergeZoneComponents(zones, zone, parsed);
+}
+
 export function mergeLayoutFromFormData(
 	form: FormData,
 	existing: SiteAstroLayout,
 	section: LayoutFormSection,
 ): { ok: true; layout: SiteAstroLayout } | { ok: false; error: LayoutFormError } {
-	let layout: SiteAstroLayout = { ...existing };
+	let layout: SiteAstroLayout = { ...existing, zones: resolveLayoutZones(existing) };
 
 	if (section === 'navigation' || section === 'all' || section === 'layout') {
 		const navigation = parseNavigationSection(form);
@@ -454,9 +473,17 @@ export function mergeLayoutFromFormData(
 	}
 
 	if (section === 'components' || section === 'all' || section === 'layout') {
-		const slots = mergeSlotsFromForm(form, existing.slots);
-		if (slots.length === 0) return { ok: false, error: 'no_slots' };
-		layout.slots = slots;
+		const zoneRaw = String(form.get('layout_zone') ?? '').trim();
+		if (zoneRaw && isLayoutZone(zoneRaw)) {
+			layout.zones = mergeZoneComponentsFromForm(form, zoneRaw, layout);
+			layout.slots = flattenSlots(layout.zones);
+		} else {
+			const slots = mergeSlotsFromForm(form, layout.slots);
+			if (slots.length === 0) return { ok: false, error: 'no_slots' };
+			layout.slots = slots;
+			layout.zones = migrateFlatSlotsToZones(slots);
+		}
+		if (flattenSlots(layout.zones).length === 0) return { ok: false, error: 'no_slots' };
 	}
 
 	if (section === 'categories' || section === 'all') {
@@ -486,6 +513,7 @@ export function mergeLayoutFromFormData(
 		);
 	}
 
+	layout = normalizeLayoutSlots(layout);
 	return { ok: true, layout };
 }
 
@@ -498,6 +526,7 @@ export function parseLayoutFromFormData(
 		navigation: [],
 		categories: [],
 		categoryDisplays: {},
+		zones: emptyZones(),
 		slots: [],
 		layoutPath: base.layoutPath,
 		navigationPath: base.navigationPath,

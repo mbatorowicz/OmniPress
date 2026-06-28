@@ -43,9 +43,20 @@ const existingLayout: SiteAstroLayout = {
 	navigation: [{ label: 'Stare', href: '/stare' }],
 	categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],
 	categoryDisplays: { home_feed: ['aktualnosci'] },
+	zones: {
+		site: { components: [] },
+		topbar: { components: [] },
+		header: { components: [] },
+		home: {
+			components: [{ id: 'home_feed', label: 'Feed', component: 'home.latest' }],
+		},
+		sidebar: { components: [] },
+		footer: { components: [] },
+	},
 	slots: [{ id: 'home_feed', label: 'Feed', component: 'home.latest' }],
 	navigationPath: 'src/config/omnipress-navigation.json',
 	categoriesPath: 'src/config/omnipress-categories.json',
+	layoutPath: 'src/config/omnipress-layout.json',
 };
 
 describe('parseNavigationFromForm', () => {

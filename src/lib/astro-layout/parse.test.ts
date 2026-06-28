@@ -119,7 +119,8 @@ describe('astro-layout parse', () => {
 		};
 		expect(buildNavigationFilePayload(layout.navigation)).toContain('"label"');
 		const catPayload = buildCategoriesFilePayload(layout);
-		expect(catPayload).toContain('"slots"');
+		expect(catPayload).toContain('"zones"');
+		expect(catPayload).not.toContain('"slots"');
 		expect(catPayload).not.toContain('"widgets"');
 		expect(catPayload).not.toContain('"banners"');
 	});
@@ -164,7 +165,8 @@ describe('parseLayoutFromFormData', () => {
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		expect(result.layout.categoryDisplays.home_pinned).toEqual(['pogoda']);
-		expect(result.layout.slots[0]?.widget?.hideWhenEmpty).toBe(true);
+		const pinned = result.layout.slots.find((s) => s.id === 'home_pinned');
+		expect(pinned?.widget?.hideWhenEmpty).toBe(true);
 	});
 
 	it('sortuje banery po order w slotach', () => {
@@ -196,7 +198,8 @@ describe('parseLayoutFromFormData', () => {
 		const result = parseLayoutFromFormData(form, base);
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(result.layout.slots.map((s) => s.id)).toEqual(['b1', 'b2']);
+		const banners = result.layout.zones.sidebar.components.filter((s) => s.component === 'sidebar.banner');
+		expect(banners.map((s) => s.id)).toEqual(['b1', 'b2']);
 	});
 
 	it('mergeCategoryDisplays nie wypełnia kategorii automatycznie', () => {

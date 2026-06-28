@@ -6,6 +6,7 @@ import {
 	LAYOUT_ZONE_ORDER,
 	type LayoutZone,
 } from './components';
+import { flattenSlots, resolveLayoutZones } from './zones';
 
 export function emptyDisplaysForSlots(slots: DisplaySlot[]): CategoryDisplays {
 	return Object.fromEntries(
@@ -43,15 +44,20 @@ export function findSlotByComponent(
 	layout: SiteAstroLayout,
 	component: string,
 ): DisplaySlot | undefined {
-	return layout.slots.find((s) => s.component === component);
+	return getLayoutSlots(layout).find((s) => s.component === component);
 }
 
 export function findSlotsByComponent(layout: SiteAstroLayout, component: string): DisplaySlot[] {
-	return layout.slots.filter((s) => s.component === component);
+	return getLayoutSlots(layout).filter((s) => s.component === component);
+}
+
+function getLayoutSlots(layout: SiteAstroLayout): DisplaySlot[] {
+	if (layout.slots.length > 0) return layout.slots;
+	return flattenSlots(resolveLayoutZones(layout));
 }
 
 export function getSidebarSlots(layout: SiteAstroLayout): DisplaySlot[] {
-	return getSlotsByZone(layout.slots, 'sidebar');
+	return getSlotsByZone(getLayoutSlots(layout), 'sidebar');
 }
 
 export function getSlotWidget(layout: SiteAstroLayout, component: string): SlotWidgetConfig | undefined {

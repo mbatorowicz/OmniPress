@@ -1,6 +1,19 @@
 import type { RecentChangeEntry } from '@/lib/recent-changes/types';
-import type { CategoryDefinition, CategoryDisplays, DisplaySlot, NavItem, SiteAstroLayout } from './types';
-import { findSlotByComponent, sortSlotsByOrder } from './slots';
+import type {
+	CategoryDefinition,
+	CategoryDisplays,
+	DisplaySlot,
+	LayoutZonesMap,
+	NavItem,
+	SiteAstroLayout,
+} from './types';
+import { findSlotByComponent } from './slots';
+import {
+	flattenSlots,
+	migrateFlatSlotsToZones,
+	resolveLayoutZones,
+} from './zones';
+import { sortSlotsByOrder } from './slots';
 
 export const DEFAULT_CHROME_IDS = {
 	siteMeta: 'site_meta',
@@ -77,57 +90,91 @@ export function defaultFooterWidget() {
 	};
 }
 
-function upsertSlot(slots: DisplaySlot[], slot: DisplaySlot): DisplaySlot[] {
-	const idx = slots.findIndex((s) => s.component === slot.component);
-	if (idx === -1) return [...slots, slot];
-	const next = [...slots];
+function upsertZoneComponent(components: DisplaySlot[], slot: DisplaySlot): DisplaySlot[] {
+	const idx = components.findIndex((s) => s.component === slot.component);
+	if (idx === -1) return [...components, slot];
+	const next = [...components];
 	next[idx] = { ...next[idx], ...slot, widget: { ...next[idx].widget, ...slot.widget } };
 	return next;
 }
 
-export function ensureChromeSlots(slots: DisplaySlot[], navigation: NavItem[] = []): DisplaySlot[] {
-	let next = [...slots];
-	next = upsertSlot(next, {
-		id: DEFAULT_CHROME_IDS.siteMeta,
-		label: 'Meta strony',
-		component: 'site.meta',
-		widget: defaultSiteMetaWidget(),
-	});
-	next = upsertSlot(next, {
-		id: DEFAULT_CHROME_IDS.topbar,
-		label: 'Pasek górny',
-		component: 'topbar.tagline',
-		widget: defaultTopbarWidget(),
-	});
-	next = upsertSlot(next, {
+export function ensureZoneChromeComponents(
+	zones: LayoutZonesMap,
+	navigation: NavItem[] = [],
+): LayoutZonesMap {
+	let headerComponents = zones.header.components;
+	headerComponents = upsertZoneComponent(headerComponents, {
 		id: DEFAULT_CHROME_IDS.headerBrand,
 		label: 'Logo',
 		component: 'header.brand',
 		widget: defaultHeaderBrandWidget(),
 	});
-	next = upsertSlot(next, {
+	headerComponents = upsertZoneComponent(headerComponents, {
 		id: DEFAULT_CHROME_IDS.headerNav,
 		label: 'Menu główne',
 		component: 'header.navigation',
 		widget: { order: 1, navigation },
 	});
-	next = upsertSlot(next, {
-		id: DEFAULT_CHROME_IDS.footer,
-		label: 'Stopka',
-		component: 'footer.main',
-		widget: defaultFooterWidget(),
-	});
-	return sortSlotsByOrder(next);
+
+	return {
+		...zones,
+		site: {
+			components: upsertZoneComponent(zones.site.components, {
+				id: DEFAULT_CHROME_IDS.siteMeta,
+				label: 'Meta strony',
+				component: 'site.meta',
+				widget: defaultSiteMetaWidget(),
+			}),
+		},
+		topbar: {
+			components: upsertZoneComponent(zones.topbar.components, {
+				id: DEFAULT_CHROME_IDS.topbar,
+				label: 'Pasek górny',
+				component: 'topbar.tagline',
+				widget: defaultTopbarWidget(),
+			}),
+		},
+		header: { components: sortSlotsByOrder(headerComponents) },
+		footer: {
+			components: upsertZoneComponent(zones.footer.components, {
+				id: DEFAULT_CHROME_IDS.footer,
+				label: 'Stopka',
+				component: 'footer.main',
+				widget: defaultFooterWidget(),
+			}),
+		},
+	};
 }
 
+/** @deprecated użyj ensureZoneChromeComponents */
+export function ensureChromeSlots(slots: DisplaySlot[], navigation: NavItem[] = []): DisplaySlot[] {
+	const zones = ensureZoneChromeComponents(migrateFlatSlotsToZones(slots), navigation);
+	return flattenSlots(zones);
+}
+
+export function attachRecentChangeEntriesInZones(
+	zones: LayoutZonesMap,
+	entries: RecentChangeEntry[],
+): LayoutZonesMap {
+	return {
+		...zones,
+		sidebar: {
+			components: zones.sidebar.components.map((slot) =>
+				slot.component !== 'sidebar.recent_changes'
+					? slot
+					: { ...slot, entries: entries.length > 0 ? entries : slot.entries },
+			),
+		},
+	};
+}
+
+/** @deprecated */
 export function attachRecentChangeEntries(
 	slots: DisplaySlot[],
 	entries: RecentChangeEntry[],
 ): DisplaySlot[] {
-	return slots.map((slot) => {
-		if (slot.component !== 'sidebar.recent_changes') return slot;
-		return { ...slot, entries: entries.length > 0 ? entries : slot.entries };
-	});
+	const zones = attachRecentChangeEntriesInZones(migrateFlatSlotsToZones(slots), entries);
+	return flattenSlots(zones);
 }
 
 export function mergeLegacyLayoutParts(options: {
@@ -137,11 +184,11 @@ export function mergeLegacyLayoutParts(options: {
 	navigation: NavItem[];
 	recentEntries?: RecentChangeEntry[];
 }): DisplaySlot[] {
-	let slots = ensureChromeSlots(options.slots, options.navigation);
+	let zones = ensureZoneChromeComponents(migrateFlatSlotsToZones(options.slots), options.navigation);
 	if (options.recentEntries?.length) {
-		slots = attachRecentChangeEntries(slots, options.recentEntries);
+		zones = attachRecentChangeEntriesInZones(zones, options.recentEntries);
 	}
-	return slots;
+	return flattenSlots(zones);
 }
 
 export function getNavigationFromLayout(layout: SiteAstroLayout): NavItem[] {
@@ -152,14 +199,18 @@ export function getNavigationFromLayout(layout: SiteAstroLayout): NavItem[] {
 }
 
 export function syncNavigationInLayout(layout: SiteAstroLayout, navigation: NavItem[]): SiteAstroLayout {
-	const slots = ensureChromeSlots(layout.slots, navigation).map((slot) => {
-		if (slot.component !== 'header.navigation') return slot;
-		return {
-			...slot,
-			widget: { ...slot.widget, order: slot.widget?.order ?? 1, navigation },
-		};
+	const updated = applyLayoutZones(layout, (zones) => {
+		const headerComponents = zones.header.components.map((slot) =>
+			slot.component !== 'header.navigation'
+				? slot
+				: {
+						...slot,
+						widget: { ...slot.widget, order: slot.widget?.order ?? 1, navigation },
+					},
+		);
+		return ensureZoneChromeComponents({ ...zones, header: { components: headerComponents } }, navigation);
 	});
-	return { ...layout, navigation, slots };
+	return { ...updated, navigation };
 }
 
 export function getRecentChangeEntriesFromLayout(layout: SiteAstroLayout): RecentChangeEntry[] {
@@ -171,16 +222,24 @@ export function upsertRecentChangeEntriesInLayout(
 	layout: SiteAstroLayout,
 	entries: RecentChangeEntry[],
 ): SiteAstroLayout {
-	const slots = layout.slots.map((slot) => {
-		if (slot.component !== 'sidebar.recent_changes') return slot;
-		return { ...slot, entries };
-	});
-	return { ...layout, slots };
+	return applyLayoutZones(layout, (zones) => attachRecentChangeEntriesInZones(zones, entries));
+}
+
+function applyLayoutZones(
+	layout: SiteAstroLayout,
+	mutate: (zones: LayoutZonesMap) => LayoutZonesMap,
+): SiteAstroLayout {
+	const zones = mutate(resolveLayoutZones(layout));
+	const slots = flattenSlots(zones);
+	return { ...layout, zones, slots };
 }
 
 export function normalizeLayoutSlots(layout: SiteAstroLayout): SiteAstroLayout {
 	const navigation = getNavigationFromLayout(layout);
-	let slots = ensureChromeSlots(layout.slots, navigation);
-	slots = attachRecentChangeEntries(slots, getRecentChangeEntriesFromLayout({ ...layout, slots }));
-	return syncNavigationInLayout({ ...layout, slots }, navigation);
+	let zones = resolveLayoutZones(layout);
+	zones = ensureZoneChromeComponents(zones, navigation);
+	zones = attachRecentChangeEntriesInZones(zones, getRecentChangeEntriesFromLayout({ ...layout, zones, slots: flattenSlots(zones) }));
+	zones = ensureZoneChromeComponents(zones, navigation);
+	const slots = flattenSlots(zones);
+	return syncNavigationInLayout({ ...layout, zones, slots }, navigation);
 }

@@ -1,19 +1,21 @@
 ---
 import { buildLayoutSlotsClientScriptVars } from '@/lib/admin/layout-slots-client-vars';
+import type { LayoutZone } from '@/lib/astro-layout/components';
 
 interface Props {
 	componentOptionsHtml: string;
+	zone?: LayoutZone;
 	includePreview?: boolean;
+	advancedTable?: boolean;
 }
 
-const { componentOptionsHtml, includePreview = false } = Astro.props;
+const { componentOptionsHtml, zone, includePreview = false, advancedTable = false } = Astro.props;
 const scriptVars = buildLayoutSlotsClientScriptVars(componentOptionsHtml);
 ---
 
-<script define:vars={{ ...scriptVars, includePreview }}>
-	import { initLayoutSlotsTable, initLayoutSlotCardSummaries } from '@/lib/admin/layout-slots-client';
+<script define:vars={{ ...scriptVars, includePreview, advancedTable, editorZone: zone ?? '' }}>
+	import { initLayoutSlotsTable, initLayoutSlotCardSummaries, initLayoutZoneEditor } from '@/lib/admin/layout-slots-client';
 	import { initLayoutSlotsPreview } from '@/lib/admin/layout-slots-preview-client';
-	import { initLayoutSlotDialogs } from '@/lib/admin/layout-slot-dialog-client';
 
 	if (includePreview) {
 		initLayoutSlotsPreview({
@@ -29,35 +31,68 @@ const scriptVars = buildLayoutSlotsClientScriptVars(componentOptionsHtml);
 		});
 	}
 
-	initLayoutSlotsTable({
-		removeSlotLabel,
-		variantDefault,
-		variantAlert,
-		styleImage,
-		styleText,
-		variantBannerDefault,
-		variantBannerBlue,
-		linkCategory,
-		linkPage,
-		linkExternal,
-		componentOptionsHtml,
-		componentLabels,
-		slotPanelSectionTitleLabel,
-		homeFeedCategoriesLabel,
-		homeFeedCategoriesHint,
-		homeFeedPinnedHint,
-		singletonComponents,
-		certAllLabel,
-		weatherDetailsDisplayModal,
-		weatherDetailsDisplayInline,
-		weatherDetailsLayoutStacked,
-		weatherDetailsLayoutGrid,
-		settingsLabel,
-		closeLabel,
-		fieldLabels,
-		homeFeedCategoryCheckboxesHtml: '',
-	});
+	if (advancedTable) {
+		initLayoutSlotsTable(
+			{
+				removeSlotLabel,
+				variantDefault,
+				variantAlert,
+				styleImage,
+				styleText,
+				variantBannerDefault,
+				variantBannerBlue,
+				linkCategory,
+				linkPage,
+				linkExternal,
+				componentOptionsHtml,
+				componentLabels,
+				slotPanelSectionTitleLabel,
+				homeFeedCategoriesLabel,
+				homeFeedCategoriesHint,
+				homeFeedPinnedHint,
+				singletonComponents,
+				certAllLabel,
+				weatherDetailsDisplayModal,
+				weatherDetailsDisplayInline,
+				weatherDetailsLayoutStacked,
+				weatherDetailsLayoutGrid,
+				settingsLabel,
+				closeLabel,
+				fieldLabels,
+				homeFeedCategoryCheckboxesHtml: '',
+			},
+			editorZone || undefined,
+		);
+	} else if (editorZone) {
+		initLayoutZoneEditor(editorZone, {
+			removeSlotLabel,
+			variantDefault,
+			variantAlert,
+			styleImage,
+			styleText,
+			variantBannerDefault,
+			variantBannerBlue,
+			linkCategory,
+			linkPage,
+			linkExternal,
+			componentOptionsHtml,
+			componentLabels,
+			slotPanelSectionTitleLabel,
+			homeFeedCategoriesLabel,
+			homeFeedCategoriesHint,
+			homeFeedPinnedHint,
+			singletonComponents,
+			certAllLabel,
+			weatherDetailsDisplayModal,
+			weatherDetailsDisplayInline,
+			weatherDetailsLayoutStacked,
+			weatherDetailsLayoutGrid,
+			settingsLabel,
+			closeLabel,
+			fieldLabels,
+			homeFeedCategoryCheckboxesHtml: '',
+		});
+	}
 
-	initLayoutSlotDialogs();
 	initLayoutSlotCardSummaries();
 </script>

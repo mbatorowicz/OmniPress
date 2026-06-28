@@ -1,4 +1,4 @@
-import type { LayoutComponentId } from './components';
+import type { LayoutComponentId, LayoutZone } from './components';
 import type { RecentChangeEntry } from '@/lib/recent-changes/types';
 
 export type { RecentChangeEntry };
@@ -167,7 +167,13 @@ export type DisplaySlot = {
 	entries?: RecentChangeEntry[];
 };
 
-export type LayoutContract = 'unified' | 'legacy';
+export type LayoutZoneSection = {
+	components: DisplaySlot[];
+};
+
+export type LayoutZonesMap = Record<LayoutZone, LayoutZoneSection>;
+
+export type LayoutContract = 'unified' | 'legacy' | 'zones_v2';
 
 export type LayoutSyncMeta = {
 	lastDraftSavedAt?: string;
@@ -194,6 +200,9 @@ export type SiteAstroLayout = {
 	navigation: NavItem[];
 	categoryDisplays: CategoryDisplays;
 	categories: CategoryDefinition[];
+	/** Strefy layoutu — SSOT (zones_v2) */
+	zones: LayoutZonesMap;
+	/** Pochodne z zones — utrzymywane w sync dla kodu przejściowego */
 	slots: DisplaySlot[];
 	layoutPath: string;
 	/** @deprecated użyj layoutPath */
@@ -210,11 +219,14 @@ export const DEFAULT_NAVIGATION_PATH = 'src/config/omnipress-navigation.json';
 /** @deprecated */
 export const DEFAULT_CATEGORIES_PATH = 'src/config/omnipress-categories.json';
 
+import { emptyZones } from './zones';
+
 export function emptySiteAstroLayout(): SiteAstroLayout {
 	return {
 		navigation: [],
 		categoryDisplays: {},
 		categories: [],
+		zones: emptyZones(),
 		slots: [],
 		layoutPath: DEFAULT_LAYOUT_PATH,
 		navigationPath: DEFAULT_NAVIGATION_PATH,

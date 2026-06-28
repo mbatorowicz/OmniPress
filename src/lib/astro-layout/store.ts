@@ -32,6 +32,7 @@ import {
 	type LiveLayoutFingerprint,
 } from './layout-sync-meta.server';
 import { getNavigationFromLayout, mergeLegacyLayoutParts, syncNavigationInLayout } from './migrate-layout';
+import { migrateFlatSlotsToZones } from './zones';
 import { buildLayoutRecentChangeEntry } from '@/lib/recent-changes/layout-entry';
 import { parseRecentChangesFile } from '@/lib/recent-changes/parse';
 import { recentChangesPath } from '@/lib/recent-changes/types';
@@ -109,6 +110,7 @@ async function importLegacyLayoutFromGitHub(
 				...layout,
 				categories: parsed.categories,
 				categoryDisplays: parsed.displays,
+				zones: parsed.zones,
 				slots: parsed.slots,
 				layoutPath,
 			};
@@ -118,7 +120,7 @@ async function importLegacyLayoutFromGitHub(
 				layout: normalized,
 				layoutHash: hash,
 				liveBlobSha: layoutBlobSha ?? undefined,
-				layoutContract: 'unified',
+				layoutContract: layoutText.includes('"zones"') ? 'zones_v2' : 'unified',
 			};
 		} catch {
 			return { error: 'invalid_layout' };
@@ -174,11 +176,14 @@ async function importLegacyLayoutFromGitHub(
 		recentEntries,
 	});
 
+	const zones = migrateFlatSlotsToZones(slots);
+
 	const merged = syncNavigationInLayout(
 		{
 			...layout,
 			categories,
 			categoryDisplays: displays,
+			zones,
 			slots,
 			navigation,
 			layoutPath,

@@ -17,6 +17,7 @@ import { isLayoutComponentId } from './components';
 import { validateBannerWidget } from './banners';
 import { mergeLegacyLayoutParts, normalizeLayoutSlots } from './migrate-layout';
 import { mergeCategoryDisplays, sortSlotsByOrder } from './slots';
+import { exportZonesPayload, flattenSlots, migrateFlatSlotsToZones, parseZonesFromFile } from './zones';
 import {
 	resolveNavEditorDepthColors,
 	type NavEditorDepthColors,
@@ -264,15 +265,18 @@ export function parseLayoutFile(text: string): {
 	categories: CategoryDefinition[];
 	displays: CategoryDisplays;
 	slots: DisplaySlot[];
+	zones: import('./types').LayoutZonesMap;
 } {
 	const parsed = JSON.parse(text) as unknown;
 
 	if (Array.isArray(parsed)) {
+		const empty = migrateFlatSlotsToZones([]);
 		return {
 			categories: parsed
 				.map(normalizeCategoryDefinition)
 				.filter((c): c is CategoryDefinition => c !== null),
 			slots: [],
+			zones: empty,
 			displays: {},
 		};
 	}
@@ -285,16 +289,19 @@ export function parseLayoutFile(text: string): {
 		categories?: CategoryDefinition[];
 		displays?: CategoryDisplays;
 		slots?: unknown;
+		zones?: unknown;
 	};
 
 	const categories = (obj.categories ?? [])
 		.map(normalizeCategoryDefinition)
 		.filter((c): c is CategoryDefinition => c !== null);
 
-	const slots = parseSlots(obj.slots);
+	const legacySlots = parseSlots(obj.slots);
+	const zones = parseZonesFromFile(obj, legacySlots);
+	const slots = flattenSlots(zones);
 	const displays = mergeCategoryDisplays(slots, obj.displays ?? {});
 
-	return { categories, displays, slots };
+	return { categories, displays, slots, zones };
 }
 
 export function buildLayoutFilePayload(layout: SiteAstroLayout): string {
@@ -303,7 +310,7 @@ export function buildLayoutFilePayload(layout: SiteAstroLayout): string {
 		{
 			categories: normalized.categories,
 			displays: normalized.categoryDisplays,
-			slots: sortSlotsByOrder(normalized.slots),
+			zones: exportZonesPayload(normalized.zones),
 		},
 		null,
 		'\t',
@@ -321,8 +328,10 @@ export function buildNavigationFilePayload(navigation: NavItem[]): string {
 
 export function normalizeSiteAstroLayout(raw: unknown): SiteAstroLayout {
 	if (!raw || typeof raw !== 'object') return emptySiteAstroLayout();
-	const o = raw as Partial<SiteAstroLayout>;
-	let slots = parseSlots(o.slots);
+	const o = raw as Partial<SiteAstroLayout> & { zones?: unknown; slots?: unknown };
+	const legacySlots = parseSlots(o.slots);
+	const zones = parseZonesFromFile(o, legacySlots);
+	let slots = flattenSlots(zones);
 	const syncRaw = o.sync;
 	const sync =
 		syncRaw && typeof syncRaw === 'object'
@@ -349,6 +358,18 @@ export function normalizeSiteAstroLayout(raw: unknown): SiteAstroLayout {
 						typeof syncRaw.publishedLayoutHash === 'string'
 							? syncRaw.publishedLayoutHash
 							: undefined,
+					publishedLiveBlobSha:
+						typeof syncRaw.publishedLiveBlobSha === 'string'
+							? syncRaw.publishedLiveBlobSha
+							: undefined,
+					layoutContract:
+						syncRaw.layoutContract === 'zones_v2' ||
+						syncRaw.layoutContract === 'legacy' ||
+						syncRaw.layoutContract === 'unified'
+							? syncRaw.layoutContract
+							: zones && !o.slots
+								? 'zones_v2'
+								: undefined,
 				}
 			: undefined;
 
@@ -362,6 +383,7 @@ export function normalizeSiteAstroLayout(raw: unknown): SiteAstroLayout {
 					.map(normalizeCategoryDefinition)
 					.filter((c): c is CategoryDefinition => c !== null)
 			: [],
+		zones,
 		slots,
 		layoutPath,
 		navigationPath: o.navigationPath?.trim() || DEFAULT_NAVIGATION_PATH,
@@ -372,6 +394,7 @@ export function normalizeSiteAstroLayout(raw: unknown): SiteAstroLayout {
 
 	layout = normalizeLayoutSlots(layout);
 	layout.categoryDisplays = mergeCategoryDisplays(layout.slots, layout.categoryDisplays);
+	layout.sync = { ...layout.sync, layoutContract: 'zones_v2' };
 	return layout;
 }
 

@@ -12,6 +12,8 @@ import LayoutSlotsTemplates from '@/components/admin/layout-slots/LayoutSlotsTem
 import LayoutSlotsClientScript from '@/components/admin/layout-slots/LayoutSlotsClientScript.astro';
 import { buildComponentOptionsGroupedHtml } from '@/lib/admin/layout-slots-sections';
 import { layoutZoneTitles } from '@/lib/admin/layout-editor-i18n';
+import type { LayoutZone } from '@/lib/astro-layout/components';
+import { getSlotsByZone, sortSlotsForEditor } from '@/lib/astro-layout/slots';
 import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from '@/lib/astro-layout/types';
 import type { LayoutEditorTab } from '@/lib/admin/layout-editor-tabs';
 
@@ -20,22 +22,25 @@ type PageOption = { path: string; title: string };
 interface Props {
 	siteId: string;
 	returnTab: LayoutEditorTab;
+	zone: LayoutZone;
 	slots: DisplaySlot[];
 	categories: CategoryDefinition[];
 	categoryDisplays: SiteAstroLayout['categoryDisplays'];
 	publishedPages: PageOption[];
 }
 
-const { siteId, returnTab, slots, categories, categoryDisplays, publishedPages } = Astro.props;
+const { siteId, returnTab, zone, slots, categories, categoryDisplays, publishedPages } = Astro.props;
 const { fields, actions } = adminLayout;
 
 const zoneTitles = layoutZoneTitles();
 const componentOptionsHtml = buildComponentOptionsGroupedHtml(adminLayout.componentLabels, zoneTitles);
+const zoneSlots = getSlotsByZone(sortSlotsForEditor(slots), zone);
 ---
 
 <form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="ui-form-stack max-w-5xl mt-8">
 	<input type="hidden" name="section" value="components" />
 	<input type="hidden" name="return_tab" value={returnTab} />
+	<input type="hidden" name="layout_zone" value={zone} />
 
 	<Panel class="ui-form-section">
 		<details class="rounded border border-slate-200 bg-slate-50/50 p-4">
@@ -49,6 +54,9 @@ const componentOptionsHtml = buildComponentOptionsGroupedHtml(adminLayout.compon
 			</summary>
 			<p class="ui-hint mt-2">{adminLayout.slotsManageHint}</p>
 			<p class="ui-hint">{adminLayout.slotsOrderHint}</p>
+			<p class="ui-hint">
+				{zoneTitles[zone]} — {adminLayout.zonesEditorHint ?? 'Tylko komponenty tej sekcji.'}
+			</p>
 
 			<Table dense wrap class="min-w-[40rem] mt-3" id="slots-table">
 				<TableHead dense>
@@ -62,7 +70,7 @@ const componentOptionsHtml = buildComponentOptionsGroupedHtml(adminLayout.compon
 					</TableRow>
 				</TableHead>
 				<tbody id="slots-body">
-					{slots.map((slot) => (
+					{zoneSlots.map((slot) => (
 						<LayoutSlotRow slot={slot} zoneTitles={zoneTitles} />
 					))}
 				</tbody>
@@ -87,4 +95,4 @@ const componentOptionsHtml = buildComponentOptionsGroupedHtml(adminLayout.compon
 </form>
 
 <LayoutSlotsTemplates categories={categories} publishedPages={publishedPages} />
-<LayoutSlotsClientScript {componentOptionsHtml} includePreview />
+<LayoutSlotsClientScript {componentOptionsHtml} zone={zone} includePreview advancedTable />

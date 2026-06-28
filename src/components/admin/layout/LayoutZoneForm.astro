@@ -41,6 +41,7 @@ const componentOptionsHtml = buildComponentOptionsGroupedHtml(adminLayout.compon
 <form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="ui-form-stack max-w-5xl">
 	<input type="hidden" name="section" value="components" />
 	<input type="hidden" name="return_tab" value={returnTab} />
+	<input type="hidden" name="layout_zone" value={zone} />
 
 	<LayoutZoneSection
 		{zone}
@@ -55,4 +56,4 @@ const componentOptionsHtml = buildComponentOptionsGroupedHtml(adminLayout.compon
 </form>
 
 <LayoutSlotsTemplates categories={categories} publishedPages={publishedPages} />
-<LayoutSlotsClientScript {componentOptionsHtml} />
+<LayoutSlotsClientScript {componentOptionsHtml} zone={zone} />

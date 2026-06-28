@@ -1,4 +1,6 @@
 import { getComponentZone, isSingletonComponent, type LayoutZone } from '@/lib/astro-layout/components';
+import type { DisplaySlot } from '@/lib/astro-layout/types';
+import { generateComponentInstanceId } from '@/lib/astro-layout/zones';
 import {
 	bindSlotCardLabelSync,
 	initLayoutSlotDialogs,
@@ -23,24 +25,58 @@ export interface LayoutSlotsClientConfig extends SectionBuildConfig {
 	disabledLabel: string;
 }
 
-function nextSlotOrder(slotsBody: HTMLElement): number {
+function buildSectionConfig(config: LayoutSlotsClientConfig): SectionBuildConfig {
+	const categoryOptionsTpl = document.getElementById('slot-banner-category-options');
+	const pageOptionsTpl = document.getElementById('slot-banner-page-options');
+	const certOptionsTpl = document.getElementById('slot-cert-category-options');
+	const homeFeedCategoriesTpl = document.getElementById('slot-home-feed-category-checkboxes');
+	return {
+		...config,
+		categoryOptionsHtml: categoryOptionsTpl?.innerHTML ?? '<option value="">—</option>',
+		pageOptionsHtml: pageOptionsTpl?.innerHTML ?? '<option value="">—</option>',
+		certOptionsHtml: certOptionsTpl?.innerHTML ?? `<option value="">${config.certAllLabel}</option>`,
+		homeFeedCategoryCheckboxesHtml: homeFeedCategoriesTpl?.innerHTML ?? '',
+	};
+}
+
+function collectExistingComponentsFromDom(): DisplaySlot[] {
+	const slots: DisplaySlot[] = [];
+	document.querySelectorAll<HTMLElement>('.layout-slot-card').forEach((card) => {
+		const id = card.dataset.slotId ?? '';
+		const component = card.dataset.component ?? '';
+		const label =
+			(card.querySelector('.slot-card-label-input') as HTMLInputElement | null)?.value?.trim() ||
+			card.querySelector('.layout-slot-card__label')?.textContent?.trim() ||
+			id;
+		if (id && component) slots.push({ id, label, component });
+	});
+	document.querySelectorAll<HTMLElement>('.slot-row').forEach((row) => {
+		const id = (row.querySelector('input[name="slot_id"]') as HTMLInputElement | null)?.value?.trim() ?? '';
+		const label = (row.querySelector('input[name="slot_label"]') as HTMLInputElement | null)?.value?.trim() ?? '';
+		const component =
+			(row.querySelector('input[name="slot_component"]') as HTMLInputElement | null)?.value?.trim() ??
+			(row.querySelector('.slot-component') as HTMLSelectElement | null)?.value ??
+			'';
+		if (id && component && !slots.some((s) => s.id === id)) {
+			slots.push({ id, label: label || id, component });
+		}
+	});
+	return slots;
+}
+
+function nextSlotOrderFromDom(): number {
 	let max = 0;
-	slotsBody.querySelectorAll('input[name="slot_widget_order"]').forEach((input) => {
+	document.querySelectorAll('input[name="slot_widget_order"]').forEach((input) => {
 		const n = Number((input as HTMLInputElement).value);
 		if (Number.isFinite(n) && n > max) max = n;
 	});
 	return max > 0 ? max + 10 : 10;
 }
 
-function usedSingletons(slotsBody: HTMLElement, singletonComponents: string[]): Set<string> {
+function usedSingletonComponents(config: LayoutSlotsClientConfig): Set<string> {
 	const used = new Set<string>();
-	slotsBody.querySelectorAll('.slot-component').forEach((sel) => {
-		const value = (sel as HTMLSelectElement).value;
-		if (singletonComponents.includes(value)) used.add(value);
-	});
-	slotsBody.querySelectorAll('.layout-slot-card').forEach((card) => {
-		const component = (card as HTMLElement).dataset.component ?? '';
-		if (singletonComponents.includes(component)) used.add(component);
+	collectExistingComponentsFromDom().forEach((slot) => {
+		if (config.singletonComponents.includes(slot.component)) used.add(slot.component);
 	});
 	return used;
 }
@@ -74,7 +110,10 @@ function bindBannerBlock(block: HTMLElement): void {
 function readRowSlot(row: HTMLElement): { id: string; label: string; component: string } | null {
 	const id = (row.querySelector('input[name="slot_id"]') as HTMLInputElement | null)?.value?.trim() ?? '';
 	const label = (row.querySelector('input[name="slot_label"]') as HTMLInputElement | null)?.value?.trim() ?? '';
-	const component = (row.querySelector('.slot-component') as HTMLSelectElement | null)?.value ?? '';
+	const component =
+		(row.querySelector('input[name="slot_component"]') as HTMLInputElement | null)?.value?.trim() ??
+		(row.querySelector('.slot-component') as HTMLSelectElement | null)?.value ??
+		'';
 	if (!id || !component) return null;
 	return { id, label: label || id, component };
 }
@@ -87,6 +126,7 @@ function removeSlotUi(slotId: string): void {
 	document.getElementById(`slot-dialog-${slotId}`)?.remove();
 	document.querySelector(`.layout-slot-card[data-slot-id="${slotId}"]`)?.remove();
 	document.getElementById(`slot-panel-${slotId}`)?.remove();
+	document.querySelector(`.slot-row[data-slot-id="${slotId}"]`)?.remove();
 }
 
 function appendSlotUi(
@@ -157,6 +197,26 @@ function buildListRowHtml(
 	`;
 }
 
+function appendTableRow(
+	component: string,
+	id: string,
+	order: number,
+	label: string,
+	config: LayoutSlotsClientConfig,
+	sectionConfig: SectionBuildConfig,
+): void {
+	const slotsBody = document.getElementById('slots-body');
+	if (!(slotsBody instanceof HTMLElement)) return;
+	const tr = document.createElement('tr');
+	tr.className = 'slot-row ui-table-dense-row';
+	tr.dataset.slotId = id;
+	tr.innerHTML = buildListRowHtml(config, id, order, component, label);
+	const compSelect = tr.querySelector('.slot-component') as HTMLSelectElement | null;
+	if (compSelect) compSelect.value = component;
+	slotsBody.appendChild(tr);
+	bindSlotRow(tr, config, sectionConfig);
+}
+
 function syncDetailForRow(
 	row: HTMLElement,
 	config: LayoutSlotsClientConfig,
@@ -172,34 +232,35 @@ function syncDetailForRow(
 	initLayoutSlotDialogs();
 }
 
-function addSlot(component: string, config: LayoutSlotsClientConfig, sectionConfig: SectionBuildConfig): void {
-	const slotsBody = document.getElementById('slots-body');
-	if (!(slotsBody instanceof HTMLElement)) return;
-
+function addComponentInstance(
+	component: string,
+	config: LayoutSlotsClientConfig,
+	sectionConfig: SectionBuildConfig,
+	options: { appendTableRow?: boolean } = {},
+): void {
 	if (
 		config.singletonComponents.includes(component) &&
-		usedSingletons(slotsBody, config.singletonComponents).has(component)
+		usedSingletonComponents(config).has(component)
 	) {
 		return;
 	}
 
+	const zone = getComponentZone(component);
+	if (!zone) return;
+
 	const kind = componentToKind(component);
 	if (!kind) return;
 
-	const id = `slot_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-	const order = nextSlotOrder(slotsBody);
+	const existing = collectExistingComponentsFromDom();
+	const id = generateComponentInstanceId(zone, component, existing);
+	const order = nextSlotOrderFromDom();
 	const defaultLabel = config.componentLabels[component] ?? component;
 
-	const tr = document.createElement('tr');
-	tr.className = 'slot-row ui-table-dense-row';
-	tr.dataset.slotId = id;
-	tr.innerHTML = buildListRowHtml(config, id, order, component, defaultLabel);
-	const compSelect = tr.querySelector('.slot-component') as HTMLSelectElement | null;
-	if (compSelect) compSelect.value = component;
-	slotsBody.appendChild(tr);
+	if (options.appendTableRow !== false && document.getElementById('slots-body')) {
+		appendTableRow(component, id, order, defaultLabel, config, sectionConfig);
+	}
 
 	appendSlotUi(kind, id, defaultLabel, component, order, config, sectionConfig);
-	bindSlotRow(tr, config, sectionConfig);
 	initLayoutSlotDialogs();
 	refreshLayoutSlotsPreview();
 }
@@ -242,35 +303,40 @@ function bindSlotRow(row: HTMLElement, config: LayoutSlotsClientConfig, sectionC
 	});
 }
 
-export function initLayoutSlotsTable(config: LayoutSlotsClientConfig): void {
+function bindSharedPanels(config: LayoutSlotsClientConfig): SectionBuildConfig {
+	const sectionConfig = buildSectionConfig(config);
+	document.querySelectorAll('.slot-config-panel[data-component="sidebar.banner"]').forEach((block) => {
+		bindBannerBlock(block as HTMLElement);
+	});
+	document.querySelectorAll('.layout-slot-card').forEach((card) => bindSlotCardLabelSync(card as HTMLElement));
+	initLayoutSlotDialogs();
+	return sectionConfig;
+}
+
+export function initLayoutZoneEditor(zone: LayoutZone, config: LayoutSlotsClientConfig): void {
+	const sectionConfig = bindSharedPanels(config);
+
+	document.querySelectorAll<HTMLButtonElement>(`.zone-add-slot[data-zone="${zone}"]`).forEach((btn) => {
+		btn.addEventListener('click', () => {
+			const select = document.querySelector<HTMLSelectElement>(`.zone-add-component[data-zone="${zone}"]`);
+			const component = select?.value;
+			if (!component) return;
+			addComponentInstance(component, config, sectionConfig, { appendTableRow: false });
+		});
+	});
+}
+
+export function initLayoutSlotsTable(config: LayoutSlotsClientConfig, zone?: LayoutZone): void {
 	const slotsBody = document.getElementById('slots-body');
 	const addSlotBtn = document.getElementById('add-slot');
 	const addComponentSelect = document.getElementById('add-slot-component');
-	const categoryOptionsTpl = document.getElementById('slot-banner-category-options');
-	const pageOptionsTpl = document.getElementById('slot-banner-page-options');
-	const certOptionsTpl = document.getElementById('slot-cert-category-options');
-	const homeFeedCategoriesTpl = document.getElementById('slot-home-feed-category-checkboxes');
 	const layoutForm = slotsBody?.closest('form');
 
 	if (!(slotsBody instanceof HTMLElement)) return;
 
-	const sectionConfig: SectionBuildConfig = {
-		...config,
-		categoryOptionsHtml: categoryOptionsTpl?.innerHTML ?? '<option value="">—</option>',
-		pageOptionsHtml: pageOptionsTpl?.innerHTML ?? '<option value="">—</option>',
-		certOptionsHtml: certOptionsTpl?.innerHTML ?? `<option value="">${config.certAllLabel}</option>`,
-		homeFeedCategoryCheckboxesHtml: homeFeedCategoriesTpl?.innerHTML ?? '',
-	};
-
-	document.querySelectorAll('.slot-config-panel[data-component="sidebar.banner"]').forEach((block) => {
-		bindBannerBlock(block as HTMLElement);
-	});
+	const sectionConfig = bindSharedPanels(config);
 
 	slotsBody.querySelectorAll('.slot-row').forEach((row) => bindSlotRow(row as HTMLElement, config, sectionConfig));
-
-	document.querySelectorAll('.layout-slot-card').forEach((card) => bindSlotCardLabelSync(card as HTMLElement));
-
-	initLayoutSlotDialogs();
 
 	layoutForm?.addEventListener('submit', () => {
 		slotsBody.querySelectorAll('.slot-row').forEach((row) => {
@@ -285,18 +351,19 @@ export function initLayoutSlotsTable(config: LayoutSlotsClientConfig): void {
 
 	addSlotBtn?.addEventListener('click', () => {
 		const component = (addComponentSelect as HTMLSelectElement | null)?.value ?? 'home.pinned';
-		addSlot(component, config, sectionConfig);
+		addComponentInstance(component, config, sectionConfig, { appendTableRow: true });
 	});
 
-	document.querySelectorAll<HTMLButtonElement>('.zone-add-slot').forEach((btn) => {
-		btn.addEventListener('click', () => {
-			const zone = btn.dataset.zone;
-			const select = document.querySelector<HTMLSelectElement>(`.zone-add-component[data-zone="${zone}"]`);
-			const component = select?.value;
-			if (!component) return;
-			addSlot(component, config, sectionConfig);
+	if (zone) {
+		document.querySelectorAll<HTMLButtonElement>(`.zone-add-slot[data-zone="${zone}"]`).forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const select = document.querySelector<HTMLSelectElement>(`.zone-add-component[data-zone="${zone}"]`);
+				const component = select?.value;
+				if (!component) return;
+				addComponentInstance(component, config, sectionConfig, { appendTableRow: true });
+			});
 		});
-	});
+	}
 }
 
 export function initLayoutSlotCardSummaries(): void {
