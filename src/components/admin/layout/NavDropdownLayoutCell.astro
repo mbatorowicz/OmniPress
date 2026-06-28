@@ -1,10 +1,5 @@
 ---
 import { adminLayout } from '@/i18n';
-import {
-	DEFAULT_NAV_MENU_COLUMN_WIDTH,
-	DEFAULT_NAV_MENU_COLUMN_WIDTHS_2,
-	resolveNavDropdownLayout,
-} from '@/lib/admin/nav-dropdown-layout';
 import type { NavItem } from '@/lib/astro-layout/types';
 
 interface Props {
@@ -15,10 +10,10 @@ interface Props {
 
 const { depth, item, asCell = true } = Astro.props;
 const visible = depth === 0;
-const layout = item ? resolveNavDropdownLayout(item) : resolveNavDropdownLayout({});
-const columns = visible ? layout.columns : 1;
-const width0 = visible ? layout.columnWidths[0] : '';
-const width1 = visible && layout.columns === 2 ? layout.columnWidths[1] : '';
+const columns =
+	visible && (item?.menuColumns === 2 || item?.isMegaMenu === true) ? 2 : visible ? 1 : 1;
+const width0 = visible ? (item?.menuColumnWidths?.[0] ?? '') : '';
+const width1 = visible ? (item?.menuColumnWidths?.[1] ?? '') : '';
 const cellClass = `nav-dropdown-layout-cell ${visible ? '' : 'hidden'}`;
 const Wrapper = asCell ? 'td' : 'div';
 ---
@@ -43,7 +38,7 @@ const Wrapper = asCell ? 'td' : 'div';
 					<input
 						type="text"
 						value={width0}
-						placeholder={DEFAULT_NAV_MENU_COLUMN_WIDTH}
+						placeholder={adminLayout.navMenuColumnWidthPlaceholder}
 						class="nav-menu-col-width-0 ui-input-compact w-full"
 						inputmode="text"
 						autocomplete="off"
@@ -60,7 +55,7 @@ const Wrapper = asCell ? 'td' : 'div';
 					<input
 						type="text"
 						value={width1}
-						placeholder={DEFAULT_NAV_MENU_COLUMN_WIDTHS_2[1]}
+						placeholder={adminLayout.navMenuColumnWidth2Placeholder}
 						class="nav-menu-col-width-1 ui-input-compact w-full"
 						inputmode="text"
 						autocomplete="off"

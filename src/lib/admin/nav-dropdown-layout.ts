@@ -4,11 +4,8 @@ export type NavMenuColumns = 1 | 2;
 
 export type NavDropdownLayout = {
 	columns: NavMenuColumns;
-	columnWidths: [string] | [string, string];
+	columnWidths: string[];
 };
-
-export const DEFAULT_NAV_MENU_COLUMN_WIDTH = '320px';
-export const DEFAULT_NAV_MENU_COLUMN_WIDTHS_2: [string, string] = ['1fr', '1fr'];
 
 const CSS_SIZE =
 	/^(?:auto|\d+(?:\.\d+)?(?:px|rem|em|%|fr|ch|vw|vh)|minmax\([^)]+\)|fit-content\([^)]*\))$/;
@@ -36,18 +33,11 @@ export function resolveNavDropdownLayout(
 	item: Pick<NavItem, 'menuColumns' | 'menuColumnWidths' | 'isMegaMenu'>,
 ): NavDropdownLayout {
 	const columns = resolveNavMenuColumns(item);
-	if (columns === 2) {
-		const w0 =
-			sanitizeNavMenuColumnWidth(item.menuColumnWidths?.[0]) ??
-			DEFAULT_NAV_MENU_COLUMN_WIDTHS_2[0];
-		const w1 =
-			sanitizeNavMenuColumnWidth(item.menuColumnWidths?.[1]) ??
-			DEFAULT_NAV_MENU_COLUMN_WIDTHS_2[1];
-		return { columns: 2, columnWidths: [w0, w1] };
-	}
-	const w0 =
-		sanitizeNavMenuColumnWidth(item.menuColumnWidths?.[0]) ?? DEFAULT_NAV_MENU_COLUMN_WIDTH;
-	return { columns: 1, columnWidths: [w0] };
+	const columnWidths = (item.menuColumnWidths ?? [])
+		.map(sanitizeNavMenuColumnWidth)
+		.filter((width): width is string => Boolean(width))
+		.slice(0, columns === 2 ? 2 : 1);
+	return { columns, columnWidths };
 }
 
 export function formatNavDropdownLayoutSummary(
@@ -55,18 +45,23 @@ export function formatNavDropdownLayoutSummary(
 	labels: { oneColumn: string; twoColumns: string },
 ): string {
 	if (layout.columns === 2) {
-		return `${labels.twoColumns} (${layout.columnWidths.join(' · ')})`;
+		return layout.columnWidths.length > 0
+			? `${labels.twoColumns} (${layout.columnWidths.join(' · ')})`
+			: labels.twoColumns;
 	}
-	return `${labels.oneColumn} (${layout.columnWidths[0]})`;
+	return layout.columnWidths.length > 0
+		? `${labels.oneColumn} (${layout.columnWidths[0]})`
+		: labels.oneColumn;
 }
 
 export function normalizeNavDropdownFields(item: NavItem): void {
-	const columns = resolveNavMenuColumns(item);
-	item.menuColumns = columns;
-
-	const layout = resolveNavDropdownLayout(item);
-	item.menuColumnWidths = [...layout.columnWidths];
-
+	item.menuColumns = resolveNavMenuColumns(item);
+	const columnWidths = (item.menuColumnWidths ?? [])
+		.map(sanitizeNavMenuColumnWidth)
+		.filter((width): width is string => Boolean(width))
+		.slice(0, item.menuColumns === 2 ? 2 : 1);
+	if (columnWidths.length > 0) item.menuColumnWidths = columnWidths;
+	else delete item.menuColumnWidths;
 	delete item.isMegaMenu;
 }
 
@@ -87,6 +82,7 @@ export function applyNavDropdownFieldsFromForm(
 		if (w1) widths.push(w1);
 	}
 	if (widths.length > 0) item.menuColumnWidths = widths;
+	else delete item.menuColumnWidths;
 
 	delete item.isMegaMenu;
 }

@@ -523,7 +523,7 @@ function buildEditorPanelHtml(labels: NavigationTableLabels): string {
 							</label>
 							<label class="nav-dropdown-layout-field">
 								<span class="nav-dropdown-layout-label">${fieldLabels.navMenuColumnWidth1}</span>
-								<input type="text" placeholder="320px" class="nav-menu-col-width-0 ui-input-compact w-full" autocomplete="off" />
+								<input type="text" placeholder="np. 320px" class="nav-menu-col-width-0 ui-input-compact w-full" autocomplete="off" />
 							</label>
 							<label class="nav-dropdown-layout-field nav-menu-col-width-1-field hidden">
 								<span class="nav-dropdown-layout-label">${fieldLabels.navMenuColumnWidth2}</span>
@@ -555,7 +555,7 @@ function createNavEntryElement(
 				<span class="nav-summary-label">—</span>
 				<span class="nav-summary-sep" aria-hidden="true">·</span>
 				<span class="nav-summary-link-text">${labels.hrefKinds.none}</span>
-				<span class="nav-summary-layout">${labels.menuColumnOne} (320px)</span>
+				<span class="nav-summary-layout">${labels.menuColumnOne}</span>
 			</div>
 			<div class="nav-tile-actions">
 				<button type="button" class="edit-nav-row ui-btn ui-btn--link text-xs">${labels.edit}</button>

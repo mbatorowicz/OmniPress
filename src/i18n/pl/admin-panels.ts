@@ -200,6 +200,8 @@ export const adminLayout = {
 		two: '2 kolumny',
 	},
 	navMenuColumnsHint: 'Szerokości w CSS: px, %, fr (np. 320px, 1fr, 50%).',
+	navMenuColumnWidthPlaceholder: 'np. 320px',
+	navMenuColumnWidth2Placeholder: 'np. 1fr',
 	navHrefKinds: {
 		none: 'Bez linku (tylko rozwijane)',
 		category: 'Kategoria wpisów',

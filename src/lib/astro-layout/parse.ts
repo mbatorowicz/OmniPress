@@ -15,9 +15,8 @@ import {
 	type NavEditorDepthColors,
 } from '@/lib/admin/nav-editor-colors';
 import {
-	DEFAULT_NAV_MENU_COLUMN_WIDTH,
 	readNavMenuColumns,
-	resolveNavDropdownLayout,
+	resolveNavMenuColumns,
 	sanitizeNavMenuColumnWidth,
 } from '@/lib/admin/nav-dropdown-layout';
 
@@ -59,12 +58,13 @@ function exportNavItem(item: NavItem, isRoot: boolean): NavItem {
 	if (item.href) out.href = item.href;
 
 	if (isRoot && item.children?.length) {
-		const layout = resolveNavDropdownLayout(item);
-		if (layout.columns === 2) {
-			out.menuColumns = 2;
-			out.menuColumnWidths = [...layout.columnWidths];
-		} else if (layout.columnWidths[0] !== DEFAULT_NAV_MENU_COLUMN_WIDTH) {
-			out.menuColumnWidths = [layout.columnWidths[0]];
+		if (item.menuColumns === 2) out.menuColumns = 2;
+		else if (item.menuColumns === 1) out.menuColumns = 1;
+		if (item.menuColumnWidths?.length) {
+			out.menuColumnWidths = item.menuColumnWidths
+				.map(sanitizeNavMenuColumnWidth)
+				.filter((width): width is string => Boolean(width))
+				.slice(0, out.menuColumns === 2 ? 2 : 1);
 		}
 	}
 

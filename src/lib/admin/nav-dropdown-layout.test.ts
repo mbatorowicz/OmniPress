@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
 	applyNavDropdownFieldsFromForm,
-	DEFAULT_NAV_MENU_COLUMN_WIDTH,
 	resolveNavDropdownLayout,
 	resolveNavMenuColumns,
 	sanitizeNavMenuColumnWidth,
@@ -14,10 +13,10 @@ describe('nav-dropdown-layout', () => {
 		expect(resolveNavDropdownLayout({ isMegaMenu: true }).columns).toBe(2);
 	});
 
-	it('domyślnie 1 kolumna 320px', () => {
+	it('bez menuColumnWidths nie wstawia domyślnych px', () => {
 		const layout = resolveNavDropdownLayout({});
 		expect(layout.columns).toBe(1);
-		expect(layout.columnWidths[0]).toBe(DEFAULT_NAV_MENU_COLUMN_WIDTH);
+		expect(layout.columnWidths).toEqual([]);
 	});
 
 	it('sanitizeNavMenuColumnWidth akceptuje px, fr i %', () => {
@@ -27,7 +26,7 @@ describe('nav-dropdown-layout', () => {
 		expect(sanitizeNavMenuColumnWidth('bad;')).toBeUndefined();
 	});
 
-	it('applyNavDropdownFieldsFromForm zapisuje kolumny i szerokości', () => {
+	it('applyNavDropdownFieldsFromForm zapisuje tylko podane szerokości', () => {
 		const item: NavItem = { label: 'Gmina' };
 		applyNavDropdownFieldsFromForm(item, '2', '1fr', '1fr');
 		expect(item.menuColumns).toBe(2);
