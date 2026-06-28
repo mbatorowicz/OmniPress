@@ -66,7 +66,9 @@ export const adminUnit = {
 		vercel: 'Vercel → Project Settings → General → Project ID (prj_…). Po publikacji OmniPress sprawdza log buildu.',
 	},
 	layoutLink: 'Wygląd strony',
+	postsLink: 'Wpisy',
 	settingsLink: 'Ustawienia',
+	contextSiteLabel: 'Strona',
 	navigationLink: 'Menu',
 	categoriesLink: 'Kategorie',
 	componentsLink: 'Komponenty',
@@ -75,6 +77,11 @@ export const adminUnit = {
 	contextGroupAppearance: 'Wygląd strony',
 	contextGroupContent: 'Treść',
 	advancedPathsTitle: 'Zaawansowane — ścieżki plików w repozytorium',
+} as const;
+
+export const adminUnitPosts = {
+	title: 'Wpisy',
+	lead: 'Wpisy przypisane do tej strony — akceptacja, harmonogram publikacji i import z GitHub.',
 } as const;
 
 export const adminSitePages = {

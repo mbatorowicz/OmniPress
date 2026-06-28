@@ -1,0 +1,108 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import AdminContextNav from '@/components/shell/AdminContextNav.astro';
+import AdminImportSection from '@/components/admin/queue/AdminImportSection.astro';
+import AdminQueueSection from '@/components/admin/queue/AdminQueueSection.astro';
+import FlashAlerts from '@/components/shared/FlashAlerts.astro';
+import { admin, adminUnitPosts } from '@/i18n';
+import { parseAdminHubFlash } from '@/lib/admin/hub-flash';
+import { schedulePublishWorker } from '@/lib/publish/trigger-worker';
+
+const { id } = Astro.params;
+if (!id || Astro.locals.profile?.role !== 'admin') return Astro.redirect('/admin');
+
+const { data: site } = await Astro.locals.supabase
+	.from('sites')
+	.select('id, name')
+	.eq('id', id)
+	.maybeSingle();
+if (!site) return Astro.redirect('/admin/sites');
+
+schedulePublishWorker();
+
+const supabase = Astro.locals.supabase;
+const postSelect =
+	'id, title, status, category_name, category_slug, created_at, updated_at, scheduled_publish_at, sites(name)';
+
+const postsForSite = () => supabase.from('posts').select(postSelect).eq('site_id', id);
+
+const { data: pending } = await postsForSite()
+	.eq('status', 'pending')
+	.order('created_at', { ascending: false });
+
+const { data: scheduled } = await postsForSite()
+	.eq('status', 'scheduled')
+	.order('scheduled_publish_at', { ascending: true });
+
+const { data: publishing } = await postsForSite()
+	.eq('status', 'publishing')
+	.order('created_at', { ascending: false });
+
+const { data: published } = await postsForSite()
+	.eq('status', 'published')
+	.order('updated_at', { ascending: false })
+	.limit(30);
+
+const scheduledQueue = [...(publishing ?? []), ...(scheduled ?? [])];
+const flashMessages = parseAdminHubFlash(Astro.url);
+const listLabels = admin.postList;
+const ui = adminUnitPosts;
+
+const summary = [
+	{ id: 'pending', label: admin.queueNav.pending, count: pending?.length ?? 0 },
+	{ id: 'scheduled', label: admin.queueNav.scheduled, count: scheduledQueue.length },
+	{ id: 'published', label: admin.queueNav.published, count: published?.length ?? 0 },
+];
+---
+
+<AppLayout title={`${site.name} — ${ui.title}`} heading={ui.title}>
+	<AdminContextNav siteId={id} siteName={site.name} section="posts" />
+
+	<p class="ui-muted mb-4">{ui.lead}</p>
+
+	<FlashAlerts messages={flashMessages} />
+
+	<nav class="ui-queue-summary" aria-label={admin.queueNav.pending}>
+		{
+			summary.map((s) => (
+				<a href={`#${s.id}`} class="ui-queue-summary-link">
+					{s.label}
+					<span class="ui-queue-summary-count">{s.count}</span>
+				</a>
+			))
+		}
+	</nav>
+
+	<AdminQueueSection
+		id="pending"
+		title={admin.pending.heading(pending?.length ?? 0)}
+		empty={admin.pending.empty}
+		posts={pending}
+		labels={listLabels}
+		dateField="created_at"
+	/>
+
+	<AdminQueueSection
+		id="scheduled"
+		title={admin.scheduled.heading(scheduledQueue.length)}
+		lead={admin.scheduled.lead}
+		empty={admin.scheduled.empty}
+		posts={scheduledQueue}
+		labels={listLabels}
+		dateField="scheduled_publish_at"
+		dateColumnLabel={listLabels.colPublishAt}
+	/>
+
+	<AdminQueueSection
+		id="published"
+		title={admin.published.heading(published?.length ?? 0)}
+		lead={admin.published.lead}
+		empty={admin.published.empty}
+		posts={published}
+		labels={listLabels}
+		showBulkActions
+		variant="info"
+	/>
+
+	<AdminImportSection sites={[site]} defaultImportSiteId={site.id} importSiteId={site.id} />
+</AppLayout>

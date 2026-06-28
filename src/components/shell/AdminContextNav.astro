@@ -19,6 +19,7 @@ const sectionLabels: Record<AdminUnitSection, string> = {
 	navigation: layout.breadcrumb.navigation,
 	categories: layout.breadcrumb.categories,
 	components: layout.breadcrumb.components,
+	posts: layout.breadcrumb.posts,
 	pages: layout.breadcrumb.pages,
 	changes: layout.breadcrumb.changes,
 };
@@ -29,6 +30,7 @@ const sectionHrefs: Record<AdminUnitSection, string> = {
 	navigation: `/admin/units/${siteId}/layout/menu`,
 	categories: `/admin/units/${siteId}/layout/categories`,
 	components: `/admin/units/${siteId}/layout/home`,
+	posts: `/admin/units/${siteId}/posts`,
 	pages: `/admin/units/${siteId}/pages`,
 	changes: `/admin/units/${siteId}/layout/sidebar`,
 };
@@ -50,11 +52,12 @@ if (currentLabel) {
 	crumbs.push({ label: currentLabel });
 }
 
-const navSections: AdminUnitSection[] = ['layout', 'pages', 'settings'];
+const navSections: AdminUnitSection[] = ['layout', 'posts', 'pages', 'settings'];
 
 const linkLabels: Record<AdminUnitSection, string> = {
 	settings: adminUnit.settingsLink,
 	layout: adminUnit.layoutLink,
+	posts: adminUnit.postsLink,
 	navigation: adminUnit.navigationLink,
 	categories: adminUnit.categoriesLink,
 	components: adminUnit.componentsLink,
@@ -64,6 +67,11 @@ const linkLabels: Record<AdminUnitSection, string> = {
 ---
 
 <nav class="mb-6" aria-label={layout.aria.adminContext}>
+	<div class="mb-4">
+		<p class="text-sm text-text-muted">{adminUnit.contextSiteLabel}</p>
+		<p class="text-xl font-semibold text-text-emphasis">{siteName}</p>
+	</div>
+
 	<Breadcrumbs items={crumbs} />
 	<div class="ui-subnav mb-0 mt-3 flex flex-wrap items-center gap-2">
 		{

@@ -10,6 +10,7 @@ export {
 	adminReview,
 	adminSites,
 	adminUnit,
+	adminUnitPosts,
 	adminLayout,
 	adminRecentChanges,
 	adminSitePages,

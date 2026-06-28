@@ -4,5 +4,6 @@ export type AdminUnitSection =
 	| 'navigation'
 	| 'categories'
 	| 'components'
+	| 'posts'
 	| 'pages'
 	| 'changes';
