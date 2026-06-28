@@ -35,7 +35,8 @@ export type LayoutEditorSection =
 	| 'categories'
 	| 'components'
 	| 'settings'
-	| 'all';
+	| 'all'
+	| import('@/lib/admin/layout-editor-tabs').LayoutEditorTab;
 
 export type LayoutEditorContext = {
 	site: { id: string; name: string; slug: string };
@@ -167,37 +168,23 @@ export async function loadLayoutEditorContext(
 	};
 }
 
-export function buildLayoutEditorReturnUrl(siteId: string, section: string): string {
-	const base = `/admin/units/${siteId}/layout`;
-	switch (section) {
-		case 'categories':
-			return `${base}#zone-categories`;
-		case 'components':
-			return `${base}#zone-home`;
-		case 'navigation':
-			return `${base}#zone-header`;
-		case 'settings':
-			return `/admin/units/${siteId}`;
-		case 'layout':
-		case 'all':
-		default:
-			return base;
-	}
+import {
+	layoutTabHref,
+	resolveLayoutReturnTab,
+} from '@/lib/admin/layout-editor-tabs';
+
+export function buildLayoutEditorReturnUrl(
+	siteId: string,
+	section: string,
+	returnTab?: string | null,
+): string {
+	if (section === 'settings') return `/admin/units/${siteId}`;
+	const tab = resolveLayoutReturnTab(section, returnTab);
+	return layoutTabHref(siteId, tab);
 }
 
-export function layoutSectionReturnPath(section: string): string {
-	switch (section) {
-		case 'categories':
-			return 'layout#zone-categories';
-		case 'components':
-			return 'layout#zone-home';
-		case 'navigation':
-			return 'layout#zone-header';
-		case 'settings':
-			return 'settings';
-		case 'layout':
-		case 'all':
-		default:
-			return 'layout';
-	}
+export function layoutSectionReturnPath(section: string, returnTab?: string | null): string {
+	if (section === 'settings') return 'settings';
+	const tab = resolveLayoutReturnTab(section, returnTab);
+	return `layout/${tab}`;
 }

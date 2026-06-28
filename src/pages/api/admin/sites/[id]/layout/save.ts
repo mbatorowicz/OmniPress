@@ -15,7 +15,8 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const existing = await loadSiteAstroLayout(supabase, siteId);
 	const form = await request.formData();
 	const section = String(form.get('section') ?? 'all').trim();
-	const returnSegment = layoutSectionReturnPath(section);
+	const returnTab = String(form.get('return_tab') ?? '').trim() || null;
+	const returnSegment = layoutSectionReturnPath(section, returnTab);
 
 	const parsed = parseLayoutSection(form, existing);
 

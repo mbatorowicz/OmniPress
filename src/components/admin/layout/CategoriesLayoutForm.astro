@@ -9,9 +9,10 @@ interface Props {
 	siteId: string;
 	layout: SiteAstroLayout;
 	hasAstroChannel: boolean;
+	returnTab?: import('@/lib/admin/layout-editor-tabs').LayoutEditorTab;
 }
 
-const { siteId, layout, hasAstroChannel } = Astro.props;
+const { siteId, layout, hasAstroChannel, returnTab = 'categories' } = Astro.props;
 ---
 
 <form
@@ -21,6 +22,8 @@ const { siteId, layout, hasAstroChannel } = Astro.props;
 	data-categories-form
 >
 	<input type="hidden" name="section" value="categories" />
+	<input type="hidden" name="return_tab" value={returnTab} />
+	<h2 class="ui-section-title">{adminLayout.categoriesTitle}</h2>
 	<Alert variant="info" class="ui-alert--note">{adminLayout.categoriesSlugWarning}</Alert>
 	<Alert variant="info" class="ui-alert--note">{adminLayout.categoriesFeedAssignHint}</Alert>
 	<CategoryMatrixSection {layout} />

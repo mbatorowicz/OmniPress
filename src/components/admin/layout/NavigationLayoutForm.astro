@@ -1,6 +1,5 @@
 ---
 import { adminLayout } from '@/i18n';
-import Button from '@/components/ui/actions/Button.astro';
 import LayoutSyncActions from '@/components/admin/layout/LayoutSyncActions.astro';
 import NavigationTreeSection from '@/components/admin/layout/NavigationTreeSection.astro';
 import type { SiteAstroLayout } from '@/lib/astro-layout/types';
@@ -14,6 +13,7 @@ interface Props {
 	draftHrefCount?: number;
 	liveHrefCount?: number | null;
 	navHasMissingHref?: boolean;
+	returnTab?: import('@/lib/admin/layout-editor-tabs').LayoutEditorTab;
 }
 
 const {
@@ -24,11 +24,14 @@ const {
 	draftHrefCount = 0,
 	liveHrefCount = null,
 	navHasMissingHref = false,
+	returnTab = 'menu',
 } = Astro.props;
 ---
 
 <form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="ui-form-stack max-w-5xl">
 	<input type="hidden" name="section" value="navigation" />
+	<input type="hidden" name="return_tab" value={returnTab} />
+	<p class="ui-hint mb-3">{adminLayout.navInMenuHint ?? adminLayout.menuFormHint}</p>
 	<NavigationTreeSection
 		navigation={layout.navigation}
 		categories={layout.categories}

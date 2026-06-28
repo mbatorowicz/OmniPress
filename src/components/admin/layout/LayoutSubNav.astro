@@ -1,0 +1,26 @@
+---
+import Button from '@/components/ui/actions/Button.astro';
+import { adminLayout } from '@/i18n';
+import { layoutTabLabel } from '@/lib/admin/layout-editor-i18n';
+import { LAYOUT_EDITOR_TABS, layoutTabHref, type LayoutEditorTab } from '@/lib/admin/layout-editor-tabs';
+
+interface Props {
+	siteId: string;
+	activeTab: LayoutEditorTab;
+}
+
+const { siteId, activeTab } = Astro.props;
+---
+
+<nav class="layout-subnav mb-6 flex flex-wrap gap-2" aria-label={adminLayout.layoutSubNavLabel}>
+	{
+		LAYOUT_EDITOR_TABS.map((tab) => (
+			<Button
+				href={layoutTabHref(siteId, tab)}
+				variant={tab === activeTab ? 'nav-accent' : 'secondary'}
+			>
+				{layoutTabLabel(tab)}
+			</Button>
+		))
+	}
+</nav>

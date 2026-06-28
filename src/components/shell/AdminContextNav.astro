@@ -25,12 +25,12 @@ const sectionLabels: Record<AdminUnitSection, string> = {
 
 const sectionHrefs: Record<AdminUnitSection, string> = {
 	settings: `/admin/units/${siteId}`,
-	layout: `/admin/units/${siteId}/layout`,
-	navigation: `/admin/units/${siteId}/layout#zone-header`,
-	categories: `/admin/units/${siteId}/layout#zone-categories`,
-	components: `/admin/units/${siteId}/layout#zone-home`,
+	layout: `/admin/units/${siteId}/layout/topbar`,
+	navigation: `/admin/units/${siteId}/layout/menu`,
+	categories: `/admin/units/${siteId}/layout/categories`,
+	components: `/admin/units/${siteId}/layout/home`,
 	pages: `/admin/units/${siteId}/pages`,
-	changes: `/admin/units/${siteId}/layout#zone-changes`,
+	changes: `/admin/units/${siteId}/layout/sidebar`,
 };
 
 const crumbs: Crumb[] = [

@@ -1,0 +1,68 @@
+---
+import LayoutEditorShell from '@/components/admin/layout/LayoutEditorShell.astro';
+import LayoutZoneForm from '@/components/admin/layout/LayoutZoneForm.astro';
+import LayoutAdvancedSlotsSection from '@/components/admin/layout/LayoutAdvancedSlotsSection.astro';
+import LayoutMenuTabContent from '@/components/admin/layout/LayoutMenuTabContent.astro';
+import CategoriesLayoutForm from '@/components/admin/layout/CategoriesLayoutForm.astro';
+import { loadLayoutEditorContext } from '@/lib/admin/layout-editor-context';
+import {
+	HEADER_BRAND_COMPONENTS,
+	isLayoutEditorTab,
+	layoutTabHref,
+	tabToLayoutZone,
+	type LayoutEditorTab,
+} from '@/lib/admin/layout-editor-tabs';
+
+const { id, tab } = Astro.params;
+if (!id || !tab || !isLayoutEditorTab(tab)) {
+	if (id) return Astro.redirect(layoutTabHref(id, 'topbar'));
+	return Astro.redirect('/admin/sites');
+}
+
+const activeTab = tab as LayoutEditorTab;
+
+const ctx = await loadLayoutEditorContext(Astro.locals.supabase, id, {
+	draftStatusScope: activeTab === 'categories' ? 'categories' : 'navigation',
+});
+if (!ctx) return Astro.redirect('/admin/sites');
+
+const zone = tabToLayoutZone(activeTab);
+---
+
+<LayoutEditorShell siteId={id} {ctx} {activeTab}>
+	{
+		activeTab === 'menu' ? (
+			<LayoutMenuTabContent siteId={id} {ctx} />
+		) : activeTab === 'categories' ? (
+			<CategoriesLayoutForm
+				siteId={id}
+				layout={ctx.layout}
+				hasAstroChannel={ctx.hasAstroChannel}
+				returnTab="categories"
+			/>
+		) : zone ? (
+			<>
+				<LayoutZoneForm
+					siteId={id}
+					returnTab={activeTab}
+					{zone}
+					slots={ctx.layout.slots}
+					categories={ctx.layout.categories}
+					categoryDisplays={ctx.layout.categoryDisplays}
+					publishedPages={ctx.publishedPages}
+					includeComponents={activeTab === 'header' ? HEADER_BRAND_COMPONENTS : undefined}
+				/>
+				{activeTab === 'home' ? (
+					<LayoutAdvancedSlotsSection
+						siteId={id}
+						returnTab="home"
+						slots={ctx.layout.slots}
+						categories={ctx.layout.categories}
+						categoryDisplays={ctx.layout.categoryDisplays}
+						publishedPages={ctx.publishedPages}
+					/>
+				) : null}
+			</>
+		) : null
+	}
+</LayoutEditorShell>

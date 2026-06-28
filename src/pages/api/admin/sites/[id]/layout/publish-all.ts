@@ -20,7 +20,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	if (!siteId) return redirect('/admin/sites');
 
 	const form = await request.formData();
-	const section = String(form.get('return_section') ?? 'navigation').trim();
+	const section = String(form.get('return_section') ?? 'topbar').trim();
 	const returnUrl = buildLayoutEditorReturnUrl(siteId, section);
 
 	const layout = await loadSiteAstroLayout(supabase, siteId);

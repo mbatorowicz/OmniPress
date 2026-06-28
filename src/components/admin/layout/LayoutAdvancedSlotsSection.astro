@@ -1,0 +1,90 @@
+---
+import { adminLayout } from '@/i18n';
+import Button from '@/components/ui/actions/Button.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+import Table from '@/components/ui/table/Table.astro';
+import TableHead from '@/components/ui/table/TableHead.astro';
+import TableRow from '@/components/ui/table/TableRow.astro';
+import TableCell from '@/components/ui/table/TableCell.astro';
+import LayoutSlotRow from '@/components/admin/layout-slots/LayoutSlotRow.astro';
+import LayoutSlotsPreview from '@/components/admin/layout-slots/LayoutSlotsPreview.astro';
+import LayoutSlotsTemplates from '@/components/admin/layout-slots/LayoutSlotsTemplates.astro';
+import LayoutSlotsClientScript from '@/components/admin/layout-slots/LayoutSlotsClientScript.astro';
+import { buildComponentOptionsGroupedHtml } from '@/lib/admin/layout-slots-sections';
+import { layoutZoneTitles } from '@/lib/admin/layout-editor-i18n';
+import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from '@/lib/astro-layout/types';
+import type { LayoutEditorTab } from '@/lib/admin/layout-editor-tabs';
+
+type PageOption = { path: string; title: string };
+
+interface Props {
+	siteId: string;
+	returnTab: LayoutEditorTab;
+	slots: DisplaySlot[];
+	categories: CategoryDefinition[];
+	categoryDisplays: SiteAstroLayout['categoryDisplays'];
+	publishedPages: PageOption[];
+}
+
+const { siteId, returnTab, slots, categories, categoryDisplays, publishedPages } = Astro.props;
+const { fields, actions } = adminLayout;
+
+const zoneTitles = layoutZoneTitles();
+const componentOptionsHtml = buildComponentOptionsGroupedHtml(adminLayout.componentLabels, zoneTitles);
+---
+
+<form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="ui-form-stack max-w-5xl mt-8">
+	<input type="hidden" name="section" value="components" />
+	<input type="hidden" name="return_tab" value={returnTab} />
+
+	<Panel class="ui-form-section">
+		<details class="rounded border border-slate-200 bg-slate-50/50 p-4">
+			<summary class="cursor-pointer font-medium text-slate-800">{adminLayout.slotsPreviewTitle}</summary>
+			<LayoutSlotsPreview />
+		</details>
+
+		<details class="mt-4 rounded border border-slate-200 bg-slate-50/50 p-4" open>
+			<summary class="cursor-pointer font-medium text-slate-800">
+				{adminLayout.slotsAdvancedTitle ?? 'Zaawansowane — identyfikatory i kolejność'}
+			</summary>
+			<p class="ui-hint mt-2">{adminLayout.slotsManageHint}</p>
+			<p class="ui-hint">{adminLayout.slotsOrderHint}</p>
+
+			<Table dense wrap class="min-w-[40rem] mt-3" id="slots-table">
+				<TableHead dense>
+					<TableRow dense>
+						<TableCell header dense>{fields.slotId}</TableCell>
+						<TableCell header dense>{fields.slotLabel}</TableCell>
+						<TableCell header dense>{fields.slotComponent}</TableCell>
+						<TableCell header dense>{fields.widgetOrder}</TableCell>
+						<TableCell header dense>{fields.widgetEnabled}</TableCell>
+						<TableCell header dense>{actions.removeSlot}</TableCell>
+					</TableRow>
+				</TableHead>
+				<tbody id="slots-body">
+					{slots.map((slot) => (
+						<LayoutSlotRow slot={slot} zoneTitles={zoneTitles} />
+					))}
+				</tbody>
+			</Table>
+
+			<div class="mt-3 flex flex-wrap items-center gap-2">
+				<select id="add-slot-component" class="ui-select-compact">
+					<Fragment set:html={componentOptionsHtml} />
+				</select>
+				<Button type="button" id="add-slot" variant="add">
+					{actions.addComponent}
+				</Button>
+			</div>
+		</details>
+	</Panel>
+
+	<div class="mt-4">
+		<Button type="submit" variant="secondary">
+			{adminLayout.actions.saveDraftComponents}
+		</Button>
+	</div>
+</form>
+
+<LayoutSlotsTemplates categories={categories} publishedPages={publishedPages} />
+<LayoutSlotsClientScript {componentOptionsHtml} includePreview />

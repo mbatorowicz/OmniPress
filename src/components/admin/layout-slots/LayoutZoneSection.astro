@@ -2,10 +2,11 @@
 import Button from '@/components/ui/actions/Button.astro';
 import SectionTitle from '@/components/ui/layout/SectionTitle.astro';
 import { adminLayout } from '@/i18n';
+import { layoutZoneTitles } from '@/lib/admin/layout-editor-i18n';
 import {
-	LAYOUT_EDITOR_ZONE_ORDER,
 	getComponentsOfZone,
 	isSingletonComponent,
+	type LayoutComponentId,
 	type LayoutZone,
 } from '@/lib/astro-layout/components';
 import { getSlotsByZone, sortSlotsForEditor } from '@/lib/astro-layout/slots';
@@ -20,20 +21,19 @@ interface Props {
 	categories: CategoryDefinition[];
 	categoryDisplays: SiteAstroLayout['categoryDisplays'];
 	publishedPages: PageOption[];
+	includeComponents?: LayoutComponentId[];
 }
 
-const { zone, slots, categories, categoryDisplays, publishedPages } = Astro.props;
+const { zone, slots, categories, categoryDisplays, publishedPages, includeComponents } =
+	Astro.props;
 const sorted = sortSlotsForEditor(slots);
-const zoneSlots = getSlotsByZone(sorted, zone);
+let zoneSlots = getSlotsByZone(sorted, zone);
+if (includeComponents?.length) {
+	const allowed = new Set(includeComponents);
+	zoneSlots = zoneSlots.filter((slot) => allowed.has(slot.component as LayoutComponentId));
+}
 
-const zoneTitles: Record<LayoutZone, string> = {
-	site: adminLayout.slotsZoneSite ?? 'Meta strony',
-	topbar: adminLayout.slotsZoneTopbar ?? 'Pasek górny',
-	header: adminLayout.slotsZoneHeader ?? 'Nagłówek',
-	home: adminLayout.slotsPreviewHomeZone,
-	sidebar: adminLayout.slotsPreviewSidebarZone,
-	footer: adminLayout.slotsZoneFooter ?? 'Stopka',
-};
+const zoneTitles = layoutZoneTitles();
 
 const zoneDesc: Record<LayoutZone, string> = {
 	topbar: adminLayout.slotsZoneDescTopbar ?? '',
@@ -54,6 +54,7 @@ const zoneEmpty: Record<LayoutZone, string> = {
 };
 
 const addableComponents = getComponentsOfZone(zone).filter((id) => {
+	if (includeComponents?.length && !includeComponents.includes(id)) return false;
 	if (zone !== 'home' && zone !== 'sidebar') return false;
 	if (!isSingletonComponent(id)) return true;
 	return !zoneSlots.some((s) => s.component === id);
@@ -63,14 +64,6 @@ const addableComponents = getComponentsOfZone(zone).filter((id) => {
 <section id={`zone-${zone}`} data-zone={zone} class="layout-zone-section scroll-mt-24">
 	<SectionTitle class="!mb-0">{zoneTitles[zone]}</SectionTitle>
 	{zoneDesc[zone] && <p class="layout-zone-section__desc">{zoneDesc[zone]}</p>}
-
-	{
-		zone === 'header' && (
-			<div class="layout-zone-header-extra">
-				<slot name="header-extra" />
-			</div>
-		)
-	}
 
 	<div class="layout-zone-cards" id={`zone-${zone}-cards`} data-zone-cards={zone}>
 		{

@@ -1,0 +1,58 @@
+---
+import { adminLayout } from '@/i18n';
+import LayoutSyncActions from '@/components/admin/layout/LayoutSyncActions.astro';
+import LayoutZoneSection from '@/components/admin/layout-slots/LayoutZoneSection.astro';
+import LayoutSlotsTemplates from '@/components/admin/layout-slots/LayoutSlotsTemplates.astro';
+import LayoutSlotsClientScript from '@/components/admin/layout-slots/LayoutSlotsClientScript.astro';
+import { buildComponentOptionsGroupedHtml } from '@/lib/admin/layout-slots-sections';
+import { layoutZoneTitles } from '@/lib/admin/layout-editor-i18n';
+import type { LayoutComponentId, LayoutZone } from '@/lib/astro-layout/components';
+import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from '@/lib/astro-layout/types';
+import type { LayoutEditorTab } from '@/lib/admin/layout-editor-tabs';
+
+type PageOption = { path: string; title: string };
+
+interface Props {
+	siteId: string;
+	returnTab: LayoutEditorTab;
+	zone: LayoutZone;
+	slots: DisplaySlot[];
+	categories: CategoryDefinition[];
+	categoryDisplays: SiteAstroLayout['categoryDisplays'];
+	publishedPages: PageOption[];
+	includeComponents?: LayoutComponentId[];
+}
+
+const {
+	siteId,
+	returnTab,
+	zone,
+	slots,
+	categories,
+	categoryDisplays,
+	publishedPages,
+	includeComponents,
+} = Astro.props;
+
+const zoneTitles = layoutZoneTitles();
+const componentOptionsHtml = buildComponentOptionsGroupedHtml(adminLayout.componentLabels, zoneTitles);
+---
+
+<form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="ui-form-stack max-w-5xl">
+	<input type="hidden" name="section" value="components" />
+	<input type="hidden" name="return_tab" value={returnTab} />
+
+	<LayoutZoneSection
+		{zone}
+		{slots}
+		{categories}
+		{categoryDisplays}
+		{publishedPages}
+		{includeComponents}
+	/>
+
+	<LayoutSyncActions section="components" />
+</form>
+
+<LayoutSlotsTemplates categories={categories} publishedPages={publishedPages} />
+<LayoutSlotsClientScript {componentOptionsHtml} />

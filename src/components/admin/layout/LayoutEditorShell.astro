@@ -3,36 +3,33 @@ import AppLayout from '@/layouts/AppLayout.astro';
 import AdminContextNav from '@/components/shell/AdminContextNav.astro';
 import LayoutEditorStatus from '@/components/admin/layout/LayoutEditorStatus.astro';
 import LayoutSiteSyncBar from '@/components/admin/layout/LayoutSiteSyncBar.astro';
-import LayoutEditorForm from '@/components/admin/layout/LayoutEditorForm.astro';
-import { adminLayout, adminRecentChanges } from '@/i18n';
-import { loadLayoutEditorContext } from '@/lib/admin/layout-editor-context';
+import LayoutSubNav from '@/components/admin/layout/LayoutSubNav.astro';
+import { adminLayout } from '@/i18n';
+import { layoutTabLabel, layoutTabLead } from '@/lib/admin/layout-editor-i18n';
+import type { LayoutEditorContext } from '@/lib/admin/layout-editor-context';
+import type { LayoutEditorTab } from '@/lib/admin/layout-editor-tabs';
 import { parseLayoutPageFlash } from '@/lib/admin/layout-page-flash';
 
-const { id } = Astro.params;
-if (!id) return Astro.redirect('/admin/sites');
+interface Props {
+	siteId: string;
+	ctx: LayoutEditorContext;
+	activeTab: LayoutEditorTab;
+	tabLead?: string;
+}
 
-const ctx = await loadLayoutEditorContext(Astro.locals.supabase, id, {
-	draftStatusScope: 'categories',
-});
-if (!ctx) return Astro.redirect('/admin/sites');
-
+const { siteId, ctx, activeTab, tabLead } = Astro.props;
 const flash = parseLayoutPageFlash(Astro.url);
-
-const changeErrorCode = Astro.url.searchParams.get('change_error');
-const changeErrorMessage =
-	changeErrorCode && changeErrorCode in adminRecentChanges.errors
-		? adminRecentChanges.errors[changeErrorCode as keyof typeof adminRecentChanges.errors]
-		: null;
-const changeSaved = Astro.url.searchParams.get('change_saved') === '1';
+const tabLabel = layoutTabLabel(activeTab);
+const lead = tabLead ?? layoutTabLead(activeTab);
 ---
 
-<AppLayout title={adminLayout.layoutTitle} heading={adminLayout.layoutTitle}>
-	<AdminContextNav siteId={id} siteName={ctx.site.name} section="layout" />
+<AppLayout title={`${adminLayout.layoutTitle} — ${tabLabel}`} heading={adminLayout.layoutTitle}>
+	<AdminContextNav siteId={siteId} siteName={ctx.site.name} section="layout" currentLabel={tabLabel} />
 
 	<LayoutSiteSyncBar
-		siteId={id}
+		siteId={siteId}
 		hasAstroChannel={ctx.hasAstroChannel}
-		currentSection="layout"
+		currentSection={activeTab}
 		combinedDraftStatus={ctx.combinedDraftStatus}
 		navDraftStatus={ctx.navDraftStatus}
 		categoriesDraftStatus={ctx.categoriesDraftStatus}
@@ -44,7 +41,9 @@ const changeSaved = Astro.url.searchParams.get('change_saved') === '1';
 		layoutContract={ctx.layoutContract}
 	/>
 
-	<p class="ui-muted mb-4">{adminLayout.layoutLead}</p>
+	<LayoutSubNav siteId={siteId} {activeTab} />
+
+	<p class="ui-muted mb-4">{lead}</p>
 
 	<LayoutEditorStatus
 		draftStatus={ctx.combinedDraftStatus}
@@ -66,15 +65,5 @@ const changeSaved = Astro.url.searchParams.get('change_saved') === '1';
 		}
 	/>
 
-	<LayoutEditorForm
-		siteId={id}
-		layout={ctx.layout}
-		hasAstroChannel={ctx.hasAstroChannel}
-		publishedPages={ctx.publishedPages}
-		draftHrefCount={ctx.draftHrefCount}
-		liveHrefCount={ctx.liveHrefCount}
-		navHasMissingHref={ctx.navHasMissingHref}
-		changeErrorMessage={changeErrorMessage}
-		changeSaved={changeSaved}
-	/>
+	<slot />
 </AppLayout>
