@@ -11,6 +11,7 @@ import {
 } from '@/lib/publish/github-api';
 import { parseLayoutFile } from '@/lib/astro-layout/parse';
 import { getRecentChangeEntriesFromLayout } from '@/lib/astro-layout/migrate-layout';
+import { loadSiteAstroLayout } from '@/lib/astro-layout/store';
 import { appendRecentChangeOnGitHub } from './github';
 import { parseRecentChangesFile } from './parse';
 import { recentChangesPath } from './types';
@@ -78,7 +79,8 @@ export async function announceRecentChangeOnGitHub(
 	}
 
 	try {
-		await appendRecentChangeOnGitHub(cfg, creds.token, dest.config, entry);
+		const draftLayout = await loadSiteAstroLayout(supabase, siteId);
+		await appendRecentChangeOnGitHub(cfg, creds.token, dest.config, entry, { draftLayout });
 		return { ok: true };
 	} catch {
 		return { ok: false, error: 'sync_failed' };

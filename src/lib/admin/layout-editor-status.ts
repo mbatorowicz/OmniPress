@@ -13,6 +13,7 @@ export type LayoutEditorStatusInput = {
 	navWarningLines: string[];
 	saved?: boolean;
 	published?: boolean;
+	publishSkipped?: boolean;
 	imported?: boolean;
 	importHrefCount?: number | null;
 	importPath?: string | null;
@@ -23,6 +24,7 @@ export type LayoutEditorStatusMessages = {
 	inSync: string;
 	inSyncShort: string;
 	draftAhead: string;
+	liveAhead: string;
 	draftAheadShort: string;
 	lastPublished: string;
 	lastDraft: string;
@@ -32,6 +34,7 @@ export type LayoutEditorStatusMessages = {
 	importedAndSaved: string;
 	linkCount: (count: number) => string;
 	publishedLayout: string;
+	publishSkipped: string;
 	syncSummaryPrefix: string;
 	noAstroChannel: string;
 	navValidationHeading: string;
@@ -108,6 +111,20 @@ export function buildLayoutEditorStatus(
 		};
 	}
 
+	if (input.publishSkipped) {
+		return {
+			show: true,
+			variant: 'info',
+			title: messages.publishSkipped,
+			metaLines: joinMeta([
+				input.syncSummary ? `${messages.syncSummaryPrefix} ${input.syncSummary}` : null,
+			]),
+			showNavIssues: false,
+			navWarningLines: input.navWarningLines,
+			navHasMissingHref: false,
+		};
+	}
+
 	if (input.published) {
 		return {
 			show: true,
@@ -164,6 +181,21 @@ export function buildLayoutEditorStatus(
 		};
 	}
 
+	if (input.draftStatus === 'live_ahead') {
+		return {
+			show: true,
+			variant: 'warning',
+			title: messages.liveAhead,
+			metaLines: joinMeta([
+				draftLabel ? `${messages.lastDraft} ${draftLabel}` : null,
+				publishedMeta,
+			]),
+			showNavIssues: false,
+			navWarningLines: input.navWarningLines,
+			navHasMissingHref: false,
+		};
+	}
+
 	if (input.draftStatus === 'draft_ahead') {
 		return {
 			show: true,
@@ -182,7 +214,7 @@ export function buildLayoutEditorStatus(
 	if (input.draftStatus === 'in_sync') {
 		return {
 			show: true,
-			variant: 'info',
+			variant: 'success',
 			title: messages.inSync,
 			metaLines: joinMeta([
 				draftLabel ? `${messages.lastDraft} ${draftLabel}` : null,
@@ -214,6 +246,7 @@ export function layoutEditorStatusMessagesFromI18n(adminLayout: {
 		draftMissingHref: string;
 		inSync: string;
 		draftAhead: string;
+		liveAhead: string;
 		lastPublished: string;
 		lastDraft: string;
 	};
@@ -227,6 +260,7 @@ export function layoutEditorStatusMessagesFromI18n(adminLayout: {
 		linkCount: (count: number) => string;
 	};
 	publishedLayout: string;
+	publishSkipped: string;
 	syncSummaryPrefix: string;
 	noAstroChannel: string;
 	navValidationHeading: string;
@@ -238,6 +272,7 @@ export function layoutEditorStatusMessagesFromI18n(adminLayout: {
 		inSync: adminLayout.draftStatus.inSyncCombined,
 		inSyncShort: adminLayout.flash.inSyncShort,
 		draftAhead: adminLayout.draftStatus.draftAhead,
+		liveAhead: adminLayout.draftStatus.liveAhead,
 		draftAheadShort: adminLayout.flash.draftAheadShort,
 		lastPublished: adminLayout.draftStatus.lastPublished,
 		lastDraft: adminLayout.draftStatus.lastDraft,
@@ -247,6 +282,7 @@ export function layoutEditorStatusMessagesFromI18n(adminLayout: {
 		importedAndSaved: adminLayout.flash.importedAndSaved,
 		linkCount: adminLayout.flash.linkCount,
 		publishedLayout: adminLayout.publishedLayout,
+		publishSkipped: adminLayout.publishSkipped,
 		syncSummaryPrefix: adminLayout.syncSummaryPrefix,
 		noAstroChannel: adminLayout.noAstroChannel,
 		navValidationHeading: adminLayout.navValidationHeading,

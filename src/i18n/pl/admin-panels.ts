@@ -127,7 +127,7 @@ export const adminLayout = {
 	title: 'Wygląd strony',
 	layoutTitle: 'Wygląd strony',
 	layoutLead:
-		'Cały układ strony w jednym miejscu: pasek górny, nagłówek, menu, sekcje główne, sidebar, stopka, meta oraz kategorie wpisów.',
+		'Formularz odzwierciedla stronę Astro po publikacji. Szkic w OmniPress ≠ strona live — zmiany trafiają na GitHub dopiero po „Opublikuj cały layout”.',
 	navigationTitle: 'Menu',
 	categoriesTitle: 'Kategorie',
 	componentsTitle: 'Komponenty',
@@ -140,7 +140,8 @@ export const adminLayout = {
 		'Przypisanie kategorii do sekcji strony głównej ustawiasz w zakładce Komponenty → Konfiguracja slotów (przy feedzie strony głównej).',
 	lead: 'Menu, kategorie i komponenty — szkic w OmniPress, publikacja na żądanie do repozytorium GitHub.',
 	savedDraft: 'Szkic zapisany — zmiany tylko w OmniPress, bez wysyłki na stronę.',
-	publishedLayout: 'Layout opublikowany na stronie',
+	publishedLayout: 'Layout wysłany na stronę — panel pokazuje dokładnie opublikowaną konfigurację.',
+	publishSkipped: 'Bez zmian względem strony — pominięto commit na GitHub.',
 	syncSummaryPrefix: 'GitHub:',
 	imported: 'Konfiguracja wczytana z GitHub do szkicu.',
 	importedMenu: (hrefCount: number, path: string) =>
@@ -148,14 +149,19 @@ export const adminLayout = {
 	importedLayout: (hrefCount: number) =>
 		`Layout wczytany ze strony (menu + kategorie) · ${hrefCount} ${hrefCount === 1 ? 'link' : hrefCount < 5 ? 'linki' : 'linków'}`,
 	syncBar: {
-		inSyncCombined: 'Szkic zgodny ze stroną (menu i kategorie)',
-		draftAheadCombined: 'Szkic różni się od strony — opublikuj lub pobierz ze strony',
-		draftAheadDetail: (nav: boolean, categories: boolean) => {
-			const parts: string[] = [];
-			if (nav) parts.push('menu');
-			if (categories) parts.push('kategorie');
-			return `Różnice: ${parts.join(' · ')}`;
-		},
+		parityTitle: 'Zgodność z live',
+		inSyncCombined: 'Panel odzwierciedla stronę',
+		inSyncDetail:
+			'Ustawienia w formularzu są identyczne z plikiem layoutu na GitHub, z którego renderuje Astro.',
+		draftAheadCombined: 'Strona jeszcze nie ma Twoich zmian',
+		draftAheadDetailNote: 'Zapisz szkic, potem „Opublikuj cały layout”, aby wysłać je na stronę.',
+		liveAheadCombined: 'Strona zmieniona poza OmniPress',
+		liveAheadDetail:
+			'Plik na GitHub różni się od szkicu — użyj „Pobierz ze strony”, aby zsynchronizować formularz.',
+		legacyContract:
+			'Repo Astro używa starego formatu (3 pliki JSON). Wymagana migracja na omnipress-layout.json — publikacja nie zaktualizuje strony.',
+		layoutFileLabel: (path: string) => `Plik na stronie: ${path}`,
+		draftAheadDetail: (_nav: boolean, _categories: boolean) => '',
 		unknown: 'Status synchronizacji ze stroną nieznany — skonfiguruj GitHub w Ustawieniach',
 		saveBeforePublish: 'Zapisz szkic w formularzu przed publikacją, aby wysłać bieżące zmiany.',
 		pullFromSite: 'Pobierz ze strony',
@@ -165,10 +171,10 @@ export const adminLayout = {
 	},
 	flash: {
 		savedTitle: 'Szkic zapisany',
-		savedNote: 'Zmiany zapisane w OmniPress — opublikuj, aby wysłać je na stronę.',
+		savedNote: 'Zapisano w OmniPress — strona live bez zmian do publikacji.',
 		importedTitle: 'Layout wczytany ze strony',
-		importedAndSaved: 'Layout wczytany ze strony · szkic zapisany',
-		inSyncShort: 'zgodne ze stroną live',
+		importedAndSaved: 'Pobrano ze strony — formularz zsynchronizowany z GitHub.',
+		inSyncShort: 'identyczne ze stroną live',
 		draftAheadShort: 'wymaga publikacji na stronie',
 		linkCount: (count: number) =>
 			`${count} ${count === 1 ? 'link' : count < 5 ? 'linki' : 'linków'}`,
@@ -431,9 +437,10 @@ export const adminLayout = {
 		alert: 'Ostrzeżenie (żółty)',
 	},
 	draftStatus: {
-		inSync: 'Menu zgodne ze stroną live',
-		inSyncCombined: 'Szkic zgodny ze stroną (menu i kategorie)',
+		inSync: 'Panel odzwierciedla stronę live',
+		inSyncCombined: 'Panel odzwierciedla stronę — ustawienia identyczne z plikiem layoutu na GitHub.',
 		draftAhead: 'Szkic ma nieopublikowane zmiany — użyj „Opublikuj cały layout”, aby wysłać je na stronę.',
+		liveAhead: 'Strona live została zmieniona poza OmniPress — pobierz ze strony, aby zaktualizować formularz.',
 		draftMissingHref:
 			'Menu bez linków — wczytaj menu z GitHub przed publikacją (strona live jest nadal poprawna).',
 		lastPublished: 'Publikacja',

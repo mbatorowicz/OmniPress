@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
 	isGitHubCredentials: vi.fn(),
 	parseGitHubRepoConfig: vi.fn(),
 	getGitHubFileText: vi.fn(),
+	getGitHubFileBlobSha: vi.fn(),
 	updatePayload: vi.fn(),
 }));
 
@@ -22,6 +23,7 @@ vi.mock('@/lib/publish/credentials', () => ({
 vi.mock('@/lib/publish/github-api', () => ({
 	parseGitHubRepoConfig: mocks.parseGitHubRepoConfig,
 	getGitHubFileText: mocks.getGitHubFileText,
+	getGitHubFileBlobSha: mocks.getGitHubFileBlobSha,
 }));
 
 const GMINA_NAV = `[{"label":"Gmina","children":[{"href":"/gmina/plan-ogolny","label":"Plan ogólny"}]}]`;
@@ -66,6 +68,10 @@ function createSupabase(): SupabaseClient {
 describe('importSiteAstroLayoutFromGitHub', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		mocks.getGitHubFileBlobSha.mockImplementation(async (cfg, token, path: string) => {
+			const text = await mocks.getGitHubFileText(cfg, token, path);
+			return text ? `sha:${path}` : null;
+		});
 		mocks.loadSiteAstroDestination.mockResolvedValue({
 			is_active: true,
 			type: 'github_astro',

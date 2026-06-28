@@ -264,13 +264,23 @@ async function getCommitTreeSha(cfg: GitHubConfig, token: string, commitSha: str
 	return commitJson.tree.sha;
 }
 
+/** SHA bloba pliku na GitHub (Contents API — bez dekodowania treści). */
+export async function getGitHubFileBlobSha(
+	cfg: GitHubConfig,
+	token: string,
+	filePath: string,
+): Promise<string | null> {
+	const meta = await getGitHubFile(cfg, token, filePath);
+	return meta?.sha ?? null;
+}
+
 /** Zapisuje wiele plików tekstowych w jednym commicie (jeden deploy Vercel). */
 export async function putGitHubFilesBatch(
 	cfg: GitHubConfig,
 	token: string,
 	files: GitHubTextFileWrite[],
 	message: string,
-): Promise<{ commitSha: string; written: number }> {
+): Promise<{ commitSha: string; written: number; blobShas: Record<string, string> }> {
 	const byPath = new Map<string, string>();
 	for (const file of files) {
 		const path = file.path.trim();
@@ -285,6 +295,7 @@ export async function putGitHubFilesBatch(
 	const baseTreeSha = await getCommitTreeSha(cfg, token, parentSha);
 
 	const treeEntries: { path: string; mode: '100644'; type: 'blob'; sha: string }[] = [];
+	const blobShas: Record<string, string> = {};
 	for (const [path, content] of byPath) {
 		const blobRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/blobs`, {
 			method: 'POST',
@@ -296,6 +307,7 @@ export async function putGitHubFilesBatch(
 			throw new Error(`GitHub blob ${blobRes.status}: ${text.slice(0, 300)}`);
 		}
 		const blobJson = (await blobRes.json()) as { sha: string };
+		blobShas[path] = blobJson.sha;
 		treeEntries.push({ path, mode: '100644', type: 'blob', sha: blobJson.sha });
 	}
 
@@ -335,7 +347,7 @@ export async function putGitHubFilesBatch(
 		throw new Error(`GitHub ref PATCH ${updateRefRes.status}: ${text.slice(0, 300)}`);
 	}
 
-	return { commitSha: newCommitJson.sha, written: byPath.size };
+	return { commitSha: newCommitJson.sha, written: byPath.size, blobShas };
 }
 
 export async function putGitHubFile(

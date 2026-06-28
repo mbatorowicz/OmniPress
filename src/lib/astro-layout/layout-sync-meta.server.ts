@@ -5,7 +5,7 @@ import {
 	parseNavigationJson,
 } from './parse';
 import type { DraftLiveScope, DraftLiveStatus, LayoutSyncScope } from './layout-sync-meta';
-import type { LayoutSyncMeta, SiteAstroLayout } from './types';
+import type { LayoutContract, LayoutSyncMeta, SiteAstroLayout } from './types';
 import { normalizeLayoutSlots } from './migrate-layout';
 
 function hashPayload(content: string): string {
@@ -66,6 +66,8 @@ export function withPublishedMeta(
 	options: {
 		commitSha: string;
 		scope: LayoutSyncScope;
+		liveBlobSha?: string;
+		layoutContract?: LayoutContract;
 	},
 ): SiteAstroLayout {
 	const now = new Date().toISOString();
@@ -77,6 +79,8 @@ export function withPublishedMeta(
 		publishedLayoutHash: layoutHash,
 		publishedNavHash: layoutHash,
 		publishedCategoriesHash: layoutHash,
+		publishedLiveBlobSha: options.liveBlobSha ?? layout.sync?.publishedLiveBlobSha,
+		layoutContract: options.layoutContract ?? layout.sync?.layoutContract ?? 'unified',
 	};
 
 	return { ...layout, sync };
@@ -84,7 +88,13 @@ export function withPublishedMeta(
 
 export function withImportedLiveMeta(
 	layout: SiteAstroLayout,
-	options: { layoutHash?: string | null; navHash?: string | null; categoriesHash?: string | null },
+	options: {
+		layoutHash?: string | null;
+		navHash?: string | null;
+		categoriesHash?: string | null;
+		liveBlobSha?: string | null;
+		layoutContract?: LayoutContract;
+	},
 ): SiteAstroLayout {
 	const hash = options.layoutHash ?? options.navHash ?? options.categoriesHash;
 	const sync: LayoutSyncMeta = { ...layout.sync };
@@ -93,25 +103,61 @@ export function withImportedLiveMeta(
 		sync.publishedNavHash = hash;
 		sync.publishedCategoriesHash = hash;
 	}
+	if (options.liveBlobSha) sync.publishedLiveBlobSha = options.liveBlobSha;
+	if (options.layoutContract) sync.layoutContract = options.layoutContract;
 	return { ...layout, sync };
+}
+
+export type LiveLayoutFingerprint = {
+	layoutHash?: string;
+	blobSha?: string;
+	layoutContract: LayoutContract;
+};
+
+/** Ustal status sync bez pobierania GitHub, gdy szkic ≠ ostatnia publikacja. */
+export function resolveDraftLiveStatus(
+	layout: SiteAstroLayout,
+	live?: LiveLayoutFingerprint | null,
+): DraftLiveStatus {
+	const draftHash = hashLayoutFile(layout);
+	const publishedHash = layout.sync?.publishedLayoutHash;
+
+	if (!publishedHash) {
+		if (live?.layoutHash) {
+			return draftHash === live.layoutHash ? 'in_sync' : 'draft_ahead';
+		}
+		return 'unknown';
+	}
+
+	if (draftHash !== publishedHash) return 'draft_ahead';
+
+	if (!live) return 'in_sync';
+
+	const storedBlob = layout.sync?.publishedLiveBlobSha;
+	if (live.blobSha && storedBlob && live.blobSha !== storedBlob) {
+		if (live.layoutHash && live.layoutHash !== draftHash) return 'live_ahead';
+	}
+
+	if (live.layoutHash) {
+		return live.layoutHash === draftHash ? 'in_sync' : 'live_ahead';
+	}
+
+	return 'in_sync';
 }
 
 export function computeDraftLiveStatus(
 	layout: SiteAstroLayout,
-	scope: DraftLiveScope,
+	_scope: DraftLiveScope,
 	liveHashes?: { layoutHash?: string | null; navHash?: string | null; categoriesHash?: string | null },
 ): DraftLiveStatus {
-	const draftHash = hashLayoutFile(layout);
-	const liveHash =
-		liveHashes?.layoutHash ??
-		liveHashes?.navHash ??
-		liveHashes?.categoriesHash ??
-		layout.sync?.publishedLayoutHash ??
-		layout.sync?.publishedCategoriesHash ??
-		layout.sync?.publishedNavHash;
-
-	if (!liveHash) return 'unknown';
-	return draftHash === liveHash ? 'in_sync' : 'draft_ahead';
+	const live: LiveLayoutFingerprint | null = liveHashes
+		? {
+				layoutHash:
+					liveHashes.layoutHash ?? liveHashes.navHash ?? liveHashes.categoriesHash ?? undefined,
+				layoutContract: layout.sync?.layoutContract ?? 'unified',
+			}
+		: null;
+	return resolveDraftLiveStatus(layout, live);
 }
 
 export type CombinedDraftLiveStatus = {
@@ -122,8 +168,8 @@ export type CombinedDraftLiveStatus = {
 
 export function computeCombinedDraftLiveStatus(
 	layout: SiteAstroLayout,
-	liveHashes?: { layoutHash?: string | null; navHash?: string | null; categoriesHash?: string | null },
+	live?: LiveLayoutFingerprint | null,
 ): CombinedDraftLiveStatus {
-	const status = computeDraftLiveStatus(layout, 'categories', liveHashes);
+	const status = resolveDraftLiveStatus(layout, live);
 	return { combined: status, nav: status, categories: status };
 }

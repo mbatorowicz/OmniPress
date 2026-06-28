@@ -1,16 +1,19 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
-	fetchLiveLayoutHashes,
+	fetchLiveLayoutFingerprint,
 	fetchLiveNavigationHrefCount,
+	importSiteAstroLayoutFromGitHub,
 	loadSiteAstroLayout,
+	type LayoutImportReport,
 } from '@/lib/astro-layout/store';
 import { ensureLayoutFromGitHub } from '@/lib/admin/layout-auto-import';
 import type { DraftLiveScope, DraftLiveStatus } from '@/lib/astro-layout/layout-sync-meta';
 import {
 	computeCombinedDraftLiveStatus,
-	computeDraftLiveStatus,
+	hashLayoutFile,
+	resolveDraftLiveStatus,
 } from '@/lib/astro-layout/layout-sync-meta.server';
-import type { SiteAstroLayout } from '@/lib/astro-layout/types';
+import type { LayoutContract, SiteAstroLayout } from '@/lib/astro-layout/types';
 import {
 	buildKnownNavPaths,
 	countNavigationHrefs,
@@ -51,6 +54,8 @@ export type LayoutEditorContext = {
 	lastPublishedAt?: string;
 	lastPublishedSha?: string;
 	lastDraftSavedAt?: string;
+	layoutFilePath?: string;
+	layoutContract?: LayoutContract;
 	autoImported?: boolean;
 	autoImportHrefCount?: number;
 	autoImportPath?: string;
@@ -107,19 +112,34 @@ export async function loadLayoutEditorContext(
 	const navWarningLines = formatNavValidationIssues(navIssues);
 	const navHasMissingHref = hasMissingHrefIssues(navIssues);
 	const draftHrefCount = countNavigationHrefs(layout.navigation);
+	const draftHash = hashLayoutFile(layout);
+	const publishedHash = layout.sync?.publishedLayoutHash;
 
-	const liveHashes = hasAstroChannel
-		? await fetchLiveLayoutHashes(supabase, siteId, layout)
-		: null;
+	let liveFingerprint = null;
+	if (hasAstroChannel) {
+		const localDraftAhead = Boolean(publishedHash && draftHash !== publishedHash);
+		if (!localDraftAhead) {
+			liveFingerprint = await fetchLiveLayoutFingerprint(supabase, siteId, layout);
+		}
+	}
+
+	const combined = hasAstroChannel
+		? liveFingerprint
+			? computeCombinedDraftLiveStatus(layout, liveFingerprint)
+			: {
+					combined: resolveDraftLiveStatus(layout, null),
+					nav: resolveDraftLiveStatus(layout, null),
+					categories: resolveDraftLiveStatus(layout, null),
+				}
+		: { combined: 'unknown' as const, nav: 'unknown' as const, categories: 'unknown' as const };
+
+	const draftStatus: DraftLiveStatus = hasAstroChannel
+		? resolveDraftLiveStatus(layout, liveFingerprint)
+		: 'unknown';
+
 	const liveHrefCount = hasAstroChannel
 		? await fetchLiveNavigationHrefCount(supabase, siteId, layout)
 		: null;
-	const combined = hasAstroChannel
-		? computeCombinedDraftLiveStatus(layout, liveHashes ?? undefined)
-		: { combined: 'unknown' as const, nav: 'unknown' as const, categories: 'unknown' as const };
-	const draftStatus = hasAstroChannel
-		? computeDraftLiveStatus(layout, draftStatusScope, liveHashes ?? undefined)
-		: 'unknown';
 
 	return {
 		site: { id: site.id, name: site.name, slug: site.slug },
@@ -138,6 +158,8 @@ export async function loadLayoutEditorContext(
 		lastPublishedAt: layout.sync?.lastPublishedAt,
 		lastPublishedSha: layout.sync?.lastPublishedSha,
 		lastDraftSavedAt: layout.sync?.lastDraftSavedAt,
+		layoutFilePath: layout.layoutPath,
+		layoutContract: liveFingerprint?.layoutContract ?? layout.sync?.layoutContract,
 		autoImported,
 		autoImportHrefCount,
 		autoImportPath,

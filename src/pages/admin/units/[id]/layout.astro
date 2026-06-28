@@ -40,6 +40,8 @@ const changeSaved = Astro.url.searchParams.get('change_saved') === '1';
 		lastPublishedAt={ctx.lastPublishedAt}
 		lastPublishedSha={ctx.lastPublishedSha}
 		lastDraftSavedAt={ctx.lastDraftSavedAt}
+		layoutFilePath={ctx.layoutFilePath}
+		layoutContract={ctx.layoutContract}
 	/>
 
 	<p class="ui-muted mb-4">{adminLayout.layoutLead}</p>

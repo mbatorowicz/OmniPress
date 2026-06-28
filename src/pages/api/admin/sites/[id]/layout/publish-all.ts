@@ -10,12 +10,7 @@ import {
 	hasMissingHrefIssues,
 	validateNavigationLinks,
 } from '@/lib/astro-layout/validate-nav';
-import {
-	loadSiteAstroLayout,
-	saveSiteAstroLayout,
-	syncSiteAstroLayoutToGitHub,
-} from '@/lib/astro-layout/store';
-import { withPublishedMeta } from '@/lib/astro-layout/layout-sync-meta.server';
+import { loadSiteAstroLayout, syncSiteAstroLayoutToGitHub } from '@/lib/astro-layout/store';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const auth = guardAdminRedirect(locals, redirect);
@@ -53,16 +48,12 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		return redirect(`${returnUrl}?${query.toString()}`);
 	}
 
-	const publishedLayout = withPublishedMeta(layout, {
-		commitSha: synced.commitSha,
-		scope: 'all',
-	});
-	const saved = await saveSiteAstroLayout(supabase, siteId, publishedLayout);
-	if (!saved.ok) {
-		return redirect(`${returnUrl}?error=save_failed&published=1`);
+	const query = new URLSearchParams();
+	if (synced.skipped) {
+		query.set('publish_skipped', '1');
+	} else {
+		query.set('published', '1');
 	}
-
-	const query = new URLSearchParams({ published: '1' });
 	if (synced.summary) query.set('sync_summary', synced.summary.slice(0, 400));
 	return redirect(`${returnUrl}?${query.toString()}`);
 };

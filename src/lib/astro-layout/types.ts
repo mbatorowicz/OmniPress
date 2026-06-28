@@ -167,6 +167,8 @@ export type DisplaySlot = {
 	entries?: RecentChangeEntry[];
 };
 
+export type LayoutContract = 'unified' | 'legacy';
+
 export type LayoutSyncMeta = {
 	lastDraftSavedAt?: string;
 	lastPublishedAt?: string;
@@ -176,6 +178,9 @@ export type LayoutSyncMeta = {
 	/** @deprecated użyj publishedLayoutHash */
 	publishedCategoriesHash?: string;
 	publishedLayoutHash?: string;
+	/** Git blob SHA pliku layoutu na GitHub po ostatniej publikacji */
+	publishedLiveBlobSha?: string;
+	layoutContract?: LayoutContract;
 };
 
 export type NavEditorDepthColor = {

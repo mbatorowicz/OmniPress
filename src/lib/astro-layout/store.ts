@@ -6,6 +6,7 @@ import {
 	isGitHubCredentials,
 } from '@/lib/publish/credentials';
 import {
+	getGitHubFileBlobSha,
 	getGitHubFileText,
 	parseGitHubRepoConfig,
 	putGitHubFilesBatch,
@@ -23,17 +24,19 @@ import {
 	type LayoutSyncScope,
 } from './layout-sync-meta';
 import {
+	hashLayoutFile,
 	hashLayoutFileText,
 	hashNavigationFileText,
 	withImportedLiveMeta,
 	withPublishedMeta,
+	type LiveLayoutFingerprint,
 } from './layout-sync-meta.server';
-import { mergeLegacyLayoutParts, syncNavigationInLayout } from './migrate-layout';
+import { getNavigationFromLayout, mergeLegacyLayoutParts, syncNavigationInLayout } from './migrate-layout';
 import { buildLayoutRecentChangeEntry } from '@/lib/recent-changes/layout-entry';
 import { parseRecentChangesFile } from '@/lib/recent-changes/parse';
 import { recentChangesPath } from '@/lib/recent-changes/types';
 import { upsertRecentChange } from '@/lib/recent-changes/upsert';
-import type { SiteAstroLayout } from './types';
+import type { LayoutContract, SiteAstroLayout } from './types';
 import { emptySiteAstroLayout } from './types';
 import { collectNavHrefs } from './validate-nav';
 
@@ -89,12 +92,16 @@ async function importLegacyLayoutFromGitHub(
 	token: string,
 	destConfig: Record<string, unknown>,
 	layout: SiteAstroLayout,
-): Promise<{ layout: SiteAstroLayout; layoutHash: string } | { error: string }> {
+): Promise<
+	| { layout: SiteAstroLayout; layoutHash: string; liveBlobSha?: string; layoutContract: LayoutContract }
+	| { error: string }
+> {
 	const navPath = navigationConfigPath(destConfig);
 	const catPath = categoriesConfigPath(destConfig);
 	const layoutPath = layoutConfigPath(destConfig);
 
-	const layoutText = await getGitHubFileText(cfg, token, layoutPath);
+	const layoutBlobSha = await getGitHubFileBlobSha(cfg, token, layoutPath);
+	const layoutText = layoutBlobSha ? await getGitHubFileText(cfg, token, layoutPath) : null;
 	if (layoutText) {
 		try {
 			const parsed = parseLayoutFile(layoutText);
@@ -107,7 +114,12 @@ async function importLegacyLayoutFromGitHub(
 			};
 			const normalized = normalizeSiteAstroLayout(merged);
 			const hash = hashLayoutFileText(layoutText) ?? '';
-			return { layout: normalized, layoutHash: hash };
+			return {
+				layout: normalized,
+				layoutHash: hash,
+				liveBlobSha: layoutBlobSha ?? undefined,
+				layoutContract: 'unified',
+			};
 		} catch {
 			return { error: 'invalid_layout' };
 		}
@@ -176,7 +188,7 @@ async function importLegacyLayoutFromGitHub(
 
 	const normalized = normalizeSiteAstroLayout(merged);
 	const hash = hashLayoutFileText(buildLayoutFilePayload(normalized)) ?? '';
-	return { layout: normalized, layoutHash: hash };
+	return { layout: normalized, layoutHash: hash, layoutContract: 'legacy' };
 }
 
 export async function importSiteAstroLayoutFromGitHub(
@@ -205,6 +217,8 @@ export async function importSiteAstroLayoutFromGitHub(
 
 	const merged = withImportedLiveMeta(imported.layout, {
 		layoutHash: imported.layoutHash || null,
+		liveBlobSha: imported.liveBlobSha ?? null,
+		layoutContract: imported.layoutContract,
 	});
 
 	const saved = await saveSiteAstroLayout(supabase, siteId, merged, { updateDraftMeta: false });
@@ -232,7 +246,8 @@ export type LayoutGitHubSyncOptions = {
 };
 
 export type LayoutGitHubSyncResult =
-	| { ok: true; summary: string; commitSha: string }
+	| { ok: true; summary: string; commitSha: string; skipped?: false }
+	| { ok: true; summary: string; skipped: true }
 	| { ok: false; error: string; detail?: string };
 
 const LAYOUT_SYNC_COMMIT_MESSAGES: Record<LayoutSyncScope, string> = {
@@ -283,11 +298,28 @@ export async function syncSiteAstroLayoutToGitHub(
 	}
 
 	try {
-		const files: GitHubTextFileWrite[] = [
-			{ path: layoutPath, content: buildLayoutFilePayload(publishLayout) },
-		];
+		const content = buildLayoutFilePayload(publishLayout);
+		const publishHash = hashLayoutFile(publishLayout);
 
-		const { commitSha, written } = await putGitHubFilesBatch(
+		const storedHash = layout.sync?.publishedLayoutHash;
+		if (storedHash && publishHash === storedHash) {
+			const liveBlobSha = await getGitHubFileBlobSha(cfg, creds.token, layoutPath);
+			if (
+				liveBlobSha &&
+				layout.sync?.publishedLiveBlobSha &&
+				liveBlobSha === layout.sync.publishedLiveBlobSha
+			) {
+				return {
+					ok: true,
+					skipped: true,
+					summary: 'Layout bez zmian względem strony — pominięto commit na GitHub.',
+				};
+			}
+		}
+
+		const files: GitHubTextFileWrite[] = [{ path: layoutPath, content }];
+
+		const { commitSha, written, blobShas } = await putGitHubFilesBatch(
 			cfg,
 			creds.token,
 			files,
@@ -297,10 +329,15 @@ export async function syncSiteAstroLayoutToGitHub(
 		const writtenPaths = files.map((f) => f.path).join(', ');
 		const githubSummary = `1 commit (${written} plików): ${writtenPaths} w ${cfg.owner}/${cfg.repo} | Vercel zbuduje stronę automatycznie (webhook).`;
 
-		const publishedLayout = withPublishedMeta(publishLayout, { commitSha, scope: 'layout' });
+		const publishedLayout = withPublishedMeta(publishLayout, {
+			commitSha,
+			scope: 'layout',
+			liveBlobSha: blobShas[layoutPath],
+			layoutContract: 'unified',
+		});
 		await saveSiteAstroLayout(supabase, siteId, publishedLayout, { updateDraftMeta: false });
 
-		return { ok: true, summary: githubSummary, commitSha };
+		return { ok: true, summary: githubSummary, commitSha, skipped: false };
 	} catch (err) {
 		const detail = err instanceof Error ? err.message : 'sync_failed';
 		return { ok: false, error: 'sync_failed', detail: detail.slice(0, 300) };
@@ -312,6 +349,14 @@ export async function fetchLiveNavigationHrefCount(
 	siteId: string,
 	layout: SiteAstroLayout,
 ): Promise<number | null> {
+	const draftHash = hashLayoutFile(layout);
+	if (
+		layout.sync?.publishedLayoutHash &&
+		draftHash === layout.sync.publishedLayoutHash
+	) {
+		return countNavigationHrefs(getNavigationFromLayout(layout));
+	}
+
 	const dest = await loadSiteAstroDestination(supabase, siteId);
 	if (!dest?.is_active) return null;
 
@@ -323,12 +368,15 @@ export async function fetchLiveNavigationHrefCount(
 
 	try {
 		const layoutPath = layout.layoutPath || layoutConfigPath(dest.config);
-		const layoutText = await getGitHubFileText(cfg, creds.token, layoutPath);
-		if (layoutText) {
-			const parsed = parseLayoutFile(layoutText);
-			const navSlot = parsed.slots.find((s) => s.component === 'header.navigation');
-			const navigation = navSlot?.widget?.navigation ?? [];
-			return collectNavHrefs(navigation).length;
+		const layoutBlobSha = await getGitHubFileBlobSha(cfg, creds.token, layoutPath);
+		if (layoutBlobSha) {
+			const layoutText = await getGitHubFileText(cfg, creds.token, layoutPath);
+			if (layoutText) {
+				const parsed = parseLayoutFile(layoutText);
+				const navSlot = parsed.slots.find((s) => s.component === 'header.navigation');
+				const navigation = navSlot?.widget?.navigation ?? [];
+				return collectNavHrefs(navigation).length;
+			}
 		}
 
 		const navText = await getGitHubFileText(cfg, creds.token, layout.navigationPath);
@@ -339,11 +387,11 @@ export async function fetchLiveNavigationHrefCount(
 	}
 }
 
-export async function fetchLiveLayoutHashes(
+export async function fetchLiveLayoutFingerprint(
 	supabase: SupabaseClient,
 	siteId: string,
 	layout: SiteAstroLayout,
-): Promise<{ layoutHash?: string; navHash?: string; categoriesHash?: string } | null> {
+): Promise<LiveLayoutFingerprint | null> {
 	const dest = await loadSiteAstroDestination(supabase, siteId);
 	if (!dest?.is_active) return null;
 
@@ -355,11 +403,35 @@ export async function fetchLiveLayoutHashes(
 
 	try {
 		const layoutPath = layout.layoutPath || layoutConfigPath(dest.config);
-		const layoutText = await getGitHubFileText(cfg, creds.token, layoutPath);
-		if (layoutText) {
-			const hash = hashLayoutFileText(layoutText) ?? undefined;
-			return { layoutHash: hash, navHash: hash, categoriesHash: hash };
+		const layoutBlobSha = await getGitHubFileBlobSha(cfg, creds.token, layoutPath);
+
+		if (layoutBlobSha) {
+			const draftHash = hashLayoutFile(layout);
+			const publishedHash = layout.sync?.publishedLayoutHash;
+			const storedBlob = layout.sync?.publishedLiveBlobSha;
+			const needsContent =
+				!publishedHash ||
+				draftHash !== publishedHash ||
+				!storedBlob ||
+				layoutBlobSha !== storedBlob;
+
+			let layoutHash: string | undefined;
+			if (needsContent) {
+				const layoutText = await getGitHubFileText(cfg, creds.token, layoutPath);
+				layoutHash = layoutText ? (hashLayoutFileText(layoutText) ?? undefined) : undefined;
+			} else {
+				layoutHash = publishedHash;
+			}
+
+			return {
+				layoutHash,
+				blobSha: layoutBlobSha,
+				layoutContract: 'unified',
+			};
 		}
+
+		const catBlobSha = await getGitHubFileBlobSha(cfg, creds.token, layout.categoriesPath);
+		if (!catBlobSha) return null;
 
 		const [navText, catText] = await Promise.all([
 			getGitHubFileText(cfg, creds.token, layout.navigationPath),
@@ -368,9 +440,24 @@ export async function fetchLiveLayoutHashes(
 
 		const navHash = navText ? (hashNavigationFileText(navText) ?? undefined) : undefined;
 		const catHash = catText ? (hashLayoutFileText(catText) ?? undefined) : undefined;
-		const layoutHash = catHash ?? navHash;
-		return { layoutHash, navHash, categoriesHash: catHash };
+		return {
+			layoutHash: catHash ?? navHash,
+			blobSha: catBlobSha,
+			layoutContract: 'legacy',
+		};
 	} catch {
 		return null;
 	}
+}
+
+/** @deprecated użyj fetchLiveLayoutFingerprint */
+export async function fetchLiveLayoutHashes(
+	supabase: SupabaseClient,
+	siteId: string,
+	layout: SiteAstroLayout,
+): Promise<{ layoutHash?: string; navHash?: string; categoriesHash?: string } | null> {
+	const fp = await fetchLiveLayoutFingerprint(supabase, siteId, layout);
+	if (!fp?.layoutHash) return fp ? { layoutHash: fp.layoutHash, navHash: fp.layoutHash, categoriesHash: fp.layoutHash } : null;
+	const hash = fp.layoutHash;
+	return { layoutHash: hash, navHash: hash, categoriesHash: hash };
 }

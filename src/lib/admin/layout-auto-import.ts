@@ -1,10 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
 	hashCategoriesLayout,
+	hashLayoutFile,
 	hashNavigationLayout,
 } from '@/lib/astro-layout/layout-sync-meta.server';
 import {
-	fetchLiveLayoutHashes,
+	fetchLiveLayoutFingerprint,
 	importSiteAstroLayoutFromGitHub,
 	loadSiteAstroLayout,
 	type LayoutImportReport,
@@ -81,7 +82,30 @@ export async function ensureLayoutFromGitHub(
 	if (!hasAstroChannel) return { layout, imported: false };
 
 	const draftHrefCount = countNavigationHrefs(layout.navigation);
-	const liveHashes = await fetchLiveLayoutHashes(supabase, siteId, layout);
+	const draftHash = hashLayoutFile(layout);
+	const publishedHash = layout.sync?.publishedLayoutHash;
+
+	if (publishedHash && draftHash !== publishedHash) {
+		return { layout, imported: false };
+	}
+
+	const liveFingerprint = await fetchLiveLayoutFingerprint(supabase, siteId, layout);
+	if (
+		liveFingerprint?.blobSha &&
+		layout.sync?.publishedLiveBlobSha &&
+		liveFingerprint.blobSha === layout.sync.publishedLiveBlobSha &&
+		publishedHash &&
+		draftHash === publishedHash
+	) {
+		return { layout, imported: false };
+	}
+
+	const liveHashes = liveFingerprint?.layoutHash
+		? {
+				navHash: liveFingerprint.layoutHash,
+				categoriesHash: liveFingerprint.layoutHash,
+			}
+		: null;
 	const hashes: LayoutAutoImportHashes = {
 		draftNavHash: hashNavigationLayout(layout.navigation),
 		draftCategoriesHash: hashCategoriesLayout(layout),

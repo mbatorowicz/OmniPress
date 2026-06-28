@@ -20,6 +20,7 @@ interface Props {
 	navWarningLines?: string[];
 	saved?: boolean;
 	published?: boolean;
+	publishSkipped?: boolean;
 	imported?: boolean;
 	importHrefCount?: number | null;
 	importPath?: string | null;
@@ -38,6 +39,7 @@ const {
 	navWarningLines = [],
 	saved,
 	published,
+	publishSkipped,
 	imported,
 	importHrefCount,
 	importPath,
@@ -57,6 +59,7 @@ const view = buildLayoutEditorStatus(
 		navWarningLines,
 		saved,
 		published,
+		publishSkipped,
 		imported,
 		importHrefCount,
 		importPath,

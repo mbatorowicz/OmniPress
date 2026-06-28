@@ -6,6 +6,7 @@ export function parseLayoutPageFlash(url: URL): {
 	syncSummary: string | null;
 	saved: boolean;
 	published: boolean;
+	publishSkipped: boolean;
 	imported: boolean;
 	importHrefCount: number | null;
 	importPath: string | null;
@@ -29,6 +30,7 @@ export function parseLayoutPageFlash(url: URL): {
 		syncSummary: url.searchParams.get('sync_summary')?.trim() || null,
 		saved: url.searchParams.get('saved') === '1',
 		published: url.searchParams.get('published') === '1',
+		publishSkipped: url.searchParams.get('publish_skipped') === '1',
 		imported: url.searchParams.get('imported') === '1',
 		importHrefCount,
 		importPath: url.searchParams.get('import_path')?.trim() || null,

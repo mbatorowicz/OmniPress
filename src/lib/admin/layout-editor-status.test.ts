@@ -6,6 +6,7 @@ const messages: LayoutEditorStatusMessages = {
 	inSync: 'Menu zgodne ze stroną live',
 	inSyncShort: 'zgodne ze stroną live',
 	draftAhead: 'Nieopublikowane zmiany',
+	liveAhead: 'Strona zmieniona poza OmniPress',
 	draftAheadShort: 'wymaga publikacji',
 	lastPublished: 'Publikacja',
 	lastDraft: 'Zapis szkicu',
@@ -15,6 +16,7 @@ const messages: LayoutEditorStatusMessages = {
 	importedAndSaved: 'Menu wczytane · szkic zapisany',
 	linkCount: (n) => `${n} linków`,
 	publishedLayout: 'Opublikowano',
+	publishSkipped: 'Bez zmian',
 	syncSummaryPrefix: 'GitHub:',
 	noAstroChannel: 'Brak GitHub',
 	navValidationHeading: 'Problemy menu',
@@ -74,7 +76,7 @@ describe('buildLayoutEditorStatus', () => {
 			messages,
 		);
 
-		expect(view.variant).toBe('info');
+		expect(view.variant).toBe('success');
 		expect(view.title).toBe('Menu zgodne ze stroną live');
 	});
 });

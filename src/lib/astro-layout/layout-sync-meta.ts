@@ -4,7 +4,7 @@ export type LayoutSyncScope = 'navigation' | 'categories' | 'layout' | 'all';
 
 export type DraftLiveScope = 'navigation' | 'categories';
 
-export type DraftLiveStatus = 'in_sync' | 'draft_ahead' | 'unknown';
+export type DraftLiveStatus = 'in_sync' | 'draft_ahead' | 'live_ahead' | 'unknown';
 
 export function layoutSectionToSyncScope(section: string): LayoutSyncScope {
 	switch (section) {

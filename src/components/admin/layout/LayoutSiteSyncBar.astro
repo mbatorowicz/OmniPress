@@ -3,6 +3,7 @@ import { adminLayout } from '@/i18n';
 import Button from '@/components/ui/actions/Button.astro';
 import Panel from '@/components/ui/layout/Panel.astro';
 import type { DraftLiveStatus } from '@/lib/astro-layout/layout-sync-meta';
+import type { LayoutContract } from '@/lib/astro-layout/types';
 import type { LayoutEditorSection } from '@/lib/admin/layout-editor-context';
 import { formatLayoutStatusDate } from '@/lib/admin/layout-editor-status';
 
@@ -17,6 +18,8 @@ interface Props {
 	lastPublishedAt?: string;
 	lastPublishedSha?: string;
 	lastDraftSavedAt?: string;
+	layoutFilePath?: string;
+	layoutContract?: LayoutContract;
 }
 
 const {
@@ -24,36 +27,53 @@ const {
 	hasAstroChannel,
 	currentSection,
 	combinedDraftStatus,
-	navDraftStatus,
-	categoriesDraftStatus,
 	navHasMissingHref = false,
 	lastPublishedAt,
 	lastPublishedSha,
 	lastDraftSavedAt,
+	layoutFilePath,
+	layoutContract,
 } = Astro.props;
 
 const importAction = `/api/admin/sites/${siteId}/layout/import`;
 const publishAllAction = `/api/admin/sites/${siteId}/layout/publish-all`;
 const publishBlocked = navHasMissingHref;
 
-const statusTitle =
-	combinedDraftStatus === 'in_sync'
-		? adminLayout.syncBar.inSyncCombined
-		: combinedDraftStatus === 'draft_ahead'
-			? adminLayout.syncBar.draftAheadCombined
-			: adminLayout.syncBar.unknown;
+const isLegacy = layoutContract === 'legacy';
 
-const statusDetail =
-	combinedDraftStatus === 'draft_ahead'
-		? adminLayout.syncBar.draftAheadDetail(
-				navDraftStatus === 'draft_ahead',
-				categoriesDraftStatus === 'draft_ahead',
-			)
-		: null;
+const statusTitle = isLegacy
+	? adminLayout.syncBar.legacyContract
+	: combinedDraftStatus === 'in_sync'
+		? adminLayout.syncBar.inSyncCombined
+		: combinedDraftStatus === 'live_ahead'
+			? adminLayout.syncBar.liveAheadCombined
+			: combinedDraftStatus === 'draft_ahead'
+				? adminLayout.syncBar.draftAheadCombined
+				: adminLayout.syncBar.unknown;
+
+const statusDetail = isLegacy
+	? null
+	: combinedDraftStatus === 'in_sync'
+		? adminLayout.syncBar.inSyncDetail
+		: combinedDraftStatus === 'live_ahead'
+			? adminLayout.syncBar.liveAheadDetail
+			: combinedDraftStatus === 'draft_ahead'
+				? adminLayout.syncBar.draftAheadDetailNote
+				: null;
+
+const panelClass =
+	combinedDraftStatus === 'in_sync' && !isLegacy
+		? 'layout-parity-bar layout-parity-bar--sync mb-4 max-w-5xl'
+		: combinedDraftStatus === 'draft_ahead'
+			? 'layout-parity-bar layout-parity-bar--draft mb-4 max-w-5xl'
+			: combinedDraftStatus === 'live_ahead' || isLegacy
+				? 'layout-parity-bar layout-parity-bar--alert mb-4 max-w-5xl'
+				: 'mb-4 max-w-5xl';
 
 const publishedLabel = formatLayoutStatusDate(lastPublishedAt);
 const draftLabel = formatLayoutStatusDate(lastDraftSavedAt);
 const metaParts = [
+	layoutFilePath ? adminLayout.syncBar.layoutFileLabel(layoutFilePath) : null,
 	draftLabel ? `${adminLayout.draftStatus.lastDraft} ${draftLabel}` : null,
 	publishedLabel
 		? `${adminLayout.draftStatus.lastPublished} ${publishedLabel}${lastPublishedSha ? ` (${lastPublishedSha})` : ''}`
@@ -61,15 +81,20 @@ const metaParts = [
 ].filter(Boolean);
 
 const importConfirm =
-	combinedDraftStatus === 'draft_ahead' ? adminLayout.syncBar.importConfirmOverwrite : undefined;
+	combinedDraftStatus === 'draft_ahead' || combinedDraftStatus === 'live_ahead'
+		? adminLayout.syncBar.importConfirmOverwrite
+		: undefined;
 ---
 
 {
 	hasAstroChannel && (
-		<Panel class="mb-4 max-w-5xl">
+		<Panel class={panelClass}>
 			<div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 				<div>
-					<p class="font-medium">{statusTitle}</p>
+					<p class="text-xs font-semibold uppercase tracking-wide opacity-70">
+						{adminLayout.syncBar.parityTitle}
+					</p>
+					<p class="mt-1 font-medium">{statusTitle}</p>
 					{statusDetail && <p class="ui-muted mt-1 text-sm">{statusDetail}</p>}
 					{metaParts.length > 0 && (
 						<p class="ui-muted mt-1 text-sm">{metaParts.join(' · ')}</p>
@@ -85,7 +110,7 @@ const importConfirm =
 					</form>
 					<form method="post" action={publishAllAction}>
 						<input type="hidden" name="return_section" value={currentSection} />
-						<Button type="submit" variant="primary" disabled={publishBlocked}>
+						<Button type="submit" variant="primary" disabled={publishBlocked || isLegacy}>
 							{adminLayout.syncBar.publishAllLayout}
 						</Button>
 					</form>
@@ -94,3 +119,20 @@ const importConfirm =
 		</Panel>
 	)
 }
+
+<style>
+	.layout-parity-bar--sync {
+		border-left: 4px solid var(--color-success, #16a34a);
+		background: color-mix(in srgb, var(--color-success, #16a34a) 6%, transparent);
+	}
+
+	.layout-parity-bar--draft {
+		border-left: 4px solid var(--color-warning, #d97706);
+		background: color-mix(in srgb, var(--color-warning, #d97706) 6%, transparent);
+	}
+
+	.layout-parity-bar--alert {
+		border-left: 4px solid var(--color-danger, #dc2626);
+		background: color-mix(in srgb, var(--color-danger, #dc2626) 6%, transparent);
+	}
+</style>
