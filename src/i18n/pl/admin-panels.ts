@@ -217,7 +217,8 @@ export const adminLayout = {
 		one: '1 kolumna',
 		two: '2 kolumny',
 	},
-	navMenuColumnsHint: 'Szerokości w CSS: px, %, fr (np. 320px, 1fr, 50%).',
+	navMenuColumnsHint:
+		'Szerokość widoczna każdej kolumny w panelu menu (px, rem, fr). Przy 2 kolumnach panel = suma kolumn + odstęp + margines panelu.',
 	navMenuColumnWidthPlaceholder: 'np. 320px',
 	navMenuColumnWidth2Placeholder: 'np. 1fr',
 	navHrefKinds: {
