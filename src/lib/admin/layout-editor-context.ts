@@ -175,16 +175,25 @@ export function buildLayoutEditorReturnUrl(
 	siteId: string,
 	section: string,
 	returnTab?: string | null,
+	returnContext?: string | null,
 ): string {
 	if (section === 'settings') return `/admin/units/${siteId}`;
 	if (section === 'categories') return `/admin/units/${siteId}/posts`;
+	if (returnContext === 'unit-components' || section === 'components') {
+		return `/admin/units/${siteId}/components`;
+	}
 	const tab = resolveLayoutReturnTab(section, returnTab);
 	return layoutTabHref(siteId, tab);
 }
 
-export function layoutSectionReturnPath(section: string, returnTab?: string | null): string {
+export function layoutSectionReturnPath(
+	section: string,
+	returnTab?: string | null,
+	returnContext?: string | null,
+): string {
 	if (section === 'settings') return 'settings';
 	if (section === 'categories') return 'posts';
+	if (returnContext === 'unit-components') return 'components';
 	const tab = resolveLayoutReturnTab(section, returnTab);
 	return `layout/${tab}`;
 }

@@ -21,6 +21,7 @@ interface Props {
 	categoryDisplays: SiteAstroLayout['categoryDisplays'];
 	publishedPages: PageOption[];
 	includeComponents?: LayoutComponentId[];
+	returnContext?: 'unit-components';
 }
 
 const {
@@ -32,6 +33,7 @@ const {
 	categoryDisplays,
 	publishedPages,
 	includeComponents,
+	returnContext,
 } = Astro.props;
 
 const zones = resolveLayoutZones(layout);
@@ -42,6 +44,7 @@ const componentOptionsHtml = buildZoneComponentOptionsHtml(zone, adminLayout.com
 <form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="ui-form-stack max-w-5xl">
 	<input type="hidden" name="section" value="components" />
 	<input type="hidden" name="return_tab" value={returnTab} />
+	{returnContext && <input type="hidden" name="return_context" value={returnContext} />}
 	<input type="hidden" name="layout_zone" value={zone} />
 
 	<LayoutZoneSection

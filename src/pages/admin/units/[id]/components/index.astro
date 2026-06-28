@@ -1,0 +1,61 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import AdminContextNav from '@/components/shell/AdminContextNav.astro';
+import LayoutEditorStatus from '@/components/admin/layout/LayoutEditorStatus.astro';
+import LayoutSiteSyncBar from '@/components/admin/layout/LayoutSiteSyncBar.astro';
+import UnitComponentsContent from '@/components/admin/layout/UnitComponentsContent.astro';
+import { adminLayout } from '@/i18n';
+import { loadLayoutEditorContext } from '@/lib/admin/layout-editor-context';
+import { parseLayoutPageFlash } from '@/lib/admin/layout-page-flash';
+
+const { id } = Astro.params;
+if (!id || Astro.locals.profile?.role !== 'admin') return Astro.redirect('/admin');
+
+const ctx = await loadLayoutEditorContext(Astro.locals.supabase, id);
+if (!ctx) return Astro.redirect('/admin/sites');
+
+const flash = parseLayoutPageFlash(Astro.url);
+---
+
+<AppLayout title={`${ctx.site.name} — ${adminLayout.componentsTitle}`} heading={adminLayout.componentsTitle}>
+	<AdminContextNav siteId={id} siteName={ctx.site.name} section="components" />
+
+	<LayoutSiteSyncBar
+		siteId={id}
+		hasAstroChannel={ctx.hasAstroChannel}
+		currentSection="components"
+		combinedDraftStatus={ctx.combinedDraftStatus}
+		navDraftStatus={ctx.navDraftStatus}
+		categoriesDraftStatus={ctx.categoriesDraftStatus}
+		navHasMissingHref={ctx.navHasMissingHref}
+		lastPublishedAt={ctx.lastPublishedAt}
+		lastPublishedSha={ctx.lastPublishedSha}
+		lastDraftSavedAt={ctx.lastDraftSavedAt}
+		layoutFilePath={ctx.layoutFilePath}
+		layoutContract={ctx.layoutContract}
+	/>
+
+	<p class="ui-muted mb-4">{adminLayout.componentsLead}</p>
+
+	<LayoutEditorStatus
+		draftStatus={ctx.combinedDraftStatus}
+		navHasMissingHref={ctx.navHasMissingHref}
+		lastPublishedAt={ctx.lastPublishedAt}
+		lastPublishedSha={ctx.lastPublishedSha}
+		lastDraftSavedAt={ctx.lastDraftSavedAt}
+		hasAstroChannel={ctx.hasAstroChannel}
+		navWarningLines={ctx.navWarningLines}
+		{...flash}
+		imported={flash.imported || ctx.autoImported}
+		importHrefCount={flash.importHrefCount ?? ctx.autoImportHrefCount ?? null}
+		importPath={flash.importPath ?? ctx.autoImportPath ?? null}
+		errorMessage={
+			flash.errorMessage ??
+			(ctx.autoImportError && ctx.autoImportError in adminLayout.errors
+				? adminLayout.errors[ctx.autoImportError as keyof typeof adminLayout.errors]
+				: null)
+		}
+	/>
+
+	<UnitComponentsContent siteId={id} {ctx} />
+</AppLayout>

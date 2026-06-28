@@ -1,4 +1,4 @@
-import type { LayoutComponentId } from '@/lib/astro-layout/components';
+import type { LayoutComponentId, LayoutZone } from '@/lib/astro-layout/components';
 
 export const LAYOUT_EDITOR_TABS = ['header', 'home', 'sidebar', 'footer', 'site'] as const;
 
@@ -10,6 +10,9 @@ export const TOPBAR_COMPONENTS: LayoutComponentId[] = ['topbar.tagline'];
 export const HEADER_TAB_COMPONENTS: LayoutComponentId[] = ['header.brand', 'header.navigation'];
 export const HEADER_BRAND_COMPONENTS: LayoutComponentId[] = ['header.brand'];
 export const HEADER_NAV_COMPONENTS: LayoutComponentId[] = ['header.navigation'];
+
+/** Strefy widgetów edytowanych w zakładce Komponenty (poza chrome w Wyglądzie). */
+export const UNIT_COMPONENT_ZONES = ['home', 'sidebar', 'footer'] as const satisfies readonly LayoutZone[];
 
 export function isLayoutEditorTab(value: string): value is LayoutEditorTab {
 	return (LAYOUT_EDITOR_TABS as readonly string[]).includes(value);

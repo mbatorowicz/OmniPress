@@ -39,6 +39,9 @@ describe('layout-editor-tabs', () => {
 describe('buildLayoutEditorReturnUrl', () => {
 	it('zwraca URL zakładki z return_tab', () => {
 		expect(buildLayoutEditorReturnUrl('x', 'components', 'sidebar')).toBe(
+			'/admin/units/x/components',
+		);
+		expect(buildLayoutEditorReturnUrl('x', 'home', 'sidebar')).toBe(
 			'/admin/units/x/layout/sidebar',
 		);
 		expect(buildLayoutEditorReturnUrl('x', 'navigation')).toBe('/admin/units/x/layout/header');

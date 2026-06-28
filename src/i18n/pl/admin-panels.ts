@@ -142,7 +142,7 @@ export const adminLayout = {
 		'Pozycje menu głównego i podmenu (do 3 poziomów). Link wewnętrzny musi wskazywać istniejącą stronę, kategorię lub znaną trasę.',
 	categoriesLead: 'Definicje kategorii wpisów (slug, nazwa, sposób archiwum).',
 	componentsLead:
-		'Sloty strony głównej i sidebaru — podgląd układu, treść i parametry każdego slotu.',
+		'Widgety strony głównej, sidebaru i stopki — dodawaj, włączaj i edytuj parametry każdego komponentu. Nagłówek i pasek WCAG ustawiasz w zakładce Wygląd strony.',
 	categoriesFeedAssignHint:
 		'Przypisanie kategorii do sekcji strony głównej ustawiasz w zakładce Komponenty → Konfiguracja slotów (przy feedzie strony głównej).',
 	lead: 'Menu, kategorie i komponenty — szkic w OmniPress, publikacja na żądanie do repozytorium GitHub.',

@@ -1,0 +1,29 @@
+---
+import LayoutZoneForm from '@/components/admin/layout/LayoutZoneForm.astro';
+import { UNIT_COMPONENT_ZONES } from '@/lib/admin/layout-editor-tabs';
+import type { LayoutEditorContext } from '@/lib/admin/layout-editor-context';
+
+interface Props {
+	siteId: string;
+	ctx: LayoutEditorContext;
+}
+
+const { siteId, ctx } = Astro.props;
+---
+
+{
+	UNIT_COMPONENT_ZONES.map((zone, index) => (
+		<div class={index > 0 ? 'mt-10' : undefined}>
+			<LayoutZoneForm
+				{siteId}
+				returnTab={zone}
+				returnContext="unit-components"
+				{zone}
+				layout={ctx.layout}
+				categories={ctx.layout.categories}
+				categoryDisplays={ctx.layout.categoryDisplays}
+				publishedPages={ctx.publishedPages}
+			/>
+		</div>
+	))
+}

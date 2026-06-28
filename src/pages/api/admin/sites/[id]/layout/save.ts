@@ -16,7 +16,8 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const form = await request.formData();
 	const section = String(form.get('section') ?? 'all').trim();
 	const returnTab = String(form.get('return_tab') ?? '').trim() || null;
-	const returnSegment = layoutSectionReturnPath(section, returnTab);
+	const returnContext = String(form.get('return_context') ?? '').trim() || null;
+	const returnSegment = layoutSectionReturnPath(section, returnTab, returnContext);
 
 	const parsed = parseLayoutSection(form, existing);
 

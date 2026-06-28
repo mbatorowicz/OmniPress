@@ -29,7 +29,7 @@ const sectionHrefs: Record<AdminUnitSection, string> = {
 	layout: `/admin/units/${siteId}/layout/header`,
 	navigation: `/admin/units/${siteId}/layout/header`,
 	categories: `/admin/units/${siteId}/posts#categories`,
-	components: `/admin/units/${siteId}/layout/home`,
+	components: `/admin/units/${siteId}/components`,
 	posts: `/admin/units/${siteId}/posts`,
 	pages: `/admin/units/${siteId}/pages`,
 	changes: `/admin/units/${siteId}/layout/sidebar`,
@@ -52,7 +52,7 @@ if (currentLabel) {
 	crumbs.push({ label: currentLabel });
 }
 
-const navSections: AdminUnitSection[] = ['layout', 'posts', 'pages', 'settings'];
+const navSections: AdminUnitSection[] = ['layout', 'components', 'posts', 'pages', 'settings'];
 
 const linkLabels: Record<AdminUnitSection, string> = {
 	settings: adminUnit.settingsLink,
