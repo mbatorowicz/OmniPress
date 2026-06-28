@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { auth, mapAuthError } from '@/i18n';
+import { auth } from '@/i18n';
 import { guardAuthMutationRequest } from '@/lib/auth/guard-request';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 

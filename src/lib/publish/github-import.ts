@@ -3,7 +3,6 @@ import { loadSiteAstroDestination } from '@/lib/admin/sites';
 import {
 	assetBasename,
 	parseAstroPostFile,
-	siblingFolderPath,
 	slugFromGitHubMarkdownPath,
 	type ParsedAstroPost,
 } from './astro-post-parse';

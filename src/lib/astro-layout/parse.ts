@@ -15,7 +15,7 @@ import {
 import type { RecentChangeEntry } from '@/lib/recent-changes/types';
 import { isLayoutComponentId } from './components';
 import { validateBannerWidget } from './banners';
-import { mergeLegacyLayoutParts, normalizeLayoutSlots } from './migrate-layout';
+import { normalizeLayoutSlots } from './migrate-layout';
 import { mergeCategoryDisplays, sortSlotsByOrder } from './slots';
 import { exportZonesPayload, flattenSlots, migrateFlatSlotsToZones, parseZonesFromFile } from './zones';
 import {
@@ -24,7 +24,6 @@ import {
 } from '@/lib/admin/nav-editor-colors';
 import {
 	readNavMenuColumns,
-	resolveNavMenuColumns,
 	sanitizeNavMenuColumnWidth,
 } from '@/lib/admin/nav-dropdown-layout';
 import { normalizeCategoryDefinition } from './category-archive';
@@ -331,7 +330,7 @@ export function normalizeSiteAstroLayout(raw: unknown): SiteAstroLayout {
 	const o = raw as Partial<SiteAstroLayout> & { zones?: unknown; slots?: unknown };
 	const legacySlots = parseSlots(o.slots);
 	const zones = parseZonesFromFile(o, legacySlots);
-	let slots = flattenSlots(zones);
+	const slots = flattenSlots(zones);
 	const syncRaw = o.sync;
 	const sync =
 		syncRaw && typeof syncRaw === 'object'

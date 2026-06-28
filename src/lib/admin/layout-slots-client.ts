@@ -1,4 +1,4 @@
-import { getComponentZone, isSingletonComponent, type LayoutZone } from '@/lib/astro-layout/components';
+import { isComponentAllowedInZone, isSingletonComponent, type LayoutZone } from '@/lib/astro-layout/components';
 import type { DisplaySlot } from '@/lib/astro-layout/types';
 import { generateComponentInstanceId } from '@/lib/astro-layout/zones';
 import {
@@ -135,11 +135,11 @@ function appendSlotUi(
 	label: string,
 	component: string,
 	order: number,
+	targetZone: LayoutZone,
 	config: LayoutSlotsClientConfig,
 	sectionConfig: SectionBuildConfig,
 ): void {
-	const zone = getComponentZone(component);
-	if (!zone) return;
+	if (!isComponentAllowedInZone(component, targetZone)) return;
 
 	const panelHtml = buildDetailHtml(kind, id, label, component, sectionConfig);
 	const componentLabel = config.componentLabels[component] ?? component;
@@ -156,7 +156,7 @@ function appendSlotUi(
 		panelHtml,
 	);
 
-	const cardsContainer = zoneCardsContainer(zone);
+	const cardsContainer = zoneCardsContainer(targetZone);
 	if (cardsContainer) {
 		const emptyHint = cardsContainer.querySelector('.ui-hint');
 		emptyHint?.remove();
@@ -202,6 +202,7 @@ function appendTableRow(
 	id: string,
 	order: number,
 	label: string,
+	targetZone: LayoutZone,
 	config: LayoutSlotsClientConfig,
 	sectionConfig: SectionBuildConfig,
 ): void {
@@ -214,11 +215,12 @@ function appendTableRow(
 	const compSelect = tr.querySelector('.slot-component') as HTMLSelectElement | null;
 	if (compSelect) compSelect.value = component;
 	slotsBody.appendChild(tr);
-	bindSlotRow(tr, config, sectionConfig);
+	bindSlotRow(tr, targetZone, config, sectionConfig);
 }
 
 function syncDetailForRow(
 	row: HTMLElement,
+	targetZone: LayoutZone,
 	config: LayoutSlotsClientConfig,
 	sectionConfig: SectionBuildConfig,
 ): void {
@@ -228,16 +230,19 @@ function syncDetailForRow(
 	removeSlotUi(slot.id);
 	if (!kind) return;
 	const order = Number((row.querySelector('.slot-row-order') as HTMLInputElement | null)?.value) || 10;
-	appendSlotUi(kind, slot.id, slot.label, slot.component, order, config, sectionConfig);
+	appendSlotUi(kind, slot.id, slot.label, slot.component, order, targetZone, config, sectionConfig);
 	initLayoutSlotDialogs();
 }
 
 function addComponentInstance(
 	component: string,
+	targetZone: LayoutZone,
 	config: LayoutSlotsClientConfig,
 	sectionConfig: SectionBuildConfig,
 	options: { appendTableRow?: boolean } = {},
 ): void {
+	if (!isComponentAllowedInZone(component, targetZone)) return;
+
 	if (
 		config.singletonComponents.includes(component) &&
 		usedSingletonComponents(config).has(component)
@@ -245,33 +250,35 @@ function addComponentInstance(
 		return;
 	}
 
-	const zone = getComponentZone(component);
-	if (!zone) return;
-
 	const kind = componentToKind(component);
 	if (!kind) return;
 
 	const existing = collectExistingComponentsFromDom();
-	const id = generateComponentInstanceId(zone, component, existing);
+	const id = generateComponentInstanceId(targetZone, component, existing);
 	const order = nextSlotOrderFromDom();
 	const defaultLabel = config.componentLabels[component] ?? component;
 
 	if (options.appendTableRow !== false && document.getElementById('slots-body')) {
-		appendTableRow(component, id, order, defaultLabel, config, sectionConfig);
+		appendTableRow(component, id, order, defaultLabel, targetZone, config, sectionConfig);
 	}
 
-	appendSlotUi(kind, id, defaultLabel, component, order, config, sectionConfig);
+	appendSlotUi(kind, id, defaultLabel, component, order, targetZone, config, sectionConfig);
 	initLayoutSlotDialogs();
 	refreshLayoutSlotsPreview();
 }
 
-function bindSlotRow(row: HTMLElement, config: LayoutSlotsClientConfig, sectionConfig: SectionBuildConfig): void {
+function bindSlotRow(
+	row: HTMLElement,
+	targetZone: LayoutZone,
+	config: LayoutSlotsClientConfig,
+	sectionConfig: SectionBuildConfig,
+): void {
 	const slot = readRowSlot(row);
 	const panel = slot ? document.getElementById(`slot-panel-${slot.id}`) : null;
 	if (panel && componentToKind(slot?.component ?? '') === 'banner') bindBannerBlock(panel);
 
 	row.querySelector('.slot-component')?.addEventListener('change', () => {
-		syncDetailForRow(row, config, sectionConfig);
+		syncDetailForRow(row, targetZone, config, sectionConfig);
 		refreshLayoutSlotsPreview();
 	});
 
@@ -321,12 +328,12 @@ export function initLayoutZoneEditor(zone: LayoutZone, config: LayoutSlotsClient
 			const select = document.querySelector<HTMLSelectElement>(`.zone-add-component[data-zone="${zone}"]`);
 			const component = select?.value;
 			if (!component) return;
-			addComponentInstance(component, config, sectionConfig, { appendTableRow: false });
+			addComponentInstance(component, zone, config, sectionConfig, { appendTableRow: false });
 		});
 	});
 }
 
-export function initLayoutSlotsTable(config: LayoutSlotsClientConfig, zone?: LayoutZone): void {
+export function initLayoutSlotsTable(config: LayoutSlotsClientConfig, zone: LayoutZone): void {
 	const slotsBody = document.getElementById('slots-body');
 	const addSlotBtn = document.getElementById('add-slot');
 	const addComponentSelect = document.getElementById('add-slot-component');
@@ -336,7 +343,7 @@ export function initLayoutSlotsTable(config: LayoutSlotsClientConfig, zone?: Lay
 
 	const sectionConfig = bindSharedPanels(config);
 
-	slotsBody.querySelectorAll('.slot-row').forEach((row) => bindSlotRow(row as HTMLElement, config, sectionConfig));
+	slotsBody.querySelectorAll('.slot-row').forEach((row) => bindSlotRow(row as HTMLElement, zone, config, sectionConfig));
 
 	layoutForm?.addEventListener('submit', () => {
 		slotsBody.querySelectorAll('.slot-row').forEach((row) => {
@@ -351,19 +358,8 @@ export function initLayoutSlotsTable(config: LayoutSlotsClientConfig, zone?: Lay
 
 	addSlotBtn?.addEventListener('click', () => {
 		const component = (addComponentSelect as HTMLSelectElement | null)?.value ?? 'home.pinned';
-		addComponentInstance(component, config, sectionConfig, { appendTableRow: true });
+		addComponentInstance(component, zone, config, sectionConfig, { appendTableRow: true });
 	});
-
-	if (zone) {
-		document.querySelectorAll<HTMLButtonElement>(`.zone-add-slot[data-zone="${zone}"]`).forEach((btn) => {
-			btn.addEventListener('click', () => {
-				const select = document.querySelector<HTMLSelectElement>(`.zone-add-component[data-zone="${zone}"]`);
-				const component = select?.value;
-				if (!component) return;
-				addComponentInstance(component, config, sectionConfig, { appendTableRow: true });
-			});
-		});
-	}
 }
 
 export function initLayoutSlotCardSummaries(): void {

@@ -6,7 +6,6 @@ import {
 import {
 	computeCombinedDraftLiveStatus,
 	computeDraftLiveStatus,
-	hashCategoriesLayout,
 	hashLayoutFile,
 	hashNavigationLayout,
 	resolveDraftLiveStatus,

@@ -1,4 +1,3 @@
-import { common } from './common';
 import { ui } from './ui';
 
 export const admin = {

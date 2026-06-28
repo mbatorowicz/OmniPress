@@ -46,7 +46,7 @@ const zone = tabToLayoutZone(activeTab);
 					siteId={id}
 					returnTab={activeTab}
 					{zone}
-					slots={ctx.layout.slots}
+					layout={ctx.layout}
 					categories={ctx.layout.categories}
 					categoryDisplays={ctx.layout.categoryDisplays}
 					publishedPages={ctx.publishedPages}
@@ -57,7 +57,7 @@ const zone = tabToLayoutZone(activeTab);
 						siteId={id}
 						returnTab="home"
 						zone="home"
-						slots={ctx.layout.slots}
+						layout={ctx.layout}
 						categories={ctx.layout.categories}
 						categoryDisplays={ctx.layout.categoryDisplays}
 						publishedPages={ctx.publishedPages}

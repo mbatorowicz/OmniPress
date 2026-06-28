@@ -7,15 +7,19 @@ import type { DisplaySlot } from '@/lib/astro-layout/types';
 
 interface Props {
 	slot: DisplaySlot;
+	zone: LayoutZone;
 	zoneTitles: Record<LayoutZone, string>;
 }
 
-const { slot, zoneTitles } = Astro.props;
+const { slot, zone, zoneTitles } = Astro.props;
 const w = slot.widget ?? {};
 const { actions, componentLabels } = adminLayout;
 const isSingleton = isSingletonComponent(slot.component);
 const componentLabel = componentLabels[slot.component as keyof typeof componentLabels] ?? slot.component;
-const componentOptionsHtml = buildComponentOptionsGroupedHtml(componentLabels, zoneTitles, undefined, slot.component);
+const componentOptionsHtml = buildComponentOptionsGroupedHtml(componentLabels, zoneTitles, {
+	filterZone: zone,
+	selectedComponent: slot.component,
+});
 ---
 
 <tr class="slot-row ui-table-dense-row" data-slot-id={slot.id}>

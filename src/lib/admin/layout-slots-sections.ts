@@ -1,8 +1,9 @@
 /** Nazwy pól formularza — SSOT: slot-form-fields.ts + components.ts */
 import { slotFormFields as slotFieldNames } from '@/lib/astro-layout/slot-form-fields';
 import {
-	getComponentKind,
-	getComponentsOfZone,
+	getComponentsAddableInZone,
+	getComponentsOfKind,
+	LAYOUT_COMPONENT_KINDS,
 	type LayoutComponentKind,
 	type LayoutZone,
 } from '@/lib/astro-layout/components';
@@ -311,40 +312,59 @@ export function buildDetailHtml(
 }
 
 export function editableZoneComponents(zone: LayoutZone): string[] {
-	if (zone === 'home' || zone === 'sidebar') {
-		return getComponentsOfZone(zone);
-	}
-	return [];
+	return getComponentsAddableInZone(zone);
 }
 
-export function buildComponentOptionsGroupedHtml(
-	componentLabels: Record<string, string>,
-	zoneTitles: Record<LayoutZone, string>,
-	zones: LayoutZone[] = ['topbar', 'header', 'home', 'sidebar', 'footer', 'site'],
-	selectedComponent?: string,
-): string {
-	return zones
-		.map((zone) => {
-			const ids = getComponentsOfZone(zone);
-			if (ids.length === 0) return '';
-			const options = ids
-				.map(
-					(id) =>
-						`<option value="${id}"${selectedComponent === id ? ' selected' : ''}>${componentLabels[id] ?? id}</option>`,
-				)
-				.join('');
-			return `<optgroup label="${zoneTitles[zone] ?? zone}">${options}</optgroup>`;
-		})
-		.join('');
-}
+const KIND_LABELS: Record<LayoutComponentKind, string> = {
+	chrome: 'Elementy strony',
+	navigation: 'Nawigacja',
+	home_feed: 'Feedy strony głównej',
+	live_feed: 'Widgety na żywo',
+	local_feed: 'Feedy lokalne',
+	banner: 'Banery',
+};
 
 export function buildZoneComponentOptionsHtml(
 	zone: LayoutZone,
 	componentLabels: Record<string, string>,
+	selectedComponent?: string,
 ): string {
-	return getComponentsOfZone(zone)
-		.map((id) => `<option value="${id}">${componentLabels[id] ?? id}</option>`)
+	return getComponentsAddableInZone(zone)
+		.map(
+			(id) =>
+				`<option value="${id}"${selectedComponent === id ? ' selected' : ''}>${componentLabels[id] ?? id}</option>`,
+		)
 		.join('');
+}
+
+export function buildComponentOptionsGroupedHtml(
+	componentLabels: Record<string, string>,
+	_zoneTitles: Record<LayoutZone, string>,
+	options?: {
+		filterZone?: LayoutZone;
+		selectedComponent?: string;
+	},
+): string {
+	if (options?.filterZone) {
+		return buildZoneComponentOptionsHtml(
+			options.filterZone,
+			componentLabels,
+			options.selectedComponent,
+		);
+	}
+
+	return LAYOUT_COMPONENT_KINDS.map((kind) => {
+		const ids = getComponentsOfKind(kind);
+		if (ids.length === 0) return '';
+		const optgroupLabel = KIND_LABELS[kind] ?? kind;
+		const optionsHtml = ids
+			.map(
+				(id) =>
+					`<option value="${id}"${options?.selectedComponent === id ? ' selected' : ''}>${componentLabels[id] ?? id}</option>`,
+			)
+			.join('');
+		return `<optgroup label="${optgroupLabel}">${optionsHtml}</optgroup>`;
+	}).join('');
 }
 
 export function buildSlotCardHtml(

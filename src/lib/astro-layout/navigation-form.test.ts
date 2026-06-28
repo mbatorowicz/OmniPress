@@ -205,7 +205,7 @@ describe('parseLayoutSection navigation', () => {
 		const pageOptions = [{ path: '/gmina/plan-ogolny', title: 'Plan ogólny' }];
 		const rows = flattenNavigation(nav, existingLayout.categories, pageOptions);
 		const form = navForm(
-			rows.map((r, i) => ({
+			rows.map((r) => ({
 				depth: String(r.depth),
 				label: r.label,
 				kind: r.hrefKind,

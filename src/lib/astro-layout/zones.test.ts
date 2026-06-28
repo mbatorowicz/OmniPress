@@ -81,6 +81,23 @@ describe('zones', () => {
 			'topbar',
 		]);
 	});
+
+	it('normalizeZonesShape zachowuje komponent w dozwolonej strefie', () => {
+		const normalized = parseZonesFromFile({
+			zones: {
+				site: { components: [] },
+				topbar: { components: [] },
+				header: { components: [] },
+				home: { components: [] },
+				sidebar: { components: [] },
+				footer: {
+					components: [{ id: 'footer_weather', label: 'Pogoda', component: 'sidebar.weather' }],
+				},
+			},
+		});
+		expect(normalized.footer.components[0]?.component).toBe('sidebar.weather');
+		expect(normalized.sidebar.components).toEqual([]);
+	});
 });
 
 describe('mergeLayoutFromFormData — layout_zone', () => {

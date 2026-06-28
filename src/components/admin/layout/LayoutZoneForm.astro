@@ -4,10 +4,10 @@ import LayoutSyncActions from '@/components/admin/layout/LayoutSyncActions.astro
 import LayoutZoneSection from '@/components/admin/layout-slots/LayoutZoneSection.astro';
 import LayoutSlotsTemplates from '@/components/admin/layout-slots/LayoutSlotsTemplates.astro';
 import LayoutSlotsClientScript from '@/components/admin/layout-slots/LayoutSlotsClientScript.astro';
-import { buildComponentOptionsGroupedHtml } from '@/lib/admin/layout-slots-sections';
-import { layoutZoneTitles } from '@/lib/admin/layout-editor-i18n';
+import { buildZoneComponentOptionsHtml } from '@/lib/admin/layout-slots-sections';
 import type { LayoutComponentId, LayoutZone } from '@/lib/astro-layout/components';
-import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from '@/lib/astro-layout/types';
+import { getZoneComponents, resolveLayoutZones } from '@/lib/astro-layout/zones';
+import type { CategoryDefinition, SiteAstroLayout } from '@/lib/astro-layout/types';
 import type { LayoutEditorTab } from '@/lib/admin/layout-editor-tabs';
 
 type PageOption = { path: string; title: string };
@@ -16,7 +16,7 @@ interface Props {
 	siteId: string;
 	returnTab: LayoutEditorTab;
 	zone: LayoutZone;
-	slots: DisplaySlot[];
+	layout: SiteAstroLayout;
 	categories: CategoryDefinition[];
 	categoryDisplays: SiteAstroLayout['categoryDisplays'];
 	publishedPages: PageOption[];
@@ -27,15 +27,16 @@ const {
 	siteId,
 	returnTab,
 	zone,
-	slots,
+	layout,
 	categories,
 	categoryDisplays,
 	publishedPages,
 	includeComponents,
 } = Astro.props;
 
-const zoneTitles = layoutZoneTitles();
-const componentOptionsHtml = buildComponentOptionsGroupedHtml(adminLayout.componentLabels, zoneTitles);
+const zones = resolveLayoutZones(layout);
+const zoneSlots = getZoneComponents(zones, zone);
+const componentOptionsHtml = buildZoneComponentOptionsHtml(zone, adminLayout.componentLabels);
 ---
 
 <form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="ui-form-stack max-w-5xl">
@@ -45,7 +46,7 @@ const componentOptionsHtml = buildComponentOptionsGroupedHtml(adminLayout.compon
 
 	<LayoutZoneSection
 		{zone}
-		{slots}
+		{zoneSlots}
 		{categories}
 		{categoryDisplays}
 		{publishedPages}

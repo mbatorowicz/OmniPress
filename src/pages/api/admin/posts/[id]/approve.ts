@@ -3,7 +3,7 @@ import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
 import { approvePost } from '@/lib/admin';
 import { getPostById } from '@/lib/posts';
 
-export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
+export const POST: APIRoute = async ({ params, redirect, locals }) => {
 	const auth = guardAdminRedirect(locals, redirect);
 	if (isGuardBlocked(auth)) return auth;
 	const { supabase } = auth;

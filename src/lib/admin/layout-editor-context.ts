@@ -2,9 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import {
 	fetchLiveLayoutFingerprint,
 	fetchLiveNavigationHrefCount,
-	importSiteAstroLayoutFromGitHub,
 	loadSiteAstroLayout,
-	type LayoutImportReport,
 } from '@/lib/astro-layout/store';
 import { ensureLayoutFromGitHub } from '@/lib/admin/layout-auto-import';
 import type { DraftLiveScope, DraftLiveStatus } from '@/lib/astro-layout/layout-sync-meta';

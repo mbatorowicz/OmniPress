@@ -10,11 +10,12 @@ import LayoutSlotRow from '@/components/admin/layout-slots/LayoutSlotRow.astro';
 import LayoutSlotsPreview from '@/components/admin/layout-slots/LayoutSlotsPreview.astro';
 import LayoutSlotsTemplates from '@/components/admin/layout-slots/LayoutSlotsTemplates.astro';
 import LayoutSlotsClientScript from '@/components/admin/layout-slots/LayoutSlotsClientScript.astro';
-import { buildComponentOptionsGroupedHtml } from '@/lib/admin/layout-slots-sections';
+import { buildZoneComponentOptionsHtml } from '@/lib/admin/layout-slots-sections';
 import { layoutZoneTitles } from '@/lib/admin/layout-editor-i18n';
 import type { LayoutZone } from '@/lib/astro-layout/components';
-import { getSlotsByZone, sortSlotsForEditor } from '@/lib/astro-layout/slots';
-import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from '@/lib/astro-layout/types';
+import { sortSlotsForEditor } from '@/lib/astro-layout/slots';
+import { getZoneComponents, resolveLayoutZones } from '@/lib/astro-layout/zones';
+import type { CategoryDefinition, SiteAstroLayout } from '@/lib/astro-layout/types';
 import type { LayoutEditorTab } from '@/lib/admin/layout-editor-tabs';
 
 type PageOption = { path: string; title: string };
@@ -23,18 +24,19 @@ interface Props {
 	siteId: string;
 	returnTab: LayoutEditorTab;
 	zone: LayoutZone;
-	slots: DisplaySlot[];
+	layout: SiteAstroLayout;
 	categories: CategoryDefinition[];
 	categoryDisplays: SiteAstroLayout['categoryDisplays'];
 	publishedPages: PageOption[];
 }
 
-const { siteId, returnTab, zone, slots, categories, categoryDisplays, publishedPages } = Astro.props;
+const { siteId, returnTab, zone, layout, categories, categoryDisplays, publishedPages } = Astro.props;
 const { fields, actions } = adminLayout;
 
 const zoneTitles = layoutZoneTitles();
-const componentOptionsHtml = buildComponentOptionsGroupedHtml(adminLayout.componentLabels, zoneTitles);
-const zoneSlots = getSlotsByZone(sortSlotsForEditor(slots), zone);
+const componentOptionsHtml = buildZoneComponentOptionsHtml(zone, adminLayout.componentLabels);
+const zones = resolveLayoutZones(layout);
+const zoneSlots = sortSlotsForEditor(getZoneComponents(zones, zone));
 ---
 
 <form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="ui-form-stack max-w-5xl mt-8">
@@ -43,13 +45,13 @@ const zoneSlots = getSlotsByZone(sortSlotsForEditor(slots), zone);
 	<input type="hidden" name="layout_zone" value={zone} />
 
 	<Panel class="ui-form-section">
-		<details class="rounded border border-slate-200 bg-slate-50/50 p-4">
-			<summary class="cursor-pointer font-medium text-slate-800">{adminLayout.slotsPreviewTitle}</summary>
+		<details class="mt-4">
+			<summary class="ui-link text-sm cursor-pointer">{adminLayout.slotsPreviewTitle}</summary>
 			<LayoutSlotsPreview />
 		</details>
 
-		<details class="mt-4 rounded border border-slate-200 bg-slate-50/50 p-4" open>
-			<summary class="cursor-pointer font-medium text-slate-800">
+		<details class="mt-4" open>
+			<summary class="ui-link text-sm cursor-pointer">
 				{adminLayout.slotsAdvancedTitle ?? 'Zaawansowane — identyfikatory i kolejność'}
 			</summary>
 			<p class="ui-hint mt-2">{adminLayout.slotsManageHint}</p>
@@ -71,7 +73,7 @@ const zoneSlots = getSlotsByZone(sortSlotsForEditor(slots), zone);
 				</TableHead>
 				<tbody id="slots-body">
 					{zoneSlots.map((slot) => (
-						<LayoutSlotRow slot={slot} zoneTitles={zoneTitles} />
+						<LayoutSlotRow slot={slot} {zone} zoneTitles={zoneTitles} />
 					))}
 				</tbody>
 			</Table>

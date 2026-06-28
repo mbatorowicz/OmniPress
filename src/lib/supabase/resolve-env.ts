@@ -54,7 +54,7 @@ export function resolveSupabaseAnonKey(): string | undefined {
 	if (explicit) return explicit;
 
 	return scanEnv(
-		(key, value) =>
+		(key) =>
 			(key.includes('ANON') || key.endsWith('_ANON_KEY')) &&
 			(key.includes('SUPABASE') || key.startsWith('STORAGE_') || key.startsWith('PUBLIC_')),
 	);

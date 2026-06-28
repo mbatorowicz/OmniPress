@@ -1,5 +1,6 @@
 import {
-	getComponentZone,
+	getDefaultComponentZone,
+	isComponentAllowedInZone,
 	isLayoutComponentId,
 	LAYOUT_ZONE_ORDER,
 	type LayoutComponentId,
@@ -19,7 +20,7 @@ export function emptyZones(): LayoutZonesMap {
 export function migrateFlatSlotsToZones(slots: DisplaySlot[]): LayoutZonesMap {
 	const zones = emptyZones();
 	for (const slot of sortSlotsByOrder(slots)) {
-		const zone = getComponentZone(slot.component);
+		const zone = getDefaultComponentZone(slot.component);
 		if (!zone) continue;
 		zones[zone].components.push(slot);
 	}
@@ -60,7 +61,13 @@ function normalizeZonesShape(raw: LayoutZonesMap): LayoutZonesMap {
 		zones[zone].components = sortSlotsByOrder(
 			section.components.filter(
 				(s): s is DisplaySlot =>
-					Boolean(s?.id && s?.label && s?.component && isLayoutComponentId(String(s.component))),
+					Boolean(
+						s?.id &&
+							s?.label &&
+							s?.component &&
+							isLayoutComponentId(String(s.component)) &&
+							isComponentAllowedInZone(String(s.component), zone),
+					),
 			),
 		);
 	}
@@ -105,9 +112,12 @@ export function mergeZoneComponents(
 	zone: LayoutZone,
 	components: DisplaySlot[],
 ): LayoutZonesMap {
+	const validated = components.filter(
+		(s) => s?.id && s?.component && isComponentAllowedInZone(s.component, zone),
+	);
 	return {
 		...zones,
-		[zone]: { components: sortSlotsByOrder(components) },
+		[zone]: { components: sortSlotsByOrder(validated) },
 	};
 }
 

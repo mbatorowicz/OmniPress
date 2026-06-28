@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
+	getAllowedZones,
 	getComponentKind,
 	getComponentZone,
+	getComponentsAddableInZone,
 	getComponentsOfKind,
 	getComponentsOfZone,
+	getDefaultComponentZone,
 	isCategoryFeedComponent,
+	isComponentAllowedInZone,
 	LAYOUT_EDITOR_ZONE_ORDER,
 	supportsHideWhenEmpty,
 } from './components';
@@ -21,11 +25,23 @@ describe('layout component kinds', () => {
 		expect(getComponentKind('unknown')).toBeNull();
 	});
 
-	it('mapuje komponenty na strefę', () => {
-		expect(getComponentZone('home.latest')).toBe('home');
-		expect(getComponentZone('sidebar.weather')).toBe('sidebar');
-		expect(getComponentZone('footer.main')).toBe('footer');
+	it('mapuje komponenty na strefę domyślną', () => {
+		expect(getDefaultComponentZone('home.latest')).toBe('home');
+		expect(getDefaultComponentZone('sidebar.weather')).toBe('sidebar');
+		expect(getDefaultComponentZone('footer.main')).toBe('footer');
 		expect(getComponentZone('site.meta')).toBe('site');
+	});
+
+	it('pozwala umieścić IMGW w stopce', () => {
+		expect(isComponentAllowedInZone('sidebar.weather', 'footer')).toBe(true);
+		expect(isComponentAllowedInZone('sidebar.weather', 'home')).toBe(false);
+		expect(getAllowedZones('sidebar.banner')).toEqual(['sidebar', 'footer', 'home']);
+	});
+
+	it('zwraca komponenty dodawalne w strefie', () => {
+		expect(getComponentsAddableInZone('footer')).toContain('sidebar.weather');
+		expect(getComponentsAddableInZone('footer')).toContain('footer.main');
+		expect(getComponentsAddableInZone('home')).toContain('sidebar.banner');
 	});
 
 	it('zwraca komponenty danego kind', () => {
@@ -34,7 +50,7 @@ describe('layout component kinds', () => {
 		expect(getComponentsOfKind('local_feed')).toEqual(['sidebar.recent_changes']);
 	});
 
-	it('zwraca komponenty strefy', () => {
+	it('zwraca komponenty z domyślną strefą', () => {
 		expect(getComponentsOfZone('topbar')).toEqual(['topbar.tagline']);
 		expect(getComponentsOfZone('header')).toEqual(['header.brand', 'header.navigation']);
 	});
