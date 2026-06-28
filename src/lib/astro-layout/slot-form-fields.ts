@@ -5,6 +5,7 @@ function field(prefix: string, slotId: string): string {
 }
 
 export const slotFormFields = {
+	zone: (slotId: string) => `slot_zone_${slotId}`,
 	hideWhenEmpty: (slotId: string) => `slot_hide_when_empty_${slotId}`,
 	homeFeed: {
 		title: (slotId: string) => field('slot_home_feed_title', slotId),

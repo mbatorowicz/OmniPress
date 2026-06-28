@@ -1,0 +1,126 @@
+---
+import Button from '@/components/ui/actions/Button.astro';
+import SectionTitle from '@/components/ui/layout/SectionTitle.astro';
+import LayoutZoneSlotCard from '@/components/admin/layout-slots/LayoutZoneSlotCard.astro';
+import { adminLayout } from '@/i18n';
+import { layoutZoneTitles } from '@/lib/admin/layout-editor-i18n';
+import {
+	getAddTemplatesForGroup,
+	type ComponentAddTemplateId,
+	type ComponentRegistryGroup,
+	type RegistrySlotEntry,
+} from '@/lib/admin/component-registry';
+import type { LayoutComponentId } from '@/lib/astro-layout/components';
+import { getAllowedZones } from '@/lib/astro-layout/components';
+import type { CategoryDefinition, SiteAstroLayout } from '@/lib/astro-layout/types';
+
+type PageOption = { path: string; title: string };
+
+interface Props {
+	group: ComponentRegistryGroup;
+	entries: RegistrySlotEntry[];
+	categories: CategoryDefinition[];
+	categoryDisplays: SiteAstroLayout['categoryDisplays'];
+	publishedPages: PageOption[];
+	availableSpecial: readonly { component: LayoutComponentId }[];
+}
+
+const { group, entries, categories, categoryDisplays, publishedPages, availableSpecial } =
+	Astro.props;
+
+const zoneTitles = layoutZoneTitles();
+
+const groupMeta: Record<
+	ComponentRegistryGroup,
+	{ title: string; desc: string }
+> = {
+	special: {
+		title: adminLayout.registryGroupSpecial,
+		desc: adminLayout.registryGroupSpecialDesc,
+	},
+	categories: {
+		title: adminLayout.registryGroupCategories,
+		desc: adminLayout.registryGroupCategoriesDesc,
+	},
+	links: {
+		title: adminLayout.registryGroupLinks,
+		desc: adminLayout.registryGroupLinksDesc,
+	},
+	banners: {
+		title: adminLayout.registryGroupBanners,
+		desc: adminLayout.registryGroupBannersDesc,
+	},
+};
+
+const templateLabels: Record<ComponentAddTemplateId, string> = {
+	category: adminLayout.addTemplateCategory,
+	external_link: adminLayout.addTemplateExternalLink,
+	static_page: adminLayout.addTemplateStaticPage,
+	banner: adminLayout.addTemplateBanner,
+};
+
+const specialLabels: Partial<Record<LayoutComponentId, string>> = {
+	'sidebar.weather': adminLayout.addSpecialWeather,
+	'sidebar.cert_advisories': adminLayout.addSpecialCert,
+	'sidebar.recent_changes': adminLayout.addSpecialRecentChanges,
+};
+
+const addTemplates = getAddTemplatesForGroup(group);
+const meta = groupMeta[group];
+---
+
+<section id={`registry-${group}`} data-registry-group={group} class="component-registry-section scroll-mt-24">
+	<SectionTitle class="!mb-0">{meta.title}</SectionTitle>
+	<p class="layout-zone-section__desc">{meta.desc}</p>
+
+	<div class="layout-zone-cards" id={`registry-${group}-cards`} data-registry-cards={group}>
+		{
+			entries.length === 0 ? (
+				<p class="ui-hint">{adminLayout.registryGroupEmpty}</p>
+			) : (
+				entries.map(({ slot, zone }) => (
+					<LayoutZoneSlotCard
+						{slot}
+						{zone}
+						zoneLabel={zoneTitles[zone]}
+						{categories}
+						{categoryDisplays}
+						{publishedPages}
+					/>
+				))
+			)
+		}
+	</div>
+
+	{
+		(group === 'special' ? availableSpecial.length > 0 : addTemplates.length > 0) && (
+			<div class="mt-4 flex flex-wrap items-center gap-2">
+				{
+					group === 'special'
+						? availableSpecial.map((option) => (
+								<Button
+									type="button"
+									variant="add"
+									class="registry-add-special"
+									data-component={option.component}
+									data-allowed-zones={JSON.stringify(getAllowedZones(option.component))}
+								>
+									{specialLabels[option.component] ?? option.component}
+								</Button>
+							))
+						: addTemplates.map((template) => (
+								<Button
+									type="button"
+									variant="add"
+									class="registry-add-template"
+									data-template={template.id}
+									data-allowed-zones={JSON.stringify(template.allowedZones)}
+								>
+									+ {templateLabels[template.id]}
+								</Button>
+							))
+				}
+			</div>
+		)
+	}
+</section>

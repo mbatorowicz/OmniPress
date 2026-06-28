@@ -1,0 +1,37 @@
+---
+import { adminLayout } from '@/i18n';
+import { layoutZoneTitles } from '@/lib/admin/layout-editor-i18n';
+import type { LayoutZone } from '@/lib/astro-layout/components';
+
+const zoneTitles = layoutZoneTitles();
+const zoneOptions = (['home', 'sidebar', 'footer'] as const satisfies readonly LayoutZone[]).map(
+	(zone) => ({ zone, label: zoneTitles[zone] }),
+);
+---
+
+<dialog id="component-add-dialog" class="slot-settings-dialog max-w-md">
+	<form method="dialog" class="ui-form-stack p-6">
+		<h2 class="text-lg font-semibold text-text-emphasis">{adminLayout.addDialogTitle}</h2>
+		<p id="component-add-dialog-template-label" class="ui-hint"></p>
+
+		<label class="ui-field">
+			<span class="ui-label">{adminLayout.addDialogZoneLabel}</span>
+			<select id="component-add-dialog-zone" class="ui-select">
+				{
+					zoneOptions.map(({ zone, label }) => (
+						<option value={zone}>{label}</option>
+					))
+				}
+			</select>
+		</label>
+
+		<div class="flex flex-wrap gap-2 pt-2">
+			<button type="submit" value="confirm" class="ui-btn ui-btn--primary">
+				{adminLayout.addDialogConfirm}
+			</button>
+			<button type="button" id="component-add-dialog-cancel" class="ui-btn ui-btn--secondary">
+				{adminLayout.addDialogCancel}
+			</button>
+		</div>
+	</form>
+</dialog>

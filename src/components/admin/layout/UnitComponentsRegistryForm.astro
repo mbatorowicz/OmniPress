@@ -1,0 +1,53 @@
+---
+import LayoutSyncActions from '@/components/admin/layout/LayoutSyncActions.astro';
+import ComponentAddDialog from '@/components/admin/layout/ComponentAddDialog.astro';
+import ComponentRegistrySection from '@/components/admin/layout/ComponentRegistrySection.astro';
+import ComponentRegistryClientScript from '@/components/admin/layout/ComponentRegistryClientScript.astro';
+import LayoutSlotsTemplates from '@/components/admin/layout-slots/LayoutSlotsTemplates.astro';
+import {
+	COMPONENT_REGISTRY_GROUPS,
+	flattenUnitComponentSlots,
+	getAvailableSpecialComponents,
+	groupSlotsByRegistry,
+} from '@/lib/admin/component-registry';
+import type { LayoutEditorContext } from '@/lib/admin/layout-editor-context';
+
+interface Props {
+	siteId: string;
+	ctx: LayoutEditorContext;
+}
+
+const { siteId, ctx } = Astro.props;
+
+const entries = flattenUnitComponentSlots(ctx.layout);
+const grouped = groupSlotsByRegistry(entries);
+const availableSpecial = getAvailableSpecialComponents(entries);
+---
+
+<form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="ui-form-stack max-w-5xl">
+	<input type="hidden" name="section" value="components" />
+	<input type="hidden" name="return_tab" value="home" />
+	<input type="hidden" name="return_context" value="unit-components" />
+	<input type="hidden" name="layout_mode" value="unit_registry" />
+
+	{
+		COMPONENT_REGISTRY_GROUPS.map((group, index) => (
+			<div class={index > 0 ? 'mt-10' : undefined}>
+				<ComponentRegistrySection
+					{group}
+					entries={grouped[group]}
+					categories={ctx.layout.categories}
+					categoryDisplays={ctx.layout.categoryDisplays}
+					publishedPages={ctx.publishedPages}
+					availableSpecial={group === 'special' ? availableSpecial : []}
+				/>
+			</div>
+		))
+	}
+
+	<LayoutSyncActions section="components" />
+</form>
+
+<ComponentAddDialog />
+<LayoutSlotsTemplates categories={ctx.layout.categories} publishedPages={ctx.publishedPages} />
+<ComponentRegistryClientScript />

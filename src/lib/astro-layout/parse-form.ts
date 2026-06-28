@@ -22,6 +22,8 @@ import {
 	emptyZones,
 } from './zones';
 import { applyCategoryArchiveFieldsFromForm } from './category-archive';
+import { classifyRegistryGroup } from '@/lib/admin/component-registry';
+import { UNIT_COMPONENT_ZONES } from '@/lib/admin/layout-editor-tabs';
 import type { CategoryDefinition, DisplaySlot, NavItem, SiteAstroLayout, SlotWidgetConfig } from './types';
 
 export type LayoutFormSection = 'navigation' | 'categories' | 'components' | 'layout' | 'all';
@@ -227,8 +229,11 @@ function parseWeatherWidget(form: FormData, id: string, widget: SlotWidgetConfig
 	if (detailsCloseLabel) widget.detailsCloseLabel = detailsCloseLabel;
 }
 
-function parseSlotsFromForm(form: FormData, existing: DisplaySlot[] = []): DisplaySlot[] {
-	const identities = collectSlotIdentities(form);
+function parseSlotsFromIdentities(
+	form: FormData,
+	identities: SlotIdentity[],
+	existing: DisplaySlot[] = [],
+): DisplaySlot[] {
 	const seenSingletons = new Set<string>();
 	const slots: DisplaySlot[] = [];
 
@@ -263,6 +268,22 @@ function parseSlotsFromForm(form: FormData, existing: DisplaySlot[] = []): Displ
 		});
 	}
 	return sortSlotsByOrder(slots);
+}
+
+function parseSlotsFromForm(form: FormData, existing: DisplaySlot[] = []): DisplaySlot[] {
+	return parseSlotsFromIdentities(form, collectSlotIdentities(form), existing);
+}
+
+export function parseSlotsFromFormForZone(
+	form: FormData,
+	zone: LayoutZone,
+	existing: DisplaySlot[] = [],
+): DisplaySlot[] {
+	const identities = collectSlotIdentities(form).filter(({ id }) => {
+		const slotZone = strField(form, slotFormFields.zone(id));
+		return slotZone === zone;
+	});
+	return parseSlotsFromIdentities(form, identities, existing);
 }
 
 function mergeSlotsFromForm(form: FormData, existing: DisplaySlot[]): DisplaySlot[] {
@@ -464,6 +485,24 @@ function mergeZoneComponentsFromForm(
 	return mergeZoneComponents(zones, zone, sortSlotsByOrder([...preserved, ...parsed]));
 }
 
+export function mergeUnitRegistryZonesFromForm(
+	form: FormData,
+	existing: SiteAstroLayout,
+): SiteAstroLayout['zones'] {
+	let zones = resolveLayoutZones(existing);
+	for (const zone of UNIT_COMPONENT_ZONES) {
+		const existingZone = zones[zone].components;
+		const parsed = parseSlotsFromFormForZone(form, zone, existingZone);
+		const parsedIds = new Set(parsed.map((s) => s.id));
+		const preserved = existingZone.filter((slot) => {
+			if (parsedIds.has(slot.id)) return false;
+			return classifyRegistryGroup(slot) === null;
+		});
+		zones = mergeZoneComponents(zones, zone, sortSlotsByOrder([...preserved, ...parsed]));
+	}
+	return zones;
+}
+
 export function mergeLayoutFromFormData(
 	form: FormData,
 	existing: SiteAstroLayout,
@@ -479,8 +518,12 @@ export function mergeLayoutFromFormData(
 	}
 
 	if (section === 'components' || section === 'all' || section === 'layout') {
+		const layoutMode = String(form.get('layout_mode') ?? '').trim();
 		const zoneRaw = String(form.get('layout_zone') ?? '').trim();
-		if (zoneRaw && isLayoutZone(zoneRaw)) {
+		if (layoutMode === 'unit_registry') {
+			layout.zones = mergeUnitRegistryZonesFromForm(form, layout);
+			layout.slots = flattenSlots(layout.zones);
+		} else if (zoneRaw && isLayoutZone(zoneRaw)) {
 			layout.zones = mergeZoneComponentsFromForm(form, zoneRaw, layout);
 			layout.slots = flattenSlots(layout.zones);
 		} else {

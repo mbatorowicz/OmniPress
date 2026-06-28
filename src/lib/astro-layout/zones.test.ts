@@ -152,3 +152,53 @@ describe('mergeLayoutFromFormData — layout_zone', () => {
 		expect(headerIds).toContain('header_navigation');
 	});
 });
+
+describe('mergeLayoutFromFormData — layout_mode unit_registry', () => {
+	const existing: SiteAstroLayout = {
+		...emptySiteAstroLayout(),
+		categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],
+		categoryDisplays: {},
+		zones: migrateFlatSlotsToZones([
+			{ id: 'home_pinned', label: 'Przypięte', component: 'home.pinned' },
+			{ id: 'sidebar_weather', label: 'Pogoda', component: 'sidebar.weather' },
+			{ id: 'footer_main', label: 'Stopka', component: 'footer.main' },
+		]),
+		slots: [
+			{ id: 'home_pinned', label: 'Przypięte', component: 'home.pinned' },
+			{ id: 'sidebar_weather', label: 'Pogoda', component: 'sidebar.weather' },
+			{ id: 'footer_main', label: 'Stopka', component: 'footer.main' },
+		],
+	};
+
+	it('zapisuje wiele stref w jednym POST i zachowuje chrome spoza rejestru', () => {
+		const form = new FormData();
+		form.set('section', 'components');
+		form.set('layout_mode', 'unit_registry');
+		form.append('slot_id', 'home_pinned');
+		form.append('slot_label', 'Nowe przypięte');
+		form.append('slot_component', 'home.pinned');
+		form.set('slot_zone_home_pinned', 'home');
+		form.set('slot_enabled_home_pinned', 'on');
+		form.append('slot_id', 'sidebar_banner');
+		form.append('slot_label', 'Baner');
+		form.append('slot_component', 'sidebar.banner');
+		form.set('slot_zone_sidebar_banner', 'sidebar');
+		form.set('slot_banner_link_type__sidebar_banner', 'external');
+		form.set('slot_banner_external_url__sidebar_banner', 'https://example.com');
+		form.set('slot_banner_style__sidebar_banner', 'text');
+		form.set('slot_banner_text_title__sidebar_banner', 'Tytuł');
+		form.set('slot_enabled_sidebar_banner', 'on');
+
+		const result = mergeLayoutFromFormData(form, existing, 'components');
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.layout.zones.home.components[0]?.label).toBe('Nowe przypięte');
+		expect(result.layout.zones.sidebar.components.some((slot) => slot.id === 'sidebar_banner')).toBe(
+			true,
+		);
+		expect(result.layout.zones.footer.components[0]?.component).toBe('footer.main');
+		expect(result.layout.zones.sidebar.components.some((slot) => slot.id === 'sidebar_weather')).toBe(
+			false,
+		);
+	});
+});

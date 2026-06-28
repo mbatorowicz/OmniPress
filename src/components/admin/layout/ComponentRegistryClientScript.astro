@@ -1,0 +1,63 @@
+---
+import { buildLayoutSlotsClientScriptVars } from '@/lib/admin/layout-slots-client-vars';
+import { adminLayout } from '@/i18n';
+import { layoutZoneTitles } from '@/lib/admin/layout-editor-i18n';
+import { buildZoneComponentOptionsHtml } from '@/lib/admin/layout-slots-sections';
+
+const componentOptionsHtml = buildZoneComponentOptionsHtml('home', adminLayout.componentLabels);
+const scriptVars = buildLayoutSlotsClientScriptVars(componentOptionsHtml);
+const zoneTitles = layoutZoneTitles();
+---
+
+<script define:vars={{
+	...scriptVars,
+	zoneLabels: {
+		home: zoneTitles.home,
+		sidebar: zoneTitles.sidebar,
+		footer: zoneTitles.footer,
+	},
+	zoneBadgePrefix: adminLayout.slotZoneBadge,
+	templateLabels: {
+		category: adminLayout.addTemplateCategory,
+		external_link: adminLayout.addTemplateExternalLink,
+		static_page: adminLayout.addTemplateStaticPage,
+		banner: adminLayout.addTemplateBanner,
+	},
+}}>
+	import { initComponentRegistryEditor, initLayoutSlotCardSummaries } from '@/lib/admin/layout-slots-client';
+
+	initComponentRegistryEditor({
+		removeSlotLabel,
+		variantDefault,
+		variantAlert,
+		styleImage,
+		styleText,
+		variantBannerDefault,
+		variantBannerBlue,
+		linkCategory,
+		linkPage,
+		linkExternal,
+		componentOptionsHtml,
+		componentLabels,
+		slotPanelSectionTitleLabel,
+		homeFeedCategoriesLabel,
+		homeFeedCategoriesHint,
+		homeFeedPinnedHint,
+		singletonComponents,
+		certAllLabel,
+		weatherDetailsDisplayModal,
+		weatherDetailsDisplayInline,
+		weatherDetailsLayoutStacked,
+		weatherDetailsLayoutGrid,
+		settingsLabel,
+		closeLabel,
+		fieldLabels,
+		homeFeedCategoryCheckboxesHtml: '',
+		disabledLabel,
+		zoneLabels,
+		zoneBadgePrefix,
+		templateLabels,
+	});
+
+	initLayoutSlotCardSummaries();
+</script>

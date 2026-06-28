@@ -1,6 +1,11 @@
 import { isComponentAllowedInZone, isSingletonComponent, type LayoutZone } from '@/lib/astro-layout/components';
-import type { DisplaySlot } from '@/lib/astro-layout/types';
+import type { DisplaySlot, SlotWidgetConfig } from '@/lib/astro-layout/types';
 import { generateComponentInstanceId } from '@/lib/astro-layout/zones';
+import {
+	COMPONENT_ADD_TEMPLATES,
+	type ComponentAddTemplateId,
+	type ComponentRegistryGroup,
+} from '@/lib/admin/component-registry';
 import {
 	bindSlotCardLabelSync,
 	initLayoutSlotDialogs,
@@ -23,6 +28,9 @@ export interface LayoutSlotsClientConfig extends SectionBuildConfig {
 	settingsLabel: string;
 	closeLabel: string;
 	disabledLabel: string;
+	zoneLabels?: Record<string, string>;
+	zoneBadgePrefix?: string;
+	templateLabels?: Record<string, string>;
 }
 
 function buildSectionConfig(config: LayoutSlotsClientConfig): SectionBuildConfig {
@@ -122,6 +130,24 @@ function zoneCardsContainer(zone: LayoutZone): HTMLElement | null {
 	return document.getElementById(`zone-${zone}-cards`);
 }
 
+function registryCardsContainer(group: ComponentRegistryGroup): HTMLElement | null {
+	return document.getElementById(`registry-${group}-cards`);
+}
+
+function applyWidgetPrefill(panel: HTMLElement, widget: Partial<SlotWidgetConfig>): void {
+	if (widget.linkType) {
+		const select = panel.querySelector('.slot-banner-link-type') as HTMLSelectElement | null;
+		if (select) select.value = widget.linkType;
+	}
+	if (widget.style) {
+		const select = panel.querySelector('.slot-banner-style') as HTMLSelectElement | null;
+		if (select) select.value = widget.style;
+	}
+	if (componentToKind(panel.dataset.component ?? '') === 'banner') {
+		syncBannerSubfields(panel);
+	}
+}
+
 function removeSlotUi(slotId: string): void {
 	document.getElementById(`slot-dialog-${slotId}`)?.remove();
 	document.querySelector(`.layout-slot-card[data-slot-id="${slotId}"]`)?.remove();
@@ -138,6 +164,10 @@ function appendSlotUi(
 	targetZone: LayoutZone,
 	config: LayoutSlotsClientConfig,
 	sectionConfig: SectionBuildConfig,
+	options: {
+		registryGroup?: ComponentRegistryGroup;
+		defaultWidget?: Partial<SlotWidgetConfig>;
+	} = {},
 ): void {
 	if (!isComponentAllowedInZone(component, targetZone)) return;
 
@@ -148,6 +178,9 @@ function appendSlotUi(
 		settingsLabel: config.settingsLabel,
 		disabledLabel: config.disabledLabel,
 		order,
+		zone: targetZone,
+		zoneLabel: config.zoneLabels?.[targetZone],
+		zoneBadgePrefix: config.zoneBadgePrefix,
 	});
 	const dialogHtml = buildSlotDialogShellHtml(
 		id,
@@ -156,7 +189,9 @@ function appendSlotUi(
 		panelHtml,
 	);
 
-	const cardsContainer = zoneCardsContainer(targetZone);
+	const cardsContainer = options.registryGroup
+		? registryCardsContainer(options.registryGroup)
+		: zoneCardsContainer(targetZone);
 	if (cardsContainer) {
 		const emptyHint = cardsContainer.querySelector('.ui-hint');
 		emptyHint?.remove();
@@ -172,7 +207,10 @@ function appendSlotUi(
 	}
 
 	const panel = document.getElementById(`slot-panel-${id}`);
-	if (panel && kind === 'banner') bindBannerBlock(panel);
+	if (panel) {
+		if (kind === 'banner') bindBannerBlock(panel);
+		if (options.defaultWidget) applyWidgetPrefill(panel, options.defaultWidget);
+	}
 }
 
 function buildListRowHtml(
@@ -239,7 +277,11 @@ function addComponentInstance(
 	targetZone: LayoutZone,
 	config: LayoutSlotsClientConfig,
 	sectionConfig: SectionBuildConfig,
-	options: { appendTableRow?: boolean } = {},
+	options: {
+		appendTableRow?: boolean;
+		registryGroup?: ComponentRegistryGroup;
+		defaultWidget?: Partial<SlotWidgetConfig>;
+	} = {},
 ): void {
 	if (!isComponentAllowedInZone(component, targetZone)) return;
 
@@ -262,9 +304,38 @@ function addComponentInstance(
 		appendTableRow(component, id, order, defaultLabel, targetZone, config, sectionConfig);
 	}
 
-	appendSlotUi(kind, id, defaultLabel, component, order, targetZone, config, sectionConfig);
+	appendSlotUi(kind, id, defaultLabel, component, order, targetZone, config, sectionConfig, {
+		registryGroup: options.registryGroup,
+		defaultWidget: options.defaultWidget,
+	});
 	initLayoutSlotDialogs();
 	refreshLayoutSlotsPreview();
+}
+
+export function addComponentFromTemplate(
+	templateId: ComponentAddTemplateId,
+	targetZone: LayoutZone,
+	config: LayoutSlotsClientConfig,
+	sectionConfig: SectionBuildConfig,
+): void {
+	const template = COMPONENT_ADD_TEMPLATES[templateId];
+	addComponentInstance(template.component, targetZone, config, sectionConfig, {
+		appendTableRow: false,
+		registryGroup: template.registryGroup,
+		defaultWidget: template.defaultWidget,
+	});
+}
+
+export function addSpecialComponent(
+	component: string,
+	targetZone: LayoutZone,
+	config: LayoutSlotsClientConfig,
+	sectionConfig: SectionBuildConfig,
+): void {
+	addComponentInstance(component, targetZone, config, sectionConfig, {
+		appendTableRow: false,
+		registryGroup: 'special',
+	});
 }
 
 function bindSlotRow(
@@ -366,5 +437,86 @@ export function initLayoutSlotCardSummaries(): void {
 	document.querySelectorAll<HTMLElement>('.layout-slot-card').forEach((card) => {
 		const id = card.dataset.slotId;
 		if (id) refreshSlotCardSummary(id);
+	});
+}
+
+function parseAllowedZones(raw: string | undefined): LayoutZone[] {
+	if (!raw) return [];
+	try {
+		const parsed = JSON.parse(raw) as unknown;
+		if (!Array.isArray(parsed)) return [];
+		return parsed.filter((value): value is LayoutZone => typeof value === 'string');
+	} catch {
+		return [];
+	}
+}
+
+function configureAddDialogZones(
+	zoneSelect: HTMLSelectElement,
+	allowedZones: LayoutZone[],
+): void {
+	Array.from(zoneSelect.options).forEach((option) => {
+		const allowed = allowedZones.includes(option.value as LayoutZone);
+		option.hidden = !allowed;
+		option.disabled = !allowed;
+	});
+	const firstAllowed = allowedZones.find((zone) =>
+		Array.from(zoneSelect.options).some((option) => option.value === zone && !option.disabled),
+	);
+	if (firstAllowed) zoneSelect.value = firstAllowed;
+}
+
+export function initComponentRegistryEditor(config: LayoutSlotsClientConfig): void {
+	const sectionConfig = bindSharedPanels(config);
+	const dialog = document.getElementById('component-add-dialog') as HTMLDialogElement | null;
+	const zoneSelect = document.getElementById('component-add-dialog-zone') as HTMLSelectElement | null;
+	const labelEl = document.getElementById('component-add-dialog-template-label');
+	const cancelBtn = document.getElementById('component-add-dialog-cancel');
+	if (!dialog || !zoneSelect) return;
+
+	let pendingAction: ((zone: LayoutZone) => void) | null = null;
+
+	const openDialog = (allowedZones: LayoutZone[], label: string, action: (zone: LayoutZone) => void) => {
+		if (allowedZones.length === 0) return;
+		configureAddDialogZones(zoneSelect, allowedZones);
+		if (labelEl) labelEl.textContent = label;
+		pendingAction = action;
+		dialog.showModal();
+	};
+
+	dialog.addEventListener('close', () => {
+		if (dialog.returnValue !== 'confirm' || !pendingAction) {
+			pendingAction = null;
+			return;
+		}
+		const zone = zoneSelect.value as LayoutZone;
+		pendingAction(zone);
+		pendingAction = null;
+	});
+
+	cancelBtn?.addEventListener('click', () => dialog.close('cancel'));
+
+	document.querySelectorAll<HTMLButtonElement>('.registry-add-template').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			const templateId = btn.dataset.template as ComponentAddTemplateId | undefined;
+			if (!templateId || !(templateId in COMPONENT_ADD_TEMPLATES)) return;
+			const allowedZones = parseAllowedZones(btn.dataset.allowedZones);
+			const label = config.templateLabels?.[templateId] ?? templateId;
+			openDialog(allowedZones, label, (zone) => {
+				addComponentFromTemplate(templateId, zone, config, sectionConfig);
+			});
+		});
+	});
+
+	document.querySelectorAll<HTMLButtonElement>('.registry-add-special').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			const component = btn.dataset.component;
+			if (!component) return;
+			const allowedZones = parseAllowedZones(btn.dataset.allowedZones);
+			const label = config.componentLabels[component] ?? component;
+			openDialog(allowedZones, label, (zone) => {
+				addSpecialComponent(component, zone, config, sectionConfig);
+			});
+		});
 	});
 }

@@ -380,6 +380,9 @@ export function buildSlotCardHtml(
 		enabled?: boolean;
 		order?: number;
 		summaryHtml?: string;
+		zone?: string;
+		zoneLabel?: string;
+		zoneBadgePrefix?: string;
 	},
 ): string {
 	const componentLabel = config.componentLabels[component] ?? component;
@@ -387,16 +390,27 @@ export function buildSlotCardHtml(
 	const enabled = config.enabled !== false;
 	const order = config.order ?? 0;
 	const summary = config.summaryHtml ?? '';
+	const zoneField =
+		config.zone != null
+			? `<input type="hidden" name="slot_zone_${id}" value="${config.zone}" class="slot-card-zone-input" />`
+			: '';
+	const zoneBadge =
+		config.zoneLabel && config.zoneBadgePrefix
+			? `<p class="layout-slot-card__zone ui-caption text-text-muted">${config.zoneBadgePrefix}: ${config.zoneLabel}</p>`
+			: '';
+	const dataZone = config.zone ? ` data-zone="${config.zone}"` : '';
 	return `
-		<article class="layout-slot-card" data-slot-id="${id}" data-component="${component}">
+		<article class="layout-slot-card" data-slot-id="${id}" data-component="${component}"${dataZone}>
 			<input type="hidden" name="slot_id" value="${id}" />
 			<input type="hidden" name="slot_label" value="${safeLabel}" class="slot-card-label-input" />
 			<input type="hidden" name="slot_component" value="${component}" />
+			${zoneField}
 			<input type="hidden" name="slot_widget_order" value="${order}" class="slot-card-order-input" />
 			<div class="layout-slot-card__main">
 				<div>
 					<p class="layout-slot-card__type">${componentLabel}</p>
 					<p class="layout-slot-card__label">${safeLabel}</p>
+					${zoneBadge}
 					<div class="layout-slot-card__chips">${summary}</div>
 				</div>
 				<div class="layout-slot-card__actions">

@@ -1,7 +1,7 @@
 ---
 import { adminLayout } from '@/i18n';
 import { buildSlotSummaryHtml } from '@/lib/admin/layout-slot-summary';
-import { slotHasSettingsPanel } from '@/lib/astro-layout/components';
+import { slotHasSettingsPanel, type LayoutZone } from '@/lib/astro-layout/components';
 import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from '@/lib/astro-layout/types';
 import LayoutSlotSettingsDialog from './LayoutSlotSettingsDialog.astro';
 
@@ -12,9 +12,11 @@ interface Props {
 	categories: CategoryDefinition[];
 	categoryDisplays: SiteAstroLayout['categoryDisplays'];
 	publishedPages: PageOption[];
+	zone?: LayoutZone;
+	zoneLabel?: string;
 }
 
-const { slot, categories, categoryDisplays, publishedPages } = Astro.props;
+const { slot, categories, categoryDisplays, publishedPages, zone, zoneLabel } = Astro.props;
 const w = slot.widget ?? {};
 const componentLabel =
 	adminLayout.componentLabels[slot.component as keyof typeof adminLayout.componentLabels] ??
@@ -30,10 +32,16 @@ const summaryHtml = buildSlotSummaryHtml(slot, categories, categoryDisplays, {
 const showSettings = slotHasSettingsPanel(slot.component);
 ---
 
-<article class="layout-slot-card" data-slot-id={slot.id} data-component={slot.component}>
+<article
+	class="layout-slot-card"
+	data-slot-id={slot.id}
+	data-component={slot.component}
+	data-zone={zone}
+>
 	<input type="hidden" name="slot_id" value={slot.id} />
 	<input type="hidden" name="slot_label" value={slot.label} class="slot-card-label-input" />
 	<input type="hidden" name="slot_component" value={slot.component} />
+	{zone && <input type="hidden" name={`slot_zone_${slot.id}`} value={zone} class="slot-card-zone-input" />}
 	<input
 		type="hidden"
 		name="slot_widget_order"
@@ -44,6 +52,13 @@ const showSettings = slotHasSettingsPanel(slot.component);
 		<div>
 			<p class="layout-slot-card__type">{componentLabel}</p>
 			<p class="layout-slot-card__label">{slot.label}</p>
+			{
+				zoneLabel && (
+					<p class="layout-slot-card__zone ui-caption text-text-muted">
+						{adminLayout.slotZoneBadge}: {zoneLabel}
+					</p>
+				)
+			}
 			<div class="layout-slot-card__chips" data-slot-summary={slot.id} set:html={summaryHtml} />
 		</div>
 		<div class="layout-slot-card__actions">
