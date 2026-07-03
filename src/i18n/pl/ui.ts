@@ -21,5 +21,6 @@ export const ui = {
 	assets: {
 		photo: 'to zdjęcie z galerii',
 		pdf: 'ten plik PDF',
+		docx: 'ten plik DOCX',
 	},
 } as const;

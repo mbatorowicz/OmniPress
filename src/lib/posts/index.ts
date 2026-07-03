@@ -23,7 +23,7 @@ export {
 	sortImageAssetsForDisplay,
 	type ImageAttachmentRole,
 } from './image-order';
-export { extensionForMime, markdownForUploadedAsset, validateImageFile, validatePostAssetFile } from './upload';
+export { extensionForMime, markdownForUploadedAsset, validateImageFile, validatePostAssetFile, DOCX_MIME, PDF_MIME } from './upload';
 export {
 	assetsForContentRender,
 	assetsForPreviewRender,
@@ -38,6 +38,8 @@ export {
 	deletePostAsset,
 	isGalleryImageAsset,
 	isPdfAsset,
+	isDocxAsset,
+	isFileAttachmentAsset,
 	type PostAssetRow,
 } from './assets';
 export { renderPostContentHtml } from './render-content';

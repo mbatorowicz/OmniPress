@@ -7,6 +7,7 @@ import {
 	markdownForUploadedAsset,
 	nextGallerySortOrder,
 	validatePostAssetFile,
+	DOCX_MIME,
 } from '@/lib/posts';
 
 export const POST: APIRoute = async ({ params, request, locals }) => {
@@ -32,6 +33,9 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 		return jsonError(api.posts.missingFile, 400);
 	}
 	if (kind === 'pdf' && file.type !== 'application/pdf') {
+		return jsonError(api.posts.missingFile, 400);
+	}
+	if (kind === 'docx' && file.type !== DOCX_MIME) {
 		return jsonError(api.posts.missingFile, 400);
 	}
 
@@ -71,7 +75,10 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 
 	const { data: publicData } = supabase.storage.from('post-assets').getPublicUrl(storagePath);
 	const publicUrl = publicData.publicUrl;
-	const markdown = kind === 'pdf' ? markdownForUploadedAsset(file.name, publicUrl, file.type) : null;
+	const markdown =
+		kind === 'pdf' || kind === 'docx'
+			? markdownForUploadedAsset(file.name, publicUrl, file.type)
+			: null;
 
 	return jsonResponse({
 		url: publicUrl,

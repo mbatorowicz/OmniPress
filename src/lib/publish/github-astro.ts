@@ -222,8 +222,14 @@ export async function publishToGitHubAstro(
 		}
 		const imageAssets = assets.filter((a) => a.mime_type.startsWith('image/'));
 		const pdfAssets = assets.filter((a) => a.mime_type === 'application/pdf');
+		const fileAssets = assets.filter(
+			(a) =>
+				a.mime_type === 'application/pdf' ||
+				a.mime_type ===
+					'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+		);
 
-		const bodyWithPdfs = buildPublishedBodyMd(post.content_md, pdfAssets, urlMap);
+		const bodyWithFiles = buildPublishedBodyMd(post.content_md, fileAssets, urlMap);
 		const assetsForDisplay: AssetForDisplay[] = pdfAssets.flatMap((asset) => {
 			const sourceUrl = publicAssetUrl(asset.storage_path);
 			if (!sourceUrl) return [];
@@ -242,15 +248,15 @@ export async function publishToGitHubAstro(
 			await ensurePdfViewerOnGitHub(cfg, creds.token);
 		}
 		const publishedBody = sanitizePublishMarkdown(
-			applyAssetDisplayToMarkdown(bodyWithPdfs, assetsForDisplay, {
+			applyAssetDisplayToMarkdown(bodyWithFiles, assetsForDisplay, {
 				forPublish: true,
 			}),
 		);
 		const galleryUrls = galleryUrlsFromAssets(imageAssets, urlMap);
 		const prepared = prepareAstroPostFromGallery(publishedBody, galleryUrls);
 		let excerpt = prepared.excerpt;
-		if (!excerpt.trim() && pdfAssets.length > 0) {
-			excerpt = pdfAssets[0]!.filename.replace(/\.pdf$/i, '');
+		if (!excerpt.trim() && fileAssets.length > 0) {
+			excerpt = fileAssets[0]!.filename.replace(/\.(pdf|docx)$/i, '');
 		}
 		const pubDate = post.scheduled_publish_at ?? post.updated_at ?? new Date().toISOString();
 		const fileContent = buildAstroMarkdown(post.title, prepared.bodyMd, pubDate, cfg.contentLayout, {

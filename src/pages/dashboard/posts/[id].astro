@@ -19,6 +19,7 @@ import {
 	getPostById,
 	isGalleryImageAsset,
 	isPdfAsset,
+	isFileAttachmentAsset,
 	loadPostAssetsForPost,
 	publicUrlForAsset,
 	renderPostContentHtml,
@@ -57,14 +58,15 @@ const { categories, warnings: categoryWarnings } = await loadSiteCategories(
 const categoriesUnavailable = categories.length === 0;
 
 const postAssets = await loadPostAssetsForPost(Astro.locals.supabase, post.id);
+const fileAssets = postAssets.filter(isFileAttachmentAsset);
 const pdfAssets = postAssets.filter(isPdfAsset);
-const pdfUrlMap = new Map(
-	pdfAssets.flatMap((a) => {
+const fileUrlMap = new Map(
+	fileAssets.flatMap((a) => {
 		const u = publicUrlForAsset(a.storage_path);
 		return u ? ([[u, u]] as const) : [];
 	}),
 );
-const previewMd = buildPublishedBodyMd(post.content_md, pdfAssets as PostAsset[], pdfUrlMap);
+const previewMd = buildPublishedBodyMd(post.content_md, fileAssets as PostAsset[], fileUrlMap);
 const contentHtml = renderPostContentHtml(previewMd, assetsForPreviewRender(post.id, pdfAssets));
 const galleryAssets = postAssets.filter(isGalleryImageAsset);
 const publishLogs = await listPublishLogsForPost(Astro.locals.supabase, post.id);

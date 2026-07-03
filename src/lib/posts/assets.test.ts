@@ -33,6 +33,14 @@ describe('canDeletePostAsset', () => {
 		expect(canDeletePostAsset({ mime_type: 'application/pdf' })).toBe(true);
 	});
 
+	it('zezwala na usuwanie DOCX', () => {
+		expect(
+			canDeletePostAsset({
+				mime_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+			}),
+		).toBe(true);
+	});
+
 	it('odrzuca nieznane typy', () => {
 		expect(canDeletePostAsset({ mime_type: 'application/zip' })).toBe(false);
 	});

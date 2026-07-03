@@ -74,3 +74,12 @@ export function initPdfAttachments(): void {
 		mountPdfAttachments(root);
 	});
 }
+
+export function initDocxAttachments(): void {
+	const root = document.querySelector('[data-docx-attachments]');
+	if (!(root instanceof HTMLElement)) return;
+
+	void import('@/lib/editor/docx-attachments').then(({ mountDocxAttachments }) => {
+		mountDocxAttachments(root);
+	});
+}

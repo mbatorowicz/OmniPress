@@ -21,6 +21,16 @@ export function isPdfAsset(asset: PostAssetRow): boolean {
 	return asset.mime_type === 'application/pdf';
 }
 
+export function isDocxAsset(asset: PostAssetRow): boolean {
+	return (
+		asset.mime_type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+	);
+}
+
+export function isFileAttachmentAsset(asset: PostAssetRow): boolean {
+	return isPdfAsset(asset) || isDocxAsset(asset);
+}
+
 export async function loadPostAssetsForPost(
 	supabase: SupabaseClient,
 	postId: string,
@@ -145,7 +155,10 @@ export async function nextGallerySortOrder(
 export type DeletePostAssetError = 'not_found' | 'delete_failed';
 
 export function canDeletePostAsset(asset: Pick<PostAssetRow, 'mime_type'>): boolean {
-	return isGalleryImageAsset(asset as PostAssetRow) || isPdfAsset(asset as PostAssetRow);
+	return (
+		isGalleryImageAsset(asset as PostAssetRow) ||
+		isFileAttachmentAsset(asset as PostAssetRow)
+	);
 }
 
 export async function deletePostAsset(

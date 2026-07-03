@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+	DOCX_MIME,
 	extensionForMime,
 	markdownForUploadedAsset,
 	matchesPostAssetMagicBytes,
@@ -18,10 +19,15 @@ describe('validatePostAssetFile', () => {
 	});
 
 	it('odrzuca nieznany typ', async () => {
-		const file = new File(['x'], 'doc.docx', {
-			type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-		});
+		const file = new File(['x'], 'doc.txt', { type: 'text/plain' });
 		expect(await validatePostAssetFile(file)).toBeTruthy();
+	});
+
+	it('akceptuje DOCX z poprawnym nagłówkiem ZIP', async () => {
+		const file = new File([new Uint8Array([0x50, 0x4b, 0x03, 0x04])], 'plan.docx', {
+			type: DOCX_MIME,
+		});
+		expect(await validatePostAssetFile(file)).toBeNull();
 	});
 });
 
@@ -40,6 +46,12 @@ describe('markdownForUploadedAsset', () => {
 		expect(md).toContain('https://example.com/x.pdf');
 	});
 
+	it('generuje link dla DOCX', () => {
+		const md = markdownForUploadedAsset('plan.docx', 'https://example.com/x.docx', DOCX_MIME);
+		expect(md).toContain('[📎 plan.docx]');
+		expect(md).toContain('https://example.com/x.docx');
+	});
+
 	it('generuje obrazek dla JPEG', () => {
 		const md = markdownForUploadedAsset('foto.jpg', 'https://example.com/x.jpg', 'image/jpeg');
 		expect(md).toBe('![foto.jpg](https://example.com/x.jpg)');
@@ -47,5 +59,9 @@ describe('markdownForUploadedAsset', () => {
 
 	it('mapuje rozszerzenie pdf', () => {
 		expect(extensionForMime('application/pdf')).toBe('pdf');
+	});
+
+	it('mapuje rozszerzenie docx', () => {
+		expect(extensionForMime(DOCX_MIME)).toBe('docx');
 	});
 });

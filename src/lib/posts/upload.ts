@@ -1,10 +1,12 @@
 import { posts } from '@/i18n';
 
 const IMAGE_MIME = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
-const PDF_MIME = 'application/pdf';
+export const PDF_MIME = 'application/pdf';
+export const DOCX_MIME =
+	'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
-const MAX_PDF_BYTES = 15 * 1024 * 1024;
+const MAX_FILE_ATTACHMENT_BYTES = 15 * 1024 * 1024;
 
 function matchesMagicBytes(bytes: Uint8Array, mime: string): boolean {
 	if (mime === 'image/jpeg') {
@@ -50,14 +52,23 @@ function matchesMagicBytes(bytes: Uint8Array, mime: string): boolean {
 			bytes[3] === 0x46
 		);
 	}
+	if (mime === DOCX_MIME) {
+		return (
+			bytes.length >= 4 &&
+			bytes[0] === 0x50 &&
+			bytes[1] === 0x4b &&
+			bytes[2] === 0x03 &&
+			bytes[3] === 0x04
+		);
+	}
 	return false;
 }
 
 export async function validatePostAssetFile(file: File): Promise<string | null> {
 	if (IMAGE_MIME.has(file.type)) {
 		if (file.size > MAX_IMAGE_BYTES) return posts.upload.tooLarge;
-	} else if (file.type === PDF_MIME) {
-		if (file.size > MAX_PDF_BYTES) return posts.upload.pdfTooLarge;
+	} else if (file.type === PDF_MIME || file.type === DOCX_MIME) {
+		if (file.size > MAX_FILE_ATTACHMENT_BYTES) return posts.upload.fileTooLarge;
 	} else {
 		return posts.upload.invalidMime;
 	}
@@ -87,6 +98,8 @@ export function extensionForMime(mime: string): string {
 			return 'gif';
 		case PDF_MIME:
 			return 'pdf';
+		case DOCX_MIME:
+			return 'docx';
 		default:
 			return 'bin';
 	}
@@ -95,6 +108,9 @@ export function extensionForMime(mime: string): string {
 export function markdownForUploadedAsset(filename: string, publicUrl: string, mime: string): string {
 	if (mime === PDF_MIME) {
 		return `[📄 ${filename}](${publicUrl})`;
+	}
+	if (mime === DOCX_MIME) {
+		return `[📎 ${filename}](${publicUrl})`;
 	}
 	return `![${filename}](${publicUrl})`;
 }

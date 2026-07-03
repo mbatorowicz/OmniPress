@@ -22,7 +22,7 @@ export function formatUploadError(detail?: string | null): string {
 		return `${api.posts.uploadFailed} Brak bucketu post-assets — uruchom npm run setup:storage-pdf.`;
 	}
 	if (d.includes('mime') || d.includes('content type') || d.includes('invalid')) {
-		return `${api.posts.uploadFailed} Typ pliku niedozwolony w storage (dozwolone: JPEG, PNG, WebP, GIF, PDF).`;
+		return `${api.posts.uploadFailed} Typ pliku niedozwolony w storage (dozwolone: JPEG, PNG, WebP, GIF, PDF, DOCX).`;
 	}
 	if (d.includes('size') || d.includes('too large')) {
 		return `${api.posts.uploadFailed} Plik za duży (max 15 MB w storage).`;

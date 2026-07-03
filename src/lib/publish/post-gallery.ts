@@ -7,20 +7,18 @@ import {
 	type PreparedAstroPost,
 } from './post-content';
 
-const PDF_MIME = 'application/pdf';
-
-/** Tekst wpisu + linki/embedy PDF z załączników (zdjęcia tylko w galerii). */
+/** Tekst wpisu + linki do załączników plikowych (PDF, DOCX). Zdjęcia tylko w galerii. */
 export function buildPublishedBodyMd(
 	contentMd: string,
-	pdfAssets: PostAsset[],
+	fileAssets: PostAsset[],
 	urlMap: Map<string, string>,
 ): string {
 	let body = stripImageMarkdown(contentMd).trim();
-	for (const asset of pdfAssets) {
+	for (const asset of fileAssets) {
 		const sourceUrl = publicAssetUrl(asset.storage_path);
 		if (!sourceUrl) continue;
 		const url = urlMap.get(sourceUrl) ?? sourceUrl;
-		body += `\n\n${markdownForUploadedAsset(asset.filename, url, PDF_MIME)}\n`;
+		body += `\n\n${markdownForUploadedAsset(asset.filename, url, asset.mime_type)}\n`;
 	}
 	return body.trim();
 }

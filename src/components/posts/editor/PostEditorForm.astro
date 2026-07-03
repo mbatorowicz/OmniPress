@@ -7,6 +7,7 @@ import Select from '@/components/ui/form/Select.astro';
 import PostRichEditor from '@/components/posts/PostRichEditor.astro';
 import PostGalleryPanel from '@/components/posts/PostGalleryPanel.astro';
 import PostPdfAttachments from '@/components/posts/PostPdfAttachments.astro';
+import PostDocxAttachments from '@/components/posts/PostDocxAttachments.astro';
 import PostPublishSchedule from '@/components/posts/PostPublishSchedule.astro';
 import ConfirmScript from '@/components/shared/ConfirmScript.astro';
 import { dashboard } from '@/i18n';
@@ -40,6 +41,7 @@ const {
 const ed = dashboard.editor;
 const gal = ed.gallery;
 const pdfUi = ed.pdfAttachments;
+const docxUi = ed.docxAttachments;
 ---
 
 {categoryWarnings.length > 0 && (
@@ -102,6 +104,7 @@ const pdfUi = ed.pdfAttachments;
 		</div>
 		<PostGalleryPanel postId={postId} assets={postAssets} labels={gal} />
 		<PostPdfAttachments postId={postId} assets={postAssets} labels={pdfUi} />
+		<PostDocxAttachments postId={postId} assets={postAssets} labels={docxUi} />
 	</div>
 	<div class="flex flex-wrap items-center gap-3">
 		<Button type="submit">{ed.actions.save}</Button>
