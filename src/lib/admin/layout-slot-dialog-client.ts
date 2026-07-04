@@ -1,5 +1,7 @@
 /** Otwieranie / zamykanie okien ustawień slotów layoutu. */
 
+let slotDialogsBound = false;
+
 export function refreshSlotCardSummary(slotId: string): void {
 	const card = document.querySelector<HTMLElement>(`.layout-slot-card[data-slot-id="${slotId}"]`);
 	const panel = document.getElementById(`slot-panel-${slotId}`);
@@ -39,30 +41,52 @@ export function refreshSlotCardSummary(slotId: string): void {
 	summaryEl.innerHTML = chips.join('');
 }
 
+function slotIdFromDialog(dialog: HTMLDialogElement): string | null {
+	if (!dialog.id.startsWith('slot-dialog-')) return null;
+	return dialog.id.slice('slot-dialog-'.length);
+}
+
+function closeSlotSettingsDialog(dialog: HTMLDialogElement): void {
+	dialog.close();
+	const slotId = slotIdFromDialog(dialog);
+	if (slotId) refreshSlotCardSummary(slotId);
+}
+
 export function initLayoutSlotDialogs(): void {
-	document.querySelectorAll<HTMLDialogElement>('.slot-settings-dialog').forEach((dialog) => {
-		const id = dialog.id.replace('slot-dialog-', '');
-		dialog.querySelector('.slot-dialog-close')?.addEventListener('click', () => {
-			dialog.close();
-			refreshSlotCardSummary(id);
-		});
-	});
+	if (slotDialogsBound) return;
+	slotDialogsBound = true;
 
-	document.querySelectorAll<HTMLButtonElement>('.slot-settings-open').forEach((btn) => {
-		btn.addEventListener('click', () => {
-			const dialogId = btn.dataset.dialogId;
+	document.addEventListener('click', (event) => {
+		const target = event.target;
+		if (!(target instanceof Element)) return;
+
+		const openBtn = target.closest('.slot-settings-open');
+		if (openBtn instanceof HTMLButtonElement) {
+			const dialogId = openBtn.dataset.dialogId;
 			if (!dialogId) return;
-			const dialog = document.getElementById(dialogId) as HTMLDialogElement | null;
-			dialog?.showModal();
-		});
+			event.preventDefault();
+			const dialog = document.getElementById(dialogId);
+			if (dialog instanceof HTMLDialogElement) {
+				dialog.showModal();
+			}
+			return;
+		}
+
+		const closeBtn = target.closest('.slot-dialog-close');
+		if (closeBtn) {
+			const dialog = closeBtn.closest('dialog.slot-settings-dialog');
+			if (dialog instanceof HTMLDialogElement) {
+				event.preventDefault();
+				closeSlotSettingsDialog(dialog);
+			}
+		}
 	});
 
-	document.addEventListener('keydown', (e) => {
-		if (e.key !== 'Escape') return;
+	document.addEventListener('keydown', (event) => {
+		if (event.key !== 'Escape') return;
 		document.querySelectorAll<HTMLDialogElement>('.slot-settings-dialog[open]').forEach((dialog) => {
-			const id = dialog.id.replace('slot-dialog-', '');
-			dialog.close();
-			refreshSlotCardSummary(id);
+			if (dialog.id === 'component-add-dialog') return;
+			closeSlotSettingsDialog(dialog);
 		});
 	});
 }

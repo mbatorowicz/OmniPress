@@ -84,14 +84,14 @@ const showSettings = slotHasSettingsPanel(slot.component);
 			}
 		</div>
 	</div>
-	{
-		showSettings && (
-			<LayoutSlotSettingsDialog
-				slot={slot}
-				categories={categories}
-				categoryDisplays={categoryDisplays}
-				publishedPages={publishedPages}
-			/>
-		)
-	}
 </article>
+{
+	showSettings && (
+		<LayoutSlotSettingsDialog
+			slot={slot}
+			categories={categories}
+			categoryDisplays={categoryDisplays}
+			publishedPages={publishedPages}
+		/>
+	)
+}

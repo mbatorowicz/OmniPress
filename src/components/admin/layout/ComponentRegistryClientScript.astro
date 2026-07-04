@@ -25,6 +25,9 @@ const zoneTitles = layoutZoneTitles();
 	},
 }}>
 	import { initComponentRegistryEditor, initLayoutSlotCardSummaries } from '@/lib/admin/layout-slots-client';
+	import { initLayoutSlotDialogs } from '@/lib/admin/layout-slot-dialog-client';
+
+	initLayoutSlotDialogs();
 
 	initComponentRegistryEditor({
 		removeSlotLabel,
