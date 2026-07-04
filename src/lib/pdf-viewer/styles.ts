@@ -1,6 +1,8 @@
 export const PDF_VIEWER_CSS = `
 .op-pdf-viewer {
 	margin: 1.25rem 0;
+	width: 100%;
+	max-width: 100%;
 	border: 1px solid var(--color-border);
 	border-radius: 0.5rem;
 	overflow: hidden;

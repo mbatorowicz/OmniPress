@@ -233,6 +233,13 @@ async function mountOne(el: HTMLElement): Promise<void> {
 
 	try {
 		pdf = await loadPdfDocument(src);
+		const firstPage = await pdf.getPage(1);
+		const baseViewport = firstPage.getViewport({ scale: 1 });
+		const stageWidth = stage.clientWidth || el.clientWidth || baseViewport.width;
+		const fitScale = (stageWidth - 32) / baseViewport.width;
+		if (Number.isFinite(fitScale) && fitScale > 0) {
+			scale = Math.min(1.1, Math.max(0.6, fitScale));
+		}
 		updatePageInfo();
 		await renderPage();
 	} catch {
