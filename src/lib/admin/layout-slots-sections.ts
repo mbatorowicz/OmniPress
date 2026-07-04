@@ -422,7 +422,7 @@ export function buildSlotCardHtml(
 						<input type="checkbox" name="slot_enabled_${id}" ${enabled ? 'checked' : ''} class="slot-card-enabled" />
 						<span>Wł.</span>
 					</label>
-					<button type="button" class="slot-settings-open ui-btn ui-btn--secondary ui-btn--compact" data-dialog-id="slot-dialog-${id}">${config.settingsLabel}</button>
+					<button type="button" class="slot-settings-open ui-btn ui-btn--secondary ui-btn--compact" data-dialog-id="slot-dialog-${id}" onclick="var d=document.getElementById(this.dataset.dialogId);if(d&&typeof d.showModal==='function'){try{d.showModal()}catch(e){console.error('[OmniPress] showModal:',e)}}">${config.settingsLabel}</button>
 				</div>
 			</div>
 		</article>`;
@@ -439,7 +439,7 @@ export function buildSlotDialogShellHtml(
 			<div class="slot-settings-dialog__panel">
 				<header class="slot-settings-dialog__header">
 					<h3 class="slot-settings-dialog__title">${title}</h3>
-					<button type="button" class="slot-dialog-close ui-btn ui-btn--secondary ui-btn--compact">${closeLabel}</button>
+					<button type="button" class="slot-dialog-close ui-btn ui-btn--secondary ui-btn--compact" onclick="var d=this.closest('dialog');if(d&&typeof d.close==='function')d.close()">${closeLabel}</button>
 				</header>
 				<div class="slot-settings-dialog__body">${panelHtml}</div>
 			</div>

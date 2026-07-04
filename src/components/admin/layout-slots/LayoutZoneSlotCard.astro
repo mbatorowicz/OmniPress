@@ -3,7 +3,6 @@ import { adminLayout } from '@/i18n';
 import { buildSlotSummaryHtml } from '@/lib/admin/layout-slot-summary';
 import { slotHasSettingsPanel, type LayoutZone } from '@/lib/astro-layout/components';
 import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from '@/lib/astro-layout/types';
-import LayoutSlotSettingsDialog from './LayoutSlotSettingsDialog.astro';
 
 type PageOption = { path: string; title: string };
 
@@ -77,6 +76,7 @@ const showSettings = slotHasSettingsPanel(slot.component);
 						type="button"
 						class="slot-settings-open ui-btn ui-btn--secondary ui-btn--compact"
 						data-dialog-id={`slot-dialog-${slot.id}`}
+						onclick="var d=document.getElementById(this.dataset.dialogId);if(d&&typeof d.showModal==='function'){try{d.showModal()}catch(e){console.error('[OmniPress] showModal:',e)}}"
 					>
 						{adminLayout.slotDialogOpen ?? 'Ustawienia'}
 					</button>
@@ -85,13 +85,3 @@ const showSettings = slotHasSettingsPanel(slot.component);
 		</div>
 	</div>
 </article>
-{
-	showSettings && (
-		<LayoutSlotSettingsDialog
-			slot={slot}
-			categories={categories}
-			categoryDisplays={categoryDisplays}
-			publishedPages={publishedPages}
-		/>
-	)
-}

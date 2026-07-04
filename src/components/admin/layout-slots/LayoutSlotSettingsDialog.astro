@@ -23,7 +23,7 @@ const dialogTitle = `${adminLayout.slotDialogTitle ?? 'Ustawienia elementu'} —
 	<div class="slot-settings-dialog__panel">
 		<header class="slot-settings-dialog__header">
 			<h3 class="slot-settings-dialog__title">{dialogTitle}</h3>
-			<button type="button" class="slot-dialog-close ui-btn ui-btn--secondary ui-btn--compact">
+			<button type="button" class="slot-dialog-close ui-btn ui-btn--secondary ui-btn--compact" onclick="var d=this.closest('dialog');if(d&&typeof d.close==='function')d.close()">
 				{adminLayout.slotDialogClose ?? 'Zamknij'}
 			</button>
 		</header>

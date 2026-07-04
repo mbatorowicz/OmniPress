@@ -4,6 +4,8 @@ import ComponentAddDialog from '@/components/admin/layout/ComponentAddDialog.ast
 import ComponentRegistrySection from '@/components/admin/layout/ComponentRegistrySection.astro';
 import ComponentRegistryClientScript from '@/components/admin/layout/ComponentRegistryClientScript.astro';
 import LayoutSlotsTemplates from '@/components/admin/layout-slots/LayoutSlotsTemplates.astro';
+import SlotSettingsDialogHost from '@/components/admin/layout-slots/SlotSettingsDialogHost.astro';
+import SlotSettingsDialogInlineScript from '@/components/admin/layout-slots/SlotSettingsDialogInlineScript.astro';
 import {
 	COMPONENT_REGISTRY_GROUPS,
 	flattenUnitComponentSlots,
@@ -22,6 +24,7 @@ const { siteId, ctx } = Astro.props;
 const entries = flattenUnitComponentSlots(ctx.layout);
 const grouped = groupSlotsByRegistry(entries);
 const availableSpecial = getAvailableSpecialComponents(entries);
+const dialogSlots = entries.map((entry) => entry.slot);
 ---
 
 <form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="ui-form-stack max-w-5xl">
@@ -48,6 +51,14 @@ const availableSpecial = getAvailableSpecialComponents(entries);
 	<LayoutSyncActions section="components" />
 </form>
 
+<SlotSettingsDialogHost
+	slots={dialogSlots}
+	categories={ctx.layout.categories}
+	categoryDisplays={ctx.layout.categoryDisplays}
+	publishedPages={ctx.publishedPages}
+/>
+
 <ComponentAddDialog />
 <LayoutSlotsTemplates categories={ctx.layout.categories} publishedPages={ctx.publishedPages} />
+<SlotSettingsDialogInlineScript />
 <ComponentRegistryClientScript />

@@ -1,0 +1,30 @@
+---
+import LayoutSlotSettingsDialog from './LayoutSlotSettingsDialog.astro';
+import { slotHasSettingsPanel } from '@/lib/astro-layout/components';
+import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from '@/lib/astro-layout/types';
+
+type PageOption = { path: string; title: string };
+
+interface Props {
+	slots: DisplaySlot[];
+	categories: CategoryDefinition[];
+	categoryDisplays: SiteAstroLayout['categoryDisplays'];
+	publishedPages: PageOption[];
+}
+
+const { slots, categories, categoryDisplays, publishedPages } = Astro.props;
+const withSettings = slots.filter((slot) => slotHasSettingsPanel(slot.component));
+---
+
+<div id="slot-dialogs-host" class="slot-dialogs-host">
+	{
+		withSettings.map((slot) => (
+			<LayoutSlotSettingsDialog
+				{slot}
+				{categories}
+				{categoryDisplays}
+				{publishedPages}
+			/>
+		))
+	}
+</div>

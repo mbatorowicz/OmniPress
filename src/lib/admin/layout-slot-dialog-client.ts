@@ -1,5 +1,11 @@
 /** Otwieranie / zamykanie okien ustawień slotów layoutu. */
 
+declare global {
+	interface Window {
+		__opRefreshSlotSummary?: (slotId: string) => void;
+	}
+}
+
 let slotDialogsBound = false;
 
 export function refreshSlotCardSummary(slotId: string): void {
@@ -38,6 +44,9 @@ export function refreshSlotCardSummary(slotId: string): void {
 	const topbarText = (panel.querySelector('input[name*="topbar"]') as HTMLInputElement | null)?.value?.trim();
 	if (topbarText) chips.push(`<span class="layout-slot-chip">${topbarText}</span>`);
 
+	const tileHeight = (panel.querySelector('input[name*="tile_height"]') as HTMLInputElement | null)?.value?.trim();
+	if (tileHeight) chips.push(`<span class="layout-slot-chip">${tileHeight}px</span>`);
+
 	summaryEl.innerHTML = chips.join('');
 }
 
@@ -46,41 +55,52 @@ function slotIdFromDialog(dialog: HTMLDialogElement): string | null {
 	return dialog.id.slice('slot-dialog-'.length);
 }
 
+function openSlotSettingsDialog(dialogId: string): void {
+	const dialog = document.getElementById(dialogId);
+	if (!(dialog instanceof HTMLDialogElement)) return;
+	try {
+		if (!dialog.open) dialog.showModal();
+	} catch (err) {
+		console.error('[OmniPress] Nie udało się otworzyć okna ustawień:', err);
+	}
+}
+
 function closeSlotSettingsDialog(dialog: HTMLDialogElement): void {
 	dialog.close();
 	const slotId = slotIdFromDialog(dialog);
 	if (slotId) refreshSlotCardSummary(slotId);
 }
 
+function handleSlotDialogClick(event: Event): void {
+	const target = event.target;
+	if (!(target instanceof Element)) return;
+
+	const openBtn = target.closest('.slot-settings-open');
+	if (openBtn) {
+		const dialogId = openBtn.getAttribute('data-dialog-id');
+		if (!dialogId) return;
+		event.preventDefault();
+		event.stopPropagation();
+		openSlotSettingsDialog(dialogId);
+		return;
+	}
+
+	const closeBtn = target.closest('.slot-dialog-close');
+	if (closeBtn) {
+		const dialog = closeBtn.closest('dialog.slot-settings-dialog');
+		if (dialog instanceof HTMLDialogElement && dialog.id !== 'component-add-dialog') {
+			event.preventDefault();
+			closeSlotSettingsDialog(dialog);
+		}
+	}
+}
+
 export function initLayoutSlotDialogs(): void {
+	window.__opRefreshSlotSummary = refreshSlotCardSummary;
 	if (slotDialogsBound) return;
 	slotDialogsBound = true;
 
-	document.addEventListener('click', (event) => {
-		const target = event.target;
-		if (!(target instanceof Element)) return;
-
-		const openBtn = target.closest('.slot-settings-open');
-		if (openBtn instanceof HTMLButtonElement) {
-			const dialogId = openBtn.dataset.dialogId;
-			if (!dialogId) return;
-			event.preventDefault();
-			const dialog = document.getElementById(dialogId);
-			if (dialog instanceof HTMLDialogElement) {
-				dialog.showModal();
-			}
-			return;
-		}
-
-		const closeBtn = target.closest('.slot-dialog-close');
-		if (closeBtn) {
-			const dialog = closeBtn.closest('dialog.slot-settings-dialog');
-			if (dialog instanceof HTMLDialogElement) {
-				event.preventDefault();
-				closeSlotSettingsDialog(dialog);
-			}
-		}
-	});
+	document.addEventListener('click', handleSlotDialogClick, true);
 
 	document.addEventListener('keydown', (event) => {
 		if (event.key !== 'Escape') return;

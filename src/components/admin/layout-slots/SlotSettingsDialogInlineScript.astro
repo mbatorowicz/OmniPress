@@ -1,0 +1,51 @@
+---
+/** Niezawodne otwieranie dialogów ustawień — działa bez bundla modułowego. */
+---
+
+<script is:inline>
+	(function () {
+		if (document.documentElement.dataset.opSlotDialogs === '1') return;
+		document.documentElement.dataset.opSlotDialogs = '1';
+
+		document.addEventListener(
+			'click',
+			function (event) {
+				var target = event.target;
+				if (!target || !target.closest) return;
+
+				var openBtn = target.closest('.slot-settings-open');
+				if (openBtn) {
+					var dialogId = openBtn.getAttribute('data-dialog-id');
+					if (!dialogId) return;
+					event.preventDefault();
+					event.stopPropagation();
+					var dialog = document.getElementById(dialogId);
+					if (dialog && typeof dialog.showModal === 'function') {
+						try {
+							dialog.showModal();
+						} catch (err) {
+							console.error('[OmniPress] Nie udało się otworzyć okna ustawień:', err);
+						}
+					}
+					return;
+				}
+
+				var closeBtn = target.closest('.slot-dialog-close');
+				if (closeBtn) {
+					var closeDialog = closeBtn.closest('dialog.slot-settings-dialog');
+					if (closeDialog && typeof closeDialog.close === 'function') {
+						event.preventDefault();
+						closeDialog.close();
+						if (typeof window.__opRefreshSlotSummary === 'function') {
+							var id = closeDialog.id || '';
+							if (id.indexOf('slot-dialog-') === 0) {
+								window.__opRefreshSlotSummary(id.slice('slot-dialog-'.length));
+							}
+						}
+					}
+				}
+			},
+			true,
+		);
+	})();
+</script>

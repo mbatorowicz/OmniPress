@@ -134,6 +134,10 @@ function registryCardsContainer(group: ComponentRegistryGroup): HTMLElement | nu
 	return document.getElementById(`registry-${group}-cards`);
 }
 
+function slotDialogsHost(): HTMLElement | null {
+	return document.getElementById('slot-dialogs-host');
+}
+
 function applyWidgetPrefill(panel: HTMLElement, widget: Partial<SlotWidgetConfig>): void {
 	if (widget.linkType) {
 		const select = panel.querySelector('.slot-banner-link-type') as HTMLSelectElement | null;
@@ -192,6 +196,7 @@ function appendSlotUi(
 	const cardsContainer = options.registryGroup
 		? registryCardsContainer(options.registryGroup)
 		: zoneCardsContainer(targetZone);
+	const dialogsHost = slotDialogsHost();
 	if (cardsContainer) {
 		const emptyHint = cardsContainer.querySelector('.ui-hint');
 		emptyHint?.remove();
@@ -203,7 +208,7 @@ function appendSlotUi(
 			cardsContainer.appendChild(card);
 			bindSlotCardLabelSync(card);
 		}
-		if (dialog) cardsContainer.appendChild(dialog);
+		if (dialog) (dialogsHost ?? cardsContainer).appendChild(dialog);
 	}
 
 	const panel = document.getElementById(`slot-panel-${id}`);
