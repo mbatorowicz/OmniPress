@@ -359,7 +359,7 @@ export async function fetchLiveNavigationHrefCount(
 		layout.sync?.publishedLayoutHash &&
 		draftHash === layout.sync.publishedLayoutHash
 	) {
-		return countNavigationHrefs(getNavigationFromLayout(layout));
+		return collectNavHrefs(getNavigationFromLayout(layout)).length;
 	}
 
 	const dest = await loadSiteAstroDestination(supabase, siteId);

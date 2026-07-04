@@ -6,15 +6,22 @@ import type { LayoutZone } from '@/lib/astro-layout/components';
 interface Props {
 	componentOptionsHtml: string;
 	zone?: LayoutZone;
+	formId?: string;
 	includePreview?: boolean;
 	advancedTable?: boolean;
 }
 
-const { componentOptionsHtml, zone, includePreview = false, advancedTable = false } = Astro.props;
+const {
+	componentOptionsHtml,
+	zone,
+	formId = ZONE_COMPONENTS_FORM_ID,
+	includePreview = false,
+	advancedTable = false,
+} = Astro.props;
 const scriptVars = buildLayoutSlotsClientScriptVars(componentOptionsHtml);
 ---
 
-<script define:vars={{ ...scriptVars, includePreview, advancedTable, editorZone: zone ?? '', zoneFormId: ZONE_COMPONENTS_FORM_ID }}>
+<script define:vars={{ ...scriptVars, includePreview, advancedTable, editorZone: zone ?? '', zoneFormId: formId }}>
 	import { initLayoutSlotsTable, initLayoutSlotCardSummaries, initLayoutZoneEditor } from '@/lib/admin/layout-slots-client';
 	import { initLayoutSlotsPreview } from '@/lib/admin/layout-slots-preview-client';
 

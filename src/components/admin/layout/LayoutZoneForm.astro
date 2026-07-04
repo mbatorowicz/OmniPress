@@ -5,7 +5,7 @@ import LayoutZoneSection from '@/components/admin/layout-slots/LayoutZoneSection
 import LayoutSlotsTemplates from '@/components/admin/layout-slots/LayoutSlotsTemplates.astro';
 import SlotSettingsDialogHost from '@/components/admin/layout-slots/SlotSettingsDialogHost.astro';
 import SlotSettingsDialogInlineScript from '@/components/admin/layout-slots/SlotSettingsDialogInlineScript.astro';
-import { ZONE_COMPONENTS_FORM_ID } from '@/lib/admin/layout-form-ids';
+import { zoneComponentsFormId } from '@/lib/admin/layout-form-ids';
 import LayoutSlotsClientScript from '@/components/admin/layout-slots/LayoutSlotsClientScript.astro';
 import { buildZoneComponentOptionsHtml } from '@/lib/admin/layout-slots-sections';
 import type { LayoutComponentId, LayoutZone } from '@/lib/astro-layout/components';
@@ -44,10 +44,11 @@ const zones = resolveLayoutZones(layout);
 const zoneSlots = getZoneComponents(zones, zone);
 const dialogSlots = zoneSlots.filter((slot) => slotHasSettingsPanel(slot.component));
 const componentOptionsHtml = buildZoneComponentOptionsHtml(zone, adminLayout.componentLabels);
+const formId = zoneComponentsFormId(zone);
 ---
 
 <form
-	id={ZONE_COMPONENTS_FORM_ID}
+	id={formId}
 	method="post"
 	action={`/api/admin/sites/${siteId}/layout/save`}
 	class="ui-form-stack max-w-5xl"
@@ -70,7 +71,7 @@ const componentOptionsHtml = buildZoneComponentOptionsHtml(zone, adminLayout.com
 </form>
 
 <SlotSettingsDialogHost
-	formId={ZONE_COMPONENTS_FORM_ID}
+	formId={formId}
 	slots={dialogSlots}
 	categories={categories}
 	categoryDisplays={categoryDisplays}
@@ -79,4 +80,4 @@ const componentOptionsHtml = buildZoneComponentOptionsHtml(zone, adminLayout.com
 
 <LayoutSlotsTemplates categories={categories} publishedPages={publishedPages} />
 <SlotSettingsDialogInlineScript />
-<LayoutSlotsClientScript {componentOptionsHtml} zone={zone} />
+<LayoutSlotsClientScript {componentOptionsHtml} zone={zone} formId={formId} />

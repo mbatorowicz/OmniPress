@@ -24,9 +24,14 @@ if (!tab || !isLayoutEditorTab(tab)) {
 
 const activeTab = tab as LayoutEditorTab;
 
-const ctx = await loadLayoutEditorContext(Astro.locals.supabase, id, {
-	draftStatusScope: 'navigation',
-});
+let ctx;
+try {
+	ctx = await loadLayoutEditorContext(Astro.locals.supabase, id, {
+		draftStatusScope: 'navigation',
+	});
+} catch {
+	return Astro.redirect(layoutTabHref(id, activeTab) + '?error=layout_context_failed');
+}
 if (!ctx) return Astro.redirect('/admin/sites');
 
 const zone = tabToLayoutZone(activeTab);
