@@ -117,10 +117,22 @@ export function parseAssetDisplayModes(form: FormData): Record<string, AssetDisp
 	return modes;
 }
 
-export function parseGalleryOrder(form: FormData): string[] {
-	const raw = String(form.get('gallery_order') ?? '').trim();
+function parseAssetOrderField(form: FormData, fieldName: string): string[] {
+	const raw = String(form.get(fieldName) ?? '').trim();
 	if (!raw) return [];
 	return raw.split(',').map((s) => s.trim()).filter(Boolean);
+}
+
+export function parseGalleryOrder(form: FormData): string[] {
+	return parseAssetOrderField(form, 'gallery_order');
+}
+
+export function parsePdfOrder(form: FormData): string[] {
+	return parseAssetOrderField(form, 'pdf_order');
+}
+
+export function parseDocxOrder(form: FormData): string[] {
+	return parseAssetOrderField(form, 'docx_order');
 }
 
 export async function updateGalleryOrder(
@@ -134,6 +146,30 @@ export async function updateGalleryOrder(
 			.from('assets')
 			.update({ sort_order: i })
 			.eq('id', orderedIds[i]!)
+			.eq('post_id', postId);
+	}
+}
+
+/** Kolejność plików na stronie: PDF-y, potem DOCX (w obrębie sekcji edytora). */
+export async function updateFileAttachmentOrders(
+	supabase: SupabaseClient,
+	postId: string,
+	pdfIds: string[],
+	docxIds: string[],
+): Promise<void> {
+	let sortOrder = 0;
+	for (const id of pdfIds) {
+		await supabase
+			.from('assets')
+			.update({ sort_order: sortOrder++ })
+			.eq('id', id)
+			.eq('post_id', postId);
+	}
+	for (const id of docxIds) {
+		await supabase
+			.from('assets')
+			.update({ sort_order: sortOrder++ })
+			.eq('id', id)
 			.eq('post_id', postId);
 	}
 }

@@ -70,8 +70,15 @@ export function initPdfAttachments(): void {
 	const root = document.querySelector('[data-pdf-attachments]');
 	if (!(root instanceof HTMLElement)) return;
 
+	let initialAssets: import('@/lib/editor/pdf-attachments').PdfAsset[] = [];
+	try {
+		initialAssets = JSON.parse(root.dataset.initialAssets ?? '[]');
+	} catch {
+		initialAssets = [];
+	}
+
 	void import('@/lib/editor/pdf-attachments').then(({ mountPdfAttachments }) => {
-		mountPdfAttachments(root);
+		mountPdfAttachments(root, initialAssets);
 	});
 }
 
@@ -79,7 +86,14 @@ export function initDocxAttachments(): void {
 	const root = document.querySelector('[data-docx-attachments]');
 	if (!(root instanceof HTMLElement)) return;
 
+	let initialAssets: import('@/lib/editor/docx-attachments').DocxAsset[] = [];
+	try {
+		initialAssets = JSON.parse(root.dataset.initialAssets ?? '[]');
+	} catch {
+		initialAssets = [];
+	}
+
 	void import('@/lib/editor/docx-attachments').then(({ mountDocxAttachments }) => {
-		mountDocxAttachments(root);
+		mountDocxAttachments(root, initialAssets);
 	});
 }

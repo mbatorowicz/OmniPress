@@ -1,6 +1,4 @@
 ---
-import Icon from '@/components/ui/Icon.astro';
-import IconButton from '@/components/ui/actions/IconButton.astro';
 import { isDocxAsset, publicUrlForAsset, type PostAssetRow } from '@/lib/posts/assets';
 
 type Props = {
@@ -10,6 +8,8 @@ type Props = {
 		heading: string;
 		empty: string;
 		add: string;
+		moveUp: string;
+		moveDown: string;
 		remove: string;
 		confirmRemove: string;
 		removeFailed: string;
@@ -17,13 +17,21 @@ type Props = {
 };
 
 const { postId, assets, labels } = Astro.props;
-const docxAssets = assets.filter(isDocxAsset);
+const docxAssets = assets.filter(isDocxAsset).map((a) => ({
+	id: a.id,
+	url: publicUrlForAsset(a.storage_path) ?? '',
+	filename: a.filename,
+}));
+const initialOrder = docxAssets.map((a) => a.id).join(',');
 ---
 
 <div
 	class="ui-panel--subtle mt-4"
 	data-docx-attachments
 	data-post-id={postId}
+	data-initial-assets={JSON.stringify(docxAssets)}
+	data-label-move-up={labels.moveUp}
+	data-label-move-down={labels.moveDown}
 	data-label-remove={labels.remove}
 	data-label-confirm-remove={labels.confirmRemove}
 	data-label-remove-failed={labels.removeFailed}
@@ -45,34 +53,9 @@ const docxAssets = assets.filter(isDocxAsset);
 		{labels.empty}
 	</p>
 
-	<ul class="space-y-2" data-docx-list>
-		{
-			docxAssets.map((asset) => {
-				const url = publicUrlForAsset(asset.storage_path);
-				return (
-					<li class="ui-inline-card" data-asset-id={asset.id}>
-						<div class="min-w-0 flex-1">
-							<p class="ui-subheading flex items-center gap-1.5 truncate">
-								<Icon name="file-text" size={16} class="ui-muted pointer-events-none" />
-								{asset.filename}
-							</p>
-							{url && (
-								<a href={url} target="_blank" rel="noopener noreferrer" class="ui-link text-xs">
-									{url}
-								</a>
-							)}
-						</div>
-						<IconButton
-							variant="iconDanger"
-							icon="x"
-							ariaLabel={labels.remove}
-							dataset={{ 'docx-remove': '' }}
-						/>
-					</li>
-				);
-			})
-		}
-	</ul>
+	<ul class="space-y-2" data-docx-list></ul>
+
+	<input type="hidden" name="docx_order" value={initialOrder} data-docx-order />
 </div>
 
 <script>

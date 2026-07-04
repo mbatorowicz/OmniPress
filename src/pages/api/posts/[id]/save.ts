@@ -5,8 +5,11 @@ import {
 	resolvePostCategoryFields,
 	slugFromTitle,
 	parseAssetDisplayModes,
+	parseDocxOrder,
 	parseGalleryOrder,
+	parsePdfOrder,
 	updateGalleryOrder,
+	updateFileAttachmentOrders,
 	updatePostAssetDisplayModes,
 } from '@/lib/posts';
 import { combineScheduleDateHour, wallTimeInZoneToUtcIso } from '@/lib/posts/scheduled-publish';
@@ -63,6 +66,12 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 
 	await updatePostAssetDisplayModes(supabase, postId, parseAssetDisplayModes(form));
 	await updateGalleryOrder(supabase, postId, parseGalleryOrder(form));
+	await updateFileAttachmentOrders(
+		supabase,
+		postId,
+		parsePdfOrder(form),
+		parseDocxOrder(form),
+	);
 
 	return redirect(`/dashboard/posts/${postId}?saved=1`);
 };
