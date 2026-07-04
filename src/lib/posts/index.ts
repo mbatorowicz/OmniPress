@@ -46,3 +46,4 @@ export {
 	type PostAssetRow,
 } from './assets';
 export { renderPostContentHtml } from './render-content';
+export { resolveUniquePostSlug } from './slug-unique';

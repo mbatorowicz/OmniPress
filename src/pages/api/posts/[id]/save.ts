@@ -3,6 +3,7 @@ import { guardAuthRedirect, isGuardBlocked, redirectPostError } from '@/lib/api'
 import {
 	loadEditablePost,
 	resolvePostCategoryFields,
+	resolveUniquePostSlug,
 	slugFromTitle,
 	parseAssetDisplayModes,
 	parseDocxOrder,
@@ -30,7 +31,10 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const title = String(form.get('title') ?? '').trim();
 	const content_md = sanitizeStorageMarkdown(String(form.get('content_md') ?? ''));
 	const slugInput = String(form.get('slug') ?? '').trim();
-	const slug = slugInput || (title ? slugFromTitle(title) : post.slug);
+	const baseSlug = slugInput || (title ? slugFromTitle(title) : post.slug);
+	const slug = baseSlug
+		? await resolveUniquePostSlug(supabase, post.site_id, baseSlug, postId)
+		: null;
 	const categorySlug = String(form.get('category_slug') ?? '').trim();
 	const categoryFields = await resolvePostCategoryFields(supabase, post.site_id, categorySlug);
 	if (!categoryFields) {
