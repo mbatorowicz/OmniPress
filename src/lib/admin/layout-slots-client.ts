@@ -23,6 +23,7 @@ import {
 
 export interface LayoutSlotsClientConfig extends SectionBuildConfig {
 	removeSlotLabel: string;
+	formId?: string;
 	componentOptionsHtml: string;
 	singletonComponents: string[];
 	settingsLabel: string;
@@ -43,7 +44,9 @@ function buildSectionConfig(config: LayoutSlotsClientConfig): SectionBuildConfig
 		categoryOptionsHtml: categoryOptionsTpl?.innerHTML ?? '<option value="">—</option>',
 		pageOptionsHtml: pageOptionsTpl?.innerHTML ?? '<option value="">—</option>',
 		certOptionsHtml: certOptionsTpl?.innerHTML ?? `<option value="">${config.certAllLabel}</option>`,
-		homeFeedCategoryCheckboxesHtml: homeFeedCategoriesTpl?.innerHTML ?? '',
+		homeFeedCategoryCheckboxesHtml: (homeFeedCategoriesTpl?.innerHTML ?? '')
+			.replaceAll('__FORMID__', config.formId ?? '')
+			.replaceAll('form=""', ''),
 	};
 }
 

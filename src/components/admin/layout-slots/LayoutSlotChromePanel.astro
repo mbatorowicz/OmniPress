@@ -4,10 +4,11 @@ import { slotFormFields } from '@/lib/astro-layout/slot-form-fields';
 import type { DisplaySlot } from '@/lib/astro-layout/types';
 
 interface Props {
+	formId: string;
 	slot: DisplaySlot;
 }
 
-const { slot } = Astro.props;
+const { formId, slot } = Astro.props;
 const w = slot.widget ?? {};
 const { fields } = adminLayout;
 const component = slot.component;
@@ -24,11 +25,12 @@ const component = slot.component;
 			<>
 				<label class="ui-label-inline sm:col-span-2">
 					<span class="font-medium">{fields.topbarText ?? 'Tekst paska górnego'}</span>
-					<input name={slotFormFields.topbar.text(slot.id)} value={w.text ?? ''} class="ui-input-compact w-full" />
+					<input form={formId} name={slotFormFields.topbar.text(slot.id)} value={w.text ?? ''} class="ui-input-compact w-full" />
 				</label>
 				<label class="ui-label-inline sm:col-span-2 flex items-center gap-2">
 					<input
 						type="checkbox"
+						form={formId}
 						name={slotFormFields.topbar.accessibilityTools(slot.id)}
 						checked={w.accessibilityTools !== false}
 						class="ui-checkbox"
@@ -41,45 +43,45 @@ const component = slot.component;
 			<>
 				<label class="ui-label-inline">
 					<span class="font-medium">{fields.siteMetaName ?? 'Nazwa strony'}</span>
-					<input name={slotFormFields.siteMeta.name(slot.id)} value={w.name ?? ''} class="ui-input-compact w-full" />
+					<input form={formId} name={slotFormFields.siteMeta.name(slot.id)} value={w.name ?? ''} class="ui-input-compact w-full" />
 				</label>
 				<label class="ui-label-inline sm:col-span-2">
 					<span class="font-medium">{fields.siteMetaDescription ?? 'Opis (SEO)'}</span>
-					<input name={slotFormFields.siteMeta.description(slot.id)} value={w.description ?? ''} class="ui-input-compact w-full" />
+					<input form={formId} name={slotFormFields.siteMeta.description(slot.id)} value={w.description ?? ''} class="ui-input-compact w-full" />
 				</label>
 				<label class="ui-label-inline">
 					<span class="font-medium">{fields.siteMetaUrl ?? 'URL strony'}</span>
-					<input name={slotFormFields.siteMeta.url(slot.id)} value={w.url ?? ''} class="ui-input-compact ui-input-compact--mono w-full" />
+					<input form={formId} name={slotFormFields.siteMeta.url(slot.id)} value={w.url ?? ''} class="ui-input-compact ui-input-compact--mono w-full" />
 				</label>
 			</>
 		) : component === 'header.brand' ? (
 			<>
 				<label class="ui-label-inline">
 					<span class="font-medium">{fields.headerBrandLogoUrl ?? 'URL logo'}</span>
-					<input name={slotFormFields.headerBrand.logoUrl(slot.id)} value={w.logoUrl ?? ''} class="ui-input-compact ui-input-compact--mono w-full" />
+					<input form={formId} name={slotFormFields.headerBrand.logoUrl(slot.id)} value={w.logoUrl ?? ''} class="ui-input-compact ui-input-compact--mono w-full" />
 				</label>
 				<label class="ui-label-inline">
 					<span class="font-medium">{fields.headerBrandLogoAlt ?? 'Alt logo'}</span>
-					<input name={slotFormFields.headerBrand.logoAlt(slot.id)} value={w.logoAlt ?? ''} class="ui-input-compact w-full" />
+					<input form={formId} name={slotFormFields.headerBrand.logoAlt(slot.id)} value={w.logoAlt ?? ''} class="ui-input-compact w-full" />
 				</label>
 				<label class="ui-label-inline">
 					<span class="font-medium">{fields.headerBrandHomeHref ?? 'Link strony głównej'}</span>
-					<input name={slotFormFields.headerBrand.homeHref(slot.id)} value={w.homeHref ?? '/'} class="ui-input-compact ui-input-compact--mono w-full" />
+					<input form={formId} name={slotFormFields.headerBrand.homeHref(slot.id)} value={w.homeHref ?? '/'} class="ui-input-compact ui-input-compact--mono w-full" />
 				</label>
 			</>
 		) : component === 'footer.main' ? (
 			<>
 				<label class="ui-label-inline sm:col-span-2">
 					<span class="font-medium">{fields.footerContactCtaLabel ?? 'Etykieta CTA kontaktu'}</span>
-					<input name={slotFormFields.footer.contactCtaLabel(slot.id)} value={w.contactCtaLabel ?? ''} class="ui-input-compact w-full" />
+					<input form={formId} name={slotFormFields.footer.contactCtaLabel(slot.id)} value={w.contactCtaLabel ?? ''} class="ui-input-compact w-full" />
 				</label>
 				<label class="ui-label-inline sm:col-span-2">
 					<span class="font-medium">{fields.footerContactCtaHref ?? 'Link CTA kontaktu'}</span>
-					<input name={slotFormFields.footer.contactCtaHref(slot.id)} value={w.contactCtaHref ?? ''} class="ui-input-compact ui-input-compact--mono w-full" />
+					<input form={formId} name={slotFormFields.footer.contactCtaHref(slot.id)} value={w.contactCtaHref ?? ''} class="ui-input-compact ui-input-compact--mono w-full" />
 				</label>
 				<label class="ui-label-inline sm:col-span-2">
 					<span class="font-medium">{fields.footerCopyrightSuffix ?? 'Tekst copyright'}</span>
-					<input name={slotFormFields.footer.copyrightSuffix(slot.id)} value={w.copyrightSuffix ?? ''} class="ui-input-compact w-full" />
+					<input form={formId} name={slotFormFields.footer.copyrightSuffix(slot.id)} value={w.copyrightSuffix ?? ''} class="ui-input-compact w-full" />
 				</label>
 				<p class="ui-hint sm:col-span-2">{adminLayout.footerChromeHint ?? 'Pełne dane kontaktowe i konta bankowe edytuj w pliku layoutu (JSON) lub zaimportuj z istniejącej konfiguracji.'}</p>
 			</>

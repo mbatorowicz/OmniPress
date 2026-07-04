@@ -2,19 +2,21 @@
 interface Props {
 	id?: string;
 	name?: string;
+	form?: string;
 	value?: string;
 	checked?: boolean;
 	disabled?: boolean;
 	class?: string;
 }
 
-const { id, name, value, checked, disabled, class: className = '' } = Astro.props;
+const { id, name, form, value, checked, disabled, class: className = '' } = Astro.props;
 ---
 
 <input
 	type="checkbox"
 	{id}
 	{name}
+	{form}
 	{value}
 	checked={checked}
 	{disabled}

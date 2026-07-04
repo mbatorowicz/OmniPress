@@ -7,12 +7,13 @@ import LayoutSlotPanelHeader from './LayoutSlotPanelHeader.astro';
 type PageOption = { path: string; title: string };
 
 interface Props {
+	formId: string;
 	slot: DisplaySlot;
 	categories: CategoryDefinition[];
 	publishedPages: PageOption[];
 }
 
-const { slot, categories, publishedPages } = Astro.props;
+const { formId, slot, categories, publishedPages } = Astro.props;
 const w = slot.widget ?? {};
 const f = slotFormFields.banner;
 const style = w.style ?? 'image';
@@ -29,33 +30,33 @@ const { fields, bannerLinkTypes, bannerStyles, bannerImageVariants } = adminLayo
 	<LayoutSlotPanelHeader slot={slot} />
 	<label class="ui-label-inline">
 		<span class="font-medium">{fields.bannerStyle}</span>
-		<select name={f.style(slot.id)} class="slot-banner-style ui-select-compact w-full">
+		<select form={formId} name={f.style(slot.id)} class="slot-banner-style ui-select-compact w-full">
 			<option value="image" selected={style !== 'text'}>{bannerStyles.image}</option>
 			<option value="text" selected={style === 'text'}>{bannerStyles.text}</option>
 		</select>
 	</label>
 	<label class={`ui-label-inline slot-banner-field-image${style !== 'image' ? ' hidden' : ''}`}>
 		<span class="font-medium">{fields.bannerImageUrl}</span>
-		<input name={f.imageUrl(slot.id)} value={w.imageUrl ?? ''} class="ui-input-compact ui-input-compact--mono w-full" />
+		<input form={formId} name={f.imageUrl(slot.id)} value={w.imageUrl ?? ''} class="ui-input-compact ui-input-compact--mono w-full" />
 	</label>
 	<label class={`ui-label-inline slot-banner-field-image${style !== 'image' ? ' hidden' : ''}`}>
 		<span class="font-medium">{fields.bannerImageVariant}</span>
-		<select name={f.imageVariant(slot.id)} class="ui-select-compact w-full">
+		<select form={formId} name={f.imageVariant(slot.id)} class="ui-select-compact w-full">
 			<option value="default" selected={w.imageVariant !== 'blue'}>{bannerImageVariants.default}</option>
 			<option value="blue" selected={w.imageVariant === 'blue'}>{bannerImageVariants.blue}</option>
 		</select>
 	</label>
 	<label class={`ui-label-inline slot-banner-field-text${style !== 'text' ? ' hidden' : ''}`}>
 		<span class="font-medium">{fields.bannerTextTitle}</span>
-		<input name={f.textTitle(slot.id)} value={w.textTitle ?? ''} class="ui-input-compact w-full" />
+		<input form={formId} name={f.textTitle(slot.id)} value={w.textTitle ?? ''} class="ui-input-compact w-full" />
 	</label>
 	<label class={`ui-label-inline slot-banner-field-text${style !== 'text' ? ' hidden' : ''}`}>
 		<span class="font-medium">{fields.bannerTextButton}</span>
-		<input name={f.textButton(slot.id)} value={w.textButton ?? ''} class="ui-input-compact w-full" />
+		<input form={formId} name={f.textButton(slot.id)} value={w.textButton ?? ''} class="ui-input-compact w-full" />
 	</label>
 	<label class="ui-label-inline">
 		<span class="font-medium">{fields.bannerLinkType}</span>
-		<select name={f.linkType(slot.id)} class="slot-banner-link-type ui-select-compact w-full">
+		<select form={formId} name={f.linkType(slot.id)} class="slot-banner-link-type ui-select-compact w-full">
 			<option value="category" selected={linkType === 'category'}>{bannerLinkTypes.category}</option>
 			<option value="page" selected={linkType === 'page'}>{bannerLinkTypes.page}</option>
 			<option value="external" selected={linkType === 'external'}>{bannerLinkTypes.external}</option>
@@ -63,7 +64,7 @@ const { fields, bannerLinkTypes, bannerStyles, bannerImageVariants } = adminLayo
 	</label>
 	<label class={`ui-label-inline slot-banner-field-category${linkType !== 'category' ? ' hidden' : ''}`}>
 		<span class="font-medium">{fields.bannerCategory}</span>
-		<select name={f.categorySlug(slot.id)} class="ui-select-compact w-full">
+		<select form={formId} name={f.categorySlug(slot.id)} class="ui-select-compact w-full">
 			<option value="">—</option>
 			{categories.map((cat) => (
 				<option value={cat.slug} selected={w.categorySlug === cat.slug}>
@@ -74,7 +75,7 @@ const { fields, bannerLinkTypes, bannerStyles, bannerImageVariants } = adminLayo
 	</label>
 	<label class={`ui-label-inline slot-banner-field-page${linkType !== 'page' ? ' hidden' : ''}`}>
 		<span class="font-medium">{fields.bannerPage}</span>
-		<select name={f.pagePath(slot.id)} class="ui-select-compact w-full">
+		<select form={formId} name={f.pagePath(slot.id)} class="ui-select-compact w-full">
 			<option value="">—</option>
 			{
 				publishedPages.length === 0 ? (

@@ -2,6 +2,7 @@
 interface Props {
 	id?: string;
 	name?: string;
+	form?: string;
 	type?: string;
 	value?: string;
 	placeholder?: string;
@@ -20,6 +21,7 @@ interface Props {
 const {
 	id,
 	name,
+	form,
 	type = 'text',
 	value,
 	placeholder,
@@ -39,6 +41,7 @@ const {
 <input
 	{id}
 	{name}
+	{form}
 	{type}
 	{value}
 	{placeholder}

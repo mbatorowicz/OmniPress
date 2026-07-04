@@ -1,4 +1,5 @@
 /** Nazwy pól formularza — SSOT: slot-form-fields.ts + components.ts */
+import { slotFormAttr } from '@/lib/admin/layout-form-ids';
 import { slotFormFields as slotFieldNames } from '@/lib/astro-layout/slot-form-fields';
 import {
 	getComponentsAddableInZone,
@@ -84,6 +85,11 @@ export interface SectionBuildConfig {
 	homeFeedPinnedHint: string;
 	homeFeedTileHeightHint: string;
 	homeFeedCategoryCheckboxesHtml: string;
+	formId?: string;
+}
+
+function fa(config: SectionBuildConfig): string {
+	return slotFormAttr(config.formId);
 }
 
 function panelOpenHtml(id: string, component: string): string {
@@ -131,15 +137,15 @@ export function buildHomeFeedDetailHtml(
 	return `
 		${panelOpenHtml(id, component)}
 			${slotPanelHeaderHtml(id, label, component, config)}
-			<label class="ui-label-inline"><span class="font-medium">${l.widgetTitle}</span><input name="${f.title(id)}" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.widgetSectionTitle}</span><input name="${f.sectionTitle(id)}" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.widgetLimit}</span><input name="${f.limit(id)}" type="number" min="1" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.widgetEmptyText}</span><input name="${f.emptyText(id)}" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline flex items-center gap-2"><input type="checkbox" name="${slotFieldNames.hideWhenEmpty(id)}" /><span class="font-medium">${l.widgetHideWhenEmpty}</span></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.widgetMoreLink}</span><input name="${f.moreLink(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.widgetTileHeight}</span><input name="${f.tileHeight(id)}" type="number" min="200" max="600" step="1" placeholder="auto" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetTitle}</span><input${fa(config)} name="${f.title(id)}" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetSectionTitle}</span><input${fa(config)} name="${f.sectionTitle(id)}" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetLimit}</span><input${fa(config)} name="${f.limit(id)}" type="number" min="1" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetEmptyText}</span><input${fa(config)} name="${f.emptyText(id)}" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline flex items-center gap-2"><input type="checkbox"${fa(config)} name="${slotFieldNames.hideWhenEmpty(id)}" /><span class="font-medium">${l.widgetHideWhenEmpty}</span></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetMoreLink}</span><input${fa(config)} name="${f.moreLink(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetTileHeight}</span><input${fa(config)} name="${f.tileHeight(id)}" type="number" min="200" max="600" step="1" placeholder="auto" class="ui-input-compact w-full" /></label>
 			<p class="ui-hint sm:col-span-2">${config.homeFeedTileHeightHint}</p>
-			<label class="ui-label-inline"><span class="font-medium">${l.widgetVariant}</span><select name="${f.variant(id)}" class="ui-select-compact w-full"><option value="default">${config.variantDefault}</option><option value="alert">${config.variantAlert}</option></select></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetVariant}</span><select${fa(config)} name="${f.variant(id)}" class="ui-select-compact w-full"><option value="default">${config.variantDefault}</option><option value="alert">${config.variantAlert}</option></select></label>
 			${buildHomeFeedCategoriesHtml(id, component, config)}
 		${panelCloseHtml()}`;
 }
@@ -155,11 +161,11 @@ export function buildLocalFeedDetailHtml(
 	return `
 		${panelOpenHtml(id, component)}
 			${slotPanelHeaderHtml(id, label, component, config)}
-			<label class="ui-label-inline"><span class="font-medium">${l.widgetTitle}</span><input name="${f.title(id)}" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.widgetLimit}</span><input name="${f.limit(id)}" type="number" min="1" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.widgetEmptyText}</span><input name="${f.emptyText(id)}" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline flex items-center gap-2"><input type="checkbox" name="${slotFieldNames.hideWhenEmpty(id)}" /><span class="font-medium">${l.widgetHideWhenEmpty}</span></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.widgetVariant}</span><select name="${f.variant(id)}" class="ui-select-compact w-full"><option value="default">${config.variantDefault}</option><option value="alert">${config.variantAlert}</option></select></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetTitle}</span><input${fa(config)} name="${f.title(id)}" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetLimit}</span><input${fa(config)} name="${f.limit(id)}" type="number" min="1" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetEmptyText}</span><input${fa(config)} name="${f.emptyText(id)}" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline flex items-center gap-2"><input type="checkbox"${fa(config)} name="${slotFieldNames.hideWhenEmpty(id)}" /><span class="font-medium">${l.widgetHideWhenEmpty}</span></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetVariant}</span><select${fa(config)} name="${f.variant(id)}" class="ui-select-compact w-full"><option value="default">${config.variantDefault}</option><option value="alert">${config.variantAlert}</option></select></label>
 		${panelCloseHtml()}`;
 }
 
@@ -174,12 +180,12 @@ export function buildCertDetailHtml(
 	return `
 		${panelOpenHtml(id, component)}
 			${slotPanelHeaderHtml(id, label, component, config)}
-			<label class="ui-label-inline"><span class="font-medium">${l.widgetTitle}</span><input name="${f.title(id)}" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.widgetLimit}</span><input name="${f.limit(id)}" type="number" min="1" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.widgetEmptyText}</span><input name="${f.emptyText(id)}" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline flex items-center gap-2"><input type="checkbox" name="${slotFieldNames.hideWhenEmpty(id)}" /><span class="font-medium">${l.widgetHideWhenEmpty}</span></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.widgetVariant}</span><select name="${f.variant(id)}" class="ui-select-compact w-full"><option value="default">${config.variantDefault}</option><option value="alert">${config.variantAlert}</option></select></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.certAdvisoriesCategory}</span><select name="${f.categoryFilter(id)}" class="ui-select-compact w-full">${config.certOptionsHtml}</select></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetTitle}</span><input${fa(config)} name="${f.title(id)}" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetLimit}</span><input${fa(config)} name="${f.limit(id)}" type="number" min="1" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetEmptyText}</span><input${fa(config)} name="${f.emptyText(id)}" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline flex items-center gap-2"><input type="checkbox"${fa(config)} name="${slotFieldNames.hideWhenEmpty(id)}" /><span class="font-medium">${l.widgetHideWhenEmpty}</span></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetVariant}</span><select${fa(config)} name="${f.variant(id)}" class="ui-select-compact w-full"><option value="default">${config.variantDefault}</option><option value="alert">${config.variantAlert}</option></select></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.certAdvisoriesCategory}</span><select${fa(config)} name="${f.categoryFilter(id)}" class="ui-select-compact w-full">${config.certOptionsHtml}</select></label>
 		${panelCloseHtml()}`;
 }
 
@@ -194,15 +200,15 @@ export function buildBannerDetailHtml(
 	return `
 		${panelOpenHtml(id, component)}
 			${slotPanelHeaderHtml(id, label, component, config)}
-			<label class="ui-label-inline"><span class="font-medium">${l.bannerStyle}</span><select name="${f.style(id)}" class="slot-banner-style ui-select-compact w-full"><option value="image">${config.styleImage}</option><option value="text">${config.styleText}</option></select></label>
-			<label class="ui-label-inline slot-banner-field-image"><span class="font-medium">${l.bannerImageUrl}</span><input name="${f.imageUrl(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
-			<label class="ui-label-inline slot-banner-field-image"><span class="font-medium">${l.bannerImageVariant}</span><select name="${f.imageVariant(id)}" class="ui-select-compact w-full"><option value="default">${config.variantBannerDefault}</option><option value="blue">${config.variantBannerBlue}</option></select></label>
-			<label class="ui-label-inline slot-banner-field-text hidden"><span class="font-medium">${l.bannerTextTitle}</span><input name="${f.textTitle(id)}" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline slot-banner-field-text hidden"><span class="font-medium">${l.bannerTextButton}</span><input name="${f.textButton(id)}" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.bannerLinkType}</span><select name="${f.linkType(id)}" class="slot-banner-link-type ui-select-compact w-full"><option value="category">${config.linkCategory}</option><option value="page">${config.linkPage}</option><option value="external">${config.linkExternal}</option></select></label>
-			<label class="ui-label-inline slot-banner-field-category"><span class="font-medium">${l.bannerCategory}</span><select name="${f.categorySlug(id)}" class="ui-select-compact w-full">${config.categoryOptionsHtml}</select></label>
-			<label class="ui-label-inline slot-banner-field-page hidden"><span class="font-medium">${l.bannerPage}</span><select name="${f.pagePath(id)}" class="ui-select-compact w-full">${config.pageOptionsHtml}</select></label>
-			<label class="ui-label-inline slot-banner-field-external hidden"><span class="font-medium">${l.bannerExternalUrl}</span><input name="${f.externalUrl(id)}" class="ui-input-compact ui-input-compact--mono w-full" placeholder="https://" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.bannerStyle}</span><select${fa(config)} name="${f.style(id)}" class="slot-banner-style ui-select-compact w-full"><option value="image">${config.styleImage}</option><option value="text">${config.styleText}</option></select></label>
+			<label class="ui-label-inline slot-banner-field-image"><span class="font-medium">${l.bannerImageUrl}</span><input${fa(config)} name="${f.imageUrl(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
+			<label class="ui-label-inline slot-banner-field-image"><span class="font-medium">${l.bannerImageVariant}</span><select${fa(config)} name="${f.imageVariant(id)}" class="ui-select-compact w-full"><option value="default">${config.variantBannerDefault}</option><option value="blue">${config.variantBannerBlue}</option></select></label>
+			<label class="ui-label-inline slot-banner-field-text hidden"><span class="font-medium">${l.bannerTextTitle}</span><input${fa(config)} name="${f.textTitle(id)}" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline slot-banner-field-text hidden"><span class="font-medium">${l.bannerTextButton}</span><input${fa(config)} name="${f.textButton(id)}" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.bannerLinkType}</span><select${fa(config)} name="${f.linkType(id)}" class="slot-banner-link-type ui-select-compact w-full"><option value="category">${config.linkCategory}</option><option value="page">${config.linkPage}</option><option value="external">${config.linkExternal}</option></select></label>
+			<label class="ui-label-inline slot-banner-field-category"><span class="font-medium">${l.bannerCategory}</span><select${fa(config)} name="${f.categorySlug(id)}" class="ui-select-compact w-full">${config.categoryOptionsHtml}</select></label>
+			<label class="ui-label-inline slot-banner-field-page hidden"><span class="font-medium">${l.bannerPage}</span><select${fa(config)} name="${f.pagePath(id)}" class="ui-select-compact w-full">${config.pageOptionsHtml}</select></label>
+			<label class="ui-label-inline slot-banner-field-external hidden"><span class="font-medium">${l.bannerExternalUrl}</span><input${fa(config)} name="${f.externalUrl(id)}" class="ui-input-compact ui-input-compact--mono w-full" placeholder="https://" /></label>
 		${panelCloseHtml()}`;
 }
 
@@ -217,19 +223,19 @@ export function buildWeatherDetailHtml(
 	return `
 		${panelOpenHtml(id, component)}
 			${slotPanelHeaderHtml(id, label, component, config)}
-			<label class="ui-label-inline"><span class="font-medium">${l.widgetTitle}</span><input name="${f.title(id)}" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.widgetEmptyText}</span><input name="${f.emptyText(id)}" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline flex items-center gap-2 sm:col-span-2"><input type="checkbox" name="${slotFieldNames.hideWhenEmpty(id)}" /><span class="font-medium">${l.widgetHideWhenEmpty}</span></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.weatherTerytPowiat}</span><input name="${f.terytPowiat(id)}" class="ui-input-compact font-mono w-full" /></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.weatherMapZoom}</span><input name="${f.mapZoom(id)}" type="number" min="1" max="18" value="11" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.weatherLat}</span><input name="${f.lat(id)}" type="number" step="any" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.weatherLon}</span><input name="${f.lon(id)}" type="number" step="any" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.weatherMapScope}</span><input name="${f.mapScope(id)}" class="ui-input-compact font-mono w-full" /></label>
-			<label class="ui-label-inline flex items-center gap-2 sm:col-span-2"><input type="checkbox" name="${f.showMap(id)}" checked /><span>${l.weatherShowMap}</span></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.weatherDetailsDisplay}</span><select name="${f.detailsDisplay(id)}" class="ui-select-compact w-full"><option value="modal">${config.weatherDetailsDisplayModal}</option><option value="inline">${config.weatherDetailsDisplayInline}</option></select></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.weatherDetailsLayout}</span><select name="${f.detailsLayout(id)}" class="ui-select-compact w-full"><option value="stacked">${config.weatherDetailsLayoutStacked}</option><option value="grid">${config.weatherDetailsLayoutGrid}</option></select></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.weatherDetailsSummary}</span><input name="${f.detailsSummary(id)}" class="ui-input-compact w-full" /></label>
-			<label class="ui-label-inline"><span class="font-medium">${l.weatherDetailsCloseLabel}</span><input name="${f.detailsCloseLabel(id)}" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetTitle}</span><input${fa(config)} name="${f.title(id)}" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetEmptyText}</span><input${fa(config)} name="${f.emptyText(id)}" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline flex items-center gap-2 sm:col-span-2"><input type="checkbox"${fa(config)} name="${slotFieldNames.hideWhenEmpty(id)}" /><span class="font-medium">${l.widgetHideWhenEmpty}</span></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.weatherTerytPowiat}</span><input${fa(config)} name="${f.terytPowiat(id)}" class="ui-input-compact font-mono w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.weatherMapZoom}</span><input${fa(config)} name="${f.mapZoom(id)}" type="number" min="1" max="18" value="11" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.weatherLat}</span><input${fa(config)} name="${f.lat(id)}" type="number" step="any" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.weatherLon}</span><input${fa(config)} name="${f.lon(id)}" type="number" step="any" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.weatherMapScope}</span><input${fa(config)} name="${f.mapScope(id)}" class="ui-input-compact font-mono w-full" /></label>
+			<label class="ui-label-inline flex items-center gap-2 sm:col-span-2"><input type="checkbox"${fa(config)} name="${f.showMap(id)}" checked /><span>${l.weatherShowMap}</span></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.weatherDetailsDisplay}</span><select${fa(config)} name="${f.detailsDisplay(id)}" class="ui-select-compact w-full"><option value="modal">${config.weatherDetailsDisplayModal}</option><option value="inline">${config.weatherDetailsDisplayInline}</option></select></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.weatherDetailsLayout}</span><select${fa(config)} name="${f.detailsLayout(id)}" class="ui-select-compact w-full"><option value="stacked">${config.weatherDetailsLayoutStacked}</option><option value="grid">${config.weatherDetailsLayoutGrid}</option></select></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.weatherDetailsSummary}</span><input${fa(config)} name="${f.detailsSummary(id)}" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.weatherDetailsCloseLabel}</span><input${fa(config)} name="${f.detailsCloseLabel(id)}" class="ui-input-compact w-full" /></label>
 		${panelCloseHtml()}`;
 }
 
@@ -257,8 +263,8 @@ export function buildChromeDetailHtml(
 		return `
 			${panelOpenHtml(id, component)}
 				${slotPanelHeaderHtml(id, label, component, config)}
-				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.topbarText}</span><input name="${f.text(id)}" class="ui-input-compact w-full" /></label>
-				<label class="ui-label-inline sm:col-span-2 flex items-center gap-2"><input type="checkbox" name="${f.accessibilityTools(id)}" class="ui-checkbox" checked /><span class="font-medium">${l.topbarAccessibilityTools}</span></label>
+				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.topbarText}</span><input${fa(config)} name="${f.text(id)}" class="ui-input-compact w-full" /></label>
+				<label class="ui-label-inline sm:col-span-2 flex items-center gap-2"><input type="checkbox"${fa(config)} name="${f.accessibilityTools(id)}" class="ui-checkbox" checked /><span class="font-medium">${l.topbarAccessibilityTools}</span></label>
 			${panelCloseHtml()}`;
 	}
 	if (component === 'site.meta') {
@@ -266,9 +272,9 @@ export function buildChromeDetailHtml(
 		return `
 			${panelOpenHtml(id, component)}
 				${slotPanelHeaderHtml(id, label, component, config)}
-				<label class="ui-label-inline"><span class="font-medium">${l.siteMetaName}</span><input name="${f.name(id)}" class="ui-input-compact w-full" /></label>
-				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.siteMetaDescription}</span><input name="${f.description(id)}" class="ui-input-compact w-full" /></label>
-				<label class="ui-label-inline"><span class="font-medium">${l.siteMetaUrl}</span><input name="${f.url(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
+				<label class="ui-label-inline"><span class="font-medium">${l.siteMetaName}</span><input${fa(config)} name="${f.name(id)}" class="ui-input-compact w-full" /></label>
+				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.siteMetaDescription}</span><input${fa(config)} name="${f.description(id)}" class="ui-input-compact w-full" /></label>
+				<label class="ui-label-inline"><span class="font-medium">${l.siteMetaUrl}</span><input${fa(config)} name="${f.url(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
 			${panelCloseHtml()}`;
 	}
 	if (component === 'header.brand') {
@@ -276,9 +282,9 @@ export function buildChromeDetailHtml(
 		return `
 			${panelOpenHtml(id, component)}
 				${slotPanelHeaderHtml(id, label, component, config)}
-				<label class="ui-label-inline"><span class="font-medium">${l.headerBrandLogoUrl}</span><input name="${f.logoUrl(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
-				<label class="ui-label-inline"><span class="font-medium">${l.headerBrandLogoAlt}</span><input name="${f.logoAlt(id)}" class="ui-input-compact w-full" /></label>
-				<label class="ui-label-inline"><span class="font-medium">${l.headerBrandHomeHref}</span><input name="${f.homeHref(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
+				<label class="ui-label-inline"><span class="font-medium">${l.headerBrandLogoUrl}</span><input${fa(config)} name="${f.logoUrl(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
+				<label class="ui-label-inline"><span class="font-medium">${l.headerBrandLogoAlt}</span><input${fa(config)} name="${f.logoAlt(id)}" class="ui-input-compact w-full" /></label>
+				<label class="ui-label-inline"><span class="font-medium">${l.headerBrandHomeHref}</span><input${fa(config)} name="${f.homeHref(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
 			${panelCloseHtml()}`;
 	}
 	if (component === 'footer.main') {
@@ -286,9 +292,9 @@ export function buildChromeDetailHtml(
 		return `
 			${panelOpenHtml(id, component)}
 				${slotPanelHeaderHtml(id, label, component, config)}
-				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.footerContactCtaLabel}</span><input name="${f.contactCtaLabel(id)}" class="ui-input-compact w-full" /></label>
-				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.footerContactCtaHref}</span><input name="${f.contactCtaHref(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
-				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.footerCopyrightSuffix}</span><input name="${f.copyrightSuffix(id)}" class="ui-input-compact w-full" /></label>
+				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.footerContactCtaLabel}</span><input${fa(config)} name="${f.contactCtaLabel(id)}" class="ui-input-compact w-full" /></label>
+				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.footerContactCtaHref}</span><input${fa(config)} name="${f.contactCtaHref(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
+				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.footerCopyrightSuffix}</span><input${fa(config)} name="${f.copyrightSuffix(id)}" class="ui-input-compact w-full" /></label>
 			${panelCloseHtml()}`;
 	}
 	return panelOpenHtml(id, component) + panelCloseHtml();
@@ -419,7 +425,7 @@ export function buildSlotCardHtml(
 				</div>
 				<div class="layout-slot-card__actions">
 					<label class="layout-slot-card__enabled flex items-center gap-1.5 text-sm">
-						<input type="checkbox" name="slot_enabled_${id}" ${enabled ? 'checked' : ''} class="slot-card-enabled" />
+						<input type="checkbox"${fa(config)} name="slot_enabled_${id}" ${enabled ? 'checked' : ''} class="slot-card-enabled" />
 						<span>Wł.</span>
 					</label>
 					<button type="button" class="slot-settings-open ui-btn ui-btn--secondary ui-btn--compact" data-dialog-id="slot-dialog-${id}" onclick="var d=document.getElementById(this.dataset.dialogId);if(d&&typeof d.showModal==='function'){try{d.showModal()}catch(e){console.error('[OmniPress] showModal:',e)}}">${config.settingsLabel}</button>

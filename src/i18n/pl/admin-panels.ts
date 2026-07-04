@@ -527,6 +527,10 @@ export const adminLayout = {
 		navigation_hrefs_lost:
 			'Zapis odrzucony — formularz nie zawiera linków menu. Użyj „Pobierz ze strony” zamiast „Zapisz szkic”.',
 		sync_failed: 'Publikacja do GitHub nie powiodła się — szkic zapisany w OmniPress.',
+		invalid_layout:
+			'Plik layoutu na GitHub jest nieprawidłowy lub uszkodzony — sprawdź omnipress-layout.json w repozytorium.',
+		layout_context_failed:
+			'Nie udało się wczytać edytora layoutu — odśwież stronę lub użyj „Pobierz ze strony”.',
 	},
 } as const;
 

@@ -3,13 +3,14 @@ import { adminLayout } from '@/i18n';
 import type { CategoryDefinition } from '@/lib/astro-layout/types';
 
 interface Props {
+	formId: string;
 	slotId: string;
 	component: string;
 	categories: CategoryDefinition[];
 	selectedSlugs: string[];
 }
 
-const { slotId, component, categories, selectedSlugs } = Astro.props;
+const { formId, slotId, component, categories, selectedSlugs } = Astro.props;
 ---
 
 <fieldset class="home-feed-categories-field sm:col-span-2">
@@ -26,6 +27,7 @@ const { slotId, component, categories, selectedSlugs } = Astro.props;
 				<label class="flex items-start gap-2 text-sm">
 					<input
 						type="checkbox"
+						form={formId}
 						name={`display_${slotId}_${cat.slug}`}
 						checked={selectedSlugs.includes(cat.slug)}
 						class="mt-0.5"

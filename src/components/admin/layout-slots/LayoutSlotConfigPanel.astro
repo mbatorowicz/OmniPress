@@ -10,27 +10,28 @@ import LayoutSlotLocalFeedPanel from './LayoutSlotLocalFeedPanel.astro';
 type PageOption = { path: string; title: string };
 
 interface Props {
+	formId: string;
 	slot: DisplaySlot;
 	categories: CategoryDefinition[];
 	categoryDisplays: SiteAstroLayout['categoryDisplays'];
 	publishedPages: PageOption[];
 }
 
-const { slot, categories, categoryDisplays, publishedPages } = Astro.props;
+const { formId, slot, categories, categoryDisplays, publishedPages } = Astro.props;
 const kind = getComponentKind(slot.component);
 const selectedSlugs = categoryDisplays[slot.id] ?? [];
 ---
 
 {
 	kind === 'home_feed' ? (
-		<LayoutSlotHomeFeedPanel slot={slot} categories={categories} selectedSlugs={selectedSlugs} />
+		<LayoutSlotHomeFeedPanel formId={formId} slot={slot} categories={categories} selectedSlugs={selectedSlugs} />
 	) : kind === 'local_feed' ? (
-		<LayoutSlotLocalFeedPanel slot={slot} />
+		<LayoutSlotLocalFeedPanel formId={formId} slot={slot} />
 	) : kind === 'live_feed' ? (
-		<LayoutSlotLiveFeedPanel slot={slot} />
+		<LayoutSlotLiveFeedPanel formId={formId} slot={slot} />
 	) : kind === 'banner' ? (
-		<LayoutSlotBannerPanel slot={slot} categories={categories} publishedPages={publishedPages} />
+		<LayoutSlotBannerPanel formId={formId} slot={slot} categories={categories} publishedPages={publishedPages} />
 	) : kind === 'chrome' ? (
-		<LayoutSlotChromePanel slot={slot} />
+		<LayoutSlotChromePanel formId={formId} slot={slot} />
 	) : null
 }

@@ -232,6 +232,19 @@ function parseWeatherWidget(form: FormData, id: string, widget: SlotWidgetConfig
 	if (detailsCloseLabel) widget.detailsCloseLabel = detailsCloseLabel;
 }
 
+function mergeSlotWidget(prior: DisplaySlot | undefined, widget: SlotWidgetConfig): SlotWidgetConfig | undefined {
+	const merged = { ...prior?.widget, ...widget };
+	return Object.keys(merged).length > 0 ? merged : undefined;
+}
+
+function formHasDisplayFields(form: FormData, slotId: string): boolean {
+	const prefix = `display_${slotId}_`;
+	for (const key of form.keys()) {
+		if (String(key).startsWith(prefix)) return true;
+	}
+	return false;
+}
+
 function parseSlotsFromIdentities(
 	form: FormData,
 	identities: SlotIdentity[],
@@ -248,6 +261,7 @@ function parseSlotsFromIdentities(
 			seenSingletons.add(component);
 		}
 
+		const prior = existing.find((s) => s.id === id);
 		const widget = parseBaseWidget(form, id, order ?? (i + 1) * 10);
 		const kind = getComponentKind(component);
 
@@ -257,16 +271,19 @@ function parseSlotsFromIdentities(
 		if (kind === 'chrome') parseChromeWidget(form, id, component, widget);
 		if (kind === 'banner') {
 			parseBannerWidget(form, id, widget);
-			if (!validateBannerWidget(widget, label)) continue;
+			if (!validateBannerWidget(widget, label)) {
+				if (prior) {
+					slots.push({ ...prior, label });
+				}
+				continue;
+			}
 		}
-
-		const prior = existing.find((s) => s.id === id);
 
 		slots.push({
 			id,
 			label,
 			component,
-			widget: Object.keys(widget).length > 0 ? widget : undefined,
+			widget: mergeSlotWidget(prior, widget),
 			entries: component === 'sidebar.recent_changes' ? prior?.entries : undefined,
 		});
 	}
@@ -468,6 +485,7 @@ function parseCategoryDisplaysFromForm(
 	const base = mergeCategoryDisplays(slots, existing);
 	for (const slot of slots) {
 		if (!isCategoryFeedComponent(slot.component)) continue;
+		if (!formHasDisplayFields(form, slot.id)) continue;
 		base[slot.id] = categories
 			.filter((c) => form.get(`display_${slot.id}_${c.slug}`) === 'on')
 			.map((c) => c.slug);

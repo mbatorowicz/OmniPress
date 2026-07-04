@@ -6,13 +6,14 @@ import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from '@/lib/ast
 type PageOption = { path: string; title: string };
 
 interface Props {
+	formId: string;
 	slot: DisplaySlot;
 	categories: CategoryDefinition[];
 	categoryDisplays: SiteAstroLayout['categoryDisplays'];
 	publishedPages: PageOption[];
 }
 
-const { slot, categories, categoryDisplays, publishedPages } = Astro.props;
+const { formId, slot, categories, categoryDisplays, publishedPages } = Astro.props;
 const componentLabel =
 	adminLayout.componentLabels[slot.component as keyof typeof adminLayout.componentLabels] ??
 	slot.component;
@@ -29,6 +30,7 @@ const dialogTitle = `${adminLayout.slotDialogTitle ?? 'Ustawienia elementu'} —
 		</header>
 		<div class="slot-settings-dialog__body">
 			<LayoutSlotConfigPanel
+				formId={formId}
 				slot={slot}
 				categories={categories}
 				categoryDisplays={categoryDisplays}

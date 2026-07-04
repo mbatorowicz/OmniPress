@@ -6,6 +6,7 @@ import ComponentRegistryClientScript from '@/components/admin/layout/ComponentRe
 import LayoutSlotsTemplates from '@/components/admin/layout-slots/LayoutSlotsTemplates.astro';
 import SlotSettingsDialogHost from '@/components/admin/layout-slots/SlotSettingsDialogHost.astro';
 import SlotSettingsDialogInlineScript from '@/components/admin/layout-slots/SlotSettingsDialogInlineScript.astro';
+import { UNIT_COMPONENTS_FORM_ID } from '@/lib/admin/layout-form-ids';
 import {
 	COMPONENT_REGISTRY_GROUPS,
 	flattenUnitComponentSlots,
@@ -27,7 +28,12 @@ const availableSpecial = getAvailableSpecialComponents(entries);
 const dialogSlots = entries.map((entry) => entry.slot);
 ---
 
-<form method="post" action={`/api/admin/sites/${siteId}/layout/save`} class="ui-form-stack max-w-5xl">
+<form
+	id={UNIT_COMPONENTS_FORM_ID}
+	method="post"
+	action={`/api/admin/sites/${siteId}/layout/save`}
+	class="ui-form-stack max-w-5xl"
+>
 	<input type="hidden" name="section" value="components" />
 	<input type="hidden" name="return_tab" value="home" />
 	<input type="hidden" name="return_context" value="unit-components" />
@@ -52,6 +58,7 @@ const dialogSlots = entries.map((entry) => entry.slot);
 </form>
 
 <SlotSettingsDialogHost
+	formId={UNIT_COMPONENTS_FORM_ID}
 	slots={dialogSlots}
 	categories={ctx.layout.categories}
 	categoryDisplays={ctx.layout.categoryDisplays}

@@ -6,13 +6,14 @@ import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from '@/lib/ast
 type PageOption = { path: string; title: string };
 
 interface Props {
+	formId: string;
 	slots: DisplaySlot[];
 	categories: CategoryDefinition[];
 	categoryDisplays: SiteAstroLayout['categoryDisplays'];
 	publishedPages: PageOption[];
 }
 
-const { slots, categories, categoryDisplays, publishedPages } = Astro.props;
+const { formId, slots, categories, categoryDisplays, publishedPages } = Astro.props;
 const withSettings = slots.filter((slot) => slotHasSettingsPanel(slot.component));
 ---
 
@@ -20,6 +21,7 @@ const withSettings = slots.filter((slot) => slotHasSettingsPanel(slot.component)
 	{
 		withSettings.map((slot) => (
 			<LayoutSlotSettingsDialog
+				{formId}
 				{slot}
 				{categories}
 				{categoryDisplays}

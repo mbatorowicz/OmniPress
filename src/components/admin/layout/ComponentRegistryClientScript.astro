@@ -3,6 +3,7 @@ import { buildLayoutSlotsClientScriptVars } from '@/lib/admin/layout-slots-clien
 import { adminLayout } from '@/i18n';
 import { layoutZoneTitles } from '@/lib/admin/layout-editor-i18n';
 import { buildZoneComponentOptionsHtml } from '@/lib/admin/layout-slots-sections';
+import { UNIT_COMPONENTS_FORM_ID } from '@/lib/admin/layout-form-ids';
 
 const componentOptionsHtml = buildZoneComponentOptionsHtml('home', adminLayout.componentLabels);
 const scriptVars = buildLayoutSlotsClientScriptVars(componentOptionsHtml);
@@ -11,6 +12,7 @@ const zoneTitles = layoutZoneTitles();
 
 <script define:vars={{
 	...scriptVars,
+	componentsFormId: UNIT_COMPONENTS_FORM_ID,
 	zoneLabels: {
 		home: zoneTitles.home,
 		sidebar: zoneTitles.sidebar,
@@ -30,6 +32,7 @@ const zoneTitles = layoutZoneTitles();
 	initLayoutSlotDialogs();
 
 	initComponentRegistryEditor({
+		formId: componentsFormId,
 		removeSlotLabel,
 		variantDefault,
 		variantAlert,

@@ -17,7 +17,7 @@ const { categories, publishedPages } = Astro.props;
 	{
 		categories.map((cat) => (
 			<label class="flex items-start gap-2 text-sm">
-				<input type="checkbox" name={`display___SLOTID___${cat.slug}`} class="mt-0.5" />
+				<input type="checkbox" form="__FORMID__" name={`display___SLOTID___${cat.slug}`} class="mt-0.5" />
 				<span>
 					{cat.name}
 					<span class="ui-caption font-mono ml-1">{cat.slug}</span>

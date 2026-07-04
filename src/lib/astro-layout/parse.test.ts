@@ -341,4 +341,32 @@ describe('mergeLayoutFromFormData', () => {
 		if (!result.ok) return;
 		expect(result.layout.categoryDisplays.home_latest).toEqual(['aktualnosci']);
 	});
+
+	it('zachowuje widget i categoryDisplays gdy POST nie zawiera pól z dialogu', () => {
+		const withWidget: SiteAstroLayout = {
+			...existing,
+			slots: [
+				{
+					id: 'home_latest',
+					label: 'Aktualności',
+					component: 'home.latest',
+					widget: { title: 'Aktualności', limit: 10, order: 2 },
+				},
+			],
+		};
+		const form = new FormData();
+		form.append('slot_id', 'home_latest');
+		form.append('slot_label', 'Aktualności');
+		form.append('slot_component', 'home.latest');
+		form.set('slot_enabled_home_latest', 'on');
+		form.set('slot_widget_order', '2');
+
+		const result = mergeLayoutFromFormData(form, withWidget, 'components');
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		const slot = result.layout.slots.find((s) => s.id === 'home_latest');
+		expect(slot?.widget?.title).toBe('Aktualności');
+		expect(slot?.widget?.limit).toBe(10);
+		expect(result.layout.categoryDisplays.home_latest).toEqual(['aktualnosci']);
+	});
 });

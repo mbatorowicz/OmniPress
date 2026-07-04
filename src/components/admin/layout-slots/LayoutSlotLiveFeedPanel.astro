@@ -9,10 +9,11 @@ import type { DisplaySlot } from '@/lib/astro-layout/types';
 import LayoutSlotPanelHeader from './LayoutSlotPanelHeader.astro';
 
 interface Props {
+	formId: string;
 	slot: DisplaySlot;
 }
 
-const { slot } = Astro.props;
+const { formId, slot } = Astro.props;
 const w = slot.widget ?? {};
 const { fields, variants } = adminLayout;
 const isCert = slot.component === 'sidebar.cert_advisories';
@@ -35,7 +36,7 @@ const isWeather = slot.component === 'sidebar.weather';
 			<>
 				<label class="ui-label-inline">
 					<span class="font-medium">{fields.widgetTitle}</span>
-					<input name={slotFormFields.cert.title(slot.id)} value={w.title ?? ''} class="ui-input-compact w-full" />
+					<input form={formId} name={slotFormFields.cert.title(slot.id)} value={w.title ?? ''} class="ui-input-compact w-full" />
 				</label>
 				<label class="ui-label-inline">
 					<span class="font-medium">{fields.widgetLimit}</span>
@@ -56,19 +57,19 @@ const isWeather = slot.component === 'sidebar.weather';
 					/>
 				</label>
 				<label class="ui-label-inline flex items-center gap-2">
-					<input type="checkbox" name={slotFormFields.hideWhenEmpty(slot.id)} checked={w.hideWhenEmpty === true} />
+					<input form={formId} type="checkbox" name={slotFormFields.hideWhenEmpty(slot.id)} checked={w.hideWhenEmpty === true} />
 					<span class="font-medium">{fields.widgetHideWhenEmpty}</span>
 				</label>
 				<label class="ui-label-inline">
 					<span class="font-medium">{fields.widgetVariant}</span>
-					<select name={slotFormFields.cert.variant(slot.id)} class="ui-select-compact w-full">
+					<select form={formId} name={slotFormFields.cert.variant(slot.id)} class="ui-select-compact w-full">
 						<option value="default" selected={w.variant !== 'alert'}>{variants.default}</option>
 						<option value="alert" selected={w.variant === 'alert'}>{variants.alert}</option>
 					</select>
 				</label>
 				<label class="ui-label-inline">
 					<span class="font-medium">{fields.certAdvisoriesCategory}</span>
-					<select name={slotFormFields.cert.categoryFilter(slot.id)} class="ui-select-compact w-full">
+					<select form={formId} name={slotFormFields.cert.categoryFilter(slot.id)} class="ui-select-compact w-full">
 						<option value="" selected={!w.categoryFilter}>{adminLayout.certCategories.all}</option>
 						{CERT_CATEGORIES.map((category) => (
 							<option value={category} selected={w.categoryFilter === category}>
@@ -82,19 +83,19 @@ const isWeather = slot.component === 'sidebar.weather';
 			<>
 				<Label>
 					<span class="font-medium">{fields.widgetTitle}</span>
-					<Input name={slotFormFields.weather.title(slot.id)} value={w.title ?? ''} />
+					<Input form={formId} name={slotFormFields.weather.title(slot.id)} value={w.title ?? ''} />
 				</Label>
 				<Label>
 					<span class="font-medium">{fields.widgetEmptyText}</span>
-					<Input name={slotFormFields.weather.emptyText(slot.id)} value={w.emptyText ?? ''} />
+					<Input form={formId} name={slotFormFields.weather.emptyText(slot.id)} value={w.emptyText ?? ''} />
 				</Label>
 				<label class="ui-label-inline flex items-center gap-2 sm:col-span-2">
-					<input type="checkbox" name={slotFormFields.hideWhenEmpty(slot.id)} checked={w.hideWhenEmpty === true} />
+					<input form={formId} type="checkbox" name={slotFormFields.hideWhenEmpty(slot.id)} checked={w.hideWhenEmpty === true} />
 					<span class="font-medium">{fields.widgetHideWhenEmpty}</span>
 				</label>
 				<Label>
 					<span class="font-medium">{fields.weatherTerytPowiat}</span>
-					<Input name={slotFormFields.weather.terytPowiat(slot.id)} value={w.terytPowiat ?? ''} class="font-mono" />
+					<Input form={formId} name={slotFormFields.weather.terytPowiat(slot.id)} value={w.terytPowiat ?? ''} class="font-mono" />
 				</Label>
 				<Label>
 					<span class="font-medium">{fields.weatherMapZoom}</span>
@@ -126,16 +127,16 @@ const isWeather = slot.component === 'sidebar.weather';
 				</Label>
 				<Label class="sm:col-span-2">
 					<span class="font-medium">{fields.weatherMapScope}</span>
-					<Input name={slotFormFields.weather.mapScope(slot.id)} value={w.mapScopePowiaty?.join(', ') ?? ''} class="font-mono" />
+					<Input form={formId} name={slotFormFields.weather.mapScope(slot.id)} value={w.mapScopePowiaty?.join(', ') ?? ''} class="font-mono" />
 					<p class="ui-hint mt-1">{adminLayout.weatherMapHint}</p>
 				</Label>
 				<label class="ui-label-inline flex items-center gap-2 sm:col-span-2">
-					<Checkbox name={slotFormFields.weather.showMap(slot.id)} checked={w.showMap !== false} />
+					<Checkbox form={formId} name={slotFormFields.weather.showMap(slot.id)} checked={w.showMap !== false} />
 					{fields.weatherShowMap}
 				</label>
 				<Label>
 					<span class="font-medium">{fields.weatherDetailsDisplay}</span>
-					<select name={slotFormFields.weather.detailsDisplay(slot.id)} class="ui-select-compact w-full">
+					<select form={formId} name={slotFormFields.weather.detailsDisplay(slot.id)} class="ui-select-compact w-full">
 						<option value="modal" selected={w.detailsDisplay !== 'inline'}>
 							{adminLayout.weatherDetailsDisplayOptions.modal}
 						</option>
@@ -146,7 +147,7 @@ const isWeather = slot.component === 'sidebar.weather';
 				</Label>
 				<Label>
 					<span class="font-medium">{fields.weatherDetailsLayout}</span>
-					<select name={slotFormFields.weather.detailsLayout(slot.id)} class="ui-select-compact w-full">
+					<select form={formId} name={slotFormFields.weather.detailsLayout(slot.id)} class="ui-select-compact w-full">
 						<option value="stacked" selected={w.detailsLayout !== 'grid'}>
 							{adminLayout.weatherDetailsLayoutOptions.stacked}
 						</option>
@@ -157,11 +158,11 @@ const isWeather = slot.component === 'sidebar.weather';
 				</Label>
 				<Label>
 					<span class="font-medium">{fields.weatherDetailsSummary}</span>
-					<Input name={slotFormFields.weather.detailsSummary(slot.id)} value={w.detailsSummary ?? ''} />
+					<Input form={formId} name={slotFormFields.weather.detailsSummary(slot.id)} value={w.detailsSummary ?? ''} />
 				</Label>
 				<Label>
 					<span class="font-medium">{fields.weatherDetailsCloseLabel}</span>
-					<Input name={slotFormFields.weather.detailsCloseLabel(slot.id)} value={w.detailsCloseLabel ?? ''} />
+					<Input form={formId} name={slotFormFields.weather.detailsCloseLabel(slot.id)} value={w.detailsCloseLabel ?? ''} />
 				</Label>
 				<p class="ui-hint sm:col-span-2">{adminLayout.weatherDetailsHint}</p>
 			</>

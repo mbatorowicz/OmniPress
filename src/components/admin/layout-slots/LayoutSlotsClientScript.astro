@@ -1,5 +1,6 @@
 ---
 import { buildLayoutSlotsClientScriptVars } from '@/lib/admin/layout-slots-client-vars';
+import { ZONE_COMPONENTS_FORM_ID } from '@/lib/admin/layout-form-ids';
 import type { LayoutZone } from '@/lib/astro-layout/components';
 
 interface Props {
@@ -13,7 +14,7 @@ const { componentOptionsHtml, zone, includePreview = false, advancedTable = fals
 const scriptVars = buildLayoutSlotsClientScriptVars(componentOptionsHtml);
 ---
 
-<script define:vars={{ ...scriptVars, includePreview, advancedTable, editorZone: zone ?? '' }}>
+<script define:vars={{ ...scriptVars, includePreview, advancedTable, editorZone: zone ?? '', zoneFormId: ZONE_COMPONENTS_FORM_ID }}>
 	import { initLayoutSlotsTable, initLayoutSlotCardSummaries, initLayoutZoneEditor } from '@/lib/admin/layout-slots-client';
 	import { initLayoutSlotsPreview } from '@/lib/admin/layout-slots-preview-client';
 
@@ -34,6 +35,7 @@ const scriptVars = buildLayoutSlotsClientScriptVars(componentOptionsHtml);
 	if (advancedTable) {
 		initLayoutSlotsTable(
 			{
+				formId: zoneFormId,
 				removeSlotLabel,
 				variantDefault,
 				variantAlert,
@@ -66,6 +68,7 @@ const scriptVars = buildLayoutSlotsClientScriptVars(componentOptionsHtml);
 		);
 	} else if (editorZone) {
 		initLayoutZoneEditor(editorZone, {
+			formId: zoneFormId,
 			removeSlotLabel,
 			variantDefault,
 			variantAlert,

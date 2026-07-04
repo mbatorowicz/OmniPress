@@ -44,7 +44,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	});
 	if (!synced.ok) {
 		const query = new URLSearchParams({ error: synced.error });
-		if (synced.detail) query.set('sync_detail', synced.detail.slice(0, 400));
+		if (synced.detail) query.set('sync_detail', synced.detail.slice(0, 120));
 		return redirect(`${returnUrl}?${query.toString()}`);
 	}
 
@@ -54,6 +54,6 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	} else {
 		query.set('published', '1');
 	}
-	if (synced.summary) query.set('sync_summary', synced.summary.slice(0, 400));
+	if (synced.summary) query.set('sync_summary', synced.summary.slice(0, 120));
 	return redirect(`${returnUrl}?${query.toString()}`);
 };

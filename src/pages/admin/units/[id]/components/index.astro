@@ -11,7 +11,12 @@ import { parseLayoutPageFlash } from '@/lib/admin/layout-page-flash';
 const { id } = Astro.params;
 if (!id || Astro.locals.profile?.role !== 'admin') return Astro.redirect('/admin');
 
-const ctx = await loadLayoutEditorContext(Astro.locals.supabase, id);
+let ctx;
+try {
+	ctx = await loadLayoutEditorContext(Astro.locals.supabase, id);
+} catch {
+	return Astro.redirect(`/admin/units/${id}/components?error=layout_context_failed`);
+}
 if (!ctx) return Astro.redirect('/admin/sites');
 
 const flash = parseLayoutPageFlash(Astro.url);
