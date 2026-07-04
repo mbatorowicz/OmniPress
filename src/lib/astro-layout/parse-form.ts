@@ -9,6 +9,7 @@ import {
 	type LayoutZone,
 } from './components';
 import { validateBannerWidget } from './banners';
+import { readHomeTileHeight } from './home-feed';
 import { slotFormFields } from './slot-form-fields';
 import { mergeCategoryDisplays, sortSlotsByOrder } from './slots';
 import { isExternalHref, normalizeInternalHref, countNavigationHrefs } from './validate-nav';
@@ -115,6 +116,8 @@ function parseHomeFeedWidget(form: FormData, id: string, widget: SlotWidgetConfi
 	if (sectionTitle) widget.sectionTitle = sectionTitle;
 	const moreLink = strField(form, slotFormFields.homeFeed.moreLink(id));
 	if (moreLink) widget.moreLink = moreLink;
+	const tileHeight = readHomeTileHeight(strField(form, slotFormFields.homeFeed.tileHeight(id)));
+	if (tileHeight !== undefined) widget.tileHeight = tileHeight;
 }
 
 function parseLocalFeedWidget(form: FormData, id: string, widget: SlotWidgetConfig): void {

@@ -45,6 +45,31 @@ describe('astro-layout parse', () => {
 		expect(parsed.slots[0]?.widget?.hideWhenEmpty).toBe(true);
 	});
 
+	it('parsuje tileHeight w slocie home feed', () => {
+		const text = JSON.stringify({
+			categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],
+			slots: [
+				{
+					id: 'home_pinned',
+					label: 'Przypięte',
+					component: 'home.pinned',
+					widget: { tileHeight: 320, sectionTitle: 'Przypięte' },
+				},
+				{
+					id: 'home_latest',
+					label: 'Aktualności',
+					component: 'home.latest',
+					widget: { tileHeight: 999, sectionTitle: 'Aktualności' },
+				},
+			],
+		});
+		const parsed = parseCategoriesFile(text);
+		const pinned = parsed.slots.find((s) => s.id === 'home_pinned');
+		const latest = parsed.slots.find((s) => s.id === 'home_latest');
+		expect(pinned?.widget?.tileHeight).toBe(320);
+		expect(latest?.widget?.tileHeight).toBeUndefined();
+	});
+
 	it('parsuje plik kategorii ze slotami', () => {
 		const text = JSON.stringify({
 			categories: [{ slug: 'pogoda', name: 'Pogoda' }],
@@ -231,6 +256,24 @@ describe('parseLayoutFromFormData', () => {
 		expect(weather?.widget?.detailsLayout).toBe('stacked');
 		expect(weather?.widget?.detailsSummary).toBe('Szczegóły');
 		expect(weather?.widget?.detailsCloseLabel).toBe('Zamknij okno');
+	});
+
+	it('parsuje tileHeight z formularza home feed', () => {
+		const form = new FormData();
+		form.set('navigation_json', '[{"label":"Kontakt","href":"/kontakt"}]');
+		form.append('category_slug', 'aktualnosci');
+		form.append('category_name', 'Aktualności');
+		form.append('slot_id', 'home_pinned');
+		form.append('slot_label', 'Przypięte');
+		form.append('slot_component', 'home.pinned');
+		form.set('slot_enabled_home_pinned', 'on');
+		form.set('slot_home_feed_tile_height__home_pinned', '360');
+
+		const result = parseLayoutFromFormData(form, base);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		const pinned = result.layout.slots.find((s) => s.id === 'home_pinned');
+		expect(pinned?.widget?.tileHeight).toBe(360);
 	});
 
 	it('parsuje archiveLayout i archiveColumns z formularza kategorii', () => {

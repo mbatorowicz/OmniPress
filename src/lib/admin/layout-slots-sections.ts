@@ -23,6 +23,7 @@ export interface SectionFieldLabels {
 	widgetEmptyText: string;
 	widgetHideWhenEmpty: string;
 	widgetMoreLink: string;
+	widgetTileHeight: string;
 	widgetVariant: string;
 	certAdvisoriesCategory: string;
 	bannerStyle: string;
@@ -81,6 +82,7 @@ export interface SectionBuildConfig {
 	homeFeedCategoriesLabel: string;
 	homeFeedCategoriesHint: string;
 	homeFeedPinnedHint: string;
+	homeFeedTileHeightHint: string;
 	homeFeedCategoryCheckboxesHtml: string;
 }
 
@@ -135,6 +137,8 @@ export function buildHomeFeedDetailHtml(
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetEmptyText}</span><input name="${f.emptyText(id)}" class="ui-input-compact w-full" /></label>
 			<label class="ui-label-inline flex items-center gap-2"><input type="checkbox" name="${slotFieldNames.hideWhenEmpty(id)}" /><span class="font-medium">${l.widgetHideWhenEmpty}</span></label>
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetMoreLink}</span><input name="${f.moreLink(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetTileHeight}</span><input name="${f.tileHeight(id)}" type="number" min="200" max="600" step="1" placeholder="auto" class="ui-input-compact w-full" /></label>
+			<p class="ui-hint sm:col-span-2">${config.homeFeedTileHeightHint}</p>
 			<label class="ui-label-inline"><span class="font-medium">${l.widgetVariant}</span><select name="${f.variant(id)}" class="ui-select-compact w-full"><option value="default">${config.variantDefault}</option><option value="alert">${config.variantAlert}</option></select></label>
 			${buildHomeFeedCategoriesHtml(id, component, config)}
 		${panelCloseHtml()}`;

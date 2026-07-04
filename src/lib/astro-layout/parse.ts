@@ -27,6 +27,7 @@ import {
 	sanitizeNavMenuColumnWidth,
 } from '@/lib/admin/nav-dropdown-layout';
 import { normalizeCategoryDefinition } from './category-archive';
+import { readHomeTileHeight } from './home-feed';
 
 function isNavItem(raw: unknown): raw is NavItem {
 	if (!raw || typeof raw !== 'object') return false;
@@ -97,6 +98,8 @@ function parseWidget(raw: unknown): SlotWidgetConfig | undefined {
 	if (typeof w.emptyText === 'string' && w.emptyText.trim()) widget.emptyText = w.emptyText.trim();
 	if (w.hideWhenEmpty === true) widget.hideWhenEmpty = true;
 	if (typeof w.moreLink === 'string' && w.moreLink.trim()) widget.moreLink = w.moreLink.trim();
+	const tileHeight = readHomeTileHeight(w.tileHeight);
+	if (tileHeight !== undefined) widget.tileHeight = tileHeight;
 	if (typeof w.limit === 'number' && w.limit > 0) widget.limit = Math.floor(w.limit);
 	if (w.enabled === false) widget.enabled = false;
 	if (w.variant === 'alert' || w.variant === 'default') widget.variant = w.variant;

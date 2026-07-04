@@ -35,6 +35,9 @@ export function buildSlotSummaryChips(
 		if (kind === 'home.pinned') {
 			chips.push(`<span class="layout-slot-chip">${labels.pinnedOnly}</span>`);
 		}
+		if (typeof w.tileHeight === 'number' && w.tileHeight > 0) {
+			chips.push(`<span class="layout-slot-chip">${w.tileHeight}px</span>`);
+		}
 	}
 
 	if (kind === 'sidebar.banner') {

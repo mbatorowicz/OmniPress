@@ -293,6 +293,8 @@ export const adminLayout = {
 		'Zaznacz kategorie, z których wpisy mają trafiać do tej sekcji strony głównej.',
 	homeFeedPinnedHint:
 		'W sekcji przypiętych wyświetlają się tylko wpisy z flagą przypięcia — sam checkbox kategorii nie wystarczy.',
+	homeFeedTileHeightHint:
+		'Puste pole = automatyczna wysokość (proporcja miniatury 16:10). Wpisz wartość 200–600, aby ustawić stałą wysokość całego kafelka.',
 	previewChipNoCategories: 'Brak przypisanych kategorii',
 	previewChipCategoriesPrefix: 'Kategorie:',
 	previewChipPinnedOnly: 'tylko przypięte',
@@ -423,6 +425,7 @@ export const adminLayout = {
 		widgetEmptyText: 'Tekst gdy brak wpisów',
 		widgetHideWhenEmpty: 'Ukryj gdy brak treści',
 		widgetMoreLink: 'Link „zobacz więcej”',
+		widgetTileHeight: 'Wysokość kafelka (px)',
 		widgetVariant: 'Styl',
 		widgetEnabled: 'Włączony',
 		widgetOrder: 'Kolejność (sidebar)',

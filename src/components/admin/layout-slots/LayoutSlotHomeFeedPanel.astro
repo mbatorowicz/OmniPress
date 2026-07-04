@@ -49,6 +49,20 @@ const { fields, variants } = adminLayout;
 		<input name={f.moreLink(slot.id)} value={w.moreLink ?? ''} class="ui-input-compact ui-input-compact--mono w-full" />
 	</label>
 	<label class="ui-label-inline">
+		<span class="font-medium">{fields.widgetTileHeight}</span>
+		<input
+			name={f.tileHeight(slot.id)}
+			type="number"
+			min="200"
+			max="600"
+			step="1"
+			value={w.tileHeight ?? ''}
+			placeholder="auto"
+			class="ui-input-compact w-full"
+		/>
+	</label>
+	<p class="ui-hint sm:col-span-2">{adminLayout.homeFeedTileHeightHint}</p>
+	<label class="ui-label-inline">
 		<span class="font-medium">{fields.widgetVariant}</span>
 		<select name={f.variant(slot.id)} class="ui-select-compact w-full">
 			<option value="default" selected={w.variant !== 'alert'}>{variants.default}</option>

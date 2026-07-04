@@ -14,6 +14,7 @@ export const slotFormFields = {
 		emptyText: (slotId: string) => field('slot_home_feed_empty_text', slotId),
 		moreLink: (slotId: string) => field('slot_home_feed_more_link', slotId),
 		variant: (slotId: string) => field('slot_home_feed_variant', slotId),
+		tileHeight: (slotId: string) => field('slot_home_feed_tile_height', slotId),
 	},
 	recentChanges: {
 		title: (slotId: string) => field('slot_recent_title', slotId),
