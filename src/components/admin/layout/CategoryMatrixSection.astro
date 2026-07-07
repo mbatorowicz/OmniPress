@@ -167,7 +167,7 @@ const categoryLabels = {
 	</p>
 </Panel>
 
-<script define:vars={{ categoryLabels }}>
+<script define:vars={{ categoryLabels }} nonce={Astro.locals.cspNonce}>
 	globalThis.__OP_CATEGORIES_LABELS__ = categoryLabels;
 </script>
 <script>

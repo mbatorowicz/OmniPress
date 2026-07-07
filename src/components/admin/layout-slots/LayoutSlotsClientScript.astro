@@ -21,7 +21,7 @@ const {
 const scriptVars = buildLayoutSlotsClientScriptVars(componentOptionsHtml);
 ---
 
-<script define:vars={{ ...scriptVars, includePreview, advancedTable, editorZone: zone ?? '', zoneFormId: formId }}>
+<script define:vars={{ ...scriptVars, includePreview, advancedTable, editorZone: zone ?? '', zoneFormId: formId }} nonce={Astro.locals.cspNonce}>
 	import { initLayoutSlotsTable, initLayoutSlotCardSummaries, initLayoutZoneEditor } from '@/lib/admin/layout-slots-client';
 	import { initLayoutSlotsPreview } from '@/lib/admin/layout-slots-preview-client';
 

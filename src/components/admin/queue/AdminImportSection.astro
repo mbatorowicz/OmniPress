@@ -54,7 +54,7 @@ const importLabels = admin.importPosts;
 
 {
 	sites.length > 1 && (
-		<script is:inline>
+		<script is:inline nonce={Astro.locals.cspNonce}>
 			(() => {
 				const form = document.getElementById('import-posts-form');
 				const select = document.getElementById('import-site-select');

@@ -99,7 +99,7 @@ const navTargetOptionsJson = JSON.stringify(navTargetOptions);
 	<SectionTitle>{adminLayout.sections.menu}</SectionTitle>
 	<p class="ui-hint">{adminLayout.menuFormHint}</p>
 
-	<script id="nav-target-options-json" type="application/json" is:inline set:html={navTargetOptionsJson} />
+	<script id="nav-target-options-json" type="application/json" is:inline nonce={Astro.locals.cspNonce} set:html={navTargetOptionsJson} />
 
 	<details class="nav-depth-colors-details mb-2">
 		<summary class="ui-link inline-block text-xs cursor-pointer">
@@ -272,7 +272,7 @@ const navTargetOptionsJson = JSON.stringify(navTargetOptions);
 	</details>
 </Panel>
 
-<script define:vars={{ navTableLabels }}>
+<script define:vars={{ navTableLabels }} nonce={Astro.locals.cspNonce}>
 	globalThis.__OP_NAV_TABLE_LABELS__ = navTableLabels;
 </script>
 <script>

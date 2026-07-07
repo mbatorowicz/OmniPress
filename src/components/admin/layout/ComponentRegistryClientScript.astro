@@ -25,7 +25,7 @@ const zoneTitles = layoutZoneTitles();
 		static_page: adminLayout.addTemplateStaticPage,
 		banner: adminLayout.addTemplateBanner,
 	},
-}}>
+}} nonce={Astro.locals.cspNonce}>
 	import { initComponentRegistryEditor, initLayoutSlotCardSummaries } from '@/lib/admin/layout-slots-client';
 	import { initLayoutSlotDialogs } from '@/lib/admin/layout-slot-dialog-client';
 
