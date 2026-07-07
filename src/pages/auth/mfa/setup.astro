@@ -5,23 +5,17 @@ import Button from '@/components/ui/actions/Button.astro';
 import Label from '@/components/ui/form/Label.astro';
 import Input from '@/components/ui/form/Input.astro';
 import { auth } from '@/i18n';
-import { resolveAdminMfaRedirect } from '@/lib/auth/mfa';
+import { getAdminMfaRequiredPath } from '@/lib/auth/mfa';
 
 if (!Astro.locals.user || Astro.locals.profile?.role !== 'admin') {
 	return Astro.redirect('/login');
 }
 
-const pendingRedirect = await resolveAdminMfaRedirect(Astro.locals.supabase, Astro.url.pathname);
-if (!pendingRedirect) {
+const requiredPath = await getAdminMfaRequiredPath(Astro.locals.supabase);
+if (!requiredPath) {
 	return Astro.redirect('/admin');
 }
-if (pendingRedirect === '/auth/mfa') {
-	return Astro.redirect('/auth/mfa');
-}
-
-const { data: factors } = await Astro.locals.supabase.auth.mfa.listFactors();
-const verified = (factors?.totp ?? []).some((factor) => factor.status === 'verified');
-if (verified) {
+if (requiredPath === '/auth/mfa') {
 	return Astro.redirect('/auth/mfa');
 }
 

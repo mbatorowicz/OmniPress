@@ -5,15 +5,18 @@ import Button from '@/components/ui/actions/Button.astro';
 import Label from '@/components/ui/form/Label.astro';
 import Input from '@/components/ui/form/Input.astro';
 import { auth } from '@/i18n';
-import { getVerifiedTotpFactorId, resolveAdminMfaRedirect } from '@/lib/auth/mfa';
+import { getAdminMfaRequiredPath, getVerifiedTotpFactorId } from '@/lib/auth/mfa';
 
 if (!Astro.locals.user || Astro.locals.profile?.role !== 'admin') {
 	return Astro.redirect('/login');
 }
 
-const mfaRedirect = await resolveAdminMfaRedirect(Astro.locals.supabase, Astro.url.pathname);
-if (!mfaRedirect) {
+const requiredPath = await getAdminMfaRequiredPath(Astro.locals.supabase);
+if (!requiredPath) {
 	return Astro.redirect('/admin');
+}
+if (requiredPath === '/auth/mfa/setup') {
+	return Astro.redirect('/auth/mfa/setup');
 }
 
 const factorId = await getVerifiedTotpFactorId(Astro.locals.supabase);

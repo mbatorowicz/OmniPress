@@ -17,6 +17,13 @@ function verifiedTotpFactors(factors: Awaited<
 	return (factors?.totp ?? []).filter((factor) => factor.status === 'verified');
 }
 
+/** Wymagana trasa MFA admina (niezależnie od bieżącej ścieżki); null = MFA spełnione (AAL2). */
+export async function getAdminMfaRequiredPath(
+	supabase: SupabaseClient,
+): Promise<string | null> {
+	return resolveAdminMfaRedirect(supabase, '/admin');
+}
+
 /** Gdzie przekierować admina wymagającego MFA; null = OK (AAL2 lub brak wymogu). */
 export async function resolveAdminMfaRedirect(
 	supabase: SupabaseClient,

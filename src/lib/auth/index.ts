@@ -16,6 +16,7 @@ export {
 	MFA_CHALLENGE_PATH,
 	MFA_SETUP_PATH,
 	isMfaPublicPath,
+	getAdminMfaRequiredPath,
 	resolveAdminMfaRedirect,
 	getVerifiedTotpFactorId,
 } from './mfa';
