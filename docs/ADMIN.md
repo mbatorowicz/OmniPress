@@ -60,7 +60,7 @@ Ustawienia strony: `/admin/units/[id]` — nazwa, slug, repozytorium, branch, ś
 | Branch | `main` |
 | Ścieżka contentu | `src/content/news` |
 | Układ | folder (`slug/index.md`) |
-| Token PAT GitHub | uprawnienia `repo` |
+| Token PAT GitHub | fine-grained (`github_pat_…`), Contents RW + Metadata R — tylko repo strony |
 | ID projektu Vercel | opcjonalnie — sprawdzanie logu buildu po publikacji |
 
 **Credentials** są szyfrowane (`ENCRYPTION_KEY` na Vercel). Bez klucza — zapis konfiguracji bez sekretów (tylko dev).

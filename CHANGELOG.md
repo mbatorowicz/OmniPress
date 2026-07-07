@@ -3,6 +3,20 @@
 Format: [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).  
 Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+commit`.
 
+## [Unreleased]
+
+### Dodane
+
+- **MFA TOTP** dla administratora (Supabase Auth): enrollment `/auth/mfa/setup`, challenge `/auth/mfa`, wymuszenie AAL2 w middleware.
+- **CSP z nonce** per żądanie (bez `unsafe-inline` dla skryptów); `style-src 'unsafe-inline'` dla TipTap.
+- **Rate limit auth** współdzielony: Upstash Redis (preferowany) lub tabela `auth_rate_limits` + RPC (`setup:auth-rate-limits`).
+- Audyt **fine-grained GitHub PAT** przy teście kanału (ostrzeżenie dla classic `ghp_`).
+
+### Zmienione
+
+- IP rate limitu z nagłówka `x-real-ip` (Vercel).
+- Dokumentacja tokena GitHub: fine-grained PAT z dostępem tylko do repo strony (`docs/WDROZENIE.md`).
+
 ## [0.9.5] — 2026-06-03
 
 ### Zmienione

@@ -64,6 +64,24 @@ npm run setup:profiles-guard
 
 **Auth (obowiązkowo po wdrożeniu):** `npm run setup:auth-urls` — Site URL, redirecty i **wyłączenie publicznej rejestracji**.
 
+**MFA (administrator):** Supabase Dashboard → **Auth → MFA** → włącz **TOTP**. Po wdrożeniu kodu administrator przy pierwszym logowaniu skonfiguruje aplikację authenticator (`/auth/mfa/setup`), potem przy każdej sesji poda kod (`/auth/mfa`).
+
+**Rate limit auth:** `npm run setup:auth-rate-limits` (fallback Supabase). Zalecane na produkcji: **Upstash Redis** (Vercel Marketplace) — zmienne `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`.
+
+---
+
+## Token GitHub (fine-grained PAT)
+
+Zamiast classic PAT (`ghp_…`) użyj **fine-grained personal access token** (`github_pat_…`):
+
+1. GitHub → **Settings → Developer settings → Fine-grained tokens → Generate new token**
+2. **Resource owner** = właściciel repozytorium strony
+3. **Repository access** → **Only select repositories** → wyłącznie repo strony (np. `gmina-miedzna.pl`)
+4. **Permissions:** Contents = **Read and write**, Metadata = **Read**
+5. Ustaw **datę wygaśnięcia**
+
+Panel OmniPress ostrzega przy teście kanału, gdy wykryje classic PAT, i pokazuje repo, do którego token ma dostęp.
+
 ---
 
 ## Zmienne Vercel (Production)
@@ -74,6 +92,7 @@ npm run setup:profiles-guard
 | `SUPABASE_SERVICE_ROLE_KEY` | Worker — **nie** w UI |
 | `ENCRYPTION_KEY` | Szyfrowanie tokenów GitHub/Vercel (base64, 32 bajty) |
 | `VERCEL_TOKEN` | Opcjonalnie — weryfikacja buildu strony Astro |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Opcjonalnie (zalecane prod) — współdzielony rate limit auth |
 
 Bez `ENCRYPTION_KEY`: konfiguracja jednostki zapisze się, ale **tokeny nie** (tylko dev).
 
