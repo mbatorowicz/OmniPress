@@ -1,39 +1,34 @@
-type Bucket = { count: number; resetAt: number };
+import { resolveRateLimitStore, resetMemoryRateLimitStoreForTests } from './rate-limit-store';
 
-const buckets = new Map<string, Bucket>();
+export type RateLimitResult = { allowed: true } | { allowed: false; retryAfterSec: number };
 
 const WINDOW_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS = 20;
 
-function clientKey(request: Request, action: string): string {
+function clientIp(request: Request): string {
+	const realIp = request.headers.get('x-real-ip')?.trim();
+	if (realIp) return realIp;
+
 	const forwarded = request.headers.get('x-forwarded-for');
-	const ip = forwarded?.split(',')[0]?.trim() || 'unknown';
-	return `${action}:${ip}`;
+	return forwarded?.split(',')[0]?.trim() || 'unknown';
 }
 
-export type RateLimitResult = { allowed: true } | { allowed: false; retryAfterSec: number };
+function clientKey(request: Request, action: string): string {
+	return `${action}:${clientIp(request)}`;
+}
 
-/** Prosty limiter auth (per instancja serverless). */
-export function checkAuthRateLimit(request: Request, action: string): RateLimitResult {
+/** Współdzielony limiter auth (Upstash Redis → Supabase RPC → pamięć w dev/test). */
+export async function checkAuthRateLimit(
+	request: Request,
+	action: string,
+): Promise<RateLimitResult> {
 	const key = clientKey(request, action);
-	const now = Date.now();
-	const bucket = buckets.get(key);
-
-	if (!bucket || now >= bucket.resetAt) {
-		buckets.set(key, { count: 1, resetAt: now + WINDOW_MS });
-		return { allowed: true };
-	}
-
-	if (bucket.count >= MAX_ATTEMPTS) {
-		const retryAfterSec = Math.ceil((bucket.resetAt - now) / 1000);
-		return { allowed: false, retryAfterSec };
-	}
-
-	bucket.count += 1;
-	return { allowed: true };
+	return resolveRateLimitStore().increment(key, WINDOW_MS, MAX_ATTEMPTS);
 }
 
-/** Tylko testy — czyści stan limitera. */
+/** Tylko testy — czyści stan limitera in-memory. */
 export function resetAuthRateLimitsForTests(): void {
-	buckets.clear();
+	resetMemoryRateLimitStoreForTests();
 }
+
+export { WINDOW_MS as AUTH_RATE_LIMIT_WINDOW_MS, MAX_ATTEMPTS as AUTH_RATE_LIMIT_MAX };

@@ -1,10 +1,10 @@
 import type { APIRoute } from 'astro';
-import { mapAuthError, getProfile, roleHomePath } from '@/lib/auth';
+import { mapAuthError, getProfile, roleHomePath, resolveAdminMfaRedirect } from '@/lib/auth';
 import { guardAuthMutationRequest } from '@/lib/auth/guard-request';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
-	const guard = guardAuthMutationRequest(request, 'login');
+	const guard = await guardAuthMutationRequest(request, 'login');
 	if (!guard.ok) {
 		return redirect(`/login?error=${encodeURIComponent(guard.message)}`);
 	}
@@ -30,5 +30,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	}
 
 	const profile = await getProfile(supabase, user.id);
+	if (profile?.role === 'admin') {
+		const mfaRedirect = await resolveAdminMfaRedirect(supabase, '/admin');
+		if (mfaRedirect) return redirect(mfaRedirect);
+	}
 	return redirect(roleHomePath(profile?.role ?? 'editor'));
 };

@@ -12,3 +12,10 @@ export {
 export { getProfile, getSessionUser, getUserSites } from './session';
 export { requireAuth, type AuthSession } from './require';
 export { authCodeRedirectTarget, isPasswordRecoveryRedirect } from './recovery-redirect';
+export {
+	MFA_CHALLENGE_PATH,
+	MFA_SETUP_PATH,
+	isMfaPublicPath,
+	resolveAdminMfaRedirect,
+	getVerifiedTotpFactorId,
+} from './mfa';

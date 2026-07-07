@@ -116,17 +116,22 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub.
 | `20250618000000_posts_delete_own.sql` | `setup:posts-delete-own` |
 | `20250619000000_posts_rejected_resubmit.sql` | `setup:posts-rejected-resubmit` |
 | `20250620000000_assets_delete_own.sql` | `setup:assets-delete-own` |
+| `20250707000000_auth_rate_limits.sql` | `setup:auth-rate-limits` |
 
 ---
 
-## Bezpieczeństwo (0.7.16)
+## Bezpieczeństwo
 
 | Warstwa | Status |
 |---------|--------|
 | RLS trigger `profiles` (role, default_site_id) | ✅ migracja `setup:profiles-guard` |
 | Wyłączenie public signup (Supabase) | ✅ `setup:auth-urls` |
-| Rate limit + Origin check (auth POST) | ✅ |
+| MFA TOTP (admin, AAL2) | ✅ `/auth/mfa/setup`, `/auth/mfa` |
+| CSP z nonce (panel SSR) | ✅ middleware + `src/lib/security/headers.ts` |
+| Rate limit auth (Upstash Redis lub Supabase RPC) | ✅ `setup:auth-rate-limits` |
+| Origin check (auth POST) | ✅ |
 | Nagłówki HTTP (HSTS, X-Frame-Options, …) | ✅ middleware |
+| Fine-grained GitHub PAT (audyt przy teście kanału) | ✅ |
 | Upload: magic bytes | ✅ |
 | Anti-enumeracja resetu hasła | ✅ |
 | Sanityzacja treści (edytor + zapis + publikacja) | ✅ |
@@ -153,6 +158,7 @@ E2E domyślnie biegnie na produkcji (`E2E_BASE_URL` zmienia cel); dane logowania
 | `CRON_SECRET` | tak (worker) | Autoryzacja cron → `/api/worker/publish` |
 | `ENCRYPTION_KEY` | tak (credentials) | Szyfrowanie tokenów GitHub/Vercel w bazie |
 | `VERCEL_TOKEN` | opcjonalnie | Globalny token do weryfikacji buildów (alternatywa: per destynacja) |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | opcjonalnie (prod zalecane) | Współdzielony rate limit auth między instancjami Vercel |
 
 ---
 
@@ -161,7 +167,7 @@ E2E domyślnie biegnie na produkcji (`E2E_BASE_URL` zmienia cel); dane logowania
 | Funkcja | Uwagi |
 |---------|--------|
 | Powiadomienia e-mail (akceptacja/odrzucenie) | — |
-| MFA / Passkeys dla admina | — |
+| Passkeys dla admina | — |
 | Audit log akcji administratora | — |
 | Testy integracyjne RLS | — |
 | SSO redaktorów | — |

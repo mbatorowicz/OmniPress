@@ -4,7 +4,7 @@ import { guardAuthMutationRequest } from '@/lib/auth/guard-request';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
-	const guard = guardAuthMutationRequest(request, 'set-password');
+	const guard = await guardAuthMutationRequest(request, 'set-password');
 	if (!guard.ok) {
 		return redirect(
 			`/auth/reset-password?error=${encodeURIComponent(guard.message)}`,

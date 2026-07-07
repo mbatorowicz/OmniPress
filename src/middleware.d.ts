@@ -6,5 +6,6 @@ declare namespace App {
 		supabase: SupabaseClient;
 		user: User | null;
 		profile: Profile | null;
+		cspNonce: string;
 	}
 }

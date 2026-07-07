@@ -13,6 +13,16 @@ sequenceDiagram
     S-->>A: session + setAll(cookies)
     A-->>U: redirect /admin lub /dashboard
 
+    Note over U,S: Administrator — MFA (AAL2)
+    U->>A: GET /auth/mfa/setup (enrollment TOTP)
+    A->>S: mfa.enroll + mfa.verify
+    U->>A: POST /api/auth/login
+    A->>S: signInWithPassword
+    A-->>U: redirect /auth/mfa (kod TOTP)
+    U->>A: POST /api/auth/mfa/verify
+    A->>S: mfa.challenge + mfa.verify
+    A-->>U: redirect /admin
+
     U->>A: POST /api/auth/reset
     A->>S: resetPasswordForEmail
     S-->>U: e-mail z linkiem
@@ -38,8 +48,11 @@ sequenceDiagram
 | `src/lib/auth/recovery-redirect.ts` | Rozróżnienie `?code=` recovery vs magic link |
 | `src/lib/auth/guard-request.ts` | Rate limit + blokada cross-origin POST (auth) |
 | `src/lib/auth/origin.ts` | Wykrywanie cross-origin POST |
-| `src/lib/auth/rate-limit.ts` | Limit prób logowania / resetu |
-| `src/lib/security/headers.ts` | Nagłówki bezpieczeństwa HTTP |
+| `src/lib/auth/rate-limit.ts` | Limit prób logowania / resetu (async, współdzielony store) |
+| `src/lib/auth/rate-limit-store.ts` | Upstash Redis / Supabase RPC / pamięć (testy) |
+| `src/lib/auth/mfa.ts` | MFA admin: AAL2, redirect setup/challenge |
+| `src/lib/security/headers.ts` | Nagłówki bezpieczeństwa HTTP + CSP z nonce |
+| `src/lib/security/nonce.ts` | Generator nonce CSP |
 | `src/middleware.ts` | Cienki entrypoint → `lib/middleware/pipeline.ts` |
 | `src/lib/middleware/pipeline.ts` | Sesja SSR, guard tras HTML i `/api/admin/*` |
 | `src/lib/api/guards.ts` | `guardAuthRedirect`, `guardAdminRedirect`, `guardAuthJson`, `guardAdminJson` |
@@ -52,11 +65,13 @@ sequenceDiagram
 
 1. **Rejestracja** — wyłączona w Supabase (`disable_signup: true` przez `npm run setup:auth-urls`). Konta tylko przez admina.
 2. **RLS profiles** — trigger `profiles_guard_self_update` blokuje zmianę `role` i `default_site_id` przez redaktora (`npm run setup:profiles-guard`).
-3. **Auth POST** — rate limit (20 / 15 min / IP) + odrzucenie żądań z obcym nagłówkiem `Origin`.
-4. **Reset hasła** — zawsze ten sam komunikat sukcesu (brak enumeracji e-maili).
-5. **Logowanie** — generyczny komunikat błędu (`invalidCredentials`).
-6. **Nagłówki** — `X-Frame-Options`, `HSTS` (prod), `nosniff`, `Referrer-Policy` (middleware).
-7. **Upload** — weryfikacja magic bytes + limit rozmiaru; bez surowych błędów storage w JSON.
+3. **Auth POST** — rate limit (20 / 15 min / IP, Upstash lub Supabase RPC) + odrzucenie żądań z obcym nagłówkiem `Origin`. IP z `x-real-ip`.
+4. **MFA admin** — TOTP obowiązkowy (AAL2); enrollment `/auth/mfa/setup`, challenge `/auth/mfa`.
+5. **CSP** — nonce per żądanie; `script-src 'self' 'nonce-…' 'wasm-unsafe-eval'` (pdf.js).
+6. **Reset hasła** — zawsze ten sam komunikat sukcesu (brak enumeracji e-maili).
+7. **Logowanie** — generyczny komunikat błędu (`invalidCredentials`).
+8. **Nagłówki** — `X-Frame-Options`, `HSTS` (prod), `nosniff`, `Referrer-Policy`, CSP (middleware).
+9. **Upload** — weryfikacja magic bytes + limit rozmiaru; bez surowych błędów storage w JSON.
 
 ## Ochrona API
 

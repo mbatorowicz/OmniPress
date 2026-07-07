@@ -44,6 +44,22 @@ export const auth = {
 	establishSession: {
 		expired: 'Link wygasł — wyślij nowy.',
 	},
+	mfa: {
+		setupTitle: 'Konfiguracja uwierzytelniania dwuskładnikowego',
+		setupLead:
+			'Administrator musi skonfigurować aplikację TOTP (np. Google Authenticator). Zeskanuj kod QR i wpisz 6-cyfrowy kod.',
+		challengeTitle: 'Kod uwierzytelniający',
+		challengeLead: 'Wpisz 6-cyfrowy kod z aplikacji authenticator.',
+		qrAlt: 'Kod QR TOTP',
+		manualSecret: 'Klucz ręczny (gdy nie możesz zeskanować QR):',
+		codeLabel: 'Kod TOTP',
+		verifyEnroll: 'Aktywuj MFA',
+		verifyLogin: 'Potwierdź',
+		enrollFailed: 'Nie udało się rozpocząć konfiguracji MFA — spróbuj ponownie.',
+		verifyFailed: 'Nieprawidłowy kod — spróbuj ponownie.',
+		missingCode: 'Wpisz 6-cyfrowy kod.',
+		alreadyConfigured: 'MFA jest już skonfigurowane.',
+	},
 	supabase: {
 		invalidCredentials: 'Nieprawidłowy e-mail lub hasło.',
 		emailNotConfirmed:

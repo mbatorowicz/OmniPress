@@ -62,7 +62,12 @@ export const adminUnit = {
 		branch: 'Branch — zwykle main.',
 		contentPath: 'Ścieżka contentu — dla gminy-miedzna.pl: src/content/news',
 		contentLayout: 'Układ: folder (slug/index.md) dla gminy-miedzna.pl',
-		token: 'GitHub → Settings → Developer settings → Personal access tokens → token z uprawnieniem repo (zapis do repozytorium).',
+		token:
+			'GitHub → Settings → Developer settings → Fine-grained personal access tokens: Resource owner = właściciel repo, Only select repositories = wyłącznie repo strony (np. gmina-miedzna.pl), Contents = Read and write, Metadata = Read, z datą wygaśnięcia.',
+		tokenClassicWarning:
+			'Uwaga: używasz classic PAT (ghp_…) — preferuj fine-grained token (github_pat_…) z dostępem tylko do jednego repozytorium.',
+		tokenRepoAccess: 'Token ma dostęp do repozytorium:',
+		tokenRepoDenied: 'Token nie ma dostępu do skonfigurowanego repozytorium:',
 		vercel: 'Vercel → Project Settings → General → Project ID (prj_…). Po publikacji OmniPress sprawdza log buildu.',
 	},
 	layoutLink: 'Wygląd strony',

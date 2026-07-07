@@ -2,6 +2,7 @@ export const api = {
 	admin: {
 		forbidden: 'Brak uprawnień administratora.',
 		unauthorized: 'Niezalogowany',
+		mfaRequired: 'Wymagane uwierzytelnianie dwuskładnikowe (MFA).',
 	},
 	posts: {
 		missingPostId: 'Brak ID wpisu',

@@ -1,0 +1,82 @@
+---
+import AuthLayout from '@/layouts/AuthLayout.astro';
+import Alert from '@/components/ui/feedback/Alert.astro';
+import Button from '@/components/ui/actions/Button.astro';
+import Label from '@/components/ui/form/Label.astro';
+import Input from '@/components/ui/form/Input.astro';
+import { auth } from '@/i18n';
+import { resolveAdminMfaRedirect } from '@/lib/auth/mfa';
+
+if (!Astro.locals.user || Astro.locals.profile?.role !== 'admin') {
+	return Astro.redirect('/login');
+}
+
+const pendingRedirect = await resolveAdminMfaRedirect(Astro.locals.supabase, Astro.url.pathname);
+if (!pendingRedirect) {
+	return Astro.redirect('/admin');
+}
+if (pendingRedirect === '/auth/mfa') {
+	return Astro.redirect('/auth/mfa');
+}
+
+const { data: factors } = await Astro.locals.supabase.auth.mfa.listFactors();
+const verified = (factors?.totp ?? []).some((factor) => factor.status === 'verified');
+if (verified) {
+	return Astro.redirect('/auth/mfa');
+}
+
+const { data: enroll, error: enrollError } = await Astro.locals.supabase.auth.mfa.enroll({
+	factorType: 'totp',
+	friendlyName: 'OmniPress Admin',
+});
+
+let errorMessage: string | null = enrollError ? auth.mfa.enrollFailed : null;
+const errorParam = Astro.url.searchParams.get('error');
+if (errorParam) {
+	try {
+		errorMessage = decodeURIComponent(errorParam);
+	} catch {
+		errorMessage = errorParam;
+	}
+}
+
+const factorId = enroll?.id ?? '';
+const qrCode = enroll?.totp?.qr_code ?? '';
+const secret = enroll?.totp?.secret ?? '';
+---
+
+<AuthLayout title={auth.mfa.setupTitle} lead={auth.mfa.setupLead} wide>
+	{errorMessage && <Alert variant="error" class="mt-4 mb-0">{errorMessage}</Alert>}
+	{
+		factorId && qrCode ? (
+			<>
+				<div class="mt-6 flex justify-center">
+					<img src={qrCode} alt={auth.mfa.qrAlt} class="h-48 w-48 rounded-lg border border-border bg-white p-2" />
+				</div>
+				{secret && (
+					<p class="ui-muted mt-4 break-all text-sm">
+						{auth.mfa.manualSecret} <code>{secret}</code>
+					</p>
+				)}
+				<form action="/api/auth/mfa/verify-enroll" method="post" class="mt-6 space-y-4">
+					<input type="hidden" name="factor_id" value={factorId} />
+					<Label>
+						<span>{auth.mfa.codeLabel}</span>
+						<Input
+							type="text"
+							name="code"
+							required
+							autocomplete="one-time-code"
+							inputmode="numeric"
+							pattern="[0-9]{6}"
+							maxlength={6}
+						/>
+					</Label>
+					<Button type="submit" block>{auth.mfa.verifyEnroll}</Button>
+				</form>
+			</>
+		) : (
+			<p class="ui-warning-text mt-4">{auth.mfa.enrollFailed}</p>
+		)
+	}
+</AuthLayout>

@@ -5,7 +5,7 @@ import { guardAuthMutationRequest } from '@/lib/auth/guard-request';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
-	const guard = guardAuthMutationRequest(request, 'reset');
+	const guard = await guardAuthMutationRequest(request, 'reset');
 	if (!guard.ok) {
 		if (guard.status === 429) {
 			return redirect(

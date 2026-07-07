@@ -2,7 +2,7 @@
 /** Niezawodne otwieranie dialogów ustawień — działa bez bundla modułowego. */
 ---
 
-<script is:inline>
+<script is:inline nonce={Astro.locals.cspNonce}>
 	(function () {
 		if (document.documentElement.dataset.opSlotDialogs === '1') return;
 		document.documentElement.dataset.opSlotDialogs = '1';
