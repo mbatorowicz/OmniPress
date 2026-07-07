@@ -2,6 +2,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { DestinationType } from '@/lib/types';
 import { canEncryptCredentials, encryptSecret } from '@/lib/crypto';
 import { normalizeGitHubRepo } from './github-repo';
+import { classifyGitHubToken } from './github-token';
+import { adminSites } from '@/i18n/pl/admin-panels';
 import type { GitHubCredentials } from '@/lib/publish/credentials';
 
 export type DestinationRow = {
@@ -54,6 +56,15 @@ export function validateDestinationConfig(
 ): DestinationConfigError | null {
 	const repo = normalizeGitHubRepo(String(config.repo ?? ''));
 	if (!repo.includes('/')) return 'config_repo';
+	return null;
+}
+
+export function warnClassicGitHubPat(token: string): string | null {
+	const trimmed = token.trim();
+	if (!trimmed) return null;
+	if (classifyGitHubToken(trimmed) === 'classic') {
+		return adminSites.astroHelp.tokenClassicWarning;
+	}
 	return null;
 }
 

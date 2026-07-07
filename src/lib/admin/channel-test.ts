@@ -13,9 +13,41 @@ import {
 	probeVercelProject,
 	resolveVercelToken,
 } from '@/lib/publish/vercel-api';
+import { auditGitHubToken, classifyGitHubToken } from './github-token';
+import { adminSites } from '@/i18n/pl/admin-panels';
 import type { GitHubCredentials } from '@/lib/publish/credentials';
 
 export type ChannelTestResult = { ok: true; message: string } | { ok: false; message: string };
+
+function formatTokenAuditMessages(token: string): string[] {
+	const lines: string[] = [];
+	const kind = classifyGitHubToken(token);
+	if (kind === 'classic') {
+		lines.push(adminSites.astroHelp.tokenClassicWarning);
+	}
+	return lines;
+}
+
+async function appendTokenAuditMessages(
+	cfg: NonNullable<ReturnType<typeof parseGitHubRepoConfig>>,
+	token: string,
+	baseMessage: string,
+): Promise<string> {
+	const warnings = formatTokenAuditMessages(token);
+	try {
+		const audit = await auditGitHubToken(cfg, token);
+		if (audit.repoAccessible) {
+			warnings.push(`${adminSites.astroHelp.tokenRepoAccess} ${audit.repoDetail}`);
+		} else {
+			warnings.push(`${adminSites.astroHelp.tokenRepoDenied} ${audit.repoDetail}`);
+		}
+	} catch {
+		// probe już zwrócił błąd wyżej
+	}
+
+	if (warnings.length === 0) return baseMessage;
+	return `${baseMessage} ${warnings.join(' ')}`;
+}
 
 async function loadStoredCredentials(
 	supabase: SupabaseClient,
@@ -134,19 +166,29 @@ export async function testGitHubAstroChannel(
 		const githubMsg = `GitHub OK — ${cfg.owner}/${cfg.repo} (${cfg.branch}), folder „${cfg.contentPath}”.`;
 		const vercelCfg = parseVercelConfig(config);
 		if (!vercelCfg) {
-			return { ok: true, message: `${githubMsg} Vercel: nie skonfigurowano.` };
+			return {
+				ok: true,
+				message: await appendTokenAuditMessages(cfg, token, `${githubMsg} Vercel: nie skonfigurowano.`),
+			};
 		}
 
 		const vercelToken = await resolveVercelTokenFromForm(supabase, form);
 		if (!vercelToken) {
 			return {
 				ok: true,
-				message: `${githubMsg} Vercel: brak tokena (VERCEL_TOKEN na serwerze lub pole w formularzu).`,
+				message: await appendTokenAuditMessages(
+					cfg,
+					token,
+					`${githubMsg} Vercel: brak tokena (VERCEL_TOKEN na serwerze lub pole w formularzu).`,
+				),
 			};
 		}
 
 		const vercelMsg = await probeVercelChannel(config, vercelToken);
-		return { ok: true, message: `${githubMsg} ${vercelMsg}` };
+		return {
+			ok: true,
+			message: await appendTokenAuditMessages(cfg, token, `${githubMsg} ${vercelMsg}`),
+		};
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : 'nieznany błąd sieci';
 		return { ok: false, message: `Nie udało się połączyć z GitHub: ${msg}` };
