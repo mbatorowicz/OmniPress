@@ -1,0 +1,53 @@
+---
+import AuthLayout from '@/layouts/AuthLayout.astro';
+import Alert from '@/components/ui/feedback/Alert.astro';
+import Button from '@/components/ui/actions/Button.astro';
+import Label from '@/components/ui/form/Label.astro';
+import Input from '@/components/ui/form/Input.astro';
+import { auth } from '@/i18n';
+import { getVerifiedTotpFactorId, resolveAdminMfaRedirect } from '@/lib/auth/mfa';
+
+if (!Astro.locals.user || Astro.locals.profile?.role !== 'admin') {
+	return Astro.redirect('/login');
+}
+
+const mfaRedirect = await resolveAdminMfaRedirect(Astro.locals.supabase, Astro.url.pathname);
+if (!mfaRedirect) {
+	return Astro.redirect('/admin');
+}
+
+const factorId = await getVerifiedTotpFactorId(Astro.locals.supabase);
+if (!factorId) {
+	return Astro.redirect('/auth/mfa/setup');
+}
+
+let errorMessage: string | null = null;
+const errorParam = Astro.url.searchParams.get('error');
+if (errorParam) {
+	try {
+		errorMessage = decodeURIComponent(errorParam);
+	} catch {
+		errorMessage = errorParam;
+	}
+}
+---
+
+<AuthLayout title={auth.mfa.challengeTitle} lead={auth.mfa.challengeLead} wide>
+	{errorMessage && <Alert variant="error" class="mt-4 mb-0">{errorMessage}</Alert>}
+	<form action="/api/auth/mfa/verify" method="post" class="mt-6 space-y-4">
+		<input type="hidden" name="factor_id" value={factorId} />
+		<Label>
+			<span>{auth.mfa.codeLabel}</span>
+			<Input
+				type="text"
+				name="code"
+				required
+				autocomplete="one-time-code"
+				inputmode="numeric"
+				pattern="[0-9]{6}"
+				maxlength={6}
+			/>
+		</Label>
+		<Button type="submit" block>{auth.mfa.verifyLogin}</Button>
+	</form>
+</AuthLayout>

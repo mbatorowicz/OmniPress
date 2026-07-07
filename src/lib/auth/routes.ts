@@ -7,6 +7,8 @@ export const PUBLIC_PATHS = new Set([
 	'/auth/callback',
 	'/auth/reset-password',
 	'/auth/recover',
+	'/auth/mfa',
+	'/auth/mfa/setup',
 ]);
 
 export const AUTH_API_PREFIX = '/api/auth/';
