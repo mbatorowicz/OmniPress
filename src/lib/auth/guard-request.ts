@@ -7,15 +7,15 @@ export type AuthRequestGuardResult =
 	| { ok: false; status: 403 | 429; message: string; retryAfterSec?: number };
 
 /** Wspólna ochrona endpointów auth (CSRF przez Origin + rate limit). */
-export function guardAuthMutationRequest(
+export async function guardAuthMutationRequest(
 	request: Request,
 	action: string,
-): AuthRequestGuardResult {
+): Promise<AuthRequestGuardResult> {
 	if (isCrossOriginPost(request)) {
 		return { ok: false, status: 403, message: auth.supabase.invalidCredentials };
 	}
 
-	const limit = checkAuthRateLimit(request, action);
+	const limit = await checkAuthRateLimit(request, action);
 	if (!limit.allowed) {
 		return {
 			ok: false,

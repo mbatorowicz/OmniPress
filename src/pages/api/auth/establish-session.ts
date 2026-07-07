@@ -7,7 +7,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
  * Przenosi sesję z fragmentu URL (#access_token) do ciasteczek httpOnly (SSR).
  */
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
-	const guard = guardAuthMutationRequest(request, 'establish-session');
+	const guard = await guardAuthMutationRequest(request, 'establish-session');
 	if (!guard.ok) {
 		return redirect(
 			`/login?mode=reset&error=${encodeURIComponent(guard.message)}`,

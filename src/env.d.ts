@@ -17,6 +17,8 @@ interface ImportMetaEnv {
 	readonly ENCRYPTION_KEY?: string;
 	readonly CRON_SECRET?: string;
 	readonly VERCEL_TOKEN?: string;
+	readonly UPSTASH_REDIS_REST_URL?: string;
+	readonly UPSTASH_REDIS_REST_TOKEN?: string;
 }
 
 interface ImportMeta {
