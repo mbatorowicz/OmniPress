@@ -54,6 +54,8 @@ const res = await fetch(`https://api.supabase.com/v1/projects/${PROJECT_REF}/con
 		site_url: SITE_URL,
 		uri_allow_list: REDIRECT_URLS,
 		disable_signup: true,
+		mfa_totp_enroll_enabled: true,
+		mfa_totp_verify_enabled: true,
 	}),
 });
 
@@ -63,7 +65,8 @@ if (!res.ok) {
 	process.exit(1);
 }
 
-console.log('✓ Supabase Auth URL zaktualizowany:');
+console.log('✓ Supabase Auth zaktualizowany:');
 console.log('  Site URL:', SITE_URL);
 console.log('  Redirects:', REDIRECT_URLS);
 console.log('  Rejestracja publiczna: wyłączona (disable_signup=true)');
+console.log('  MFA TOTP: enroll + verify włączone');

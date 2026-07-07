@@ -62,11 +62,11 @@ npm run setup:profiles-guard
 
 Świeża baza: `setup:remote` stosuje schemat początkowy; potem pozostałe migracje w kolejności dat.
 
-**Auth (obowiązkowo po wdrożeniu):** `npm run setup:auth-urls` — Site URL, redirecty i **wyłączenie publicznej rejestracji**.
+**Auth (obowiązkowo po wdrożeniu):** `npm run setup:auth-urls` — Site URL, redirecty, **wyłączenie publicznej rejestracji** i potwierdzenie MFA TOTP (wymaga `SUPABASE_ACCESS_TOKEN` w `.env.local`).
 
-**MFA (administrator):** Supabase Dashboard → **Auth → MFA** → włącz **TOTP**. Po wdrożeniu kodu administrator przy pierwszym logowaniu skonfiguruje aplikację authenticator (`/auth/mfa/setup`), potem przy każdej sesji poda kod (`/auth/mfa`).
+**MFA (administrator):** Na hosted Supabase **TOTP jest domyślnie włączone** — sprawdź: `npm run verify:auth-mfa`. Wymuszenie w dashboardzie (gdy wyłączone): `npm run setup:auth-mfa` lub Dashboard → **Auth → MFA**. Po wdrożeniu kodu administrator przy pierwszym logowaniu skonfiguruje authenticator (`/auth/mfa/setup`), potem przy każdej sesji poda kod (`/auth/mfa`).
 
-**Rate limit auth:** `npm run setup:auth-rate-limits` (fallback Supabase). Zalecane na produkcji: **Upstash Redis** (Vercel Marketplace) — zmienne `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`.
+**Rate limit auth:** `npm run setup:auth-rate-limits` (fallback Supabase). Weryfikacja: `npm run verify:auth-rate-limits`. Zalecane na produkcji: **Upstash Redis** (Vercel Marketplace) — zmienne `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`.
 
 ---
 
