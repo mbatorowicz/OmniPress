@@ -94,7 +94,11 @@ function upsertZoneComponent(components: DisplaySlot[], slot: DisplaySlot): Disp
 	const idx = components.findIndex((s) => s.component === slot.component);
 	if (idx === -1) return [...components, slot];
 	const next = [...components];
-	next[idx] = { ...next[idx], ...slot, widget: { ...next[idx].widget, ...slot.widget } };
+	const current = next[idx]!;
+	// Istniejące (zapisane) wartości mają pierwszeństwo — wartości domyślne tylko
+	// uzupełniają brakujące klucze. Inaczej domyślny widget nadpisywałby edycje
+	// użytkownika przy każdej normalizacji (np. dane stopki resetowane do wartości z kodu).
+	next[idx] = { ...slot, ...current, widget: { ...slot.widget, ...current.widget } };
 	return next;
 }
 

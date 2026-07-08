@@ -11,7 +11,23 @@ interface Props {
 const { formId, slot } = Astro.props;
 const w = slot.widget ?? {};
 const { fields } = adminLayout;
+const ff = adminLayout.footerFields;
 const component = slot.component;
+const footer = slotFormFields.footer;
+
+const contact = w.contact ?? {};
+const phonesText = (contact.phones ?? []).join('\n');
+const bankText = (w.bankAccounts ?? [])
+	.map((b) => [b.name, b.number].filter(Boolean).join(' | '))
+	.join('\n');
+const hoursText = (w.officeHours ?? [])
+	.map((h) => [h.day, h.hours].filter(Boolean).join(' | '))
+	.join('\n');
+const legalText = (w.legalLinks ?? [])
+	.map((l) => [l.label, l.href].filter(Boolean).join(' | '))
+	.join('\n');
+const buyer = w.invoiceData?.buyer ?? {};
+const recipient = w.invoiceData?.recipient ?? {};
 ---
 
 <div
@@ -71,19 +87,112 @@ const component = slot.component;
 			</>
 		) : component === 'footer.main' ? (
 			<>
-				<label class="ui-label-inline sm:col-span-2">
-					<span class="font-medium">{fields.footerContactCtaLabel ?? 'Etykieta CTA kontaktu'}</span>
-					<input form={formId} name={slotFormFields.footer.contactCtaLabel(slot.id)} value={w.contactCtaLabel ?? ''} class="ui-input-compact w-full" />
+				<input type="hidden" form={formId} name={footer.detail(slot.id)} value="1" />
+
+				<p class="ui-subheading sm:col-span-2">{ff.contactHeading}</p>
+				<p class="ui-hint sm:col-span-2">{ff.contactHint}</p>
+				<label class="ui-label-inline">
+					<span class="font-medium">{ff.addressLine1}</span>
+					<input form={formId} name={footer.addressLine1(slot.id)} value={contact.addressLine1 ?? ''} class="ui-input-compact w-full" />
+				</label>
+				<label class="ui-label-inline">
+					<span class="font-medium">{ff.addressLine2}</span>
+					<input form={formId} name={footer.addressLine2(slot.id)} value={contact.addressLine2 ?? ''} class="ui-input-compact w-full" />
 				</label>
 				<label class="ui-label-inline sm:col-span-2">
-					<span class="font-medium">{fields.footerContactCtaHref ?? 'Link CTA kontaktu'}</span>
-					<input form={formId} name={slotFormFields.footer.contactCtaHref(slot.id)} value={w.contactCtaHref ?? ''} class="ui-input-compact ui-input-compact--mono w-full" />
+					<span class="font-medium">{ff.phones}</span>
+					<textarea form={formId} name={footer.phones(slot.id)} rows="2" class="ui-input-compact w-full">{phonesText}</textarea>
+				</label>
+				<label class="ui-label-inline">
+					<span class="font-medium">{ff.email}</span>
+					<input form={formId} name={footer.email(slot.id)} value={contact.email ?? ''} class="ui-input-compact ui-input-compact--mono w-full" />
+				</label>
+				<label class="ui-label-inline">
+					<span class="font-medium">{ff.epuap}</span>
+					<input form={formId} name={footer.epuap(slot.id)} value={contact.epuap ?? ''} class="ui-input-compact w-full" />
+				</label>
+				<label class="ui-label-inline">
+					<span class="font-medium">{ff.nip}</span>
+					<input form={formId} name={footer.nip(slot.id)} value={contact.nip ?? ''} class="ui-input-compact w-full" />
+				</label>
+				<label class="ui-label-inline">
+					<span class="font-medium">{ff.regon}</span>
+					<input form={formId} name={footer.regon(slot.id)} value={contact.regon ?? ''} class="ui-input-compact w-full" />
 				</label>
 				<label class="ui-label-inline sm:col-span-2">
-					<span class="font-medium">{fields.footerCopyrightSuffix ?? 'Tekst copyright'}</span>
-					<input form={formId} name={slotFormFields.footer.copyrightSuffix(slot.id)} value={w.copyrightSuffix ?? ''} class="ui-input-compact w-full" />
+					<span class="font-medium">{ff.eDoreczenia}</span>
+					<input form={formId} name={footer.eDoreczenia(slot.id)} value={contact.eDoreczenia ?? ''} class="ui-input-compact w-full" />
 				</label>
-				<p class="ui-hint sm:col-span-2">{adminLayout.footerChromeHint ?? 'Pełne dane kontaktowe i konta bankowe edytuj w pliku layoutu (JSON) lub zaimportuj z istniejącej konfiguracji.'}</p>
+
+				<p class="ui-subheading sm:col-span-2">{ff.bankHeading}</p>
+				<label class="ui-label-inline sm:col-span-2">
+					<span class="font-medium">{ff.bankAccounts}</span>
+					<textarea form={formId} name={footer.bankAccounts(slot.id)} rows="3" class="ui-input-compact ui-input-compact--mono w-full">{bankText}</textarea>
+				</label>
+				<p class="ui-hint sm:col-span-2">{ff.bankAccountsHint}</p>
+
+				<p class="ui-subheading sm:col-span-2">{ff.officeHoursHeading}</p>
+				<label class="ui-label-inline sm:col-span-2">
+					<span class="font-medium">{ff.officeHours}</span>
+					<textarea form={formId} name={footer.officeHours(slot.id)} rows="2" class="ui-input-compact w-full">{hoursText}</textarea>
+				</label>
+				<p class="ui-hint sm:col-span-2">{ff.officeHoursHint}</p>
+
+				<p class="ui-subheading sm:col-span-2">{ff.invoiceHeading}</p>
+				<p class="font-medium sm:col-span-2">{ff.invoiceBuyer}</p>
+				<label class="ui-label-inline">
+					<span class="font-medium">{ff.invoiceTitle}</span>
+					<input form={formId} name={footer.invoiceBuyerTitle(slot.id)} value={buyer.title ?? ''} class="ui-input-compact w-full" />
+				</label>
+				<label class="ui-label-inline">
+					<span class="font-medium">{ff.invoiceName}</span>
+					<input form={formId} name={footer.invoiceBuyerName(slot.id)} value={buyer.name ?? ''} class="ui-input-compact w-full" />
+				</label>
+				<label class="ui-label-inline">
+					<span class="font-medium">{ff.invoiceAddress}</span>
+					<textarea form={formId} name={footer.invoiceBuyerAddress(slot.id)} rows="2" class="ui-input-compact w-full">{buyer.address ?? ''}</textarea>
+				</label>
+				<label class="ui-label-inline">
+					<span class="font-medium">{ff.invoiceNip}</span>
+					<input form={formId} name={footer.invoiceBuyerNip(slot.id)} value={buyer.nip ?? ''} class="ui-input-compact w-full" />
+				</label>
+				<p class="font-medium sm:col-span-2">{ff.invoiceRecipient}</p>
+				<label class="ui-label-inline">
+					<span class="font-medium">{ff.invoiceTitle}</span>
+					<input form={formId} name={footer.invoiceRecipientTitle(slot.id)} value={recipient.title ?? ''} class="ui-input-compact w-full" />
+				</label>
+				<label class="ui-label-inline">
+					<span class="font-medium">{ff.invoiceName}</span>
+					<input form={formId} name={footer.invoiceRecipientName(slot.id)} value={recipient.name ?? ''} class="ui-input-compact w-full" />
+				</label>
+				<label class="ui-label-inline">
+					<span class="font-medium">{ff.invoiceAddress}</span>
+					<textarea form={formId} name={footer.invoiceRecipientAddress(slot.id)} rows="2" class="ui-input-compact w-full">{recipient.address ?? ''}</textarea>
+				</label>
+				<label class="ui-label-inline">
+					<span class="font-medium">{ff.invoiceNip}</span>
+					<input form={formId} name={footer.invoiceRecipientNip(slot.id)} value={recipient.nip ?? ''} class="ui-input-compact w-full" />
+				</label>
+
+				<p class="ui-subheading sm:col-span-2">{ff.legalHeading}</p>
+				<label class="ui-label-inline sm:col-span-2">
+					<span class="font-medium">{ff.legalLinks}</span>
+					<textarea form={formId} name={footer.legalLinks(slot.id)} rows="2" class="ui-input-compact ui-input-compact--mono w-full">{legalText}</textarea>
+				</label>
+				<p class="ui-hint sm:col-span-2">{ff.legalLinksHint}</p>
+
+				<label class="ui-label-inline sm:col-span-2">
+					<span class="font-medium">{ff.contactCtaLabel}</span>
+					<input form={formId} name={footer.contactCtaLabel(slot.id)} value={w.contactCtaLabel ?? ''} class="ui-input-compact w-full" />
+				</label>
+				<label class="ui-label-inline sm:col-span-2">
+					<span class="font-medium">{ff.contactCtaHref}</span>
+					<input form={formId} name={footer.contactCtaHref(slot.id)} value={w.contactCtaHref ?? ''} class="ui-input-compact ui-input-compact--mono w-full" />
+				</label>
+				<label class="ui-label-inline sm:col-span-2">
+					<span class="font-medium">{ff.copyrightSuffix}</span>
+					<input form={formId} name={footer.copyrightSuffix(slot.id)} value={w.copyrightSuffix ?? ''} class="ui-input-compact w-full" />
+				</label>
 			</>
 		) : null
 	}

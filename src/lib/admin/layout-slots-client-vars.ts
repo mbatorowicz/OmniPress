@@ -75,9 +75,7 @@ export function buildLayoutSlotsClientScriptVars(componentOptionsHtml: string) {
 			headerBrandLogoUrl: fields.headerBrandLogoUrl,
 			headerBrandLogoAlt: fields.headerBrandLogoAlt,
 			headerBrandHomeHref: fields.headerBrandHomeHref,
-			footerContactCtaLabel: fields.footerContactCtaLabel,
-			footerContactCtaHref: fields.footerContactCtaHref,
-			footerCopyrightSuffix: fields.footerCopyrightSuffix,
 		},
+		footerFieldLabels: adminLayout.footerFields,
 	};
 }
