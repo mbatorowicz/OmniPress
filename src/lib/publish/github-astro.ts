@@ -226,7 +226,8 @@ export async function publishToGitHubAstro(
 			(a) =>
 				a.mime_type === 'application/pdf' ||
 				a.mime_type ===
-					'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+					'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+				a.mime_type === 'application/geopackage+sqlite3',
 		);
 
 		const bodyWithFiles = buildPublishedBodyMd(post.content_md, fileAssets, urlMap);
@@ -256,7 +257,7 @@ export async function publishToGitHubAstro(
 		const prepared = prepareAstroPostFromGallery(publishedBody, galleryUrls);
 		let excerpt = prepared.excerpt;
 		if (!excerpt.trim() && fileAssets.length > 0) {
-			excerpt = fileAssets[0]!.filename.replace(/\.(pdf|docx)$/i, '');
+			excerpt = fileAssets[0]!.filename.replace(/\.(pdf|docx|gpkg)$/i, '');
 		}
 		const pubDate = post.scheduled_publish_at ?? post.updated_at ?? new Date().toISOString();
 		const fileContent = buildAstroMarkdown(post.title, prepared.bodyMd, pubDate, cfg.contentLayout, {

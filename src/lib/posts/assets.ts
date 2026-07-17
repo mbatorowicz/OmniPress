@@ -27,8 +27,17 @@ export function isDocxAsset(asset: PostAssetRow): boolean {
 	);
 }
 
+export function isGpkgAsset(asset: PostAssetRow): boolean {
+	return asset.mime_type === 'application/geopackage+sqlite3';
+}
+
+/** Inne pliki do pobrania (poza PDF i DOCX). */
+export function isDownloadFileAsset(asset: PostAssetRow): boolean {
+	return isGpkgAsset(asset);
+}
+
 export function isFileAttachmentAsset(asset: PostAssetRow): boolean {
-	return isPdfAsset(asset) || isDocxAsset(asset);
+	return isPdfAsset(asset) || isDocxAsset(asset) || isDownloadFileAsset(asset);
 }
 
 export async function loadPostAssetsForPost(
@@ -135,6 +144,11 @@ export function parseDocxOrder(form: FormData): string[] {
 	return parseAssetOrderField(form, 'docx_order');
 }
 
+/** Kolejność innych plików do pobrania (poza PDF/DOCX). */
+export function parseFileOrder(form: FormData): string[] {
+	return parseAssetOrderField(form, 'file_order');
+}
+
 export async function updateGalleryOrder(
 	supabase: SupabaseClient,
 	postId: string,
@@ -150,12 +164,13 @@ export async function updateGalleryOrder(
 	}
 }
 
-/** Kolejność plików na stronie: PDF-y, potem DOCX (w obrębie sekcji edytora). */
+/** Kolejność plików na stronie: PDF, DOCX, potem inne pliki do pobrania. */
 export async function updateFileAttachmentOrders(
 	supabase: SupabaseClient,
 	postId: string,
 	pdfIds: string[],
 	docxIds: string[],
+	fileIds: string[] = [],
 ): Promise<void> {
 	let sortOrder = 0;
 	for (const id of pdfIds) {
@@ -166,6 +181,13 @@ export async function updateFileAttachmentOrders(
 			.eq('post_id', postId);
 	}
 	for (const id of docxIds) {
+		await supabase
+			.from('assets')
+			.update({ sort_order: sortOrder++ })
+			.eq('id', id)
+			.eq('post_id', postId);
+	}
+	for (const id of fileIds) {
 		await supabase
 			.from('assets')
 			.update({ sort_order: sortOrder++ })

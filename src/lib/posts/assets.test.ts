@@ -41,6 +41,10 @@ describe('canDeletePostAsset', () => {
 		).toBe(true);
 	});
 
+	it('zezwala na usuwanie GPKG', () => {
+		expect(canDeletePostAsset({ mime_type: 'application/geopackage+sqlite3' })).toBe(true);
+	});
+
 	it('odrzuca nieznane typy', () => {
 		expect(canDeletePostAsset({ mime_type: 'application/zip' })).toBe(false);
 	});

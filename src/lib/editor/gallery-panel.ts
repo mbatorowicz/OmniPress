@@ -1,3 +1,4 @@
+import { uploadPostAsset } from '@/lib/editor/upload-asset';
 import type { GalleryAsset } from './client-init';
 import { iconButtonHtml, stepButtonHtml } from '@/lib/ui/button-markup';
 
@@ -127,35 +128,27 @@ export function mountGalleryPanel(
 		const label = root.querySelector('[data-gallery-upload-label]');
 		label?.classList.add('opacity-50', 'pointer-events-none');
 
-		try {
-			for (const file of Array.from(files)) {
-				const fd = new FormData();
-				fd.append('file', file);
-				fd.append('kind', 'gallery');
+		const uploadLabels = {
+			uploadFailed: root.dataset.labelUploadFailed ?? '',
+			networkError: root.dataset.labelNetworkError ?? '',
+		};
 
-				const res = await fetch(`/api/posts/${postId}/upload`, {
-					method: 'POST',
-					body: fd,
-					credentials: 'same-origin',
-				});
-				const data = await res.json();
-				if (!res.ok || !data.asset) {
-					alert(data.error ?? `Upload nie powiódł się: ${file.name}`);
-					continue;
-				}
-				order.push({
-					id: data.asset.id,
-					url: data.asset.url,
-					filename: data.asset.filename,
-				});
+		for (const file of Array.from(files)) {
+			const result = await uploadPostAsset(postId, file, 'gallery', uploadLabels);
+			if (!result.ok) {
+				alert(result.error || `${uploadLabels.uploadFailed}: ${file.name}`);
+				continue;
 			}
-			renderGallery(root, labels, postId);
-		} catch {
-			alert('Błąd połączenia przy uploadzie.');
-		} finally {
-			input.value = '';
-			label?.classList.remove('opacity-50', 'pointer-events-none');
+			order.push({
+				id: result.asset.id,
+				url: result.asset.url,
+				filename: result.asset.filename,
+			});
 		}
+		renderGallery(root, labels, postId);
+
+		input.value = '';
+		label?.classList.remove('opacity-50', 'pointer-events-none');
 	});
 }
 

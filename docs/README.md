@@ -48,6 +48,8 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | `setup:auth-urls` | Site URL Supabase Auth |
 | `setup:storage` | Bucket assetów wpisów |
 | `setup:storage-pdf` | PDF w bucket |
+| `setup:storage-docx` | DOCX w bucket |
+| `setup:storage-gpkg` | GPKG + limit 50 MB w bucket |
 | `setup:asset-display` | Tryb wyświetlania assetów |
 | `setup:asset-sort` | Kolejność galerii |
 | `setup:phase3` | UNIQUE(site_id, slug) |

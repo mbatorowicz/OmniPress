@@ -2,13 +2,13 @@ import { uploadPostAsset } from '@/lib/editor/upload-asset';
 import { iconButtonHtml, stepButtonHtml } from '@/lib/ui/button-markup';
 import { iconSvg } from '@/lib/ui/icons';
 
-export type DocxAsset = {
+export type FileAsset = {
 	id: string;
 	url: string;
 	filename: string;
 };
 
-type DocxLabels = {
+type FileLabels = {
 	moveUp: string;
 	moveDown: string;
 	remove: string;
@@ -16,9 +16,9 @@ type DocxLabels = {
 	removeFailed: string;
 };
 
-let order: DocxAsset[] = [];
+let order: FileAsset[] = [];
 
-function readLabels(root: HTMLElement): DocxLabels {
+function readLabels(root: HTMLElement): FileLabels {
 	return {
 		moveUp: root.dataset.labelMoveUp ?? '',
 		moveDown: root.dataset.labelMoveDown ?? '',
@@ -29,32 +29,32 @@ function readLabels(root: HTMLElement): DocxLabels {
 }
 
 function syncOrderInput(root: HTMLElement): void {
-	const input = root.querySelector('[data-docx-order]');
+	const input = root.querySelector('[data-file-order]');
 	if (input instanceof HTMLInputElement) {
 		input.value = order.map((a) => a.id).join(',');
 	}
 }
 
-function syncDocxEmptyState(root: HTMLElement): void {
-	const list = root.querySelector('[data-docx-list]');
-	const empty = root.querySelector('[data-docx-empty]');
+function syncFileEmptyState(root: HTMLElement): void {
+	const list = root.querySelector('[data-file-list]');
+	const empty = root.querySelector('[data-file-empty]');
 	if (!(list instanceof HTMLElement)) return;
 	empty?.classList.toggle('hidden', list.children.length > 0);
 }
 
-function renderDocxList(root: HTMLElement, labels: DocxLabels, postId: string): void {
-	const list = root.querySelector('[data-docx-list]');
+function renderFileList(root: HTMLElement, labels: FileLabels, postId: string): void {
+	const list = root.querySelector('[data-file-list]');
 	if (!(list instanceof HTMLElement)) return;
 
 	list.innerHTML = '';
 
 	if (order.length === 0) {
-		syncDocxEmptyState(root);
+		syncFileEmptyState(root);
 		syncOrderInput(root);
 		return;
 	}
 
-	syncDocxEmptyState(root);
+	syncFileEmptyState(root);
 
 	order.forEach((asset, index) => {
 		const li = document.createElement('li');
@@ -65,7 +65,7 @@ function renderDocxList(root: HTMLElement, labels: DocxLabels, postId: string): 
 			variant: 'iconDanger',
 			ariaLabel: labels.remove,
 			icon: 'x',
-			attrs: { 'data-docx-remove': '' },
+			attrs: { 'data-file-remove': '' },
 		});
 
 		li.innerHTML = `
@@ -77,32 +77,32 @@ function renderDocxList(root: HTMLElement, labels: DocxLabels, postId: string): 
 				<a href="${asset.url}" target="_blank" rel="noopener noreferrer" class="ui-link text-xs">${asset.url}</a>
 			</div>
 			<div class="flex shrink-0 gap-1">
-				${stepButtonHtml({ ariaLabel: labels.moveUp, label: '↑', disabled: index === 0, attrs: { 'data-docx-up': '' } })}
-				${stepButtonHtml({ ariaLabel: labels.moveDown, label: '↓', disabled: index === order.length - 1, attrs: { 'data-docx-down': '' } })}
+				${stepButtonHtml({ ariaLabel: labels.moveUp, label: '↑', disabled: index === 0, attrs: { 'data-file-up': '' } })}
+				${stepButtonHtml({ ariaLabel: labels.moveDown, label: '↓', disabled: index === order.length - 1, attrs: { 'data-file-down': '' } })}
 				${removeBtn}
 			</div>
 		`;
 
-		li.querySelector('[data-docx-up]')?.addEventListener('click', () => {
+		li.querySelector('[data-file-up]')?.addEventListener('click', () => {
 			if (index <= 0) return;
 			const next = [...order];
 			[next[index - 1], next[index]] = [next[index]!, next[index - 1]!];
 			order = next;
-			renderDocxList(root, labels, postId);
+			renderFileList(root, labels, postId);
 		});
 
-		li.querySelector('[data-docx-down]')?.addEventListener('click', () => {
+		li.querySelector('[data-file-down]')?.addEventListener('click', () => {
 			if (index >= order.length - 1) return;
 			const next = [...order];
 			[next[index], next[index + 1]] = [next[index + 1]!, next[index]!];
 			order = next;
-			renderDocxList(root, labels, postId);
+			renderFileList(root, labels, postId);
 		});
 
-		li.querySelector('[data-docx-remove]')?.addEventListener('click', async () => {
+		li.querySelector('[data-file-remove]')?.addEventListener('click', async () => {
 			if (!confirm(labels.confirmRemove)) return;
 
-			const btn = li.querySelector('[data-docx-remove]');
+			const btn = li.querySelector('[data-file-remove]');
 			btn?.setAttribute('disabled', 'true');
 
 			try {
@@ -117,7 +117,7 @@ function renderDocxList(root: HTMLElement, labels: DocxLabels, postId: string): 
 					return;
 				}
 				order = order.filter((a) => a.id !== asset.id);
-				renderDocxList(root, labels, postId);
+				renderFileList(root, labels, postId);
 			} catch {
 				alert(labels.removeFailed);
 				btn?.removeAttribute('disabled');
@@ -130,18 +130,18 @@ function renderDocxList(root: HTMLElement, labels: DocxLabels, postId: string): 
 	syncOrderInput(root);
 }
 
-export function mountDocxAttachments(
+export function mountFileAttachments(
 	root: HTMLElement,
-	initialAssets: DocxAsset[],
+	initialAssets: FileAsset[],
 ): void {
 	const postId = root.dataset.postId;
 	if (!postId) return;
 
 	const labels = readLabels(root);
 	order = [...initialAssets];
-	renderDocxList(root, labels, postId);
+	renderFileList(root, labels, postId);
 
-	const input = root.querySelector('[data-docx-upload]');
+	const input = root.querySelector('[data-file-upload]');
 	input?.addEventListener('change', async () => {
 		if (!(input instanceof HTMLInputElement)) return;
 		const file = input.files?.[0];
@@ -150,7 +150,7 @@ export function mountDocxAttachments(
 		const btn = input.closest('label');
 		btn?.classList.add('opacity-50', 'pointer-events-none');
 
-		const result = await uploadPostAsset(postId, file, 'docx', {
+		const result = await uploadPostAsset(postId, file, 'file', {
 			uploadFailed: root.dataset.labelUploadFailed ?? '',
 			networkError: root.dataset.labelNetworkError ?? '',
 		});
@@ -162,7 +162,7 @@ export function mountDocxAttachments(
 				url: result.asset.url,
 				filename: result.asset.filename,
 			});
-			renderDocxList(root, labels, postId);
+			renderFileList(root, labels, postId);
 		}
 
 		input.value = '';

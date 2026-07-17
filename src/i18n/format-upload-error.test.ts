@@ -7,7 +7,11 @@ describe('formatUploadError', () => {
 	});
 
 	it('rozpoznaje mime type', () => {
-		expect(formatUploadError('mime type application/pdf is not allowed')).toContain('PDF');
+		expect(formatUploadError('mime type application/pdf is not allowed')).toContain('DOCX');
+	});
+
+	it('rozpoznaje zbyt duży plik (50 MB)', () => {
+		expect(formatUploadError('The object exceeded the maximum allowed size')).toContain('50 MB');
 	});
 
 	it('zwraca detail gdy nieznany', () => {

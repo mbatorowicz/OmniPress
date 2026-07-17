@@ -1,3 +1,4 @@
+import { uploadPostAsset } from '@/lib/editor/upload-asset';
 import { iconButtonHtml, stepButtonHtml } from '@/lib/ui/button-markup';
 import { iconSvg } from '@/lib/ui/icons';
 
@@ -166,36 +167,26 @@ export function mountPdfAttachments(
 		const file = input.files?.[0];
 		if (!file) return;
 
-		const fd = new FormData();
-		fd.append('file', file);
-		fd.append('kind', 'pdf');
-
 		const btn = input.closest('label');
 		btn?.classList.add('opacity-50', 'pointer-events-none');
 
-		try {
-			const res = await fetch(`/api/posts/${postId}/upload`, {
-				method: 'POST',
-				body: fd,
-				credentials: 'same-origin',
-			});
-			const data = await res.json();
-			if (!res.ok || !data.asset) {
-				alert(data.error ?? 'Upload nie powiódł się');
-				return;
-			}
+		const result = await uploadPostAsset(postId, file, 'pdf', {
+			uploadFailed: root.dataset.labelUploadFailed ?? '',
+			networkError: root.dataset.labelNetworkError ?? '',
+		});
+		if (!result.ok) {
+			alert(result.error);
+		} else {
 			order.push({
-				id: data.asset.id,
-				url: data.asset.url,
-				filename: data.asset.filename,
-				display_mode: data.asset.display_mode,
+				id: result.asset.id,
+				url: result.asset.url,
+				filename: result.asset.filename,
+				display_mode: result.asset.display_mode,
 			});
 			renderPdfList(root, labels, postId);
-		} catch {
-			alert('Błąd połączenia przy uploadzie.');
-		} finally {
-			input.value = '';
-			btn?.classList.remove('opacity-50', 'pointer-events-none');
 		}
+
+		input.value = '';
+		btn?.classList.remove('opacity-50', 'pointer-events-none');
 	});
 }

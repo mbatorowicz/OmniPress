@@ -7,6 +7,7 @@ import {
 	slugFromTitle,
 	parseAssetDisplayModes,
 	parseDocxOrder,
+	parseFileOrder,
 	parseGalleryOrder,
 	parsePdfOrder,
 	updateGalleryOrder,
@@ -75,6 +76,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		postId,
 		parsePdfOrder(form),
 		parseDocxOrder(form),
+		parseFileOrder(form),
 	);
 
 	return redirect(`/dashboard/posts/${postId}?saved=1`);

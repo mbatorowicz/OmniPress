@@ -1,4 +1,5 @@
 ---
+import { dashboard } from '@/i18n';
 import { isGalleryImageAsset, publicUrlForAsset, type PostAssetRow } from '@/lib/posts/assets';
 
 type Props = {
@@ -26,6 +27,7 @@ const galleryAssets = assets.filter(isGalleryImageAsset).map((a) => ({
 	filename: a.filename,
 }));
 const initialOrder = galleryAssets.map((a) => a.id).join(',');
+const ed = dashboard.editor;
 ---
 
 <div
@@ -42,6 +44,8 @@ const initialOrder = galleryAssets.map((a) => a.id).join(',');
 	data-label-remove-failed={labels.removeFailed}
 	data-label-empty={labels.empty}
 	data-label-add={labels.add}
+	data-label-upload-failed={ed.uploadFailed}
+	data-label-network-error={ed.uploadNetworkError}
 >
 	<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
 		<div>

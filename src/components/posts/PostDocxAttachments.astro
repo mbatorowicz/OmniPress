@@ -1,4 +1,5 @@
 ---
+import { dashboard } from '@/i18n';
 import { isDocxAsset, publicUrlForAsset, type PostAssetRow } from '@/lib/posts/assets';
 
 type Props = {
@@ -23,6 +24,7 @@ const docxAssets = assets.filter(isDocxAsset).map((a) => ({
 	filename: a.filename,
 }));
 const initialOrder = docxAssets.map((a) => a.id).join(',');
+const ed = dashboard.editor;
 ---
 
 <div
@@ -35,6 +37,8 @@ const initialOrder = docxAssets.map((a) => a.id).join(',');
 	data-label-remove={labels.remove}
 	data-label-confirm-remove={labels.confirmRemove}
 	data-label-remove-failed={labels.removeFailed}
+	data-label-upload-failed={ed.uploadFailed}
+	data-label-network-error={ed.uploadNetworkError}
 >
 	<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
 		<h3 class="ui-subheading">{labels.heading}</h3>

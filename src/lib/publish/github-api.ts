@@ -350,6 +350,75 @@ export async function putGitHubFilesBatch(
 	return { commitSha: newCommitJson.sha, written: byPath.size, blobShas };
 }
 
+/** Contents API + base64 w JSON jest ciężki dla dużych plików — powyżej progu Git Data API. */
+const LARGE_FILE_GIT_DATA_BYTES = 8 * 1024 * 1024;
+
+async function putGitHubFileViaGitData(
+	cfg: GitHubConfig,
+	token: string,
+	filePath: string,
+	content: string | ArrayBuffer,
+	message: string,
+): Promise<{ sha: string; commitSha: string }> {
+	const encoded =
+		typeof content === 'string' ? textToBase64(content) : bytesToBase64(content);
+
+	const blobRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/blobs`, {
+		method: 'POST',
+		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+		body: JSON.stringify({ content: encoded, encoding: 'base64' }),
+	});
+	if (!blobRes.ok) {
+		const text = await blobRes.text();
+		throw new Error(`GitHub blob ${blobRes.status}: ${text.slice(0, 300)}`);
+	}
+	const blobJson = (await blobRes.json()) as { sha: string };
+
+	const parentSha = await getBranchHeadCommitSha(cfg, token);
+	const baseTreeSha = await getCommitTreeSha(cfg, token, parentSha);
+
+	const treeRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/trees`, {
+		method: 'POST',
+		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			base_tree: baseTreeSha,
+			tree: [{ path: filePath, mode: '100644', type: 'blob', sha: blobJson.sha }],
+		}),
+	});
+	if (!treeRes.ok) {
+		const text = await treeRes.text();
+		throw new Error(`GitHub tree ${treeRes.status}: ${text.slice(0, 300)}`);
+	}
+	const treeJson = (await treeRes.json()) as { sha: string };
+
+	const newCommitRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/commits`, {
+		method: 'POST',
+		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			message,
+			tree: treeJson.sha,
+			parents: [parentSha],
+		}),
+	});
+	if (!newCommitRes.ok) {
+		const text = await newCommitRes.text();
+		throw new Error(`GitHub commit POST ${newCommitRes.status}: ${text.slice(0, 300)}`);
+	}
+	const newCommitJson = (await newCommitRes.json()) as { sha: string };
+
+	const updateRefRes = await fetch(gitBranchRefUpdateUrl(cfg), {
+		method: 'PATCH',
+		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+		body: JSON.stringify({ sha: newCommitJson.sha, force: false }),
+	});
+	if (!updateRefRes.ok) {
+		const text = await updateRefRes.text();
+		throw new Error(`GitHub ref PATCH ${updateRefRes.status}: ${text.slice(0, 300)}`);
+	}
+
+	return { sha: blobJson.sha, commitSha: newCommitJson.sha };
+}
+
 export async function putGitHubFile(
 	cfg: GitHubConfig,
 	token: string,
@@ -358,6 +427,13 @@ export async function putGitHubFile(
 	message: string,
 	existingSha?: string,
 ): Promise<{ sha: string; commitSha: string }> {
+	const byteLength =
+		typeof content === 'string' ? new TextEncoder().encode(content).byteLength : content.byteLength;
+
+	if (byteLength >= LARGE_FILE_GIT_DATA_BYTES) {
+		return putGitHubFileViaGitData(cfg, token, filePath, content, message);
+	}
+
 	const url = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeGitHubPath(filePath)}`;
 	const encoded =
 		typeof content === 'string' ? textToBase64(content) : bytesToBase64(content);

@@ -95,6 +95,16 @@ export const dashboard = {
 			confirmRemove: ui.confirm.removeItem(ui.assets.docx),
 			removeFailed: ui.errors.removeFailed,
 		},
+		fileAttachments: {
+			heading: 'Pliki do pobrania',
+			empty: 'Brak innych plików do pobrania.',
+			add: '+ Dodaj plik',
+			moveUp: ui.actions.moveUp,
+			moveDown: ui.actions.moveDown,
+			remove: `${ui.actions.remove} plik`,
+			confirmRemove: ui.confirm.removeItem(ui.assets.file),
+			removeFailed: ui.errors.removeFailed,
+		},
 		attachments: {
 			heading: 'Załączniki',
 			empty: 'Brak plików — użyj „Dodaj plik” powyżej.',

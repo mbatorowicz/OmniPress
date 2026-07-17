@@ -22,5 +22,6 @@ export const ui = {
 		photo: 'to zdjęcie z galerii',
 		pdf: 'ten plik PDF',
 		docx: 'ten plik DOCX',
+		file: 'ten plik',
 	},
 } as const;

@@ -97,3 +97,19 @@ export function initDocxAttachments(): void {
 		mountDocxAttachments(root, initialAssets);
 	});
 }
+
+export function initFileAttachments(): void {
+	const root = document.querySelector('[data-file-attachments]');
+	if (!(root instanceof HTMLElement)) return;
+
+	let initialAssets: import('@/lib/editor/file-attachments').FileAsset[] = [];
+	try {
+		initialAssets = JSON.parse(root.dataset.initialAssets ?? '[]');
+	} catch {
+		initialAssets = [];
+	}
+
+	void import('@/lib/editor/file-attachments').then(({ mountFileAttachments }) => {
+		mountFileAttachments(root, initialAssets);
+	});
+}

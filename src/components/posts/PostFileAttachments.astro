@@ -1,6 +1,6 @@
 ---
 import { dashboard } from '@/i18n';
-import { isPdfAsset, publicUrlForAsset, type PostAssetRow } from '@/lib/posts/assets';
+import { isDownloadFileAsset, publicUrlForAsset, type PostAssetRow } from '@/lib/posts/assets';
 
 type Props = {
 	postId: string;
@@ -9,8 +9,6 @@ type Props = {
 		heading: string;
 		empty: string;
 		add: string;
-		displayLink: string;
-		displayEmbed: string;
 		moveUp: string;
 		moveDown: string;
 		remove: string;
@@ -20,23 +18,20 @@ type Props = {
 };
 
 const { postId, assets, labels } = Astro.props;
-const pdfAssets = assets.filter(isPdfAsset).map((a) => ({
+const fileAssets = assets.filter(isDownloadFileAsset).map((a) => ({
 	id: a.id,
 	url: publicUrlForAsset(a.storage_path) ?? '',
 	filename: a.filename,
-	display_mode: a.display_mode,
 }));
-const initialOrder = pdfAssets.map((a) => a.id).join(',');
+const initialOrder = fileAssets.map((a) => a.id).join(',');
 const ed = dashboard.editor;
 ---
 
 <div
 	class="ui-panel--subtle mt-4"
-	data-pdf-attachments
+	data-file-attachments
 	data-post-id={postId}
-	data-initial-assets={JSON.stringify(pdfAssets)}
-	data-label-link={labels.displayLink}
-	data-label-embed={labels.displayEmbed}
+	data-initial-assets={JSON.stringify(fileAssets)}
 	data-label-move-up={labels.moveUp}
 	data-label-move-down={labels.moveDown}
 	data-label-remove={labels.remove}
@@ -49,20 +44,25 @@ const ed = dashboard.editor;
 		<h3 class="ui-subheading">{labels.heading}</h3>
 		<label class="ui-btn ui-btn--file">
 			{labels.add}
-			<input type="file" accept="application/pdf" class="hidden" data-pdf-upload />
+			<input
+				type="file"
+				accept=".gpkg,application/geopackage+sqlite3,application/octet-stream"
+				class="hidden"
+				data-file-upload
+			/>
 		</label>
 	</div>
 
-	<p class:list={['ui-hint', pdfAssets.length > 0 && 'hidden']} data-pdf-empty>
+	<p class:list={['ui-hint', fileAssets.length > 0 && 'hidden']} data-file-empty>
 		{labels.empty}
 	</p>
 
-	<ul class="space-y-2" data-pdf-list></ul>
+	<ul class="space-y-2" data-file-list></ul>
 
-	<input type="hidden" name="pdf_order" value={initialOrder} data-pdf-order />
+	<input type="hidden" name="file_order" value={initialOrder} data-file-order />
 </div>
 
 <script>
-	import { initPdfAttachments } from '@/lib/editor/client-init';
-	initPdfAttachments();
+	import { initFileAttachments } from '@/lib/editor/client-init';
+	initFileAttachments();
 </script>

@@ -17,6 +17,7 @@
     "setup:storage": "node scripts/apply-migration.mjs supabase/migrations/20250604000000_storage_post_assets.sql",
     "setup:storage-pdf": "node scripts/apply-migration.mjs supabase/migrations/20250609000000_storage_post_assets_pdf.sql",
     "setup:storage-docx": "node scripts/apply-migration.mjs supabase/migrations/20250622000000_storage_post_assets_docx.sql",
+    "setup:storage-gpkg": "node scripts/apply-migration.mjs supabase/migrations/20250623000000_storage_post_assets_gpkg.sql",
     "setup:asset-display": "node scripts/apply-migration.mjs supabase/migrations/20250610000000_asset_display_mode.sql",
     "setup:asset-sort": "node scripts/apply-migration.mjs supabase/migrations/20250611000000_asset_sort_order.sql",
     "setup:phase3": "node scripts/apply-migration.mjs supabase/migrations/20250605000000_phase3_post_slug_unique.sql",

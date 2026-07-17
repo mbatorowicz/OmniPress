@@ -23,7 +23,22 @@ export {
 	sortImageAssetsForDisplay,
 	type ImageAttachmentRole,
 } from './image-order';
-export { extensionForMime, markdownForUploadedAsset, validateImageFile, validatePostAssetFile, DOCX_MIME, PDF_MIME } from './upload';
+export {
+	extensionForMime,
+	markdownForUploadedAsset,
+	validateImageFile,
+	validatePostAssetFile,
+	validateUploadMeta,
+	validateMagicBytesForMime,
+	resolveUploadMime,
+	parseUploadKind,
+	DOCX_MIME,
+	PDF_MIME,
+	GPKG_MIME,
+	MAX_FILE_ATTACHMENT_BYTES,
+	type UploadKind,
+} from './upload';
+export { createPostAssetSignedUpload, completePostAssetUpload } from './signed-upload';
 export {
 	assetsForContentRender,
 	assetsForPreviewRender,
@@ -35,6 +50,7 @@ export {
 	parseGalleryOrder,
 	parsePdfOrder,
 	parseDocxOrder,
+	parseFileOrder,
 	updateGalleryOrder,
 	updateFileAttachmentOrders,
 	nextGallerySortOrder,
@@ -42,6 +58,8 @@ export {
 	isGalleryImageAsset,
 	isPdfAsset,
 	isDocxAsset,
+	isGpkgAsset,
+	isDownloadFileAsset,
 	isFileAttachmentAsset,
 	type PostAssetRow,
 } from './assets';

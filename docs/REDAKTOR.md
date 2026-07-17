@@ -30,7 +30,9 @@ Przewodnik po panelu redaktora. Stan funkcji: [STATUS.md](./STATUS.md).
 | Data publikacji + godzina | Opcjonalna — czas polski, godziny do wyboru co godzinę 6:00–20:00; wpis pojawi się na stronie po tej dacie (po akceptacji). **Bez daty** wpis zostanie opublikowany w momencie wysłania (po akceptacji) |
 | Treść | Edytor WYSIWYG (TipTap) — zapis jako Markdown |
 | Galeria | Zdjęcia pod wpisem; pierwsze = zajawka (cover); kolejność ↑↓; usuwanie × |
-| PDF | Załączniki jako link lub podgląd osadzony |
+| PDF | Załączniki (do 50 MB) jako link lub podgląd osadzony |
+| DOCX | Załączniki Word (do 50 MB) — link do pobrania |
+| Pliki do pobrania | Inne załączniki (do 50 MB) — link do pobrania |
 
 **Zapisz szkic** — możesz wracać i edytować (status `draft` lub `rejected`).
 

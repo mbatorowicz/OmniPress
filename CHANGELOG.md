@@ -11,11 +11,14 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 - **CSP z nonce** per żądanie (bez `unsafe-inline` dla skryptów); `style-src 'unsafe-inline'` dla TipTap.
 - **Rate limit auth** współdzielony: Upstash Redis (preferowany) lub tabela `auth_rate_limits` + RPC (`setup:auth-rate-limits`).
 - Audyt **fine-grained GitHub PAT** przy teście kanału (ostrzeżenie dla classic `ghp_`).
+- Limit załączników PDF/DOCX/plików do pobrania **50 MB**; panel „Pliki do pobrania” na inne typy (`setup:storage-gpkg`).
+- Upload assetów **bezpośrednio do Supabase Storage** (signed URL) — omija limit body Vercel (~4,5 MB).
 
 ### Zmienione
 
 - IP rate limitu z nagłówka `x-real-ip` (Vercel).
 - Dokumentacja tokena GitHub: fine-grained PAT z dostępem tylko do repo strony (`docs/WDROZENIE.md`).
+- Publikacja dużych assetów na GitHub (≥ 8 MB) przez Git Data API zamiast Contents API.
 
 ## [0.9.5] — 2026-06-03
 
