@@ -352,6 +352,8 @@ export async function putGitHubFilesBatch(
 
 /** Contents API + base64 w JSON jest ciężki dla dużych plików — powyżej progu Git Data API. */
 const LARGE_FILE_GIT_DATA_BYTES = 8 * 1024 * 1024;
+/** Konflikty SHA przy równoległej publikacji (Contents API 409 / ref tip) — odśwież i ponów. */
+const CONTENTS_CONFLICT_RETRIES = 4;
 
 async function putGitHubFileViaGitData(
 	cfg: GitHubConfig,
@@ -374,49 +376,60 @@ async function putGitHubFileViaGitData(
 	}
 	const blobJson = (await blobRes.json()) as { sha: string };
 
-	const parentSha = await getBranchHeadCommitSha(cfg, token);
-	const baseTreeSha = await getCommitTreeSha(cfg, token, parentSha);
+	let lastError = '';
+	for (let attempt = 0; attempt < CONTENTS_CONFLICT_RETRIES; attempt++) {
+		const parentSha = await getBranchHeadCommitSha(cfg, token);
+		const baseTreeSha = await getCommitTreeSha(cfg, token, parentSha);
 
-	const treeRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/trees`, {
-		method: 'POST',
-		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-			base_tree: baseTreeSha,
-			tree: [{ path: filePath, mode: '100644', type: 'blob', sha: blobJson.sha }],
-		}),
-	});
-	if (!treeRes.ok) {
-		const text = await treeRes.text();
-		throw new Error(`GitHub tree ${treeRes.status}: ${text.slice(0, 300)}`);
-	}
-	const treeJson = (await treeRes.json()) as { sha: string };
+		const treeRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/trees`, {
+			method: 'POST',
+			headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				base_tree: baseTreeSha,
+				tree: [{ path: filePath, mode: '100644', type: 'blob', sha: blobJson.sha }],
+			}),
+		});
+		if (!treeRes.ok) {
+			const text = await treeRes.text();
+			throw new Error(`GitHub tree ${treeRes.status}: ${text.slice(0, 300)}`);
+		}
+		const treeJson = (await treeRes.json()) as { sha: string };
 
-	const newCommitRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/commits`, {
-		method: 'POST',
-		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-			message,
-			tree: treeJson.sha,
-			parents: [parentSha],
-		}),
-	});
-	if (!newCommitRes.ok) {
-		const text = await newCommitRes.text();
-		throw new Error(`GitHub commit POST ${newCommitRes.status}: ${text.slice(0, 300)}`);
-	}
-	const newCommitJson = (await newCommitRes.json()) as { sha: string };
+		const newCommitRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/commits`, {
+			method: 'POST',
+			headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				message,
+				tree: treeJson.sha,
+				parents: [parentSha],
+			}),
+		});
+		if (!newCommitRes.ok) {
+			const text = await newCommitRes.text();
+			throw new Error(`GitHub commit POST ${newCommitRes.status}: ${text.slice(0, 300)}`);
+		}
+		const newCommitJson = (await newCommitRes.json()) as { sha: string };
 
-	const updateRefRes = await fetch(gitBranchRefUpdateUrl(cfg), {
-		method: 'PATCH',
-		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
-		body: JSON.stringify({ sha: newCommitJson.sha, force: false }),
-	});
-	if (!updateRefRes.ok) {
+		const updateRefRes = await fetch(gitBranchRefUpdateUrl(cfg), {
+			method: 'PATCH',
+			headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+			body: JSON.stringify({ sha: newCommitJson.sha, force: false }),
+		});
+		if (updateRefRes.ok) {
+			return { sha: blobJson.sha, commitSha: newCommitJson.sha };
+		}
 		const text = await updateRefRes.text();
-		throw new Error(`GitHub ref PATCH ${updateRefRes.status}: ${text.slice(0, 300)}`);
+		lastError = `GitHub ref PATCH ${updateRefRes.status}: ${text.slice(0, 300)}`;
+		if (
+			(updateRefRes.status === 409 || updateRefRes.status === 422) &&
+			attempt < CONTENTS_CONFLICT_RETRIES - 1
+		) {
+			continue;
+		}
+		throw new Error(lastError);
 	}
 
-	return { sha: blobJson.sha, commitSha: newCommitJson.sha };
+	throw new Error(lastError || 'GitHub ref PATCH: konflikt tipu gałęzi');
 }
 
 export async function putGitHubFile(
@@ -439,39 +452,52 @@ export async function putGitHubFile(
 		typeof content === 'string' ? textToBase64(content) : bytesToBase64(content);
 
 	let sha = existingSha;
-	if (!sha) {
-		const existing = await getGitHubFile(cfg, token, filePath);
-		sha = existing?.sha;
+	let lastError = '';
+
+	for (let attempt = 0; attempt < CONTENTS_CONFLICT_RETRIES; attempt++) {
+		if (attempt > 0 || !sha) {
+			const existing = await getGitHubFile(cfg, token, filePath);
+			sha = existing?.sha;
+		}
+
+		const body: Record<string, string> = {
+			message,
+			content: encoded,
+			branch: cfg.branch,
+		};
+		if (sha) body.sha = sha;
+
+		const res = await fetch(url, {
+			method: 'PUT',
+			headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+			body: JSON.stringify(body),
+		});
+		const text = await res.text();
+		if (res.ok) {
+			const json = JSON.parse(text) as { content?: { sha?: string }; commit?: { sha?: string } };
+			const contentSha = json.content?.sha ?? sha ?? '';
+			const commitSha = json.commit?.sha ?? contentSha;
+			return { sha: contentSha, commitSha };
+		}
+
+		lastError = `GitHub PUT ${res.status}: ${text.slice(0, 300)}`;
+		// 409 = tip / blob SHA się zmienił (równoległy commit); 422 bywa przy złym sha
+		if ((res.status === 409 || res.status === 422) && attempt < CONTENTS_CONFLICT_RETRIES - 1) {
+			sha = undefined;
+			continue;
+		}
+		throw new Error(lastError);
 	}
 
-	const body: Record<string, string> = {
-		message,
-		content: encoded,
-		branch: cfg.branch,
-	};
-	if (sha) body.sha = sha;
-
-	const res = await fetch(url, {
-		method: 'PUT',
-		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
-		body: JSON.stringify(body),
-	});
-	const text = await res.text();
-	if (!res.ok) {
-		throw new Error(`GitHub PUT ${res.status}: ${text.slice(0, 300)}`);
-	}
-	const json = JSON.parse(text) as { content?: { sha?: string }; commit?: { sha?: string } };
-	const contentSha = json.content?.sha ?? sha ?? '';
-	const commitSha = json.commit?.sha ?? contentSha;
-	return { sha: contentSha, commitSha };
+	throw new Error(lastError || 'GitHub PUT: konflikt SHA');
 }
 
 export function isGitHubRetryable(status: number): boolean {
-	return status >= 500 || status === 429 || status === 403;
+	return status >= 500 || status === 429 || status === 403 || status === 409;
 }
 
 export function httpStatusFromError(message: string): number | null {
-	const m = message.match(/GitHub (?:GET|PUT) (\d+)/);
+	const m = message.match(/GitHub (?:GET|PUT|blob|tree|commit|ref)(?:\sPOST|\sPATCH)? (\d+)/i);
 	return m ? Number(m[1]) : null;
 }
 

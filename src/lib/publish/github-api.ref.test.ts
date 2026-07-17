@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { gitBranchRefUrls } from './github-api';
+import { gitBranchRefUrls, httpStatusFromError, isGitHubRetryable } from './github-api';
 
 const cfg = {
 	owner: 'mbatorowicz',
@@ -16,5 +16,19 @@ describe('gitBranchRefUrls', () => {
 		expect(get).toContain('/git/ref/heads/main');
 		expect(patch).toContain('/git/refs/heads/main');
 		expect(get).not.toEqual(patch);
+	});
+});
+
+describe('GitHub conflict / retry helpers', () => {
+	it('409 Contents API jest retryable', () => {
+		expect(isGitHubRetryable(409)).toBe(true);
+	});
+
+	it('parsuje status z komunikatu PUT 409', () => {
+		expect(
+			httpStatusFromError(
+				'GitHub PUT 409: {"message":"is at abc but expected def","status":"409"}',
+			),
+		).toBe(409);
 	});
 });

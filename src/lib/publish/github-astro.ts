@@ -16,6 +16,7 @@ import { buildAstroMarkdown } from './frontmatter';
 import {
 	getGitHubFile,
 	httpStatusFromError,
+	isGitHubRetryable,
 	parseGitHubRepoConfig,
 	putGitHubFile,
 	deleteGitHubFilesBatch,
@@ -315,7 +316,7 @@ export async function publishToGitHubAstro(
 		return {
 			ok: false,
 			summary: msg.slice(0, 500),
-			retryable: status !== null ? status >= 500 || status === 429 : true,
+			retryable: status !== null ? isGitHubRetryable(status) : true,
 		};
 	}
 }
