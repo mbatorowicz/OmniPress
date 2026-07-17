@@ -1,15 +1,12 @@
 import { confirmAction } from '@/lib/ui/confirm';
 
-export function initAdminPostsBulkForm(): void {
-	const form = document.getElementById('bulk-posts-form');
-	if (!(form instanceof HTMLFormElement)) return;
-
+function initOneBulkForm(form: HTMLFormElement): void {
 	const selectedTemplate = form.dataset.selectedTemplate ?? 'Zaznaczono: {n}';
 	const checkboxes = form.querySelectorAll('[data-post-checkbox]');
 	const selectAll = form.querySelector('[data-select-all]');
 	const label = form.querySelector('[data-selected-label]');
-	const deactivateBtn = document.getElementById('bulk-deactivate-btn');
-	const deleteBtn = document.getElementById('bulk-delete-btn');
+	const actionButtons = form.querySelectorAll<HTMLButtonElement>('[data-bulk-action]');
+	const rejectNote = form.querySelector<HTMLTextAreaElement>('[data-bulk-reject-note]');
 
 	function selectedCount() {
 		return [...checkboxes].filter((cb) => cb instanceof HTMLInputElement && cb.checked).length;
@@ -22,8 +19,8 @@ export function initAdminPostsBulkForm(): void {
 		if (label instanceof HTMLElement) {
 			label.textContent = selectedTemplate.replace('{n}', String(n));
 		}
-		for (const btn of [deactivateBtn, deleteBtn]) {
-			if (btn instanceof HTMLButtonElement) btn.disabled = n === 0;
+		for (const btn of actionButtons) {
+			btn.disabled = n === 0;
 		}
 		if (selectAll instanceof HTMLInputElement && total > 0) {
 			selectAll.indeterminate = n > 0 && n < total;
@@ -50,15 +47,33 @@ export function initAdminPostsBulkForm(): void {
 	form.addEventListener('submit', (e) => {
 		const submitter = e.submitter;
 		if (!(submitter instanceof HTMLButtonElement)) return;
-		const confirmMsg = submitter.getAttribute('data-confirm');
-		if (!confirmMsg) return;
 		const n = selectedCount();
 		if (n === 0) {
 			e.preventDefault();
 			return;
 		}
+
+		if (submitter.value === 'reject' && rejectNote) {
+			const note = rejectNote.value.trim();
+			if (note.length < 3) {
+				e.preventDefault();
+				rejectNote.focus();
+				rejectNote.reportValidity?.();
+				return;
+			}
+		}
+
+		const confirmMsg = submitter.getAttribute('data-confirm');
+		if (!confirmMsg) return;
 		if (!confirmAction(confirmMsg, n)) e.preventDefault();
 	});
 
 	syncUi();
+}
+
+export function initAdminPostsBulkForm(): void {
+	const forms = document.querySelectorAll<HTMLFormElement>('[data-bulk-posts-form]');
+	for (const form of forms) {
+		initOneBulkForm(form);
+	}
 }

@@ -56,8 +56,17 @@ export const admin = {
 		open: 'Otwórz',
 		selectAll: 'Zaznacz wszystkie',
 		selected: 'Zaznaczono: {n}',
+		bulkApprove: 'Zaakceptuj zaznaczone',
+		bulkReject: 'Odrzuć zaznaczone',
+		bulkRejectNote: 'Uwagi dla redaktora (wspólne dla odrzucenia)',
+		bulkCancelSchedule: 'Anuluj harmonogram',
 		bulkDeactivate: 'Dezaktywuj zaznaczone',
 		bulkDelete: 'Usuń zaznaczone',
+		bulkApproveConfirm:
+			'Zaakceptować {n} wpisów i przygotować publikację (natychmiast lub według daty)?',
+		bulkRejectConfirm: 'Odrzucić {n} wpisów? Redaktorzy zobaczą te same uwagi.',
+		bulkCancelScheduleConfirm:
+			'Anulować harmonogram dla {n} wpisów? Wrócą do szkicu (wpisy „W toku” są pomijane).',
 		bulkDeactivateConfirm:
 			'Zdjąć {n} wpisów ze strony? W CMS wrócą do szkicu. Pliki znikną z GitHub w jednym commicie.',
 		bulkDeleteConfirm:
@@ -70,10 +79,13 @@ export const admin = {
 			'Trwale usunąć wpis z OmniPress? Tej operacji nie można cofnąć. Jeśli wpis jest na stronie, zostanie też zdjęty.',
 		deactivated: 'Wpis zdezaktywowany — usunięty ze strony, w CMS jest szkicem.',
 		deleted: 'Wpis usunięty z OmniPress.',
+		bulkApproved: (n: number) => `${n} wpisów zaakceptowanych — publikacja w kolejce.`,
+		bulkRejected: (n: number) => `${n} wpisów odrzuconych.`,
+		bulkCancelled: (n: number) => `${n} zaplanowanych wpisów wróciło do szkicu.`,
 		bulkDeactivated: (n: number) =>
 			`${n} wpisów zdezaktywowanych — zdjęto ze strony (jeden commit GitHub).`,
 		bulkDeleted: (n: number) => `${n} wpisów usuniętych z OmniPress.`,
-		bulkSkipped: (n: number) => `${n} pozycji pominięto (np. nieopublikowane).`,
+		bulkSkipped: (n: number) => `${n} pozycji pominięto (np. inny status).`,
 		noneSelected: 'Nie zaznaczono żadnego wpisu.',
 		invalidAction: 'Nieprawidłowa akcja.',
 		remoteWarning: 'Nie udało się zdjąć wpisu ze strony (GitHub) — wpisy w CMS nie zostały usunięte.',
@@ -93,7 +105,12 @@ export const admin = {
 	},
 	bulkErrors: {
 		none_selected: 'Nie zaznaczono żadnego wpisu.',
+		none_pending: 'Żaden z zaznaczonych wpisów nie oczekuje na akceptację.',
+		none_scheduled: 'Żaden z zaznaczonych wpisów nie jest zaplanowany (wpisy „W toku” są pomijane).',
 		none_published: 'Żaden z zaznaczonych wpisów nie jest opublikowany.',
+		note_required: 'Podaj uwagi dla redaktora (min. 3 znaki) przy odrzuceniu.',
+		approve_failed: 'Nie udało się zaakceptować zaznaczonych wpisów — sprawdź kanały publikacji.',
+		update_failed: 'Aktualizacja wpisów nie powiodła się.',
 		invalid_action: 'Nieprawidłowa akcja.',
 		not_found: 'Nie znaleziono wpisów.',
 		remote_failed: 'Usuwanie ze strony nie powiodło się — sprawdź token GitHub i spróbuj ponownie.',

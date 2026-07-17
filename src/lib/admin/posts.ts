@@ -220,6 +220,119 @@ export type BulkPostsResult =
 	| { ok: true; processed: number; skipped: number; remoteErrors: string[] }
 	| { ok: false; error: string; remoteErrors?: string[] };
 
+/** Zbiorcza akceptacja wpisów oczekujących (kolejka publikacji / harmonogram). */
+export async function bulkApprovePosts(
+	supabase: SupabaseClient,
+	postIds: string[],
+): Promise<BulkPostsResult> {
+	const ids = [...new Set(postIds.filter(Boolean))];
+	if (ids.length === 0) return { ok: false, error: 'none_selected' };
+
+	const { data: posts } = await supabase
+		.from('posts')
+		.select(
+			'id, author_id, site_id, title, content_md, slug, status, rejection_note, category_slug, category_name, scheduled_publish_at',
+		)
+		.in('id', ids)
+		.eq('status', 'pending');
+
+	const pending = (posts ?? []) as PostRow[];
+	if (pending.length === 0) return { ok: false, error: 'none_pending' };
+
+	let processed = 0;
+	let failed = 0;
+	for (const post of pending) {
+		const result = await approvePost(supabase, post);
+		if (result.ok) processed += 1;
+		else failed += 1;
+	}
+
+	if (processed === 0) return { ok: false, error: failed > 0 ? 'approve_failed' : 'none_pending' };
+
+	return {
+		ok: true,
+		processed,
+		skipped: ids.length - processed,
+		remoteErrors: [],
+	};
+}
+
+/** Zbiorcze odrzucenie wpisów oczekujących (wspólna treść uwag). */
+export async function bulkRejectPosts(
+	supabase: SupabaseClient,
+	postIds: string[],
+	rejectionNote: string,
+): Promise<BulkPostsResult> {
+	const ids = [...new Set(postIds.filter(Boolean))];
+	if (ids.length === 0) return { ok: false, error: 'none_selected' };
+
+	const note = rejectionNote.trim();
+	if (note.length < 3) return { ok: false, error: 'note_required' };
+
+	const { data: posts } = await supabase
+		.from('posts')
+		.select('id')
+		.in('id', ids)
+		.eq('status', 'pending');
+
+	const pendingIds = (posts ?? []).map((p) => p.id);
+	if (pendingIds.length === 0) return { ok: false, error: 'none_pending' };
+
+	const { error } = await supabase
+		.from('posts')
+		.update({ status: 'rejected', rejection_note: note })
+		.in('id', pendingIds)
+		.eq('status', 'pending');
+
+	if (error) return { ok: false, error: 'update_failed' };
+
+	return {
+		ok: true,
+		processed: pendingIds.length,
+		skipped: ids.length - pendingIds.length,
+		remoteErrors: [],
+	};
+}
+
+/** Anuluje zaplanowaną publikację — wpis wraca do szkicu; pomija status publishing. */
+export async function bulkCancelScheduledPosts(
+	supabase: SupabaseClient,
+	postIds: string[],
+): Promise<BulkPostsResult> {
+	const ids = [...new Set(postIds.filter(Boolean))];
+	if (ids.length === 0) return { ok: false, error: 'none_selected' };
+
+	const { data: posts } = await supabase
+		.from('posts')
+		.select('id')
+		.in('id', ids)
+		.eq('status', 'scheduled');
+
+	const scheduledIds = (posts ?? []).map((p) => p.id);
+	if (scheduledIds.length === 0) return { ok: false, error: 'none_scheduled' };
+
+	await supabase
+		.from('publish_logs')
+		.delete()
+		.in('post_id', scheduledIds)
+		.eq('status', 'pending');
+
+	const { error } = await supabase
+		.from('posts')
+		.update({ status: 'draft', rejection_note: null })
+		.in('id', scheduledIds)
+		.eq('status', 'scheduled');
+
+	if (error) return { ok: false, error: 'update_failed' };
+
+	return {
+		ok: true,
+		processed: scheduledIds.length,
+		skipped: ids.length - scheduledIds.length,
+		remoteErrors: [],
+	};
+}
+
 /** Zbiorczo zdejmuje opublikowane wpisy ze strony (jeden commit GitHub na destynację). */
 export async function bulkDeactivatePosts(
 	supabase: SupabaseClient,

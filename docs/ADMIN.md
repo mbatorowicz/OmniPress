@@ -111,7 +111,10 @@ Model **szkic + publikacja**: edycja zapisuje roboczy layout w Supabase; strona 
 - **Strony statyczne:** `/admin/units/[id]/pages` — treści pod stałe URL; publikacja od razu do `src/content/pages/` w repo Astro.
 - **Import wpisów z GitHub:** `/admin` → synchronizacja (wpisy już na stronie).
 - **Ostatnie zmiany:** `/admin/units/[id]/changes`.
-- **Bulk:** na liście opublikowanych — zaznacz wiele wpisów → dezaktywuj lub usuń (w tym z GitHub).
+- **Bulk (kolejka `/admin` i wpisy jednostki):**
+  - *Do akceptacji* — zaznacz → **Zaakceptuj** lub **Odrzuć** (wspólne uwagi).
+  - *Zaplanowane* — zaznacz → **Anuluj harmonogram** (powrót do szkicu; wpisy „W toku” pomijane).
+  - *Opublikowane* — zaznacz → dezaktywuj lub usuń (w tym z GitHub).
 
 **Odzyskiwanie menu po regresji:** Importuj z GitHub (nie zapisuj na starym deployu) → sprawdź typy linków w tabeli → Zapisz szkic → Opublikuj na stronie.
 

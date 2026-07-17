@@ -18,7 +18,19 @@ export {
 	type DestinationConfigError,
 } from './destinations';
 export { getSiteById, getSiteDestinations, listSites, loadSiteAstroDestination, resolveSitePublishDestinationIds, countSitePosts, deleteSite, type SiteDestinationLink } from './sites';
-export { approvePost, rejectPost, reopenPostForEditing, canReopenPost, deactivatePost, deletePost, bulkDeactivatePosts, bulkDeletePosts } from './posts';
+export {
+	approvePost,
+	rejectPost,
+	reopenPostForEditing,
+	canReopenPost,
+	deactivatePost,
+	deletePost,
+	bulkApprovePosts,
+	bulkRejectPosts,
+	bulkCancelScheduledPosts,
+	bulkDeactivatePosts,
+	bulkDeletePosts,
+} from './posts';
 export { getEditorSiteIds, saveEditorSites, syncSiteDestinations } from './user-sites';
 export { testGitHubAstroChannel, type ChannelTestResult } from './channel-test';
 export {

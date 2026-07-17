@@ -15,6 +15,18 @@ export function parseAdminHubFlash(url: URL): FlashMessage[] {
 		messages.push({ variant: 'success', message: listLabels.deleted });
 	}
 
+	const bulkApproved = Number(params.get('bulk_approved') ?? '0');
+	if (bulkApproved > 0) {
+		messages.push({ variant: 'success', message: listLabels.bulkApproved(bulkApproved) });
+	}
+	const bulkRejected = Number(params.get('bulk_rejected') ?? '0');
+	if (bulkRejected > 0) {
+		messages.push({ variant: 'warning', message: listLabels.bulkRejected(bulkRejected) });
+	}
+	const bulkCancelled = Number(params.get('bulk_cancelled') ?? '0');
+	if (bulkCancelled > 0) {
+		messages.push({ variant: 'info', message: listLabels.bulkCancelled(bulkCancelled) });
+	}
 	const bulkDeactivated = Number(params.get('bulk_deactivated') ?? '0');
 	if (bulkDeactivated > 0) {
 		messages.push({ variant: 'success', message: listLabels.bulkDeactivated(bulkDeactivated) });

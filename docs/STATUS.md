@@ -68,7 +68,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Odrzucenie z `rejection_note` | ✅ |
 | Ponowne otwarcie wpisu (reopen) | ✅ |
 | Dezaktywacja / usunięcie opublikowanego (withdraw z GitHub) | ✅ |
-| Bulk dezaktywacja / usuwanie opublikowanych | ✅ |
+| Bulk: akceptacja / odrzucenie (pending), anulowanie harmonogramu, dezaktywacja / usuwanie | ✅ |
 | Import wpisów z GitHub | ✅ |
 | Layout Astro (menu, kategorie, sloty) + sync do repo | ✅ `/admin/units/[id]/navigation` itd. |
 | Ustawienia strony (nazwa, slug, GitHub, tokeny) | ✅ `/admin/units/[id]` |

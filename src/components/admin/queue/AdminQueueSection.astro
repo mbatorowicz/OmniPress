@@ -1,5 +1,5 @@
 ---
-import AdminPostsTable from '@/components/admin/queue/AdminPostsTable.astro';
+import AdminPostsTable, { type BulkAction } from '@/components/admin/queue/AdminPostsTable.astro';
 import PageHeader from '@/components/ui/layout/PageHeader.astro';
 import Panel from '@/components/ui/layout/Panel.astro';
 
@@ -25,8 +25,15 @@ type Labels = {
 	open: string;
 	selectAll: string;
 	selected: string;
+	bulkApprove: string;
+	bulkReject: string;
+	bulkRejectNote: string;
+	bulkCancelSchedule: string;
 	bulkDeactivate: string;
 	bulkDelete: string;
+	bulkApproveConfirm: string;
+	bulkRejectConfirm: string;
+	bulkCancelScheduleConfirm: string;
 	bulkDeactivateConfirm: string;
 	bulkDeleteConfirm: string;
 };
@@ -38,7 +45,8 @@ interface Props {
 	posts: PostRow[] | null | undefined;
 	labels: Labels;
 	variant?: 'default' | 'info';
-	showBulkActions?: boolean;
+	bulkActions?: BulkAction[];
+	section?: 'pending' | 'scheduled' | 'published';
 	dateField?: 'updated_at' | 'created_at' | 'scheduled_publish_at';
 	dateColumnLabel?: string;
 	id?: string;
@@ -51,7 +59,8 @@ const {
 	posts,
 	labels,
 	variant = 'default',
-	showBulkActions,
+	bulkActions,
+	section,
 	dateField,
 	dateColumnLabel,
 	id,
@@ -67,7 +76,8 @@ const {
 			<AdminPostsTable
 				posts={posts}
 				labels={labels}
-				{showBulkActions}
+				{bulkActions}
+				{section}
 				{dateField}
 				{dateColumnLabel}
 			/>

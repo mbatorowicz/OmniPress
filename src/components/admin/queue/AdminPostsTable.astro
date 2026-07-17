@@ -5,6 +5,7 @@ import TableHead from '@/components/ui/table/TableHead.astro';
 import TableBody from '@/components/ui/table/TableBody.astro';
 import TableRow from '@/components/ui/table/TableRow.astro';
 import TableCell from '@/components/ui/table/TableCell.astro';
+import Label from '@/components/ui/form/Label.astro';
 import PostsTableRow from '@/components/admin/queue/PostsTableRow.astro';
 
 type PostRow = {
@@ -19,6 +20,8 @@ type PostRow = {
 	sites: { name: string } | null;
 };
 
+export type BulkAction = 'approve' | 'reject' | 'cancel_schedule' | 'deactivate' | 'delete';
+
 type Labels = {
 	colTitle: string;
 	colCategory: string;
@@ -29,8 +32,15 @@ type Labels = {
 	open: string;
 	selectAll: string;
 	selected: string;
+	bulkApprove: string;
+	bulkReject: string;
+	bulkRejectNote: string;
+	bulkCancelSchedule: string;
 	bulkDeactivate: string;
 	bulkDelete: string;
+	bulkApproveConfirm: string;
+	bulkRejectConfirm: string;
+	bulkCancelScheduleConfirm: string;
 	bulkDeactivateConfirm: string;
 	bulkDeleteConfirm: string;
 };
@@ -38,7 +48,8 @@ type Labels = {
 type Props = {
 	posts: PostRow[];
 	labels: Labels;
-	showBulkActions?: boolean;
+	bulkActions?: BulkAction[];
+	section?: 'pending' | 'scheduled' | 'published';
 	dateField?: 'updated_at' | 'created_at' | 'scheduled_publish_at';
 	dateColumnLabel?: string;
 };
@@ -46,17 +57,22 @@ type Props = {
 const {
 	posts,
 	labels,
-	showBulkActions = false,
+	bulkActions = [],
+	section,
 	dateField = 'updated_at',
 	dateColumnLabel,
 } = Astro.props;
+const showBulkActions = bulkActions.length > 0;
 const dateHeader = dateColumnLabel ?? labels.colDate;
 const dateFmt = new Intl.DateTimeFormat('pl-PL', { dateStyle: 'short', timeStyle: 'short' });
+const formId = section ? `bulk-posts-form-${section}` : 'bulk-posts-form';
 
 function formatWhen(post: PostRow): string {
 	const rawDate = post[dateField] ?? post.updated_at;
 	return rawDate ? dateFmt.format(new Date(rawDate)) : '—';
 }
+
+const has = (action: BulkAction) => bulkActions.includes(action);
 ---
 
 {
@@ -64,37 +80,94 @@ function formatWhen(post: PostRow): string {
 		<form
 			method="post"
 			action="/api/admin/posts/bulk"
-			id="bulk-posts-form"
+			id={formId}
 			class="space-y-3"
+			data-bulk-posts-form
 			data-selected-template={labels.selected}
 		>
+			{section && <input type="hidden" name="section" value={section} />}
 			<div class="ui-bulk-bar" data-bulk-bar>
 				<span class="ui-label-muted" data-selected-label>
 					{labels.selected.replace('{n}', '0')}
 				</span>
-				<Button
-					type="submit"
-					name="action"
-					value="deactivate"
-					variant="warning"
-					disabled
-					confirm={labels.bulkDeactivateConfirm}
-					id="bulk-deactivate-btn"
-				>
-					{labels.bulkDeactivate}
-				</Button>
-				<Button
-					type="submit"
-					name="action"
-					value="delete"
-					variant="danger"
-					disabled
-					confirm={labels.bulkDeleteConfirm}
-					id="bulk-delete-btn"
-				>
-					{labels.bulkDelete}
-				</Button>
+				{has('approve') && (
+					<Button
+						type="submit"
+						name="action"
+						value="approve"
+						variant="primary"
+						disabled
+						confirm={labels.bulkApproveConfirm}
+						dataset={{ 'bulk-action': '' }}
+					>
+						{labels.bulkApprove}
+					</Button>
+				)}
+				{has('cancel_schedule') && (
+					<Button
+						type="submit"
+						name="action"
+						value="cancel_schedule"
+						variant="warning"
+						disabled
+						confirm={labels.bulkCancelScheduleConfirm}
+						dataset={{ 'bulk-action': '' }}
+					>
+						{labels.bulkCancelSchedule}
+					</Button>
+				)}
+				{has('deactivate') && (
+					<Button
+						type="submit"
+						name="action"
+						value="deactivate"
+						variant="warning"
+						disabled
+						confirm={labels.bulkDeactivateConfirm}
+						dataset={{ 'bulk-action': '' }}
+					>
+						{labels.bulkDeactivate}
+					</Button>
+				)}
+				{has('delete') && (
+					<Button
+						type="submit"
+						name="action"
+						value="delete"
+						variant="danger"
+						disabled
+						confirm={labels.bulkDeleteConfirm}
+						dataset={{ 'bulk-action': '' }}
+					>
+						{labels.bulkDelete}
+					</Button>
+				)}
 			</div>
+			{has('reject') && (
+				<div class="ui-bulk-bar flex-col items-stretch gap-2 sm:flex-row sm:items-end">
+					<Label class="min-w-0 flex-1">
+						<span class="font-medium">{labels.bulkRejectNote}</span>
+						<textarea
+							name="rejection_note"
+							rows={2}
+							minlength={3}
+							class="ui-textarea"
+							data-bulk-reject-note
+						></textarea>
+					</Label>
+					<Button
+						type="submit"
+						name="action"
+						value="reject"
+						variant="danger"
+						disabled
+						confirm={labels.bulkRejectConfirm}
+						dataset={{ 'bulk-action': '' }}
+					>
+						{labels.bulkReject}
+					</Button>
+				</div>
+			)}
 			<Table class={posts.length ? 'mt-0' : 'mt-4'}>
 				<TableHead>
 					<TableRow>

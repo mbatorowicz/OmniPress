@@ -101,15 +101,18 @@ const summary = [
 
 	<AdminQueueSection
 		id="pending"
+		section="pending"
 		title={admin.pending.heading(pending?.length ?? 0)}
 		empty={admin.pending.empty}
 		posts={pending}
 		labels={listLabels}
 		dateField="created_at"
+		bulkActions={['approve', 'reject']}
 	/>
 
 	<AdminQueueSection
 		id="scheduled"
+		section="scheduled"
 		title={admin.scheduled.heading(scheduledQueue.length)}
 		lead={admin.scheduled.lead}
 		empty={admin.scheduled.empty}
@@ -117,16 +120,18 @@ const summary = [
 		labels={listLabels}
 		dateField="scheduled_publish_at"
 		dateColumnLabel={listLabels.colPublishAt}
+		bulkActions={['cancel_schedule']}
 	/>
 
 	<AdminQueueSection
 		id="published"
+		section="published"
 		title={admin.published.heading(published?.length ?? 0)}
 		lead={admin.published.lead}
 		empty={admin.published.empty}
 		posts={published}
 		labels={listLabels}
-		showBulkActions
+		bulkActions={['deactivate', 'delete']}
 		variant="info"
 	/>
 
