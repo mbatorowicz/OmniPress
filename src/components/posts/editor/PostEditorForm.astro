@@ -109,14 +109,13 @@ const fileUi = ed.fileAttachments;
 		<PostDocxAttachments postId={postId} assets={postAssets} labels={docxUi} />
 		<PostFileAttachments postId={postId} assets={postAssets} labels={fileUi} />
 	</div>
-	<div class="flex flex-wrap items-center gap-3">
-		<Button type="submit">{ed.actions.save}</Button>
+	<div class="ui-editor-actions">
 		{
 			submittable && (
 				<Button
 					type="submit"
 					formaction={`/api/posts/${postId}/submit`}
-					variant="warning"
+					variant="primary"
 					disabled={categoriesUnavailable || !post.category_slug}
 					confirm={ed.actions.confirmSubmit}
 				>
@@ -124,6 +123,9 @@ const fileUi = ed.fileAttachments;
 				</Button>
 			)
 		}
+		<Button type="submit" variant="secondary">
+			{ed.actions.save}
+		</Button>
 		{
 			deletable && (
 				<Button

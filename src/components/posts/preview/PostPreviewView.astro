@@ -32,6 +32,7 @@ const ed = dashboard.editor;
 	<h2 class="ui-title-preview">{post.title || common.untitled}</h2>
 	{post.status === 'pending' && <p class="ui-status-line-pending mt-2">{ed.pendingLocked}</p>}
 	{post.status === 'publishing' && <p class="ui-status-line-publishing mt-2">{ed.publishingLocked}</p>}
+	{post.status === 'published' && <p class="ui-status-line-publishing mt-2">{ed.publishedLocked}</p>}
 	{
 		post.status === 'scheduled' && post.scheduled_publish_at && (
 			<p class="ui-status-line-scheduled mt-2">

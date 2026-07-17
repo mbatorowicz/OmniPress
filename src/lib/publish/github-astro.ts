@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { loadPostAssets, publicAssetUrl } from './assets';
 import { applyAssetDisplayToMarkdown, type AssetForDisplay } from './asset-markdown';
-import { ensurePdfViewerOnGitHub } from './github-pdf-viewer';
+import { preparePdfViewerWrites } from './github-pdf-viewer';
 import {
 	buildPublishedBodyMd,
 	galleryUrlsFromAssets,
@@ -18,11 +18,12 @@ import {
 	httpStatusFromError,
 	isGitHubRetryable,
 	parseGitHubRepoConfig,
-	putGitHubFile,
-	deleteGitHubFilesBatch,
+	putGitHubFilesBatch,
 	expandGitHubWithdrawPaths,
 	listGitHubTreeBlobPaths,
+	type GitHubBinaryFileWrite,
 	type GitHubConfig,
+	type GitHubFileWrite,
 } from './github-api';
 import {
 	formatExternalGitHubPath,
@@ -33,7 +34,7 @@ import {
 	resolvePostSlug,
 	slugFileCandidates,
 } from './paths';
-import { appendRecentChangeOnGitHub } from '@/lib/recent-changes/github';
+import { prepareRecentChangeAppendWrite } from '@/lib/recent-changes/github';
 import { buildPostRecentChangeEntry } from '@/lib/recent-changes/post-entry';
 import { sanitizePublishMarkdown } from '@/lib/content/sanitize';
 import { parseVercelConfig } from './vercel-api';
@@ -105,31 +106,31 @@ async function resolvePublishMarkdownPath(
 	return picked;
 }
 
-async function cleanupStalePostFolder(
+async function resolveStaleFolderDeletes(
 	cfg: ReturnType<typeof parseGitHubRepoConfig> & object,
 	token: string,
 	cleanupExternalId: string,
-	postTitle: string,
-): Promise<void> {
+): Promise<string[]> {
 	const allBlobPaths = await listGitHubTreeBlobPaths(cfg, token);
-	const paths = expandGitHubWithdrawPaths([cleanupExternalId], cfg, allBlobPaths);
-	if (paths.length === 0) return;
-	await deleteGitHubFilesBatch(
-		cfg,
-		token,
-		paths,
-		`OmniPress: sprzątanie starego folderu — ${postTitle}`,
-	);
+	return expandGitHubWithdrawPaths([cleanupExternalId], cfg, allBlobPaths);
 }
 
-async function uploadPostAssets(
+type CollectedAssets = {
+	writes: GitHubBinaryFileWrite[];
+	map: Map<string, string>;
+	errors: string[];
+};
+
+/** Pobiera assety z Storage i przygotowuje zapisy do jednego commita (bez osobnych put). */
+async function collectPostAssetWrites(
 	cfg: ReturnType<typeof parseGitHubRepoConfig> & object,
-	token: string,
 	postDir: string,
 	assets: Awaited<ReturnType<typeof loadPostAssets>>,
-): Promise<{ map: Map<string, string>; errors: string[] }> {
+): Promise<CollectedAssets> {
 	const map = new Map<string, string>();
 	const errors: string[] = [];
+	const writes: GitHubBinaryFileWrite[] = [];
+
 	for (const asset of assets) {
 		const sourceUrl = publicAssetUrl(asset.storage_path);
 		if (!sourceUrl) {
@@ -147,24 +148,23 @@ async function uploadPostAssets(
 		const gitPath =
 			cfg.contentLayout === 'folder'
 				? joinContentPath(postDir, assetName)
-				: joinContentPath(cfg.contentPath, 'assets', postSlugFromMarkdownPath(`${postDir}/index.md`, cfg.contentPath), assetName);
+				: joinContentPath(
+						cfg.contentPath,
+						'assets',
+						postSlugFromMarkdownPath(`${postDir}/index.md`, cfg.contentPath),
+						assetName,
+					);
 		const relative = publishedAssetUrl(cfg, postDir, assetName);
 
 		try {
-			await putGitHubFile(
-				cfg,
-				token,
-				gitPath,
-				await res.arrayBuffer(),
-				`OmniPress: asset ${asset.filename}`,
-			);
+			writes.push({ path: gitPath, content: await res.arrayBuffer() });
 			map.set(sourceUrl, relative);
 		} catch (err) {
-			const msg = err instanceof Error ? err.message : 'GitHub upload failed';
+			const msg = err instanceof Error ? err.message : 'Pobranie assetu nie powiodło się';
 			errors.push(`${asset.filename}: ${msg.slice(0, 120)}`);
 		}
 	}
-	return { map, errors };
+	return { writes, map, errors };
 }
 
 export async function publishToGitHubAstro(
@@ -190,7 +190,7 @@ export async function publishToGitHubAstro(
 	try {
 		const slug = resolvePostSlug(post);
 		const preferredPath = parseExternalGitHubPath(existingExternalId ?? null);
-		const { filePath, existingSha, cleanupExternalId } = await resolvePublishMarkdownPath(
+		const { filePath, cleanupExternalId } = await resolvePublishMarkdownPath(
 			cfg,
 			creds.token,
 			slug,
@@ -199,18 +199,18 @@ export async function publishToGitHubAstro(
 		const postDir = postDirFromMarkdownPath(filePath);
 		const publishSlug = postSlugFromMarkdownPath(filePath, cfg.contentPath);
 
+		let deletes: string[] = [];
 		if (cleanupExternalId) {
 			try {
-				await cleanupStalePostFolder(cfg, creds.token, cleanupExternalId, post.title);
+				deletes = await resolveStaleFolderDeletes(cfg, creds.token, cleanupExternalId);
 			} catch {
 				// Sprzątanie nie blokuje publikacji — nowy folder i tak powstaje
 			}
 		}
 
 		const assets = await loadPostAssets(supabase, post.id);
-		const { map: urlMap, errors: uploadErrors } = await uploadPostAssets(
+		const { writes: assetWrites, map: urlMap, errors: uploadErrors } = await collectPostAssetWrites(
 			cfg,
-			creds.token,
 			postDir,
 			assets,
 		);
@@ -246,9 +246,9 @@ export async function publishToGitHubAstro(
 			];
 		});
 		const hasPdfEmbed = assetsForDisplay.some((a) => a.display_mode === 'embed');
-		if (hasPdfEmbed) {
-			await ensurePdfViewerOnGitHub(cfg, creds.token);
-		}
+		const pdfViewerWrites = hasPdfEmbed
+			? await preparePdfViewerWrites(cfg, creds.token)
+			: [];
 		const publishedBody = sanitizePublishMarkdown(
 			applyAssetDisplayToMarkdown(bodyWithFiles, assetsForDisplay, {
 				forPublish: true,
@@ -269,23 +269,34 @@ export async function publishToGitHubAstro(
 			excerpt: excerpt || undefined,
 		});
 
-		const { commitSha } = await putGitHubFile(
-			cfg,
-			creds.token,
-			filePath,
-			fileContent,
-			`OmniPress: ${post.title}`,
-			existingSha,
-		);
+		const batchFiles: GitHubFileWrite[] = [
+			...assetWrites,
+			...pdfViewerWrites,
+			{ path: filePath, content: fileContent },
+		];
 
 		try {
-			await appendRecentChangeOnGitHub(cfg, creds.token, destination.config, buildPostRecentChangeEntry(post, publishSlug));
+			const rcWrite = await prepareRecentChangeAppendWrite(
+				cfg,
+				creds.token,
+				destination.config,
+				buildPostRecentChangeEntry(post, publishSlug),
+			);
+			batchFiles.push(rcWrite);
 		} catch {
 			// Rejestr zmian nie blokuje publikacji wpisu
 		}
 
+		const { commitSha } = await putGitHubFilesBatch(
+			cfg,
+			creds.token,
+			batchFiles,
+			`OmniPress: ${post.title}`,
+			{ deletes },
+		);
+
 		const externalId = formatExternalGitHubPath(filePath);
-		const githubSummary = `GitHub ${cfg.repo}@${cfg.branch} (${commitSha.slice(0, 7)})`;
+		const githubSummary = `GitHub ${cfg.repo}@${cfg.branch} (${commitSha.slice(0, 7)}, 1 commit)`;
 
 		const vercelCfg = parseVercelConfig(destination.config);
 		const vercelToken = resolveVercelTokenForDestination(creds);

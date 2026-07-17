@@ -3,6 +3,14 @@ import { ui } from './ui';
 export const admin = {
 	title: 'Administracja',
 	queueHeading: 'Kolejka wpisów',
+	queueLead:
+		'Akceptacja uruchamia atomową publikację: treść, załączniki i rejestr zmian w jednym commicie GitHub (jeden deploy).',
+	workflowAria: 'Ścieżka publikacji wpisu',
+	workflow: {
+		review: 'Akceptacja',
+		publish: '1 commit na GitHub',
+		live: 'Na stronie',
+	},
 	sites: {
 		empty: 'Dodaj stronę, np.',
 		exampleName: 'UG Miedzna',
@@ -10,21 +18,22 @@ export const admin = {
 	queueNav: {
 		pending: 'Do akceptacji',
 		scheduled: 'Zaplanowane',
-		published: 'Opublikowane',
+		published: 'Na stronie',
 	},
-	inProgressBadge: 'W toku',
+	inProgressBadge: 'Publikacja…',
 	pending: {
 		heading: (n: number) => `Do akceptacji (${n})`,
+		lead: 'Zaznacz wiele wpisów albo otwórz podgląd. Po akceptacji worker publikuje atomowo w tle.',
 		empty: 'Brak wpisów oczekujących.',
 	},
 	scheduled: {
-		heading: (n: number) => `Zaplanowane (${n})`,
+		heading: (n: number) => `Zaplanowane / w publikacji (${n})`,
 		empty: 'Brak zaplanowanych publikacji.',
-		lead: 'Zaakceptowane — worker opublikuje automatycznie o wskazanej godzinie. Wpisy w trakcie publikacji mają znacznik „W toku”.',
+		lead: 'Zaakceptowane — worker opublikuje o wskazanej godzinie. Znacznik „Publikacja…” = właśnie trwa jeden commit na GitHub.',
 	},
 	published: {
-		heading: (n: number) => `Opublikowane — poprawka (${n})`,
-		lead: 'Zaznacz wiele wpisów i wykonaj akcję zbiorczo — na GitHubie powstanie jeden commit (jeden deploy).',
+		heading: (n: number) => `Na stronie (${n})`,
+		lead: 'Live na stronie publicznej. Zbiorcza dezaktywacja lub usunięcie zdejmuje pliki z GitHub w jednym commicie.',
 		empty: 'Brak opublikowanych wpisów.',
 	},
 	importPosts: {
@@ -53,37 +62,40 @@ export const admin = {
 		colPublishAt: 'Publikacja',
 		colActions: 'Akcje',
 		noCategory: '—',
-		open: 'Otwórz',
+		open: 'Podgląd',
+		approveQuick: 'Akceptuj',
+		approveQuickConfirm: 'Zaakceptować ten wpis i uruchomić atomową publikację?',
 		selectAll: 'Zaznacz wszystkie',
 		selected: 'Zaznaczono: {n}',
 		bulkApprove: 'Zaakceptuj zaznaczone',
 		bulkReject: 'Odrzuć zaznaczone',
 		bulkRejectNote: 'Uwagi dla redaktora (wspólne dla odrzucenia)',
 		bulkCancelSchedule: 'Anuluj harmonogram',
-		bulkDeactivate: 'Dezaktywuj zaznaczone',
+		bulkDeactivate: 'Zdejmij ze strony',
 		bulkDelete: 'Usuń zaznaczone',
 		bulkApproveConfirm:
-			'Zaakceptować {n} wpisów i przygotować publikację (natychmiast lub według daty)?',
+			'Zaakceptować {n} wpisów? Każdy trafi do atomowej publikacji (1 commit = treść + załączniki + rejestr zmian).',
 		bulkRejectConfirm: 'Odrzucić {n} wpisów? Redaktorzy zobaczą te same uwagi.',
 		bulkCancelScheduleConfirm:
-			'Anulować harmonogram dla {n} wpisów? Wrócą do szkicu (wpisy „W toku” są pomijane).',
+			'Anulować harmonogram dla {n} wpisów? Wrócą do szkicu (wpisy w trakcie publikacji są pomijane).',
 		bulkDeactivateConfirm:
 			'Zdjąć {n} wpisów ze strony? W CMS wrócą do szkicu. Pliki znikną z GitHub w jednym commicie.',
 		bulkDeleteConfirm:
 			'Trwale usunąć {n} wpisów z OmniPress? Tej operacji nie można cofnąć.',
-		deactivate: 'Dezaktywuj',
+		deactivate: 'Zdejmij ze strony',
 		delete: ui.actions.delete,
 		deactivateConfirm:
 			'Zdjąć wpis ze strony publicznej? W CMS wróci do szkicu — można go później ponownie opublikować.',
 		deleteConfirm:
 			'Trwale usunąć wpis z OmniPress? Tej operacji nie można cofnąć. Jeśli wpis jest na stronie, zostanie też zdjęty.',
-		deactivated: 'Wpis zdezaktywowany — usunięty ze strony, w CMS jest szkicem.',
+		deactivated: 'Wpis zdjęty ze strony — w CMS jest szkicem.',
 		deleted: 'Wpis usunięty z OmniPress.',
-		bulkApproved: (n: number) => `${n} wpisów zaakceptowanych — publikacja w kolejce.`,
+		bulkApproved: (n: number) =>
+			`${n} wpisów zaakceptowanych — atomowa publikacja w kolejce (1 commit na wpis).`,
 		bulkRejected: (n: number) => `${n} wpisów odrzuconych.`,
 		bulkCancelled: (n: number) => `${n} zaplanowanych wpisów wróciło do szkicu.`,
 		bulkDeactivated: (n: number) =>
-			`${n} wpisów zdezaktywowanych — zdjęto ze strony (jeden commit GitHub).`,
+			`${n} wpisów zdjętych ze strony (jeden commit GitHub).`,
 		bulkDeleted: (n: number) => `${n} wpisów usuniętych z OmniPress.`,
 		bulkSkipped: (n: number) => `${n} pozycji pominięto (np. inny status).`,
 		noneSelected: 'Nie zaznaczono żadnego wpisu.',
@@ -92,22 +104,23 @@ export const admin = {
 		remoteFailed: 'Usuwanie ze strony nie powiodło się — sprawdź token GitHub i spróbuj ponownie.',
 	},
 	preview: {
-		title: 'Podgląd wpisu',
-		heading: 'Podgląd wpisu',
+		title: 'Akceptacja wpisu',
+		heading: 'Akceptacja wpisu',
 		siteLabel: 'Strona:',
 		authorLabel: 'Autor:',
 		categoryLabel: 'Kategoria:',
 		emptyContent: '(pusta treść)',
 		galleryHeading: 'Galeria zdjęć (pod wpisem na stronie)',
 		galleryCover: 'Zajawka',
-		phaseNote: 'Publikacja na platformach — Faza 4 (kolejka).',
-		back: '← Administracja',
+		phaseNote: 'Akceptacja → jeden commit na GitHub → deploy Vercel.',
+		back: '← Kolejka',
 	},
 	bulkErrors: {
 		none_selected: 'Nie zaznaczono żadnego wpisu.',
 		none_pending: 'Żaden z zaznaczonych wpisów nie oczekuje na akceptację.',
-		none_scheduled: 'Żaden z zaznaczonych wpisów nie jest zaplanowany (wpisy „W toku” są pomijane).',
-		none_published: 'Żaden z zaznaczonych wpisów nie jest opublikowany.',
+		none_scheduled:
+			'Żaden z zaznaczonych wpisów nie jest zaplanowany (wpisy w trakcie publikacji są pomijane).',
+		none_published: 'Żaden z zaznaczonych wpisów nie jest na stronie.',
 		note_required: 'Podaj uwagi dla redaktora (min. 3 znaki) przy odrzuceniu.',
 		approve_failed: 'Nie udało się zaakceptować zaznaczonych wpisów — sprawdź kanały publikacji.',
 		update_failed: 'Aktualizacja wpisów nie powiodła się.',

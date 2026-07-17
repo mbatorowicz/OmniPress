@@ -7,6 +7,7 @@ import TableRow from '@/components/ui/table/TableRow.astro';
 import TableCell from '@/components/ui/table/TableCell.astro';
 import Label from '@/components/ui/form/Label.astro';
 import PostsTableRow from '@/components/admin/queue/PostsTableRow.astro';
+import ConfirmScript from '@/components/shared/ConfirmScript.astro';
 
 type PostRow = {
 	id: string;
@@ -30,6 +31,8 @@ type Labels = {
 	colActions: string;
 	noCategory: string;
 	open: string;
+	approveQuick?: string;
+	approveQuickConfirm?: string;
 	selectAll: string;
 	selected: string;
 	bulkApprove: string;
@@ -183,7 +186,13 @@ const has = (action: BulkAction) => bulkActions.includes(action);
 				</TableHead>
 				<TableBody>
 					{posts.map((p) => (
-						<PostsTableRow post={p} when={formatWhen(p)} selectable labels={labels} />
+						<PostsTableRow
+							post={p}
+							when={formatWhen(p)}
+							selectable
+							{section}
+							labels={labels}
+						/>
 					))}
 				</TableBody>
 			</Table>
@@ -200,12 +209,26 @@ const has = (action: BulkAction) => bulkActions.includes(action);
 			</TableHead>
 			<TableBody>
 				{posts.map((p) => (
-					<PostsTableRow post={p} when={formatWhen(p)} labels={labels} />
+					<PostsTableRow post={p} when={formatWhen(p)} {section} labels={labels} />
 				))}
 			</TableBody>
 		</Table>
 	)
 }
+
+{
+	section === 'pending' &&
+		posts.map((p) => (
+			<form
+				id={`approve-post-${p.id}`}
+				method="post"
+				action={`/api/admin/posts/${p.id}/approve`}
+				hidden
+			/>
+		))
+}
+
+<ConfirmScript />
 
 <script>
 	import { initAdminPostsBulkForm } from '@/lib/admin/posts-table';

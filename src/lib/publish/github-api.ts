@@ -23,6 +23,23 @@ export type GitHubTextFileWrite = {
 	content: string;
 };
 
+export type GitHubBinaryFileWrite = {
+	path: string;
+	content: ArrayBuffer | Uint8Array;
+};
+
+/** Plik do zapisu w jednym commicie (tekst UTF-8 lub binaria base64). */
+export type GitHubFileWrite = GitHubTextFileWrite | GitHubBinaryFileWrite;
+
+function isBinaryFileWrite(file: GitHubFileWrite): file is GitHubBinaryFileWrite {
+	return typeof file.content !== 'string';
+}
+
+function binaryToArrayBuffer(content: ArrayBuffer | Uint8Array): ArrayBuffer {
+	if (content instanceof ArrayBuffer) return content;
+	return content.buffer.slice(content.byteOffset, content.byteOffset + content.byteLength) as ArrayBuffer;
+}
+
 const GH_API = 'https://api.github.com';
 
 function gitBranchRefGetUrl(cfg: GitHubConfig): string {
@@ -274,86 +291,153 @@ export async function getGitHubFileBlobSha(
 	return meta?.sha ?? null;
 }
 
-/** Zapisuje wiele plików tekstowych w jednym commicie (jeden deploy Vercel). */
-export async function putGitHubFilesBatch(
-	cfg: GitHubConfig,
-	token: string,
-	files: GitHubTextFileWrite[],
-	message: string,
-): Promise<{ commitSha: string; written: number; blobShas: Record<string, string> }> {
-	const byPath = new Map<string, string>();
-	for (const file of files) {
-		const path = file.path.trim();
-		if (!path) continue;
-		byPath.set(path, file.content);
-	}
-	if (byPath.size === 0) {
-		throw new Error('putGitHubFilesBatch: brak plików');
-	}
-
-	const parentSha = await getBranchHeadCommitSha(cfg, token);
-	const baseTreeSha = await getCommitTreeSha(cfg, token, parentSha);
-
-	const treeEntries: { path: string; mode: '100644'; type: 'blob'; sha: string }[] = [];
-	const blobShas: Record<string, string> = {};
-	for (const [path, content] of byPath) {
-		const blobRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/blobs`, {
-			method: 'POST',
-			headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
-			body: JSON.stringify({ content, encoding: 'utf-8' }),
-		});
-		if (!blobRes.ok) {
-			const text = await blobRes.text();
-			throw new Error(`GitHub blob ${blobRes.status}: ${text.slice(0, 300)}`);
-		}
-		const blobJson = (await blobRes.json()) as { sha: string };
-		blobShas[path] = blobJson.sha;
-		treeEntries.push({ path, mode: '100644', type: 'blob', sha: blobJson.sha });
-	}
-
-	const treeRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/trees`, {
-		method: 'POST',
-		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
-		body: JSON.stringify({ base_tree: baseTreeSha, tree: treeEntries }),
-	});
-	if (!treeRes.ok) {
-		const text = await treeRes.text();
-		throw new Error(`GitHub tree ${treeRes.status}: ${text.slice(0, 300)}`);
-	}
-	const treeJson = (await treeRes.json()) as { sha: string };
-
-	const newCommitRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/commits`, {
-		method: 'POST',
-		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-			message,
-			tree: treeJson.sha,
-			parents: [parentSha],
-		}),
-	});
-	if (!newCommitRes.ok) {
-		const text = await newCommitRes.text();
-		throw new Error(`GitHub commit POST ${newCommitRes.status}: ${text.slice(0, 300)}`);
-	}
-	const newCommitJson = (await newCommitRes.json()) as { sha: string };
-
-	const updateRefRes = await fetch(gitBranchRefUpdateUrl(cfg), {
-		method: 'PATCH',
-		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
-		body: JSON.stringify({ sha: newCommitJson.sha, force: false }),
-	});
-	if (!updateRefRes.ok) {
-		const text = await updateRefRes.text();
-		throw new Error(`GitHub ref PATCH ${updateRefRes.status}: ${text.slice(0, 300)}`);
-	}
-
-	return { commitSha: newCommitJson.sha, written: byPath.size, blobShas };
-}
-
 /** Contents API + base64 w JSON jest ciężki dla dużych plików — powyżej progu Git Data API. */
 const LARGE_FILE_GIT_DATA_BYTES = 8 * 1024 * 1024;
 /** Konflikty SHA przy równoległej publikacji (Contents API 409 / ref tip) — odśwież i ponów. */
 const CONTENTS_CONFLICT_RETRIES = 4;
+
+type GitHubTreeWriteEntry = {
+	path: string;
+	mode: '100644';
+	type: 'blob';
+	sha: string;
+};
+
+type GitHubTreeDeleteEntry = {
+	path: string;
+	mode: '100644';
+	type: 'blob';
+	sha: null;
+};
+
+async function createGitBlob(
+	cfg: GitHubConfig,
+	token: string,
+	file: GitHubFileWrite,
+): Promise<{ path: string; sha: string }> {
+	const path = file.path.trim();
+	const body = isBinaryFileWrite(file)
+		? {
+				content: bytesToBase64(binaryToArrayBuffer(file.content)),
+				encoding: 'base64' as const,
+			}
+		: { content: file.content, encoding: 'utf-8' as const };
+
+	const blobRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/blobs`, {
+		method: 'POST',
+		headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+		body: JSON.stringify(body),
+	});
+	if (!blobRes.ok) {
+		const text = await blobRes.text();
+		throw new Error(`GitHub blob ${blobRes.status}: ${text.slice(0, 300)}`);
+	}
+	const blobJson = (await blobRes.json()) as { sha: string };
+	return { path, sha: blobJson.sha };
+}
+
+/**
+ * Zapisuje wiele plików (tekst + binaria) w jednym commicie — jeden deploy Vercel.
+ * Opcjonalnie usuwa ścieżki w tym samym tree (np. stary folder po zmianie slug).
+ */
+export async function putGitHubFilesBatch(
+	cfg: GitHubConfig,
+	token: string,
+	files: GitHubFileWrite[],
+	message: string,
+	options: { deletes?: string[] } = {},
+): Promise<{ commitSha: string; written: number; deleted: number; blobShas: Record<string, string> }> {
+	const byPath = new Map<string, GitHubFileWrite>();
+	for (const file of files) {
+		const path = file.path.trim();
+		if (!path) continue;
+		byPath.set(path, { ...file, path });
+	}
+	const deletePaths = [
+		...new Set((options.deletes ?? []).map((p) => p.trim()).filter(Boolean)),
+	].filter((path) => !byPath.has(path));
+
+	if (byPath.size === 0 && deletePaths.length === 0) {
+		throw new Error('putGitHubFilesBatch: brak plików');
+	}
+
+	const blobShas: Record<string, string> = {};
+	const writeEntries: GitHubTreeWriteEntry[] = [];
+	if (byPath.size > 0) {
+		const blobs = await Promise.all(
+			[...byPath.values()].map((file) => createGitBlob(cfg, token, file)),
+		);
+		for (const { path, sha } of blobs) {
+			blobShas[path] = sha;
+			writeEntries.push({ path, mode: '100644', type: 'blob', sha });
+		}
+	}
+
+	const deleteEntries: GitHubTreeDeleteEntry[] = deletePaths.map((path) => ({
+		path,
+		mode: '100644',
+		type: 'blob',
+		sha: null,
+	}));
+
+	let lastError = '';
+	for (let attempt = 0; attempt < CONTENTS_CONFLICT_RETRIES; attempt++) {
+		const parentSha = await getBranchHeadCommitSha(cfg, token);
+		const baseTreeSha = await getCommitTreeSha(cfg, token, parentSha);
+		const tree = [...writeEntries, ...deleteEntries];
+
+		const treeRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/trees`, {
+			method: 'POST',
+			headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+			body: JSON.stringify({ base_tree: baseTreeSha, tree }),
+		});
+		if (!treeRes.ok) {
+			const text = await treeRes.text();
+			throw new Error(`GitHub tree ${treeRes.status}: ${text.slice(0, 300)}`);
+		}
+		const treeJson = (await treeRes.json()) as { sha: string };
+
+		const newCommitRes = await fetch(`${GH_API}/repos/${cfg.owner}/${cfg.repo}/git/commits`, {
+			method: 'POST',
+			headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				message,
+				tree: treeJson.sha,
+				parents: [parentSha],
+			}),
+		});
+		if (!newCommitRes.ok) {
+			const text = await newCommitRes.text();
+			throw new Error(`GitHub commit POST ${newCommitRes.status}: ${text.slice(0, 300)}`);
+		}
+		const newCommitJson = (await newCommitRes.json()) as { sha: string };
+
+		const updateRefRes = await fetch(gitBranchRefUpdateUrl(cfg), {
+			method: 'PATCH',
+			headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+			body: JSON.stringify({ sha: newCommitJson.sha, force: false }),
+		});
+		if (updateRefRes.ok) {
+			return {
+				commitSha: newCommitJson.sha,
+				written: byPath.size,
+				deleted: deletePaths.length,
+				blobShas,
+			};
+		}
+		const text = await updateRefRes.text();
+		lastError = `GitHub ref PATCH ${updateRefRes.status}: ${text.slice(0, 300)}`;
+		if (
+			(updateRefRes.status === 409 || updateRefRes.status === 422) &&
+			attempt < CONTENTS_CONFLICT_RETRIES - 1
+		) {
+			continue;
+		}
+		throw new Error(lastError);
+	}
+
+	throw new Error(lastError || 'GitHub ref PATCH: konflikt tipu gałęzi');
+}
 
 async function putGitHubFileViaGitData(
 	cfg: GitHubConfig,

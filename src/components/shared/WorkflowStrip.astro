@@ -1,0 +1,34 @@
+---
+interface Step {
+	label: string;
+	current?: boolean;
+	done?: boolean;
+}
+
+interface Props {
+	steps: Step[];
+	ariaLabel: string;
+	class?: string;
+}
+
+const { steps, ariaLabel, class: className = '' } = Astro.props;
+---
+
+<ol class:list={['ui-workflow', className]} aria-label={ariaLabel}>
+	{
+		steps.map((step, index) => (
+			<li
+				class:list={[
+					'ui-workflow-step',
+					step.current && 'ui-workflow-step--current',
+					step.done && 'ui-workflow-step--done',
+				]}
+			>
+				<span class="ui-workflow-index" aria-hidden="true">
+					{index + 1}
+				</span>
+				<span class="ui-workflow-label">{step.label}</span>
+			</li>
+		))
+	}
+</ol>

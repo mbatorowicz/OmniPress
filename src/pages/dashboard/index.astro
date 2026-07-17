@@ -5,6 +5,7 @@ import Alert from '@/components/ui/feedback/Alert.astro';
 import Button from '@/components/ui/actions/Button.astro';
 import PageHeader from '@/components/ui/layout/PageHeader.astro';
 import Panel from '@/components/ui/layout/Panel.astro';
+import WorkflowStrip from '@/components/shared/WorkflowStrip.astro';
 import { common, dashboard, postError } from '@/i18n';
 import { loadAllowedSites } from '@/lib/posts';
 import { getUserSites } from '@/lib/auth';
@@ -37,6 +38,16 @@ const errorMessage =
 	{submitted && <Alert variant="success">{dashboard.submitted}</Alert>}
 	{deleted && <Alert variant="success">{dashboard.deleted}</Alert>}
 	{errorMessage && <Alert variant="warning">{errorMessage}</Alert>}
+
+	<WorkflowStrip
+		ariaLabel={dashboard.workflowAria}
+		steps={[
+			{ label: dashboard.workflow.draft, current: true },
+			{ label: dashboard.workflow.submit },
+			{ label: dashboard.workflow.wait },
+			{ label: dashboard.workflow.live },
+		]}
+	/>
 
 	<Panel class="mb-6">
 		<div class="flex flex-wrap items-center justify-between gap-4">

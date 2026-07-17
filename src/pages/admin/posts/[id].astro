@@ -108,23 +108,9 @@ const breadcrumbs = [
 		)
 	}
 
-	<AdminPostPreview {post} {contentHtml} {galleryAssets} />
-	<PublishLogsPanel postId={post.id} logs={publishLogs} />
-
-	{
-		isPending && siteChannel && (
-			<Panel class="mt-6 space-y-3">
-				<p class="ui-muted">{adminReview.publishLead(siteChannel.name)}</p>
-				<form method="post" action={`/api/admin/posts/${post.id}/approve`}>
-					<Button type="submit">{adminReview.approve}</Button>
-				</form>
-			</Panel>
-		)
-	}
-
 	{
 		isPending && !siteChannel && (
-			<Alert variant="warning" class="mt-6">
+			<Alert variant="warning" class="mb-6">
 				{adminReview.errors.no_site_channel}{' '}
 				<a href={`/admin/units/${post.site_id}`} class="ui-link">{adminReview.configureSite}</a>
 			</Alert>
@@ -133,17 +119,30 @@ const breadcrumbs = [
 
 	{
 		isPending && (
-			<Panel variant="danger" class="mt-4 max-w-lg">
-				<form method="post" action={`/api/admin/posts/${post.id}/reject`} class="space-y-3">
-					<Label>
-						<span class="font-medium">{adminReview.rejectionNote}</span>
-						<Textarea name="rejection_note" required rows={3} />
-					</Label>
-					<Button type="submit" variant="danger">{adminReview.reject}</Button>
-				</form>
-			</Panel>
+			<div class="ui-review-actions">
+				{siteChannel && (
+					<Panel class="space-y-3">
+						<p class="ui-muted">{adminReview.publishLead(siteChannel.name)}</p>
+						<form method="post" action={`/api/admin/posts/${post.id}/approve`}>
+							<Button type="submit">{adminReview.approve}</Button>
+						</form>
+					</Panel>
+				)}
+				<Panel variant="danger" class="space-y-3">
+					<form method="post" action={`/api/admin/posts/${post.id}/reject`} class="space-y-3">
+						<Label>
+							<span class="font-medium">{adminReview.rejectionNote}</span>
+							<Textarea name="rejection_note" required rows={3} />
+						</Label>
+						<Button type="submit" variant="danger">{adminReview.reject}</Button>
+					</form>
+				</Panel>
+			</div>
 		)
 	}
+
+	<AdminPostPreview {post} {contentHtml} {galleryAssets} />
+	<PublishLogsPanel postId={post.id} logs={publishLogs} />
 
 	{canReopen && <PostReopenForm postId={post.id} />}
 	<PostAdminActions postId={post.id} status={post.status} />

@@ -1,7 +1,14 @@
 import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { getGitHubFile, getGitHubFileBinary, putGitHubFile, type GitHubConfig } from './github-api';
+import {
+	getGitHubFile,
+	getGitHubFileBinary,
+	putGitHubFile,
+	type GitHubBinaryFileWrite,
+	type GitHubConfig,
+} from './github-api';
+
 const VIEWER_REPO_PATH = 'public/omnipress/pdf-viewer.js';
 const WORKER_REPO_PATH = 'public/omnipress/pdf.worker.mjs';
 
@@ -24,43 +31,51 @@ function buffersEqual(a: Uint8Array, b: Uint8Array): boolean {
 	return true;
 }
 
-async function ensureGitHubBinary(
+async function prepareGitHubBinaryWrite(
 	cfg: GitHubConfig,
 	token: string,
 	repoPath: string,
 	localFile: string,
-	message: string,
-): Promise<void> {
+): Promise<GitHubBinaryFileWrite | null> {
 	const local = readPublicAsset(localFile);
 	const existing = await getGitHubFile(cfg, token, repoPath);
 	if (existing) {
 		const remote = await getGitHubFileBinary(cfg, token, repoPath);
-		if (remote && buffersEqual(local, new Uint8Array(remote))) return;
+		if (remote && buffersEqual(local, new Uint8Array(remote))) return null;
 	}
-	await putGitHubFile(
-		cfg,
-		token,
-		repoPath,
-		local.buffer.slice(local.byteOffset, local.byteOffset + local.byteLength),
-		message,
-		existing?.sha,
-	);
+	return {
+		path: repoPath,
+		content: local.buffer.slice(local.byteOffset, local.byteOffset + local.byteLength),
+	};
+}
+
+/** Zwraca brakujące/zmienione pliki PDF viewera do dołączenia do atomowego commita. */
+export async function preparePdfViewerWrites(
+	cfg: GitHubConfig,
+	token: string,
+): Promise<GitHubBinaryFileWrite[]> {
+	const writes: GitHubBinaryFileWrite[] = [];
+	const viewer = await prepareGitHubBinaryWrite(cfg, token, VIEWER_REPO_PATH, 'pdf-viewer.js');
+	if (viewer) writes.push(viewer);
+	const worker = await prepareGitHubBinaryWrite(cfg, token, WORKER_REPO_PATH, 'pdf.worker.mjs');
+	if (worker) writes.push(worker);
+	return writes;
 }
 
 /** Wgrywa bundel PDF.js do repo Astro (public/omnipress), jeśli jeszcze go nie ma. */
 export async function ensurePdfViewerOnGitHub(cfg: GitHubConfig, token: string): Promise<void> {
-	await ensureGitHubBinary(
-		cfg,
-		token,
-		VIEWER_REPO_PATH,
-		'pdf-viewer.js',
-		'OmniPress: PDF viewer (pdf.js)',
-	);
-	await ensureGitHubBinary(
-		cfg,
-		token,
-		WORKER_REPO_PATH,
-		'pdf.worker.mjs',
-		'OmniPress: PDF viewer worker',
-	);
+	const writes = await preparePdfViewerWrites(cfg, token);
+	for (const write of writes) {
+		const existing = await getGitHubFile(cfg, token, write.path);
+		await putGitHubFile(
+			cfg,
+			token,
+			write.path,
+			write.content,
+			write.path.endsWith('worker.mjs')
+				? 'OmniPress: PDF viewer worker'
+				: 'OmniPress: PDF viewer (pdf.js)',
+			existing?.sha,
+		);
+	}
 }

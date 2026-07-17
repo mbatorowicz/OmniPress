@@ -88,11 +88,11 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 
 1. Admin akceptuje wpis → `publish_logs.pending` (z `next_retry_at` = data redaktora, jeśli w przyszłości).
 2. Status `scheduled` (czeka) lub `publishing` (od razu). Worker `/api/worker/publish`: start po akceptacji natychmiastowej, przy wejściu admina na `/admin`, oraz cron Vercel (plan Hobby: raz dziennie 06:00 UTC; docelowo co godzinę na Pro).
-3. Commit `.md` + assety do repo GitHub (layout `flat` lub `folder`).
+3. **Atomowy commit** na GitHub (layout `flat` lub `folder`): załączniki + `index.md` + rejestr ostatnich zmian (+ PDF viewer / sprzątanie starego folderu) — jeden deploy Vercel.
 4. Opcjonalnie: oczekiwanie na deploy Vercel i zapis błędów buildu.
 5. Sukces → `published`; błąd → `failed` (retry automatyczny + przycisk w UI).
 
-Withdraw/deactivate: batch delete plików wpisu z GitHub.
+Withdraw/deactivate: batch delete plików wpisu z GitHub (jeden commit).
 
 ---
 

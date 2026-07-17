@@ -27,6 +27,7 @@ interface Props {
 	name?: string;
 	value?: string;
 	confirm?: string;
+	form?: string;
 	formaction?: string;
 	formnovalidate?: boolean;
 	id?: string;
@@ -44,6 +45,7 @@ const {
 	name,
 	value,
 	confirm,
+	form,
 	formaction,
 	formnovalidate,
 	id,
@@ -90,6 +92,7 @@ const classes = [
 			disabled={disabled}
 			name={name}
 			value={value}
+			form={form}
 			formaction={formaction}
 			formnovalidate={formnovalidate}
 			id={id}

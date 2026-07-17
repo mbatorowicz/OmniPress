@@ -9,7 +9,7 @@
 		@apply bg-amber-100 text-amber-900;
 	}
 	.ui-badge--scheduled {
-		@apply bg-violet-100 text-violet-900;
+		@apply bg-brand/10 text-brand;
 	}
 	.ui-badge--publishing {
 		@apply bg-info-surface text-info-text;

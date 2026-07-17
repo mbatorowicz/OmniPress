@@ -2,6 +2,7 @@
 import AdminImportSection from '@/components/admin/queue/AdminImportSection.astro';
 import AdminQueueSection from '@/components/admin/queue/AdminQueueSection.astro';
 import FlashAlerts from '@/components/shared/FlashAlerts.astro';
+import WorkflowStrip from '@/components/shared/WorkflowStrip.astro';
 import { admin, layout } from '@/i18n';
 import type { FlashMessage } from '@/lib/ui/flash';
 import type { SiteRow } from '@/lib/posts/site';
@@ -31,15 +32,26 @@ interface Props {
 const { sites, pending, scheduled, published, flashMessages, defaultImportSiteId, importSiteId } =
 	Astro.props;
 const listLabels = admin.postList;
+const pendingCount = pending?.length ?? 0;
 
 const summary = [
-	{ id: 'pending', label: admin.queueNav.pending, count: pending?.length ?? 0 },
+	{ id: 'pending', label: admin.queueNav.pending, count: pendingCount },
 	{ id: 'scheduled', label: admin.queueNav.scheduled, count: scheduled?.length ?? 0 },
 	{ id: 'published', label: admin.queueNav.published, count: published?.length ?? 0 },
+];
+
+const workflowSteps = [
+	{ label: admin.workflow.review, current: pendingCount > 0, done: pendingCount === 0 },
+	{ label: admin.workflow.publish },
+	{ label: admin.workflow.live },
 ];
 ---
 
 <FlashAlerts messages={flashMessages} />
+
+<p class="ui-queue-lead">{admin.queueLead}</p>
+
+<WorkflowStrip steps={workflowSteps} ariaLabel={admin.workflowAria} />
 
 <nav class="ui-queue-summary" aria-label={layout.aria.queueSections}>
 	{
@@ -55,7 +67,8 @@ const summary = [
 <AdminQueueSection
 	id="pending"
 	section="pending"
-	title={admin.pending.heading(pending?.length ?? 0)}
+	title={admin.pending.heading(pendingCount)}
+	lead={admin.pending.lead}
 	empty={admin.pending.empty}
 	posts={pending}
 	labels={listLabels}

@@ -4,9 +4,16 @@ export const dashboard = {
 	title: 'Panel redaktora',
 	articles: {
 		heading: 'Artykuły',
-		lead: 'Twórz szkice i wysyłaj do publikacji.',
+		lead: 'Napisz szkic → wyślij do akceptacji → po decyzji admina treść trafia na stronę.',
 		newPost: '+ Nowy artykuł',
 		noTargetSite: 'Brak strony docelowej.',
+	},
+	workflowAria: 'Twoja ścieżka pracy',
+	workflow: {
+		draft: 'Szkic',
+		submit: 'Wyślij',
+		wait: 'Akceptacja',
+		live: 'Na stronie',
 	},
 	sites: {
 		heading: 'Twoje strony',
@@ -16,19 +23,21 @@ export const dashboard = {
 		heading: 'Twoje wpisy',
 		empty: 'Brak wpisów — utwórz pierwszy artykuł.',
 	},
-	submitted: 'Wpis wysłany do akceptacji administratora.',
+	submitted: 'Wysłano do akceptacji — edycja zablokowana do decyzji administratora.',
 	deleted: 'Wpis został usunięty.',
 	editor: {
 		titleFallback: 'Edytor',
 		headingEdit: 'Edytor artykułu',
-		headingView: 'Podgląd artykułu',
+		headingView: 'Status artykułu',
 		siteLabel: 'Strona:',
-		saved: 'Zapisano szkic.',
-		submitted: 'Wysłano do akceptacji.',
-		rejectionNote: 'Uwagi:',
-		pendingLocked: 'Wpis oczekuje na akceptację administratora — edycja zablokowana.',
-		publishingLocked: 'Trwa publikacja wpisu — edycja zablokowana.',
-		scheduledLocked: 'Wpis zaakceptowany — publikacja zaplanowana na wskazaną datę.',
+		saved: 'Zapisano szkic — możesz dalej edytować lub wysłać do akceptacji.',
+		submitted: 'Wysłano do akceptacji. Po decyzji admina treść trafi na stronę (jeden commit).',
+		rejectionNote: 'Uwagi administratora:',
+		pendingLocked:
+			'Oczekujesz na akceptację — edycja zablokowana. Administrator zobaczy wpis w kolejce.',
+		publishingLocked: 'Trwa atomowa publikacja na GitHub — edycja zablokowana.',
+		scheduledLocked: 'Zaakceptowano — publikacja o wskazanej dacie (atomowy commit).',
+		publishedLocked: 'Wpis jest na stronie publicznej. Poprawkę może otworzyć administrator.',
 		emptyContent: '(pusta treść)',
 		backToList: '← Wróć do listy',
 		richText: {
@@ -44,20 +53,21 @@ export const dashboard = {
 		fields: {
 			category: 'Kategoria',
 			categoryPlaceholder: '— wybierz kategorię —',
-			categoryHint: 'Lista pobierana z pliku kategorii w repozytorium Astro tej strony.',
-			categoryEmpty: 'Brak kategorii — administrator musi naprawić kanał Astro (plik kategorii w repo).',
+			categoryHint: 'Wymagana przed wysłaniem — lista z konfiguracji strony (Astro).',
+			categoryEmpty: 'Brak kategorii — poproś administratora o naprawę kanału Astro.',
 			title: 'Tytuł',
 			slug: 'Slug (opcjonalnie)',
 			slugPlaceholder: 'np. komunikat-urzedu',
 			content: 'Treść artykułu',
-			contentHint: 'Pisz jak w Wordzie — pogrubienie, nagłówki, listy i linki. Zdjęcia dodajesz osobno w galerii poniżej.',
+			contentHint:
+				'Pisz jak w Wordzie — pogrubienie, nagłówki, listy i linki. Zdjęcia i PDF dodaj poniżej.',
 			contentPlaceholder: 'Wpisz treść artykułu…',
 			amendmentHint:
-				'Poprawka opublikowanego wpisu — zapisz zmiany i wyślij ponownie do akceptacji. Na stronie zostanie stara wersja do ponownej publikacji.',
+				'Poprawka wpisu już na stronie — zapisz i wyślij ponownie. Do kolejnej akceptacji na stronie zostaje poprzednia wersja.',
 			publishAt: 'Data publikacji',
 			publishAtHour: 'Godzina',
 			publishAtHint:
-				'Pozostaw datę pustą, aby opublikować w momencie wysłania (po akceptacji administratora). Data z przeszłości — publikacja od razu z datą wsteczną; data w przyszłości — automatycznie w wybranym terminie.',
+				'Puste = po akceptacji od razu. Data w przyszłości = automatycznie o tej godzinie. Data wsteczna = data w artykule, publikacja po akceptacji.',
 			publishAtTimezone: 'Czas polski (Europe/Warsaw).',
 		},
 		gallery: {
@@ -116,9 +126,10 @@ export const dashboard = {
 			unusedImage: 'Nie wstawione w treść',
 		},
 		actions: {
-			save: ui.actions.saveDraft,
+			save: 'Zapisz szkic',
 			submit: 'Wyślij do akceptacji',
-			confirmSubmit: 'Wysłać do akceptacji? Po wysłaniu nie będziesz mógł edytować.',
+			confirmSubmit:
+				'Wysłać do akceptacji? Po wysłaniu edycja będzie zablokowana do decyzji administratora.',
 			delete: 'Usuń wpis',
 			confirmDelete: ui.confirm.deleteEntry,
 			addImage: 'Dodaj plik (zdjęcie / PDF)',

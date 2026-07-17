@@ -15,10 +15,11 @@ import {
 import {
 	getGitHubFile,
 	parseGitHubRepoConfig,
-	putGitHubFile,
+	putGitHubFilesBatch,
 	deleteGitHubFile,
+	type GitHubFileWrite,
 } from '@/lib/publish/github-api';
-import { appendRecentChangeOnGitHub } from '@/lib/recent-changes/github';
+import { prepareRecentChangeAppendWrite } from '@/lib/recent-changes/github';
 import type { RecentChangeEntry } from '@/lib/recent-changes/types';
 import { buildSitePagePublicPath } from './url';
 
@@ -55,7 +56,6 @@ export async function publishSitePageToGitHub(
 	const preferredPath = parseExternalGitHubPath(page.external_id);
 	const filePath =
 		preferredPath ?? sitePageMarkdownPath(pagesRoot, page.path_prefix, page.slug);
-	const existing = await getGitHubFile(cfg, creds.token, filePath);
 	const body = buildSitePageMarkdown(
 		page.title,
 		page.path_prefix,
@@ -63,36 +63,35 @@ export async function publishSitePageToGitHub(
 		sanitizePublishMarkdown(page.content_md),
 	);
 
+	const batchFiles: GitHubFileWrite[] = [{ path: filePath, content: body }];
 	try {
-		await putGitHubFile(
-			cfg,
-			creds.token,
-			filePath,
-			body,
-			`OmniPress: strona ${page.title}`,
-			existing?.sha,
-		);
-	} catch (err) {
-		const msg = err instanceof Error ? err.message : 'GitHub upload failed';
-		return { ok: false, error: 'publish_failed', summary: msg.slice(0, 200) };
-	}
-
-	try {
-		await appendRecentChangeOnGitHub(
+		const rcWrite = await prepareRecentChangeAppendWrite(
 			cfg,
 			creds.token,
 			dest.config,
 			buildPageRecentChangeEntry(page),
 		);
+		batchFiles.push(rcWrite);
 	} catch {
 		// Rejestr zmian nie blokuje publikacji strony
 	}
 
-	return {
-		ok: true,
-		summary: `Opublikowano ${filePath}`,
-		externalId: formatExternalGitHubPath(filePath),
-	};
+	try {
+		const { commitSha } = await putGitHubFilesBatch(
+			cfg,
+			creds.token,
+			batchFiles,
+			`OmniPress: strona ${page.title}`,
+		);
+		return {
+			ok: true,
+			summary: `Opublikowano ${filePath} (${commitSha.slice(0, 7)}, 1 commit)`,
+			externalId: formatExternalGitHubPath(filePath),
+		};
+	} catch (err) {
+		const msg = err instanceof Error ? err.message : 'GitHub upload failed';
+		return { ok: false, error: 'publish_failed', summary: msg.slice(0, 200) };
+	}
 }
 
 export async function withdrawSitePageFromGitHub(
@@ -117,7 +116,12 @@ export async function withdrawSitePageFromGitHub(
 	if (!existing) return { ok: true };
 
 	try {
-		await deleteGitHubFile(cfg, creds.token, filePath, existing.sha, `OmniPress: zdejmij stronę ${page.title}`);
+		await deleteGitHubFile(
+			cfg,
+			creds.token,
+			filePath,
+			`OmniPress: zdejmij stronę ${page.title}`,
+		);
 	} catch {
 		return { ok: false, error: 'withdraw_failed' };
 	}

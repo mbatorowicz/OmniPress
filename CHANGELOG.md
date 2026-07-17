@@ -7,7 +7,13 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Dodane
 
-- **Bulk w kolejce admina:** akceptacja/odrzucenie (*Do akceptacji*), anulowanie harmonogramu (*Zaplanowane*); dezaktywacja/usuwanie jak wcześniej (*Opublikowane*).
+- **Atomowa publikacja GitHub:** jeden commit na wpis (assety + Markdown + rejestr zmian + opcjonalnie PDF viewer / cleanup slug) — jeden deploy Vercel.
+- **Workflow UI:** pasek ścieżki (redaktor + kolejka admina), szybka akceptacja z listy, decyzja approve/reject nad podglądem.
+- **Bulk w kolejce admina:** akceptacja/odrzucenie (*Do akceptacji*), anulowanie harmonogramu (*Zaplanowane*); dezaktywacja/usuwanie jak wcześniej (*Na stronie*).
+
+### Naprawione
+
+- Withdraw strony statycznej: poprawne wywołanie `deleteGitHubFile` (wcześniej SHA trafiało do message).
 - **MFA TOTP** dla administratora (Supabase Auth): enrollment `/auth/mfa/setup`, challenge `/auth/mfa`, wymuszenie AAL2 w middleware.
 - **CSP z nonce** per żądanie (bez `unsafe-inline` dla skryptów); `style-src 'unsafe-inline'` dla TipTap.
 - **Rate limit auth** współdzielony: Upstash Redis (preferowany) lub tabela `auth_rate_limits` + RPC (`setup:auth-rate-limits`).

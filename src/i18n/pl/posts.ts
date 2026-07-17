@@ -5,9 +5,9 @@ export const posts = {
 		draft: 'Szkic',
 		pending: 'Do akceptacji',
 		scheduled: 'Zaplanowany',
-		publishing: 'Publikacja w toku',
-		published: 'Opublikowany',
-		rejected: 'Odrzucony',
+		publishing: 'Publikacja…',
+		published: 'Na stronie',
+		rejected: 'Do poprawki',
 	},
 	errors: {
 		no_site: 'Brak przypisanej strony — poproś administratora o dostęp.',

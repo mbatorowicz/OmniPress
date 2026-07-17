@@ -86,7 +86,7 @@ export const adminUnit = {
 
 export const adminUnitPosts = {
 	title: 'Wpisy',
-	lead: 'Kategorie wpisów oraz kolejka akceptacji, harmonogramu i importu z GitHub.',
+	lead: 'Kategorie oraz kolejka: akceptacja → atomowa publikacja (1 commit) → na stronie.',
 } as const;
 
 export const adminSitePages = {
@@ -645,27 +645,28 @@ export const adminDestinations = {
 } as const;
 
 export const adminReview = {
-	approve: 'Zaakceptuj i przygotuj publikację',
-	reject: 'Odrzuć',
+	approve: 'Zaakceptuj i opublikuj',
+	reject: 'Odrzuć do poprawki',
 	rejectionNote: 'Uwagi dla redaktora (wymagane przy odrzuceniu)',
 	destinations: 'Publikacja na stronie',
 	publishLead: (channelName: string) =>
-		`Wpis trafi na stronę publiczną przez repozytorium powiązane ze stroną (${channelName}).`,
+		`Akceptacja uruchomi atomową publikację do ${channelName}: treść, załączniki i rejestr zmian w jednym commicie.`,
 	configureSite: 'Skonfiguruj stronę →',
-	approved: 'Wpis zaakceptowany — publikacja w tle (start natychmiast).',
-	approvedScheduled: 'Wpis zaakceptowany — publikacja zaplanowana na wskazaną datę.',
+	approved: 'Zaakceptowano — atomowa publikacja w tle (1 commit na GitHub).',
+	approvedScheduled: 'Zaakceptowano — publikacja zaplanowana (atomowy commit o wskazanej dacie).',
 	scheduledAt: 'Planowana publikacja',
-	rejected: 'Wpis odrzucony.',
-	reopen: 'Popraw wpis',
-	reopenHint: 'Wraca do szkicu — redaktor edytuje, wysyła do akceptacji, potem publikujesz aktualizację na tej samej stronie.',
+	rejected: 'Wpis odrzucony — redaktor może poprawić i wysłać ponownie.',
+	reopen: 'Oddaj do poprawki',
+	reopenHint:
+		'Wraca do szkicu — redaktor edytuje i wysyła ponownie. Na stronie zostaje stara wersja do kolejnej akceptacji.',
 	reopenConfirm: 'Wrócić wpis do poprawki? Na stronie zostanie stara wersja do momentu ponownej publikacji.',
-	reopened: 'Wpis wrócił do szkicu — redaktor może go teraz edytować.',
+	reopened: 'Wpis wrócił do szkicu — redaktor może go edytować.',
 	openEditor: 'Otwórz edytor redaktora →',
-	deactivate: 'Dezaktywuj ze strony',
+	deactivate: 'Zdejmij ze strony',
 	deactivateHint: 'Usuwa wpis ze strony publicznej (GitHub). W OmniPress wraca do szkicu.',
 	deactivateConfirm:
 		'Zdjąć wpis ze strony? W CMS zostanie szkicem — można go edytować lub ponownie opublikować.',
-	deactivated: 'Wpis zdezaktywowany.',
+	deactivated: 'Wpis zdjęty ze strony.',
 	delete: 'Usuń wpis',
 	deleteHint: 'Trwale usuwa wpis z OmniPress wraz z załącznikami.',
 	deleteConfirm: 'Na pewno usunąć wpis? Tej operacji nie można cofnąć.',
@@ -673,20 +674,20 @@ export const adminReview = {
 	remoteWarning: 'Część destynacji zgłosiła błąd przy zdejmowaniu — sprawdź logi publikacji.',
 	publishLogs: {
 		heading: 'Status publikacji',
-		destination: 'Destynacja',
+		destination: 'Kanał',
 		status: 'Status',
 		summary: 'Podsumowanie',
 		retries: 'Próby',
 		retry: 'Ponów publikację',
-		retryQueued: 'Ponowiono — worker w tle.',
+		retryQueued: 'Ponowiono — worker publikuje atomowo w tle.',
 		empty: 'Brak logów publikacji.',
 	},
 	logStatus: {
-		pending: 'Oczekuje',
-		processing: 'W trakcie',
-		success: 'Sukces',
+		pending: 'W kolejce',
+		processing: 'Publikacja…',
+		success: 'Na stronie',
 		failed: 'Błąd',
-		withdrawn: 'Cofnięto',
+		withdrawn: 'Zdjęto',
 	},
 	errors: {
 		not_pending: 'Wpis nie oczekuje na akceptację.',

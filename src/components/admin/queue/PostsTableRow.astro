@@ -2,8 +2,10 @@
 import { admin, common } from '@/i18n';
 import Badge from '@/components/ui/feedback/Badge.astro';
 import Button from '@/components/ui/actions/Button.astro';
+import StatusBadge from '@/components/ui/feedback/StatusBadge.astro';
 import TableRow from '@/components/ui/table/TableRow.astro';
 import TableCell from '@/components/ui/table/TableCell.astro';
+import type { PostStatus } from '@/lib/types';
 
 type PostRow = {
 	id: string;
@@ -21,14 +23,20 @@ interface Props {
 	post: PostRow;
 	when: string;
 	selectable?: boolean;
+	section?: 'pending' | 'scheduled' | 'published';
 	labels: {
 		noCategory: string;
 		open: string;
+		approveQuick?: string;
+		approveQuickConfirm?: string;
 	};
 }
 
-const { post, when, selectable, labels } = Astro.props;
+const { post, when, selectable, section, labels } = Astro.props;
 const siteName = (post.sites as { name: string } | null)?.name ?? '—';
+const showQuickApprove = section === 'pending' && Boolean(labels.approveQuick);
+const approveFormId = `approve-post-${post.id}`;
+const status = (post.status ?? 'draft') as PostStatus;
 ---
 
 <TableRow>
@@ -43,7 +51,12 @@ const siteName = (post.sites as { name: string } | null)?.name ?? '—';
 		<a href={`/admin/posts/${post.id}`} class="ui-link">
 			{post.title || common.untitled}
 		</a>
-		{post.status === 'publishing' && <Badge variant="publishing">{admin.inProgressBadge}</Badge>}
+		<div class="mt-1 flex flex-wrap items-center gap-1.5">
+			{section !== 'pending' && post.status && <StatusBadge status={status} />}
+			{post.status === 'publishing' && (
+				<Badge variant="publishing">{admin.inProgressBadge}</Badge>
+			)}
+		</div>
 	</TableCell>
 	<TableCell class="ui-subheading">
 		{
@@ -64,9 +77,21 @@ const siteName = (post.sites as { name: string } | null)?.name ?? '—';
 	{
 		selectable && (
 			<TableCell>
-				<Button href={`/admin/posts/${post.id}`} variant="ghost">
-					{labels.open}
-				</Button>
+				<div class="flex flex-wrap items-center gap-2">
+					{showQuickApprove && (
+						<Button
+							type="submit"
+							variant="primary"
+							form={approveFormId}
+							confirm={labels.approveQuickConfirm}
+						>
+							{labels.approveQuick}
+						</Button>
+					)}
+					<Button href={`/admin/posts/${post.id}`} variant="ghost">
+						{labels.open}
+					</Button>
+				</div>
 			</TableCell>
 		)
 	}

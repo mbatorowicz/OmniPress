@@ -16,7 +16,7 @@ Operacyjny przewodnik po panelu OmniPress. Stan funkcji: [STATUS.md](./STATUS.md
   - **Treść:** *Strony statyczne* (`/pages`), *Ostatnie zmiany* (`/changes`)
   - **Ustawienia** (`/admin/units/[id]`) — nazwa, slug, kanał GitHub i tokeny w jednym formularzu (na końcu subnav)
 - Stare trasy `/admin/units/[id]/layout` → *Menu*, `/admin/units/[id]/publish` → *Ustawienia* (301).
-- `/admin` to wyłącznie kolejka wpisów — sekcje (*Do akceptacji*, *Zaplanowane*, *Opublikowane*) mają u góry podsumowanie z licznikami; wpisy w trakcie publikacji są w sekcji *Zaplanowane* ze znacznikiem **W toku**; import z GitHub jest zwijaną sekcją na dole.
+- `/admin` to wyłącznie kolejka wpisów — sekcje (*Do akceptacji*, *Zaplanowane / w publikacji*, *Na stronie*) mają u góry ścieżkę workflow i liczniki; wpisy w trakcie publikacji są w sekcji *Zaplanowane* ze znacznikiem **Publikacja…**; z listy można szybko zaakceptować (atomowy commit); import z GitHub jest zwijaną sekcją na dole.
 
 ---
 
@@ -84,7 +84,7 @@ Konta **administratorów i redaktorów** w jednym panelu (stare `/admin/editors`
 ## 5. Akceptacja wpisów
 
 1. `/admin` → sekcja *Do akceptacji* → wpis.
-2. **Zaakceptuj:** *Zaakceptuj i przygotuj publikację* — publikacja na repozytorium strony.
+2. **Zaakceptuj:** *Zaakceptuj i opublikuj* — atomowy commit na GitHub (treść + załączniki + rejestr zmian).
    - Jeśli data publikacji **już minęła** lub jest teraz → status `publishing`, worker startuje od razu.
    - Jeśli data w **przyszłości** → status `scheduled`, wpis w sekcji *Zaplanowane*; worker opublikuje po terminie (przy wejściu na `/admin` lub cronie Vercel).
    - `publish_logs`: `pending` (z `next_retry_at` przy harmonogramie) → worker → `success` / `failed`.
@@ -114,7 +114,7 @@ Model **szkic + publikacja**: edycja zapisuje roboczy layout w Supabase; strona 
 - **Bulk (kolejka `/admin` i wpisy jednostki):**
   - *Do akceptacji* — zaznacz → **Zaakceptuj** lub **Odrzuć** (wspólne uwagi).
   - *Zaplanowane* — zaznacz → **Anuluj harmonogram** (powrót do szkicu; wpisy „W toku” pomijane).
-  - *Opublikowane* — zaznacz → dezaktywuj lub usuń (w tym z GitHub).
+  - *Na stronie* — zaznacz → zdejmij ze strony lub usuń (w tym z GitHub, jeden commit).
 
 **Odzyskiwanie menu po regresji:** Importuj z GitHub (nie zapisuj na starym deployu) → sprawdź typy linków w tabeli → Zapisz szkic → Opublikuj na stronie.
 

@@ -16,7 +16,7 @@ Przewodnik po panelu redaktora. Stan funkcji: [STATUS.md](./STATUS.md).
 ## Panel (`/dashboard`)
 
 1. **+ Nowy artykuł** — tworzy szkic na przypisanej stronie (przy wielu stronach — wybierz z listy).
-2. **Twoje wpisy** — lista ze statusem (Szkic, Do akceptacji, Zaplanowany, Publikacja, Opublikowany, Odrzucony).
+2. **Twoje wpisy** — lista ze statusem (Szkic → Do akceptacji → Zaplanowany / Publikacja… → Na stronie; albo Do poprawki).
 
 ---
 
@@ -34,9 +34,9 @@ Przewodnik po panelu redaktora. Stan funkcji: [STATUS.md](./STATUS.md).
 | DOCX | Załączniki Word (do 50 MB) — link do pobrania |
 | Pliki do pobrania | Inne załączniki (do 50 MB) — link do pobrania |
 
-**Zapisz szkic** — możesz wracać i edytować (status `draft` lub `rejected`).
+**Wyślij do akceptacji** (główna akcja) — po wysłaniu edycja zablokowana do decyzji admina.
 
-**Wyślij do akceptacji** — po wysłaniu edycja zablokowana do decyzji admina.
+**Zapisz szkic** — możesz wracać i edytować (status `draft` lub `rejected`).
 
 **Usuń wpis** — trwale usuwa Twój wpis wraz z załącznikami (tylko status *Szkic* lub *Odrzucony*).
 
@@ -47,10 +47,10 @@ Przewodnik po panelu redaktora. Stan funkcji: [STATUS.md](./STATUS.md).
 | Status | Co możesz zrobić |
 |--------|------------------|
 | Do akceptacji | Czekaj — edycja zablokowana |
-| Zaplanowany | Zaakceptowany — automatyczna publikacja o wskazanej godzinie |
-| Publikacja w toku | Czekaj — worker publikuje na GitHub |
-| Odrzucony | Czytasz uwagi admina, poprawiasz, wysyłasz ponownie |
-| Opublikowany | Treść na stronie gminy; admin może otworzyć ponowną edycję (poprawka) |
+| Zaplanowany | Zaakceptowany — atomowa publikacja o wskazanej godzinie |
+| Publikacja… | Czekaj — worker robi jeden commit na GitHub |
+| Do poprawki | Czytasz uwagi admina, poprawiasz, wysyłasz ponownie |
+| Na stronie | Treść live; admin może otworzyć ponowną edycję (poprawka) |
 
 ---
 
