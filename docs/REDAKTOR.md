@@ -47,10 +47,10 @@ Przewodnik po panelu redaktora. Stan funkcji: [STATUS.md](./STATUS.md).
 | Status | Co możesz zrobić |
 |--------|------------------|
 | Do akceptacji | Czekaj — edycja zablokowana |
-| Zaplanowany | Zaakceptowany — atomowa publikacja o wskazanej godzinie |
-| Publikacja… | Czekaj — worker robi jeden commit na GitHub |
+| Zaplanowany | Zaakceptowany — publikacja o wskazanej godzinie |
+| Publikacja… | Czekaj — trwa publikacja na stronę |
 | Do poprawki | Czytasz uwagi admina, poprawiasz, wysyłasz ponownie |
-| Na stronie | Treść live; admin może otworzyć ponowną edycję (poprawka) |
+| Na stronie | Treść na stronie; admin może otworzyć ponowną edycję (poprawka) |
 
 ---
 
@@ -60,5 +60,5 @@ Przewodnik po panelu redaktora. Stan funkcji: [STATUS.md](./STATUS.md).
 |---------|-----------|
 | „Brak przypisanej strony” | Poproś admina o przypisanie w `/admin/users` |
 | Brak kategorii na liście | Admin musi skonfigurować layout i plik kategorii w repo |
-| Nie mogę edytować | Wpis może być w statusie *Do akceptacji* lub *Opublikowany* (bez reopen) |
+| Nie mogę edytować | Wpis może być w statusie *Do akceptacji* lub *Na stronie* (bez reopen) |
 | Upload nie działa | Zgłoś adminowi (bucket Storage) |

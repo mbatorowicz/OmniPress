@@ -86,7 +86,7 @@ export const adminUnit = {
 
 export const adminUnitPosts = {
 	title: 'Wpisy',
-	lead: 'Kategorie oraz kolejka: akceptacja → atomowa publikacja (1 commit) → na stronie.',
+	lead: 'Kategorie wpisów oraz kolejka akceptacji i publikacji.',
 } as const;
 
 export const adminSitePages = {
@@ -649,29 +649,26 @@ export const adminReview = {
 	reject: 'Odrzuć do poprawki',
 	rejectionNote: 'Uwagi dla redaktora (wymagane przy odrzuceniu)',
 	destinations: 'Publikacja na stronie',
-	publishLead: (channelName: string) =>
-		`Akceptacja uruchomi atomową publikację do ${channelName}: treść, załączniki i rejestr zmian w jednym commicie.`,
+	publishLead: (channelName: string) => `Publikacja na stronę przez ${channelName}.`,
 	configureSite: 'Skonfiguruj stronę →',
-	approved: 'Zaakceptowano — atomowa publikacja w tle (1 commit na GitHub).',
-	approvedScheduled: 'Zaakceptowano — publikacja zaplanowana (atomowy commit o wskazanej dacie).',
+	approved: 'Zaakceptowano — publikacja w tle.',
+	approvedScheduled: 'Zaakceptowano — publikacja zaplanowana.',
 	scheduledAt: 'Planowana publikacja',
-	rejected: 'Wpis odrzucony — redaktor może poprawić i wysłać ponownie.',
+	rejected: 'Wpis odrzucony.',
 	reopen: 'Oddaj do poprawki',
-	reopenHint:
-		'Wraca do szkicu — redaktor edytuje i wysyła ponownie. Na stronie zostaje stara wersja do kolejnej akceptacji.',
-	reopenConfirm: 'Wrócić wpis do poprawki? Na stronie zostanie stara wersja do momentu ponownej publikacji.',
-	reopened: 'Wpis wrócił do szkicu — redaktor może go edytować.',
+	reopenHint: 'Wraca do szkicu. Na stronie zostaje dotychczasowa wersja do kolejnej publikacji.',
+	reopenConfirm: 'Wrócić wpis do poprawki? Na stronie zostanie dotychczasowa wersja.',
+	reopened: 'Wpis wrócił do szkicu.',
 	openEditor: 'Otwórz edytor redaktora →',
 	deactivate: 'Zdejmij ze strony',
-	deactivateHint: 'Usuwa wpis ze strony publicznej (GitHub). W OmniPress wraca do szkicu.',
-	deactivateConfirm:
-		'Zdjąć wpis ze strony? W CMS zostanie szkicem — można go edytować lub ponownie opublikować.',
+	deactivateHint: 'Usuwa wpis ze strony publicznej. W OmniPress wraca do szkicu.',
+	deactivateConfirm: 'Zdjąć wpis ze strony? W CMS zostanie szkicem.',
 	deactivated: 'Wpis zdjęty ze strony.',
 	delete: 'Usuń wpis',
 	deleteHint: 'Trwale usuwa wpis z OmniPress wraz z załącznikami.',
 	deleteConfirm: 'Na pewno usunąć wpis? Tej operacji nie można cofnąć.',
 	deleted: 'Wpis usunięty.',
-	remoteWarning: 'Część destynacji zgłosiła błąd przy zdejmowaniu — sprawdź logi publikacji.',
+	remoteWarning: 'Część kanałów zgłosiła błąd przy zdejmowaniu — sprawdź logi publikacji.',
 	publishLogs: {
 		heading: 'Status publikacji',
 		destination: 'Kanał',
@@ -679,7 +676,7 @@ export const adminReview = {
 		summary: 'Podsumowanie',
 		retries: 'Próby',
 		retry: 'Ponów publikację',
-		retryQueued: 'Ponowiono — worker publikuje atomowo w tle.',
+		retryQueued: 'Ponowiono — publikacja w tle.',
 		empty: 'Brak logów publikacji.',
 	},
 	logStatus: {

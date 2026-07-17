@@ -23,10 +23,11 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Zmienione
 
+- **Wording UI:** etykiety i komunikaty bez narracji technicznej (commit/worker/deploy); ścieżka workflow: Akceptacja → Publikacja → Na stronie.
 - IP rate limitu z nagłówka `x-real-ip` (Vercel).
 - Dokumentacja tokena GitHub: fine-grained PAT z dostępem tylko do repo strony (`docs/WDROZENIE.md`).
 - Publikacja dużych assetów na GitHub (≥ 8 MB) przez Git Data API zamiast Contents API.
-- Publikacja GitHub: automatyczny retry przy konflikcie SHA (HTTP 409) — typowe przy bulk akceptacji.
+- Publikacja GitHub: automatyczny retry przy konflikcie SHA (HTTP 409) — typyczne przy bulk akceptacji.
 
 ## [0.9.5] — 2026-06-03
 

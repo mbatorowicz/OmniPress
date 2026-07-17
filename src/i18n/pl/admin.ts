@@ -3,12 +3,10 @@ import { ui } from './ui';
 export const admin = {
 	title: 'Administracja',
 	queueHeading: 'Kolejka wpisów',
-	queueLead:
-		'Akceptacja uruchamia atomową publikację: treść, załączniki i rejestr zmian w jednym commicie GitHub (jeden deploy).',
-	workflowAria: 'Ścieżka publikacji wpisu',
+	workflowAria: 'Ścieżka publikacji',
 	workflow: {
 		review: 'Akceptacja',
-		publish: '1 commit na GitHub',
+		publish: 'Publikacja',
 		live: 'Na stronie',
 	},
 	sites: {
@@ -23,23 +21,23 @@ export const admin = {
 	inProgressBadge: 'Publikacja…',
 	pending: {
 		heading: (n: number) => `Do akceptacji (${n})`,
-		lead: 'Zaznacz wiele wpisów albo otwórz podgląd. Po akceptacji worker publikuje atomowo w tle.',
+		lead: 'Zaznacz wpisy lub otwórz podgląd.',
 		empty: 'Brak wpisów oczekujących.',
 	},
 	scheduled: {
 		heading: (n: number) => `Zaplanowane / w publikacji (${n})`,
 		empty: 'Brak zaplanowanych publikacji.',
-		lead: 'Zaakceptowane — worker opublikuje o wskazanej godzinie. Znacznik „Publikacja…” = właśnie trwa jeden commit na GitHub.',
+		lead: 'Publikacja o wskazanej godzinie. „Publikacja…” = trwa właśnie teraz.',
 	},
 	published: {
 		heading: (n: number) => `Na stronie (${n})`,
-		lead: 'Live na stronie publicznej. Zbiorcza dezaktywacja lub usunięcie zdejmuje pliki z GitHub w jednym commicie.',
+		lead: 'Wpisy na stronie publicznej.',
 		empty: 'Brak opublikowanych wpisów.',
 	},
 	importPosts: {
 		heading: 'Synchronizacja z GitHub',
 		lead:
-			'Jednorazowo pobierz wpisy ze strony Astro do OmniPress. Po synchronizacji wpisy zostają w bazie — odświeżenie strony nie wymaga ponownego importu. Ponowny import aktualizuje treść (bez ponownego pobierania niezmienionych załączników).',
+			'Pobierz wpisy ze strony Astro do OmniPress. Ponowny import aktualizuje treść (bez ponownego pobierania niezmienionych załączników).',
 		button: 'Importuj opublikowane wpisy',
 		siteLabel: 'Strona',
 		success: (imported: number, updated: number) =>
@@ -64,7 +62,7 @@ export const admin = {
 		noCategory: '—',
 		open: 'Podgląd',
 		approveQuick: 'Akceptuj',
-		approveQuickConfirm: 'Zaakceptować ten wpis i uruchomić atomową publikację?',
+		approveQuickConfirm: 'Zaakceptować ten wpis?',
 		selectAll: 'Zaznacz wszystkie',
 		selected: 'Zaznaczono: {n}',
 		bulkApprove: 'Zaakceptuj zaznaczone',
@@ -73,34 +71,31 @@ export const admin = {
 		bulkCancelSchedule: 'Anuluj harmonogram',
 		bulkDeactivate: 'Zdejmij ze strony',
 		bulkDelete: 'Usuń zaznaczone',
-		bulkApproveConfirm:
-			'Zaakceptować {n} wpisów? Każdy trafi do atomowej publikacji (1 commit = treść + załączniki + rejestr zmian).',
+		bulkApproveConfirm: 'Zaakceptować {n} wpisów?',
 		bulkRejectConfirm: 'Odrzucić {n} wpisów? Redaktorzy zobaczą te same uwagi.',
 		bulkCancelScheduleConfirm:
 			'Anulować harmonogram dla {n} wpisów? Wrócą do szkicu (wpisy w trakcie publikacji są pomijane).',
 		bulkDeactivateConfirm:
-			'Zdjąć {n} wpisów ze strony? W CMS wrócą do szkicu. Pliki znikną z GitHub w jednym commicie.',
+			'Zdjąć {n} wpisów ze strony? W CMS wrócą do szkicu.',
 		bulkDeleteConfirm:
 			'Trwale usunąć {n} wpisów z OmniPress? Tej operacji nie można cofnąć.',
 		deactivate: 'Zdejmij ze strony',
 		delete: ui.actions.delete,
 		deactivateConfirm:
-			'Zdjąć wpis ze strony publicznej? W CMS wróci do szkicu — można go później ponownie opublikować.',
+			'Zdjąć wpis ze strony? W CMS wróci do szkicu.',
 		deleteConfirm:
-			'Trwale usunąć wpis z OmniPress? Tej operacji nie można cofnąć. Jeśli wpis jest na stronie, zostanie też zdjęty.',
+			'Trwale usunąć wpis z OmniPress? Tej operacji nie można cofnąć.',
 		deactivated: 'Wpis zdjęty ze strony — w CMS jest szkicem.',
 		deleted: 'Wpis usunięty z OmniPress.',
-		bulkApproved: (n: number) =>
-			`${n} wpisów zaakceptowanych — atomowa publikacja w kolejce (1 commit na wpis).`,
+		bulkApproved: (n: number) => `${n} wpisów zaakceptowanych — publikacja w kolejce.`,
 		bulkRejected: (n: number) => `${n} wpisów odrzuconych.`,
 		bulkCancelled: (n: number) => `${n} zaplanowanych wpisów wróciło do szkicu.`,
-		bulkDeactivated: (n: number) =>
-			`${n} wpisów zdjętych ze strony (jeden commit GitHub).`,
+		bulkDeactivated: (n: number) => `${n} wpisów zdjętych ze strony.`,
 		bulkDeleted: (n: number) => `${n} wpisów usuniętych z OmniPress.`,
 		bulkSkipped: (n: number) => `${n} pozycji pominięto (np. inny status).`,
 		noneSelected: 'Nie zaznaczono żadnego wpisu.',
 		invalidAction: 'Nieprawidłowa akcja.',
-		remoteWarning: 'Nie udało się zdjąć wpisu ze strony (GitHub) — wpisy w CMS nie zostały usunięte.',
+		remoteWarning: 'Nie udało się zdjąć wpisu ze strony — wpisy w CMS nie zostały usunięte.',
 		remoteFailed: 'Usuwanie ze strony nie powiodło się — sprawdź token GitHub i spróbuj ponownie.',
 	},
 	preview: {
@@ -110,9 +105,8 @@ export const admin = {
 		authorLabel: 'Autor:',
 		categoryLabel: 'Kategoria:',
 		emptyContent: '(pusta treść)',
-		galleryHeading: 'Galeria zdjęć (pod wpisem na stronie)',
+		galleryHeading: 'Galeria zdjęć',
 		galleryCover: 'Zajawka',
-		phaseNote: 'Akceptacja → jeden commit na GitHub → deploy Vercel.',
 		back: '← Kolejka',
 	},
 	bulkErrors: {

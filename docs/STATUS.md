@@ -63,7 +63,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Użytkownicy: admini + redaktorzy (tworzenie z rolą, ustawienia konta, hasło, usuwanie) | ✅ `/admin/users`, `/admin/users/[id]` |
 | Uprawnienia redaktora (strony + domyślna); blokada: własne konto / ostatni admin | ✅ |
 | Usunięcie konta zostawia wpisy (autor: „konto usunięte”) | ✅ migracja `setup:author-on-delete` |
-| Kolejka: do akceptacji, zaplanowane (ze znacznikiem „W toku”), opublikowane | ✅ `/admin` |
+| Kolejka: do akceptacji, zaplanowane (ze znacznikiem „Publikacja…”), na stronie | ✅ `/admin` |
 | Akceptacja → kolejka publikacji GitHub (natychmiast lub o zaplanowanej godzinie) | ✅ |
 | Odrzucenie z `rejection_note` | ✅ |
 | Ponowne otwarcie wpisu (reopen) | ✅ |
