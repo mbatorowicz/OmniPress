@@ -35,6 +35,7 @@
     "setup:fix-kgw-slug": "node scripts/apply-migration.mjs supabase/migrations/20250621000000_fix_kgw_post_slug.sql",
     "setup:posts-rejected-resubmit": "node scripts/apply-migration.mjs supabase/migrations/20250619000000_posts_rejected_resubmit.sql",
     "setup:assets-delete-own": "node scripts/apply-migration.mjs supabase/migrations/20250620000000_assets_delete_own.sql",
+    "setup:assets-content-sha": "node scripts/apply-migration.mjs supabase/migrations/20250718000000_assets_content_sha.sql",
     "setup:auth-rate-limits": "node scripts/apply-migration.mjs supabase/migrations/20250707000000_auth_rate_limits.sql",
     "setup:auth-mfa": "node scripts/setup-auth-mfa.mjs",
     "verify:auth-rate-limits": "node scripts/verify-rate-limits.mjs",

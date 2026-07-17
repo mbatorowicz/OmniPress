@@ -37,7 +37,7 @@ export const admin = {
 	importPosts: {
 		heading: 'Synchronizacja z GitHub',
 		lead:
-			'Pobierz wpisy ze strony Astro do OmniPress. Ponowny import aktualizuje treść (bez ponownego pobierania niezmienionych załączników).',
+			'Pobierz wpisy ze strony Astro do OmniPress. Ponowny import aktualizuje treść; niezmienione załączniki są pomijane (porównanie SHA).',
 		button: 'Importuj opublikowane wpisy',
 		siteLabel: 'Strona',
 		success: (imported: number, updated: number) =>

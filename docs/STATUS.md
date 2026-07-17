@@ -88,11 +88,11 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 
 1. Admin akceptuje wpis → `publish_logs.pending` (z `next_retry_at` = data redaktora, jeśli w przyszłości).
 2. Status `scheduled` (czeka) lub `publishing` (od razu). Worker `/api/worker/publish`: start po akceptacji natychmiastowej, przy wejściu admina na `/admin`, oraz cron Vercel (plan Hobby: raz dziennie 06:00 UTC; docelowo co godzinę na Pro).
-3. **Atomowy commit** na GitHub (layout `flat` lub `folder`): załączniki + `index.md` + rejestr ostatnich zmian (+ PDF viewer / sprzątanie starego folderu) — jeden deploy Vercel.
-4. Opcjonalnie: oczekiwanie na deploy Vercel i zapis błędów buildu.
-5. Sukces → `published`; błąd → `failed` (retry automatyczny + przycisk w UI).
+3. **Atomowy commit** na GitHub (layout `flat` lub `folder`): tylko zmienione załączniki (SHA) + `index.md` + rejestr ostatnich zmian (+ PDF viewer / sprzątanie orphanów i starego folderu) — jeden deploy Vercel; bez zmian → bez commita.
+4. Opcjonalnie: weryfikacja deployu Vercel (niepowodzenie nie wywołuje ponownego uploadu).
+5. Sukces → `published`; błąd GitHub → `failed` (retry automatyczny + przycisk w UI).
 
-Withdraw/deactivate: batch delete plików wpisu z GitHub (jeden commit).
+Withdraw/deactivate: batch delete plików wpisu z GitHub (jeden commit; listing folderu zamiast całego tree).
 
 ---
 
@@ -121,6 +121,7 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub (jeden commit).
 | `20250619000000_posts_rejected_resubmit.sql` | `setup:posts-rejected-resubmit` |
 | `20250620000000_assets_delete_own.sql` | `setup:assets-delete-own` |
 | `20250707000000_auth_rate_limits.sql` | `setup:auth-rate-limits` |
+| `20250718000000_assets_content_sha.sql` | `setup:assets-content-sha` |
 
 ---
 

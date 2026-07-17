@@ -581,7 +581,9 @@ export function isGitHubRetryable(status: number): boolean {
 }
 
 export function httpStatusFromError(message: string): number | null {
-	const m = message.match(/GitHub (?:GET|PUT|blob|tree|commit|ref)(?:\sPOST|\sPATCH)? (\d+)/i);
+	const m = message.match(
+		/GitHub (?:GET|PUT|blob|tree|commit|ref|contents dir)(?:\sPOST|\sPATCH)? (\d+)/i,
+	);
 	return m ? Number(m[1]) : null;
 }
 
@@ -644,6 +646,40 @@ export async function listGitHubMarkdownPosts(
 	return filterGitHubMarkdownPosts(cfg, blobs);
 }
 
+export type GitHubDirBlob = {
+	path: string;
+	sha: string;
+	name: string;
+};
+
+/** Zawartość jednego katalogu (Contents API) — bez recursive tree całego repo. */
+export async function listGitHubDirectoryBlobs(
+	cfg: GitHubConfig,
+	token: string,
+	dirPath: string,
+): Promise<GitHubDirBlob[]> {
+	const trimmed = dirPath.replace(/^\/+|\/+$/g, '');
+	if (!trimmed) return [];
+	const url = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeGitHubPath(trimmed)}?ref=${encodeURIComponent(cfg.branch)}`;
+	const res = await fetch(url, { headers: ghHeaders(token) });
+	if (res.status === 404) return [];
+	if (!res.ok) {
+		const text = await res.text();
+		throw new Error(`GitHub contents dir ${res.status}: ${text.slice(0, 200)}`);
+	}
+	const json = (await res.json()) as
+		| { path?: string; sha?: string; name?: string; type?: string }[]
+		| { path?: string; type?: string };
+	if (!Array.isArray(json)) return [];
+	return json
+		.filter((item) => item.type === 'file' && item.path && item.sha && item.name)
+		.map((item) => ({
+			path: item.path as string,
+			sha: item.sha as string,
+			name: item.name as string,
+		}));
+}
+
 /** Pliki w folderze wpisu (PDF, obrazy) — bez podfolderów i bez .md. */
 export function listGitHubSiblingAssets(
 	allBlobPaths: string[],
@@ -677,6 +713,34 @@ export function expandGitHubWithdrawPaths(
 			}
 		}
 	}
+	return [...out];
+}
+
+/**
+ * Ścieżki withdraw bez recursive tree całego repo —
+ * Contents API na folder wpisu (layout folder) lub sam plik .md (flat).
+ */
+export async function resolveGitHubWithdrawPaths(
+	cfg: GitHubConfig,
+	token: string,
+	externalIds: string[],
+): Promise<string[]> {
+	const out = new Set<string>();
+	await Promise.all(
+		externalIds.map(async (externalId) => {
+			const mdPath = parseExternalGitHubPath(externalId);
+			if (!mdPath) return;
+			out.add(mdPath);
+			if (cfg.contentLayout !== 'folder') return;
+			const folder = mdPath.replace(/\/[^/]+$/i, '');
+			try {
+				const blobs = await listGitHubDirectoryBlobs(cfg, token, folder);
+				for (const blob of blobs) out.add(blob.path);
+			} catch {
+				out.add(mdPath);
+			}
+		}),
+	);
 	return [...out];
 }
 

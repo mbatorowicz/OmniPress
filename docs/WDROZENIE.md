@@ -70,6 +70,8 @@ npm run setup:profiles-guard
 
 **Rate limit auth:** `npm run setup:auth-rate-limits` (fallback Supabase). Weryfikacja: `npm run verify:auth-rate-limits`. Zalecane na produkcji: **Upstash Redis** (Vercel Marketplace) — zmienne `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`.
 
+**Asset SHA (optymalizacja transferów):** `npm run setup:assets-content-sha` — kolumna `assets.content_sha` do pomijania niezmienionych załączników przy publikacji/imporcie.
+
 ---
 
 ## Token GitHub (fine-grained PAT)

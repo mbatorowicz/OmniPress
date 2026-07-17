@@ -2,9 +2,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { decryptDestinationCredentials, isGitHubCredentials } from './credentials';
 import {
 	deleteGitHubFilesBatch,
-	expandGitHubWithdrawPaths,
-	listGitHubTreeBlobPaths,
 	parseGitHubRepoConfig,
+	resolveGitHubWithdrawPaths,
 } from './github-api';
 import { loadDestinationForPublish } from './dispatch';
 import type { DestinationForPublish } from './types';
@@ -24,8 +23,7 @@ async function withdrawFromGitHubBatch(
 	if (externalIds.length === 0) return { ok: true, summary: 'Brak plików do usunięcia' };
 
 	try {
-		const allBlobPaths = await listGitHubTreeBlobPaths(cfg, creds.token);
-		const paths = expandGitHubWithdrawPaths(externalIds, cfg, allBlobPaths);
+		const paths = await resolveGitHubWithdrawPaths(cfg, creds.token, externalIds);
 		if (paths.length === 0) return { ok: true, summary: 'Brak plików do usunięcia' };
 
 		const result = await deleteGitHubFilesBatch(

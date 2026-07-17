@@ -14,14 +14,16 @@ import {
 	getGitHubFileBinary,
 	getGitHubFileText,
 	filterGitHubMarkdownPosts,
-	listGitHubSiblingAssets,
+	listGitHubDirectoryBlobs,
 	listGitHubTreeBlobPaths,
 	parseGitHubRepoConfig,
 	type GitHubConfig,
+	type GitHubDirBlob,
 } from './github-api';
-import { formatExternalGitHubPath } from './paths';
+import { formatExternalGitHubPath, postDirFromMarkdownPath } from './paths';
 import type { DestinationForPublish } from './types';
 import { sanitizeStorageMarkdown } from '@/lib/content/sanitize';
+import { gitBlobShaFromBytes } from './git-blob';
 
 export type ImportPostsResult =
 	| { ok: true; imported: number; updated: number; skipped: number; errors: string[] }
@@ -88,6 +90,85 @@ async function findExistingPostId(
 	return (bySlug?.id as string | undefined) ?? null;
 }
 
+type LocalAsset = {
+	id: string;
+	filename: string;
+	storage_path: string;
+	content_sha: string | null;
+};
+
+async function loadLocalAssets(
+	supabase: SupabaseClient,
+	postId: string,
+): Promise<LocalAsset[]> {
+	const { data } = await supabase
+		.from('assets')
+		.select('id, filename, storage_path, content_sha')
+		.eq('post_id', postId);
+	return (data ?? []).map((row) => ({
+		id: row.id as string,
+		filename: row.filename as string,
+		storage_path: row.storage_path as string,
+		content_sha: typeof row.content_sha === 'string' ? row.content_sha : null,
+	}));
+}
+
+async function upsertAssetFromGitHub(
+	supabase: SupabaseClient,
+	cfg: GitHubConfig,
+	token: string,
+	postId: string,
+	blob: GitHubDirBlob,
+	parsed: ParsedAstroPost,
+	existing: LocalAsset | undefined,
+): Promise<string | null> {
+	const filename = blob.name;
+	if (existing?.content_sha && existing.content_sha === blob.sha) {
+		return null;
+	}
+
+	const binary = await getGitHubFileBinary(cfg, token, blob.path);
+	if (!binary) return `${filename}: brak pliku na GitHub`;
+
+	const sha = gitBlobShaFromBytes(binary);
+	const mime = mimeFromFilename(filename);
+	const storagePath = existing?.storage_path ?? `${postId}/${filename}`;
+	const { error: uploadError } = await supabase.storage
+		.from('post-assets')
+		.upload(storagePath, binary, { contentType: mime, upsert: true });
+	if (uploadError) return `${filename}: ${uploadError.message.slice(0, 80)}`;
+
+	const display_mode = mime === 'application/pdf' ? pdfDisplayMode(parsed.body, filename) : 'link';
+	const sort_order = mime.startsWith('image/') ? imageSortOrder(parsed, filename) : 0;
+
+	if (existing) {
+		const { error } = await supabase
+			.from('assets')
+			.update({
+				storage_path: storagePath,
+				mime_type: mime,
+				display_mode,
+				sort_order,
+				content_sha: sha,
+			})
+			.eq('id', existing.id);
+		if (error) return `${filename}: zapis w bazie`;
+		return null;
+	}
+
+	const { error: insertError } = await supabase.from('assets').insert({
+		post_id: postId,
+		storage_path: storagePath,
+		filename,
+		mime_type: mime,
+		display_mode,
+		sort_order,
+		content_sha: sha,
+	});
+	if (insertError) return `${filename}: zapis w bazie`;
+	return null;
+}
+
 async function syncPostAssetsFromGitHub(
 	supabase: SupabaseClient,
 	cfg: GitHubConfig,
@@ -95,95 +176,49 @@ async function syncPostAssetsFromGitHub(
 	postId: string,
 	markdownPath: string,
 	parsed: ParsedAstroPost,
-	allBlobPaths: string[],
-	skipIfUnchanged: boolean,
-): Promise<string[]> {
-	const assetPaths = listGitHubSiblingAssets(allBlobPaths, markdownPath);
-
-	if (skipIfUnchanged) {
-		const { data: oldAssets } = await supabase
-			.from('assets')
-			.select('filename')
-			.eq('post_id', postId);
-		const existing = new Set((oldAssets ?? []).map((a) => a.filename));
-		const needed = assetPaths.map((p) => p.split('/').pop() ?? p);
-		if (
-			needed.length === existing.size &&
-			needed.every((name) => existing.has(name))
-		) {
-			return [];
-		}
-	}
-
-	return replacePostAssetsFromGitHub(
-		supabase,
-		cfg,
-		token,
-		postId,
-		markdownPath,
-		parsed,
-		allBlobPaths,
-	);
-}
-
-async function replacePostAssetsFromGitHub(
-	supabase: SupabaseClient,
-	cfg: GitHubConfig,
-	token: string,
-	postId: string,
-	markdownPath: string,
-	parsed: ParsedAstroPost,
-	allBlobPaths: string[],
 ): Promise<string[]> {
 	const errors: string[] = [];
-	const assetPaths = listGitHubSiblingAssets(allBlobPaths, markdownPath);
-
-	const { data: oldAssets } = await supabase
-		.from('assets')
-		.select('storage_path')
-		.eq('post_id', postId);
-	const storagePaths = (oldAssets ?? []).map((a) => a.storage_path).filter(Boolean);
-	if (storagePaths.length > 0) {
-		await supabase.storage.from('post-assets').remove(storagePaths);
+	const folder = postDirFromMarkdownPath(markdownPath);
+	let remoteBlobs: GitHubDirBlob[] = [];
+	try {
+		remoteBlobs = (await listGitHubDirectoryBlobs(cfg, token, folder)).filter(
+			(b) => !b.name.toLowerCase().endsWith('.md'),
+		);
+	} catch (err) {
+		const msg = err instanceof Error ? err.message : 'listing';
+		return [`${folder}: ${msg.slice(0, 80)}`];
 	}
-	await supabase.from('assets').delete().eq('post_id', postId);
 
-	for (const assetPath of assetPaths) {
-		const filename = assetPath.split('/').pop() ?? assetPath;
-		try {
-			const binary = await getGitHubFileBinary(cfg, token, assetPath);
-			if (!binary) {
-				errors.push(`${filename}: brak pliku na GitHub`);
-				continue;
-			}
+	const localAssets = await loadLocalAssets(supabase, postId);
+	const localByName = new Map(localAssets.map((a) => [a.filename, a]));
+	const remoteNames = new Set(remoteBlobs.map((b) => b.name));
 
-			const mime = mimeFromFilename(filename);
-			const storagePath = `${postId}/${filename}`;
-			const { error: uploadError } = await supabase.storage
-				.from('post-assets')
-				.upload(storagePath, binary, { contentType: mime, upsert: true });
-			if (uploadError) {
-				errors.push(`${filename}: ${uploadError.message.slice(0, 80)}`);
-				continue;
-			}
+	for (const blob of remoteBlobs) {
+		const err = await upsertAssetFromGitHub(
+			supabase,
+			cfg,
+			token,
+			postId,
+			blob,
+			parsed,
+			localByName.get(blob.name),
+		);
+		if (err) errors.push(err);
+	}
 
-			const display_mode =
-				mime === 'application/pdf' ? pdfDisplayMode(parsed.body, filename) : 'link';
-			const sort_order = mime.startsWith('image/') ? imageSortOrder(parsed, filename) : 0;
-
-			const { error: insertError } = await supabase.from('assets').insert({
-				post_id: postId,
-				storage_path: storagePath,
-				filename,
-				mime_type: mime,
-				display_mode,
-				sort_order,
-			});
-			if (insertError) errors.push(`${filename}: zapis w bazie`);
-		} catch (err) {
-			const msg = err instanceof Error ? err.message : 'błąd pobierania';
-			errors.push(`${filename}: ${msg.slice(0, 80)}`);
+	const stale = localAssets.filter((a) => !remoteNames.has(a.filename));
+	if (stale.length > 0) {
+		const paths = stale.map((a) => a.storage_path).filter(Boolean);
+		if (paths.length > 0) {
+			await supabase.storage.from('post-assets').remove(paths);
 		}
+		await supabase
+			.from('assets')
+			.delete()
+			.in(
+				'id',
+				stale.map((a) => a.id),
+			);
 	}
 
 	return errors;
@@ -234,7 +269,6 @@ async function importOnePost(
 	siteId: string,
 	authorId: string,
 	markdownPath: string,
-	allBlobPaths: string[],
 ): Promise<{ action: 'imported' | 'updated' | 'skipped'; errors: string[] }> {
 	const raw = await getGitHubFileText(cfg, token, markdownPath);
 	if (!raw) return { action: 'skipped', errors: [`${markdownPath}: brak treści`] };
@@ -292,8 +326,6 @@ async function importOnePost(
 			postId,
 			markdownPath,
 			parsed,
-			allBlobPaths,
-			Boolean(existingId),
 		)),
 	);
 	await ensureSuccessPublishLog(
@@ -350,7 +382,6 @@ export async function importPublishedPostsFromGitHub(
 			siteId,
 			authorId,
 			markdownPath,
-			allBlobPaths,
 		);
 		if (result.action === 'imported') imported += 1;
 		else if (result.action === 'updated') updated += 1;

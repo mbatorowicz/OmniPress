@@ -57,6 +57,18 @@ export async function markLogSuccess(
 		.eq('id', logId);
 }
 
+/** Zapisuje external_id zaraz po sukcesie GitHub (przed opcjonalną weryfikacją Vercel). */
+export async function markLogExternalId(
+	supabase: SupabaseClient,
+	logId: string,
+	externalId: string,
+	summary?: string,
+): Promise<void> {
+	const update: Record<string, unknown> = { external_id: externalId };
+	if (summary) update.response_summary = summary.slice(0, 500);
+	await supabase.from('publish_logs').update(update).eq('id', logId);
+}
+
 export async function markLogFailure(
 	supabase: SupabaseClient,
 	logId: string,

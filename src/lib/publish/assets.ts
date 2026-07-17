@@ -8,6 +8,8 @@ export type PostAsset = {
 	mime_type: string;
 	display_mode?: 'link' | 'embed';
 	sort_order?: number;
+	/** SHA-1 bloba Gita — pomija ponowny upload przy zgodności z GitHub. */
+	content_sha?: string | null;
 };
 
 export function publicAssetUrl(storagePath: string): string | null {
@@ -22,7 +24,7 @@ export async function loadPostAssets(
 ): Promise<PostAsset[]> {
 	const { data } = await supabase
 		.from('assets')
-		.select('id, storage_path, filename, mime_type, display_mode, sort_order')
+		.select('id, storage_path, filename, mime_type, display_mode, sort_order, content_sha')
 		.eq('post_id', postId)
 		.order('sort_order', { ascending: true })
 		.order('created_at', { ascending: true });
@@ -30,7 +32,17 @@ export async function loadPostAssets(
 		...row,
 		display_mode: row.display_mode === 'embed' ? 'embed' : 'link',
 		sort_order: row.sort_order ?? 0,
+		content_sha: typeof row.content_sha === 'string' ? row.content_sha : null,
 	})) as PostAsset[];
+}
+
+export async function updateAssetContentSha(
+	supabase: SupabaseClient,
+	assetId: string | undefined,
+	contentSha: string,
+): Promise<void> {
+	if (!assetId || !contentSha) return;
+	await supabase.from('assets').update({ content_sha: contentSha }).eq('id', assetId);
 }
 
 export function bytesToBase64(bytes: ArrayBuffer): string {

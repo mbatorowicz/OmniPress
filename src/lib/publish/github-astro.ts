@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { loadPostAssets, publicAssetUrl } from './assets';
+import { loadPostAssets, publicAssetUrl, updateAssetContentSha, type PostAsset } from './assets';
 import { applyAssetDisplayToMarkdown, type AssetForDisplay } from './asset-markdown';
 import { preparePdfViewerWrites } from './github-pdf-viewer';
 import {
@@ -13,14 +13,16 @@ import {
 	resolveVercelTokenForDestination,
 } from './credentials';
 import { buildAstroMarkdown } from './frontmatter';
+import { gitBlobShaFromBytes, gitBlobShaFromText } from './git-blob';
 import {
 	getGitHubFile,
+	getGitHubFileBlobSha,
 	httpStatusFromError,
 	isGitHubRetryable,
+	listGitHubDirectoryBlobs,
 	parseGitHubRepoConfig,
 	putGitHubFilesBatch,
-	expandGitHubWithdrawPaths,
-	listGitHubTreeBlobPaths,
+	resolveGitHubWithdrawPaths,
 	type GitHubBinaryFileWrite,
 	type GitHubConfig,
 	type GitHubFileWrite,
@@ -111,60 +113,121 @@ async function resolveStaleFolderDeletes(
 	token: string,
 	cleanupExternalId: string,
 ): Promise<string[]> {
-	const allBlobPaths = await listGitHubTreeBlobPaths(cfg, token);
-	return expandGitHubWithdrawPaths([cleanupExternalId], cfg, allBlobPaths);
+	return resolveGitHubWithdrawPaths(cfg, token, [cleanupExternalId]);
+}
+
+function assetGitPath(
+	cfg: GitHubConfig,
+	postDir: string,
+	assetName: string,
+): string {
+	if (cfg.contentLayout === 'folder') {
+		return joinContentPath(postDir, assetName);
+	}
+	return joinContentPath(
+		cfg.contentPath,
+		'assets',
+		postSlugFromMarkdownPath(`${postDir}/index.md`, cfg.contentPath),
+		assetName,
+	);
+}
+
+function assetDirForListing(cfg: GitHubConfig, postDir: string): string {
+	if (cfg.contentLayout === 'folder') return postDir;
+	return joinContentPath(
+		cfg.contentPath,
+		'assets',
+		postSlugFromMarkdownPath(`${postDir}/index.md`, cfg.contentPath),
+	);
 }
 
 type CollectedAssets = {
 	writes: GitHubBinaryFileWrite[];
 	map: Map<string, string>;
 	errors: string[];
+	deletes: string[];
+	shaUpdates: { id?: string; sha: string }[];
 };
 
-/** Pobiera assety z Storage i przygotowuje zapisy do jednego commita (bez osobnych put). */
+/** Pobiera zmienione assety z Storage; pomija niezmienione (porównanie Git blob SHA). */
 async function collectPostAssetWrites(
-	cfg: ReturnType<typeof parseGitHubRepoConfig> & object,
+	supabase: SupabaseClient,
+	cfg: GitHubConfig,
+	token: string,
 	postDir: string,
-	assets: Awaited<ReturnType<typeof loadPostAssets>>,
+	assets: PostAsset[],
 ): Promise<CollectedAssets> {
 	const map = new Map<string, string>();
 	const errors: string[] = [];
 	const writes: GitHubBinaryFileWrite[] = [];
+	const shaUpdates: { id?: string; sha: string }[] = [];
+	const assetDir = assetDirForListing(cfg, postDir);
 
-	for (const asset of assets) {
-		const sourceUrl = publicAssetUrl(asset.storage_path);
-		if (!sourceUrl) {
-			errors.push(`${asset.filename}: brak publicznego URL Supabase`);
-			continue;
-		}
-
-		const res = await fetch(sourceUrl);
-		if (!res.ok) {
-			errors.push(`${asset.filename}: pobranie HTTP ${res.status}`);
-			continue;
-		}
-
-		const assetName = asset.storage_path.split('/').pop() ?? asset.filename;
-		const gitPath =
-			cfg.contentLayout === 'folder'
-				? joinContentPath(postDir, assetName)
-				: joinContentPath(
-						cfg.contentPath,
-						'assets',
-						postSlugFromMarkdownPath(`${postDir}/index.md`, cfg.contentPath),
-						assetName,
-					);
-		const relative = publishedAssetUrl(cfg, postDir, assetName);
-
-		try {
-			writes.push({ path: gitPath, content: await res.arrayBuffer() });
-			map.set(sourceUrl, relative);
-		} catch (err) {
-			const msg = err instanceof Error ? err.message : 'Pobranie assetu nie powiodło się';
-			errors.push(`${asset.filename}: ${msg.slice(0, 120)}`);
-		}
+	let remoteByName = new Map<string, string>();
+	try {
+		const remote = await listGitHubDirectoryBlobs(cfg, token, assetDir);
+		remoteByName = new Map(
+			remote
+				.filter((b) => !b.name.toLowerCase().endsWith('.md'))
+				.map((b) => [b.name, b.sha]),
+		);
+	} catch {
+		remoteByName = new Map();
 	}
-	return { writes, map, errors };
+
+	const keepNames = new Set<string>();
+
+	await Promise.all(
+		assets.map(async (asset) => {
+			const sourceUrl = publicAssetUrl(asset.storage_path);
+			if (!sourceUrl) {
+				errors.push(`${asset.filename}: brak publicznego URL Supabase`);
+				return;
+			}
+
+			const assetName = asset.storage_path.split('/').pop() ?? asset.filename;
+			keepNames.add(assetName);
+			const gitPath = assetGitPath(cfg, postDir, assetName);
+			const relative = publishedAssetUrl(cfg, postDir, assetName);
+			const remoteSha = remoteByName.get(assetName);
+
+			if (asset.content_sha && remoteSha && asset.content_sha === remoteSha) {
+				map.set(sourceUrl, relative);
+				return;
+			}
+
+			try {
+				const res = await fetch(sourceUrl);
+				if (!res.ok) {
+					errors.push(`${asset.filename}: pobranie HTTP ${res.status}`);
+					return;
+				}
+				const content = await res.arrayBuffer();
+				const sha = gitBlobShaFromBytes(content);
+				shaUpdates.push({ id: asset.id, sha });
+				map.set(sourceUrl, relative);
+				if (remoteSha && remoteSha === sha) return;
+				writes.push({ path: gitPath, content });
+			} catch (err) {
+				const msg = err instanceof Error ? err.message : 'Pobranie assetu nie powiodło się';
+				errors.push(`${asset.filename}: ${msg.slice(0, 120)}`);
+			}
+		}),
+	);
+
+	const deletes = [...remoteByName.keys()]
+		.filter((name) => !keepNames.has(name))
+		.map((name) =>
+			cfg.contentLayout === 'folder'
+				? joinContentPath(postDir, name)
+				: joinContentPath(assetDir, name),
+		);
+
+	for (const update of shaUpdates) {
+		await updateAssetContentSha(supabase, update.id, update.sha);
+	}
+
+	return { writes, map, errors, deletes, shaUpdates };
 }
 
 export async function publishToGitHubAstro(
@@ -209,11 +272,12 @@ export async function publishToGitHubAstro(
 		}
 
 		const assets = await loadPostAssets(supabase, post.id);
-		const { writes: assetWrites, map: urlMap, errors: uploadErrors } = await collectPostAssetWrites(
-			cfg,
-			postDir,
-			assets,
-		);
+		const {
+			writes: assetWrites,
+			map: urlMap,
+			errors: uploadErrors,
+			deletes: orphanDeletes,
+		} = await collectPostAssetWrites(supabase, cfg, creds.token, postDir, assets);
 		if (uploadErrors.length > 0) {
 			return {
 				ok: false,
@@ -221,6 +285,8 @@ export async function publishToGitHubAstro(
 				retryable: true,
 			};
 		}
+		deletes = [...new Set([...deletes, ...orphanDeletes])];
+
 		const imageAssets = assets.filter((a) => a.mime_type.startsWith('image/'));
 		const pdfAssets = assets.filter((a) => a.mime_type === 'application/pdf');
 		const fileAssets = assets.filter(
@@ -269,11 +335,29 @@ export async function publishToGitHubAstro(
 			excerpt: excerpt || undefined,
 		});
 
-		const batchFiles: GitHubFileWrite[] = [
-			...assetWrites,
-			...pdfViewerWrites,
-			{ path: filePath, content: fileContent },
-		];
+		const remoteMdSha = await getGitHubFileBlobSha(cfg, creds.token, filePath);
+		const localMdSha = gitBlobShaFromText(fileContent);
+		const mdUnchanged = Boolean(remoteMdSha && remoteMdSha === localMdSha);
+		const externalId = formatExternalGitHubPath(filePath);
+
+		const hasPayloadChanges =
+			!mdUnchanged ||
+			assetWrites.length > 0 ||
+			pdfViewerWrites.length > 0 ||
+			deletes.length > 0;
+
+		if (!hasPayloadChanges) {
+			return {
+				ok: true,
+				externalId,
+				summary: `GitHub ${cfg.repo}@${cfg.branch} — bez zmian (pominięto commit)`,
+			};
+		}
+
+		const batchFiles: GitHubFileWrite[] = [...assetWrites, ...pdfViewerWrites];
+		if (!mdUnchanged) {
+			batchFiles.push({ path: filePath, content: fileContent });
+		}
 
 		try {
 			const rcWrite = await prepareRecentChangeAppendWrite(
@@ -295,8 +379,10 @@ export async function publishToGitHubAstro(
 			{ deletes },
 		);
 
-		const externalId = formatExternalGitHubPath(filePath);
-		const githubSummary = `GitHub ${cfg.repo}@${cfg.branch} (${commitSha.slice(0, 7)}, 1 commit)`;
+		const skippedAssets = assets.length - assetWrites.length;
+		const skippedNote =
+			skippedAssets > 0 ? `, ${skippedAssets} asset(ów) bez zmian` : '';
+		const githubSummary = `GitHub ${cfg.repo}@${cfg.branch} (${commitSha.slice(0, 7)}, 1 commit${skippedNote})`;
 
 		const vercelCfg = parseVercelConfig(destination.config);
 		const vercelToken = resolveVercelTokenForDestination(creds);
@@ -316,11 +402,11 @@ export async function publishToGitHubAstro(
 			token: vercelToken,
 			commitSha,
 		});
-		const summary = `${githubSummary} | ${vercel.summary}`;
-		if (vercel.ok) {
-			return { ok: true, externalId, summary };
-		}
-		return { ok: false, externalId, summary, retryable: vercel.retryable };
+		// Commit GitHub jest źródłem prawdy — błąd weryfikacji Vercel nie wywołuje ponownej publikacji.
+		const summary = vercel.ok
+			? `${githubSummary} | ${vercel.summary}`
+			: `${githubSummary} | Vercel: ${vercel.summary}`;
+		return { ok: true, externalId, summary };
 	} catch (err) {
 		const msg = err instanceof Error ? err.message : 'GitHub: nieznany błąd';
 		const status = httpStatusFromError(msg);

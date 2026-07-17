@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { dispatchPublish, loadDestinationForPublish, loadPostForPublish } from './dispatch';
 import {
 	claimPendingLogs,
+	markLogExternalId,
 	markLogFailure,
 	markLogSuccess,
 	skipDuplicateSuccess,
@@ -31,10 +32,6 @@ export async function runPublishWorker(supabase: SupabaseClient): Promise<Worker
 		result.processed++;
 		touchedPosts.add(log.post_id);
 
-		if (log.external_id && log.status === 'processing') {
-			// idempotencja — już ma external_id z poprzedniej próby
-		}
-
 		const duplicate = await skipDuplicateSuccess(supabase, log);
 		if (duplicate) {
 			await markLogSuccess(supabase, log.id, log.external_id ?? 'duplicate', 'Już opublikowano');
@@ -63,6 +60,9 @@ export async function runPublishWorker(supabase: SupabaseClient): Promise<Worker
 				await markLogSuccess(supabase, log.id, outcome.externalId, outcome.summary);
 				result.succeeded++;
 			} else {
+				if (outcome.externalId) {
+					await markLogExternalId(supabase, log.id, outcome.externalId, outcome.summary);
+				}
 				await markLogFailure(
 					supabase,
 					log.id,
