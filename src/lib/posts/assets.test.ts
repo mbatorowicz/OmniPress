@@ -45,7 +45,19 @@ describe('canDeletePostAsset', () => {
 		expect(canDeletePostAsset({ mime_type: 'application/geopackage+sqlite3' })).toBe(true);
 	});
 
+	it('zezwala na usuwanie XLSX', () => {
+		expect(
+			canDeletePostAsset({
+				mime_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			}),
+		).toBe(true);
+	});
+
+	it('zezwala na usuwanie ZIP', () => {
+		expect(canDeletePostAsset({ mime_type: 'application/zip' })).toBe(true);
+	});
+
 	it('odrzuca nieznane typy', () => {
-		expect(canDeletePostAsset({ mime_type: 'application/zip' })).toBe(false);
+		expect(canDeletePostAsset({ mime_type: 'application/x-msdownload' })).toBe(false);
 	});
 });

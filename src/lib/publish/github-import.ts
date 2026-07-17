@@ -36,6 +36,10 @@ function mimeFromFilename(filename: string): string {
 		return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 	}
 	if (lower.endsWith('.gpkg')) return 'application/geopackage+sqlite3';
+	if (lower.endsWith('.xlsx')) {
+		return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+	}
+	if (lower.endsWith('.zip')) return 'application/zip';
 	if (lower.endsWith('.png')) return 'image/png';
 	if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg';
 	if (lower.endsWith('.webp')) return 'image/webp';

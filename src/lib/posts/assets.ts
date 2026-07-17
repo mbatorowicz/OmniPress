@@ -31,9 +31,19 @@ export function isGpkgAsset(asset: PostAssetRow): boolean {
 	return asset.mime_type === 'application/geopackage+sqlite3';
 }
 
-/** Inne pliki do pobrania (poza PDF i DOCX). */
+export function isXlsxAsset(asset: PostAssetRow): boolean {
+	return (
+		asset.mime_type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+	);
+}
+
+export function isZipAsset(asset: PostAssetRow): boolean {
+	return asset.mime_type === 'application/zip';
+}
+
+/** Inne pliki do pobrania (poza PDF i DOCX): GPKG, XLSX, ZIP. */
 export function isDownloadFileAsset(asset: PostAssetRow): boolean {
-	return isGpkgAsset(asset);
+	return isGpkgAsset(asset) || isXlsxAsset(asset) || isZipAsset(asset);
 }
 
 export function isFileAttachmentAsset(asset: PostAssetRow): boolean {

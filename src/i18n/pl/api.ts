@@ -22,10 +22,10 @@ export function formatUploadError(detail?: string | null): string {
 	if (!detail) return api.posts.uploadFailed;
 	const d = detail.toLowerCase();
 	if (d.includes('bucket') && d.includes('not found')) {
-		return `${api.posts.uploadFailed} Brak bucketu post-assets — uruchom npm run setup:storage-gpkg.`;
+		return `${api.posts.uploadFailed} Brak bucketu post-assets — uruchom npm run setup:storage-xlsx-zip.`;
 	}
 	if (d.includes('mime') || d.includes('content type') || d.includes('invalid')) {
-		return `${api.posts.uploadFailed} Typ pliku niedozwolony w storage (dozwolone: JPEG, PNG, WebP, GIF, PDF, DOCX, …).`;
+		return `${api.posts.uploadFailed} Typ pliku niedozwolony w storage (dozwolone: JPEG, PNG, WebP, GIF, PDF, DOCX, XLSX, ZIP, GPKG).`;
 	}
 	if (d.includes('size') || d.includes('too large')) {
 		return `${api.posts.uploadFailed} Plik za duży (max 50 MB w storage).`;

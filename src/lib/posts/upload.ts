@@ -4,6 +4,9 @@ const IMAGE_MIME = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'
 export const PDF_MIME = 'application/pdf';
 export const DOCX_MIME =
 	'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+export const XLSX_MIME =
+	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+export const ZIP_MIME = 'application/zip';
 export const GPKG_MIME = 'application/geopackage+sqlite3';
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -11,7 +14,30 @@ export const MAX_FILE_ATTACHMENT_BYTES = 50 * 1024 * 1024;
 
 const SQLITE_MAGIC = 'SQLite format 3';
 
+/** Pliki w panelu „Pliki do pobrania” (poza PDF/DOCX). */
+export const DOWNLOAD_FILE_MIMES = new Set([GPKG_MIME, XLSX_MIME, ZIP_MIME]);
+
 export type UploadKind = 'gallery' | 'pdf' | 'docx' | 'file';
+
+function isZipContainerMagic(bytes: Uint8Array): boolean {
+	if (bytes.length < 4) return false;
+	if (bytes[0] !== 0x50 || bytes[1] !== 0x4b) return false;
+	// Local file header / empty archive / spanned archive
+	return (
+		(bytes[2] === 0x03 && bytes[3] === 0x04) ||
+		(bytes[2] === 0x05 && bytes[3] === 0x06) ||
+		(bytes[2] === 0x07 && bytes[3] === 0x08)
+	);
+}
+
+function normalizeDeclaredZipMime(declared: string): boolean {
+	return (
+		!declared ||
+		declared === 'application/octet-stream' ||
+		declared === ZIP_MIME ||
+		declared === 'application/x-zip-compressed'
+	);
+}
 
 export function resolveUploadMime(filename: string, declaredType: string): string | null {
 	const lower = filename.toLowerCase();
@@ -25,6 +51,24 @@ export function resolveUploadMime(filename: string, declaredType: string): strin
 			declared === 'application/x-sqlite3'
 		) {
 			return GPKG_MIME;
+		}
+		return null;
+	}
+
+	if (lower.endsWith('.xlsx')) {
+		if (
+			!declared ||
+			declared === 'application/octet-stream' ||
+			declared === XLSX_MIME
+		) {
+			return XLSX_MIME;
+		}
+		return null;
+	}
+
+	if (lower.endsWith('.zip')) {
+		if (normalizeDeclaredZipMime(declared)) {
+			return ZIP_MIME;
 		}
 		return null;
 	}
@@ -80,14 +124,8 @@ function matchesMagicBytes(bytes: Uint8Array, mime: string): boolean {
 			bytes[3] === 0x46
 		);
 	}
-	if (mime === DOCX_MIME) {
-		return (
-			bytes.length >= 4 &&
-			bytes[0] === 0x50 &&
-			bytes[1] === 0x4b &&
-			bytes[2] === 0x03 &&
-			bytes[3] === 0x04
-		);
+	if (mime === DOCX_MIME || mime === XLSX_MIME || mime === ZIP_MIME) {
+		return isZipContainerMagic(bytes);
 	}
 	if (mime === GPKG_MIME) {
 		if (bytes.length < 16) return false;
@@ -115,7 +153,7 @@ export function validateUploadMeta(
 	if (kind === 'docx' && mime !== DOCX_MIME) {
 		return { error: posts.upload.invalidMime };
 	}
-	if (kind === 'file' && mime !== GPKG_MIME) {
+	if (kind === 'file' && !DOWNLOAD_FILE_MIMES.has(mime)) {
 		return { error: posts.upload.invalidMime };
 	}
 
@@ -165,6 +203,10 @@ export function extensionForMime(mime: string): string {
 			return 'pdf';
 		case DOCX_MIME:
 			return 'docx';
+		case XLSX_MIME:
+			return 'xlsx';
+		case ZIP_MIME:
+			return 'zip';
 		case GPKG_MIME:
 			return 'gpkg';
 		default:
@@ -176,7 +218,7 @@ export function markdownForUploadedAsset(filename: string, publicUrl: string, mi
 	if (mime === PDF_MIME) {
 		return `[📄 ${filename}](${publicUrl})`;
 	}
-	if (mime === DOCX_MIME || mime === GPKG_MIME) {
+	if (mime === DOCX_MIME || DOWNLOAD_FILE_MIMES.has(mime)) {
 		return `[📎 ${filename}](${publicUrl})`;
 	}
 	return `![${filename}](${publicUrl})`;

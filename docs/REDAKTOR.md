@@ -32,7 +32,7 @@ Przewodnik po panelu redaktora. Stan funkcji: [STATUS.md](./STATUS.md).
 | Galeria | Zdjęcia pod wpisem; pierwsze = zajawka (cover); kolejność ↑↓; usuwanie × |
 | PDF | Załączniki (do 50 MB) jako link lub podgląd osadzony |
 | DOCX | Załączniki Word (do 50 MB) — link do pobrania |
-| Pliki do pobrania | Inne załączniki (do 50 MB) — link do pobrania |
+| Pliki do pobrania | GPKG, XLSX, ZIP (do 50 MB) — link do pobrania |
 
 **Wyślij do akceptacji** (główna akcja) — po wysłaniu edycja zablokowana do decyzji admina.
 

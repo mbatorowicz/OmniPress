@@ -24,7 +24,8 @@ export const posts = {
 		not_found: 'Wpis nie istnieje.',
 	},
 	upload: {
-		invalidMime: 'Dozwolone formaty: JPEG, PNG, WebP, GIF, PDF, DOCX lub inny plik do pobrania.',
+		invalidMime:
+			'Dozwolone formaty: JPEG, PNG, WebP, GIF, PDF, DOCX, XLSX, ZIP, GPKG.',
 		invalidContent: 'Zawartość pliku nie odpowiada deklarowanemu formatowi.',
 		tooLarge: 'Zdjęcie jest za duże (max 10 MB).',
 		pdfTooLarge: 'Plik PDF jest za duży (max 50 MB).',

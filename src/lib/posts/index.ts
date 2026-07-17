@@ -35,6 +35,9 @@ export {
 	DOCX_MIME,
 	PDF_MIME,
 	GPKG_MIME,
+	XLSX_MIME,
+	ZIP_MIME,
+	DOWNLOAD_FILE_MIMES,
 	MAX_FILE_ATTACHMENT_BYTES,
 	type UploadKind,
 } from './upload';
@@ -59,6 +62,8 @@ export {
 	isPdfAsset,
 	isDocxAsset,
 	isGpkgAsset,
+	isXlsxAsset,
+	isZipAsset,
 	isDownloadFileAsset,
 	isFileAttachmentAsset,
 	type PostAssetRow,

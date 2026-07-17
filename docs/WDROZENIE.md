@@ -56,6 +56,7 @@ npm run setup:layout
 npm run setup:storage-pdf
 npm run setup:storage-docx
 npm run setup:storage-gpkg
+npm run setup:storage-xlsx-zip
 npm run setup:asset-display
 npm run setup:asset-sort
 npm run setup:remove-wordpress

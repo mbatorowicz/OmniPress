@@ -45,7 +45,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Galeria zdjęć (cover + kolejność) | ✅ |
 | Załączniki PDF (link / podgląd, do 50 MB) | ✅ signed upload → Supabase Storage |
 | Załączniki DOCX (link, do 50 MB) | ✅ |
-| Pliki do pobrania (inne typy, do 50 MB) | ✅ `setup:storage-gpkg` |
+| Pliki do pobrania (GPKG / XLSX / ZIP, do 50 MB) | ✅ `setup:storage-xlsx-zip` |
 | Zapis szkicu, wysłanie do akceptacji | ✅ |
 | Data publikacji + godzina z listy 6:00–20:00 (czas polski); bez daty = publikacja w momencie wysłania | ✅ |
 | Usuwanie własnych wpisów (`draft` / `rejected`) wraz z plikami Storage | ✅ migracja `setup:posts-delete-own` |
@@ -109,6 +109,7 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub (jeden commit; listing 
 | `20250609000000_storage_post_assets_pdf.sql` | `setup:storage-pdf` |
 | `20250622000000_storage_post_assets_docx.sql` | `setup:storage-docx` |
 | `20250623000000_storage_post_assets_gpkg.sql` | `setup:storage-gpkg` |
+| `20250719000000_storage_post_assets_xlsx_zip.sql` | `setup:storage-xlsx-zip` |
 | `20250610000000_asset_display_mode.sql` | `setup:asset-display` |
 | `20250611000000_asset_sort_order.sql` | `setup:asset-sort` |
 | `20250612000000_remove_wordpress.sql` | `setup:remove-wordpress` |

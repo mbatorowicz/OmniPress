@@ -7,6 +7,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Dodane
 
+- **Załączniki XLSX i ZIP** w panelu „Pliki do pobrania” (obok GPKG): allowlista MIME + magic bytes (kontener ZIP / SQLite), limit 50 MB — `setup:storage-xlsx-zip`.
 - **Transfery GitHub (optymalizacja):** pomijanie niezmienionych assetów (porównanie Git blob SHA), sprzątanie orphanów przy republish, import po SHA, withdraw bez recursive tree całego repo, sukces publikacji po commicie GitHub (błąd weryfikacji Vercel nie wymusza ponownego uploadu). Migracja `setup:assets-content-sha`.
 - **Atomowa publikacja GitHub:** jeden commit na wpis (assety + Markdown + rejestr zmian + opcjonalnie PDF viewer / cleanup slug) — jeden deploy Vercel.
 - **Workflow UI:** pasek ścieżki (redaktor + kolejka admina), szybka akceptacja z listy, decyzja approve/reject nad podglądem.
