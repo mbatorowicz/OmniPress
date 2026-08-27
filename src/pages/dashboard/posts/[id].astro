@@ -6,24 +6,7 @@ import StatusBadge from '@/components/ui/feedback/StatusBadge.astro';
 import PostEditorForm from '@/components/posts/editor/PostEditorForm.astro';
 import PostPreviewView from '@/components/posts/preview/PostPreviewView.astro';
 import { common, dashboard, layout, posts } from '@/i18n';
-import { canReopenPost } from '@/lib/admin';
-import { loadSiteCategories } from '@/lib/categories';
-import { listPublishLogsForPost } from '@/lib/publish';
-import { buildPublishedBodyMd } from '@/lib/publish/post-gallery';
-import type { PostAsset } from '@/lib/publish/assets';
-import {
-	assetsForPreviewRender,
-	canDeletePost,
-	canEditPost,
-	canSubmitPost,
-	getPostById,
-	isGalleryImageAsset,
-	isPdfAsset,
-	isFileAttachmentAsset,
-	loadPostAssetsForPost,
-	publicUrlForAsset,
-	renderPostContentHtml,
-} from '@/lib/posts';
+import { loadPostEditorPage } from '@/lib/posts/editor-page';
 import type { PostStatus } from '@/lib/types';
 import { parseQueryFlash } from '@/lib/ui/flash';
 
@@ -33,47 +16,18 @@ const user = Astro.locals.user!;
 
 if (!id) return Astro.redirect('/dashboard');
 
-const post = await getPostById(Astro.locals.supabase, id);
-if (!post) return Astro.redirect('/dashboard?error=not_found');
+const page = await loadPostEditorPage(Astro.locals.supabase, id, {
+	userId: user.id,
+	role: profile.role,
+});
+if (!page) return Astro.redirect('/dashboard?error=not_found');
 
-const editable = canEditPost(post, user.id, profile.role);
-const submittable = canSubmitPost(post, user.id);
-const deletable = canDeletePost(post, user.id);
+const { post, preview } = page;
 
 const flashMessages = parseQueryFlash(Astro.url, {
 	errorMap: posts.errors as Record<string, string>,
 	saved: dashboard.editor.saved,
 });
-
-const { data: site } = await Astro.locals.supabase
-	.from('sites')
-	.select('name')
-	.eq('id', post.site_id)
-	.single();
-
-const { categories, warnings: categoryWarnings } = await loadSiteCategories(
-	Astro.locals.supabase,
-	post.site_id,
-);
-const categoriesUnavailable = categories.length === 0;
-
-const postAssets = await loadPostAssetsForPost(Astro.locals.supabase, post.id);
-const fileAssets = postAssets.filter(isFileAttachmentAsset);
-const pdfAssets = postAssets.filter(isPdfAsset);
-const fileUrlMap = new Map(
-	fileAssets.flatMap((a) => {
-		const u = publicUrlForAsset(a.storage_path);
-		return u ? ([[u, u]] as const) : [];
-	}),
-);
-const previewMd = buildPublishedBodyMd(post.content_md, fileAssets as PostAsset[], fileUrlMap);
-const contentHtml = renderPostContentHtml(previewMd, assetsForPreviewRender(post.id, pdfAssets));
-const galleryAssets = postAssets.filter(isGalleryImageAsset);
-const publishLogs = await listPublishLogsForPost(Astro.locals.supabase, post.id);
-const isAmendment =
-	post.status === 'draft' && publishLogs.some((log) => log.external_id || log.status === 'withdrawn');
-const canReopen =
-	profile.role === 'admin' && (await canReopenPost(Astro.locals.supabase, post.id, post.status));
 
 const ed = dashboard.editor;
 
@@ -85,14 +39,14 @@ const breadcrumbs = [
 
 <AppLayout
 	title={post.title || ed.titleFallback}
-	heading={editable ? ed.headingEdit : ed.headingView}
+	heading={page.editable ? ed.headingEdit : ed.headingView}
 	{breadcrumbs}
 >
 	<div class="ui-muted mb-4 flex flex-wrap items-center gap-3">
 		<StatusBadge status={post.status as PostStatus} />
-		{site?.name && (
+		{page.siteName && (
 			<span>
-				{ed.siteLabel} <strong>{site.name}</strong>
+				{ed.siteLabel} <strong>{page.siteName}</strong>
 			</span>
 		)}
 	</div>
@@ -100,24 +54,24 @@ const breadcrumbs = [
 	<FlashAlerts messages={flashMessages} />
 
 	{
-		editable ? (
+		page.editable ? (
 			<PostEditorForm
 				{post}
 				postId={post.id}
-				{categories}
-				{categoryWarnings}
-				{categoriesUnavailable}
-				{isAmendment}
-				{submittable}
-				{deletable}
-				{postAssets}
+				categories={page.categories}
+				categoryWarnings={page.categoryWarnings}
+				categoriesUnavailable={page.categoriesUnavailable}
+				isAmendment={page.isAmendment}
+				submittable={page.submittable}
+				deletable={page.deletable}
+				postAssets={preview.postAssets}
 			/>
 		) : (
 			<PostPreviewView
 				{post}
-				{contentHtml}
-				{galleryAssets}
-				{canReopen}
+				contentHtml={preview.contentHtml}
+				galleryAssets={preview.galleryAssets}
+				canReopen={page.canReopen}
 				isAdmin={profile.role === 'admin'}
 				galleryHeading={ed.gallery.heading}
 				coverLabel={ed.gallery.cover}

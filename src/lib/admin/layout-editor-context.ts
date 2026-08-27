@@ -13,12 +13,12 @@ import {
 } from '@/lib/astro-layout/layout-sync-meta.server';
 import type { LayoutContract, SiteAstroLayout } from '@/lib/astro-layout/types';
 import {
-	buildKnownNavPaths,
 	countNavigationHrefs,
 	formatNavValidationIssues,
 	hasMissingHrefIssues,
 	validateNavigationLinks,
 } from '@/lib/astro-layout/validate-nav';
+import { buildKnownNavPaths } from '@/lib/astro-layout/nav-known-paths';
 import { listSitePages } from '@/lib/site-pages/access';
 import { buildSitePagePublicPath } from '@/lib/site-pages/url';
 import { loadSiteAstroDestination } from './sites';

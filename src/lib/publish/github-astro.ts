@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { loadPostAssets, publicAssetUrl, updateAssetContentSha, type PostAsset } from './assets';
+import { loadPostAssets, updateAssetContentSha } from './assets';
+import { publicAssetUrl, type PostAsset } from './asset-model';
 import { applyAssetDisplayToMarkdown, type AssetForDisplay } from './asset-markdown';
 import { preparePdfViewerWrites } from './github-pdf-viewer';
 import {

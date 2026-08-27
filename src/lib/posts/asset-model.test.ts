@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { assetsForPreviewRender, canDeletePostAsset, previewAssetFileUrl } from './assets';
+import { assetsForPreviewRender, canDeletePostAsset, previewAssetFileUrl } from './asset-model';
 
 describe('previewAssetFileUrl', () => {
 	it('zwraca same-origin URL API', () => {

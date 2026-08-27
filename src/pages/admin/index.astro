@@ -3,57 +3,25 @@ import AppLayout from '@/layouts/AppLayout.astro';
 import AdminQueueHub from '@/components/admin/queue/AdminQueueHub.astro';
 import { admin } from '@/i18n';
 import { parseAdminHubFlash } from '@/lib/admin/hub-flash';
-import { listSites } from '@/lib/admin';
+import { loadAdminQueueHub } from '@/lib/admin/queue-hub';
 import { schedulePublishWorker } from '@/lib/publish/trigger-worker';
 
 schedulePublishWorker();
 
-const supabase = Astro.locals.supabase;
-const sites = await listSites(supabase);
-
-const postSelect =
-	'id, title, status, category_name, category_slug, created_at, updated_at, scheduled_publish_at, sites(name)';
-
-const { data: pending } = await supabase
-	.from('posts')
-	.select(postSelect)
-	.eq('status', 'pending')
-	.order('created_at', { ascending: false });
-
-const { data: scheduled } = await supabase
-	.from('posts')
-	.select(postSelect)
-	.eq('status', 'scheduled')
-	.order('scheduled_publish_at', { ascending: true });
-
-const { data: publishing } = await supabase
-	.from('posts')
-	.select(postSelect)
-	.eq('status', 'publishing')
-	.order('created_at', { ascending: false });
-
-const { data: published } = await supabase
-	.from('posts')
-	.select(postSelect)
-	.eq('status', 'published')
-	.order('updated_at', { ascending: false })
-	.limit(30);
-
-// Wpisy w trakcie publikacji pokazujemy w sekcji „Zaplanowane” ze znacznikiem „W toku”.
-const scheduledQueue = [...(publishing ?? []), ...(scheduled ?? [])];
-
 const importSiteId = Astro.url.searchParams.get('site_id');
-const defaultImportSiteId =
-	importSiteId && sites.some((s) => s.id === importSiteId) ? importSiteId : (sites[0]?.id ?? '');
+const { sites, pending, scheduled, published, defaultImportSiteId } = await loadAdminQueueHub(
+	Astro.locals.supabase,
+	importSiteId,
+);
 const flashMessages = parseAdminHubFlash(Astro.url);
 ---
 
 <AppLayout title={admin.title} heading={admin.queueHeading}>
 	<AdminQueueHub
 		{sites}
-		pending={pending}
-		scheduled={scheduledQueue}
-		published={published}
+		{pending}
+		{scheduled}
+		{published}
 		{flashMessages}
 		{defaultImportSiteId}
 		{importSiteId}

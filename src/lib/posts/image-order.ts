@@ -1,6 +1,5 @@
 import { parseImageRefsFromMarkdown } from '@/lib/publish/post-content';
-import type { PostAssetRow } from './assets';
-import { publicUrlForAsset } from './assets';
+import { publicUrlForAsset, type PostAssetRow } from './asset-model';
 
 const IMAGE_MIME_PREFIX = 'image/';
 

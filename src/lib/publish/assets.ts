@@ -1,22 +1,9 @@
-import { resolveSupabaseUrl } from '@/lib/supabase/resolve-env';
+/**
+ * Odczyt i zapis załączników w bazie na potrzeby publikacji.
+ * Kształt wiersza, adresy publiczne i base64: `@/lib/publish/asset-model`.
+ */
 import type { SupabaseClient } from '@supabase/supabase-js';
-
-export type PostAsset = {
-	id?: string;
-	storage_path: string;
-	filename: string;
-	mime_type: string;
-	display_mode?: 'link' | 'embed';
-	sort_order?: number;
-	/** SHA-1 bloba Gita — pomija ponowny upload przy zgodności z GitHub. */
-	content_sha?: string | null;
-};
-
-export function publicAssetUrl(storagePath: string): string | null {
-	const url = resolveSupabaseUrl();
-	if (!url) return null;
-	return `${url.replace(/\/$/, '')}/storage/v1/object/public/post-assets/${storagePath}`;
-}
+import type { PostAsset } from '@/lib/publish/asset-model';
 
 export async function loadPostAssets(
 	supabase: SupabaseClient,
@@ -43,15 +30,4 @@ export async function updateAssetContentSha(
 ): Promise<void> {
 	if (!assetId || !contentSha) return;
 	await supabase.from('assets').update({ content_sha: contentSha }).eq('id', assetId);
-}
-
-export function bytesToBase64(bytes: ArrayBuffer): string {
-	const u8 = new Uint8Array(bytes);
-	let binary = '';
-	for (const b of u8) binary += String.fromCharCode(b);
-	return btoa(binary);
-}
-
-export function textToBase64(text: string): string {
-	return bytesToBase64(new TextEncoder().encode(text).buffer);
 }

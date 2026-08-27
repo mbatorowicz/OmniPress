@@ -8,10 +8,10 @@ import { collectNavInternalPageOptions } from '@/lib/admin/navigation-tree';
 import { layoutSectionToSyncScope } from '@/lib/astro-layout/layout-sync-meta';
 import { parseLayoutSection } from '@/lib/astro-layout/parse-form';
 import {
-	buildKnownNavPaths,
 	hasMissingHrefIssues,
 	validateNavigationLinks,
 } from '@/lib/astro-layout/validate-nav';
+import { buildKnownNavPaths } from '@/lib/astro-layout/nav-known-paths';
 import {
 	loadSiteAstroLayout,
 	saveSiteAstroLayout,

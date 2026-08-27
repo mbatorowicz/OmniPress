@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { api, formatUploadError, posts } from '@/i18n';
 import { nextGallerySortOrder } from '@/lib/posts/assets';
-import { publicAssetUrl } from '@/lib/publish/assets';
+import { publicAssetUrl } from '@/lib/publish/asset-model';
 import {
 	extensionForMime,
 	markdownForUploadedAsset,

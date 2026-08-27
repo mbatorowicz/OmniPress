@@ -1,7 +1,7 @@
 ---
 import SectionTitle from '@/components/ui/layout/SectionTitle.astro';
-import type { PostAsset } from '@/lib/publish/assets';
-import { publicUrlForAsset } from '@/lib/posts';
+import type { PostAsset } from '@/lib/publish/asset-model';
+import { publicUrlForAsset } from '@/lib/posts/asset-model';
 
 interface Props {
 	assets: PostAsset[];

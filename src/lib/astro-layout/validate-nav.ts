@@ -105,21 +105,3 @@ export function formatNavValidationIssues(issues: NavValidationIssue[]): string[
 		return `${issue.labelPath}: ${issue.href}`;
 	});
 }
-
-export async function buildKnownNavPaths(
-	supabase: import('@supabase/supabase-js').SupabaseClient,
-	siteId: string,
-	categorySlugs: string[],
-	extraPaths: string[] = ['/'],
-): Promise<Set<string>> {
-	const { listPublishedSitePagePaths } = await import('@/lib/site-pages');
-	const pagePaths = await listPublishedSitePagePaths(supabase, siteId);
-	const paths = new Set<string>(extraPaths.map(normalizeInternalHref));
-
-	for (const slug of categorySlugs) {
-		if (slug.trim()) paths.add(normalizeInternalHref(`/${slug.trim()}`));
-	}
-	for (const p of pagePaths) paths.add(normalizeInternalHref(p));
-
-	return paths;
-}

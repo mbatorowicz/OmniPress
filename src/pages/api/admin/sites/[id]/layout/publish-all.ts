@@ -6,10 +6,10 @@ import {
 } from '@/lib/admin/layout-editor-context';
 import { collectNavInternalPageOptions } from '@/lib/admin/navigation-tree';
 import {
-	buildKnownNavPaths,
 	hasMissingHrefIssues,
 	validateNavigationLinks,
 } from '@/lib/astro-layout/validate-nav';
+import { buildKnownNavPaths } from '@/lib/astro-layout/nav-known-paths';
 import { loadSiteAstroLayout, syncSiteAstroLayoutToGitHub } from '@/lib/astro-layout/store';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {

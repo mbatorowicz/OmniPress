@@ -1,6 +1,6 @@
 import { markdownForUploadedAsset } from '@/lib/posts/upload';
-import { publicAssetUrl } from '@/lib/publish/assets';
-import type { PostAsset } from '@/lib/publish/assets';
+import { publicAssetUrl } from '@/lib/publish/asset-model';
+import type { PostAsset } from '@/lib/publish/asset-model';
 import {
 	markdownToPlainExcerpt,
 	stripImageMarkdown,

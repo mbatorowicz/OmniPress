@@ -66,50 +66,30 @@ export function initPostGallery(): void {
 	});
 }
 
-export function initPdfAttachments(): void {
-	const root = document.querySelector('[data-pdf-attachments]');
+function initFileAttachmentPanel(kind: 'pdf' | 'docx' | 'file'): void {
+	const root = document.querySelector(`[data-${kind}-attachments]`);
 	if (!(root instanceof HTMLElement)) return;
 
-	let initialAssets: import('@/lib/editor/pdf-attachments').PdfAsset[] = [];
+	let initialAssets: import('@/lib/editor/file-attachment-panel').FileAttachmentAsset[] = [];
 	try {
 		initialAssets = JSON.parse(root.dataset.initialAssets ?? '[]');
 	} catch {
 		initialAssets = [];
 	}
 
-	void import('@/lib/editor/pdf-attachments').then(({ mountPdfAttachments }) => {
-		mountPdfAttachments(root, initialAssets);
+	void import('@/lib/editor/file-attachment-panel').then(({ mountFileAttachmentPanel }) => {
+		mountFileAttachmentPanel(root, kind, initialAssets);
 	});
+}
+
+export function initPdfAttachments(): void {
+	initFileAttachmentPanel('pdf');
 }
 
 export function initDocxAttachments(): void {
-	const root = document.querySelector('[data-docx-attachments]');
-	if (!(root instanceof HTMLElement)) return;
-
-	let initialAssets: import('@/lib/editor/docx-attachments').DocxAsset[] = [];
-	try {
-		initialAssets = JSON.parse(root.dataset.initialAssets ?? '[]');
-	} catch {
-		initialAssets = [];
-	}
-
-	void import('@/lib/editor/docx-attachments').then(({ mountDocxAttachments }) => {
-		mountDocxAttachments(root, initialAssets);
-	});
+	initFileAttachmentPanel('docx');
 }
 
 export function initFileAttachments(): void {
-	const root = document.querySelector('[data-file-attachments]');
-	if (!(root instanceof HTMLElement)) return;
-
-	let initialAssets: import('@/lib/editor/file-attachments').FileAsset[] = [];
-	try {
-		initialAssets = JSON.parse(root.dataset.initialAssets ?? '[]');
-	} catch {
-		initialAssets = [];
-	}
-
-	void import('@/lib/editor/file-attachments').then(({ mountFileAttachments }) => {
-		mountFileAttachments(root, initialAssets);
-	});
+	initFileAttachmentPanel('file');
 }

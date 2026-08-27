@@ -45,18 +45,12 @@ export {
 	assetsForContentRender,
 	assetsForPreviewRender,
 	previewAssetFileUrl,
-	loadPostAssetsForPost,
 	parseAssetDisplayModes,
 	publicUrlForAsset,
-	updatePostAssetDisplayModes,
 	parseGalleryOrder,
 	parsePdfOrder,
 	parseDocxOrder,
 	parseFileOrder,
-	updateGalleryOrder,
-	updateFileAttachmentOrders,
-	nextGallerySortOrder,
-	deletePostAsset,
 	isGalleryImageAsset,
 	isPdfAsset,
 	isDocxAsset,
@@ -66,6 +60,14 @@ export {
 	isDownloadFileAsset,
 	isFileAttachmentAsset,
 	type PostAssetRow,
+} from './asset-model';
+export {
+	loadPostAssetsForPost,
+	updatePostAssetDisplayModes,
+	updateGalleryOrder,
+	updateFileAttachmentOrders,
+	nextGallerySortOrder,
+	deletePostAsset,
 } from './assets';
 export { renderPostContentHtml } from './render-content';
 export { resolveUniquePostSlug } from './slug-unique';
