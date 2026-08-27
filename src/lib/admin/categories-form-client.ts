@@ -18,7 +18,7 @@ export type CategoriesFormLabels = {
 let nextCategoryEntryId = 0;
 
 function getEditorRows(body: HTMLElement): HTMLElement[] {
-	return [...body.querySelectorAll('.category-row-editor')];
+	return [...body.querySelectorAll<HTMLElement>('.category-row-editor')];
 }
 
 function getSummaryForEditor(editorRow: HTMLElement): HTMLElement | null {

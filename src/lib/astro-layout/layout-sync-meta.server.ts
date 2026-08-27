@@ -34,6 +34,9 @@ export function hashLayoutFileText(text: string): string | null {
 			buildLayoutFilePayload({
 				categories: parsed.categories,
 				categoryDisplays: parsed.displays,
+				// `zones` musi przejść bez zmian — inaczej hash pliku live różni się od hasha szkicu
+				// dla każdego komponentu stojącego poza swoją strefą domyślną (np. pogoda w stopce).
+				zones: parsed.zones,
 				slots: parsed.slots,
 				navigation: [],
 				layoutPath: '',

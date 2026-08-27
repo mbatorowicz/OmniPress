@@ -28,7 +28,8 @@ export async function getSiteDestinations(
 		.select('destination_id, is_default, sort_order, destinations(id, name, type)')
 		.eq('site_id', siteId)
 		.order('sort_order');
-	return (data ?? []) as SiteDestinationLink[];
+	// PostgREST zwraca embed many-to-one jako obiekt; klient bez wygenerowanych typów zgaduje tablicę.
+	return (data ?? []) as unknown as SiteDestinationLink[];
 }
 
 /** Aktywna destynacja GitHub/Astro przypisana do strony (1:1 w UI). */

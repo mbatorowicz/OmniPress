@@ -48,7 +48,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "lint": "eslint \"src/**/*.{ts,tsx}\" && node scripts/lint-ui-classes.mjs && node scripts/lint-docs-setup.mjs && node scripts/lint-i18n.mjs && node scripts/lint-layers.mjs && node scripts/lint-file-size.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "npm run typecheck && eslint \"src/**/*.{ts,tsx}\" && node scripts/lint-ui-classes.mjs && node scripts/lint-docs-setup.mjs && node scripts/lint-i18n.mjs && node scripts/lint-layers.mjs && node scripts/lint-file-size.mjs",
     "lint:ui": "node scripts/lint-ui-classes.mjs"
   },
   "dependencies": {
@@ -69,12 +70,15 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@playwright/test": "^1.60.0",
+    "@types/node": "^26.4.0",
+    "@types/pg": "^8.23.1",
     "@types/turndown": "^5.0.6",
     "esbuild": "^0.28.0",
     "eslint": "^9.39.1",
     "globals": "^16.5.0",
     "jsdom": "^29.1.1",
     "pg": "^8.21.0",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.48.0",
     "vitest": "^3.2.4",
     "zod": "^3.25.76"

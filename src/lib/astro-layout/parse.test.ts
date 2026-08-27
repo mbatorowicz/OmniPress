@@ -7,7 +7,8 @@ import {
 } from './parse';
 import { mergeCategoryDisplays } from './slots';
 import { parseLayoutFromFormData, mergeLayoutFromFormData, collectSlotIdentities } from './parse-form';
-import type { SiteAstroLayout } from './types';
+import { migrateFlatSlotsToZones } from './zones';
+import { DEFAULT_LAYOUT_PATH, type SiteAstroLayout } from './types';
 
 const sampleSlots = [
 	{ id: 'home_pinned', label: 'Pinned', component: 'home.pinned' },
@@ -140,7 +141,9 @@ describe('astro-layout parse', () => {
 			navigation: [{ label: 'BIP', href: 'https://bip.example.pl' }],
 			categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],
 			categoryDisplays: { home_pinned: ['aktualnosci'] },
+			zones: migrateFlatSlotsToZones(sampleSlots),
 			slots: sampleSlots,
+			layoutPath: DEFAULT_LAYOUT_PATH,
 			navigationPath: 'src/config/omnipress-navigation.json',
 			categoriesPath: 'src/config/omnipress-categories.json',
 		};
@@ -171,6 +174,7 @@ describe('collectSlotIdentities', () => {
 
 describe('parseLayoutFromFormData', () => {
 	const base = {
+		layoutPath: DEFAULT_LAYOUT_PATH,
 		navigationPath: 'src/config/omnipress-navigation.json',
 		categoriesPath: 'src/config/omnipress-categories.json',
 	};
@@ -307,6 +311,9 @@ describe('parseLayoutFromFormData', () => {
 });
 
 describe('mergeLayoutFromFormData', () => {
+	const existingSlots = [
+		{ id: 'home_latest', label: 'Aktualności', component: 'home.latest', widget: { enabled: true } },
+	];
 	const existing: SiteAstroLayout = {
 		navigation: [],
 		categories: [
@@ -314,9 +321,9 @@ describe('mergeLayoutFromFormData', () => {
 			{ slug: 'odpady', name: 'Odpady' },
 		],
 		categoryDisplays: { home_latest: ['aktualnosci'] },
-		slots: [
-			{ id: 'home_latest', label: 'Aktualności', component: 'home.latest', widget: { enabled: true } },
-		],
+		zones: migrateFlatSlotsToZones(existingSlots),
+		slots: existingSlots,
+		layoutPath: DEFAULT_LAYOUT_PATH,
 		navigationPath: 'src/config/omnipress-navigation.json',
 		categoriesPath: 'src/config/omnipress-categories.json',
 	};

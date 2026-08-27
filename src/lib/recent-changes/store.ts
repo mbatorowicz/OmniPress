@@ -41,9 +41,12 @@ export async function loadRecentChangesFromGitHub(
 			const entries = getRecentChangeEntriesFromLayout({
 				categories: parsed.categories,
 				categoryDisplays: parsed.displays,
+				zones: parsed.zones,
 				slots: parsed.slots,
 				navigation: [],
 				layoutPath,
+				navigationPath: '',
+				categoriesPath: '',
 			});
 			return { ok: true, file: { entries } };
 		} catch {

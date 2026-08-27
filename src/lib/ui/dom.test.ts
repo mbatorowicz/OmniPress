@@ -8,15 +8,19 @@ function mockElement(): Element {
 	} as unknown as Element;
 }
 
+function mockEvent(target: unknown): Event {
+	return { target } as unknown as Event;
+}
+
 describe('eventTargetElement', () => {
 	it('zwraca Element dla elementów DOM (HTML, SVG)', () => {
 		const el = mockElement();
-		expect(eventTargetElement({ target: el } as Event)).toBe(el);
+		expect(eventTargetElement(mockEvent(el))).toBe(el);
 	});
 
 	it('zwraca null dla nie-Element', () => {
-		expect(eventTargetElement({ target: null } as Event)).toBeNull();
-		expect(eventTargetElement({ target: 'text' } as Event)).toBeNull();
-		expect(eventTargetElement({ target: { nodeType: 3 } } as Event)).toBeNull();
+		expect(eventTargetElement(mockEvent(null))).toBeNull();
+		expect(eventTargetElement(mockEvent('text'))).toBeNull();
+		expect(eventTargetElement(mockEvent({ nodeType: 3 }))).toBeNull();
 	});
 });

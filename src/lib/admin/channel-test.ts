@@ -14,7 +14,7 @@ import {
 	resolveVercelToken,
 } from '@/lib/publish/vercel-api';
 import { auditGitHubToken, classifyGitHubToken } from './github-token';
-import { adminDestinations, adminSites } from '@/i18n/pl/admin-panels';
+import { adminDestinations, adminUnit } from '@/i18n/pl/admin-panels';
 import type { GitHubCredentials } from '@/lib/publish/credentials';
 
 export type ChannelTestResult = { ok: true; message: string } | { ok: false; message: string };
@@ -25,7 +25,7 @@ function formatTokenAuditMessages(token: string): string[] {
 	const lines: string[] = [];
 	const kind = classifyGitHubToken(token);
 	if (kind === 'classic') {
-		lines.push(adminSites.astroHelp.tokenClassicWarning);
+		lines.push(adminUnit.astroHelp.tokenClassicWarning);
 	}
 	return lines;
 }
@@ -39,9 +39,9 @@ async function appendTokenAuditMessages(
 	try {
 		const audit = await auditGitHubToken(cfg, token);
 		if (audit.repoAccessible) {
-			warnings.push(`${adminSites.astroHelp.tokenRepoAccess} ${audit.repoDetail}`);
+			warnings.push(`${adminUnit.astroHelp.tokenRepoAccess} ${audit.repoDetail}`);
 		} else {
-			warnings.push(`${adminSites.astroHelp.tokenRepoDenied} ${audit.repoDetail}`);
+			warnings.push(`${adminUnit.astroHelp.tokenRepoDenied} ${audit.repoDetail}`);
 		}
 	} catch {
 		// probe już zwrócił błąd wyżej

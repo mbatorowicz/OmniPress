@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Profile } from '../types';
+import type { SiteRow } from '../posts/site';
 
 export async function getSessionUser(supabase: SupabaseClient) {
 	const {
@@ -25,12 +26,16 @@ export async function getProfile(
 	return data as Profile;
 }
 
-export async function getUserSites(supabase: SupabaseClient, userId: string) {
+export async function getUserSites(
+	supabase: SupabaseClient,
+	userId: string,
+): Promise<SiteRow[]> {
 	const { data, error } = await supabase
 		.from('user_sites')
 		.select('site_id, sites(id, name, slug, is_active)')
 		.eq('user_id', userId);
 
 	if (error) return [];
-	return data ?? [];
+	// PostgREST zwraca embed many-to-one jako obiekt; klient bez wygenerowanych typów zgaduje tablicę.
+	return (data ?? []) as unknown as SiteRow[];
 }

@@ -78,7 +78,8 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | `verify:auth-rate-limits` | Weryfikacja rate limitów auth |
 | `verify:auth-mfa` | Weryfikacja MFA w Supabase |
 | `env:pull` | Pobranie env z Vercel |
-| `lint` | ESLint TS + lint UI klas + spójność docs/setup |
+| `lint` | Bramka jakości: `typecheck`, ESLint TS, lint UI klas, spójność docs/setup, i18n, warstwy, rozmiar plików |
+| `typecheck` | `tsc --noEmit` — całe repo, zero błędów |
 | `lint:ui` | Tylko `scripts/lint-ui-classes.mjs` |
 | `build:pdf-viewer` | Bundlowanie PDF viewer do `public/omnipress/` |
 | `test` | Vitest (jednostkowe) |

@@ -3,7 +3,9 @@
  * Wymaga ENCRYPTION_KEY (32 bajty, base64) na serwerze Vercel.
  */
 
-function getKeyBytes(): Uint8Array | null {
+// Parametr generyczny jest wymagany: WebCrypto przyjmuje BufferSource nad ArrayBuffer,
+// a goły `Uint8Array` domyślnie obejmuje też SharedArrayBuffer.
+function getKeyBytes(): Uint8Array<ArrayBuffer> | null {
 	const raw = import.meta.env.ENCRYPTION_KEY;
 	if (!raw) return null;
 	const bytes = Uint8Array.from(atob(raw), (c) => c.charCodeAt(0));

@@ -1,4 +1,4 @@
-import { probeGitHubRepository, type GitHubRepoConfig } from '@/lib/publish/github-api';
+import { probeGitHubRepository, type GitHubConfig } from '@/lib/publish/github-api';
 
 export type GitHubTokenKind = 'fine_grained' | 'classic' | 'unknown';
 
@@ -19,7 +19,7 @@ export type GitHubTokenAudit = {
 
 /** Sprawdza typ tokena i dostęp do skonfigurowanego repozytorium. */
 export async function auditGitHubToken(
-	cfg: GitHubRepoConfig,
+	cfg: GitHubConfig,
 	token: string,
 ): Promise<GitHubTokenAudit> {
 	const kind = classifyGitHubToken(token);

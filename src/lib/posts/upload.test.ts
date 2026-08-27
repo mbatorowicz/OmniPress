@@ -12,7 +12,8 @@ import {
 	validateUploadMeta,
 } from './upload';
 
-function sqliteGpkgBytes(): Uint8Array {
+// `BlobPart` wymaga widoku nad ArrayBuffer — goły `Uint8Array` obejmuje też SharedArrayBuffer.
+function sqliteGpkgBytes(): Uint8Array<ArrayBuffer> {
 	const bytes = new Uint8Array(16);
 	const magic = 'SQLite format 3';
 	for (let i = 0; i < 15; i++) bytes[i] = magic.charCodeAt(i);
@@ -20,7 +21,7 @@ function sqliteGpkgBytes(): Uint8Array {
 	return bytes;
 }
 
-function zipLocalHeader(): Uint8Array {
+function zipLocalHeader(): Uint8Array<ArrayBuffer> {
 	return new Uint8Array([0x50, 0x4b, 0x03, 0x04]);
 }
 

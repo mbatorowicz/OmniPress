@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { shouldAutoImportLayoutFromGitHub } from './layout-auto-import';
-import type { SiteAstroLayout } from '@/lib/astro-layout/types';
+import { DEFAULT_LAYOUT_PATH, type SiteAstroLayout } from '@/lib/astro-layout/types';
+import { emptyZones } from '@/lib/astro-layout/zones';
 import { navigationHasLeafWithoutHref } from '@/lib/astro-layout/validate-nav';
 import {
 	hashCategoriesLayout,
@@ -11,7 +12,9 @@ const baseLayout: SiteAstroLayout = {
 	navigation: [],
 	categories: [],
 	categoryDisplays: {},
+	zones: emptyZones(),
 	slots: [],
+	layoutPath: DEFAULT_LAYOUT_PATH,
 	navigationPath: 'src/config/omnipress-navigation.json',
 	categoriesPath: 'src/config/omnipress-categories.json',
 };

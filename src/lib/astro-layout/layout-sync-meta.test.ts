@@ -11,13 +11,17 @@ import {
 	resolveDraftLiveStatus,
 	withPublishedMeta,
 } from './layout-sync-meta.server';
-import type { SiteAstroLayout } from './types';
+import { migrateFlatSlotsToZones } from './zones';
+import type { DisplaySlot, SiteAstroLayout } from './types';
+
+const sampleSlots: DisplaySlot[] = [{ id: 'home_feed', label: 'Feed', component: 'home.latest' }];
 
 const sampleLayout: SiteAstroLayout = {
 	navigation: [{ label: 'Start', href: '/' }],
 	categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],
 	categoryDisplays: { home_feed: ['aktualnosci'] },
-	slots: [{ id: 'home_feed', label: 'Feed', component: 'home.latest' }],
+	zones: migrateFlatSlotsToZones(sampleSlots),
+	slots: sampleSlots,
 	navigationPath: 'src/config/omnipress-navigation.json',
 	categoriesPath: 'src/config/omnipress-categories.json',
 	layoutPath: 'src/config/omnipress-layout.json',

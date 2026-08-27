@@ -16,7 +16,7 @@ Ten dokument odpowiada na pytanie **co i dlaczego**. Konkretne kroki naprawcze, 
 |--------|-----------|------------|
 | CI | ✅ `.github/workflows/ci.yml` (lint + test + build) | ❌ brak, `.github` puste |
 | Lint | ✅ ESLint + `lint-ui-classes.mjs` — czysty (209 plików) | ❌ brak |
-| Type check | ⚠️ `astro/tsconfigs/strict`, ale bez `astro check` w CI | ⚠️ strict + `@astrojs/check` w zależnościach, nieużywany |
+| Type check | ⚠️ `astro/tsconfigs/strict`, ale bez `tsc --noEmit` w pipeline (P1-15 — zamknięte w podejściu 13) | ⚠️ strict + `@astrojs/check` w zależnościach, nieużywany |
 | Testy | ✅ 72 pliki / 354 testy, zielone | ⚠️ 4 pliki z ręcznej listy w `package.json` |
 | E2E | ✅ Playwright, 5 spec | ❌ brak |
 
@@ -129,9 +129,9 @@ JSON layoutu jest importowany statycznie, bez Zod i bez whitelisty (`load-config
 
 **Rozstrzygnięcie (podejście 11):** reguła przeformułowana na „komponent nie sięga po dane" — typy, czyste helpery i skrypty klienta wolno, moduł operujący na kliencie Supabase nie. Wymusza ją `scripts/lint-layers.mjs`, który wylicza zbiór modułów danych z grafu importów zamiast z listy do utrzymania. Konsekwencja przy pisaniu `lib/`: moduł nie miesza czystej logiki z zapytaniami — stąd wzorzec `foo-model.ts` obok `foo.ts`. Szczegóły: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) §Podejście 11.
 
-### P1-15 — repo nie sprawdza typów
+### P1-15 — repo nie sprawdza typów — ✅ zamknięte
 
-`npm run lint` uruchamia ESLint bez reguł typowanych, a `astro build` kompiluje esbuildem, który typów nie weryfikuje. **W pipeline nie ma kroku `tsc --noEmit`** — na dzień audytu daje on **148 błędów w 52 plikach**.
+`npm run lint` uruchamiał ESLint bez reguł typowanych, a `astro build` kompiluje esbuildem, który typów nie weryfikuje. **W pipeline nie było kroku `tsc --noEmit`** — na dzień audytu dawał on **148 błędów w 52 plikach**.
 
 To nie jest hałas lintera. Trzy defekty naprawione w podejściu 11 były błędami typów, które nikt nie sprawdzał:
 
@@ -139,7 +139,11 @@ To nie jest hałas lintera. Trzy defekty naprawione w podejściu 11 były błęd
 - `SectionFieldLabels` nie miało pola `weatherTerytGmina`, więc etykieta w panelu pogody renderowała się jako `undefined`;
 - `buildSlotCardHtml` dostawało obiekt bez `formId`, więc checkbox „Wł." na karcie dodanej po stronie klienta nie trafiał do wysyłanego formularza.
 
-Wszystkie trzy `tsc` pokazuje jednym przebiegiem. Plan naprawy: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) §Podejście 13.
+Wszystkie trzy `tsc` pokazuje jednym przebiegiem.
+
+**Zamknięte w podejściu 13.** `npm run typecheck` (`tsc --noEmit`) jest pierwszym krokiem `npm run lint`, repo schodzi na zero błędów bez baseline. Przy okazji wyszła przyczyna, dla której część tych defektów była w ogóle możliwa: **`App.Locals` nigdy nie był typowany**. Deklaracja leżała w `src/middleware.d.ts`, obok `src/middleware.ts` — TypeScript traktuje taki plik jako deklarację wyjściową modułu i pomija go w programie, więc `locals.user`, `locals.profile`, `locals.supabase` i `locals.cspNonce` były nietypowane w całym middleware, guardach i trasach API. Deklaracja mieszka teraz w `src/app.d.ts` w `declare global`.
+
+Typecheck znalazł trzy kolejne realne defekty produkcyjne: `adminSites.astroHelp` (klucz należy do `adminUnit` — `TypeError` przy teście kanału GitHub z classic PAT), utratę `zones` przy publikacji ogłoszeń i przy porównaniu szkicu ze stroną live (komponenty przestawione do stopki wracały do sidebara, panel bez powodu raportował „Strona zmieniona poza OmniPress"), oraz typ węższy niż i18n w `layout-editor-status.ts`. Szczegóły: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) §Podejście 13.
 
 ### P0-7 — migracja blokady eskalacji nigdy nie trafiła na produkcję — ✅ zamknięte
 

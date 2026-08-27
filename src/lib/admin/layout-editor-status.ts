@@ -245,6 +245,7 @@ export function layoutEditorStatusMessagesFromI18n(adminLayout: {
 	draftStatus: {
 		draftMissingHref: string;
 		inSync: string;
+		inSyncCombined: string;
 		draftAhead: string;
 		liveAhead: string;
 		lastPublished: string;

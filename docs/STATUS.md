@@ -153,7 +153,8 @@ Tabela opisuje **zamierzony** stan bazy. `lint-docs-setup.mjs` pilnuje zgodnośc
 
 | Warstwa | Narzędzie | Zakres |
 |---------|-----------|--------|
-| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 88 plików testowych obok modułów (626 testów) |
+| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 89 plików testowych obok modułów (638 testów) |
+| Typy (`npm run typecheck`) | `tsc --noEmit` | całe repo, zero błędów; wpięte w `npm run lint` jako bramka |
 | Integracyjne RLS (opt-in) | Vitest + `pg` | `src/lib/supabase/rls.integration.test.ts` — 22 przypadki: izolacja redaktorów, dane wrażliwe, eskalacja uprawnień |
 | E2E/UI (`npm run test:e2e`) | Playwright (`e2e/`) | produkcja: strefa publiczna, nagłówki bezpieczeństwa, CSRF, auth (logowanie/wylogowanie, błędne hasło), panel admina, cykl wpisu (szkic → walidacja → zapis → usunięcie) |
 
@@ -196,7 +197,7 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 - Warianty przycisków: `ui-btn--link`, `ui-btn--link-danger`, `ui-btn--link-ghost`, `ui-btn--sm`.
 - Migracja komponentów domenowych na klasy `ui-*`; linki w treści = kolor brand.
 - PDF viewer i callback auth na tokenach CSS / `AuthLayout`.
-- Lint: `npm run lint` (ESLint TS + `scripts/lint-ui-classes.mjs`); workflow CI `.github/workflows/ci.yml`.
+- Lint: `npm run lint` — `tsc --noEmit`, ESLint TS oraz linty `scripts/lint-{ui-classes,docs-setup,i18n,layers,file-size}.mjs`; workflow CI `.github/workflows/ci.yml`.
 
 ---
 

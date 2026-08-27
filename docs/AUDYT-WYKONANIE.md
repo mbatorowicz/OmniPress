@@ -18,8 +18,9 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 8 | Dokumentacja — ✅ **wykonane** | zerowe | — |
 | 9 | i18n — ✅ **wykonane** | niskie | — |
 | 10 | Testy modułów krytycznych — ✅ **wykonane** | zerowe | — |
-| 11 | Refaktor struktury | średnie | — |
+| 11 | Refaktor struktury — ✅ **wykonane** (repo A; zostaje krok 5 w repo B) | średnie | — |
 | 12 | Assety poza gita | **decyzja** | — |
+| 13 | Typecheck w pipeline — ✅ **wykonane** | niskie | — |
 
 ---
 
@@ -433,7 +434,7 @@ Przy `github-api.ts` trzy niemal identyczne pętle „tree → commit → PATCH 
 
 **Cel:** żaden błąd typów nie dojeżdża na produkcję (P1-15, znalezione w podejściu 11).
 
-**Stan:** `npm run lint` uruchamia ESLint bez reguł wymagających typów, a `astro build` kompiluje esbuildem, który typów nie sprawdza. `npx tsc --noEmit` daje **148 błędów w 52 plikach**. Trzy realne defekty UI naprawione w podejściu 11 przeszły do repo właśnie tędy.
+**Stan wyjściowy:** `npm run lint` uruchamiał ESLint bez reguł wymagających typów, a `astro build` kompiluje esbuildem, który typów nie sprawdza. `npx tsc --noEmit` dawał **148 błędów w 52 plikach**. Trzy realne defekty UI naprawione w podejściu 11 przeszły do repo właśnie tędy.
 
 **Kroki**
 
@@ -443,6 +444,30 @@ Przy `github-api.ts` trzy niemal identyczne pętle „tree → commit → PATCH 
 4. Do czasu wyzerowania — baseline w stylu listy wyjątków rozmiaru plików: plik z baseline nie może dostać nowych błędów.
 
 **Weryfikacja:** `npm run typecheck` bez błędów poza jawnym baseline; celowe zepsucie typu w losowym module wywala `npm run lint`.
+
+### Wykonano (2026-08-27)
+
+**Baseline nie był potrzebny — repo schodzi z 148 błędów na zero.**
+
+**Dlaczego było ich 148, a `tsc` widział jeden.** TypeScript 6.0.3 przerywa na `tsconfig.json`: `baseUrl` jest deprecated i podniesione do błędu, więc kompilator nie dochodził nawet do kodu. Po usunięciu `baseUrl` (`paths` działają relatywnie do tsconfiga) wyszło **85 błędów w 37 plikach**.
+
+**Najważniejsze znalezisko: `App.Locals` nigdy nie był typowany.** Deklaracja leżała w `src/middleware.d.ts` — obok `src/middleware.ts`. TypeScript uznaje taki plik za deklarację wyjściową tego modułu i **pomija go w programie** (potwierdzone `tsc --listFiles`). Interfejs `Locals` pozostawał więc pusty jak z `astro/client`, a `locals.user`, `locals.profile`, `locals.supabase` i `locals.cspNonce` były nietypowane w całym middleware, guardach i trasach API. Deklaracja przeniesiona do `src/app.d.ts` (nazwa nie koliduje z modułem) i owinięta w `declare global` — bez tego namespace zostawał lokalny, bo plik ma importy. Sam ten jeden ruch zdjął 32 błędy.
+
+**Trzy defekty w kodzie produkcyjnym, których nikt nie pytał:**
+
+1. **`adminSites.astroHelp` nie istnieje — klucz należy do `adminUnit`.** `channel-test.ts` i `destinations.ts` czytały `adminSites.astroHelp.tokenClassicWarning` → `TypeError` w runtime. Skutek: test kanału GitHub z classic PAT (`ghp_…`) wywalał się zamiast ostrzec, a komunikaty o dostępie tokena do repo nigdy nie dochodziły do UI — `try/catch` wokół audytu tokena zjadał wyjątek.
+2. **`zones` gubione przy każdym ogłoszeniu i przy porównaniu ze stroną live.** `recent-changes/github.ts`, `recent-changes/store.ts` i `layout-sync-meta.server.ts` składały `SiteAstroLayout` z płaskich slotów, bez `zones`. Runtime odtwarzał strefy przez `migrateFlatSlotsToZones`, czyli po **domyślnej** strefie komponentu. `sidebar.weather`, `sidebar.cert_advisories` i `sidebar.banner` wolno postawić w stopce — takie komponenty wracały do sidebara przy publikacji ogłoszenia, a hash pliku live nie zgadzał się z hashem szkicu, więc panel bez powodu pokazywał „Strona zmieniona poza OmniPress". Wszystkie trzy ścieżki przepuszczają teraz `zones` bez zmian.
+3. **`layout-editor-status.ts` deklarował typ węższy niż i18n.** Parametr `draftStatus` nie miał `inSyncCombined`, mimo że klucz istnieje i jest używany.
+
+Do tego `admin/github-token.ts` importował nieistniejący typ `GitHubRepoConfig` (jest `GitHubConfig`), a cztery zapytania z embedem Supabase były rzutowane wprost, mimo że klient bez wygenerowanych typów zgaduje relację many-to-one jako tablicę — `getUserSites` dostał wreszcie jawny `Promise<SiteRow[]>`, więc rzutowanie jest w jednym miejscu, nie w każdej trasie.
+
+**Reszta (33 błędy) to fixture'y testowe** — niepełne obiekty `SiteAstroLayout`, `GitHubConfig` bez `assetPublicBase`, `Uint8Array` bez parametru `ArrayBuffer` (WebCrypto i `BlobPart` wymagają widoku nad `ArrayBuffer`, goły typ obejmuje `SharedArrayBuffer`), brak `@types/pg`.
+
+**Bramka:** `npm run typecheck` (`tsc --noEmit`) jako pierwszy krok `npm run lint`, więc CI już ją uruchamia bez zmian w workflow. `typescript`, `@types/node` i `@types/pg` weszły jako jawne devDependencies — `tsc` był dotąd zależnością przechodnią, bez kontroli wersji.
+
+**Weryfikacja mutacyjna:** sonda z dostępem do nieistniejącego pola `Locals` i przypisaniem `string` do `number` wywaliła `npm run typecheck` (exit 2, oba błędy wskazane); sonda usunięta.
+
+**Wynik weryfikacji:** `npm run typecheck` 0 błędów · `npm run lint` OK · `npm test` 638/638 (+22 RLS opt-in) · `npm run build` OK.
 
 ---
 

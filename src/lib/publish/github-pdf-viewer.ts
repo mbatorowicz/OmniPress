@@ -2,6 +2,7 @@ import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+	binaryToArrayBuffer,
 	getGitHubFile,
 	getGitHubFileBinary,
 	putGitHubFile,
@@ -43,10 +44,7 @@ async function prepareGitHubBinaryWrite(
 		const remote = await getGitHubFileBinary(cfg, token, repoPath);
 		if (remote && buffersEqual(local, new Uint8Array(remote))) return null;
 	}
-	return {
-		path: repoPath,
-		content: local.buffer.slice(local.byteOffset, local.byteOffset + local.byteLength),
-	};
+	return { path: repoPath, content: binaryToArrayBuffer(local) };
 }
 
 /** Zwraca brakujące/zmienione pliki PDF viewera do dołączenia do atomowego commita. */
@@ -71,7 +69,7 @@ export async function ensurePdfViewerOnGitHub(cfg: GitHubConfig, token: string):
 			cfg,
 			token,
 			write.path,
-			write.content,
+			binaryToArrayBuffer(write.content),
 			write.path.endsWith('worker.mjs')
 				? 'OmniPress: PDF viewer worker'
 				: 'OmniPress: PDF viewer (pdf.js)',

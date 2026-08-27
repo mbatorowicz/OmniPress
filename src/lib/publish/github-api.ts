@@ -4,6 +4,7 @@
  * `-write` (zapis), `-delete` (usuwanie), `-list` (listowanie i sondy).
  */
 export {
+	binaryToArrayBuffer,
 	gitBranchRefUrls,
 	httpStatusFromError,
 	isGitHubRetryable,

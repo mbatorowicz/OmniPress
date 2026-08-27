@@ -2,14 +2,26 @@
  * @vitest-environment jsdom
  */
 import { beforeEach, describe, expect, it } from 'vitest';
-import { mountCategoriesForm } from '@/lib/admin/categories-form-client';
+import {
+	mountCategoriesForm,
+	type CategoriesFormLabels,
+} from '@/lib/admin/categories-form-client';
 
-const labels = {
+const labels: CategoriesFormLabels = {
 	remove: 'Usuń',
 	edit: 'Edytuj',
 	closeEdit: 'Zamknij',
 	fieldSlug: 'Slug',
 	fieldName: 'Nazwa',
+	fieldArchiveLayout: 'Układ archiwum',
+	fieldArchiveColumns: 'Kolumny',
+	layoutTiles: 'Kafelki',
+	layoutTitleList: 'Lista tytułów',
+	columnsOne: '1',
+	columnsTwo: '2',
+	columnsThree: '3',
+	summaryTilesPrefix: 'Kafelki',
+	summaryTitleList: 'Lista tytułów',
 };
 
 describe('mountCategoriesForm', () => {

@@ -10,12 +10,34 @@ import {
 import { buildLayoutFilePayload, parseLayoutFile } from '@/lib/astro-layout/parse';
 import { hashLayoutFile } from '@/lib/astro-layout/layout-sync-meta.server';
 import { upsertRecentChangeEntriesInLayout } from '@/lib/astro-layout/migrate-layout';
+import { emptyZones } from '@/lib/astro-layout/zones';
 import type { SiteAstroLayout } from '@/lib/astro-layout/types';
 import { upsertRecentChange } from './upsert';
 import type { RecentChangeEntry } from './types';
 
 function layoutPayloadFromDraft(draft: SiteAstroLayout) {
 	return parseLayoutFile(buildLayoutFilePayload(draft));
+}
+
+/**
+ * Sklejenie layoutu do serializacji z parsowanego pliku. `zones` przechodzi bez zmian —
+ * odtworzenie stref z płaskich slotów cofa komponent do strefy domyślnej, więc pogoda,
+ * CERT albo baner przestawione do stopki wracałyby do sidebara przy każdym ogłoszeniu.
+ */
+function layoutFromPayload(
+	payload: ReturnType<typeof parseLayoutFile>,
+	layoutPath: string,
+): SiteAstroLayout {
+	return {
+		categories: payload.categories,
+		categoryDisplays: payload.displays,
+		zones: payload.zones,
+		slots: payload.slots,
+		navigation: [],
+		layoutPath,
+		navigationPath: '',
+		categoriesPath: '',
+	};
 }
 
 export async function prepareRecentChangeAppendWrite(
@@ -33,36 +55,32 @@ export async function prepareRecentChangeAppendWrite(
 		draft.sync?.publishedLayoutHash &&
 		draftHash === draft.sync.publishedLayoutHash;
 
-	let layoutPayload;
+	const emptyPayload = () => ({
+		categories: [],
+		displays: {},
+		slots: [],
+		zones: emptyZones(),
+	});
+
+	let layoutPayload: ReturnType<typeof parseLayoutFile>;
 	if (inSyncWithDraft && draft) {
 		layoutPayload = layoutPayloadFromDraft(draft);
 	} else {
 		const existing = await getGitHubFile(cfg, token, path);
 		const text = existing ? await getGitHubFileText(cfg, token, path) : null;
 		try {
-			layoutPayload = text
-				? parseLayoutFile(text)
-				: { categories: [], displays: {}, slots: [] };
+			layoutPayload = text ? parseLayoutFile(text) : emptyPayload();
 		} catch {
-			layoutPayload = { categories: [], displays: {}, slots: [] };
+			layoutPayload = emptyPayload();
 		}
 	}
 
 	const rcSlot = layoutPayload.slots.find((s) => s.component === 'sidebar.recent_changes');
 	const entries = upsertRecentChange(rcSlot?.entries ?? [], entry);
-	const slots = layoutPayload.slots.map((slot) =>
-		slot.component === 'sidebar.recent_changes' ? { ...slot, entries } : slot,
-	);
 
-	const content = buildLayoutFilePayload({
-		categories: layoutPayload.categories,
-		categoryDisplays: layoutPayload.displays,
-		slots,
-		navigation: [],
-		layoutPath: path,
-		navigationPath: '',
-		categoriesPath: '',
-	});
+	const content = buildLayoutFilePayload(
+		upsertRecentChangeEntriesInLayout(layoutFromPayload(layoutPayload, path), entries),
+	);
 
 	return { path, content };
 }
@@ -106,17 +124,6 @@ export function appendRecentChangeToLayoutText(text: string, entry: RecentChange
 	const parsed = parseLayoutFile(text);
 	const rcSlot = parsed.slots.find((s) => s.component === 'sidebar.recent_changes');
 	const entries = upsertRecentChange(rcSlot?.entries ?? [], entry);
-	const layout = upsertRecentChangeEntriesInLayout(
-		{
-			categories: parsed.categories,
-			categoryDisplays: parsed.displays,
-			slots: parsed.slots,
-			navigation: [],
-			layoutPath: '',
-			navigationPath: '',
-			categoriesPath: '',
-		},
-		entries,
-	);
+	const layout = upsertRecentChangeEntriesInLayout(layoutFromPayload(parsed, ''), entries);
 	return buildLayoutFilePayload(layout);
 }

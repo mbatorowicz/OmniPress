@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-// @ts-expect-error — helper buildu w JS, współdzielony z astro.config.mjs
+// helper buildu w JS, współdzielony z astro.config.mjs
 import { assetsInlineLimit } from '../../../scripts/lib/build-inline.mjs';
 
 describe('assetsInlineLimit', () => {

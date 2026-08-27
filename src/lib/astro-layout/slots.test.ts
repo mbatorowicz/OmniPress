@@ -9,6 +9,7 @@ import {
 	swapAdjacentOrders,
 } from './slots';
 import { isCategoryFeedComponent } from './components';
+import { migrateFlatSlotsToZones } from './zones';
 import type { DisplaySlot, SiteAstroLayout } from './types';
 
 describe('swapAdjacentOrders', () => {
@@ -30,11 +31,16 @@ describe('sortSlotsByOrder', () => {
 
 describe('findSlotByComponent', () => {
 	it('znajduje singleton CERT', () => {
+		const slots: DisplaySlot[] = [
+			{ id: 'cert', label: 'CERT', component: 'sidebar.cert_advisories', widget: { limit: 5 } },
+		];
 		const layout: SiteAstroLayout = {
 			navigation: [],
 			categories: [],
 			categoryDisplays: {},
-			slots: [{ id: 'cert', label: 'CERT', component: 'sidebar.cert_advisories', widget: { limit: 5 } }],
+			zones: migrateFlatSlotsToZones(slots),
+			slots,
+			layoutPath: 'l.json',
 			navigationPath: 'n.json',
 			categoriesPath: 'c.json',
 		};

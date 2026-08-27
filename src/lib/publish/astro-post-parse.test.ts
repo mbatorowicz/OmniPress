@@ -69,6 +69,7 @@ describe('filterGitHubMarkdownPosts', () => {
 				branch: 'main',
 				contentPath: 'src/content/news',
 				contentLayout: 'folder',
+				assetPublicBase: null,
 			},
 			[
 				'src/content/news/a/index.md',

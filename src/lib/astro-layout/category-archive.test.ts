@@ -6,6 +6,7 @@ import {
 	readCategoryArchiveLayout,
 	resolveCategoryArchiveSettings,
 } from './category-archive';
+import type { CategoryDefinition } from './types';
 
 describe('category-archive', () => {
 	it('readCategoryArchiveLayout akceptuje znane wartości', () => {
@@ -31,12 +32,12 @@ describe('category-archive', () => {
 	});
 
 	it('applyCategoryArchiveFieldsFromForm ustawia kolumny tylko dla kafelków', () => {
-		const tiles = { slug: 'a', name: 'A' };
+		const tiles: CategoryDefinition = { slug: 'a', name: 'A' };
 		applyCategoryArchiveFieldsFromForm(tiles, 'tiles', '3');
 		expect(tiles.archiveLayout).toBe('tiles');
 		expect(tiles.archiveColumns).toBe(3);
 
-		const list = { slug: 'b', name: 'B' };
+		const list: CategoryDefinition = { slug: 'b', name: 'B' };
 		applyCategoryArchiveFieldsFromForm(list, 'title-list', '2');
 		expect(list.archiveLayout).toBe('title-list');
 		expect(list.archiveColumns).toBeUndefined();

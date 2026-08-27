@@ -16,5 +16,6 @@ export async function listPublishLogsForPost(
 		)
 		.eq('post_id', postId)
 		.order('created_at');
-	return (data ?? []) as PublishLogWithDestination[];
+	// PostgREST zwraca embed many-to-one jako obiekt; klient bez wygenerowanych typów zgaduje tablicę.
+	return (data ?? []) as unknown as PublishLogWithDestination[];
 }

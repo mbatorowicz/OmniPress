@@ -9,6 +9,8 @@ const post = (overrides: Partial<PostForPublish> = {}): PostForPublish => ({
 	slug: null,
 	content_md: '',
 	status: 'publishing',
+	category_slug: null,
+	category_name: null,
 	...overrides,
 });
 

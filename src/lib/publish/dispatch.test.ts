@@ -9,11 +9,13 @@ const { dispatchPublish, loadDestinationForPublish, loadPostForPublish } = await
 
 const post = { id: 'post-1', site_id: 'site-1' } as PostForPublish;
 
-function destination(type: DestinationForPublish['type']): DestinationForPublish {
+// `type: string`, bo test sprawdza też wartość spoza unii (`wordpress` zniknął z enuma w bazie —
+// guard w dispatchu musi nadal odrzucać rekordy sprzed migracji).
+function destination(type: string): DestinationForPublish {
 	return {
 		id: 'dest-1',
 		name: 'Strona gminy',
-		type,
+		type: type as DestinationForPublish['type'],
 		config: { repo: 'owner/repo' },
 		encrypted_credentials: 'enc',
 		is_active: true,

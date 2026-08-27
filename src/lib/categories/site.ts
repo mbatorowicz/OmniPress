@@ -16,7 +16,7 @@ export async function loadSiteCategories(
 				.map((c) => ({
 					slug: c.slug,
 					name: c.name,
-					sources: ['github_astro'] as const,
+					sources: ['github_astro' as const],
 				}))
 				.sort((a, b) => a.name.localeCompare(b.name, 'pl')),
 			warnings: [],

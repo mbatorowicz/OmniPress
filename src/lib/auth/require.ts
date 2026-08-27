@@ -8,7 +8,9 @@ export type AuthSession = {
 };
 
 /** Wymaga sesji ustawionej w middleware (user + profile + supabase). */
-export function requireAuth(locals: App.Locals): AuthSession | null {
+export function requireAuth(
+	locals: Pick<App.Locals, 'user' | 'profile' | 'supabase'>,
+): AuthSession | null {
 	if (!locals.user || !locals.profile || !locals.supabase) return null;
 	return {
 		user: locals.user,

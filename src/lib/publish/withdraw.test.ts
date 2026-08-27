@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { expandGitHubWithdrawPaths } from './github-api';
+import { expandGitHubWithdrawPaths, type GitHubConfig } from './github-api';
 import { formatExternalGitHubPath } from './paths';
 
-const cfg = {
+const cfg: GitHubConfig = {
 	owner: 'o',
 	repo: 'r',
 	branch: 'main',
 	contentPath: 'src/content/news',
-	contentLayout: 'folder' as const,
+	contentLayout: 'folder',
+	assetPublicBase: null,
 };
 
 const blobs = [
