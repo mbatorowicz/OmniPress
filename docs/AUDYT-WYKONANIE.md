@@ -11,7 +11,7 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 1 | Punkt startu i higiena — ✅ **wykonane** | zerowe | wszystko |
 | 2 | SSOT slugów (kod) — ✅ **wykonane** | niskie | 3, 4 |
 | 3 | Dry-run migracji slugów — ✅ **wykonane** | zerowe | 4 |
-| 4 | Migracja slugów i menu | **wysokie** | — |
+| 4 | Migracja slugów i menu — ✅ **wykonane** | **wysokie** | — |
 | 5 | Domknięcie kontraktu | niskie | — |
 | 6 | Test kontraktowy i reguła | zerowe | — |
 | 7 | CI w repo B | niskie | — |
@@ -108,8 +108,8 @@ Repo A:
 
 ### Wykonano (2026-08-27)
 
-- Skrypt `scripts/migrate-slugs.mjs` + `scripts/lib/normalize-slug.mjs` (logika zsynchronizowana z `src/lib/admin/slug.ts`).
-- Uruchomienie: `npm run migrate:slugs:dry-run` (wymaga `.env.local` z `POSTGRES_URL`).
+- Skrypt `scripts/migrate-slugs.mjs` + `scripts/lib/normalize-slug.mjs` (logika zsynchronizowana z `src/lib/admin/slug.ts`) — **usunięte po podejściu 4** (narzędzie jednorazowe).
+- Uruchomienie (historycznie): `npm run migrate:slugs:dry-run` (wymagało `.env.local` z `POSTGRES_URL`).
 - Źródła: `posts` w Supabase, katalogi `src/content/news/` (repo B), `categories` i wszystkie `href` w `omnipress-layout.json`.
 - Wykrywanie kolizji slugów — skrypt kończy się błędem przy konflikcie.
 - Kategorie: migrujemy tylko slugi z polskimi znakami / bez separatorów; celowe skróty ASCII (np. `odpady`) zostają.
@@ -156,6 +156,18 @@ Brak kolizji slugów. Baza ↔ repo — te same 23 slugi katalogów.
 - Edycja i ponowna publikacja jednego zmigrowanego wpisu z panelu **nie** tworzy drugiego katalogu.
 
 **Rollback:** revert commita w B + odwrotny `UPDATE` na bazie. Oba muszą pójść razem.
+
+### Wykonano (2026-08-27)
+
+- Skrypt `scripts/migrate-slugs.mjs --apply` — **usunięty po domknięciu migracji** (2026-08-27).
+- Rollback danych: tag w repo B `pre-slug-migration-2026-08-27` + revert commita `285c314` (kopia zapasowa bazy była tymczasowa, nie utrzymywana w repo).
+- Tag w repo B: `pre-slug-migration-2026-08-27`.
+- Repo B: `git mv` 7 katalogów wpisów, aktualizacja `category` we front-matter (7), layout (kategorie, menu, usunięcie 3 martwych `/informacje/*`), 14 redirectów w `astro.config.mjs`.
+- Baza: 7× `posts.slug`, 7× `posts.category_slug`, 7× `publish_logs.external_id`, `sites.astro_layout` zsynchronizowany z plikiem.
+- Naprawiono link recent-changes „Zapraszamy do współtworzenia…” z `/informacje/…` na `/aktualnosci/…`.
+- `public/post-files/` nie wymaga ręcznego `git mv` — regeneruje je `scripts/copy-post-assets.mjs` przy buildzie.
+
+**Wynik weryfikacji:** dry-run 0 zmian · `npm run build` repo B OK · commit `285c314` wypchnięty na `origin/main` · skrypt migracji i kopie zapasowe usunięte z repo A.
 
 ---
 

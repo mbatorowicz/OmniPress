@@ -30,7 +30,6 @@
     "setup:scheduled-publish": "node scripts/apply-migration.mjs supabase/migrations/20250614000000_post_scheduled_publish.sql",
     "setup:site-pages": "node scripts/apply-migration.mjs supabase/migrations/20250615000000_site_pages.sql",
     "seed:nav-pages": "node scripts/seed-nav-pages.mjs --db-only",
-    "migrate:slugs:dry-run": "node scripts/migrate-slugs.mjs --dry-run",
     "setup:storage-import-admin": "node scripts/apply-migration.mjs supabase/migrations/20250616000000_storage_import_admin.sql",
     "setup:author-on-delete": "node scripts/apply-migration.mjs supabase/migrations/20250617000000_author_on_delete_set_null.sql",
     "setup:posts-delete-own": "node scripts/apply-migration.mjs supabase/migrations/20250618000000_posts_delete_own.sql",
