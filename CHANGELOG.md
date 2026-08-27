@@ -7,6 +7,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Dodane
 
+- **Testy modułów krytycznych** (audyt, podejście 10): sesja SSR, pipeline middleware, trasy i guardy auth, nonce CSP, guard admina, kolejka i worker publikacji, GitHub API — 238 przypadków, każdy zweryfikowany mutacyjnie. Testy integracyjne RLS (`RLS_TEST_DATABASE_URL`, opt-in) potwierdzają, że redaktor nie sięga poza przypisane strony.
 - **Załączniki XLSX i ZIP** w panelu „Pliki do pobrania” (obok GPKG): allowlista MIME + magic bytes (kontener ZIP / SQLite), limit 50 MB — `setup:storage-xlsx-zip`.
 - **Transfery GitHub (optymalizacja):** pomijanie niezmienionych assetów (porównanie Git blob SHA), sprzątanie orphanów przy republish, import po SHA, withdraw bez recursive tree całego repo, sukces publikacji po commicie GitHub (błąd weryfikacji Vercel nie wymusza ponownego uploadu). Migracja `setup:assets-content-sha`.
 - **Atomowa publikacja GitHub:** jeden commit na wpis (assety + Markdown + rejestr zmian + opcjonalnie PDF viewer / cleanup slug) — jeden deploy Vercel.
@@ -15,6 +16,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Naprawione
 
+- **Eskalacja uprawnień (produkcja, krytyczne):** trigger `profiles_guard_self_update` nie istniał w bazie mimo deklaracji w STATUS.md — redaktor mógł ustawić sobie `role = 'admin'`. Migracja `setup:profiles-guard` zastosowana; regresję pilnuje test integracyjny RLS.
+- **Sesja SSR:** ciasteczko skasowane w trakcie żądania (wylogowanie) wracało z `getAll` ze starą wartością — adapter Supabase widział nieaktualny token.
+- **API administratora bez MFA:** zwracało przekierowanie 302 na stronę HTML zamiast błędu JSON 403, przez co panel pokazywał ogólny komunikat zamiast informacji o wymaganym MFA.
+- **Ponowienia publikacji GitHub:** błędy typu `GitHub ref GET 404` / `GitHub DELETE 404` nie były rozpoznawane po statusie i trafiały do ponawiania jako przejściowe — trwałe błędy konfiguracji (zły branch, zły token) próbowały się cztery razy.
 - **Dodawanie użytkownika (produkcja):** przycisk „+ Nowy użytkownik” nie otwierał okna modalnego — CSP bez `unsafe-inline` blokowało skrypt, który Astro wstawiało inline w HTML (dotyczyło też „Testuj kanał”). Skrypty klienta zawsze trafiają do `_astro/*.js` (`vite.build.assetsInlineLimit`).
 - **Adres produkcji:** `omni-press.cncsolutions.dev` zamiast nieistniejącego `omni-press.vercel.app` (linki resetu hasła i callbacku Auth prowadziły na 404). SSOT: `APP.productionOrigin`; skrypty i testy czytają go przez `scripts/lib/app-origin.mjs`.
 - **Testy E2E:** setup logowania przechodzi challenge MFA (TOTP) — bez tego cały zestaw padał od wprowadzenia AAL2. Nowy test regresji dodawania użytkownika (`e2e/user-create.spec.ts`) sprawdza też brak naruszeń CSP.

@@ -127,13 +127,15 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub (jeden commit; listing 
 | `20250718000000_assets_content_sha.sql` | `setup:assets-content-sha` |
 | `20250827000000_posts_pinned.sql` | `setup:posts-pinned` |
 
+Tabela opisuje **zamierzony** stan bazy. `lint-docs-setup.mjs` pilnuje zgodności `package.json` ↔ ta tabela, ale nie sprawdza produkcji — w audycie P0-7 okazało się, że jedna migracja nigdy tam nie trafiła. Przy wątpliwościach: porównaj z bazą (triggery, polityki, kolumny), nie z tym dokumentem.
+
 ---
 
 ## Bezpieczeństwo
 
 | Warstwa | Status |
 |---------|--------|
-| RLS trigger `profiles` (role, default_site_id) | ✅ migracja `setup:profiles-guard` |
+| RLS trigger `profiles` (role, default_site_id) | ✅ migracja `setup:profiles-guard` — zastosowana na produkcji 2026-08-27 (audyt P0-7), pokryta testem RLS |
 | Wyłączenie public signup (Supabase) | ✅ `setup:auth-urls` |
 | MFA TOTP (admin, AAL2) | ✅ `/auth/mfa/setup`, `/auth/mfa` |
 | CSP z nonce (panel SSR) | ✅ middleware + `src/lib/security/headers.ts` |
@@ -151,10 +153,15 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub (jeden commit; listing 
 
 | Warstwa | Narzędzie | Zakres |
 |---------|-----------|--------|
-| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 75 plików testowych obok modułów (388 testów) |
+| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 88 plików testowych obok modułów (626 testów) |
+| Integracyjne RLS (opt-in) | Vitest + `pg` | `src/lib/supabase/rls.integration.test.ts` — 22 przypadki: izolacja redaktorów, dane wrażliwe, eskalacja uprawnień |
 | E2E/UI (`npm run test:e2e`) | Playwright (`e2e/`) | produkcja: strefa publiczna, nagłówki bezpieczeństwa, CSRF, auth (logowanie/wylogowanie, błędne hasło), panel admina, cykl wpisu (szkic → walidacja → zapis → usunięcie) |
 
 E2E domyślnie biegnie na produkcji (`E2E_BASE_URL` zmienia cel); dane logowania: `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD` lub lokalny `.admin-password.txt`.
+
+Testy RLS wymagają `RLS_TEST_DATABASE_URL` (`.env.local` lub zmienna środowiskowa) — bez niej `npm test` je pomija, żeby nie łączyć się z produkcją przypadkiem. Cała sesja biegnie w transakcji zakończonej `ROLLBACK`; baza zostaje bez zmian.
+
+Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase z rejestrem zapytań) i `src/lib/testing/fetch-fake.ts` (router `fetch`).
 
 ---
 
@@ -178,7 +185,6 @@ E2E domyślnie biegnie na produkcji (`E2E_BASE_URL` zmienia cel); dane logowania
 | Powiadomienia e-mail (akceptacja/odrzucenie) | — |
 | Passkeys dla admina | — |
 | Audit log akcji administratora | — |
-| Testy integracyjne RLS | — |
 | SSO redaktorów | — |
 
 ---

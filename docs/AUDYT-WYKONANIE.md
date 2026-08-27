@@ -17,7 +17,7 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 7 | CI w repo B — ✅ **wykonane** | niskie | — |
 | 8 | Dokumentacja — ✅ **wykonane** | zerowe | — |
 | 9 | i18n — ✅ **wykonane** | niskie | — |
-| 10 | Testy modułów krytycznych | zerowe | — |
+| 10 | Testy modułów krytycznych — ✅ **wykonane** | zerowe | — |
 | 11 | Refaktor struktury | średnie | — |
 | 12 | Assety poza gita | **decyzja** | — |
 
@@ -319,6 +319,42 @@ Kolejność wg ryzyka, nie wg łatwości:
 8. Testy integracyjne RLS — redaktor nie sięga poza przypisane strony. [STATUS.md](./STATUS.md) sam przyznaje, że ich nie ma.
 
 **Weryfikacja:** każdy nowy test musi paść po celowym zepsuciu modułu, który testuje. Test, który nie potrafi paść, niczego nie chroni.
+
+### Wykonano (2026-08-27)
+
+**Nowe testy — 238 przypadków w 13 plikach:**
+
+| Moduł | Plik testu | Przypadki |
+|-------|-----------|-----------|
+| `supabase/cookies.ts` | `cookies.test.ts` | 15 |
+| `middleware/pipeline.ts` | `pipeline.test.ts` | 36 |
+| `auth/routes.ts` | `routes.test.ts` | 28 |
+| `auth/session.ts` | `session.test.ts` | 10 |
+| `auth/guard-request.ts` | `guard-request.test.ts` | 11 |
+| `security/nonce.ts` | `nonce.test.ts` | 5 |
+| `admin/require-admin.ts` | `require-admin.test.ts` | 5 |
+| `publish/queue.ts` | `queue.test.ts` | 24 |
+| `publish/dispatch.ts` | `dispatch.test.ts` | 8 |
+| `publish/worker.ts` | `worker.test.ts` | 13 |
+| `publish/github-api.ts` | `github-api.{config,read,write}.test.ts` + rozszerzony `.ref` | 61 |
+| RLS (integracyjne) | `supabase/rls.integration.test.ts` | 22 |
+
+Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (chainowalny, thenable klient Supabase z rejestrem zapytań) i `src/lib/testing/fetch-fake.ts` (router `fetch` sterowany testem).
+
+**Cztery defekty wykryte przez nowe testy — wszystkie naprawione:**
+
+1. **P0-7 — brak migracji `setup:profiles-guard` na produkcji.** Trigger blokujący eskalację uprawnień nie istniał w bazie, mimo ✅ w STATUS.md. Redaktor mógł ustawić sobie `role = 'admin'`. Migracja zastosowana; test eskalacji przechodzi. Szczegóły: [AUDYT.md](./AUDYT.md) §P0-7. Pozostałe 24 migracje zweryfikowane — obecne.
+2. **`cookies.ts` — skasowane ciasteczko wracało z `getAll`.** `setAll` z pustą wartością odkładało wpis do `pending`, ale `getAll` scalał tylko wartości niepuste, więc token sprzed wylogowania nadal wygrywał w tym samym żądaniu. Dodane `merged.delete(name)`.
+3. **`pipeline.ts` — API admina bez MFA dostawało 302 zamiast 403 JSON.** Blok przekierowania HTML łapał też `/api/admin/*`, więc `fetch` w panelu dostawał stronę HTML zamiast błędu, a gałąź `api.admin.mfaRequired` była martwym kodem. Przekierowanie ograniczone do tras HTML.
+4. **`github-api.ts` — `httpStatusFromError` nie rozpoznawał części komunikatów.** Regex wyliczał czasowniki i dopuszczał tylko `POST`/`PATCH` jako drugi token, więc `GitHub ref GET 404` i `GitHub DELETE 404` dawały `null` → `retryable: true`. Trwałe błędy konfiguracji (zły branch, zły token) były ponawiane cztery razy. Dopasowanie uogólnione, plus 11 przypadków regresji w `github-api.ref.test.ts`.
+
+**Testy RLS — świadomy opt-in.** Uruchamiają się tylko z `RLS_TEST_DATABASE_URL`; bez zmiennej `npm test` je pomija (22 skipped), żeby nikt przypadkiem nie połączył się z produkcją. Cała sesja biegnie w jednej transakcji zakończonej `ROLLBACK`, a każdy przypadek ma własny `savepoint` — udana eskalacja w jednym teście nie zmienia uprawnień w następnym. Zakres: izolacja wpisów między redaktorami, wstawianie na nieprzypisanej stronie, podszywanie się pod autora, samodzielna publikacja, dostęp do `destinations` (tokeny), `profiles`, `user_sites`, `sites`, `publish_logs` oraz cztery ścieżki eskalacji uprawnień.
+
+**Weryfikacja mutacyjna.** Jednorazowy runner nałożył 24 mutacje na osiem modułów (m.in. usunięcie warunku `status = 'pending'` przy zajmowaniu logu, wpuszczenie redaktora do `/admin`, stały nonce CSP, brak odzyskiwania zawieszonych logów, powrót do starego regexu statusu). **24/24 wykryte** — każdy zepsuty moduł wywalił swój test. Narzędzie usunięte po weryfikacji.
+
+**Wynik weryfikacji:** `npm test` 626/626 (+22 RLS opt-in, zielone na produkcyjnej bazie) · `npm run lint` OK · `npm run build` OK.
+
+**Poza zakresem** (świadomie, wchodzi w podejście 11 razem z refaktorem): `github-astro.ts`, `admin/posts.ts`, `astro-layout/store.ts`, `site-pages/access.ts`.
 
 ---
 

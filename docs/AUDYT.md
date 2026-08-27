@@ -127,7 +127,17 @@ JSON layoutu jest importowany statycznie, bez Zod i bez whitelisty (`load-config
 
 [KONWENCJE.md](./KONWENCJE.md) mówi, że `components/admin/` i `components/posts/` importują tylko `ui/` i `shell/`. Realnie **około 60 plików** importuje bezpośrednio z `@/lib/` (m.in. `LayoutSlotChromePanel.astro:3-4`, `PostGalleryPanel.astro:3`, `AdminPostsTable.astro:234`). Reguła łamana sześćdziesiąt razy nie jest regułą — trzeba ją albo wymusić lintem, albo przeformułować tak, żeby opisywała rzeczywistość (np. dopuścić import typów i czystych helperów, zakazać wywołań Supabase).
 
-### P1-11 — moduły krytyczne bez testów
+### P0-7 — migracja blokady eskalacji nigdy nie trafiła na produkcję — ✅ zamknięte
+
+Wykryte przez testy integracyjne RLS z podejścia 10. Migracja `20250613000000_profiles_self_update_guard.sql` (`npm run setup:profiles-guard`) figurowała w [STATUS.md](./STATUS.md) jako zastosowana (✅ „RLS trigger `profiles`"), ale w bazie produkcyjnej **nie istniała** ani funkcja `guard_profiles_self_update`, ani trigger `profiles_guard_self_update`.
+
+Skutek: polityka `profiles_update_own` pozwala redaktorowi na `update` własnego wiersza (`using id = auth.uid()`, `with check id = auth.uid()`) i **nie ogranicza kolumn**. Trigger był jedyną blokadą zmiany `role`. Bez niego dowolny redaktor mógł jednym żądaniem REST z własnym tokenem ustawić sobie `role = 'admin'` i przejąć panel administracyjny.
+
+Test odtwarzający: `rls.integration.test.ts` → „redaktor nie nada sobie roli administratora" (przed migracją: `ok: true`, po: wyjątek `forbidden_profile_field: role`).
+
+Wniosek szerszy: tabela migracji w STATUS.md opisywała **intencję**, nie stan bazy. `lint-docs-setup.mjs` z podejścia 8 pilnuje zgodności `package.json` ↔ tabela, ale nikt nie porównywał tabeli z produkcją. Pozostałe 24 migracje zweryfikowano ręcznie — wszystkie obecne.
+
+### P1-11 — moduły krytyczne bez testów — ✅ zamknięte
 
 Około 90 modułów w `src/lib/**` nie ma pliku `*.test.ts` obok. Problem nie jest w liczbie, tylko w tym, **które** to moduły — dokładnie te, które [KONWENCJE.md](./KONWENCJE.md) oznacza jako „nie psuć bez lektury docs", i te, na których opiera się tabela bezpieczeństwa w [STATUS.md](./STATUS.md):
 
@@ -145,6 +155,8 @@ Około 90 modułów w `src/lib/**` nie ma pliku `*.test.ts` obok. Problem nie je
 | `lib/site-pages/access.ts`, `publish.ts` | Strony statyczne + RLS |
 
 [STATUS.md](./STATUS.md) oznacza CSP, sesję i guardy jako ✅. To deklaracja bez pokrycia w testach.
+
+**Zamknięte w podejściu 10** — moduły z tabeli mają testy (238 nowych przypadków), a każdy z nich zweryfikowano mutacyjnie: po celowym zepsuciu modułu jego test pada (24/24). Testy wykryły cztery realne defekty — P0-7 powyżej oraz trzy usterki kodu opisane w [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) §Podejście 10. Poza zakresem zostały `github-astro.ts`, `admin/posts.ts`, `astro-layout/store.ts` i `site-pages/*` — te wchodzą w podejście 11 razem z refaktorem.
 
 ### P1-12 — `lint-ui-classes.mjs` ma dziury w zakresie
 
@@ -314,7 +326,7 @@ Skan wykonany: ~268 wystąpień (P1-13), ponad 25 martwych kluczy (P2-5). Kolejn
 
 ### Porcja 7 — bezpieczeństwo i uprawnienia
 
-- **Testy integracyjne RLS** — [STATUS.md](./STATUS.md) sam przyznaje, że ich nie ma. Deklaracja bezpieczeństwa bez weryfikacji.
+- **Testy integracyjne RLS** — ✅ zrobione w podejściu 10 (`src/lib/supabase/rls.integration.test.ts`, 22 przypadki, opt-in przez `RLS_TEST_DATABASE_URL`). Wykryły P0-7.
 - Szyfrowanie i rotacja tokenów GitHub/Vercel (`ENCRYPTION_KEY`).
 - CSP z nonce, nagłówki HTTP, origin check, rate limit auth — weryfikacja na produkcji, nie w kodzie.
 - Walidacja uploadu po magic bytes, limity rozmiaru.

@@ -86,7 +86,8 @@ export const runMiddlewarePipeline: MiddlewareHandler = async (context, next) =>
 		return withHeaders(redirect('/dashboard'), locals);
 	}
 
-	if (user && locals.profile?.role === 'admin') {
+	// API admina odpowiada JSON-em niżej — przekierowanie HTML zwróciłoby stronę zamiast błędu.
+	if (user && locals.profile?.role === 'admin' && !isAdminApiPath(pathname)) {
 		const mfaRedirect = await enforceAdminMfa(supabase, pathname);
 		if (mfaRedirect && pathname !== mfaRedirect) {
 			return withHeaders(redirect(mfaRedirect), locals);
@@ -100,11 +101,8 @@ export const runMiddlewarePipeline: MiddlewareHandler = async (context, next) =>
 		if (locals.profile?.role !== 'admin') {
 			return withHeaders(jsonError(api.admin.forbidden, 403), locals);
 		}
-		if (locals.profile.role === 'admin') {
-			const mfaRedirect = await enforceAdminMfa(supabase, pathname);
-			if (mfaRedirect) {
-				return withHeaders(jsonError(api.admin.mfaRequired, 403), locals);
-			}
+		if (await enforceAdminMfa(supabase, pathname)) {
+			return withHeaders(jsonError(api.admin.mfaRequired, 403), locals);
 		}
 	}
 

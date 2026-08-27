@@ -48,7 +48,9 @@ export function createSupabaseCookieAdapter(cookies: AstroCookies, request: Requ
 				merged.set(c.name, c.value);
 			}
 			for (const [name, entry] of pending) {
+				// Pusta wartość = kasowanie; bez delete getAll oddałoby token sprzed wylogowania.
 				if (entry.value) merged.set(name, entry.value);
+				else merged.delete(name);
 			}
 			return Array.from(merged, ([name, value]) => ({ name, value }));
 		},

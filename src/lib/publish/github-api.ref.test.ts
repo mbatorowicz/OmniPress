@@ -24,6 +24,14 @@ describe('GitHub conflict / retry helpers', () => {
 		expect(isGitHubRetryable(409)).toBe(true);
 	});
 
+	it.each([429, 403, 500, 503])('%i jest retryable', (status) => {
+		expect(isGitHubRetryable(status)).toBe(true);
+	});
+
+	it.each([400, 401, 404, 422])('%i nie jest retryable', (status) => {
+		expect(isGitHubRetryable(status)).toBe(false);
+	});
+
 	it('parsuje status z komunikatu PUT 409', () => {
 		expect(
 			httpStatusFromError(
@@ -31,4 +39,24 @@ describe('GitHub conflict / retry helpers', () => {
 			),
 		).toBe(409);
 	});
+
+	it.each([
+		['GitHub GET 502: bad gateway', 502],
+		['GitHub DELETE 404: not found', 404],
+		['GitHub blob 500: server error', 500],
+		['GitHub tree 422: unprocessable', 422],
+		['GitHub commit POST 409: conflict', 409],
+		['GitHub ref GET 403: rate limit', 403],
+		['GitHub ref PATCH 409: fast-forward', 409],
+		['GitHub contents dir 401: bad credentials', 401],
+	])('rozpoznaje status w komunikacie %s', (message, status) => {
+		expect(httpStatusFromError(message)).toBe(status);
+	});
+
+	it.each(['GitHub PUT: konflikt SHA', 'putGitHubFilesBatch: brak plików', 'ECONNRESET'])(
+		'zwraca null dla komunikatu bez statusu: %s',
+		(message) => {
+			expect(httpStatusFromError(message)).toBeNull();
+		},
+	);
 });

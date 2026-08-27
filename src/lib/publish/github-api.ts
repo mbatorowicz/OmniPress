@@ -580,10 +580,9 @@ export function isGitHubRetryable(status: number): boolean {
 	return status >= 500 || status === 429 || status === 403 || status === 409;
 }
 
+/** Status z komunikatu `GitHub <operacja> <kod>: …` — lista operacji rośnie, więc dopasowanie jest ogólne. */
 export function httpStatusFromError(message: string): number | null {
-	const m = message.match(
-		/GitHub (?:GET|PUT|blob|tree|commit|ref|contents dir)(?:\sPOST|\sPATCH)? (\d+)/i,
-	);
+	const m = message.match(/GitHub (?:[A-Za-z]+ )+(\d{3}):/i);
 	return m ? Number(m[1]) : null;
 }
 
