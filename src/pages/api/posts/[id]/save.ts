@@ -1,10 +1,10 @@
 import type { APIRoute } from 'astro';
 import { guardAuthRedirect, isGuardBlocked, redirectPostError } from '@/lib/api';
+import { normalizeSlug } from '@/lib/admin/slug';
 import {
 	loadEditablePost,
 	resolvePostCategoryFields,
 	resolveUniquePostSlug,
-	slugFromTitle,
 	parseAssetDisplayModes,
 	parseDocxOrder,
 	parseFileOrder,
@@ -32,7 +32,8 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const title = String(form.get('title') ?? '').trim();
 	const content_md = sanitizeStorageMarkdown(String(form.get('content_md') ?? ''));
 	const slugInput = String(form.get('slug') ?? '').trim();
-	const baseSlug = slugInput || (title ? slugFromTitle(title) : post.slug);
+	const rawSlug = slugInput || (title ? normalizeSlug(title) : post.slug ?? '');
+	const baseSlug = rawSlug ? normalizeSlug(rawSlug) : '';
 	const slug = baseSlug
 		? await resolveUniquePostSlug(supabase, post.site_id, baseSlug, postId)
 		: null;

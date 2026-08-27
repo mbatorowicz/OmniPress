@@ -24,6 +24,7 @@ import {
 } from './zones';
 import { applyCategoryArchiveFieldsFromForm } from './category-archive';
 import { classifyRegistryGroup } from '@/lib/admin/component-registry';
+import { normalizeSlug } from '@/lib/admin/slug';
 import { UNIT_COMPONENT_ZONES } from '@/lib/admin/layout-editor-tabs';
 import type {
 	CategoryDefinition,
@@ -432,7 +433,7 @@ function parseCategoriesFromForm(form: FormData): CategoryDefinition[] {
 	const categories: CategoryDefinition[] = [];
 
 	for (let i = 0; i < slugs.length; i++) {
-		const slug = slugs[i];
+		const slug = normalizeSlug(slugs[i]);
 		const name = names[i] ?? '';
 		if (!slug || !name) continue;
 		const item: CategoryDefinition = { slug, name };

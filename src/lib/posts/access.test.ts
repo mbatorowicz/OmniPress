@@ -4,7 +4,6 @@ import {
 	canEditPost,
 	canSubmitPost,
 	canViewPostAssets,
-	slugFromTitle,
 	type PostRow,
 } from './access';
 
@@ -21,17 +20,6 @@ const draftPost = (overrides: Partial<PostRow> = {}): PostRow => ({
 	category_name: null,
 	scheduled_publish_at: null,
 	...overrides,
-});
-
-describe('slugFromTitle', () => {
-	it('normalizuje polskie znaki', () => {
-		expect(slugFromTitle('Święto Narodowe')).toBe('swieto-narodowe');
-	});
-
-	it('obcina do 80 znaków', () => {
-		const long = 'a'.repeat(100);
-		expect(slugFromTitle(long).length).toBe(80);
-	});
 });
 
 describe('canEditPost', () => {

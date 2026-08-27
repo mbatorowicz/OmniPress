@@ -1,6 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { isValidSlug, normalizeSlug } from '@/lib/admin/slug';
-import { slugFromTitle } from '@/lib/posts';
 import { isValidPathPrefix, normalizePathPrefix, buildSitePagePublicPath } from './url';
 import type { SitePage } from './types';
 
@@ -72,7 +71,8 @@ export function resolveSitePageFields(
 	fallbackSlug: string | null,
 ): { ok: true; fields: SitePageFields } | { ok: false; error: string } {
 	const trimmedTitle = title.trim();
-	const slug = slugInput.trim() || (trimmedTitle ? slugFromTitle(trimmedTitle) : fallbackSlug ?? '');
+	const rawSlug = slugInput.trim() || (trimmedTitle ? normalizeSlug(trimmedTitle) : fallbackSlug ?? '');
+	const slug = normalizeSlug(rawSlug);
 	const path_prefix = normalizePathPrefix(pathPrefixInput);
 
 	if (!trimmedTitle) return { ok: false, error: 'title_required' };

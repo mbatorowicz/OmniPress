@@ -9,8 +9,8 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | # | Podejście | Ryzyko | Blokuje |
 |---|-----------|--------|---------|
 | 1 | Punkt startu i higiena — ✅ **wykonane** | zerowe | wszystko |
-| 2 | SSOT slugów (kod) | niskie | 3, 4 |
-| 3 | Dry-run migracji slugów | zerowe | 4 |
+| 2 | SSOT slugów (kod) — ✅ **wykonane** | niskie | 3, 4 |
+| 3 | Dry-run migracji slugów — ✅ **wykonane** | zerowe | 4 |
 | 4 | Migracja slugów i menu | **wysokie** | — |
 | 5 | Domknięcie kontraktu | niskie | — |
 | 6 | Test kontraktowy i reguła | zerowe | — |
@@ -78,6 +78,16 @@ Repo A:
 
 **Uwaga:** po tym podejściu nowe wpisy mają poprawne slugi, stare wciąż zepsute. Stan przejściowy jest zamierzony.
 
+### Wykonano (2026-08-27)
+
+- `normalizeSlug` — jawna mapa transliteracji (`ł`, `đ`, `ø`, `æ`, `ß`) przed `normalize('NFD')`.
+- Usunięto `slugFromTitle`; wywołania w `save.ts` i `site-pages/access.ts` idą przez `normalizeSlug`.
+- Slug kategorii normalizowany po stronie serwera w `parse-form.ts`.
+- Slug stron statycznych — `normalizeSlug` na każdym wejściu w `resolveSitePageFields`.
+- Testy: 18 przypadków polskich znaków + regresja na realnych tytułach (`slug.test.ts`).
+
+**Wynik weryfikacji:** `npm test` 374/374, `npm run lint` OK, `npm run build` OK.
+
 ---
 
 ## Podejście 3 — dry-run migracji slugów
@@ -95,6 +105,29 @@ Repo A:
 **Oczekiwany zakres** (do potwierdzenia przez skrypt): 7 wpisów z 23, 2 kategorie z 4, pole `category` w 6 wpisach, ~10 z 57 pozycji menu, 7 rekordów w bazie.
 
 **Weryfikacja:** ręczny przegląd raportu. Nic nie zostało zmienione.
+
+### Wykonano (2026-08-27)
+
+- Skrypt `scripts/migrate-slugs.mjs` + `scripts/lib/normalize-slug.mjs` (logika zsynchronizowana z `src/lib/admin/slug.ts`).
+- Uruchomienie: `npm run migrate:slugs:dry-run` (wymaga `.env.local` z `POSTGRES_URL`).
+- Źródła: `posts` w Supabase, katalogi `src/content/news/` (repo B), `categories` i wszystkie `href` w `omnipress-layout.json`.
+- Wykrywanie kolizji slugów — skrypt kończy się błędem przy konflikcie.
+- Kategorie: migrujemy tylko slugi z polskimi znakami / bez separatorów; celowe skróty ASCII (np. `odpady`) zostają.
+- Generuje blok `redirects` do wklejenia w `astro.config.mjs` repo B.
+
+**Wynik dry-run (produkcja, 2026-08-27):**
+
+| Obiekt | Audyt | Skrypt |
+|--------|-------|--------|
+| Wpisy (repo + baza) | 7 | 7 |
+| Kategorie layoutu | 2 | 2 |
+| Pole `category` we front-matter | 6 | 7 (6× plan ogólny + 1× zarządzenia) |
+| `href` w layoutcie | ~10 | 12 (nawigacja + recent changes) |
+| Przekierowania 301 | — | 13 |
+
+Dodatkowo: 3 martwe linki `/informacje/*` (P0-6) — poza migracją slugów, do usunięcia w podejściu 4.
+
+Brak kolizji slugów. Baza ↔ repo — te same 23 slugi katalogów.
 
 ---
 

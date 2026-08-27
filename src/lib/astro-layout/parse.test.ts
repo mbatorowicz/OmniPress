@@ -298,6 +298,7 @@ describe('parseLayoutFromFormData', () => {
 		expect(result.layout.categories[0]?.archiveLayout).toBeUndefined();
 		expect(result.layout.categories[1]?.archiveLayout).toBe('title-list');
 		expect(result.layout.categories[1]?.archiveColumns).toBeUndefined();
+		expect(result.layout.categories[1]?.slug).toBe('zarzadzenia');
 	});
 });
 

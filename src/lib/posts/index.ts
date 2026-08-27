@@ -6,7 +6,6 @@ export {
 	getPostById,
 	loadEditablePost,
 	loadSubmittablePost,
-	slugFromTitle,
 	type PostRow,
 } from './access';
 export { deleteOwnPost } from './delete-own';
