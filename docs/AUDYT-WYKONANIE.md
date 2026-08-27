@@ -209,6 +209,15 @@ Brak kolizji slugów. Baza ↔ repo — te same 23 slugi katalogów.
 
 **Weryfikacja:** celowe zepsucie kontraktu (np. dopisanie nieznanego `component`) wywala test.
 
+### Wykonano (2026-08-27)
+
+- **Schemat layoutu:** `layout-file-schema.ts` (Zod `.strict()` na root) + `layout-contract.test.ts` — walidacja wyjścia `buildLayoutFilePayload` i whitelisty `LAYOUT_COMPONENT_IDS`; odrzuca legacy `slots`/`weather` w root.
+- **Schemat front-matter:** `news-frontmatter-schema.ts` + `frontmatter-contract.test.ts` — lustrzane odbicie `content.config.ts` repo B z `.strict()` (łapie dryf, którego runtime Astro nie wychwyci).
+- **Reguła P1-8:** `astro-repo-compat.mdc` — klucz `zones`, sekcja legacy fallbacków P2-6.
+- **Repo B P2-6:** komentarze `@legacy` przy `slots`, `weather`, `site.meta.url` w `load-config.ts` (fallback celowy, bez usuwania).
+
+**Wynik weryfikacji:** `npm test` 388/388 · `npm run build` OK.
+
 ---
 
 ## Podejście 7 — CI w repo B

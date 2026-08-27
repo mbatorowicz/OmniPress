@@ -11,7 +11,7 @@ OmniPress **pisze** do repo strony; Astro **czyta**. Każda zmiana formatu, ści
 
 | Plik | Format | SSOT parsera w OmniPress |
 |------|--------|--------------------------|
-| `src/config/omnipress-layout.json` | `{ categories, displays, slots }` — sloty chrome, menu, feedy, wpisy recent changes w `entries` | `parseLayoutFile`, `buildLayoutFilePayload` |
+| `src/config/omnipress-layout.json` | `{ categories, displays, zones }` — strefy chrome/menu/feedy; wpisy recent changes w `zones.sidebar.components[].entries` slota `sidebar.recent_changes` | `parseLayoutFile`, `buildLayoutFilePayload`, schemat: `layout-file-schema.ts` |
 | Wpisy | `src/content/news/` (`folder`: `slug/index.md`) | `lib/publish/github-astro.ts` |
 | Strony statyczne | `src/content/pages/` | `lib/site-pages/` |
 
@@ -32,17 +32,25 @@ OmniPress publikuje przez GitHub API **prosto do origin**, z pominięciem kopii 
 3. **Publikacja layoutu** — model szkic + publikacja na żądanie:
    - **Zapisz szkic** → tylko Supabase (`sites.astro_layout`).
    - **Opublikuj na stronie** → jeden commit pliku `omnipress-layout.json`.
-   - Ogłoszenia recent changes dopisywane do `slots[].entries` slota `sidebar.recent_changes` (panel layoutu lub auto przy publikacji layoutu).
+   - Ogłoszenia recent changes dopisywane do `entries` komponentu `sidebar.recent_changes` w `zones.sidebar` (panel layoutu lub auto przy publikacji layoutu).
    - Vercel: webhook po pushu na GitHub (bez czekania w panelu).
 4. **Nowe pola widgetów** — symetria parse JSON ↔ parse FormData w `parse.ts` / `parse-form.ts`; test w `parse.test.ts`.
 5. **Live API** (pogoda, CERT) — OmniPress tylko konfiguruje slot; endpointy (`/api/weather/warnings`, `/api/cert/advisories`) są w repo Astro.
 
 ## Checklist przed merge
 
-- [ ] `npm test` — szczególnie `parse.test.ts`, `navigation-form.test.ts`, `layout-sync-meta.test.ts`, `components.test.ts`, `import-layout.test.ts`
+- [ ] `npm test` — szczególnie `layout-contract.test.ts`, `frontmatter-contract.test.ts`, `parse.test.ts`, `navigation-form.test.ts`, `layout-sync-meta.test.ts`, `components.test.ts`, `import-layout.test.ts`
 - [ ] `npm run build`
 - [ ] Jeśli kontrakt się zmienił: commit w **obu** repo + wpis w CHANGELOG obu projektów
 - [ ] Produkcja: `layout_path` w destynacji zgodne z plikiem w repo Astro
+
+## Legacy fallbacki w repo Astro (P2-6)
+
+OmniPress publikuje wyłącznie `zones`. Repo Astro czyta dodatkowo (celowy fallback, nie usuwać bez migracji starych plików):
+
+- **`slots`** — płaska tablica sprzed `zones_v2` (`load-config.ts` → `readAllSlots`)
+- **`weather`** — root sprzed konfiguracji w widgecie `sidebar.weather` (`getWeatherConfig` → `weather-config.ts`)
+- **`site.meta.url`** — zapisywane przez OmniPress; repo Astro używa `name`/`description` w SEO, `url` na razie rezerwowane
 
 ## Repo referencyjne
 
