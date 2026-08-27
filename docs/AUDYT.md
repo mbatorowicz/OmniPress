@@ -79,6 +79,8 @@ Menu w `omnipress-layout.json` zawiera pozycje `/informacje/aktywizacja-zawodowa
 
 W momencie audytu lokalne `main` było **14 commitów** za `origin/main`. OmniPress publikuje przez GitHub API prosto do origin, więc lokalna kopia nigdy się nie dogania sama. Każda praca w tym repo startuje z nieaktualnego stanu — to problem systemowy, nie jednorazowy.
 
+Podejście 1 zsynchronizowało repo i zapisało regułę w [astro-repo-compat](../.cursor/rules/astro-repo-compat.mdc): źródłem prawdy o stanie strony jest `origin/main`, każda praca w repo B zaczyna się od `git pull`.
+
 ### P1-2 — repo Astro bez CI i bez wymuszonej jakości
 
 Brak workflow, brak ESLint, `astro check` nieuruchamiany mimo obecnej zależności. `npm test` to ręcznie wpisana lista czterech plików — nowy test nie uruchomi się, dopóki ktoś nie dopisze go do `package.json`.
@@ -87,17 +89,21 @@ Brak workflow, brak ESLint, `astro check` nieuruchamiany mimo obecnej zależnoś
 
 Repo Astro: 66 MB (28 MB spakowane), w tym dwa PDF-y po ~31 MB. Każda wersja załącznika zostaje w historii na zawsze; przyrost jest liniowy względem liczby publikacji.
 
-### P1-4 — śmieci i luki w `.gitignore` repo Astro
+### P1-4 — śmieci i luki w `.gitignore` repo Astro — ✅ zamknięte
 
 Śledzone w gicie: `dump.txt`, `error.log`, `out.txt`, `zips.txt`, `Importuj_Paczki.bat`, `archived_packages/*.zip` (9 plików). `.gitignore` ignoruje tylko `.env` i `.env.production` — `.env.local` **nie jest** ignorowany (OmniPress ignoruje `.env*`).
+
+Zamknięte w podejściu 1. `Importuj_Paczki.bat` nie był śmieciem, tylko wejściem do martwego już flow importu paczek — usunięty razem ze `scripts/import-packages.mjs` i dokumentacją, którą opisywał. Szczegóły: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md#podejście-1--punkt-startu-i-higiena).
 
 ### P1-5 — rozjazd wersji i metadanych
 
 | | OmniPress | repo Astro |
 |---|---|---|
-| `name` | `omnipress` | `extra-earth` (nazwa z szablonu) |
+| `name` | `omnipress` | ~~`extra-earth`~~ → `gmina-miedzna` (podejście 1) |
 | `version` | `0.10.0` | `0.0.4` |
 | `astro` | `^6.4.3` | `^6.1.4` |
+
+Zostaje rozjazd wersji Astro i strategii wersjonowania.
 
 ### P1-6 — schemat treści nie wykrywa dryfu
 
@@ -189,9 +195,11 @@ Najbardziej rażące: `ChannelTestButton.astro:57,61` — `'Błąd testu'`, `'B�
 | Astro | `src/config/load-config.ts` | 423 |
 | Astro | `src/components/WeatherWidget.astro` | 385 |
 
-### P2-4 — pliki robocze w OmniPress
+### P2-4 — pliki robocze w OmniPress — ✅ zamknięte
 
 Pięć nieśledzonych skryptów: `scripts/tmp-probe-users.mjs`, `tmp-probe-create-user.mjs`, `tmp-e2e-create-user.mjs`, `tmp-e2e-create-user2.mjs`, `tmp-e2e-create-user3.mjs` — żaden nie jest w `.gitignore`, więc czekają, aż ktoś zrobi `git add .`. Do tego zmodyfikowany artefakt buildu `public/omnipress/pdf-viewer.js`. `.admin-password.txt` jest poprawnie ignorowany.
+
+Zamknięte w podejściu 1: `scripts/tmp-*` trafiło do `.gitignore`. `pdf-viewer.js` **musi** zostać w gicie — czyta go runtime publikacji, a build jest deterministyczny, więc nie generuje diffu.
 
 ### P2-5 — martwe klucze i18n
 

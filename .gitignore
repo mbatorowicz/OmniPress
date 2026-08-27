@@ -12,9 +12,7 @@ yarn-error.log*
 pnpm-debug.log*
 
 # environment variables
-.env
-.env.production
-.env.*
+.env*
 !.env.example
 
 # Lokalne hasło bootstrap (generowane przez scripts/set-admin-password.mjs)
@@ -26,9 +24,11 @@ pnpm-debug.log*
 
 # Vercel
 .vercel
-.env*
 
 # Playwright (E2E)
 e2e/.auth/
 test-results/
 playwright-report/
+
+# Skrypty jednorazowe (diagnostyka, probe) — nie trafiają do repo
+scripts/tmp-*

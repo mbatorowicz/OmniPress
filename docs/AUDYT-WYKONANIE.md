@@ -8,7 +8,7 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 
 | # | Podejście | Ryzyko | Blokuje |
 |---|-----------|--------|---------|
-| 1 | Punkt startu i higiena | zerowe | wszystko |
+| 1 | Punkt startu i higiena — ✅ **wykonane** | zerowe | wszystko |
 | 2 | SSOT slugów (kod) | niskie | 3, 4 |
 | 3 | Dry-run migracji slugów | zerowe | 4 |
 | 4 | Migracja slugów i menu | **wysokie** | — |
@@ -39,6 +39,25 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 **Weryfikacja:** `git status` czysty w obu repo; `npm run build` przechodzi w B.
 
 **Commit:** dwa osobne, po jednym na repo.
+
+### Wykonano (2026-08-27)
+
+Repo B — commit `950462c`, wypchnięty na `origin/main`:
+
+- `git pull` domknął 14 zaległych commitów.
+- Usunięto **cały martwy flow importu paczek**, nie tylko wskazane w P1-4 pliki. `Importuj_Paczki.bat` okazał się nie śmieciem, lecz udokumentowanym narzędziem publikacji (`docs/USER_MANUAL.md` → `scripts/import-packages.mjs` → `git add .` + push). Flow zastąpiony panelem OmniPress, a ostrzeżenia IMGW idą dziś na żywo z `/api/weather/warnings` — decyzja użytkownika: usunąć. Poszły z nim `scripts/import-packages.mjs` oraz osierocone zależności `adm-zip` i `slugify`.
+- `docs/USER_MANUAL.md` przepisany na publikację z panelu; poprawione zdanie o pakietach ZIP w `docs/ADMIN_MANUAL.md`.
+- Śmieci ze śledzenia: `dump.txt`, `error.log`, `out.txt`, `zips.txt`, `archived_packages/*.zip` (9 plików, zostają na dysku).
+- `.gitignore`: `.env*`, `*.log`, `archived_packages/` i pliki robocze.
+- `package.json`: `name` → `gmina-miedzna`.
+
+Repo A:
+
+- `scripts/tmp-*` w `.gitignore` — pliki zostają na dysku, ale `git add .` ich nie zgarnie.
+- Sekcja env w `.gitignore` scalona: były trzy nakładające się reguły (`.env.production`, `.env.*`, `.env*`), z czego ostatnia stała **po** wyjątku `!.env.example`.
+- **`public/omnipress/pdf-viewer.js` zostaje w gicie.** Wbrew hipotezie z kroku 6 to nie jest artefakt do zignorowania: `lib/publish/github-pdf-viewer.ts:15-23` czyta go z dysku w runtime publikacji i dołącza do commita w repo B, a `ensureLocalPdfViewerBuilt` nie ma jak zadziałać na Vercelu (read-only FS, brak esbuild w runtime). Build sprawdzony jako deterministyczny — ponowne `npm run build:pdf-viewer` nie generuje diffu, więc plik nie brudzi drzewa.
+
+**Wynik weryfikacji:** repo B — `npm test` 21/21, `npm run build` OK. Repo A — `npm run lint` czysty, `npm test` 356/356, `npm run build` OK.
 
 ---
 

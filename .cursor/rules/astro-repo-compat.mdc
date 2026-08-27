@@ -19,6 +19,12 @@ OmniPress **pisze** do repo strony; Astro **czyta**. Każda zmiana formatu, ści
 
 Domyślna ścieżka layoutu: `src/config/omnipress-layout.json` (`DEFAULT_LAYOUT_PATH` w `types.ts`). Nadpisanie: destynacja (`layout_path`).
 
+## Stan repo B — źródłem prawdy jest `origin/main`
+
+OmniPress publikuje przez GitHub API **prosto do origin**, z pominięciem kopii lokalnej. Lokalne `main` nigdy nie dogania się samo (w audycie było 14 commitów w tyle).
+
+**Każda praca w repo B zaczyna się od `git pull`.** Analiza stanu strony bez pulla opisuje nieaktualną rzeczywistość.
+
 ## Zasady przy zmianach
 
 1. **Nie zmieniaj formatu JSON** bez aktualizacji czytnika w repo Astro (i odwrotnie).
