@@ -9,7 +9,6 @@
 		"src/lib/admin/layout-slot-summary.ts": 1,
 		"src/lib/admin/layout-slots-sections.ts": 3,
 		"src/lib/admin/link-options.ts": 1,
-		"src/lib/admin/navigation-form-client.ts": 9,
 		"src/lib/admin/slug.ts": 2,
 		"src/lib/astro-layout/migrate-layout.ts": 10,
 		"src/lib/astro-layout/parse.ts": 3,
