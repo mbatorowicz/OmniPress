@@ -15,6 +15,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Naprawione
 
+- **Dodawanie użytkownika (produkcja):** przycisk „+ Nowy użytkownik” nie otwierał okna modalnego — CSP bez `unsafe-inline` blokowało skrypt, który Astro wstawiało inline w HTML (dotyczyło też „Testuj kanał”). Skrypty klienta zawsze trafiają do `_astro/*.js` (`vite.build.assetsInlineLimit`).
 - Withdraw strony statycznej: poprawne wywołanie `deleteGitHubFile` (wcześniej SHA trafiało do message).
 - **MFA TOTP** dla administratora (Supabase Auth): enrollment `/auth/mfa/setup`, challenge `/auth/mfa`, wymuszenie AAL2 w middleware.
 - **CSP z nonce** per żądanie (bez `unsafe-inline` dla skryptów); `style-src 'unsafe-inline'` dla TipTap.

@@ -8,6 +8,7 @@ import {
 	getPackageVersion,
 	getVersionLabel,
 } from './scripts/lib/git-info.mjs';
+import { assetsInlineLimit } from './scripts/lib/build-inline.mjs';
 
 const appVersion = getPackageVersion();
 const appCommit = getGitCommitShort();
@@ -19,6 +20,7 @@ export default defineConfig({
 	adapter: vercel(),
 	vite: {
 		plugins: [tailwindcss()],
+		build: { assetsInlineLimit },
 		resolve: {
 			alias: {
 				'@': fileURLToPath(new URL('./src', import.meta.url)),

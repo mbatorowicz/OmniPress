@@ -73,6 +73,17 @@ src/
 - Importy wyłącznie przez alias `@/`.
 - Wyjątki: siatki flex/grid, edytor TipTap (`rich-editor`, `tiptap`), galeria, podgląd slotów (`layout-slots-preview.css`) — klasy strukturalne; kolory tylko przez tokeny/`ui-*`.
 
-## 8. Agent AI
+## 8. Skrypty klienta i CSP
+
+CSP panelu (`src/lib/security/headers.ts`) nie zawiera `unsafe-inline`. Dozwolone są tylko dwie formy:
+
+| Forma | Kiedy | Wymóg |
+|-------|-------|-------|
+| `<script>` (bundlowany przez Astro) | domyślnie | trafia do `_astro/*.js` — nonce niemożliwy i niepotrzebny |
+| `<script is:inline>` / `define:vars` | przekazanie danych z SSR do klienta | **musi** mieć `nonce={Astro.locals.cspNonce}` |
+
+Astro domyślnie wstawia **małe** bundlowane skrypty wprost do HTML (`inlinedScripts` w manifeście) — taki tag nie ma nonce i przeglądarka go blokuje (objaw: przycisk nic nie robi, tylko w produkcji). Blokuje to `vite.build.assetsInlineLimit` w `astro.config.mjs` (`scripts/lib/build-inline.mjs`, test `src/lib/security/build-inline.test.ts`). **Nie zmieniaj tej opcji** bez sprawdzenia w buildzie, że `_astro/` zawiera plik `*.astro_astro_type_script_*.js` dla każdego komponentu z `<script>`.
+
+## 9. Agent AI
 
 Proces i odpowiedzialność: [ROLE_AGENT.md](./ROLE_AGENT.md). PRD docelowy: [PRD.md](../PRD.md). Stan kodu: [STATUS.md](./STATUS.md).
