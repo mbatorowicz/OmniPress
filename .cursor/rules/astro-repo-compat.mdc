@@ -19,6 +19,8 @@ OmniPress **pisze** do repo strony; Astro **czyta**. Każda zmiana formatu, ści
 
 Domyślna ścieżka layoutu: `src/config/omnipress-layout.json` (`DEFAULT_LAYOUT_PATH` w `types.ts`). Nadpisanie: destynacja (`layout_path`).
 
+**Czytnik w repo Astro** (od 2026-08-27 rozbity, `load-config.ts` to barrel): typy w `config/layout-types.ts`, odczyt pliku i strefy w `config/layout-payload.ts`, nazwane sloty w `config/layout-slots.ts`, kategorie w `config/categories.ts`. Zmiana pola JSON = zmiana w `layout-types.ts` + odpowiednim czytniku.
+
 ## Stan repo B — źródłem prawdy jest `origin/main`
 
 OmniPress publikuje przez GitHub API **prosto do origin**, z pominięciem kopii lokalnej. Lokalne `main` nigdy nie dogania się samo (w audycie było 14 commitów w tyle).
@@ -48,8 +50,8 @@ OmniPress publikuje przez GitHub API **prosto do origin**, z pominięciem kopii 
 
 OmniPress publikuje wyłącznie `zones`. Repo Astro czyta dodatkowo (celowy fallback, nie usuwać bez migracji starych plików):
 
-- **`slots`** — płaska tablica sprzed `zones_v2` (`load-config.ts` → `readAllSlots`)
-- **`weather`** — root sprzed konfiguracji w widgecie `sidebar.weather` (`getWeatherConfig` → `weather-config.ts`)
+- **`slots`** — płaska tablica sprzed `zones_v2` (`config/layout-payload.ts` → `readAllSlots`)
+- **`weather`** — root sprzed konfiguracji w widgecie `sidebar.weather` (`config/layout-slots.ts` → `getWeatherConfig` → `weather-config.ts`)
 - **`site.meta.url`** — zapisywane przez OmniPress; repo Astro używa `name`/`description` w SEO, `url` na razie rezerwowane
 
 ## Repo referencyjne

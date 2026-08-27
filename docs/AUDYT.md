@@ -223,11 +223,11 @@ Zamknięte w podejściu 11: `lib/editor/attachment-panel.ts` (wspólny cykl) + `
 | OmniPress | `src/i18n/pl/admin-panels.ts` | 692 | 12 (barrel) |
 | OmniPress | `src/lib/astro-layout/parse-form.ts` | 659 | 170 |
 | OmniPress | `src/lib/admin/layout-slots-sections.ts` | 497 | — |
-| Astro | `src/components/Navigation.astro` | 428 | — |
-| Astro | `src/config/load-config.ts` | 423 | — |
-| Astro | `src/components/WeatherWidget.astro` | 385 | — |
+| Astro | `src/components/Navigation.astro` | 428 | 55 |
+| Astro | `src/config/load-config.ts` | 423 | 21 (barrel) |
+| Astro | `src/components/WeatherWidget.astro` | 385 | 47 |
 
-Limit egzekwuje `scripts/lint-file-size.mjs` (podejście 11). Pozostałe 18 plików ma jawny wpis w `scripts/file-size-exceptions.json` — każdy z własnym limitem, więc nie mogą rosnąć dalej; 16 z nich to dług oznaczony `DŁUG P2-3`.
+Limit egzekwuje `scripts/lint-file-size.mjs` — w obu repo (podejście 11). Każdy plik ponad limit ma jawny wpis w `scripts/file-size-exceptions.json` z własnym limitem, więc nie może rosnąć dalej: 18 wyjątków w OmniPress (16 to dług `DŁUG P2-3`) i 8 w repo Astro (5 długu, 3 arkusze CSS z uzasadnieniem). W repo Astro zakres skryptu obejmuje też `.css`, bo styl komponentów wyniesiono do arkuszy globalnych.
 
 ### P2-4 — pliki robocze w OmniPress — ✅ zamknięte
 

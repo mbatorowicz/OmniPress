@@ -18,7 +18,7 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 8 | Dokumentacja — ✅ **wykonane** | zerowe | — |
 | 9 | i18n — ✅ **wykonane** | niskie | — |
 | 10 | Testy modułów krytycznych — ✅ **wykonane** | zerowe | — |
-| 11 | Refaktor struktury — ✅ **wykonane** (repo A; zostaje krok 5 w repo B) | średnie | — |
+| 11 | Refaktor struktury — ✅ **wykonane** (repo A + repo B) | średnie | — |
 | 12 | Assety poza gita | **decyzja** | — |
 | 13 | Typecheck w pipeline — ✅ **wykonane** | niskie | — |
 
@@ -408,7 +408,33 @@ Przy `github-api.ts` trzy niemal identyczne pętle „tree → commit → PATCH 
 
 **Wynik weryfikacji:** `npm test` 638/638 (+22 RLS opt-in) · `npm run lint` OK · `npm run build` OK.
 
-**Pozostaje:** krok 5 (repo B — `Navigation.astro`, `load-config.ts`, `WeatherWidget.astro`) oraz 16 wpisów `DŁUG P2-3` na liście wyjątków.
+### Wykonano (2026-08-27) — repo B, krok 5
+
+**Trzy pliki z tabeli P2-3 zeszły poniżej limitu:**
+
+| Plik | Przed | Po | Rozbity na |
+|------|------:|---:|-----------|
+| `config/load-config.ts` | 428 | 21 (barrel) | `layout-types`, `layout-payload`, `layout-slots`, `categories` + czyste: `nav-dropdown`, `category-archive`, `banner`, `home-slots`, `recent-changes` |
+| `components/Navigation.astro` | 428 | 55 | `nav/NavDropdown.astro`, `lib/navigation/nav-menu-client.ts`, `styles/navigation.css` |
+| `components/WeatherWidget.astro` | 385 | 47 | `styles/weather-widget.css` |
+
+**Granica podziału `load-config.ts`: czysta logika ↔ odczyt JSON.** Moduły `nav-dropdown`, `banner`, `category-archive`, `home-slots`, `recent-changes` nie importują `omnipress-layout.json`, więc dają się uruchomić w `node --test` bez bundlera — stąd **39 nowych testów** (21 → 60). Wcześniej ta logika była nietestowalna, bo jeden plik mieszał typy, predykaty i odczyt pliku.
+
+**CSS wyniesiony do arkuszy, nie schowany.** `weather-widget.css` był już `<style is:global>` — treść widgetu wstrzykuje `weather-client.ts`, więc scoped style Astro jej nie obejmują; arkusz to jego właściwe miejsce. `navigation.css` musi być globalny, bo obejmuje markup dwóch komponentów (`Navigation` + `NavDropdown`). Oba arkusze mają jawny wpis na liście wyjątków rozmiaru — limit w repo B liczy też `.css`, żeby przeniesienie nie było ucieczką przed licznikiem.
+
+**Skrypt menu: `is:inline` → bundlowany moduł.** `nav-menu-client.ts` jest typowany (`astro check` go widzi) i idempotentny (`data-nav-mounted`). Zniknął `DOMContentLoaded` — moduł `type="module"` jest odroczony i renderowany za markupem, co potwierdzono w zbudowanym HTML.
+
+**Bramka rozmiaru w repo B.** `scripts/lint-file-size.mjs` + `scripts/file-size-exceptions.json` (odpowiednik repo A, zakres poszerzony o `.css`) w `npm run lint`, czyli od razu w CI. Stan: 8 wyjątków, z czego 5 to `DŁUG P2-3` (`[category]/[slug].astro`, `Footer.astro`, `kontakt.astro`, `weather-client.ts`, `fetch-osmet.ts`), 3 to arkusze CSS z uzasadnieniem.
+
+**Martwy kod ze startera Astro usunięty:** `components/Welcome.astro` (211 linii, zero referencji) razem z `assets/astro.svg` i `assets/background.svg` — plik ponad limit zniknął, zamiast dostać wyjątek. `README.md` opisywał właśnie te pliki jako strukturę projektu; przepisany na realną strukturę, komendy (`lint`, `check`, `test`) i mapę modułów `config/`.
+
+**Weryfikacja równoważności — build przed i po.** Zbudowano repo B na `HEAD` (stash) i po zmianach, potem porównano wszystkie 59 stron HTML po normalizacji hashy assetów i klas scoped Astro: **58 identycznych**, jedna różnica na `index.html` to wyłącznie kolejność inline'owanych bloków `<style>` (te same 27 reguł, selektory rozdzielone atrybutem `data-astro-cid`, więc kaskada bez zmian). Osobno porównano CSS reguła po regule względem `HEAD`: nawigacja 42/42, widget pogody 66/66 — identyczne selektory i deklaracje.
+
+**Weryfikacja mutacyjna bramki rozmiaru:** nowy plik 210 linii, plik z wyjątku ponad swój limit, wyjątek dla nieistniejącego pliku — wszystkie trzy przypadki wywaliły `lint-file-size` (exit 1); sondy usunięte.
+
+**Wynik weryfikacji (repo B):** `npm run lint` OK (72 pliki, 8 wyjątków) · `npm run check` 0 errors · `npm test` 60/60 · `npm run build` OK.
+
+**Pozostaje:** 16 wpisów `DŁUG P2-3` w repo A i 5 w repo B.
 
 ---
 
