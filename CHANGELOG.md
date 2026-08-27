@@ -16,6 +16,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Naprawione
 
+- **Wpis pobierał 70 MB PDF-ów przy wejściu na stronę** (audyt P1-16): viewer wyłączał czytanie zakresami dla każdej ścieżki same-origin, choć powodem wyjątku był tylko endpoint podglądu w panelu (odpowiada całym body bez `Accept-Ranges`). Statyczne załączniki strony (`/post-files/…`) też się łapały, mimo że produkcja obsługuje na nich `Range`. Do tego wszystkie viewery montowały się przy wejściu, bez oglądania się na widok — wpis z pięcioma dokumentami ciągnął ~70 MB naraz. Wyjątek zawężony do `/api/posts/{id}/assets/{assetId}/file`, montaż leniwy (`IntersectionObserver`).
 - **Eskalacja uprawnień (produkcja, krytyczne):** trigger `profiles_guard_self_update` nie istniał w bazie mimo deklaracji w STATUS.md — redaktor mógł ustawić sobie `role = 'admin'`. Migracja `setup:profiles-guard` zastosowana; regresję pilnuje test integracyjny RLS.
 - **Sesja SSR:** ciasteczko skasowane w trakcie żądania (wylogowanie) wracało z `getAll` ze starą wartością — adapter Supabase widział nieaktualny token.
 - **API administratora bez MFA:** zwracało przekierowanie 302 na stronę HTML zamiast błędu JSON 403, przez co panel pokazywał ogólny komunikat zamiast informacji o wymaganym MFA.
@@ -33,6 +34,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Zmienione
 
+- **Decyzja: załączniki wpisów zostają w gicie** (audyt P1-3, podejście 12). Limit „100 MB" Vercela okazał się rozmiarem pojedynczego pliku, nie sumą źródeł (zweryfikowane deployami), a panel przyjmuje maksymalnie 50 MB — żadna publikacja nie może go przekroczyć. Przeniesienie do Storage obniżyłoby pułap transferu i odebrałoby repozytorium samowystarczalność. Rewizję decyzji wymusza bramka `lint-content-weight.mjs` w repo strony przy 300 MB załączników.
 - **Wording UI:** etykiety i komunikaty bez narracji technicznej (commit/worker/deploy); ścieżka workflow: Akceptacja → Publikacja → Na stronie.
 - IP rate limitu z nagłówka `x-real-ip` (Vercel).
 - Dokumentacja tokena GitHub: fine-grained PAT z dostępem tylko do repo strony (`docs/WDROZENIE.md`).

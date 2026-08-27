@@ -1,6 +1,8 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import { defaultPdfViewerLabels } from './default-labels';
+import { pdfDocumentOptions } from './document-options';
+import { mountWhenVisible } from './lazy-mount';
 import { PDF_VIEWER_CSS } from './styles';
 import type { PdfViewerLabels } from './types';
 
@@ -36,20 +38,9 @@ function isLegacyIframeViewer(el: HTMLElement): boolean {
 	return el.querySelector('iframe') instanceof HTMLIFrameElement;
 }
 
-function pdfDocumentOptions(src: string) {
-	const sameOrigin =
-		src.startsWith('/') ||
-		(typeof window !== 'undefined' && src.startsWith(window.location.origin));
-	return {
-		url: src,
-		...(sameOrigin
-			? { disableRange: true, disableStream: true, withCredentials: true }
-			: {}),
-	};
-}
-
 async function loadPdfDocument(src: string): Promise<PDFDocumentProxy> {
-	const task = pdfjsLib.getDocument(pdfDocumentOptions(src));
+	const origin = typeof window === 'undefined' ? null : window.location.origin;
+	const task = pdfjsLib.getDocument(pdfDocumentOptions(src, origin));
 	return task.promise;
 }
 
@@ -66,11 +57,18 @@ export function mountPdfThumbs(root: ParentNode = document): void {
 export function mountPdfViewers(root: ParentNode = document): void {
 	injectStyles();
 	const nodes = root.querySelectorAll<HTMLElement>(
-		'.op-pdf-viewer[data-op-pdf-src]:not([data-op-pdf-mounted])',
+		'.op-pdf-viewer[data-op-pdf-src]:not([data-op-pdf-mounted]):not([data-op-pdf-pending])',
 	);
 	for (const el of nodes) {
 		if (isLegacyIframeViewer(el)) continue;
-		void mountOne(el);
+		// Znacznik oczekiwania: bez niego kolejne wywołanie zawiesiłoby drugi
+		// obserwator na tym samym widgecie — `data-op-pdf-mounted` pojawia się
+		// dopiero przy wejściu w widok.
+		el.setAttribute('data-op-pdf-pending', '');
+		mountWhenVisible(el, (target) => {
+			target.removeAttribute('data-op-pdf-pending');
+			void mountOne(target);
+		});
 	}
 }
 

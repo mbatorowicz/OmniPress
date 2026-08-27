@@ -19,7 +19,7 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 9 | i18n — ✅ **wykonane** | niskie | — |
 | 10 | Testy modułów krytycznych — ✅ **wykonane** | zerowe | — |
 | 11 | Refaktor struktury — ✅ **wykonane** (repo A + repo B) | średnie | — |
-| 12 | Assety poza gita | **decyzja** | — |
+| 12 | Assety poza gita — ✅ **rozstrzygnięte** (zostają w gicie) | **decyzja** | — |
 | 13 | Typecheck w pipeline — ✅ **wykonane** | niskie | — |
 
 ---
@@ -453,6 +453,66 @@ Przy `github-api.ts` trzy niemal identyczne pętle „tree → commit → PATCH 
 | Próg hybrydowy (np. powyżej 5 MB do Storage) | kompromis | dwie ścieżki do utrzymania |
 
 **Do policzenia przed decyzją:** przyrost MB na miesiąc przy obecnym tempie publikacji i moment, w którym build zaczyna przekraczać limity Vercela.
+
+### Decyzja (2026-08-27): assety zostają w gicie
+
+**Moment przekroczenia limitów Vercela nie nadejdzie tą drogą — limit 100 MB jest limitem pojedynczego pliku, nie sumy źródeł.** Dokumentacja Vercela („maximum size of the *source files* that can be uploaded is limited to 100 MB for Hobby") czyta się jak limit sumy i tak trafiła do stanu wyjściowego tego podejścia. Zweryfikowane czterema deployami projektu (plan **hobby**):
+
+| Wysłane źródła | Wynik |
+|---|---|
+| 99,6 MB (stan repo) | READY |
+| 101,5 MB (repo + sonda 2 MB) | READY |
+| jeden nowy plik 105 MB | `File size limit exceeded (100 MB)` |
+| 106 MB w dwóch plikach po 53 MB | READY |
+
+Panel OmniPress przyjmuje maksymalnie 50 MB na załącznik (`MAX_FILE_ATTACHMENT_BYTES`), a GitHub odrzuca plik powyżej 100 MB — więc żadna publikacja z panelu nie może samodzielnie przekroczyć limitu platformy.
+
+**Zmierzony stan i tempo**
+
+| Miara | Wartość |
+|---|---|
+| Repo B w `HEAD` | 201 plików, 99,55 MB — z tego załączniki wpisów 96,06 MB (96%), kod i konfiguracja 3,46 MB |
+| Historia gita | 864 blobów, 120,07 MB nieskompresowane; `size-pack` 28,34 MB |
+| PDF-y w całej historii | 85,54 MB w 30 obiektach (71% wagi historii) |
+| Rozkład załączników w `HEAD` | 2 pliki > 10 MB = 60,39 MB (63%); 19 plików < 0,5 MB = 3,65 MB; mediana na wpis 1,39 MB |
+| Przyrost miesięczny | 06: 9,03 MB · 07: 84,36 MB · 08: 4,68 MB |
+| Build repo B | 8,4 s lokalnie |
+
+**Przyrost nie jest liniowy względem liczby publikacji, jak zakładał opis P1-3.** Lipcowe 84 MB to w 70 MB **jeden** wpis („Ogłoszenie o przekazaniu Planu Ogólnego…", 5 PDF-ów, dwa po ~30 MB), a sierpień z ośmioma publikacjami dał 4,68 MB. Repozytorium rośnie od pojedynczych dokumentów urzędowych, nie od kadencji redakcji — mediana wpisu to 1,4 MB.
+
+**Dlaczego nie Storage.** Załączniki **już** są w Supabase Storage: bucket `post-assets` waży 82,63 MB (312 plików), a publikacja pobiera je stamtąd HTTP-em i dokłada do commita (`collectPostAssetWrites` w `lib/publish/github-astro.ts`). Wariant „duże pliki do Storage" nie wymagałby więc nowej infrastruktury, tylko rezygnacji z kopiowania — ale przeniósłby ruch publiczny z Vercela (100 GB/mies. na hobby) na Supabase, gdzie plan free daje 5 GB, czyli pułap **20× niższy**. Do tego repo przestałoby być samowystarczalne: dziś plik w gicie wystarcza, żeby strona się zbudowała i działała. Przy okazji: dwóch PDF-ów po 30 MB **nie ma już w Storage** (największy tam to 4,23 MB), choć weszły przez panel (commit `cc9da70`) — dla tych plików git jest dziś jedyną kopią, nie duplikatem.
+
+**Wariant hybrydowy (próg np. 5 MB) odrzucony**, bo kosztuje dwie ścieżki publikacji i dwa źródła prawdy o jednym wpisie, a nie zamyka żadnego realnego problemu: limit nie grozi, a transfer zostaje taki sam.
+
+### Prawdziwy koszt siedział w transferze, nie w repozytorium
+
+Szukając momentu przekroczenia limitów, znalazł się ten, który był płacony **codziennie**. Wpis o planie ogólnym osadza 5 viewerów PDF o łącznej wadze **69,98 MB** (zmierzone `Content-Length` na produkcji `gmina-miedzna.cncsolutions.dev`). Dwie rzeczy składały się na to, że wejście na stronę pobierało wszystkie:
+
+1. **`pdfDocumentOptions` wyłączało czytanie zakresami dla całego same-origin.** Wyjątek powstał dla podglądu w panelu — `/api/posts/{id}/assets/{assetId}/file` odpowiada całym body bez `Accept-Ranges`, więc pdf.js musi tam pobrać plik jednym żądaniem. Warunek `src.startsWith('/')` obejmował jednak także statyczne załączniki strony, których adres po przepisaniu przez `rehypePostAssetUrls` wygląda `/post-files/<slug>/<plik>.pdf`. Produkcja podaje na nich `Accept-Ranges: bytes`, ale viewer sam z tego rezygnował i ściągał pełne 30 MB, żeby pokazać pierwszą stronę.
+2. **`mountPdfViewers` montowało wszystkie widgety naraz**, bez oglądania się na widok — pięć równoległych pobrań przy wejściu.
+
+Przy 100 GB transferu w planie hobby **~1430 odsłon tego jednego wpisu wyczerpywało miesięczny limit**. Naprawa:
+
+- `pdf-viewer/document-options.ts` — czysta funkcja; pełne pobranie i `withCredentials` **tylko** dla `/api/posts/{id}/assets/{assetId}/file` (dopasowanie po `pathname`, więc obcy host udający tę ścieżkę nie dostaje cookie). Reszta czyta zakresami. 9 testów.
+- `pdf-viewer/lazy-mount.ts` — `IntersectionObserver` z `rootMargin` 300 px, montaż dokładnie raz, natychmiastowy fallback bez obserwatora. 5 testów; test „montuje tylko raz" wyłapał, że pierwotna wersja polegała wyłącznie na `disconnect()`.
+- `mountPdfViewers` znaczy widget atrybutem `data-op-pdf-pending` — bez tego powtórne wywołanie (panel po zmianie treści) zawieszałoby drugi obserwator na tym samym elemencie, bo `data-op-pdf-mounted` pojawia się dopiero przy wejściu w widok.
+
+Artefakt `public/omnipress/pdf-viewer.js` przebudowany i **wypchnięty do repo B ręcznie** — normalnie dokłada go publikacja wpisu z embedem (`preparePdfViewerWrites`), a ta naprawa musi zadziałać bez czekania na kolejną publikację.
+
+### Bramka: decyzja z datą ważności
+
+`scripts/lint-content-weight.mjs` w repo B (w `npm run lint`, czyli w CI) waży załączniki `src/content/**` przy każdym buildzie i wypisuje stan względem progu. Dwa progi odpowiadają realnym granicom, nie okrągłym liczbom:
+
+- **50 MB na plik** — tyle przyjmuje panel. Cięższy plik znaczy, że wszedł inną drogą i wymaga wyjaśnienia.
+- **300 MB sumy** — trzykrotność stanu z dnia decyzji; przy zmierzonym tempie (~10 MB/mies. medianowo, ~33 MB z miesiącami ciężkich dokumentów) daje kilkanaście miesięcy. Komunikat odsyła do tego podejścia, żeby warianty przeliczyć na aktualnych danych, zamiast odziedziczyć dzisiejszy wniosek.
+
+Stan: `36 załączników, 96.1 MB — 32% progu 300 MB; największy 30.2 MB`. Weryfikacja mutacyjna: sonda 51 MB i sondy podnoszące sumę do 312 MB wywaliły lint (exit 1), obie zgłoszone właściwym komunikatem; sondy usunięte.
+
+**Otwarta niepewność:** plan Supabase nie został potwierdzony w panelu — bilans transferu opiera się na limitach planu free (5 GB egress, 1 GB Storage; bucket zajmuje dziś 82,63 MB, czyli 8%). Gdyby projekt był na planie Pro, argument „Storage ma 20× niższy pułap" traci moc, ale pozostałe powody (samowystarczalność repo, brak zagrożenia limitem, transfer naprawiony u źródła) nie zależą od planu.
+
+**Higiena repo B przy okazji:** usunięte pliki robocze z podejść 4–11 (siedem `scripts/tmp-*.mjs`, `file-size-exceptions.new.json` — bajt w bajt kopia pliku aktualnego), a `.gitignore` dostał `scripts/tmp-*` i `*.tmp`, żeby nie wracały przez `git add .` (symetrycznie do repo A z podejścia 1).
+
+**Wynik weryfikacji:** repo A — `npm run typecheck` 0 błędów · `npm run lint` OK · `npm test` 652/652 (+22 RLS opt-in) · `npm run build` OK. Repo B — `npm run lint` OK (72 pliki, 8 wyjątków; waga treści 32% progu) · `npm run check` 0 errors · `npm test` 60/60 · `npm run build` OK.
 
 ---
 

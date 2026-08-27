@@ -85,9 +85,21 @@ Podejście 1 zsynchronizowało repo i zapisało regułę w [astro-repo-compat](.
 
 Brak workflow, brak ESLint, `astro check` nieuruchamiany mimo obecnej zależności. `npm test` to ręcznie wpisana lista czterech plików — nowy test nie uruchomi się, dopóki ktoś nie dopisze go do `package.json`.
 
-### P1-3 — assety wpisów rosną w historii gita bez ograniczeń
+### P1-3 — assety wpisów rosną w historii gita bez ograniczeń — ✅ rozstrzygnięte
 
 Repo Astro: 66 MB (28 MB spakowane), w tym dwa PDF-y po ~31 MB. Każda wersja załącznika zostaje w historii na zawsze; przyrost jest liniowy względem liczby publikacji.
+
+**Decyzja w podejściu 12: assety zostają w gicie.** Dwa założenia tego wpisu okazały się nietrafione. Przyrost **nie jest** liniowy względem liczby publikacji — mediana wpisu to 1,4 MB, a 63% wagi to dwa pliki z jednego wpisu; miesiąc z 8 publikacjami dał 4,7 MB, miesiąc z 73 dał 84 MB, bo trafił się w nim plan ogólny. Limit „100 MB" Vercela **nie jest** sumą źródeł, tylko rozmiarem pojedynczego pliku (zweryfikowane deployami: 101,5 MB źródeł przechodzi, jeden plik 105 MB nie), a panel i tak przyjmuje maksymalnie 50 MB na załącznik.
+
+Przy okazji szukania „momentu przekroczenia limitu" znalazł się koszt płacony codziennie — patrz **P1-16**. Żeby decyzja nie odziedziczyła się w nieskończoność, `scripts/lint-content-weight.mjs` w repo B przerywa build przy 300 MB załączników z odesłaniem do przeliczenia wariantów. Pełne uzasadnienie i liczby: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md#decyzja-2026-08-27-assety-zostają-w-gicie).
+
+### P1-16 — wpis pobierał 70 MB PDF-ów przy wejściu na stronę — ✅ naprawione
+
+Znalezione w podejściu 12. Wpis o planie ogólnym osadza pięć viewerów PDF o łącznej wadze 69,98 MB i wszystkie startowały przy wejściu na stronę, w całości.
+
+Złożyły się na to dwie rzeczy. `pdfDocumentOptions` w `lib/pdf-viewer/mount.ts` wyłączało czytanie zakresami dla **każdej** ścieżki same-origin, choć powodem wyjątku był tylko endpoint panelu `/api/posts/{id}/assets/{assetId}/file` (odpowiada całym body bez `Accept-Ranges`). Statyczne załączniki strony mają adres `/post-files/<slug>/<plik>.pdf`, więc też się łapały — mimo że produkcja podaje na nich `Accept-Ranges: bytes`. Do tego `mountPdfViewers` montowało wszystkie widgety naraz, bez oglądania się na widok.
+
+W planie hobby (100 GB transferu) ~1430 odsłon tego jednego wpisu wyczerpywało miesięczny limit. Naprawa zawęża wyjątek do endpointu panelu i montuje viewery leniwie (`IntersectionObserver`, `rootMargin` 300 px).
 
 ### P1-4 — śmieci i luki w `.gitignore` repo Astro — ✅ zamknięte
 
@@ -320,9 +332,9 @@ URL wpisu bierze się z **nazwy katalogu** w repo Astro (`entry.id` w `getStatic
 - Usunięcie śledzonych śmieci i `archived_packages/`.
 - `.gitignore`: `.env*`, pliki robocze.
 - Poprawa `name` i strategii wersjonowania; wyrównanie wersji Astro między repo.
-- **Decyzja architektoniczna:** czy assety wpisów mają dalej trafiać do gita, czy do Blob/Storage z referencją we front-matterze.
+- **Decyzja architektoniczna:** czy assety wpisów mają dalej trafiać do gita, czy do Blob/Storage z referencją we front-matterze — ✅ **rozstrzygnięte w podejściu 12: zostają w gicie** (P1-3), z bramką `lint-content-weight.mjs` wymuszającą rewizję przy 300 MB.
 
-**Kryterium wyjścia:** `git ls-files` bez artefaktów; zapisana decyzja o assetach.
+**Kryterium wyjścia:** `git ls-files` bez artefaktów; zapisana decyzja o assetach. ✅ spełnione.
 
 ### Porcja 5 — i18n i teksty UI (OmniPress)
 
