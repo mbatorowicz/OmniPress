@@ -69,6 +69,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Ponowne otwarcie wpisu (reopen) | ✅ |
 | Dezaktywacja / usunięcie opublikowanego (withdraw z GitHub) | ✅ |
 | Bulk: akceptacja / odrzucenie (pending), anulowanie harmonogramu, dezaktywacja / usuwanie | ✅ |
+| Przypinanie wpisu na stronie głównej (`pinned`) | ✅ migracja `setup:posts-pinned` |
 | Import wpisów z GitHub | ✅ |
 | Layout Astro (menu, kategorie, sloty) + sync do repo | ✅ `/admin/units/[id]/navigation` itd. |
 | Ustawienia strony (nazwa, slug, GitHub, tokeny) | ✅ `/admin/units/[id]` |
@@ -121,8 +122,10 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub (jeden commit; listing 
 | `20250618000000_posts_delete_own.sql` | `setup:posts-delete-own` |
 | `20250619000000_posts_rejected_resubmit.sql` | `setup:posts-rejected-resubmit` |
 | `20250620000000_assets_delete_own.sql` | `setup:assets-delete-own` |
+| `20250621000000_fix_kgw_post_slug.sql` | `setup:fix-kgw-slug` |
 | `20250707000000_auth_rate_limits.sql` | `setup:auth-rate-limits` |
 | `20250718000000_assets_content_sha.sql` | `setup:assets-content-sha` |
+| `20250827000000_posts_pinned.sql` | `setup:posts-pinned` |
 
 ---
 
@@ -148,7 +151,7 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub (jeden commit; listing 
 
 | Warstwa | Narzędzie | Zakres |
 |---------|-----------|--------|
-| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 42 pliki obok modułów |
+| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 75 plików testowych obok modułów (388 testów) |
 | E2E/UI (`npm run test:e2e`) | Playwright (`e2e/`) | produkcja: strefa publiczna, nagłówki bezpieczeństwa, CSRF, auth (logowanie/wylogowanie, błędne hasło), panel admina, cykl wpisu (szkic → walidacja → zapis → usunięcie) |
 
 E2E domyślnie biegnie na produkcji (`E2E_BASE_URL` zmienia cel); dane logowania: `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD` lub lokalny `.admin-password.txt`.

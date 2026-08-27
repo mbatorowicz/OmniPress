@@ -48,7 +48,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "lint": "eslint \"src/**/*.{ts,tsx}\" && node scripts/lint-ui-classes.mjs",
+    "lint": "eslint \"src/**/*.{ts,tsx}\" && node scripts/lint-ui-classes.mjs && node scripts/lint-docs-setup.mjs",
     "lint:ui": "node scripts/lint-ui-classes.mjs"
   },
   "dependencies": {

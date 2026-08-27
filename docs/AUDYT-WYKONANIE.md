@@ -15,7 +15,7 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 5 | Domknięcie kontraktu — ✅ **wykonane** | niskie | — |
 | 6 | Test kontraktowy i reguła — ✅ **wykonane** | zerowe | — |
 | 7 | CI w repo B — ✅ **wykonane** | niskie | — |
-| 8 | Dokumentacja | zerowe | — |
+| 8 | Dokumentacja — ✅ **wykonane** | zerowe | — |
 | 9 | i18n | niskie | — |
 | 10 | Testy modułów krytycznych | zerowe | — |
 | 11 | Refaktor struktury | średnie | — |
@@ -263,6 +263,16 @@ Brak kolizji slugów. Baza ↔ repo — te same 23 slugi katalogów.
 5. Skrypt spójności: każdy `setup:*` z `package.json` ma wiersz w tabeli migracji w STATUS.md i odwrotnie. Dodać do `npm run lint`.
 
 **Weryfikacja:** skrypt spójności przechodzi; usunięcie wiersza z tabeli go wywala.
+
+### Wykonano (2026-08-27)
+
+- **STATUS.md:** liczba testów 75 plików / 388 testów; migracje `setup:fix-kgw-slug`, `setup:posts-pinned`; funkcja `pinned` w tabeli admina.
+- **docs/README.md:** uzupełniona tabela npm (`setup:auth-*`, `setup:assets-*`, `setup:storage-import-admin`, `verify:*`, `seed:nav-pages`, `lint`, `build:pdf-viewer` itd.).
+- **Repo B:** usunięto sekcję WordPress z `docs/OMNIPRESS.md` i `wordpress_site_url` z `.omnipress.json`.
+- **Repo B:** opis layoutu (`zones`, nie `slots`); front-matter z opcjonalnym `pinned`.
+- **Spójność docs:** `scripts/lint-docs-setup.mjs` w `npm run lint` — 1:1 `setup:*` ↔ tabela migracji w STATUS.md.
+
+**Wynik weryfikacji:** `npm run lint` OK (w tym `lint-docs-setup`) · `npm test` 388/388.
 
 ---
 

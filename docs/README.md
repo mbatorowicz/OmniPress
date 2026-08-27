@@ -49,13 +49,17 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | `setup:remote` | Bootstrap bazy + strona + admin |
 | `setup:password` | Hasło administratora |
 | `setup:auth-urls` | Site URL Supabase Auth |
+| `setup:auth-mfa` | Włączenie MFA TOTP w Supabase Auth |
 | `setup:storage` | Bucket assetów wpisów |
 | `setup:storage-pdf` | PDF w bucket |
 | `setup:storage-docx` | DOCX w bucket |
 | `setup:storage-gpkg` | GPKG + limit 50 MB w bucket |
 | `setup:storage-xlsx-zip` | XLSX + ZIP w bucket |
+| `setup:storage-import-admin` | Import assetów z GitHub (admin) |
 | `setup:asset-display` | Tryb wyświetlania assetów |
 | `setup:asset-sort` | Kolejność galerii |
+| `setup:assets-delete-own` | Usuwanie własnych assetów przez redaktora |
+| `setup:assets-content-sha` | SHA256 treści assetów (deduplikacja) |
 | `setup:phase3` | UNIQUE(site_id, slug) |
 | `setup:phase4` | Worker publikacji |
 | `setup:categories` | Kategorie wpisów |
@@ -64,11 +68,22 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | `setup:profiles-guard` | Trigger RLS — blokada eskalacji roli / site |
 | `setup:scheduled-publish` | Data publikacji wpisu + status `scheduled` |
 | `setup:site-pages` | Strony statyczne (admin) |
+| `setup:author-on-delete` | Autor wpisu → NULL po usunięciu konta |
 | `setup:posts-delete-own` | Usuwanie własnych wpisów przez redaktora |
+| `setup:posts-rejected-resubmit` | Ponowne wysłanie odrzuconego wpisu |
+| `setup:posts-pinned` | Przypinanie wpisu na stronie głównej |
+| `setup:fix-kgw-slug` | Korekta slug wpisu KGW (jednorazowa) |
+| `setup:auth-rate-limits` | Rate limit auth (Upstash / RPC) |
+| `seed:nav-pages` | Seed stron nawigacji (tylko baza) |
+| `verify:auth-rate-limits` | Weryfikacja rate limitów auth |
+| `verify:auth-mfa` | Weryfikacja MFA w Supabase |
 | `env:pull` | Pobranie env z Vercel |
+| `lint` | ESLint TS + lint UI klas + spójność docs/setup |
+| `lint:ui` | Tylko `scripts/lint-ui-classes.mjs` |
+| `build:pdf-viewer` | Bundlowanie PDF viewer do `public/omnipress/` |
 | `test` | Vitest (jednostkowe) |
 | `test:e2e` | Playwright E2E/UI (domyślnie produkcja) |
-| `build` | Astro production build |
+| `build` | `build:pdf-viewer` + Astro production build |
 
 ## Zasada zmian
 
