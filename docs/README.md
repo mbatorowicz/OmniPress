@@ -11,6 +11,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | **Operacyjne** | [ADMIN.md](./ADMIN.md), [REDAKTOR.md](./REDAKTOR.md) | Dla użytkowników panelu |
 | **Techniczne** | [AUTH.md](./AUTH.md), [WDROZENIE.md](./WDROZENIE.md) | Dev / bootstrap |
 | **Kod** | [KONWENCJE.md](./KONWENCJE.md), [ROLE_AGENT.md](./ROLE_AGENT.md) | Konwencje i proces agenta |
+| **Jakość** | [AUDYT.md](./AUDYT.md), [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) | Rejestr znalezisk i kroki naprawcze |
 
 ## Indeks plików
 
@@ -24,6 +25,8 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | [WDROZENIE.md](./WDROZENIE.md) | Vercel, Supabase, migracje |
 | [KONWENCJE.md](./KONWENCJE.md) | Kod, i18n, UI SSOT |
 | [VERSIONING.md](./VERSIONING.md) | `semver+commit` |
+| [AUDYT.md](./AUDYT.md) | Znaleziska audytu OmniPress ↔ repo Astro (co i dlaczego) |
+| [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) | Kroki naprawcze w podejściach (jak) |
 | [ROLE_AGENT.md](./ROLE_AGENT.md) | Proces agenta AI |
 | [../CHANGELOG.md](../CHANGELOG.md) | Historia wydań |
 | [../README.md](../README.md) | Wejście do repo |

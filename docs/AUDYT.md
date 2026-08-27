@@ -1,0 +1,352 @@
+# Audyt spójności OmniPress ↔ repo Astro
+
+**SSOT:** plan audytu i rejestr znalezisk. Stan na 2026-08-27, wersja OmniPress `0.10.0`.
+
+Projekt opiera się o **dwa repozytoria**: OmniPress (panel, zapisuje) i `mbatorowicz/gmina-miedzna.pl` (strona Astro, czyta). Kontrakt między nimi: [astro-repo-compat](../.cursor/rules/astro-repo-compat.mdc).
+
+Audyt podzielony na **porcje** — każda samodzielna, z własnym kryterium wyjścia. Kolejność wynika z nieodwracalności skutków, nie z wygody.
+
+Ten dokument odpowiada na pytanie **co i dlaczego**. Konkretne kroki naprawcze, rozpisane na wykonalne podejścia: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md).
+
+---
+
+## Stan wyjściowy
+
+| Obszar | OmniPress | repo Astro |
+|--------|-----------|------------|
+| CI | ✅ `.github/workflows/ci.yml` (lint + test + build) | ❌ brak, `.github` puste |
+| Lint | ✅ ESLint + `lint-ui-classes.mjs` — czysty (209 plików) | ❌ brak |
+| Type check | ⚠️ `astro/tsconfigs/strict`, ale bez `astro check` w CI | ⚠️ strict + `@astrojs/check` w zależnościach, nieużywany |
+| Testy | ✅ 72 pliki / 354 testy, zielone | ⚠️ 4 pliki z ręcznej listy w `package.json` |
+| E2E | ✅ Playwright, 5 spec | ❌ brak |
+
+Wniosek: cała siatka bezpieczeństwa jest po jednej stronie kontraktu. Repo Astro przyjmuje zapisy z panelu bez żadnej weryfikacji.
+
+---
+
+## Rejestr znalezisk
+
+Priorytety: **P0** — dotyka produkcji lub jest nieodwracalne; **P1** — ryzyko systemowe; **P2** — dryf dokumentacji.
+
+### P0-1 — `ł` gubione w slugach
+
+`normalize('NFD').replace(/\p{Diacritic}/gu, '')` nie obsługuje `ł` (U+0142): to samodzielny znak, nie litera z diakrytykiem, więc nie ma dekompozycji i wypada dopiero na `[^a-z0-9]`, zamieniając się w myślnik.
+
+- `src/lib/posts/access.ts` → `slugFromTitle`
+- `src/lib/admin/slug.ts` → `normalizeSlug`
+
+Skutek na produkcji (publiczne URL-e w repo Astro):
+
+| Tytuł | Wygenerowany slug | Oczekiwany |
+|-------|-------------------|------------|
+| Ogłoszenie o przetargu | `og-oszenie-o-przetargu` | `ogloszenie-o-przetargu` |
+| Ogłoszenie o przekazaniu Planu Ogólnego… | `og-oszenie-o-przekazaniu-planu-ogolnego…` | `ogloszenie-…` |
+| Zapraszamy do współtworzenia… | `zapraszamy-do-wspo-tworzenia…` | `…wspoltworzenia…` |
+| …poprawy dostępu do małej infrastruktury | `…dostepu-do-ma-ej-infrastruktury-p` | `…do-malej-…` |
+
+Dotkniętych jest **7 z 23** opublikowanych wpisów. Migracja `20250621000000_fix_kgw_post_slug.sql` to ślad po ręcznym łataniu tego samego problemu.
+
+### P0-2 — dwie funkcje slugujące, brak SSOT
+
+`slugFromTitle` (`lib/posts/access.ts`) i `normalizeSlug` (`lib/admin/slug.ts`) mają różne regexy i różny zakres (`[^a-z0-9]` vs `[^a-z0-9-]`, kolaps myślników tylko w jednej). Żadna nie jest wskazana jako obowiązująca.
+
+### P0-3 — slugi kategorii bez normalizacji
+
+Pole `category_slug` to surowy input (`src/lib/admin/categories-form-client.ts:141`), bez wywołania `normalizeSlug`. W produkcyjnym `src/config/omnipress-layout.json` znajdują się w efekcie:
+
+```
+planogólnygminymiedzna
+zarządzenia
+```
+
+To **2 z 4** kategorii, a slug kategorii jest segmentem ścieżki każdego należącego do niej wpisu (`src/pages/[category]/`) — w praktyce psuje adresy **6 z 23** wpisów. `planogólnygminymiedzna` ma podwójny defekt: znak spoza ASCII **i** brak separatorów, bo powstał z ręcznie wpisanej nazwy. Szkoda jest większa niż przy slugach wpisów (P0-1), mimo że dotyczy dwóch rekordów.
+
+### P0-4 — sekcja „Przypięte" na produkcji nie działa
+
+Repo Astro filtruje slot `home.pinned` po polu `pinned` we front-matterze (`src/pages/index.astro:27-28`), a OmniPress **nigdy tego pola nie zapisuje** — nie ma go w `lib/publish/frontmatter.ts`, ani w bazie, ani w UI. Slot jest skonfigurowany w produkcyjnym layoucie z `hideWhenEmpty: true`, więc sekcja po prostu nigdy się nie pokazuje. Funkcja istnieje po obu stronach, ale nie ma między nimi połączenia — i nic tego nie sygnalizuje.
+
+### P0-5 — `terytGmina` martwe po stronie zapisu
+
+Typ istnieje w `src/lib/astro-layout/types.ts:62`, ale pole nie występuje ani w `parse.ts`, ani w `parse-form.ts` — OmniPress go nie zapisze. Repo Astro jest na nie gotowe (`src/lib/imgw/weather-config.ts:50-53`) i po cichu wchodzi w `undefined`, czyli ostrzeżenia pogodowe działają bez filtra gminy.
+
+### P0-6 — trzy martwe linki w menu produkcyjnym
+
+Menu w `omnipress-layout.json` zawiera pozycje `/informacje/aktywizacja-zawodowa-osob-bezrobotnych-w-powiecie-wegrowskim`, `/informacje/las-letnia-akademia-sanepidu-twoje-decyzje-maja-znaczenie` i `/informacje/las-…-znaczenie-2`. Kategoria `informacje` **nie istnieje** — te wpisy mają `category: "aktualnosci"`, a `getStaticPaths` w `[category]/[slug].astro:17-23` buduje ścieżki wyłącznie z `entry.data.category`. Te trzy linki zwracają dziś 404.
+
+[STATUS.md](./STATUS.md) oznacza „Walidacja linków menu przed sync GitHub" jako ✅. Walidacja albo nie sprawdza kategorii wpisu, albo nie jest uruchamiana na tej ścieżce — do ustalenia w porcji 1.
+
+### P1-1 — lokalne repo Astro rozjeżdża się z origin
+
+W momencie audytu lokalne `main` było **14 commitów** za `origin/main`. OmniPress publikuje przez GitHub API prosto do origin, więc lokalna kopia nigdy się nie dogania sama. Każda praca w tym repo startuje z nieaktualnego stanu — to problem systemowy, nie jednorazowy.
+
+### P1-2 — repo Astro bez CI i bez wymuszonej jakości
+
+Brak workflow, brak ESLint, `astro check` nieuruchamiany mimo obecnej zależności. `npm test` to ręcznie wpisana lista czterech plików — nowy test nie uruchomi się, dopóki ktoś nie dopisze go do `package.json`.
+
+### P1-3 — assety wpisów rosną w historii gita bez ograniczeń
+
+Repo Astro: 66 MB (28 MB spakowane), w tym dwa PDF-y po ~31 MB. Każda wersja załącznika zostaje w historii na zawsze; przyrost jest liniowy względem liczby publikacji.
+
+### P1-4 — śmieci i luki w `.gitignore` repo Astro
+
+Śledzone w gicie: `dump.txt`, `error.log`, `out.txt`, `zips.txt`, `Importuj_Paczki.bat`, `archived_packages/*.zip` (9 plików). `.gitignore` ignoruje tylko `.env` i `.env.production` — `.env.local` **nie jest** ignorowany (OmniPress ignoruje `.env*`).
+
+### P1-5 — rozjazd wersji i metadanych
+
+| | OmniPress | repo Astro |
+|---|---|---|
+| `name` | `omnipress` | `extra-earth` (nazwa z szablonu) |
+| `version` | `0.10.0` | `0.0.4` |
+| `astro` | `^6.4.3` | `^6.1.4` |
+
+### P1-6 — schemat treści nie wykrywa dryfu
+
+`src/content.config.ts` w repo Astro używa Zod **bez `.strict()`** — pola zapisane przez OmniPress, których schemat nie zna, są po cichu ignorowane zamiast zgłaszać błąd. Dryf kontraktu jest niewidoczny do chwili, gdy coś przestaje działać na stronie. Odwrotnie: kolekcja `pages` wymaga `slug` bez transformacji, więc brak tego pola wywali build.
+
+### P1-7 — niespójne komunikaty commitów w repo Astro
+
+Mieszanka `OmniPress: <tytuł wpisu>` i conventional commits. Dwa commity (`212bc83`, `6eab951`) mają jako message goły SHA — prawdopodobnie błąd generatora komunikatu.
+
+### P1-8 — dokumentacja layoutu opisuje nieaktualny klucz
+
+Reguła [astro-repo-compat](../.cursor/rules/astro-repo-compat.mdc) i `docs/OMNIPRESS.md` w repo Astro deklarują `{ categories, displays, slots }`. OmniPress zapisuje **`zones`** (`buildLayoutFilePayload`, `parse.ts:310-320`), a produkcyjny plik ma `categories`, `displays`, `zones`.
+
+Skutek jest łagodniejszy, niż wyglądał na pierwszy rzut oka: parser repo Astro akceptuje **oba** klucze (`load-config.ts:221-227` — `slots?` jako fallback legacy), więc rozjazd nie wywali builda. Pozostaje jednak realne ryzyko: dokumentacja kieruje na martwą ścieżkę, a plik zapisany częściowo w jednej, częściowo w drugiej konwencji da niespójny render bez żadnego błędu.
+
+### P1-9 — repo Astro nie waliduje ID komponentów
+
+JSON layoutu jest importowany statycznie, bez Zod i bez whitelisty (`load-config.ts:1`). Nieznany `component` nie renderuje się po cichu albo renderuje się źle — build przechodzi. OmniPress waliduje przy imporcie (`parse.ts:230`, `isLayoutComponentId`), więc ochrona jest tylko po jednej stronie. Powiązany przypadek: `sidebar.banner` jest dozwolony w strefie `home` (`components.ts:115-120`), ale repo Astro renderuje całą strefę `home` jako feed wpisów — konfiguracja poprawna według A, błędna wizualnie w B.
+
+### P1-10 — reguła warstw jest łamana systemowo
+
+[KONWENCJE.md](./KONWENCJE.md) mówi, że `components/admin/` i `components/posts/` importują tylko `ui/` i `shell/`. Realnie **około 60 plików** importuje bezpośrednio z `@/lib/` (m.in. `LayoutSlotChromePanel.astro:3-4`, `PostGalleryPanel.astro:3`, `AdminPostsTable.astro:234`). Reguła łamana sześćdziesiąt razy nie jest regułą — trzeba ją albo wymusić lintem, albo przeformułować tak, żeby opisywała rzeczywistość (np. dopuścić import typów i czystych helperów, zakazać wywołań Supabase).
+
+### P1-11 — moduły krytyczne bez testów
+
+Około 90 modułów w `src/lib/**` nie ma pliku `*.test.ts` obok. Problem nie jest w liczbie, tylko w tym, **które** to moduły — dokładnie te, które [KONWENCJE.md](./KONWENCJE.md) oznacza jako „nie psuć bez lektury docs", i te, na których opiera się tabela bezpieczeństwa w [STATUS.md](./STATUS.md):
+
+| Moduł | Rola |
+|-------|------|
+| `lib/supabase/cookies.ts` | Sesja SSR |
+| `lib/auth/session.ts`, `guard-request.ts`, `routes.ts` | Pipeline auth |
+| `lib/middleware/pipeline.ts` | Middleware SSR |
+| `lib/security/nonce.ts` | CSP z nonce |
+| `lib/publish/github-api.ts` (700 linii) | Zapis do GitHub |
+| `lib/publish/worker.ts`, `queue.ts`, `dispatch.ts` | Worker publikacji |
+| `lib/publish/github-astro.ts` | Główny flow publikacji |
+| `lib/admin/require-admin.ts`, `posts.ts` | Guard admina, operacje masowe |
+| `lib/astro-layout/store.ts`, `parse-form.ts` | Zapis layoutu |
+| `lib/site-pages/access.ts`, `publish.ts` | Strony statyczne + RLS |
+
+[STATUS.md](./STATUS.md) oznacza CSP, sesję i guardy jako ✅. To deklaracja bez pokrycia w testach.
+
+### P1-12 — `lint-ui-classes.mjs` ma dziury w zakresie
+
+Skrypt raportuje 0 naruszeń na 209 plikach, ale:
+
+- nie skanuje `src/components/shared/`, `src/layouts/`, `src/components/posts/` ani `src/lib/` poza `editor/` i `admin/`;
+- sprawdza wyłącznie atrybut `class=` — pomija `setAttribute('class', …)` i klasy składane w template literals;
+- **pomija całą linię, która zawiera `ui-`** (linie 62-63) — jedna długa linia z `ui-btn` i `text-red-500` przejdzie bez alarmu.
+
+Zielony wynik lintu nie oznacza więc, że surowych kolorów nie ma.
+
+### P1-13 — hardkodowane teksty poza i18n
+
+Około **268** wystąpień polskich napisów poza `src/i18n/` (bez komentarzy i asercji testowych). Dobra wiadomość: trasy `src/pages/api/**` są czyste — używają `@/i18n` lub kodów błędów w redirectach. Zła: reszta nie.
+
+Dominują dwa wzorce. Pierwszy to fallbacki `?? 'polski tekst'` w komponentach layoutu, mimo że właściwe klucze **już istnieją** w `admin-panels.ts` — czyli i18n jest podwojone, a wersja hardkodowana wygrywa przy braku klucza. Drugi to komunikaty operacyjne w `lib/publish/*` i `lib/admin/channel-test.ts`, które trafiają do UI przez JSON (`channel-test.ts:141,148,166`) albo przez `throw new Error(` (`frontmatter.ts:43`, `supabase/service.ts:9`).
+
+Najbardziej rażące: `ChannelTestButton.astro:57,61` — `'Błąd testu'`, `'Błąd sieci — spróbuj ponownie.'` bezpośrednio w komponencie.
+
+### P1-14 — czterokrotna duplikacja panelu załączników
+
+`lib/editor/pdf-attachments.ts`, `docx-attachments.ts`, `file-attachments.ts` i `gallery-panel.ts` to cztery niemal identyczne moduły po ~170 linii, realizujące ten sam wzorzec `readLabels → confirm → fetch DELETE → alert`. Jeden `createAttachmentPanel()` zastąpiłby wszystkie.
+
+### P2-1 — martwa dokumentacja WordPressa w repo Astro
+
+`docs/OMNIPRESS.md` nadal opisuje „Kanał WordPress", a `.omnipress.json` zawiera `wordpress_site_url` — mimo że migracja `setup:remove-wordpress` usunęła ten typ z enuma, a [STATUS.md](./STATUS.md) deklaruje „Jedyny typ destynacji: `github_astro`".
+
+### P2-2 — dryf `docs/` w OmniPress
+
+| Dokument | Deklaruje | Stan faktyczny |
+|----------|-----------|----------------|
+| [STATUS.md](./STATUS.md) | „42 pliki" testów | 72 pliki / 354 testy |
+| [STATUS.md](./STATUS.md) | tabela migracji | brak `20250621000000_fix_kgw_post_slug.sql` |
+| [README.md](./README.md) | tabela npm | brak `setup:auth-rate-limits`, `setup:auth-mfa`, `setup:author-on-delete`, `setup:assets-*`, `setup:storage-import-admin`, `setup:posts-rejected-resubmit`, `verify:*`, `seed:nav-pages`, `lint`, `lint:ui`, `build:pdf-viewer` |
+
+### P2-3 — pliki ponad limit konwencji
+
+[KONWENCJE.md](./KONWENCJE.md) wymaga poniżej 150 linii i podziału powyżej 200. Realnie 28 plików przekracza 200 linii.
+
+| Repo | Plik | Linie |
+|------|------|-------|
+| OmniPress | `src/lib/admin/navigation-form-client.ts` | 815 |
+| OmniPress | `src/lib/publish/github-api.ts` | 700 |
+| OmniPress | `src/i18n/pl/admin-panels.ts` | 692 |
+| OmniPress | `src/lib/astro-layout/parse-form.ts` | 659 |
+| OmniPress | `src/lib/admin/layout-slots-sections.ts` | 497 |
+| Astro | `src/components/Navigation.astro` | 428 |
+| Astro | `src/config/load-config.ts` | 423 |
+| Astro | `src/components/WeatherWidget.astro` | 385 |
+
+### P2-4 — pliki robocze w OmniPress
+
+Pięć nieśledzonych skryptów: `scripts/tmp-probe-users.mjs`, `tmp-probe-create-user.mjs`, `tmp-e2e-create-user.mjs`, `tmp-e2e-create-user2.mjs`, `tmp-e2e-create-user3.mjs` — żaden nie jest w `.gitignore`, więc czekają, aż ktoś zrobi `git add .`. Do tego zmodyfikowany artefakt buildu `public/omnipress/pdf-viewer.js`. `.admin-password.txt` jest poprawnie ignorowany.
+
+### P2-5 — martwe klucze i18n
+
+Ponad 25 potwierdzonych kluczy bez odwołań w kodzie, w trzech grupach: duplikaty (`admin.postList.invalidAction` ≡ `admin.bulkErrors.invalid_action`, to samo dla `remoteFailed`), pozostałości po refaktorze zakładek layoutu (`layoutTabMenu`, `layoutTabCategories`, `layoutTabTopbar` wraz z `*Lead`) oraz klucze nigdy nie podpięte do UI (`adminLayout.backToUnit`, `adminLayout.savedDraft`, `layout.breadcrumbs.postReview`, `posts.upload.pdfTooLarge`, `auth.mfa.alreadyConfigured`). Kolejne ~25 kandydatów w `admin-panels.ts` wymaga potwierdzenia przy sprzątaniu edytora layoutu.
+
+### P2-6 — martwy kod odczytu w repo Astro
+
+`load-config.ts` czyta dwa klucze root, których OmniPress nigdy nie zapisuje: `slots` (legacy przed `zones`) i `weather` (legacy przed konfiguracją w widgecie, `load-config.ts:350`). Podobnie `site.meta.url` — OmniPress je zapisuje, repo Astro nie używa go w SEO ani canonical. Legacy pliki `omnipress-navigation.json`, `omnipress-categories.json`, `omnipress-recent-changes.json` nie mają w repo Astro żadnej obsługi; OmniPress czyta je wyłącznie przy jednorazowym imporcie.
+
+---
+
+## Porcje audytu
+
+### Porcja 0 — punkt odniesienia
+
+Bez tego pozostałe porcje są zgadywaniem: sprawdzają nieaktualny stan repo Astro.
+
+- Synchronizacja lokalnego repo Astro z `origin/main`.
+- Ustalenie reguły: praca w repo Astro **zawsze** zaczyna się od `git pull`.
+- Rozstrzygnięcie, co jest źródłem prawdy o stanie strony — git origin czy kopia lokalna.
+
+**Kryterium wyjścia:** `git status -sb` w obu repo czysty i zsynchronizowany z origin.
+
+### Porcja 1 — kontrakt danych OmniPress ↔ Astro
+
+Mapowanie zostało już wykonane. Wynik jest lepszy, niż zakładałem: wszystkie 11 ID komponentów ma odpowiedniki po obu stronach, kształt `zones` jest zsynchronizowany, a strony statyczne mają pełną symetrię pól istotnych dla routingu. Zostaje do zrobienia:
+
+- **P0-4** — dopiąć `pinned`: pole w bazie, przełącznik w UI, zapis we front-matterze. Bez tego slot `home.pinned` jest atrapą.
+- **P0-5** — dopiąć `terytGmina` w `parse.ts` i `parse-form.ts` (round-trip JSON ↔ FormData + test w `parse.test.ts`, zgodnie z regułą symetrii).
+- **P1-9** — walidacja ID komponentów po stronie repo Astro albo świadoma decyzja, że pozostaje jednostronna.
+- **P2-6** — usunąć martwy odczyt (`slots`, `weather`, `site.meta.url`) albo udokumentować jako celowy fallback legacy.
+- Zablokować `sidebar.banner` w strefie `home` w `components.ts` — dziś konfiguracja przechodzi walidację i psuje render.
+
+**Kryterium wyjścia:** test kontraktowy w OmniPress walidujący wygenerowany JSON przeciw schematowi trzymanemu obok; poprawiona reguła `astro-repo-compat.mdc` (`zones`, nie `slots`).
+
+### Porcja 2 — identyfikatory publiczne
+
+**Decyzja produktowa:** slugi zostają **przemianowane wstecznie**, z przekierowaniami 301. Jedna konwencja w całym projekcie, bez listy wyjątków — dzięki temu walidacja może działać na całym katalogu treści, a nie tylko na zapisie.
+
+#### Naprawa mechanizmu
+
+- Jedna funkcja slugująca jako SSOT, z jawną mapą transliteracji (`ł→l`, `Ł→L` i pozostałe znaki bez dekompozycji NFD).
+- Wymuszenie normalizacji na slugach kategorii i stron statycznych, nie tylko wpisów (P0-3).
+- Test parametryzowany po pełnym polskim alfabecie.
+
+#### Migracja wsteczna — zakres
+
+| Obiekt | Ile | Uwagi |
+|--------|-----|-------|
+| Wpisy | **7 z 23** | `og-oszenie-*` ×4, `zapraszamy-do-wspo-tworzenia-*`, `plan-ogolny-gminy-informacje-szczego-owe`, `viii-…-dla-m-odziezy-*` |
+| Kategorie | **2 z 4** | `zarządzenia` → `zarzadzenia`; `planogólnygminymiedzna` → `plan-ogolny-gminy-miedzna` (brak `ó` **i** brak separatorów) |
+| Pole `category` we wpisach | 6 wpisów | wszystkie należące do przemianowanych kategorii |
+| `href` w menu | **~10 z 57** | literały w `omnipress-layout.json`, **nie** wyliczane z kategorii |
+| Pole `slug` w bazie OmniPress | 7 rekordów | musi zmienić się razem z katalogiem |
+
+Kategorie są ważniejsze niż wpisy: slug kategorii wchodzi w ścieżkę **każdego** należącego do niej wpisu, więc `planogólnygminymiedzna` psuje sześć adresów naraz.
+
+#### Kolejność operacji (jedna transakcja logiczna)
+
+URL wpisu bierze się z **nazwy katalogu** w repo Astro (`entry.id` w `getStaticPaths`), nie z pola we front-matterze. Ten sam slug żyje jednak w czterech miejscach i muszą zmienić się razem:
+
+1. Naprawić funkcję slugującą i wymusić ją na kategoriach.
+2. Wyliczyć nowe slugi dla 7 wpisów i 2 kategorii (dry-run do zatwierdzenia).
+3. Zaktualizować `posts.slug` w bazie **i** katalogi w repo Astro w jednej operacji.
+4. Przepisać pole `category` w 6 wpisach i `href` w menu.
+5. Dodać przekierowania 301 (`redirects` w `astro.config.mjs` — adapter Vercel generuje je natywnie).
+
+**Ryzyko:** jeśli baza rozjedzie się z repo, następna edycja wpisu opublikuje go do nowego katalogu i zostawi stary jako sierotę — ten sam artykuł dwa razy na stronie. Całe ryzyko leży w kolejności kroków, nie w trudności technicznej.
+
+**Uzasadnienie przekierowań:** to strona gminy. `og-oszenie-o-przetargu` to ogłoszenie o przetargu, `og-oszenie-o-przekazaniu-planu-ogolnego…` to dokument planistyczny. Takie adresy trafiają do pism, e-maili i BIP-u i nikt ich stamtąd nie poprawi.
+
+**Kryterium wyjścia:** test przechodzi dla `ą ć ę ł ń ó ś ź ż` i wersji wielkich; żaden slug w repo Astro ani w `omnipress-layout.json` nie zawiera znaków spoza `[a-z0-9-]`; wszystkie stare adresy odpowiadają 301.
+
+### Porcja 3 — siatka bezpieczeństwa repo Astro
+
+- Workflow CI odpowiadający temu z OmniPress: `lint`, `astro check`, `test`, `build`.
+- ESLint z konfiguracją zgodną z OmniPress.
+- Runner testów oparty na globie zamiast ręcznej listy plików.
+
+**Kryterium wyjścia:** CI zielone na `main` i wymagane w PR.
+
+### Porcja 4 — higiena repo Astro
+
+- Usunięcie śledzonych śmieci i `archived_packages/`.
+- `.gitignore`: `.env*`, pliki robocze.
+- Poprawa `name` i strategii wersjonowania; wyrównanie wersji Astro między repo.
+- **Decyzja architektoniczna:** czy assety wpisów mają dalej trafiać do gita, czy do Blob/Storage z referencją we front-matterze.
+
+**Kryterium wyjścia:** `git ls-files` bez artefaktów; zapisana decyzja o assetach.
+
+### Porcja 5 — i18n i teksty UI (OmniPress)
+
+Skan wykonany: ~268 wystąpień (P1-13), ponad 25 martwych kluczy (P2-5). Kolejność prac:
+
+- Usunąć fallbacki `?? 'polski tekst'` w komponentach `layout-slots/` — klucze już istnieją w `admin-panels.ts`, fallback tylko maskuje ich brak.
+- Przenieść teksty z `ChannelTestButton.astro` i `lib/admin/channel-test.ts` do i18n.
+- Zdecydować, co z komunikatami w `throw new Error(` — czy to teksty dla użytkownika (wtedy i18n), czy diagnostyka dla logów (wtedy zostają, ale reguła musi to dopuszczać wprost).
+- Wyczyścić martwe klucze.
+
+**Kryterium wyjścia:** reguła lintu wykrywająca polskie diakrytyki poza `src/i18n/`, z jawną listą wyjątków — inaczej 268 wystąpień odrośnie.
+
+### Porcja 6 — struktura, rozmiar plików, pokrycie testami
+
+- Podział plików z P2-3 wzdłuż sensownych granic **albo** świadomy, zapisany wyjątek. Dziś konwencja jest po prostu martwa i to jest gorsze niż jej brak.
+- Rozstrzygnąć regułę warstw (P1-10): wymusić lintem albo przeformułować. Trzecia opcja — zostawić jak jest — oznacza, że `docs/KONWENCJE.md` przestaje być wiarygodne jako całość.
+- Testy dla modułów krytycznych z tabeli P1-11, zaczynając od `supabase/cookies.ts` i `middleware/pipeline.ts`.
+- Załatać dziury w `lint-ui-classes.mjs` (P1-12) — szczególnie pomijanie całej linii zawierającej `ui-`.
+- Scalić cztery moduły paneli załączników w jeden helper (P1-14).
+- Wyciągnąć logikę z `pages/admin/index.astro` (49 linii frontmatter, 4 zapytania Supabase) i `pages/dashboard/posts/[id].astro` (~84 linie) do `lib/`.
+
+**Kryterium wyjścia:** brak plików ponad 200 linii bez wpisu na liście wyjątków; testy dla wszystkich modułów krytycznych; reguła warstw albo egzekwowana, albo poprawiona.
+
+### Porcja 7 — bezpieczeństwo i uprawnienia
+
+- **Testy integracyjne RLS** — [STATUS.md](./STATUS.md) sam przyznaje, że ich nie ma. Deklaracja bezpieczeństwa bez weryfikacji.
+- Szyfrowanie i rotacja tokenów GitHub/Vercel (`ENCRYPTION_KEY`).
+- CSP z nonce, nagłówki HTTP, origin check, rate limit auth — weryfikacja na produkcji, nie w kodzie.
+- Walidacja uploadu po magic bytes, limity rozmiaru.
+- Przegląd `.admin-password.txt` i `scripts/tmp-*` pod kątem danych, które nie powinny leżeć na dysku.
+
+**Kryterium wyjścia:** zestaw testów RLS potwierdzający, że redaktor nie sięgnie poza przypisane strony.
+
+### Porcja 8 — dokumentacja jako SSOT
+
+- Wyrównanie [STATUS.md](./STATUS.md) i [README.md](./README.md) do stanu faktycznego (P2-2).
+- Usunięcie martwych treści o WordPressie z `docs/OMNIPRESS.md` i `.omnipress.json` w repo Astro.
+- Poprawa reguły `astro-repo-compat.mdc`.
+
+**Kryterium wyjścia:** skrypt weryfikujący, że każdy `setup:*` z `package.json` ma wiersz w tabeli migracji i odwrotnie — inaczej rozjedzie się znowu.
+
+### Porcja 9 — pełna ścieżka publikacji
+
+Jeden wpis przechodzący całą drogę: szkic → akceptacja → commit GitHub → build Vercel → render na stronie, z weryfikacją każdego artefaktu po drodze. Jedyna porcja wychwytująca błędy niewidoczne dla analizy statycznej.
+
+**Kryterium wyjścia:** scenariusz E2E obejmujący oba repo, uruchamialny na żądanie.
+
+---
+
+## Wniosek nadrzędny
+
+Struktura kontraktu jest zdrowsza, niż sugerowałby stan dokumentacji: wszystkie ID komponentów mają odpowiedniki po obu stronach, kształt `zones` się zgadza, strony statyczne są symetryczne. Problem leży gdzie indziej i ma jedną wspólną przyczynę.
+
+**Każda znaleziona awaria to miejsce, gdzie obie strony są gotowe, ale nikt ich nie połączył — i nic tego nie zgłasza.** `pinned` jest w schemacie repo Astro i w konfiguracji slota, ale OmniPress go nie zapisuje. `terytGmina` ma typ w OmniPress i obsługę w widgecie pogody, ale nie przechodzi przez parser. Slugi mają jedną funkcję normalizującą, której kategorie nie wywołują. Schemat Zod nie jest `.strict()`, więc nadmiarowe pola znikają bez śladu. Za każdym razem system woli po cichu zrobić nic, niż krzyknąć.
+
+Do tego dochodzi asymetria zabezpieczeń: cała siatka jakości (CI, lint, 354 testy) jest po stronie OmniPress, a repo Astro przyjmuje zapisy bez żadnej weryfikacji. Efekt: rozjazd wychodzi na jaw dopiero jako brakująca sekcja na stronie gminy.
+
+Porcje 1, 3 i 8 są dlatego ważniejsze niż pozostałe — każda dokłada mechanizm, który wykryje następny rozjazd sam. Bez nich kolejny audyt znajdzie nowy zestaw tych samych klas błędów.
+
+Decyzja o wstecznej zmianie slugów (porcja 2) upraszcza porcję 3: skoro po migracji obowiązuje jedna konwencja, walidacja slugów może objąć cały katalog treści i wejść do CI bez listy wyjątków.
+
+---
+
+## Powiązane dokumenty
+
+- [STATUS.md](./STATUS.md) — stan implementacji
+- [KONWENCJE.md](./KONWENCJE.md) — konwencje kodu
+- [WDROZENIE.md](./WDROZENIE.md) — bootstrap techniczny
+- [astro-repo-compat](../.cursor/rules/astro-repo-compat.mdc) — kontrakt między repozytoriami

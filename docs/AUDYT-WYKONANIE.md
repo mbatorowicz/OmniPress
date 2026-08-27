@@ -1,0 +1,249 @@
+# Audyt — kroki wykonawcze
+
+**SSOT:** jak naprawić. Co i dlaczego jest zepsute: [AUDYT.md](./AUDYT.md) (odwołania `P0-1`, `P1-4` itd. wskazują znaleziska z tamtego rejestru).
+
+Każde **podejście** jest samodzielne: da się je wykonać w jednym posiedzeniu, zweryfikować i zamknąć commitem. Kolejność 1–4 jest wiążąca, dalsze można przestawiać.
+
+Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
+
+| # | Podejście | Ryzyko | Blokuje |
+|---|-----------|--------|---------|
+| 1 | Punkt startu i higiena | zerowe | wszystko |
+| 2 | SSOT slugów (kod) | niskie | 3, 4 |
+| 3 | Dry-run migracji slugów | zerowe | 4 |
+| 4 | Migracja slugów i menu | **wysokie** | — |
+| 5 | Domknięcie kontraktu | niskie | — |
+| 6 | Test kontraktowy i reguła | zerowe | — |
+| 7 | CI w repo B | niskie | — |
+| 8 | Dokumentacja | zerowe | — |
+| 9 | i18n | niskie | — |
+| 10 | Testy modułów krytycznych | zerowe | — |
+| 11 | Refaktor struktury | średnie | — |
+| 12 | Assety poza gita | **decyzja** | — |
+
+---
+
+## Podejście 1 — punkt startu i higiena
+
+**Cel:** oba repo w znanym, czystym stanie. Bez tego kolejne podejścia pracują na nieaktualnych danych (P1-1).
+
+**Kroki**
+
+1. Repo B: `git pull` — lokalne `main` jest za `origin/main`, bo OmniPress publikuje przez GitHub API prosto do origin.
+2. Repo B: usunąć ze śledzenia `dump.txt`, `error.log`, `out.txt`, `zips.txt`, `Importuj_Paczki.bat`, `archived_packages/` (P1-4).
+3. Repo B: uzupełnić `.gitignore` o `.env*` — dziś ignorowane są tylko `.env` i `.env.production`, `.env.local` przechodzi.
+4. Repo B: poprawić `name` w `package.json` z `extra-earth` na `gmina-miedzna` (P1-5).
+5. Repo A: usunąć pięć skryptów `scripts/tmp-*` albo dodać `scripts/tmp-*` do `.gitignore` (P2-4).
+6. Repo A: rozstrzygnąć `public/omnipress/pdf-viewer.js` — jeśli to artefakt `build:pdf-viewer`, powinien być ignorowany, nie commitowany.
+
+**Weryfikacja:** `git status` czysty w obu repo; `npm run build` przechodzi w B.
+
+**Commit:** dwa osobne, po jednym na repo.
+
+---
+
+## Podejście 2 — SSOT slugów (sam kod, bez ruszania danych)
+
+**Cel:** jedna funkcja slugująca, poprawna dla polskich znaków, wymuszona wszędzie (P0-1, P0-2, P0-3).
+
+**Kroki**
+
+1. W `src/lib/admin/slug.ts` dodać jawną mapę transliteracji przed `normalize('NFD')`. Krytyczne: `ł→l`, `Ł→L`. `\p{Diacritic}` ich nie łapie, bo to samodzielne znaki bez dekompozycji. Warto od razu ująć `đ`, `ø`, `æ`, `ß`.
+2. Usunąć `slugFromTitle` z `src/lib/posts/access.ts` i przekierować wszystkie wywołania na `normalizeSlug`. Dwie funkcje z różnymi regexami to źródło rozjazdu.
+3. Wymusić `normalizeSlug` na slugu kategorii **po stronie serwera** — w `parse-form.ts`, nie tylko w UI. Walidacja w kliencie da się obejść.
+4. To samo dla slugów stron statycznych (`lib/site-pages/`).
+5. Test parametryzowany po `ą ć ę ł ń ó ś ź ż` plus wersje wielkie, w `src/lib/admin/slug.test.ts`.
+6. Test regresyjny na realnych przypadkach: `Ogłoszenie o przetargu → ogloszenie-o-przetargu`, `Plan Ogólny Gminy Miedzna → plan-ogolny-gminy-miedzna`.
+
+**Weryfikacja:** `npm test`, `npm run lint`, `npm run build` w repo A.
+
+**Uwaga:** po tym podejściu nowe wpisy mają poprawne slugi, stare wciąż zepsute. Stan przejściowy jest zamierzony.
+
+---
+
+## Podejście 3 — dry-run migracji slugów
+
+**Cel:** policzyć wszystkie zmiany i dać je do zatwierdzenia, **zanim** cokolwiek zostanie ruszone.
+
+**Kroki**
+
+1. Napisać `scripts/migrate-slugs.mjs` z obowiązkową flagą `--dry-run` (bez flagi `--apply` skrypt tylko raportuje).
+2. Skrypt czyta cztery źródła: `posts` z Supabase, katalogi `src/content/news/` w repo B, `categories` z `omnipress-layout.json`, oraz wszystkie `href` w menu z tego samego pliku.
+3. Dla każdego obiektu wylicza nowy slug przez `normalizeSlug` z podejścia 2 i raportuje tabelę `stare → nowe` osobno dla: rekordów w bazie, katalogów w repo, pola `category` we front-matterze, pozycji menu.
+4. Skrypt musi wykryć kolizje — jeśli dwa różne stare slugi dają ten sam nowy, przerwać z błędem.
+5. Wygenerować gotową listę przekierowań w formacie `redirects` dla `astro.config.mjs`.
+
+**Oczekiwany zakres** (do potwierdzenia przez skrypt): 7 wpisów z 23, 2 kategorie z 4, pole `category` w 6 wpisach, ~10 z 57 pozycji menu, 7 rekordów w bazie.
+
+**Weryfikacja:** ręczny przegląd raportu. Nic nie zostało zmienione.
+
+---
+
+## Podejście 4 — migracja slugów i menu
+
+**Cel:** wykonać migrację. To jedyne podejście o wysokim ryzyku — kolejność kroków jest istotniejsza niż ich treść.
+
+**Ryzyko:** jeśli baza rozjedzie się z repo, następna edycja wpisu opublikuje go do nowego katalogu i zostawi stary jako sierotę — ten sam artykuł dwa razy na stronie.
+
+**Kroki**
+
+1. Kopia zapasowa: dump tabeli `posts` i `sites.astro_layout`, plus tag w repo B na bieżącym `origin/main`.
+2. Baza A: `UPDATE posts SET slug = …` dla 7 rekordów.
+3. Repo B: `git mv` na 7 katalogach w `src/content/news/`.
+4. Repo B: zaktualizować pole `category` w 6 wpisach należących do przemianowanych kategorii.
+5. Layout: nowe slugi w `categories`, przepisane `href` w menu. **Przy okazji usunąć trzy martwe linki `/informacje/*`** (P0-6) — to ten sam plik, nie ma sensu ruszać go dwa razy.
+6. Layout w bazie A (`sites.astro_layout`) musi dostać tę samą treść co plik w repo B, inaczej następna publikacja layoutu cofnie zmiany.
+7. `astro.config.mjs` w B: przekierowania 301 ze starych adresów.
+8. Jeden commit w repo B, push, czekać na deploy Vercel.
+
+**Weryfikacja po deployu**
+
+- Każdy nowy adres zwraca 200.
+- Każdy stary adres zwraca 301 na nowy.
+- Żadna pozycja menu nie prowadzi do 404 — przejść wszystkie 57.
+- Edycja i ponowna publikacja jednego zmigrowanego wpisu z panelu **nie** tworzy drugiego katalogu.
+
+**Rollback:** revert commita w B + odwrotny `UPDATE` na bazie. Oba muszą pójść razem.
+
+---
+
+## Podejście 5 — domknięcie kontraktu
+
+**Cel:** połączyć rzeczy, które są gotowe po obu stronach, ale nikt ich nie spiął (P0-4, P0-5, P1-9).
+
+**Kroki**
+
+1. **`pinned`** (P0-4): kolumna w `posts`, przełącznik w panelu admina, zapis w `lib/publish/frontmatter.ts`. Repo B już to pole czyta i filtruje po nim slot `home.pinned` — dziś sekcja „Przypięte" jest z tego powodu zawsze pusta.
+2. **`terytGmina`** (P0-5): dodać do `parse.ts` i `parse-form.ts` w repo A. Typ już istnieje w `types.ts:62`, repo B jest gotowe (`weather-config.ts:50-53`). Zgodnie z regułą kompatybilności — symetria JSON ↔ FormData plus test w `parse.test.ts`.
+3. **Walidacja linków menu**: ustalić, dlaczego nie wykryła trzech linków do nieistniejącej kategorii `informacje` (P0-6). Rozstrzygnąć, czy sprawdza kategorie wpisów, czy tylko istnienie ścieżki. [STATUS.md](./STATUS.md) oznacza tę funkcję jako gotową — albo naprawić kod, albo poprawić deklarację.
+4. **Banner w strefie `home`**: zablokować w `components.ts:115-120`. Dziś konfiguracja przechodzi walidację w A, a repo B renderuje całą strefę `home` jako feed wpisów, więc banner wyświetli się źle.
+
+**Weryfikacja:** `npm test`, `npm run build`; po publikacji layoutu sekcja „Przypięte" pokazuje przypięty wpis.
+
+---
+
+## Podejście 6 — test kontraktowy i reguła
+
+**Cel:** żeby następny rozjazd wykrył się sam. To najważniejsze podejście w całym audycie.
+
+**Kroki**
+
+1. Schemat JSON layoutu trzymany w repo A obok `parse.ts`, z testem walidującym wyjście `buildLayoutFilePayload`.
+2. Test sprawdzający, że każdy `component` w wygenerowanym JSON należy do `LAYOUT_COMPONENT_IDS`.
+3. Test front-matteru: pola generowane przez `lib/publish/frontmatter.ts` przeciw schematowi z `content.config.ts` repo B. Uwaga — Zod tam **nie jest** `.strict()`, więc nadmiarowe pola znikają bez błędu (P1-6); test musi to wychwycić, bo runtime nie wychwyci.
+4. Poprawić regułę `.cursor/rules/astro-repo-compat.mdc`: klucz to `zones`, nie `slots` (P1-8).
+5. Zdecydować o martwym odczycie w repo B — `slots`, `weather`, `site.meta.url` (P2-6): usunąć albo opisać jako celowy fallback legacy.
+
+**Weryfikacja:** celowe zepsucie kontraktu (np. dopisanie nieznanego `component`) wywala test.
+
+---
+
+## Podejście 7 — CI w repo B
+
+**Cel:** repo B przestaje być stroną kontraktu bez żadnej kontroli (P1-2).
+
+**Kroki**
+
+1. `.github/workflows/ci.yml` wzorowany na tym z repo A: `npm ci`, `lint`, `astro check`, `test`, `build`.
+2. ESLint z konfiguracją zgodną z repo A.
+3. `astro check` do skryptów — `@astrojs/check` jest już w zależnościach i nikt go nie uruchamia.
+4. Zamienić ręczną listę czterech plików w `npm test` na glob — dziś nowy test nie uruchomi się, dopóki ktoś nie dopisze go do `package.json`.
+5. Dołożyć walidację slugów w treści. Po podejściu 4 obowiązuje jedna konwencja, więc może objąć cały katalog bez listy wyjątków.
+6. Załatać dziury w `lint-ui-classes.mjs` po stronie A (P1-12): rozszerzyć zakres o `components/shared/`, `layouts/`, `components/posts/` i naprawić pomijanie całej linii zawierającej `ui-`.
+
+**Weryfikacja:** CI zielone na `main`, wymagane w PR w obu repo.
+
+---
+
+## Podejście 8 — dokumentacja
+
+**Cel:** dokumentacja przestaje kłamać, i dostaje mechanizm, który to utrzyma (P2-1, P2-2).
+
+**Kroki**
+
+1. [STATUS.md](./STATUS.md): poprawić liczbę testów (72 pliki / 354 testy, nie 42), dopisać brakującą migrację `20250621000000_fix_kgw_post_slug.sql`.
+2. [README.md](./README.md): uzupełnić tabelę npm o brakujące skrypty (`setup:auth-rate-limits`, `setup:auth-mfa`, `setup:author-on-delete`, `setup:assets-*`, `setup:storage-import-admin`, `setup:posts-rejected-resubmit`, `verify:*`, `seed:nav-pages`, `lint`, `lint:ui`, `build:pdf-viewer`).
+3. Repo B: usunąć sekcję „Kanał WordPress" z `docs/OMNIPRESS.md` i pole `wordpress_site_url` z `.omnipress.json`. Ten typ destynacji nie istnieje od migracji `setup:remove-wordpress`.
+4. Repo B: poprawić opis formatu layoutu (`zones`, nie `slots`) i przykładowy front-matter, jeśli po podejściu 5 doszło `pinned`.
+5. Skrypt spójności: każdy `setup:*` z `package.json` ma wiersz w tabeli migracji w STATUS.md i odwrotnie. Dodać do `npm run lint`.
+
+**Weryfikacja:** skrypt spójności przechodzi; usunięcie wiersza z tabeli go wywala.
+
+---
+
+## Podejście 9 — i18n
+
+**Cel:** ~268 hardkodowanych napisów przestaje rosnąć (P1-13, P2-5).
+
+**Kroki**
+
+1. Usunąć fallbacki `?? 'polski tekst'` w `components/admin/layout-slots/` — właściwe klucze już są w `admin-panels.ts`, fallback tylko maskuje ich brak.
+2. Przenieść teksty z `ChannelTestButton.astro:36,57,61` i `lib/admin/channel-test.ts:141,148,166` do i18n. To komunikaty widoczne dla użytkownika.
+3. Rozstrzygnąć politykę dla `throw new Error(`: jeśli komunikat trafia do UI — i18n; jeśli tylko do logów — zostaje, ale reguła w [KONWENCJE.md](./KONWENCJE.md) musi to dopuszczać wprost.
+4. Usunąć potwierdzone martwe klucze (P2-5), zacząć od duplikatów `admin.postList.invalidAction` i `remoteFailed`.
+5. Reguła lintu wykrywająca polskie diakrytyki poza `src/i18n/`, z jawną listą wyjątków. Bez tego 268 wystąpień odrośnie.
+
+**Weryfikacja:** `npm run lint` z nową regułą przechodzi; `npm test` bez zmian.
+
+---
+
+## Podejście 10 — testy modułów krytycznych
+
+**Cel:** deklaracje bezpieczeństwa w [STATUS.md](./STATUS.md) dostają pokrycie (P1-11).
+
+Kolejność wg ryzyka, nie wg łatwości:
+
+1. `lib/supabase/cookies.ts` — sesja SSR.
+2. `lib/middleware/pipeline.ts` — pipeline SSR.
+3. `lib/auth/session.ts`, `guard-request.ts`, `routes.ts`.
+4. `lib/security/nonce.ts` — CSP.
+5. `lib/admin/require-admin.ts` — guard admina.
+6. `lib/publish/worker.ts`, `queue.ts`, `dispatch.ts`.
+7. `lib/publish/github-api.ts`.
+8. Testy integracyjne RLS — redaktor nie sięga poza przypisane strony. [STATUS.md](./STATUS.md) sam przyznaje, że ich nie ma.
+
+**Weryfikacja:** każdy nowy test musi paść po celowym zepsuciu modułu, który testuje. Test, który nie potrafi paść, niczego nie chroni.
+
+---
+
+## Podejście 11 — refaktor struktury
+
+**Cel:** [KONWENCJE.md](./KONWENCJE.md) znowu opisuje rzeczywistość (P2-3, P1-10, P1-14).
+
+**Kroki**
+
+1. **Reguła warstw** (P1-10) — rozstrzygnąć najpierw, bo determinuje resztę. Około 60 plików w `components/admin|posts` importuje `@/lib/`. Albo wymusić lintem i przenieść kod, albo przeformułować regułę (np. import typów i czystych helperów dozwolony, wywołania Supabase zabronione). Zostawienie jak jest oznacza, że cały dokument traci wiarygodność.
+2. Scalić cztery panele załączników (`pdf-`, `docx-`, `file-attachments.ts`, `gallery-panel.ts`) w jeden `createAttachmentPanel()` — ~170 linii ×4 tego samego wzorca.
+3. Wyciągnąć logikę z `pages/admin/index.astro` (49 linii frontmatter, 4 zapytania Supabase) do `lib/admin/queue-hub.ts` i z `pages/dashboard/posts/[id].astro` (~84 linie) do `lib/posts/editor-page.ts`.
+4. Podzielić największe moduły: `navigation-form-client.ts` (815), `github-api.ts` (700), `parse-form.ts` (659), `admin-panels.ts` (692).
+5. Repo B: `Navigation.astro` (428), `load-config.ts` (423), `WeatherWidget.astro` (385).
+6. Czego nie da się podzielić sensownie — wpisać na jawną listę wyjątków. Milcząca tolerancja jest gorsza niż brak reguły.
+
+**Weryfikacja:** `npm test` i `npm run build` w obu repo; brak pliku ponad 200 linii bez wpisu na liście wyjątków.
+
+---
+
+## Podejście 12 — assety poza gita (decyzja architektoniczna)
+
+**Cel:** rozstrzygnąć P1-3. To nie jest zadanie do wykonania, tylko decyzja do podjęcia.
+
+**Stan:** repo B waży 66 MB (28 MB spakowane), w tym dwa PDF-y po ~31 MB. Każda wersja załącznika zostaje w historii na zawsze. Przyrost jest liniowy względem liczby publikacji, a limit wpisu w panelu to 50 MB.
+
+**Opcje**
+
+| Wariant | Zaleta | Koszt |
+|---------|--------|-------|
+| Zostawić w gicie | zero zmian, treść wersjonowana razem z kodem | repo rośnie bez ograniczeń; klon i build coraz wolniejsze |
+| Duże pliki do Storage/Blob, referencja we front-matterze | repo stałej wielkości | zmiana kontraktu → wymaga podejścia 6; assety poza wersjonowaniem |
+| Próg hybrydowy (np. powyżej 5 MB do Storage) | kompromis | dwie ścieżki do utrzymania |
+
+**Do policzenia przed decyzją:** przyrost MB na miesiąc przy obecnym tempie publikacji i moment, w którym build zaczyna przekraczać limity Vercela.
+
+---
+
+## Powiązane dokumenty
+
+- [AUDYT.md](./AUDYT.md) — rejestr znalezisk i uzasadnienia
+- [KONWENCJE.md](./KONWENCJE.md) — konwencje kodu
+- [STATUS.md](./STATUS.md) — stan implementacji
+- [astro-repo-compat](../.cursor/rules/astro-repo-compat.mdc) — kontrakt między repozytoriami
