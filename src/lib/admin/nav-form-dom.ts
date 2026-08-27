@@ -33,11 +33,11 @@ export function readNavTargetOptions(): NavTargetOptions | null {
 }
 
 export function getEditorRows(body: HTMLElement): HTMLElement[] {
-	return [...body.querySelectorAll('.nav-row-editor')];
+	return [...body.querySelectorAll<HTMLElement>('.nav-row-editor')];
 }
 
 export function getNavEntries(body: HTMLElement): HTMLElement[] {
-	return [...body.querySelectorAll('.nav-entry')];
+	return [...body.querySelectorAll<HTMLElement>('.nav-entry')];
 }
 
 export function getNavEntry(element: HTMLElement): HTMLElement | null {

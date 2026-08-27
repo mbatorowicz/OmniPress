@@ -91,10 +91,11 @@ async function putGitHubFileViaGitData(
 	content: string | ArrayBuffer,
 	message: string,
 ): Promise<{ sha: string; commitSha: string }> {
-	const { sha } = await createGitBlob(cfg, token, {
-		path: filePath,
-		content: typeof content === 'string' ? content : new Uint8Array(content),
-	});
+	const file: GitHubFileWrite =
+		typeof content === 'string'
+			? { path: filePath, content }
+			: { path: filePath, content: new Uint8Array(content) };
+	const { sha } = await createGitBlob(cfg, token, file);
 	const { commitSha } = await commitTreeEntries(
 		cfg,
 		token,

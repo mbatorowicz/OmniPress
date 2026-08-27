@@ -2,6 +2,7 @@
 import { slotFormAttr } from '@/lib/admin/layout-form-ids';
 import { slotFormFields as slotFieldNames } from '@/lib/astro-layout/slot-form-fields';
 import {
+	getComponentKind,
 	getComponentsAddableInZone,
 	getComponentsOfKind,
 	LAYOUT_COMPONENT_KINDS,
@@ -37,6 +38,7 @@ export interface SectionFieldLabels {
 	bannerPage: string;
 	bannerExternalUrl: string;
 	weatherTerytPowiat: string;
+	weatherTerytGmina: string;
 	weatherLat: string;
 	weatherLon: string;
 	weatherMapZoom: string;
@@ -118,7 +120,8 @@ export interface SectionBuildConfig {
 	formId?: string;
 }
 
-function fa(config: SectionBuildConfig): string {
+/** Atrybut `form=` dla pól renderowanych poza znacznikiem formularza (dialogi slotów). */
+function fa(config: { formId?: string }): string {
 	return slotFormAttr(config.formId);
 }
 
@@ -458,13 +461,14 @@ export function buildSlotCardHtml(
 	config: {
 		componentLabels: Record<string, string>;
 		settingsLabel: string;
-		disabledLabel: string;
+		enabledLabel: string;
 		enabled?: boolean;
 		order?: number;
 		summaryHtml?: string;
 		zone?: string;
 		zoneLabel?: string;
 		zoneBadgePrefix?: string;
+		formId?: string;
 	},
 ): string {
 	const componentLabel = config.componentLabels[component] ?? component;
@@ -498,7 +502,7 @@ export function buildSlotCardHtml(
 				<div class="layout-slot-card__actions">
 					<label class="layout-slot-card__enabled flex items-center gap-1.5 text-sm">
 						<input type="checkbox"${fa(config)} name="slot_enabled_${id}" ${enabled ? 'checked' : ''} class="slot-card-enabled" />
-						<span>Wł.</span>
+						<span>${config.enabledLabel}</span>
 					</label>
 					<button type="button" class="slot-settings-open ui-btn ui-btn--secondary ui-btn--compact" data-dialog-id="slot-dialog-${id}" onclick="var d=document.getElementById(this.dataset.dialogId);if(d&&typeof d.showModal==='function'){try{d.showModal()}catch(e){console.error('[OmniPress] showModal:',e)}}">${config.settingsLabel}</button>
 				</div>

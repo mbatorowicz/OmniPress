@@ -4,7 +4,7 @@
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { listSites } from '@/lib/admin/sites';
-import type { SiteRow } from '@/lib/posts/site';
+import type { Site } from '@/lib/types';
 
 export type AdminQueuePost = {
 	id: string;
@@ -19,7 +19,7 @@ export type AdminQueuePost = {
 };
 
 export type AdminQueueHubData = {
-	sites: SiteRow[];
+	sites: Site[];
 	pending: AdminQueuePost[];
 	/** Wpisy w publikacji i zaplanowane w jednej sekcji — patrz `loadAdminQueueHub`. */
 	scheduled: AdminQueuePost[];
@@ -34,7 +34,7 @@ const POST_SELECT =
 const PUBLISHED_LIMIT = 30;
 
 /** Strona domyślna dla importu: ta z adresu, jeśli istnieje; inaczej pierwsza z listy. */
-export function resolveImportSiteId(sites: SiteRow[], requestedSiteId: string | null): string {
+export function resolveImportSiteId(sites: Site[], requestedSiteId: string | null): string {
 	if (requestedSiteId && sites.some((s) => s.id === requestedSiteId)) return requestedSiteId;
 	return sites[0]?.id ?? '';
 }
@@ -58,7 +58,8 @@ export async function loadAdminQueueHub(
 			.order(orderColumn, { ascending });
 		if (limit) query = query.limit(limit);
 		const { data } = await query;
-		return (data ?? []) as AdminQueuePost[];
+		// Supabase typuje zagnieżdżone `sites(name)` jako tablicę, choć relacja jest 1:1.
+		return (data ?? []) as unknown as AdminQueuePost[];
 	};
 
 	const [pending, scheduled, publishing, published] = await Promise.all([

@@ -6,7 +6,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { adminUsers } from '@/i18n';
 import { canReopenPost } from '@/lib/admin/posts';
 import { loadSiteAstroDestination } from '@/lib/admin/sites';
-import type { SiteDestinationLink } from '@/lib/admin/sites';
+import type { DestinationForPublish } from '@/lib/publish/types';
 import { listPublishLogsForPost, type PublishLogRow } from '@/lib/publish';
 import { getPostById, type PostRow } from '@/lib/posts/access';
 import { loadPostPreview, type PostPreview } from '@/lib/posts/post-preview';
@@ -16,7 +16,7 @@ export type PostReviewPage = {
 	siteName: string | null;
 	/** `null` tylko wtedy, gdy konto autora zostało usunięte razem z profilem. */
 	authorName: string | null;
-	siteChannel: SiteDestinationLink | null;
+	siteChannel: DestinationForPublish | null;
 	publishLogs: PublishLogRow[];
 	isPending: boolean;
 	canManagePinned: boolean;

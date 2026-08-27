@@ -28,7 +28,7 @@ export interface LayoutSlotsClientConfig extends SectionBuildConfig {
 	singletonComponents: string[];
 	settingsLabel: string;
 	closeLabel: string;
-	disabledLabel: string;
+	enabledLabel: string;
 	zoneLabels?: Record<string, string>;
 	zoneBadgePrefix?: string;
 	templateLabels?: Record<string, string>;
@@ -183,7 +183,8 @@ function appendSlotUi(
 	const cardHtml = buildSlotCardHtml(id, label, component, {
 		componentLabels: config.componentLabels,
 		settingsLabel: config.settingsLabel,
-		disabledLabel: config.disabledLabel,
+		enabledLabel: config.enabledLabel,
+		formId: config.formId,
 		order,
 		zone: targetZone,
 		zoneLabel: config.zoneLabels?.[targetZone],

@@ -14,6 +14,7 @@ import {
 	type PostRow,
 } from '@/lib/posts/access';
 import { loadPostPreview, type PostPreview } from '@/lib/posts/post-preview';
+import type { UserRole } from '@/lib/types';
 import type { CategoryOption } from '@/lib/categories/types';
 
 export type PostEditorPage = {
@@ -34,7 +35,7 @@ export type PostEditorPage = {
 export async function loadPostEditorPage(
 	supabase: SupabaseClient,
 	postId: string,
-	viewer: { userId: string; role: string },
+	viewer: { userId: string; role: UserRole },
 ): Promise<PostEditorPage | null> {
 	const post = await getPostById(supabase, postId);
 	if (!post) return null;

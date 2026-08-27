@@ -123,9 +123,23 @@ Skutek jest łagodniejszy, niż wyglądał na pierwszy rzut oka: parser repo Ast
 
 JSON layoutu jest importowany statycznie, bez Zod i bez whitelisty (`load-config.ts:1`). Nieznany `component` nie renderuje się po cichu albo renderuje się źle — build przechodzi. OmniPress waliduje przy imporcie (`parse.ts:230`, `isLayoutComponentId`), więc ochrona jest tylko po jednej stronie. Powiązany przypadek: `sidebar.banner` jest dozwolony w strefie `home` (`components.ts:115-120`), ale repo Astro renderuje całą strefę `home` jako feed wpisów — konfiguracja poprawna według A, błędna wizualnie w B.
 
-### P1-10 — reguła warstw jest łamana systemowo
+### P1-10 — reguła warstw jest łamana systemowo — ✅ zamknięte
 
-[KONWENCJE.md](./KONWENCJE.md) mówi, że `components/admin/` i `components/posts/` importują tylko `ui/` i `shell/`. Realnie **około 60 plików** importuje bezpośrednio z `@/lib/` (m.in. `LayoutSlotChromePanel.astro:3-4`, `PostGalleryPanel.astro:3`, `AdminPostsTable.astro:234`). Reguła łamana sześćdziesiąt razy nie jest regułą — trzeba ją albo wymusić lintem, albo przeformułować tak, żeby opisywała rzeczywistość (np. dopuścić import typów i czystych helperów, zakazać wywołań Supabase).
+[KONWENCJE.md](./KONWENCJE.md) mówiła, że `components/admin/` i `components/posts/` importują tylko `ui/` i `shell/`. Realnie **około 60 plików** importowało bezpośrednio z `@/lib/` (m.in. `LayoutSlotChromePanel.astro:3-4`, `PostGalleryPanel.astro:3`, `AdminPostsTable.astro:234`). Reguła łamana sześćdziesiąt razy nie jest regułą.
+
+**Rozstrzygnięcie (podejście 11):** reguła przeformułowana na „komponent nie sięga po dane" — typy, czyste helpery i skrypty klienta wolno, moduł operujący na kliencie Supabase nie. Wymusza ją `scripts/lint-layers.mjs`, który wylicza zbiór modułów danych z grafu importów zamiast z listy do utrzymania. Konsekwencja przy pisaniu `lib/`: moduł nie miesza czystej logiki z zapytaniami — stąd wzorzec `foo-model.ts` obok `foo.ts`. Szczegóły: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) §Podejście 11.
+
+### P1-15 — repo nie sprawdza typów
+
+`npm run lint` uruchamia ESLint bez reguł typowanych, a `astro build` kompiluje esbuildem, który typów nie weryfikuje. **W pipeline nie ma kroku `tsc --noEmit`** — na dzień audytu daje on **148 błędów w 52 plikach**.
+
+To nie jest hałas lintera. Trzy defekty naprawione w podejściu 11 były błędami typów, które nikt nie sprawdzał:
+
+- `componentToKind()` w `layout-slots-sections.ts` wołało `getComponentKind` bez importu — `ReferenceError` przy każdym otwarciu panelu slotu w przeglądarce;
+- `SectionFieldLabels` nie miało pola `weatherTerytGmina`, więc etykieta w panelu pogody renderowała się jako `undefined`;
+- `buildSlotCardHtml` dostawało obiekt bez `formId`, więc checkbox „Wł." na karcie dodanej po stronie klienta nie trafiał do wysyłanego formularza.
+
+Wszystkie trzy `tsc` pokazuje jednym przebiegiem. Plan naprawy: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) §Podejście 13.
 
 ### P0-7 — migracja blokady eskalacji nigdy nie trafiła na produkcję — ✅ zamknięte
 
@@ -176,9 +190,11 @@ Dominują dwa wzorce. Pierwszy to fallbacki `?? 'polski tekst'` w komponentach l
 
 Najbardziej rażące: `ChannelTestButton.astro:57,61` — `'Błąd testu'`, `'Błąd sieci — spróbuj ponownie.'` bezpośrednio w komponencie.
 
-### P1-14 — czterokrotna duplikacja panelu załączników
+### P1-14 — czterokrotna duplikacja panelu załączników — ✅ zamknięte
 
-`lib/editor/pdf-attachments.ts`, `docx-attachments.ts`, `file-attachments.ts` i `gallery-panel.ts` to cztery niemal identyczne moduły po ~170 linii, realizujące ten sam wzorzec `readLabels → confirm → fetch DELETE → alert`. Jeden `createAttachmentPanel()` zastąpiłby wszystkie.
+`lib/editor/pdf-attachments.ts`, `docx-attachments.ts`, `file-attachments.ts` i `gallery-panel.ts` to były cztery niemal identyczne moduły po ~170 linii, realizujące ten sam wzorzec `readLabels → confirm → fetch DELETE → alert`.
+
+Zamknięte w podejściu 11: `lib/editor/attachment-panel.ts` (wspólny cykl) + `file-attachment-panel.ts` (PDF, DOCX, pliki) + render galerii w `gallery-panel.ts`. Trzy pierwsze moduły usunięte.
 
 ### P2-1 — martwa dokumentacja WordPressa w repo Astro
 
@@ -194,18 +210,20 @@ Najbardziej rażące: `ChannelTestButton.astro:57,61` — `'Błąd testu'`, `'B�
 
 ### P2-3 — pliki ponad limit konwencji
 
-[KONWENCJE.md](./KONWENCJE.md) wymaga poniżej 150 linii i podziału powyżej 200. Realnie 28 plików przekracza 200 linii.
+[KONWENCJE.md](./KONWENCJE.md) wymaga poniżej 150 linii i podziału powyżej 200. Realnie 28 plików przekraczało 200 linii.
 
-| Repo | Plik | Linie |
-|------|------|-------|
-| OmniPress | `src/lib/admin/navigation-form-client.ts` | 815 |
-| OmniPress | `src/lib/publish/github-api.ts` | 700 |
-| OmniPress | `src/i18n/pl/admin-panels.ts` | 692 |
-| OmniPress | `src/lib/astro-layout/parse-form.ts` | 659 |
-| OmniPress | `src/lib/admin/layout-slots-sections.ts` | 497 |
-| Astro | `src/components/Navigation.astro` | 428 |
-| Astro | `src/config/load-config.ts` | 423 |
-| Astro | `src/components/WeatherWidget.astro` | 385 |
+| Repo | Plik | Linie | Po podejściu 11 |
+|------|------|------:|----------------:|
+| OmniPress | `src/lib/admin/navigation-form-client.ts` | 815 | 98 |
+| OmniPress | `src/lib/publish/github-api.ts` | 700 | 39 (barrel) |
+| OmniPress | `src/i18n/pl/admin-panels.ts` | 692 | 12 (barrel) |
+| OmniPress | `src/lib/astro-layout/parse-form.ts` | 659 | 170 |
+| OmniPress | `src/lib/admin/layout-slots-sections.ts` | 497 | — |
+| Astro | `src/components/Navigation.astro` | 428 | — |
+| Astro | `src/config/load-config.ts` | 423 | — |
+| Astro | `src/components/WeatherWidget.astro` | 385 | — |
+
+Limit egzekwuje `scripts/lint-file-size.mjs` (podejście 11). Pozostałe 18 plików ma jawny wpis w `scripts/file-size-exceptions.json` — każdy z własnym limitem, więc nie mogą rosnąć dalej; 16 z nich to dług oznaczony `DŁUG P2-3`.
 
 ### P2-4 — pliki robocze w OmniPress — ✅ zamknięte
 

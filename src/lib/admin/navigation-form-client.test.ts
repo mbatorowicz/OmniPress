@@ -42,6 +42,7 @@ const labels: NavigationTableLabels = {
 		navLinkType: 'Typ linku',
 		navLinkTarget: 'Adres / cel',
 		navMenuColumns: 'Układ dropdownu',
+		navMenuColumnCount: 'Liczba kolumn',
 		navMenuColumnWidth1: 'Szerokość kolumny 1',
 		navMenuColumnWidth2: 'Szerokość kolumny 2',
 	},

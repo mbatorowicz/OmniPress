@@ -373,6 +373,42 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (chainowalny, th
 
 **Weryfikacja:** `npm test` i `npm run build` w obu repo; brak pliku ponad 200 linii bez wpisu na liście wyjątków.
 
+### Wykonano (2026-08-27) — repo A
+
+**1. Reguła warstw (P1-10) — przeformułowana i wymuszona lintem.** `components/**` nie sięga po dane: wolno importować typy, czyste helpery i skrypty klienta, nie wolno modułu operującego na kliencie Supabase (bezpośrednio lub przez łańcuch importów). Pilnuje tego `scripts/lint-layers.mjs`, który **wylicza zbiór modułów danych z grafu importów** zamiast trzymać listę do ręcznej aktualizacji — nowy moduł z Supabase obejmuje regułę sam. Flaga `--explain` pokazuje łańcuch, który zakwalifikował plik.
+
+Lint wymusił rozdzielenie modułów mieszających czystą logikę z zapytaniami — stąd wzorzec `foo-model.ts` (kształt danych, predykaty, adresy) obok `foo.ts` (baza): `posts/asset-model.ts` ↔ `posts/assets.ts`, `publish/asset-model.ts` ↔ `publish/assets.ts`, `astro-layout/validate-nav.ts` ↔ `astro-layout/nav-known-paths.ts`.
+
+**2. Panele załączników (P1-14) — cztery kopie w jednej fabryce.** `createAttachmentPanel()` obsługuje wspólny cykl (kolejność, usuwanie, upload, stan pusty), a wywołujący dostarcza render pojedynczego elementu. PDF, DOCX i pliki ogólne dzielą `file-attachment-panel.ts`; galeria ma własny render. Usunięte `pdf-attachments.ts`, `docx-attachments.ts`, `file-attachments.ts` oraz `appendGalleryAsset` bez wywołań. 12 testów w `attachment-panel.test.ts`; test przełącznika stanu pustego zweryfikowany mutacją.
+
+**3. Logika z tras do `lib/`.** `admin/index.astro` → `admin/queue-hub.ts`, `dashboard/posts/[id].astro` → `posts/editor-page.ts`, `admin/posts/[id].astro` → `admin/post-review-page.ts` + `post-review-flash.ts`; wspólny podgląd wpisu w `posts/post-preview.ts`.
+
+**4. Podział modułów ponad limit.**
+
+| Plik | Przed | Po | Rozbity na |
+|------|------:|---:|-----------|
+| `admin/navigation-form-client.ts` | 912 | 98 | `nav-form-` {labels, dom, fields, dropdown, markup, summary, rows, events} |
+| `astro-layout/parse-form.ts` | 736 | 170 | `parse-form-` {fields, widgets, footer, slots, nav, categories} |
+| `publish/github-api.ts` | 775 | 39 (barrel) | `github-api-` {config, read, commit, write, delete, list} |
+| `i18n/pl/admin-panels.ts` | 692 | 12 (barrel) | 9 modułów domenowych |
+
+Przy `github-api.ts` trzy niemal identyczne pętle „tree → commit → PATCH refa z ponowieniem" zeszły do jednego `commitTreeEntries()`; przy okazji `deleteGitHubFilesBatch` zyskał ponawianie przy konflikcie tipu, którego wcześniej nie miał. Z `navigation-form-client.ts` wypadły trzy martwe eksporty `@deprecated` — w tym `initNavigationRowFromServerState` z 35 liniami polskich etykiet zaszytych w kodzie wbrew SSOT i18n.
+
+**6. Lista wyjątków rozmiaru.** `scripts/lint-file-size.mjs` (limit 200) plus `scripts/file-size-exceptions.json`, gdzie każdy wpis ma **własny limit i uzasadnienie**. Limit jest ciasny, więc plik z listy nie może rosnąć; skrypt zgłasza też wpisy nieaktualne, gdy plik zmalał lub zniknął. Uzasadnienie z prefiksem `DŁUG P2-3` oznacza plik czekający na podział, nie zaakceptowany rozmiar. Stan: 18 wyjątków, w tym 2 trwałe (SSOT typów i lista ID komponentów).
+
+**Cztery defekty znalezione przy okazji — naprawione:**
+
+1. **`componentToKind()` wywoływał nieistniejącą funkcję.** `layout-slots-sections.ts` używa `getComponentKind` bez importu → `ReferenceError` w przeglądarce przy każdym wywołaniu z `layout-slots-client.ts` (rozpoznanie typu banera, budowa panelu slotu).
+2. **Etykieta „TERYT gminy" renderowała się jako `undefined`.** Klucz i18n istniał, ale `layout-slots-client-vars.ts` go nie przekazywał, a `SectionFieldLabels` nie miał pola.
+3. **Checkbox „Wł." na karcie slotu bez atrybutu `form`.** `buildSlotCardHtml` wołało `fa(config)` na obiekcie bez `formId`, więc karta dodana po stronie klienta poza znacznikiem formularza nie wysyłała `slot_enabled_*`. Przy okazji tekst „Wł." wyszedł z kodu do `adminLayout.slotCardEnabledShort` (klucz istniał, nieużywany), a martwy parametr `disabledLabel` zniknął.
+4. **Typy w modułach wyciągniętych z tras.** `queue-hub.ts` deklarował `SiteRow` (wiersz przypisania) zamiast `Site`, `post-review-page.ts` mylił `SiteDestinationLink` z `DestinationForPublish`.
+
+**Skąd te defekty:** `npm run lint` to ESLint bez sprawdzania typów, a `astro build` używa esbuild, który typów nie weryfikuje. **W repo nie ma kroku typecheck** — `npx tsc --noEmit` daje 148 błędów w 52 plikach. Trzy powyższe defekty siedziały w kodzie, bo nic ich nie pytało. Osobne podejście: [Podejście 13](#podejście-13--typecheck-w-pipeline).
+
+**Wynik weryfikacji:** `npm test` 638/638 (+22 RLS opt-in) · `npm run lint` OK · `npm run build` OK.
+
+**Pozostaje:** krok 5 (repo B — `Navigation.astro`, `load-config.ts`, `WeatherWidget.astro`) oraz 16 wpisów `DŁUG P2-3` na liście wyjątków.
+
 ---
 
 ## Podejście 12 — assety poza gita (decyzja architektoniczna)
@@ -390,6 +426,23 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (chainowalny, th
 | Próg hybrydowy (np. powyżej 5 MB do Storage) | kompromis | dwie ścieżki do utrzymania |
 
 **Do policzenia przed decyzją:** przyrost MB na miesiąc przy obecnym tempie publikacji i moment, w którym build zaczyna przekraczać limity Vercela.
+
+---
+
+## Podejście 13 — typecheck w pipeline
+
+**Cel:** żaden błąd typów nie dojeżdża na produkcję (P1-15, znalezione w podejściu 11).
+
+**Stan:** `npm run lint` uruchamia ESLint bez reguł wymagających typów, a `astro build` kompiluje esbuildem, który typów nie sprawdza. `npx tsc --noEmit` daje **148 błędów w 52 plikach**. Trzy realne defekty UI naprawione w podejściu 11 przeszły do repo właśnie tędy.
+
+**Kroki**
+
+1. `npm i -D @types/node` + `types: ["node"]` w `tsconfig.json` — znaczna część błędów to nierozpoznane `Buffer`, `process`, `node:*`.
+2. Skrypt `npm run typecheck` (`tsc --noEmit`) i dopięcie go do `npm run lint`, żeby jeden `lint` był bramką.
+3. Zejście z listy błędów w kolejności ryzyka: najpierw kod produkcyjny (`src/lib/**`, `src/pages/**`), potem testy.
+4. Do czasu wyzerowania — baseline w stylu listy wyjątków rozmiaru plików: plik z baseline nie może dostać nowych błędów.
+
+**Weryfikacja:** `npm run typecheck` bez błędów poza jawnym baseline; celowe zepsucie typu w losowym module wywala `npm run lint`.
 
 ---
 
