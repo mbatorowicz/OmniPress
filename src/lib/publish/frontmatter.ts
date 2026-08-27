@@ -9,6 +9,7 @@ export type AstroPostFrontmatter = AstroCategoryFields & {
 	coverImage?: string;
 	galleryImages?: string[];
 	excerpt?: string;
+	pinned?: boolean;
 };
 
 function yamlQuote(value: string): string {
@@ -23,6 +24,7 @@ function frontmatterExtras(meta?: Partial<AstroPostFrontmatter>): string {
 		lines += `\ngalleryImages: [${meta.galleryImages.map(yamlQuote).join(', ')}]`;
 	}
 	if (meta.excerpt) lines += `\nexcerpt: ${yamlQuote(meta.excerpt)}`;
+	if (meta.pinned === true) lines += '\npinned: true';
 	return lines;
 }
 

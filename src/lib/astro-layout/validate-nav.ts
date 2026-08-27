@@ -21,6 +21,19 @@ export function normalizeInternalHref(href: string): string {
 	return trimmed || '/';
 }
 
+/** Wpisy mają postać /{kategoria}/{slug} — wystarczy znana kategoria w pierwszym segmencie. */
+export function isKnownInternalPath(href: string, knownInternalPaths: Set<string>): boolean {
+	const normalized = normalizeInternalHref(href);
+	if (knownInternalPaths.has(normalized)) return true;
+
+	const segments = normalized.split('/').filter(Boolean);
+	if (segments.length >= 2 && knownInternalPaths.has(`/${segments[0]}`)) {
+		return true;
+	}
+
+	return false;
+}
+
 export function collectNavHrefs(items: NavItem[], parentLabels: string[] = []): NavLinkRef[] {
 	const refs: NavLinkRef[] = [];
 	for (const item of items) {
@@ -71,7 +84,7 @@ export function validateNavigationLinks(
 				issues.push({ href: '', labelPath, reason: 'missing_href' });
 			} else if (href && !isExternalHref(href)) {
 				const normalized = normalizeInternalHref(href);
-				if (!knownInternalPaths.has(normalized)) {
+				if (!isKnownInternalPath(normalized, knownInternalPaths)) {
 					issues.push({ href: normalized, labelPath, reason: 'dead_link' });
 				}
 			}

@@ -5,6 +5,7 @@ export type ParsedAstroPost = {
 	categorySlug: string;
 	categoryName: string;
 	draft: boolean;
+	pinned: boolean;
 	excerpt: string | null;
 	coverImage: string | null;
 	galleryImages: string[];
@@ -65,6 +66,7 @@ export function parseAstroPostFile(raw: string): ParsedAstroPost | null {
 		categorySlug,
 		categoryName: String(fields.categoryName ?? categorySlug).trim() || categorySlug,
 		draft: fields.draft === true,
+		pinned: fields.pinned === true,
 		excerpt: typeof fields.excerpt === 'string' ? fields.excerpt : null,
 		coverImage: typeof fields.coverImage === 'string' ? fields.coverImage : null,
 		galleryImages,

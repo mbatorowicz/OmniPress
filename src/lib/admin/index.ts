@@ -20,6 +20,7 @@ export {
 export { getSiteById, getSiteDestinations, listSites, loadSiteAstroDestination, resolveSitePublishDestinationIds, countSitePosts, deleteSite, type SiteDestinationLink } from './sites';
 export {
 	approvePost,
+	setPostPinned,
 	rejectPost,
 	reopenPostForEditing,
 	canReopenPost,

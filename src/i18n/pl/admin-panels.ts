@@ -444,6 +444,7 @@ export const adminLayout = {
 		certAdvisoriesEnabled: 'Pokaż komunikaty CERT na stronie',
 		weatherHeading: 'Widget ostrzeżeń meteorologicznych (sidebar.weather)',
 		weatherTerytPowiat: 'TERYT powiatu (4 cyfry, np. 1433 — powiat węgrowski)',
+		weatherTerytGmina: 'TERYT gminy (7 cyfr, opcjonalnie — filtr ostrzeżeń IMGW)',
 		weatherLat: 'Szerokość geogr. (lat)',
 		weatherLon: 'Długość geogr. (lon)',
 		weatherMapZoom: 'Zoom mapy',
@@ -646,6 +647,14 @@ export const adminDestinations = {
 
 export const adminReview = {
 	approve: 'Zaakceptuj i opublikuj',
+	pinned: {
+		label: 'Przypnij na stronie głównej',
+		hint: 'Wpis pojawi się w sekcji „Przypięte” na stronie głównej (jeśli slot jest włączony w layoucie).',
+		heading: 'Strona główna',
+		save: 'Zapisz przypięcie',
+		saved: 'Ustawienie przypięcia zapisane.',
+		savedRepublish: 'Przypięcie zapisane — front-matter zostanie zaktualizowany w tle.',
+	},
 	reject: 'Odrzuć do poprawki',
 	rejectionNote: 'Uwagi dla redaktora (wymagane przy odrzuceniu)',
 	destinations: 'Publikacja na stronie',

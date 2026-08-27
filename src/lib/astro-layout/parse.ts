@@ -114,6 +114,9 @@ function parseWidget(raw: unknown): SlotWidgetConfig | undefined {
 	if (typeof w.terytPowiat === 'string' && w.terytPowiat.trim()) {
 		widget.terytPowiat = w.terytPowiat.trim();
 	}
+	if (typeof w.terytGmina === 'string' && w.terytGmina.trim()) {
+		widget.terytGmina = w.terytGmina.trim();
+	}
 	if (w.mapCenter && typeof w.mapCenter === 'object') {
 		const lat = Number((w.mapCenter as { lat?: unknown }).lat);
 		const lon = Number((w.mapCenter as { lon?: unknown }).lon);

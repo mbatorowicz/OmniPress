@@ -12,7 +12,7 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 2 | SSOT slugów (kod) — ✅ **wykonane** | niskie | 3, 4 |
 | 3 | Dry-run migracji slugów — ✅ **wykonane** | zerowe | 4 |
 | 4 | Migracja slugów i menu — ✅ **wykonane** | **wysokie** | — |
-| 5 | Domknięcie kontraktu | niskie | — |
+| 5 | Domknięcie kontraktu — ✅ **wykonane** | niskie | — |
 | 6 | Test kontraktowy i reguła | zerowe | — |
 | 7 | CI w repo B | niskie | — |
 | 8 | Dokumentacja | zerowe | — |
@@ -183,6 +183,15 @@ Brak kolizji slugów. Baza ↔ repo — te same 23 slugi katalogów.
 4. **Banner w strefie `home`**: zablokować w `components.ts:115-120`. Dziś konfiguracja przechodzi walidację w A, a repo B renderuje całą strefę `home` jako feed wpisów, więc banner wyświetli się źle.
 
 **Weryfikacja:** `npm test`, `npm run build`; po publikacji layoutu sekcja „Przypięte" pokazuje przypięty wpis.
+
+### Wykonano (2026-08-27)
+
+- **`pinned` (P0-4):** migracja `20250827000000_posts_pinned.sql` + `npm run setup:posts-pinned`; kolumna `posts.pinned`; checkbox przy akceptacji wpisu i panel „Strona główna" dla opublikowanych/zaplanowanych; zapis `pinned: true` w `frontmatter.ts` i import z GitHub (`astro-post-parse.ts`).
+- **`terytGmina` (P0-5):** round-trip JSON ↔ FormData w `parse.ts`, `parse-form.ts`, `slot-form-fields.ts`, UI widgetu pogody; test w `parse.test.ts`.
+- **Walidacja menu (P0-6):** przyczyna — walidacja sprawdzała tylko dokładne dopasowanie ścieżki, nie prefix kategorii wpisu (`/{kategoria}/{slug}`). Naprawa: `isKnownInternalPath()` w `validate-nav.ts` + testy regresji na `/informacje/…`.
+- **Banner w strefie `home` (P1-9):** usunięto `home` z `allowedZones` komponentu `sidebar.banner` w `components.ts`.
+
+**Wynik weryfikacji:** `npm test` 378/378 · `npm run build` OK · migracja `setup:posts-pinned` OK.
 
 ---
 

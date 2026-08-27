@@ -321,6 +321,8 @@ function parseWeatherWidget(form: FormData, id: string, widget: SlotWidgetConfig
 	if (form.get(slotFormFields.hideWhenEmpty(id)) === 'on') widget.hideWhenEmpty = true;
 	const terytPowiat = strField(form, slotFormFields.weather.terytPowiat(id));
 	if (terytPowiat) widget.terytPowiat = terytPowiat;
+	const terytGmina = strField(form, slotFormFields.weather.terytGmina(id));
+	if (terytGmina) widget.terytGmina = terytGmina;
 	const lat = Number(strField(form, slotFormFields.weather.lat(id)));
 	const lon = Number(strField(form, slotFormFields.weather.lon(id)));
 	if (Number.isFinite(lat) && Number.isFinite(lon)) widget.mapCenter = { lat, lon };

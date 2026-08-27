@@ -21,7 +21,7 @@ export async function loadPostForPublish(
 	const { data } = await supabase
 		.from('posts')
 		.select(
-			'id, site_id, title, slug, content_md, status, updated_at, scheduled_publish_at, category_slug, category_name',
+			'id, site_id, title, slug, content_md, status, updated_at, scheduled_publish_at, category_slug, category_name, pinned',
 		)
 		.eq('id', postId)
 		.maybeSingle();

@@ -83,6 +83,7 @@ describe('astro-layout parse', () => {
 						title: 'Ostrzeżenia',
 						limit: 5,
 						terytPowiat: '1465',
+						terytGmina: '1433042',
 						mapCenter: { lat: 52, lon: 21 },
 						detailsDisplay: 'modal',
 						detailsLayout: 'stacked',
@@ -102,6 +103,7 @@ describe('astro-layout parse', () => {
 		const weather = parsed.slots.find((s) => s.component === 'sidebar.weather');
 		const recent = parsed.slots.find((s) => s.component === 'sidebar.recent_changes');
 		expect(weather?.widget?.terytPowiat).toBe('1465');
+		expect(weather?.widget?.terytGmina).toBe('1433042');
 		expect(weather?.widget?.detailsDisplay).toBe('modal');
 		expect(weather?.widget?.detailsLayout).toBe('stacked');
 		expect(weather?.widget?.detailsSummary).toBe('Pełne szczegóły');
@@ -243,6 +245,7 @@ describe('parseLayoutFromFormData', () => {
 		form.append('slot_component', 'sidebar.weather');
 		form.set('slot_enabled_sidebar_weather', 'on');
 		form.append('slot_weather_teryt_powiat__sidebar_weather', '1433');
+		form.append('slot_weather_teryt_gmina__sidebar_weather', '1433042');
 		form.append('slot_weather_details_display__sidebar_weather', 'modal');
 		form.append('slot_weather_details_layout__sidebar_weather', 'stacked');
 		form.append('slot_weather_details_summary__sidebar_weather', 'Szczegóły');
@@ -252,6 +255,7 @@ describe('parseLayoutFromFormData', () => {
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		const weather = result.layout.slots.find((s) => s.component === 'sidebar.weather');
+		expect(weather?.widget?.terytGmina).toBe('1433042');
 		expect(weather?.widget?.detailsDisplay).toBe('modal');
 		expect(weather?.widget?.detailsLayout).toBe('stacked');
 		expect(weather?.widget?.detailsSummary).toBe('Szczegóły');

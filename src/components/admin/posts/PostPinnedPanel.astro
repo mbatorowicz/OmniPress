@@ -1,0 +1,26 @@
+---
+import { adminReview } from '@/i18n';
+import Button from '@/components/ui/actions/Button.astro';
+import Checkbox from '@/components/ui/form/Checkbox.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+
+type Props = {
+	postId: string;
+	pinned: boolean;
+};
+
+const { postId, pinned } = Astro.props;
+const ui = adminReview.pinned;
+---
+
+<Panel class="space-y-3">
+	<form method="post" action={`/api/admin/posts/${postId}/pinned`} class="space-y-3">
+		<p class="ui-subheading">{ui.heading}</p>
+		<p class="ui-hint">{ui.hint}</p>
+		<label class="flex items-center gap-2">
+			<Checkbox name="pinned" checked={pinned} />
+			<span>{ui.label}</span>
+		</label>
+		<Button type="submit" variant="secondary">{ui.save}</Button>
+	</form>
+</Panel>

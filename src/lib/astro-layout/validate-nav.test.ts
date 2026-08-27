@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { NavItem } from './types';
 import {
 	collectNavHrefs,
+	isKnownInternalPath,
 	validateNavigationLinks,
 	type NavLinkRef,
 } from './validate-nav';
@@ -46,6 +47,28 @@ describe('validate-nav', () => {
 		const nav: NavItem[] = [{ label: 'Pusta' }];
 		const issues = validateNavigationLinks(nav, new Set());
 		expect(issues[0].reason).toBe('missing_href');
+	});
+
+	it('akceptuje link do wpisu gdy kategoria istnieje', () => {
+		const nav: NavItem[] = [{ label: 'Wpis', href: '/aktualnosci/jakis-wpis' }];
+		const known = new Set(['/aktualnosci']);
+		expect(validateNavigationLinks(nav, known)).toHaveLength(0);
+	});
+
+	it('zgłasza link do wpisu z nieistniejącą kategorią', () => {
+		const nav: NavItem[] = [
+			{ label: 'Martwy', href: '/informacje/aktywizacja-zawodowa-osob-bezrobotnych' },
+		];
+		const known = new Set(['/aktualnosci', '/kontakt']);
+		const issues = validateNavigationLinks(nav, known);
+		expect(issues).toHaveLength(1);
+		expect(issues[0]?.href).toBe('/informacje/aktywizacja-zawodowa-osob-bezrobotnych');
+	});
+
+	it('isKnownInternalPath rozpoznaje prefix kategorii', () => {
+		const known = new Set(['/aktualnosci']);
+		expect(isKnownInternalPath('/aktualnosci/foo', known)).toBe(true);
+		expect(isKnownInternalPath('/informacje/foo', known)).toBe(false);
 	});
 });
 

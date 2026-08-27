@@ -333,6 +333,7 @@ export async function publishToGitHubAstro(
 			coverImage: prepared.coverImage ?? undefined,
 			galleryImages: prepared.galleryImages.length ? prepared.galleryImages : undefined,
 			excerpt: excerpt || undefined,
+			pinned: post.pinned ? true : undefined,
 		});
 
 		const remoteMdSha = await getGitHubFileBlobSha(cfg, creds.token, filePath);

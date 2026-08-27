@@ -24,6 +24,7 @@ export type PostForPublish = {
 	scheduled_publish_at?: string | null;
 	category_slug: string | null;
 	category_name: string | null;
+	pinned?: boolean;
 };
 
 export type DestinationForPublish = {

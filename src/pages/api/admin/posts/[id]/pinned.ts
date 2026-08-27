@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
-import { approvePost } from '@/lib/admin';
+import { setPostPinned } from '@/lib/admin';
 import { getPostById } from '@/lib/posts';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
@@ -16,10 +16,11 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const form = await request.formData();
 	const pinned = form.get('pinned') === 'on';
 
-	const result = await approvePost(supabase, post, { pinned });
+	const result = await setPostPinned(supabase, post, pinned);
 	if (!result.ok) {
 		return redirect(`/admin/posts/${postId}?error=${result.error}`);
 	}
-	const qs = result.scheduled ? 'approved=1&scheduled=1' : 'approved=1';
+
+	const qs = result.republishQueued ? 'pinned=1&republish=1' : 'pinned=1';
 	return redirect(`/admin/posts/${postId}?${qs}`);
 };

@@ -32,4 +32,13 @@ describe('buildAstroMarkdown', () => {
 		expect(md).toContain('excerpt: "Krótki opis"');
 		expect(md).toContain('Treść');
 	});
+
+	it('dodaje pinned: true gdy wpis przypięty (folder)', () => {
+		const md = buildAstroMarkdown('Tytuł', 'Treść', '2026-06-03T12:00:00Z', 'folder', {
+			slug: 'aktualnosci',
+			name: 'Aktualności',
+			pinned: true,
+		});
+		expect(md).toContain('pinned: true');
+	});
 });

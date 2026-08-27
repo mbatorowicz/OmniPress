@@ -297,6 +297,7 @@ async function importOnePost(
 		content_md: sanitizeStorageMarkdown(parsed.body),
 		category_slug: parsed.categorySlug || null,
 		category_name: parsed.categoryName || null,
+		pinned: parsed.pinned,
 		status: 'published' as const,
 	};
 

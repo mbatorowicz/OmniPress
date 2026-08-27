@@ -36,13 +36,13 @@ describe('layout component kinds', () => {
 	it('pozwala umieścić IMGW w stopce', () => {
 		expect(isComponentAllowedInZone('sidebar.weather', 'footer')).toBe(true);
 		expect(isComponentAllowedInZone('sidebar.weather', 'home')).toBe(false);
-		expect(getAllowedZones('sidebar.banner')).toEqual(['sidebar', 'footer', 'home']);
+		expect(getAllowedZones('sidebar.banner')).toEqual(['sidebar', 'footer']);
 	});
 
 	it('zwraca komponenty dodawalne w strefie', () => {
 		expect(getComponentsAddableInZone('footer')).toContain('sidebar.weather');
 		expect(getComponentsAddableInZone('footer')).toContain('footer.main');
-		expect(getComponentsAddableInZone('home')).toContain('sidebar.banner');
+		expect(getComponentsAddableInZone('home')).not.toContain('sidebar.banner');
 	});
 
 	it('zwraca komponenty danego kind', () => {

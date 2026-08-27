@@ -115,7 +115,7 @@ export const LAYOUT_COMPONENTS = {
 	'sidebar.banner': {
 		kind: 'banner',
 		defaultZone: 'sidebar',
-		allowedZones: ['sidebar', 'footer', 'home'],
+		allowedZones: ['sidebar', 'footer'],
 		singleton: false,
 		categoryFeed: false,
 	},

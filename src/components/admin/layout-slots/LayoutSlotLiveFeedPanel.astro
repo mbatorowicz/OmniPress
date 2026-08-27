@@ -98,6 +98,10 @@ const isWeather = slot.component === 'sidebar.weather';
 					<Input form={formId} name={slotFormFields.weather.terytPowiat(slot.id)} value={w.terytPowiat ?? ''} class="font-mono" />
 				</Label>
 				<Label>
+					<span class="font-medium">{fields.weatherTerytGmina}</span>
+					<Input form={formId} name={slotFormFields.weather.terytGmina(slot.id)} value={w.terytGmina ?? ''} class="font-mono" />
+				</Label>
+				<Label>
 					<span class="font-medium">{fields.weatherMapZoom}</span>
 					<Input
 						name={slotFormFields.weather.mapZoom(slot.id)}

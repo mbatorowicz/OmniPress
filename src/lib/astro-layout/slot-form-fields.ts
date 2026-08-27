@@ -44,6 +44,7 @@ export const slotFormFields = {
 		title: (slotId: string) => field('slot_weather_title', slotId),
 		emptyText: (slotId: string) => field('slot_weather_empty_text', slotId),
 		terytPowiat: (slotId: string) => field('slot_weather_teryt_powiat', slotId),
+		terytGmina: (slotId: string) => field('slot_weather_teryt_gmina', slotId),
 		lat: (slotId: string) => field('slot_weather_lat', slotId),
 		lon: (slotId: string) => field('slot_weather_lon', slotId),
 		mapZoom: (slotId: string) => field('slot_weather_map_zoom', slotId),

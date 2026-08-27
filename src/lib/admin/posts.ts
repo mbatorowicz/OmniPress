@@ -59,6 +59,7 @@ async function queuePublishForDestination(
 export async function approvePost(
 	supabase: SupabaseClient,
 	post: PostRow,
+	options: { pinned?: boolean } = {},
 ): Promise<{ ok: true; scheduled: boolean } | { ok: false; error: string }> {
 	if (post.status !== 'pending') {
 		return { ok: false, error: 'not_pending' };
@@ -77,9 +78,15 @@ export async function approvePost(
 		if (!queued) return { ok: false, error: 'logs_failed' };
 	}
 
+	const updatePayload: { status: string; rejection_note: null; pinned?: boolean } = {
+		status: nextStatus,
+		rejection_note: null,
+	};
+	if (options.pinned !== undefined) updatePayload.pinned = options.pinned;
+
 	const { error: updateError } = await supabase
 		.from('posts')
-		.update({ status: nextStatus, rejection_note: null })
+		.update(updatePayload)
 		.eq('id', post.id)
 		.eq('status', 'pending');
 
@@ -88,6 +95,28 @@ export async function approvePost(
 	if (!notBefore) schedulePublishWorker();
 
 	return { ok: true, scheduled: Boolean(notBefore) };
+}
+
+/** Przypięcie wpisu na stronie głównej — po publikacji ponawia sync front-matter. */
+export async function setPostPinned(
+	supabase: SupabaseClient,
+	post: PostRow,
+	pinned: boolean,
+): Promise<{ ok: true; republishQueued: boolean } | { ok: false; error: string }> {
+	if (post.pinned === pinned) return { ok: true, republishQueued: false };
+
+	const { error } = await supabase.from('posts').update({ pinned }).eq('id', post.id);
+	if (error) return { ok: false, error: 'update_failed' };
+
+	if (post.status !== 'published') return { ok: true, republishQueued: false };
+
+	const destinationIds = await resolveSitePublishDestinationIds(supabase, post.site_id);
+	for (const destinationId of destinationIds) {
+		const queued = await queuePublishForDestination(supabase, post.id, destinationId);
+		if (!queued) return { ok: false, error: 'logs_failed' };
+	}
+	schedulePublishWorker();
+	return { ok: true, republishQueued: destinationIds.length > 0 };
 }
 
 export async function rejectPost(
@@ -231,7 +260,7 @@ export async function bulkApprovePosts(
 	const { data: posts } = await supabase
 		.from('posts')
 		.select(
-			'id, author_id, site_id, title, content_md, slug, status, rejection_note, category_slug, category_name, scheduled_publish_at',
+			'id, author_id, site_id, title, content_md, slug, status, rejection_note, category_slug, category_name, scheduled_publish_at, pinned',
 		)
 		.in('id', ids)
 		.eq('status', 'pending');
