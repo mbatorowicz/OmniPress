@@ -17,7 +17,7 @@ const { formId, slot, categories, categoryDisplays, publishedPages } = Astro.pro
 const componentLabel =
 	adminLayout.componentLabels[slot.component as keyof typeof adminLayout.componentLabels] ??
 	slot.component;
-const dialogTitle = `${adminLayout.slotDialogTitle ?? 'Ustawienia elementu'} — ${componentLabel}`;
+const dialogTitle = `${adminLayout.slotDialogTitle} — ${componentLabel}`;
 ---
 
 <dialog id={`slot-dialog-${slot.id}`} class="slot-settings-dialog">
@@ -25,7 +25,7 @@ const dialogTitle = `${adminLayout.slotDialogTitle ?? 'Ustawienia elementu'} —
 		<header class="slot-settings-dialog__header">
 			<h3 class="slot-settings-dialog__title">{dialogTitle}</h3>
 			<button type="button" class="slot-dialog-close ui-btn ui-btn--secondary ui-btn--compact" onclick="var d=this.closest('dialog');if(d&&typeof d.close==='function')d.close()">
-				{adminLayout.slotDialogClose ?? 'Zamknij'}
+				{adminLayout.slotDialogClose}
 			</button>
 		</header>
 		<div class="slot-settings-dialog__body">

@@ -68,7 +68,7 @@ const showSettings = slotHasSettingsPanel(slot.component);
 					checked={w.enabled !== false}
 					class="slot-card-enabled"
 				/>
-				<span>{adminLayout.slotCardEnabledShort ?? 'Wł.'}</span>
+				<span>{adminLayout.slotCardEnabledShort}</span>
 			</label>
 			{
 				showSettings && (
@@ -78,7 +78,7 @@ const showSettings = slotHasSettingsPanel(slot.component);
 						data-dialog-id={`slot-dialog-${slot.id}`}
 						onclick="var d=document.getElementById(this.dataset.dialogId);if(d&&typeof d.showModal==='function'){try{d.showModal()}catch(e){console.error('[OmniPress] showModal:',e)}}"
 					>
-						{adminLayout.slotDialogOpen ?? 'Ustawienia'}
+						{adminLayout.slotDialogOpen}
 					</button>
 				)
 			}

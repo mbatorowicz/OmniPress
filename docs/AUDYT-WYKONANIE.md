@@ -16,7 +16,7 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 6 | Test kontraktowy i reguła — ✅ **wykonane** | zerowe | — |
 | 7 | CI w repo B — ✅ **wykonane** | niskie | — |
 | 8 | Dokumentacja — ✅ **wykonane** | zerowe | — |
-| 9 | i18n | niskie | — |
+| 9 | i18n — ✅ **wykonane** | niskie | — |
 | 10 | Testy modułów krytycznych | zerowe | — |
 | 11 | Refaktor struktury | średnie | — |
 | 12 | Assety poza gita | **decyzja** | — |
@@ -289,6 +289,17 @@ Brak kolizji slugów. Baza ↔ repo — te same 23 slugi katalogów.
 5. Reguła lintu wykrywająca polskie diakrytyki poza `src/i18n/`, z jawną listą wyjątków. Bez tego 268 wystąpień odrośnie.
 
 **Weryfikacja:** `npm run lint` z nową regułą przechodzi; `npm test` bez zmian.
+
+### Wykonano (2026-08-27)
+
+- **layout-slots:** usunięto fallbacki `?? 'polski tekst'` — klucze tylko z `adminLayout` / `fields`.
+- **ChannelTestButton + channel-test.ts:** komunikaty UI w `adminDestinations.channelTest` (+ `client` dla skryptu).
+- **admin.ts:** usunięto martwe duplikaty `postList.invalidAction` i `postList.remoteFailed` (SSOT: `bulkErrors.*`).
+- **admin-panels.ts:** brakujące pola formularza (`siteMeta*`, `headerBrand*`, `localFeedEntriesHint`).
+- **KONWENCJE.md:** polityka `throw new Error` (UI → i18n; logi → dowolny język).
+- **lint-i18n.mjs** + `scripts/i18n-exceptions.json` — zero tolerancji w `layout-slots/`, `ChannelTestButton`, `channel-test.ts`; legacy w jawnej liście wyjątków.
+
+**Wynik weryfikacji:** `npm run lint` OK · `npm test` 388/388.
 
 ---
 

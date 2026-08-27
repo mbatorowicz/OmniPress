@@ -19,21 +19,21 @@ const { slots, categories, categoryDisplays, publishedPages } = Astro.props;
 const sorted = sortSlotsForEditor(slots);
 
 const zoneTitles: Record<LayoutZone, string> = {
-	site: adminLayout.slotsZoneSite ?? 'Meta strony',
-	topbar: adminLayout.slotsZoneTopbar ?? 'Pasek górny',
-	header: adminLayout.slotsZoneHeader ?? 'Nagłówek',
+	site: adminLayout.slotsZoneSite,
+	topbar: adminLayout.slotsZoneTopbar,
+	header: adminLayout.slotsZoneHeader,
 	home: adminLayout.slotsPreviewHomeZone,
 	sidebar: adminLayout.slotsPreviewSidebarZone,
-	footer: adminLayout.slotsZoneFooter ?? 'Stopka',
+	footer: adminLayout.slotsZoneFooter,
 };
 
 const zoneEmpty: Record<LayoutZone, string> = {
-	site: adminLayout.slotsZoneEmptySite ?? 'Brak slotu meta.',
-	topbar: adminLayout.slotsZoneEmptyTopbar ?? 'Brak slotu paska górnego.',
-	header: adminLayout.slotsZoneEmptyHeader ?? 'Brak slotów nagłówka.',
+	site: adminLayout.slotsZoneEmptySite,
+	topbar: adminLayout.slotsZoneEmptyTopbar,
+	header: adminLayout.slotsZoneEmptyHeader,
 	home: adminLayout.slotsZoneEmptyHome,
 	sidebar: adminLayout.slotsZoneEmptySidebar,
-	footer: adminLayout.slotsZoneEmptyFooter ?? 'Brak slotu stopki.',
+	footer: adminLayout.slotsZoneEmptyFooter,
 };
 ---
 

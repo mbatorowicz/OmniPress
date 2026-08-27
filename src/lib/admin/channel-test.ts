@@ -14,10 +14,12 @@ import {
 	resolveVercelToken,
 } from '@/lib/publish/vercel-api';
 import { auditGitHubToken, classifyGitHubToken } from './github-token';
-import { adminSites } from '@/i18n/pl/admin-panels';
+import { adminDestinations, adminSites } from '@/i18n/pl/admin-panels';
 import type { GitHubCredentials } from '@/lib/publish/credentials';
 
 export type ChannelTestResult = { ok: true; message: string } | { ok: false; message: string };
+
+const ct = adminDestinations.channelTest;
 
 function formatTokenAuditMessages(token: string): string[] {
 	const lines: string[] = [];
@@ -108,26 +110,26 @@ async function probeVercelChannel(
 ): Promise<string> {
 	const vercelCfg = parseVercelConfig(config);
 	if (!vercelCfg) {
-		return 'Vercel: nie skonfigurowano (opcjonalnie: ID projektu w polu poniżej).';
+		return ct.vercelNotConfigured;
 	}
 
 	const projectProbe = await probeVercelProject(vercelCfg, vercelToken);
 	if (!projectProbe.ok) {
-		return `Vercel: błąd projektu — ${projectProbe.detail}`;
+		return ct.vercelProjectError(projectProbe.detail);
 	}
 
 	try {
 		const recent = await listRecentDeployments(vercelCfg, vercelToken, 1);
 		const latest = recent[0];
 		if (!latest) {
-			return `Vercel: projekt „${projectProbe.name}” OK (brak deployów).`;
+			return ct.vercelNoDeploys(projectProbe.name);
 		}
 		const state = deploymentStateLabel(latest);
 		const sha = latest.meta?.githubCommitSha?.slice(0, 7) ?? '—';
-		return `Vercel: projekt „${projectProbe.name}” OK — ostatni deploy ${state} (commit ${sha}).`;
+		return ct.vercelOk(projectProbe.name, state, sha);
 	} catch (e) {
-		const msg = e instanceof Error ? e.message : 'nieznany błąd';
-		return `Vercel: projekt OK, ale lista deployów: ${msg.slice(0, 120)}`;
+		const msg = e instanceof Error ? e.message : ct.unknownError;
+		return ct.vercelDeployListError(msg.slice(0, 120));
 	}
 }
 
@@ -138,15 +140,12 @@ export async function testGitHubAstroChannel(
 	const config = buildConfig('github_astro', form);
 	const cfg = parseGitHubRepoConfig(config);
 	if (!cfg) {
-		return { ok: false, message: 'Podaj repozytorium w formacie owner/nazwa.' };
+		return { ok: false, message: ct.invalidRepo };
 	}
 
 	const token = await resolveGitHubToken(supabase, form);
 	if (!token) {
-		return {
-			ok: false,
-			message: 'Brak tokena GitHub — wpisz PAT lub zapisz destynację z zapisanym tokenem.',
-		};
+		return { ok: false, message: ct.noGitHubToken };
 	}
 
 	try {
@@ -154,7 +153,7 @@ export async function testGitHubAstroChannel(
 		if (!repoProbe.ok) {
 			return {
 				ok: false,
-				message: `GitHub repo: HTTP ${repoProbe.status}. ${repoProbe.detail}`,
+				message: ct.githubRepoError(repoProbe.status, repoProbe.detail),
 			};
 		}
 
@@ -163,12 +162,16 @@ export async function testGitHubAstroChannel(
 			return { ok: false, message: pathProbe.detail };
 		}
 
-		const githubMsg = `GitHub OK — ${cfg.owner}/${cfg.repo} (${cfg.branch}), folder „${cfg.contentPath}”.`;
+		const githubMsg = ct.githubOk(cfg.owner, cfg.repo, cfg.branch, cfg.contentPath);
 		const vercelCfg = parseVercelConfig(config);
 		if (!vercelCfg) {
 			return {
 				ok: true,
-				message: await appendTokenAuditMessages(cfg, token, `${githubMsg} Vercel: nie skonfigurowano.`),
+				message: await appendTokenAuditMessages(
+					cfg,
+					token,
+					`${githubMsg} ${ct.vercelNotConfiguredShort}`,
+				),
 			};
 		}
 
@@ -179,7 +182,7 @@ export async function testGitHubAstroChannel(
 				message: await appendTokenAuditMessages(
 					cfg,
 					token,
-					`${githubMsg} Vercel: brak tokena (VERCEL_TOKEN na serwerze lub pole w formularzu).`,
+					`${githubMsg} ${ct.vercelNoToken}`,
 				),
 			};
 		}
@@ -190,7 +193,7 @@ export async function testGitHubAstroChannel(
 			message: await appendTokenAuditMessages(cfg, token, `${githubMsg} ${vercelMsg}`),
 		};
 	} catch (e) {
-		const msg = e instanceof Error ? e.message : 'nieznany błąd sieci';
-		return { ok: false, message: `Nie udało się połączyć z GitHub: ${msg}` };
+		const msg = e instanceof Error ? e.message : ct.unknownNetworkError;
+		return { ok: false, message: ct.connectFailed(msg) };
 	}
 }

@@ -40,7 +40,7 @@ const recipient = w.invoiceData?.recipient ?? {};
 		component === 'topbar.tagline' ? (
 			<>
 				<label class="ui-label-inline sm:col-span-2">
-					<span class="font-medium">{fields.topbarText ?? 'Tekst paska górnego'}</span>
+					<span class="font-medium">{fields.topbarText}</span>
 					<input form={formId} name={slotFormFields.topbar.text(slot.id)} value={w.text ?? ''} class="ui-input-compact w-full" />
 				</label>
 				<label class="ui-label-inline sm:col-span-2 flex items-center gap-2">
@@ -51,37 +51,37 @@ const recipient = w.invoiceData?.recipient ?? {};
 						checked={w.accessibilityTools !== false}
 						class="ui-checkbox"
 					/>
-					<span class="font-medium">{fields.topbarAccessibilityTools ?? 'Narzędzia ułatwień dostępu'}</span>
+					<span class="font-medium">{fields.topbarAccessibilityTools}</span>
 				</label>
-				<p class="ui-hint sm:col-span-2">{adminLayout.topbarAccessibilityToolsHint ?? ''}</p>
+				<p class="ui-hint sm:col-span-2">{adminLayout.topbarAccessibilityToolsHint}</p>
 			</>
 		) : component === 'site.meta' ? (
 			<>
 				<label class="ui-label-inline">
-					<span class="font-medium">{fields.siteMetaName ?? 'Nazwa strony'}</span>
+					<span class="font-medium">{fields.siteMetaName}</span>
 					<input form={formId} name={slotFormFields.siteMeta.name(slot.id)} value={w.name ?? ''} class="ui-input-compact w-full" />
 				</label>
 				<label class="ui-label-inline sm:col-span-2">
-					<span class="font-medium">{fields.siteMetaDescription ?? 'Opis (SEO)'}</span>
+					<span class="font-medium">{fields.siteMetaDescription}</span>
 					<input form={formId} name={slotFormFields.siteMeta.description(slot.id)} value={w.description ?? ''} class="ui-input-compact w-full" />
 				</label>
 				<label class="ui-label-inline">
-					<span class="font-medium">{fields.siteMetaUrl ?? 'URL strony'}</span>
+					<span class="font-medium">{fields.siteMetaUrl}</span>
 					<input form={formId} name={slotFormFields.siteMeta.url(slot.id)} value={w.url ?? ''} class="ui-input-compact ui-input-compact--mono w-full" />
 				</label>
 			</>
 		) : component === 'header.brand' ? (
 			<>
 				<label class="ui-label-inline">
-					<span class="font-medium">{fields.headerBrandLogoUrl ?? 'URL logo'}</span>
+					<span class="font-medium">{fields.headerBrandLogoUrl}</span>
 					<input form={formId} name={slotFormFields.headerBrand.logoUrl(slot.id)} value={w.logoUrl ?? ''} class="ui-input-compact ui-input-compact--mono w-full" />
 				</label>
 				<label class="ui-label-inline">
-					<span class="font-medium">{fields.headerBrandLogoAlt ?? 'Alt logo'}</span>
+					<span class="font-medium">{fields.headerBrandLogoAlt}</span>
 					<input form={formId} name={slotFormFields.headerBrand.logoAlt(slot.id)} value={w.logoAlt ?? ''} class="ui-input-compact w-full" />
 				</label>
 				<label class="ui-label-inline">
-					<span class="font-medium">{fields.headerBrandHomeHref ?? 'Link strony głównej'}</span>
+					<span class="font-medium">{fields.headerBrandHomeHref}</span>
 					<input form={formId} name={slotFormFields.headerBrand.homeHref(slot.id)} value={w.homeHref ?? '/'} class="ui-input-compact ui-input-compact--mono w-full" />
 				</label>
 			</>

@@ -94,9 +94,7 @@ export const admin = {
 		bulkDeleted: (n: number) => `${n} wpisów usuniętych z OmniPress.`,
 		bulkSkipped: (n: number) => `${n} pozycji pominięto (np. inny status).`,
 		noneSelected: 'Nie zaznaczono żadnego wpisu.',
-		invalidAction: 'Nieprawidłowa akcja.',
 		remoteWarning: 'Nie udało się zdjąć wpisu ze strony — wpisy w CMS nie zostały usunięte.',
-		remoteFailed: 'Usuwanie ze strony nie powiodło się — sprawdź token GitHub i spróbuj ponownie.',
 	},
 	preview: {
 		title: 'Akceptacja wpisu',

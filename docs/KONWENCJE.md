@@ -9,6 +9,7 @@ Obowiązują przy każdej zmianie. Indeks dokumentacji: [README.md](./README.md)
 - Import: `import { auth, dashboard, … } from '@/i18n'` lub helpery (`postError`, `mapAuthError`).
 - Pliki językowe dzielone **po domenie** (`auth.ts`, `posts.ts`, …), każdy **krótki** (&lt; ~120 linii).
 - Kody błędów w URL (`?error=no_site`) — stałe w kodzie; **treść** z i18n po stronie strony.
+- **`throw new Error(...)`:** komunikat trafiający do UI (JSON API, flash, redirect z tekstem) — tylko przez i18n lub kod błędu mapowany na i18n. Wyjątek: wyłącznie logi serwera / asercje deweloperskie — wtedy język dowolny, bez eksponowania użytkownikowi.
 - Nazwa produktu w UI: `common.appName` (nie powielać stringa w wielu plikach).
 
 ## 2. Struktura katalogów
@@ -70,7 +71,7 @@ src/
 - **Przyciski:** `Button.astro` i `IconButton.astro` (`src/components/ui/actions/`); warianty w `src/styles/ui/buttons.css` (`ui-btn--link`, `ui-btn--link-danger`, `ui-btn--link-ghost`). Ikony w przyciskach: `pointer-events-none` (`Icon.astro` / `icons.ts`). HTML z TS: `button-markup.ts`.
 - **Teksty akcji:** `src/i18n/pl/ui.ts` — wspólne etykiety (`save`, `remove`, `confirm.removeItem`); domenowe pliki składają z `ui`.
 - **Zakaz** długich stringów Tailwind i surowych utility kolorów (`text-slate-*`, `bg-red-*` itd.) w plikach domenowych — komponent `ui/*` lub klasa `ui-*`.
-- **Lint:** `npm run lint` — ESLint (`src/**/*.{ts,tsx}`) + `scripts/lint-ui-classes.mjs` (kolory Tailwind w plikach domenowych).
+- **Lint:** `npm run lint` — ESLint (`src/**/*.{ts,tsx}`) + `scripts/lint-ui-classes.mjs` (kolory Tailwind w plikach domenowych) + `scripts/lint-docs-setup.mjs` + `scripts/lint-i18n.mjs` (polskie diakrytyki poza `src/i18n/` — patrz wyjątki w `scripts/i18n-exceptions.json`).
 - Importy wyłącznie przez alias `@/`.
 - Wyjątki: siatki flex/grid, edytor TipTap (`rich-editor`, `tiptap`), galeria, podgląd slotów (`layout-slots-preview.css`) — klasy strukturalne; kolory tylko przez tokeny/`ui-*`.
 

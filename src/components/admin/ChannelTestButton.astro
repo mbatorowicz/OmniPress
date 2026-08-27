@@ -7,6 +7,7 @@ interface Props {
 }
 
 const { destinationId } = Astro.props;
+const channelTestClient = adminDestinations.channelTest.client;
 ---
 
 <div
@@ -22,19 +23,24 @@ const { destinationId } = Astro.props;
 	<p class="mt-2 hidden text-sm" data-test-result role="status"></p>
 </div>
 
-<script>
+<script
+	define:vars={{
+		labelTest: adminDestinations.actions.testChannel,
+		labelTesting: channelTestClient.testing,
+		labelOk: channelTestClient.ok,
+		labelTestFailed: channelTestClient.testFailed,
+		labelNetworkError: channelTestClient.networkError,
+	}}
+>
 	function bindChannelTests() {
 		document.querySelectorAll('[data-channel-test]').forEach((root) => {
-			const el = root as HTMLElement;
-			const btn = el.querySelector('[data-test-btn]') as HTMLButtonElement | null;
-			const result = el.querySelector('[data-test-result]') as HTMLParagraphElement | null;
+			const el = root;
+			const btn = el.querySelector('[data-test-btn]');
+			const result = el.querySelector('[data-test-result]');
 			const api = el.dataset.testApi;
 			const destField = el.dataset.destField ?? '';
 			const fallbackDestId = el.dataset.destinationId ?? '';
 			if (!btn || !result || !api) return;
-
-			const labelTest = btn.textContent?.trim() ?? 'Testuj połączenie';
-			const labelTesting = 'Testowanie…';
 
 			btn.addEventListener('click', async () => {
 				const form = el.closest('form');
@@ -52,13 +58,13 @@ const { destinationId } = Astro.props;
 
 				try {
 					const res = await fetch(api, { method: 'POST', body: fd });
-					const data = (await res.json()) as { ok?: boolean; message?: string };
+					const data = await res.json();
 					const ok = Boolean(data.ok);
-					result.textContent = data.message ?? (ok ? 'OK' : 'Błąd testu');
+					result.textContent = data.message ?? (ok ? labelOk : labelTestFailed);
 					result.classList.add('ui-alert', ok ? 'ui-alert--success' : 'ui-alert--error');
 					result.classList.remove('hidden');
 				} catch {
-					result.textContent = 'Błąd sieci — spróbuj ponownie.';
+					result.textContent = labelNetworkError;
 					result.classList.add('ui-alert', 'ui-alert--error');
 					result.classList.remove('hidden');
 				} finally {

@@ -35,21 +35,21 @@ if (includeComponents?.length) {
 const zoneTitles = layoutZoneTitles();
 
 const zoneDesc: Record<LayoutZone, string> = {
-	topbar: adminLayout.slotsZoneDescTopbar ?? '',
-	header: adminLayout.slotsZoneDescHeader ?? '',
-	home: adminLayout.slotsZoneDescHome ?? '',
-	sidebar: adminLayout.slotsZoneDescSidebar ?? '',
-	footer: adminLayout.slotsZoneDescFooter ?? '',
-	site: adminLayout.slotsZoneDescSite ?? '',
+	topbar: adminLayout.slotsZoneDescTopbar,
+	header: adminLayout.slotsZoneDescHeader,
+	home: adminLayout.slotsZoneDescHome,
+	sidebar: adminLayout.slotsZoneDescSidebar,
+	footer: adminLayout.slotsZoneDescFooter,
+	site: adminLayout.slotsZoneDescSite,
 };
 
 const zoneEmpty: Record<LayoutZone, string> = {
-	site: adminLayout.slotsZoneEmptySite ?? 'Brak slotu meta.',
-	topbar: adminLayout.slotsZoneEmptyTopbar ?? 'Brak slotu paska górnego.',
-	header: adminLayout.slotsZoneEmptyHeader ?? 'Brak slotów nagłówka.',
+	site: adminLayout.slotsZoneEmptySite,
+	topbar: adminLayout.slotsZoneEmptyTopbar,
+	header: adminLayout.slotsZoneEmptyHeader,
 	home: adminLayout.slotsZoneEmptyHome,
 	sidebar: adminLayout.slotsZoneEmptySidebar,
-	footer: adminLayout.slotsZoneEmptyFooter ?? 'Brak komponentów stopki.',
+	footer: adminLayout.slotsZoneEmptyFooter,
 };
 
 const addableComponents = getComponentsAddableInZone(zone).filter((id) => {
@@ -91,7 +91,7 @@ const addableComponents = getComponentsAddableInZone(zone).filter((id) => {
 					}
 				</select>
 				<Button type="button" variant="add" class="zone-add-slot" data-zone={zone}>
-					{adminLayout.zoneAddElement ?? '+ Dodaj element'}
+					{adminLayout.zoneAddElement}
 				</Button>
 			</div>
 		)

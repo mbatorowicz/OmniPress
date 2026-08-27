@@ -292,6 +292,8 @@ export const adminLayout = {
 	slotsZoneEmptyTopbar: 'Brak slotu paska górnego.',
 	slotsZoneEmptyHeader: 'Brak slotów nagłówka.',
 	slotsZoneEmptyFooter: 'Brak slotu stopki.',
+	localFeedEntriesHint:
+		'Wpisy są zapisywane w pliku layoutu przy publikacji. Nowe ogłoszenie dodasz w sekcji poniżej.',
 	slotPanelSectionTitleLabel: 'Nazwa robocza slotu',
 	homeFeedCategoriesLabel: 'Kategorie wpisów w tym slocie',
 	homeFeedCategoriesHint:
@@ -472,6 +474,11 @@ export const adminLayout = {
 		topbarText: 'Tekst paska górnego',
 		topbarAccessibilityTools: 'Narzędzia ułatwień dostępu (kontrast, czcionka)',
 		siteMetaName: 'Nazwa strony (SEO)',
+		siteMetaDescription: 'Opis (SEO)',
+		siteMetaUrl: 'URL strony',
+		headerBrandLogoUrl: 'URL logo',
+		headerBrandLogoAlt: 'Alt logo',
+		headerBrandHomeHref: 'Link strony głównej',
 	},
 	footerFields: {
 		contactHeading: 'Dane kontaktowe',
@@ -643,6 +650,31 @@ export const adminDestinations = {
 		recentChangesPath: 'Plik ostatnich zmian w repozytorium',
 	},
 	actions: { testChannel: 'Testuj połączenie' },
+	channelTest: {
+		invalidRepo: 'Podaj repozytorium w formacie owner/nazwa.',
+		noGitHubToken:
+			'Brak tokena GitHub — wpisz PAT lub zapisz destynację z zapisanym tokenem.',
+		githubRepoError: (status: number, detail: string) => `GitHub repo: HTTP ${status}. ${detail}`,
+		githubOk: (owner: string, repo: string, branch: string, path: string) =>
+			`GitHub OK — ${owner}/${repo} (${branch}), folder „${path}".`,
+		vercelNotConfigured: 'Vercel: nie skonfigurowano (opcjonalnie: ID projektu w polu poniżej).',
+		vercelNotConfiguredShort: 'Vercel: nie skonfigurowano.',
+		vercelProjectError: (detail: string) => `Vercel: błąd projektu — ${detail}`,
+		vercelNoDeploys: (name: string) => `Vercel: projekt „${name}" OK (brak deployów).`,
+		vercelOk: (name: string, state: string, sha: string) =>
+			`Vercel: projekt „${name}" OK — ostatni deploy ${state} (commit ${sha}).`,
+		vercelDeployListError: (msg: string) => `Vercel: projekt OK, ale lista deployów: ${msg}`,
+		vercelNoToken: 'Vercel: brak tokena (VERCEL_TOKEN na serwerze lub pole w formularzu).',
+		connectFailed: (msg: string) => `Nie udało się połączyć z GitHub: ${msg}`,
+		unknownError: 'nieznany błąd',
+		unknownNetworkError: 'nieznany błąd sieci',
+		client: {
+			testing: 'Testowanie…',
+			ok: 'OK',
+			testFailed: 'Błąd testu',
+			networkError: 'Błąd sieci — spróbuj ponownie.',
+		},
+	},
 } as const;
 
 export const adminReview = {
