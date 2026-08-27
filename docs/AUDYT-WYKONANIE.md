@@ -13,8 +13,8 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 3 | Dry-run migracji slugów — ✅ **wykonane** | zerowe | 4 |
 | 4 | Migracja slugów i menu — ✅ **wykonane** | **wysokie** | — |
 | 5 | Domknięcie kontraktu — ✅ **wykonane** | niskie | — |
-| 6 | Test kontraktowy i reguła | zerowe | — |
-| 7 | CI w repo B | niskie | — |
+| 6 | Test kontraktowy i reguła — ✅ **wykonane** | zerowe | — |
+| 7 | CI w repo B — ✅ **wykonane** | niskie | — |
 | 8 | Dokumentacja | zerowe | — |
 | 9 | i18n | niskie | — |
 | 10 | Testy modułów krytycznych | zerowe | — |
@@ -234,6 +234,19 @@ Brak kolizji slugów. Baza ↔ repo — te same 23 slugi katalogów.
 6. Załatać dziury w `lint-ui-classes.mjs` po stronie A (P1-12): rozszerzyć zakres o `components/shared/`, `layouts/`, `components/posts/` i naprawić pomijanie całej linii zawierającej `ui-`.
 
 **Weryfikacja:** CI zielone na `main`, wymagane w PR w obu repo.
+
+### Wykonano (2026-08-27)
+
+- **Workflow:** `.github/workflows/ci.yml` — `npm ci`, `lint`, `check`, `test`, `build`.
+- **ESLint:** `eslint.config.js` + devDependencies (`eslint`, `@eslint/js`, `typescript-eslint`, `globals`); skrypt `npm run lint`.
+- **`astro check`:** skrypt `npm run check`; `tsconfig.json` wyklucza `public/`, `**/*.test.ts`, `eslint.config.js` (uniknięcie OOM na `pdf-viewer.js`).
+- **Testy glob:** `node --test "src/**/*.test.ts"` zamiast ręcznej listy czterech plików.
+- **Walidacja slugów:** `scripts/validate-content-slugs.mjs` w `npm test` — 42 wpisy news + 26 stron pages.
+- **Poprawki pod check:** prop `displaySlot` zamiast `slot` (konflikt z Astro), `is:inline` na skryptach DOM, typy paginacji, drobne null-safety.
+- **Repo A P1-12:** `lint-ui-classes.mjs` — zakres `src/layouts/`, `src/components/shared/`; usunięte pomijanie całej linii z `ui-`.
+
+**Wynik weryfikacji (repo B):** `npm run lint` OK · `npm run check` 0 errors · `npm test` 21/21 · `npm run build` OK.  
+**Repo A:** `npm run lint` OK (218 plików) · `npm test` 388/388.
 
 ---
 

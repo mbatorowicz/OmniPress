@@ -11,8 +11,10 @@ const MAX_CLASS_LEN = 120;
 
 const SCAN_DIRS = [
 	'src/pages',
+	'src/layouts',
 	'src/components/admin',
 	'src/components/posts',
+	'src/components/shared',
 	'src/components/shell',
 	'src/lib/editor',
 	'src/lib/admin',
@@ -59,11 +61,14 @@ function checkFile(filePath) {
 
 	for (const line of content.split('\n')) {
 		if (!line.includes('class="') && !line.includes("class='")) continue;
-		if (line.includes('ui-') || line.includes('nav-href-') || line.includes('slot-preview')) continue;
-		for (const colorMatch of line.matchAll(COLOR_UTILITY)) {
-			const already = issues.some((i) => i.includes(colorMatch[0]) && i.startsWith(rel));
-			if (!already) {
-				issues.push(`${rel}: niedozwolony utility koloru «${colorMatch[0]}»`);
+		for (const classMatch of line.matchAll(QUOTED_CLASS)) {
+			const raw = classMatch[2];
+			if (raw.includes('nav-href-') || raw.includes('slot-preview')) continue;
+			for (const colorMatch of raw.matchAll(COLOR_UTILITY)) {
+				const already = issues.some((i) => i.includes(colorMatch[0]) && i.startsWith(rel));
+				if (!already) {
+					issues.push(`${rel}: niedozwolony utility koloru «${colorMatch[0]}»`);
+				}
 			}
 		}
 	}
