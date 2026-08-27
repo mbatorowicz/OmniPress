@@ -52,7 +52,8 @@ src/
 
 - Logika w `lib/` → testy `*.test.ts` obok modułu (Vitest, `npm test`).
 - Teksty i18n — bez testów; klucze sprawdzają TypeScript (`as const`).
-- **E2E/UI** → `e2e/*.spec.ts` (Playwright, `npm run test:e2e`) — domyślnie na produkcji (`E2E_BASE_URL` zmienia cel). Selektory przez teksty z `src/i18n/pl/` (import `@/i18n/pl/...`), nie hardkoduj stringów. Testy mutujące dane **muszą sprzątać po sobie** (`finally` + delete). Cykl logowanie/wylogowanie biegnie w osobnym projekcie `auth-flows` po pozostałych — `signOut` Supabase unieważnia wszystkie sesje konta.
+- **E2E/UI** → `e2e/*.spec.ts` (Playwright, `npm run test:e2e`) — domyślnie na produkcji (`E2E_BASE_URL` zmienia cel, domyślnie `APP.productionOrigin`). Selektory przez teksty z `src/i18n/pl/` (import `@/i18n/pl/...`), nie hardkoduj stringów. Testy mutujące dane **muszą sprzątać po sobie** (`finally` + delete). Cykl logowanie/wylogowanie biegnie w osobnym projekcie `auth-flows` po pozostałych — `signOut` Supabase unieważnia wszystkie sesje konta.
+- **Logowanie w E2E** → tylko `signInAsAdmin` z `e2e/helpers/login.ts` (obsługuje challenge MFA). Sekret TOTP: `E2E_ADMIN_TOTP_SECRET` albo odczyt z `auth.mfa_factors` przez `POSTGRES_URL` z `.env.local` — sekret nie trafia na dysk.
 
 ## 7. UI (SSOT stylów)
 

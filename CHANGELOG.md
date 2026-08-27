@@ -16,6 +16,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 ### Naprawione
 
 - **Dodawanie użytkownika (produkcja):** przycisk „+ Nowy użytkownik” nie otwierał okna modalnego — CSP bez `unsafe-inline` blokowało skrypt, który Astro wstawiało inline w HTML (dotyczyło też „Testuj kanał”). Skrypty klienta zawsze trafiają do `_astro/*.js` (`vite.build.assetsInlineLimit`).
+- **Adres produkcji:** `omni-press.cncsolutions.dev` zamiast nieistniejącego `omni-press.vercel.app` (linki resetu hasła i callbacku Auth prowadziły na 404). SSOT: `APP.productionOrigin`; skrypty i testy czytają go przez `scripts/lib/app-origin.mjs`.
+- **Testy E2E:** setup logowania przechodzi challenge MFA (TOTP) — bez tego cały zestaw padał od wprowadzenia AAL2. Nowy test regresji dodawania użytkownika (`e2e/user-create.spec.ts`) sprawdza też brak naruszeń CSP.
 - Withdraw strony statycznej: poprawne wywołanie `deleteGitHubFile` (wcześniej SHA trafiało do message).
 - **MFA TOTP** dla administratora (Supabase Auth): enrollment `/auth/mfa/setup`, challenge `/auth/mfa`, wymuszenie AAL2 w middleware.
 - **CSP z nonce** per żądanie (bez `unsafe-inline` dla skryptów); `style-src 'unsafe-inline'` dla TipTap.

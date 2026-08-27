@@ -2,7 +2,7 @@
 
 Operacyjny przewodnik po panelu OmniPress. Stan funkcji: [STATUS.md](./STATUS.md).
 
-**URL produkcji:** https://omni-press.vercel.app/admin
+**URL produkcji:** https://omni-press.cncsolutions.dev/admin
 
 ---
 

@@ -2,7 +2,7 @@
 
 Przewodnik po panelu redaktora. Stan funkcji: [STATUS.md](./STATUS.md).
 
-**URL:** https://omni-press.vercel.app/login → po zalogowaniu `/dashboard`
+**URL:** https://omni-press.cncsolutions.dev/login → po zalogowaniu `/dashboard`
 
 ---
 

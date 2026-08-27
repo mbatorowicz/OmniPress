@@ -2,7 +2,7 @@
 
 Headless CMS do przygotowania treści przez redaktorów i publikacji na stronach **Astro** (GitHub + Vercel).
 
-**Produkcja:** https://omni-press.vercel.app
+**Produkcja:** https://omni-press.cncsolutions.dev
 
 ## Dokumentacja
 

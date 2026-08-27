@@ -9,9 +9,11 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pg from 'pg';
 import { createClient } from '@supabase/supabase-js';
+import { getProductionOrigin } from './lib/app-origin.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
+const PRODUCTION_ORIGIN = getProductionOrigin();
 
 function loadEnvLocal() {
 	const path = resolve(root, '.env.local');
@@ -108,7 +110,7 @@ async function seedSiteAndAdmin() {
 		console.log(`✓ Utworzono użytkownika: ${adminEmail}`);
 	} else if (!userId && adminEmail) {
 		const { data, error } = await supabase.auth.admin.inviteUserByEmail(adminEmail, {
-			redirectTo: 'https://omni-press.vercel.app/auth/callback',
+			redirectTo: `${PRODUCTION_ORIGIN}/auth/callback`,
 		});
 		if (error) throw error;
 		userId = data.user.id;
@@ -147,4 +149,4 @@ console.log('OmniPress — konfiguracja zdalna\n');
 await applyMigration();
 await seedSiteAndAdmin();
 
-console.log('\nGotowe. Zaloguj się na https://omni-press.vercel.app/login');
+console.log(`\nGotowe. Zaloguj się na ${PRODUCTION_ORIGIN}/login`);

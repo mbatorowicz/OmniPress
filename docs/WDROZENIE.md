@@ -2,19 +2,19 @@
 
 ## Logowanie (najprościej)
 
-1. Wejdź na **https://omni-press.vercel.app/login**
+1. Wejdź na **https://omni-press.cncsolutions.dev/login**
 2. Wpisz **e-mail** i **hasło** (bez linków z maila).
 3. Hasło administratora: plik **`.admin-password.txt`** w folderze projektu (po `npm run setup:password`).
 
 ### Zapomniałem hasła
 
-1. **https://omni-press.vercel.app/login?mode=reset**
+1. **https://omni-press.cncsolutions.dev/login?mode=reset**
 2. Podaj e-mail → link w skrzynce → ustaw nowe hasło (min. 8 znaków).
 
 **Link prowadzi na `localhost:3000`?**
 
-- W pasku adresu zamień na: **`https://omni-press.vercel.app/auth/reset-password?code=...`**
-- Trwała naprawa: Supabase → **Site URL** = `https://omni-press.vercel.app` → `npm run setup:auth-urls`
+- W pasku adresu zamień na: **`https://omni-press.cncsolutions.dev/auth/reset-password?code=...`**
+- Trwała naprawa: Supabase → **Site URL** = `https://omni-press.cncsolutions.dev` → `npm run setup:auth-urls`
 
 ### Nowe hasło od zera
 
@@ -36,10 +36,12 @@ Hasło w `.admin-password.txt`.
 
 ### Site URL Supabase
 
-- **Site URL:** `https://omni-press.vercel.app`
-- **Redirect URLs:** `https://omni-press.vercel.app/**`, `/auth/callback`, `/auth/reset-password`
+- **Site URL:** `https://omni-press.cncsolutions.dev`
+- **Redirect URLs:** `https://omni-press.cncsolutions.dev/**`, `/auth/callback`, `/auth/reset-password`, `/auth/recover`
 
 Lub: `SUPABASE_ACCESS_TOKEN` w `.env.local` → `npm run setup:auth-urls`
+
+**SSOT adresu produkcji:** `src/config/app.ts` (`APP.productionOrigin`). Skrypty i testy czytają stamtąd (`scripts/lib/app-origin.mjs`). Po zmianie domeny **trzeba** uruchomić `npm run setup:auth-urls` — inaczej Supabase odrzuci `redirect_to` i podstawi stary Site URL, a linki resetu hasła przestaną działać.
 
 ---
 

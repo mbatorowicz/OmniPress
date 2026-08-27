@@ -4,6 +4,7 @@ import { auth } from '@/i18n/pl/auth';
 import { common } from '@/i18n/pl/common';
 import { layout } from '@/i18n/pl/layout';
 import { loadAdminCredentials } from './helpers/credentials';
+import { signInAsAdmin } from './helpers/login';
 
 // Pełny cykl logowania — świeży kontekst bez storage state.
 test.use({ storageState: { cookies: [], origins: [] } });
@@ -21,14 +22,7 @@ test.describe('uwierzytelnianie', () => {
 	});
 
 	test('logowanie admina i wylogowanie', async ({ page }) => {
-		const credentials = loadAdminCredentials();
-
-		await page.goto('/login');
-		await page.getByLabel(common.email).fill(credentials.email);
-		await page.getByLabel(common.password).fill(credentials.password);
-		await page.getByRole('button', { name: auth.login.submitSignIn }).click();
-
-		await page.waitForURL('**/admin');
+		await signInAsAdmin(page);
 		await expect(page.getByRole('heading', { name: admin.queueHeading })).toBeVisible();
 
 		await page.getByRole('button', { name: layout.navSignOut }).click();

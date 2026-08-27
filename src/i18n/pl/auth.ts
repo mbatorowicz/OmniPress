@@ -1,3 +1,5 @@
+import { APP } from '@/config/app';
+
 export const auth = {
 	login: {
 		pageTitle: 'Logowanie',
@@ -64,8 +66,7 @@ export const auth = {
 		invalidCredentials: 'Nieprawidłowy e-mail lub hasło.',
 		emailNotConfirmed:
 			'Potwierdź adres e-mail przed logowaniem (Supabase → Auth → Users).',
-		redirectMisconfig:
-			'Błąd konfiguracji Supabase (Redirect URLs). Administrator musi ustawić Site URL na https://omni-press.vercel.app',
+		redirectMisconfig: `Błąd konfiguracji Supabase (Redirect URLs). Administrator musi ustawić Site URL na ${APP.productionOrigin}`,
 		rateLimit: 'Zbyt wiele prób — odczekaj chwilę i spróbuj ponownie.',
 		userNotFound: 'Jeśli konto istnieje, wysłaliśmy link (sprawdź też spam).',
 		signupDisabled: 'Rejestracja jest wyłączona — poproś administratora o konto.',

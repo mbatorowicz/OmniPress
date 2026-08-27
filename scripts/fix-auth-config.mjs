@@ -7,13 +7,18 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { getProductionOrigin } from './lib/app-origin.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
 const PROJECT_REF = 'tseticasatzviqhthwbr';
-const SITE_URL = 'https://omni-press.vercel.app';
-const REDIRECT_URLS =
-	'https://omni-press.vercel.app/**,https://omni-press.vercel.app/auth/callback,https://omni-press.vercel.app/auth/reset-password,https://omni-press.vercel.app/auth/recover,http://localhost:4321/**,http://localhost:4321/auth/callback,http://localhost:4321/auth/reset-password';
+const SITE_URL = getProductionOrigin();
+const LOCAL_URL = 'http://localhost:4321';
+const AUTH_PATHS = ['/**', '/auth/callback', '/auth/reset-password', '/auth/recover'];
+const REDIRECT_URLS = [
+	...AUTH_PATHS.map((path) => `${SITE_URL}${path}`),
+	...AUTH_PATHS.map((path) => `${LOCAL_URL}${path}`),
+].join(',');
 
 function loadEnvLocal() {
 	const path = resolve(root, '.env.local');

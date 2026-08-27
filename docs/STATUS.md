@@ -2,7 +2,7 @@
 
 **SSOT:** co jest zbudowane w wersji **0.10.0** (kod + baza + panel).
 
-Produkcja: https://omni-press.vercel.app
+Produkcja: https://omni-press.cncsolutions.dev
 
 ---
 

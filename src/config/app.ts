@@ -9,7 +9,7 @@ export const APP = {
 	name: common.appName,
 	repositoryUrl: 'https://github.com/mbatorowicz/OmniPress',
 	/** Produkcja — SSOT adresu w linkach Auth (reset, callback) */
-	productionOrigin: 'https://omni-press.vercel.app',
+	productionOrigin: 'https://omni-press.cncsolutions.dev',
 	localOrigin: 'http://localhost:4321',
 } as const;
 

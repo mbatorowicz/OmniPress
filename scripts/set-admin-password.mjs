@@ -8,9 +8,11 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
+import { getProductionOrigin } from './lib/app-origin.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
+const LOGIN_URL = `${getProductionOrigin()}/login`;
 
 function loadEnvLocal() {
 	const path = resolve(root, '.env.local');
@@ -44,7 +46,7 @@ if (!password) {
 	const outPath = resolve(root, '.admin-password.txt');
 	writeFileSync(
 		outPath,
-		`OmniPress — dane logowania (nie commituj tego pliku)\n\nE-mail: ${email}\nHasło: ${password}\n\nLogowanie: https://omni-press.vercel.app/login\n`,
+		`OmniPress — dane logowania (nie commituj tego pliku)\n\nE-mail: ${email}\nHasło: ${password}\n\nLogowanie: ${LOGIN_URL}\n`,
 		'utf8',
 	);
 	console.log(`Wygenerowano hasło → ${outPath}`);
@@ -101,7 +103,7 @@ await supabase
 
 console.log('✓ Rola: admin');
 console.log('\n--- Zaloguj się ---');
-console.log(`URL:   https://omni-press.vercel.app/login`);
+console.log(`URL:   ${LOGIN_URL}`);
 console.log(`E-mail: ${email}`);
 if (process.env.ADMIN_PASSWORD) {
 	console.log('Hasło: (z zmiennej ADMIN_PASSWORD)');

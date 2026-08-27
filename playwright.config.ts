@@ -1,11 +1,13 @@
 import { defineConfig, devices } from '@playwright/test';
+import { APP } from './src/config/app';
 
 /**
  * Testy E2E/UI — domyślnie na produkcji (serwisy w fazie testów).
  * Override: E2E_BASE_URL=http://localhost:4321 npx playwright test
  * Konto admina: E2E_ADMIN_EMAIL / E2E_ADMIN_PASSWORD lub lokalny .admin-password.txt.
+ * MFA: E2E_ADMIN_TOTP_SECRET (sekret TOTP w base32) — patrz e2e/helpers/totp.ts.
  */
-const baseURL = process.env.E2E_BASE_URL ?? 'https://omni-press.vercel.app';
+const baseURL = process.env.E2E_BASE_URL ?? APP.productionOrigin;
 
 export const ADMIN_STORAGE_STATE = 'e2e/.auth/admin.json';
 
@@ -30,7 +32,7 @@ export default defineConfig({
 		},
 		{
 			name: 'chromium',
-			testMatch: /(public|admin-panel|post-lifecycle)\.spec\.ts/,
+			testMatch: /(public|admin-panel|post-lifecycle|user-create)\.spec\.ts/,
 			dependencies: ['setup'],
 			use: {
 				...devices['Desktop Chrome'],
