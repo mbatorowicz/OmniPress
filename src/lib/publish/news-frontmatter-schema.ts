@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 /**
  * Kontrakt front-matteru wpisów news — lustrzane odbicie `src/content.config.ts`
- * w repo Astro (kolekcja `news`). Zod w Astro **nie** używa `.strict()`, więc nadmiarowe
- * pola znikają po cichu; ten schemat ma `.strict()` i łapie dryf przy publikacji z OmniPress.
+ * w repo Astro (kolekcja `news`). Oba schematy są `.strict()`: tutaj dryf wychodzi w testach
+ * OmniPressa, tam przerywa build strony (audyt P1-6).
  *
  * Przy zmianie pól w repo Astro zaktualizuj ten plik i `frontmatter-contract.test.ts`.
  */

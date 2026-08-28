@@ -21,6 +21,7 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 11 | Refaktor struktury — ✅ **wykonane** (repo A + repo B) | średnie | — |
 | 12 | Assety poza gita — ✅ **rozstrzygnięte** (zostają w gicie) | **decyzja** | — |
 | 13 | Typecheck w pipeline — ✅ **wykonane** | niskie | — |
+| 14 | Walidacja wejścia w repo B — ✅ **wykonane** | niskie | — |
 
 ---
 
@@ -554,6 +555,40 @@ Do tego `admin/github-token.ts` importował nieistniejący typ `GitHubRepoConfig
 **Weryfikacja mutacyjna:** sonda z dostępem do nieistniejącego pola `Locals` i przypisaniem `string` do `number` wywaliła `npm run typecheck` (exit 2, oba błędy wskazane); sonda usunięta.
 
 **Wynik weryfikacji:** `npm run typecheck` 0 błędów · `npm run lint` OK · `npm test` 638/638 (+22 RLS opt-in) · `npm run build` OK.
+
+---
+
+## Podejście 14 — walidacja wejścia w repo B
+
+**Cel:** repo Astro przestaje przyjmować zapisy z panelu na słowo (P1-9, P1-6). Ostatnia asymetria kontraktu: OmniPress waliduje to, co wysyła, a strona brała plik i front-matter bez pytania.
+
+**Kroki**
+
+1. Walidacja `omnipress-layout.json` przed pierwszym odczytem, z whitelistą ID komponentów.
+2. `.strict()` na schematach kolekcji `news` i `pages`.
+3. Testy w `node --test` + weryfikacja mutacyjna na buildzie, nie tylko na testach.
+
+### Wykonano (2026-08-28)
+
+**Walidator ręczny, nie Zod — bo ma być testowalny bez bundlera.** Zod jest w repo B dostępny wyłącznie przez `astro:content`, którego `node --test` nie rozwiąże. Ręczny walidator to ten sam wzorzec, który po podejściu 11 rządzi modułami `config/`: czysta logika osobno od odczytu JSON, więc daje się uruchomić bez Astro. Trzy moduły:
+
+| Moduł | Rola |
+|---|---|
+| `config/layout-components.ts` | lustro `lib/astro-layout/components.ts` — komponent → strefy, w których repo go renderuje |
+| `config/layout-contract-slots.ts` | sloty, strefy, wpisy recent changes |
+| `config/layout-contract.ts` | klucze korzenia, kategorie, `displays`, `assertLayoutPayload` |
+
+`layout-payload.ts` woła `assertLayoutPayload(layoutFile)` na poziomie modułu, więc **niezgodność przerywa build**, a nie renderuje pustą strefę. Zakres naruszeń: nieznany `component`; komponent w strefie, której repo nie renderuje (baner w `home`); nieznana strefa; nieznany klucz w korzeniu (`slots` i `weather` tolerowane jako legacy P2-6); duplikat `id` slotu; slot bez `id`/`label`; slug kategorii poza `[a-z0-9-]` lub bez separatorów (P0-3 z drugiej strony); wpis „Ostatnie zmiany” bez `title`/`href`/`changedAt` albo z nieznanym `kind`.
+
+**Front-matter `.strict()` w obu kolekcjach.** Przed zmianą policzone zostały wszystkie klucze w treści (49 plików): 11 pól, wszystkie w schemacie — `.strict()` nie wywala istniejącego contentu. Lustro po stronie panelu (`news-frontmatter-schema.ts`) było `.strict()` od podejścia 6; teraz obie strony reagują tak samo, tylko w różnym momencie: OmniPress w testach, strona na buildzie.
+
+**Dlaczego czerwony build jest tu właściwą reakcją.** Nieudany build Vercela nie zdejmuje strony — poprzednie wdrożenie zostaje na produkcji. Cena pomyłki to zatrzymana publikacja z jawnym komunikatem, zamiast strony z pustą sekcją i bez śladu w logach. Dokładnie ten scenariusz opisuje P0-4: slot `home.pinned` istniał po obu stronach i przez miesiące renderował się pusto.
+
+**Weryfikacja mutacyjna — na buildzie, nie na teście.** Sonda z komponentem `sidebar.newsletter` w sidebarze i banerem w strefie `home` przerwała `npm run build` obydwoma komunikatami naraz. Sonda `tags: ["probe"]` w jednym wpisie przerwała build na `Unrecognized key: "tags"`. Obie sondy wycofane (`git checkout`), stan repo bez zmian.
+
+**Rozmiar:** pierwsza wersja walidatora miała 210 linii i wywaliła `lint-file-size` — stąd podział na `layout-contract.ts` + `layout-contract-slots.ts` + `layout-components.ts` zamiast wpisu na liście wyjątków.
+
+**Wynik weryfikacji:** repo B — `npm run lint` OK (75 plików) · `npm run check` 0 errors · `npm test` 79/79 (+19) · `npm run build` OK. Repo A — `npm run lint` OK · `npm test` 652/652 (+22 RLS opt-in) · `npm run build` OK.
 
 ---
 

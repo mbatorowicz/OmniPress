@@ -117,9 +117,11 @@ Zamknięte w podejściu 1. `Importuj_Paczki.bat` nie był śmieciem, tylko wejś
 
 Zostaje rozjazd wersji Astro i strategii wersjonowania.
 
-### P1-6 — schemat treści nie wykrywa dryfu
+### P1-6 — schemat treści nie wykrywa dryfu — ✅ zamknięte
 
-`src/content.config.ts` w repo Astro używa Zod **bez `.strict()`** — pola zapisane przez OmniPress, których schemat nie zna, są po cichu ignorowane zamiast zgłaszać błąd. Dryf kontraktu jest niewidoczny do chwili, gdy coś przestaje działać na stronie. Odwrotnie: kolekcja `pages` wymaga `slug` bez transformacji, więc brak tego pola wywali build.
+`src/content.config.ts` w repo Astro używał Zod **bez `.strict()`** — pola zapisane przez OmniPress, których schemat nie zna, były po cichu ignorowane zamiast zgłaszać błąd. Dryf kontraktu był niewidoczny do chwili, gdy coś przestawało działać na stronie. Odwrotnie: kolekcja `pages` wymaga `slug` bez transformacji, więc brak tego pola wywali build.
+
+**Zamknięte w podejściu 14.** Obie kolekcje (`news`, `pages`) są `.strict()`, więc nieznane pole przerywa build zamiast zniknąć. Weryfikacja mutacyjna: `tags: ["probe"]` w jednym wpisie wywala build komunikatem `Unrecognized key: "tags"`. Test kontraktowy w OmniPress (`frontmatter-contract.test.ts`) łapie ten sam dryf wcześniej — przed publikacją.
 
 ### P1-7 — niespójne komunikaty commitów w repo Astro
 
@@ -131,9 +133,11 @@ Reguła [astro-repo-compat](../.cursor/rules/astro-repo-compat.mdc) i `docs/OMNI
 
 Skutek jest łagodniejszy, niż wyglądał na pierwszy rzut oka: parser repo Astro akceptuje **oba** klucze (`load-config.ts:221-227` — `slots?` jako fallback legacy), więc rozjazd nie wywali builda. Pozostaje jednak realne ryzyko: dokumentacja kieruje na martwą ścieżkę, a plik zapisany częściowo w jednej, częściowo w drugiej konwencji da niespójny render bez żadnego błędu.
 
-### P1-9 — repo Astro nie waliduje ID komponentów
+### P1-9 — repo Astro nie waliduje ID komponentów — ✅ zamknięte
 
-JSON layoutu jest importowany statycznie, bez Zod i bez whitelisty (`load-config.ts:1`). Nieznany `component` nie renderuje się po cichu albo renderuje się źle — build przechodzi. OmniPress waliduje przy imporcie (`parse.ts:230`, `isLayoutComponentId`), więc ochrona jest tylko po jednej stronie. Powiązany przypadek: `sidebar.banner` jest dozwolony w strefie `home` (`components.ts:115-120`), ale repo Astro renderuje całą strefę `home` jako feed wpisów — konfiguracja poprawna według A, błędna wizualnie w B.
+JSON layoutu był importowany statycznie, bez Zod i bez whitelisty (`load-config.ts:1`). Nieznany `component` nie renderował się po cichu albo renderował się źle — build przechodził. OmniPress waliduje przy imporcie (`parse.ts:230`, `isLayoutComponentId`), więc ochrona była tylko po jednej stronie. Powiązany przypadek: `sidebar.banner` był dozwolony w strefie `home` (`components.ts:115-120`), ale repo Astro renderuje całą strefę `home` jako feed wpisów — konfiguracja poprawna według A, błędna wizualnie w B (zablokowane już w podejściu 5).
+
+**Zamknięte w podejściu 14.** `src/config/layout-contract.ts` waliduje plik przed pierwszym odczytem i przerywa build listą naruszeń: nieznany komponent, komponent w strefie, której repo nie renderuje, nieznana strefa lub klucz w korzeniu, duplikat `id`, slug kategorii poza `[a-z0-9-]`, wpis recent changes bez wymaganych pól. Lista komponentów (`layout-components.ts`) jest lustrem SSOT z OmniPressa — asymetria z tabeli „Stan wyjściowy” przestaje obowiązywać: obie strony kontraktu sprawdzają teraz to samo. Zamiast Zoda ręczny walidator, żeby moduł dał się uruchomić w `node --test` bez bundlera (19 przypadków, w tym walidacja produkcyjnego pliku).
 
 ### P1-10 — reguła warstw jest łamana systemowo — ✅ zamknięte
 
@@ -275,7 +279,7 @@ Mapowanie zostało już wykonane. Wynik jest lepszy, niż zakładałem: wszystki
 
 - **P0-4** — dopiąć `pinned`: pole w bazie, przełącznik w UI, zapis we front-matterze. Bez tego slot `home.pinned` jest atrapą.
 - **P0-5** — dopiąć `terytGmina` w `parse.ts` i `parse-form.ts` (round-trip JSON ↔ FormData + test w `parse.test.ts`, zgodnie z regułą symetrii).
-- **P1-9** — walidacja ID komponentów po stronie repo Astro albo świadoma decyzja, że pozostaje jednostronna.
+- **P1-9** — ✅ walidacja ID komponentów po stronie repo Astro (podejście 14): `layout-contract.ts` przerywa build przy nieznanym komponencie lub złej strefie.
 - **P2-6** — usunąć martwy odczyt (`slots`, `weather`, `site.meta.url`) albo udokumentować jako celowy fallback legacy.
 - Zablokować `sidebar.banner` w strefie `home` w `components.ts` — dziś konfiguracja przechodzi walidację i psuje render.
 
@@ -390,7 +394,7 @@ Struktura kontraktu jest zdrowsza, niż sugerowałby stan dokumentacji: wszystki
 
 **Każda znaleziona awaria to miejsce, gdzie obie strony są gotowe, ale nikt ich nie połączył — i nic tego nie zgłasza.** `pinned` jest w schemacie repo Astro i w konfiguracji slota, ale OmniPress go nie zapisuje. `terytGmina` ma typ w OmniPress i obsługę w widgecie pogody, ale nie przechodzi przez parser. Slugi mają jedną funkcję normalizującą, której kategorie nie wywołują. Schemat Zod nie jest `.strict()`, więc nadmiarowe pola znikają bez śladu. Za każdym razem system woli po cichu zrobić nic, niż krzyknąć.
 
-Do tego dochodzi asymetria zabezpieczeń: cała siatka jakości (CI, lint, 354 testy) jest po stronie OmniPress, a repo Astro przyjmuje zapisy bez żadnej weryfikacji. Efekt: rozjazd wychodzi na jaw dopiero jako brakująca sekcja na stronie gminy.
+Do tego dochodziła asymetria zabezpieczeń: cała siatka jakości (CI, lint, 354 testy) była po stronie OmniPress, a repo Astro przyjmowało zapisy bez żadnej weryfikacji. Efekt: rozjazd wychodził na jaw dopiero jako brakująca sekcja na stronie gminy. Domknięte w dwóch krokach — CI i lint w repo Astro (podejście 7), walidacja wejścia layoutu i front-matteru (podejście 14).
 
 Porcje 1, 3 i 8 są dlatego ważniejsze niż pozostałe — każda dokłada mechanizm, który wykryje następny rozjazd sam. Bez nich kolejny audyt znajdzie nowy zestaw tych samych klas błędów.
 

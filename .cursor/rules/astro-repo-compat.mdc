@@ -29,8 +29,8 @@ OmniPress publikuje przez GitHub API **prosto do origin**, z pominięciem kopii 
 
 ## Zasady przy zmianach
 
-1. **Nie zmieniaj formatu JSON** bez aktualizacji czytnika w repo Astro (i odwrotnie).
-2. **ID komponentów** (`topbar.tagline`, `header.navigation`, `home.pinned`, `sidebar.weather`, …) — muszą istnieć po obu stronach; SSOT listy: `lib/astro-layout/components.ts`.
+1. **Nie zmieniaj formatu JSON** bez aktualizacji czytnika w repo Astro (i odwrotnie). **Repo Astro waliduje wejście i przerywa build** przy niezgodności (`src/config/layout-contract.ts`), więc rozjazd nie kończy się pustą sekcją, tylko czerwonym deployem.
+2. **ID komponentów** (`topbar.tagline`, `header.navigation`, `home.pinned`, `sidebar.weather`, …) — muszą istnieć po obu stronach; SSOT listy: `lib/astro-layout/components.ts`, lustro w repo Astro: `src/config/layout-components.ts` (komponent + strefy, w których repo go renderuje). Nowy komponent = wpis w obu plikach, inaczej publikacja layoutu zatrzyma build strony.
 3. **Publikacja layoutu** — model szkic + publikacja na żądanie:
    - **Zapisz szkic** → tylko Supabase (`sites.astro_layout`).
    - **Opublikuj na stronie** → jeden commit pliku `omnipress-layout.json`.
@@ -38,6 +38,7 @@ OmniPress publikuje przez GitHub API **prosto do origin**, z pominięciem kopii 
    - Vercel: webhook po pushu na GitHub (bez czekania w panelu).
 4. **Nowe pola widgetów** — symetria parse JSON ↔ parse FormData w `parse.ts` / `parse-form.ts`; test w `parse.test.ts`.
 5. **Live API** (pogoda, CERT) — OmniPress tylko konfiguruje slot; endpointy (`/api/weather/warnings`, `/api/cert/advisories`) są w repo Astro.
+6. **Front-matter** — schematy kolekcji w repo Astro (`src/content.config.ts`) są `.strict()`; nowe pole wymaga zmiany tam **i** w lustrzanym `lib/publish/news-frontmatter-schema.ts`. Bez tego publikacja wpisu przerywa build strony.
 
 ## Checklist przed merge
 
