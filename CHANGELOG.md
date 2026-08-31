@@ -7,6 +7,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Dodane
 
+- **Instrukcja redaktora w panelu** (`/dashboard/help`): logowanie, nowy artykuł, pola, załączniki, statusy i typowe problemy — te same etykiety co w UI. Wejście: *Pomoc* w nagłówku oraz *Instrukcja* na liście wpisów. Lustro dla wydruku: [docs/REDAKTOR.md](docs/REDAKTOR.md).
 - **Walidacja wejścia w repo strony** (audyt P1-9, P1-6, podejście 14): repo Astro sprawdza `omnipress-layout.json` przed odczytem (nieznany komponent, komponent w niedozwolonej strefie, nieznana strefa lub klucz korzenia, duplikat `id`, slug kategorii poza `[a-z0-9-]`, wpis recent changes bez wymaganych pól), a schematy kolekcji treści są `.strict()`. Niezgodność przerywa build z jawnym komunikatem — poprzednie wdrożenie zostaje na produkcji, zamiast wyjść stroną z pustą sekcją. Lista komponentów w repo strony (`src/config/layout-components.ts`) jest lustrem SSOT z `lib/astro-layout/components.ts`: nowy komponent wymaga wpisu po obu stronach.
 - **Testy modułów krytycznych** (audyt, podejście 10): sesja SSR, pipeline middleware, trasy i guardy auth, nonce CSP, guard admina, kolejka i worker publikacji, GitHub API — 238 przypadków, każdy zweryfikowany mutacyjnie. Testy integracyjne RLS (`RLS_TEST_DATABASE_URL`, opt-in) potwierdzają, że redaktor nie sięga poza przypisane strony.
 - **Załączniki XLSX i ZIP** w panelu „Pliki do pobrania” (obok GPKG): allowlista MIME + magic bytes (kontener ZIP / SQLite), limit 50 MB — `setup:storage-xlsx-zip`.

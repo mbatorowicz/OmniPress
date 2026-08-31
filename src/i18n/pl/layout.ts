@@ -2,6 +2,7 @@ export const layout = {
 	navAdmin: 'Administracja',
 	navPanel: 'Panel',
 	navEditorPanel: 'Panel treści',
+	navHelp: 'Pomoc',
 	navSignOut: 'Wyloguj',
 	sidebar: {
 		queue: 'Kolejka wpisów',
@@ -11,6 +12,7 @@ export const layout = {
 	breadcrumb: {
 		admin: 'Administracja',
 		dashboard: 'Panel',
+		help: 'Pomoc',
 		units: 'Strony',
 		users: 'Użytkownicy',
 		unitNew: 'Nowa strona',

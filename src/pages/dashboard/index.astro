@@ -52,31 +52,36 @@ const errorMessage =
 	<Panel class="mb-6">
 		<div class="flex flex-wrap items-center justify-between gap-4">
 			<PageHeader title={dashboard.articles.heading} lead={dashboard.articles.lead} />
-			{
-				allowedSites.length > 0 ? (
-					<form method="post" action="/api/posts/create" class="flex flex-wrap items-end gap-2">
-						{
-							allowedSites.length === 1 ? (
-								<input type="hidden" name="site_id" value={allowedSites[0].id} />
-							) : (
-								<label class="ui-label-inline">
-									<span class="ui-label-muted">{common.site}</span>
-									<select name="site_id" class="ui-select ui-input--inline">
-										{allowedSites.map((s) => (
-											<option value={s.id} selected={s.id === profile.default_site_id}>
-												{s.name}
-											</option>
-										))}
-									</select>
-								</label>
-							)
-						}
-						<Button type="submit">{dashboard.articles.newPost}</Button>
-					</form>
-				) : (
-					<p class="ui-muted">{dashboard.articles.noTargetSite}</p>
-				)
-			}
+			<div class="flex flex-wrap items-end gap-2">
+				<Button href="/dashboard/help" variant="secondary">
+					{dashboard.articles.help}
+				</Button>
+				{
+					allowedSites.length > 0 ? (
+						<form method="post" action="/api/posts/create" class="flex flex-wrap items-end gap-2">
+							{
+								allowedSites.length === 1 ? (
+									<input type="hidden" name="site_id" value={allowedSites[0].id} />
+								) : (
+									<label class="ui-label-inline">
+										<span class="ui-label-muted">{common.site}</span>
+										<select name="site_id" class="ui-select ui-input--inline">
+											{allowedSites.map((s) => (
+												<option value={s.id} selected={s.id === profile.default_site_id}>
+													{s.name}
+												</option>
+											))}
+										</select>
+									</label>
+								)
+							}
+							<Button type="submit">{dashboard.articles.newPost}</Button>
+						</form>
+					) : (
+						<p class="ui-muted">{dashboard.articles.noTargetSite}</p>
+					)
+				}
+			</div>
 		</div>
 		<div class="ui-list-toolbar">
 			<span class="ui-muted">{dashboard.sites.heading}:</span>

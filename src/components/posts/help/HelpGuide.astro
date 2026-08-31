@@ -1,0 +1,34 @@
+---
+import Panel from '@/components/ui/layout/Panel.astro';
+import HelpSection from '@/components/posts/help/HelpSection.astro';
+import { help } from '@/i18n';
+import type { HelpSection as HelpSectionData } from '@/lib/help/guide-model';
+
+interface Props {
+	sections: readonly HelpSectionData[];
+}
+
+const { sections } = Astro.props;
+---
+
+<Panel variant="accent" class="mb-6">
+	<p class="ui-lead mt-0">{help.lead}</p>
+	<nav class="ui-help-toc" aria-label={help.tocAria}>
+		<h2 class="ui-heading-sm">{help.tocHeading}</h2>
+		<ol class="ui-help-toc-list">
+			{
+				sections.map((section) => (
+					<li>
+						<a href={`#${section.id}`} class="ui-link">
+							{section.title}
+						</a>
+					</li>
+				))
+			}
+		</ol>
+	</nav>
+</Panel>
+
+<div class="ui-help-guide">
+	{sections.map((section) => <HelpSection {section} />)}
+</div>

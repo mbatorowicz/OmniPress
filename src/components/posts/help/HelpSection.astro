@@ -1,0 +1,48 @@
+---
+import type { HelpSection as HelpSectionData } from '@/lib/help/guide-model';
+
+interface Props {
+	section: HelpSectionData;
+}
+
+const { section } = Astro.props;
+---
+
+<section id={section.id} class="ui-help-section">
+	<h2 class="ui-heading">{section.title}</h2>
+	{
+		section.blocks.map((block) => {
+			if (block.type === 'p') {
+				return <p class="ui-help-prose">{block.text}</p>;
+			}
+			if (block.type === 'steps') {
+				return (
+					<ol class="ui-help-steps">
+						{block.items.map((item) => (
+							<li>{item}</li>
+						))}
+					</ol>
+				);
+			}
+			if (block.type === 'list') {
+				return (
+					<ul class="ui-help-list">
+						{block.items.map((item) => (
+							<li>{item}</li>
+						))}
+					</ul>
+				);
+			}
+			return (
+				<dl class="ui-help-pairs">
+					{block.items.map((row) => (
+						<div class="ui-help-pair">
+							<dt class="ui-help-term">{row.term}</dt>
+							<dd class="ui-help-desc">{row.desc}</dd>
+						</div>
+					))}
+				</dl>
+			);
+		})
+	}
+</section>

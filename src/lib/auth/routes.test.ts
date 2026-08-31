@@ -38,7 +38,13 @@ describe('isPublicPath', () => {
 });
 
 describe('isProtectedPath', () => {
-	it.each(['/dashboard', '/dashboard/posts/1', '/admin', '/admin/units/1/navigation'])(
+	it.each([
+		'/dashboard',
+		'/dashboard/help',
+		'/dashboard/posts/1',
+		'/admin',
+		'/admin/units/1/navigation',
+	])(
 		'%s wymaga sesji',
 		(path) => {
 			expect(isProtectedPath(path)).toBe(true);

@@ -4,6 +4,7 @@ export { layout } from './layout';
 export { auth } from './auth';
 export { posts, postError, type PostErrorCode } from './posts';
 export { dashboard } from './dashboard';
+export { help } from './help';
 export { admin } from './admin';
 export {
 	adminDestinations,

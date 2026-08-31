@@ -6,6 +6,7 @@ export const dashboard = {
 		heading: 'Artykuły',
 		lead: 'Twórz szkice i wysyłaj do akceptacji.',
 		newPost: '+ Nowy artykuł',
+		help: 'Instrukcja',
 		noTargetSite: 'Brak strony docelowej.',
 	},
 	workflowAria: 'Ścieżka pracy',

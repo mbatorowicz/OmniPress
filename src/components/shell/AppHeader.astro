@@ -6,7 +6,8 @@ const profile = Astro.locals.profile;
 const pathname = Astro.url.pathname;
 const isAdmin = profile?.role === 'admin';
 const adminActive = pathname.startsWith('/admin');
-const panelActive = pathname.startsWith('/dashboard');
+const helpActive = pathname === '/dashboard/help';
+const panelActive = pathname.startsWith('/dashboard') && !helpActive;
 ---
 
 <header class="ui-app-header">
@@ -30,6 +31,13 @@ const panelActive = pathname.startsWith('/dashboard');
 						aria-current={panelActive ? 'page' : undefined}
 					>
 						{isAdmin ? layout.navEditorPanel : layout.navPanel}
+					</a>
+					<a
+						href="/dashboard/help"
+						class:list={['ui-header-nav-link', helpActive && 'ui-header-nav-link--active']}
+						aria-current={helpActive ? 'page' : undefined}
+					>
+						{layout.navHelp}
 					</a>
 					<form method="post" action="/api/auth/signout">
 						<Button type="submit" variant="ghost">

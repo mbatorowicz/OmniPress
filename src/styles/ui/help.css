@@ -1,0 +1,39 @@
+@layer components {
+	.ui-help-toc {
+		@apply mt-4;
+	}
+	.ui-help-toc-list {
+		@apply mt-2 list-decimal space-y-1 pl-5 text-sm text-text-secondary;
+	}
+	.ui-help-guide {
+		@apply space-y-6;
+	}
+	.ui-help-section {
+		@apply rounded-xl border border-border bg-surface p-6;
+	}
+	.ui-help-prose {
+		@apply mt-3 text-sm leading-relaxed text-text-secondary;
+	}
+	.ui-help-steps,
+	.ui-help-list {
+		@apply mt-3 space-y-2 pl-5 text-sm leading-relaxed text-text-secondary;
+	}
+	.ui-help-steps {
+		@apply list-decimal;
+	}
+	.ui-help-list {
+		@apply list-disc;
+	}
+	.ui-help-pairs {
+		@apply mt-4 space-y-3;
+	}
+	.ui-help-pair {
+		@apply rounded-lg border border-border-soft bg-surface-subtle/80 px-3 py-2;
+	}
+	.ui-help-term {
+		@apply text-sm font-medium text-text-emphasis;
+	}
+	.ui-help-desc {
+		@apply mt-1 text-sm leading-relaxed text-text-secondary;
+	}
+}

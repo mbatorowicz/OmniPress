@@ -1,0 +1,18 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import BackLink from '@/components/ui/navigation/BackLink.astro';
+import HelpGuide from '@/components/posts/help/HelpGuide.astro';
+import { help, layout } from '@/i18n';
+import { buildEditorHelpGuide } from '@/lib/help/guide-model';
+
+const sections = buildEditorHelpGuide();
+const breadcrumbs = [
+	{ label: layout.breadcrumb.dashboard, href: '/dashboard' },
+	{ label: layout.breadcrumb.help },
+];
+---
+
+<AppLayout title={help.title} heading={help.title} {breadcrumbs}>
+	<HelpGuide {sections} />
+	<BackLink href="/dashboard" label={help.back} class="mt-6" />
+</AppLayout>

@@ -51,6 +51,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Usuwanie własnych wpisów (`draft` / `rejected`) wraz z plikami Storage | ✅ migracja `setup:posts-delete-own` |
 | Edycja tylko `draft` / `rejected`; poprawki opublikowanych (amendment) | ✅ |
 | Podgląd treści po wysłaniu / odrzuceniu | ✅ |
+| Instrukcja w panelu (`/dashboard/help`) | ✅ | link *Pomoc* w nagłówku + *Instrukcja* na liście wpisów |
 
 ---
 
