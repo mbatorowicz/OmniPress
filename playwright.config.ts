@@ -32,7 +32,8 @@ export default defineConfig({
 		},
 		{
 			name: 'chromium',
-			testMatch: /(public|admin-panel|post-lifecycle|admin-post-correction|user-create)\.spec\.ts/,
+			testMatch:
+				/(public|admin-panel|post-lifecycle|admin-post-correction|posts-browse|user-create)\.spec\.ts/,
 			dependencies: ['setup'],
 			use: {
 				...devices['Desktop Chrome'],

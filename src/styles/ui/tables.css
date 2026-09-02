@@ -47,4 +47,19 @@
 	.ui-table-row--error {
 		@apply bg-danger-surface/50;
 	}
+	.ui-table-sort {
+		@apply inline-flex items-center gap-1 font-medium hover:underline;
+	}
+	.ui-table-sort--active {
+		@apply text-brand;
+	}
+	.ui-posts-filters {
+		@apply flex flex-wrap items-end gap-3 border-b border-border-soft pb-4;
+	}
+	.ui-pagination {
+		@apply mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-text-muted;
+	}
+	.ui-pagination-actions {
+		@apply flex flex-wrap items-center gap-2;
+	}
 }

@@ -38,7 +38,12 @@ Po zalogowaniu widzisz ścieżkę pracy, przycisk nowego artykułu i listę swoi
 | *Twoje strony* | Jednostki, na które możesz pisać |
 | **+ Nowy artykuł** | Rozpoczyna nowy szkic |
 | *Twoje wpisy* | Lista artykułów — kliknij tytuł, aby otworzyć |
+| Filtry nad listą | *Szukaj w tytule*, *Status*, *Strona* (gdy masz kilka), *Sortowanie* → **Filtruj** |
 | **Instrukcja** / **Pomoc** | Ten przewodnik w panelu |
+
+Lista pokazuje 25 wpisów na stronę (przyciski *Poprzednie* / *Następne* pod tabelą). Kliknięcie
+nagłówka *Tytuł*, *Utworzono* lub *Ostatnia zmiana* sortuje po tej kolumnie; drugi klik odwraca
+kolejność. Filtry i sortowanie zapisują się w adresie, więc widok można dodać do zakładek.
 
 Jeśli nie masz przypisanej strony, zamiast przycisku zobaczysz *Brak strony docelowej* — poproś administratora o dostęp.
 

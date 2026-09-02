@@ -3,6 +3,7 @@ export { ui } from './ui';
 export { layout } from './layout';
 export { auth } from './auth';
 export { posts, postError, type PostErrorCode } from './posts';
+export { postsBrowse, adminAllPosts } from './posts-browse';
 export { dashboard } from './dashboard';
 export { help } from './help';
 export { admin } from './admin';

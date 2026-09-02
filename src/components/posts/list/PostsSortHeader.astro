@@ -1,0 +1,37 @@
+---
+import TableCell from '@/components/ui/table/TableCell.astro';
+import { postsBrowse } from '@/i18n';
+import {
+	postsHref,
+	sortAscending,
+	sortKeyOf,
+	toggleSort,
+	type PostsFilter,
+	type PostsSortKey,
+} from '@/lib/posts/browse-model';
+
+interface Props {
+	label: string;
+	sortKey: PostsSortKey;
+	filter: PostsFilter;
+	basePath: string;
+	class?: string;
+}
+
+const { label, sortKey, filter, basePath, class: className = '' } = Astro.props;
+const active = sortKeyOf(filter.sort) === sortKey;
+const ascending = active && sortAscending(filter.sort);
+const href = postsHref(basePath, filter, { sort: toggleSort(filter.sort, sortKey) });
+const arrow = ascending ? '\u2191' : '\u2193';
+---
+
+<TableCell header class={className}>
+	<a
+		href={href}
+		class:list={['ui-table-sort', active && 'ui-table-sort--active']}
+		title={postsBrowse.sortHint(label)}
+	>
+		{label}
+		<span aria-hidden="true">{active ? arrow : ''}</span>
+	</a>
+</TableCell>

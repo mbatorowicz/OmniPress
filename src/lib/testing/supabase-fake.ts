@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 export type QueryStep = { method: string; args: unknown[] };
 export type QueryOp = { table: string; steps: QueryStep[] };
-export type QueryResult = { data?: unknown; error?: unknown };
+export type QueryResult = { data?: unknown; error?: unknown; count?: number };
 
 /** Zwraca odpowiedz dla zapytania; undefined = { data: null }. */
 export type QueryResponder = (op: QueryOp) => QueryResult | undefined;
@@ -15,6 +15,8 @@ const CHAIN_METHODS = [
 	'delete',
 	'eq',
 	'neq',
+	'ilike',
+	'like',
 	'in',
 	'is',
 	'or',

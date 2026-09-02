@@ -1,0 +1,99 @@
+---
+import Button from '@/components/ui/actions/Button.astro';
+import Input from '@/components/ui/form/Input.astro';
+import Select from '@/components/ui/form/Select.astro';
+import { posts, postsBrowse } from '@/i18n';
+import {
+	POST_STATUS_FILTERS,
+	POSTS_SORTS,
+	type PostsFilter,
+} from '@/lib/posts/browse-model';
+
+type Option = { id: string; name: string };
+
+interface Props {
+	/** Adres listy — formularz wysyła filtry metodą GET pod ten sam adres. */
+	action: string;
+	filter: PostsFilter;
+	/** Filtr strony — pusta lista ukrywa pole (redaktor z jedną stroną). */
+	sites?: Option[];
+	/** Filtr autora — tylko panel administratora. */
+	authors?: Option[];
+	/** Adres bez filtrów; brak = link „Wyczyść” ukryty. */
+	clearHref?: string;
+}
+
+const { action, filter, sites = [], authors = [], clearHref } = Astro.props;
+const labels = postsBrowse.filters;
+const statusLabels = posts.status;
+const sortLabels = postsBrowse.sortOptions;
+---
+
+<form method="get" action={action} class="ui-posts-filters" aria-label={labels.aria}>
+	<label class="ui-label-inline">
+		<span class="ui-label-muted">{labels.search}</span>
+		<Input name="q" value={filter.q} placeholder={labels.searchPlaceholder} inline />
+	</label>
+
+	<label class="ui-label-inline">
+		<span class="ui-label-muted">{labels.status}</span>
+		<Select name="status" class="ml-2">
+			<option value="" selected={filter.status === 'all'}>{labels.statusAll}</option>
+			{
+				POST_STATUS_FILTERS.map((status) => (
+					<option value={status} selected={filter.status === status}>
+						{statusLabels[status]}
+					</option>
+				))
+			}
+		</Select>
+	</label>
+
+	{
+		sites.length > 1 && (
+			<label class="ui-label-inline">
+				<span class="ui-label-muted">{labels.site}</span>
+				<Select name="site" class="ml-2">
+					<option value="">{labels.siteAll}</option>
+					{sites.map((site) => (
+						<option value={site.id} selected={filter.siteId === site.id}>
+							{site.name}
+						</option>
+					))}
+				</Select>
+			</label>
+		)
+	}
+
+	{
+		authors.length > 0 && (
+			<label class="ui-label-inline">
+				<span class="ui-label-muted">{labels.author}</span>
+				<Select name="author" class="ml-2">
+					<option value="">{labels.authorAll}</option>
+					{authors.map((author) => (
+						<option value={author.id} selected={filter.authorId === author.id}>
+							{author.name}
+						</option>
+					))}
+				</Select>
+			</label>
+		)
+	}
+
+	<label class="ui-label-inline">
+		<span class="ui-label-muted">{labels.sort}</span>
+		<Select name="sort" class="ml-2">
+			{
+				POSTS_SORTS.map((sort) => (
+					<option value={sort} selected={filter.sort === sort}>
+						{sortLabels[sort]}
+					</option>
+				))
+			}
+		</Select>
+	</label>
+
+	<Button type="submit" variant="secondary">{labels.apply}</Button>
+	{clearHref && <a href={clearHref} class="ui-link text-sm">{labels.clear}</a>}
+</form>

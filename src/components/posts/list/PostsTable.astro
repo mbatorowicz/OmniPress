@@ -1,0 +1,70 @@
+---
+import PostsSortHeader from '@/components/posts/list/PostsSortHeader.astro';
+import PostsTableRow from '@/components/posts/list/PostsTableRow.astro';
+import Table from '@/components/ui/table/Table.astro';
+import TableHead from '@/components/ui/table/TableHead.astro';
+import TableBody from '@/components/ui/table/TableBody.astro';
+import TableRow from '@/components/ui/table/TableRow.astro';
+import TableCell from '@/components/ui/table/TableCell.astro';
+import { postsBrowse } from '@/i18n';
+import type { PostListRow } from '@/lib/posts/browse';
+import type { PostsFilter } from '@/lib/posts/browse-model';
+
+interface Props {
+	rows: PostListRow[];
+	filter: PostsFilter;
+	/** Adres listy — baza linków sortujących. */
+	basePath: string;
+	/** Adres wpisu: podgląd (admin) lub edytor (redaktor). */
+	postHref: (id: string) => string;
+	/** Link „Edytuj” obok podglądu — tylko panel administratora. */
+	editHref?: (id: string) => string;
+	showAuthor?: boolean;
+}
+
+const { rows, filter, basePath, postHref, editHref, showAuthor } = Astro.props;
+const columns = postsBrowse.columns;
+---
+
+<Table class="mt-4">
+	<TableHead>
+		<TableRow>
+			<PostsSortHeader
+				label={columns.title}
+				sortKey="title"
+				{filter}
+				{basePath}
+			/>
+			{showAuthor && <TableCell header>{columns.author}</TableCell>}
+			<TableCell header>{columns.category}</TableCell>
+			<TableCell header class="hidden sm:table-cell">{columns.site}</TableCell>
+			<PostsSortHeader
+				label={columns.createdAt}
+				sortKey="created_at"
+				{filter}
+				{basePath}
+				class="hidden whitespace-nowrap md:table-cell"
+			/>
+			<PostsSortHeader
+				label={columns.updatedAt}
+				sortKey="updated_at"
+				{filter}
+				{basePath}
+				class="whitespace-nowrap"
+			/>
+			<TableCell header>{columns.actions}</TableCell>
+		</TableRow>
+	</TableHead>
+	<TableBody>
+		{
+			rows.map((row) => (
+				<PostsTableRow
+					{row}
+					href={postHref(row.id)}
+					editUrl={editHref?.(row.id)}
+					{showAuthor}
+				/>
+			))
+		}
+	</TableBody>
+</Table>

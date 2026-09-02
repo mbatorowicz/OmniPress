@@ -1,0 +1,44 @@
+---
+import { adminAllPosts, posts, postsBrowse } from '@/i18n';
+import {
+	POST_STATUS_FILTERS,
+	postsHref,
+	type PostsFilter,
+} from '@/lib/posts/browse-model';
+import type { PostStatusCounts } from '@/lib/posts/browse';
+
+interface Props {
+	filter: PostsFilter;
+	basePath: string;
+	counts: PostStatusCounts;
+	totalAll: number;
+}
+
+const { filter, basePath, counts, totalAll } = Astro.props;
+const tabs = [
+	{ status: 'all' as const, label: adminAllPosts.statusAll, count: totalAll },
+	...POST_STATUS_FILTERS.map((status) => ({
+		status,
+		label: posts.status[status],
+		count: counts[status],
+	})),
+];
+---
+
+<nav class="ui-queue-summary" aria-label={postsBrowse.filters.status}>
+	{
+		tabs.map((tab) => (
+			<a
+				href={postsHref(basePath, filter, { status: tab.status })}
+				class:list={[
+					'ui-queue-summary-link',
+					filter.status === tab.status && 'ui-queue-summary-link--active',
+				]}
+				aria-current={filter.status === tab.status ? 'page' : undefined}
+			>
+				{tab.label}
+				<span class="ui-queue-summary-count">{tab.count}</span>
+			</a>
+		))
+	}
+</nav>

@@ -3,7 +3,7 @@ import AdminImportSection from '@/components/admin/queue/AdminImportSection.astr
 import AdminQueueSection from '@/components/admin/queue/AdminQueueSection.astro';
 import FlashAlerts from '@/components/shared/FlashAlerts.astro';
 import WorkflowStrip from '@/components/shared/WorkflowStrip.astro';
-import { admin, layout } from '@/i18n';
+import { admin, adminAllPosts, layout } from '@/i18n';
 import type { FlashMessage } from '@/lib/ui/flash';
 import type { SiteRow } from '@/lib/posts/site';
 
@@ -60,6 +60,7 @@ const workflowSteps = [
 			</a>
 		))
 	}
+	<a href="/admin/posts" class="ui-queue-summary-link">{adminAllPosts.heading}</a>
 </nav>
 
 <AdminQueueSection

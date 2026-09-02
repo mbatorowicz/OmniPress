@@ -9,13 +9,14 @@ Operacyjny przewodnik po panelu OmniPress. Stan funkcji: [STATUS.md](./STATUS.md
 ## 0. Nawigacja panelu
 
 - **Nagłówek** (u góry): przyciski *Administracja* (`/admin`) i *Panel treści* (`/dashboard`) — lewe menu zależy od wyboru (panel treści nie ma sidebar).
-- **Sidebar** (tylko w `/admin/*`, po lewej): *Kolejka wpisów* (`/admin`), *Strony* (`/admin/sites`), *Użytkownicy* (`/admin/users`). Na mobile — pozioma belka nad treścią.
+- **Sidebar** (tylko w `/admin/*`, po lewej): *Kolejka wpisów* (`/admin`), *Wszystkie wpisy* (`/admin/posts`), *Strony* (`/admin/sites`), *Użytkownicy* (`/admin/users`). Na mobile — pozioma belka nad treścią.
 - **Breadcrumby** na każdej podstronie pokazują ścieżkę (np. `Administracja / Strony / UG Miedzna / Strony statyczne`).
 - W kontekście strony (`/admin/units/[id]/*`) zakładki pogrupowane:
   - **Wygląd strony:** *Menu* (`/navigation`), *Kategorie* (`/categories`), *Komponenty* (`/components`)
   - **Treść:** *Strony statyczne* (`/pages`), *Ostatnie zmiany* (`/changes`)
   - **Ustawienia** (`/admin/units/[id]`) — nazwa, slug, kanał GitHub i tokeny w jednym formularzu (na końcu subnav)
 - Stare trasy `/admin/units/[id]/layout` → *Menu*, `/admin/units/[id]/publish` → *Ustawienia* (301).
+- `/admin/posts` to pełna lista wpisów wszystkich redaktorów (także szkiców) z filtrami — patrz §5.1.
 - `/admin` to wyłącznie kolejka wpisów — sekcje (*Do akceptacji*, *Zaplanowane / w publikacji*, *Na stronie*) mają u góry ścieżkę workflow i liczniki; wpisy w trakcie publikacji są w sekcji *Zaplanowane* ze znacznikiem **Publikacja…**; z listy można szybko zaakceptować; import z GitHub jest zwijaną sekcją na dole.
 
 ---
@@ -95,6 +96,30 @@ Konta **administratorów i redaktorów** w jednym panelu (stare `/admin/editors`
 4. **Odrzuć:** obowiązkowe uwagi → redaktor widzi `rejection_note` i może poprawić szkic.
 
 Na podglądzie wpisu: tabela **Status publikacji**. Przy błędzie (`failed`): **Ponów publikację**.
+
+### 5.1 Wszystkie wpisy — szkice redaktorów, filtry i sortowanie (`/admin/posts`)
+
+Kolejka (`/admin`) pokazuje tylko to, co czeka na decyzję lub jest już na stronie. Pełny obraz —
+razem ze **szkicami** i wpisami **do poprawki**, których redaktorzy jeszcze nie wysłali — jest na
+`/admin/posts` (sidebar: *Wszystkie wpisy*).
+
+| Element | Do czego służy |
+|---------|----------------|
+| Zakładki statusów | Jeden klik na *Szkic*, *Do akceptacji*, *Zaplanowany*, *Publikacja…*, *Na stronie*, *Do poprawki*; liczba w odznace = ile wpisów ma ten status |
+| *Szukaj w tytule* | Fraza z tytułu (bez znaków wieloznacznych) |
+| *Status*, *Strona*, *Autor* | Zawężenie listy; **Filtruj** zatwierdza |
+| *Sortowanie* | Ostatnia zmiana / data utworzenia / tytuł, rosnąco lub malejąco |
+| Nagłówki *Tytuł*, *Utworzono*, *Ostatnia zmiana* | Klik sortuje po kolumnie, drugi klik odwraca kolejność |
+| **Otwórz** | Podgląd wpisu (`/admin/posts/[id]`) |
+| **Edytuj** | Edytor treści (`/admin/posts/[id]/edit`) — widoczny dla statusów *Szkic*, *Do poprawki*, *Do akceptacji*, *Zaplanowany* |
+
+Lista jest stronicowana po 25 wpisów; filtry, sortowanie i numer strony siedzą w adresie, więc widok
+(np. „szkice redaktora X”) można zapisać w zakładkach przeglądarki.
+
+**Edycja szkicu redaktora** działa jak korekta z §5 pkt 2: zapis **nie zmienia statusu**, więc wpis
+zostaje szkicem u redaktora — administrator poprawia treść, ale nie wysyła jej za niego do
+akceptacji. Redaktor nie dostaje powiadomienia (brak e-maili w tej wersji), więc przy większych
+zmianach uprzedź go poza systemem.
 
 ---
 

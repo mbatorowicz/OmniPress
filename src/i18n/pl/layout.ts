@@ -6,6 +6,7 @@ export const layout = {
 	navSignOut: 'Wyloguj',
 	sidebar: {
 		queue: 'Kolejka wpisów',
+		posts: 'Wszystkie wpisy',
 		sites: 'Strony',
 		users: 'Użytkownicy',
 	},

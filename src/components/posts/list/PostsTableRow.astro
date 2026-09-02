@@ -1,0 +1,52 @@
+---
+import Button from '@/components/ui/actions/Button.astro';
+import StatusBadge from '@/components/ui/feedback/StatusBadge.astro';
+import TableRow from '@/components/ui/table/TableRow.astro';
+import TableCell from '@/components/ui/table/TableCell.astro';
+import { adminUsers, common, postsBrowse } from '@/i18n';
+import type { PostListRow } from '@/lib/posts/browse';
+import { isAdminEditableStatus } from '@/lib/posts/access-model';
+
+interface Props {
+	row: PostListRow;
+	href: string;
+	/** Podany tylko w panelu administratora; przycisk pojawia się dla wpisów przed publikacją. */
+	editUrl?: string;
+	showAuthor?: boolean;
+}
+
+const { row, href, editUrl, showAuthor } = Astro.props;
+const labels = postsBrowse;
+const dateFmt = new Intl.DateTimeFormat('pl-PL', { dateStyle: 'short', timeStyle: 'short' });
+const formatWhen = (raw: string | null) => (raw ? dateFmt.format(new Date(raw)) : '—');
+const siteName = row.sites?.name ?? '—';
+const authorName =
+	row.profiles?.display_name ?? (row.author_id ? labels.values.noAuthor : adminUsers.deletedAuthor);
+const canEdit = Boolean(editUrl) && isAdminEditableStatus(row.status);
+---
+
+<TableRow>
+	<TableCell>
+		<a {href} class="ui-link">{row.title || common.untitled}</a>
+		<div class="mt-1">
+			<StatusBadge status={row.status} />
+		</div>
+	</TableCell>
+	{showAuthor && <TableCell class="ui-muted">{authorName}</TableCell>}
+	<TableCell class="ui-subheading">
+		{row.category_name || labels.values.noCategory}
+	</TableCell>
+	<TableCell class="ui-muted hidden sm:table-cell">{siteName}</TableCell>
+	<TableCell class="ui-muted hidden whitespace-nowrap md:table-cell">
+		{formatWhen(row.created_at)}
+	</TableCell>
+	<TableCell class="ui-muted whitespace-nowrap">{formatWhen(row.updated_at)}</TableCell>
+	<TableCell>
+		<div class="flex flex-wrap items-center gap-2">
+			<Button {href} variant="ghost">{labels.actions.open}</Button>
+			{canEdit && editUrl && (
+				<Button href={editUrl} variant="secondary">{labels.actions.edit}</Button>
+			)}
+		</div>
+	</TableCell>
+</TableRow>

@@ -1,0 +1,28 @@
+---
+import Button from '@/components/ui/actions/Button.astro';
+import { postsBrowse } from '@/i18n';
+import { postsHref, type PostsFilter } from '@/lib/posts/browse-model';
+
+interface Props {
+	filter: PostsFilter;
+	basePath: string;
+	page: number;
+	pageCount: number;
+	total: number;
+}
+
+const { filter, basePath, page, pageCount, total } = Astro.props;
+const labels = postsBrowse.pagination;
+const prevHref = page > 1 ? postsHref(basePath, filter, { page: page - 1 }) : null;
+const nextHref = page < pageCount ? postsHref(basePath, filter, { page: page + 1 }) : null;
+---
+
+<nav class="ui-pagination" aria-label={labels.aria}>
+	<span>
+		{labels.total(total)} · {labels.position(page, pageCount)}
+	</span>
+	<div class="ui-pagination-actions">
+		{prevHref && <Button href={prevHref} variant="secondary">{labels.prev}</Button>}
+		{nextHref && <Button href={nextHref} variant="secondary">{labels.next}</Button>}
+	</div>
+</nav>

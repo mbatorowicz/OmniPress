@@ -25,9 +25,9 @@ Jedyny typ destynacji: **`github_astro`**.
 | Rola | Logowanie | Panel |
 |------|-----------|-------|
 | Redaktor | `/login` | `/dashboard`, `/dashboard/posts/[id]` |
-| Administrator | `/login` | `/admin`, `/admin/sites`, `/admin/units/*`, `/admin/users/*`, `/admin/posts/[id]` |
+| Administrator | `/login` | `/admin`, `/admin/posts`, `/admin/sites`, `/admin/units/*`, `/admin/users/*`, `/admin/posts/[id]` |
 
-Nawigacja: nagłówek z przyciskami *Administracja* / *Panel treści*; sidebar (tylko `/admin/*`): Kolejka wpisów, Strony, Użytkownicy. Stare `/admin/editors/*` przekierowuje (301) na `/admin/users/*`.
+Nawigacja: nagłówek z przyciskami *Administracja* / *Panel treści*; sidebar (tylko `/admin/*`): Kolejka wpisów, Wszystkie wpisy, Strony, Użytkownicy. Stare `/admin/editors/*` przekierowuje (301) na `/admin/users/*`.
 
 Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 
@@ -51,6 +51,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Usuwanie własnych wpisów (`draft` / `rejected`) wraz z plikami Storage | ✅ migracja `setup:posts-delete-own` |
 | Edycja tylko `draft` / `rejected`; poprawki opublikowanych (amendment) | ✅ (administrator poprawia także `pending` / `scheduled`) |
 | Podgląd treści po wysłaniu / odrzuceniu | ✅ |
+| Lista własnych wpisów: filtr (tytuł, status, strona), sortowanie, stronicowanie po 25 | ✅ `/dashboard` |
 | Instrukcja w panelu (`/dashboard/help`) | ✅ | link *Pomoc* w nagłówku + *Instrukcja* na liście wpisów |
 
 ---
@@ -65,6 +66,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Uprawnienia redaktora (strony + domyślna); blokada: własne konto / ostatni admin | ✅ |
 | Usunięcie konta zostawia wpisy (autor: „konto usunięte”) | ✅ migracja `setup:author-on-delete` |
 | Kolejka: do akceptacji, zaplanowane (ze znacznikiem „Publikacja…”), na stronie | ✅ `/admin` |
+| Wszystkie wpisy redaktorów — także szkice i wpisy do poprawki; zakładki statusów z licznikami, filtr (tytuł, status, strona, autor), sortowanie kolumn, stronicowanie po 25 | ✅ `/admin/posts` |
 | Akceptacja → kolejka publikacji GitHub (natychmiast lub o zaplanowanej godzinie) | ✅ |
 | Odrzucenie z `rejection_note` | ✅ |
 | Korekta wpisu przed publikacją (`draft`, `rejected`, `pending`, `scheduled`) — treść, tytuł, slug, kategoria, data, tryb załącznika (link / podgląd), galeria | ✅ `/admin/posts/[id]/edit` |
@@ -155,10 +157,10 @@ Tabela opisuje **zamierzony** stan bazy. `lint-docs-setup.mjs` pilnuje zgodnośc
 
 | Warstwa | Narzędzie | Zakres |
 |---------|-----------|--------|
-| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 91 plików testowych obok modułów (652 testy) |
+| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 96 plików testowych obok modułów (711 testów, w tym 22 RLS opt-in) |
 | Typy (`npm run typecheck`) | `tsc --noEmit` | całe repo, zero błędów; wpięte w `npm run lint` jako bramka |
 | Integracyjne RLS (opt-in) | Vitest + `pg` | `src/lib/supabase/rls.integration.test.ts` — 22 przypadki: izolacja redaktorów, dane wrażliwe, eskalacja uprawnień |
-| E2E/UI (`npm run test:e2e`) | Playwright (`e2e/`) | produkcja: strefa publiczna, nagłówki bezpieczeństwa, CSRF, auth (logowanie/wylogowanie, błędne hasło), panel admina, cykl wpisu (szkic → walidacja → zapis → usunięcie) |
+| E2E/UI (`npm run test:e2e`) | Playwright (`e2e/`) | produkcja: strefa publiczna, nagłówki bezpieczeństwa, CSRF, auth (logowanie/wylogowanie, błędne hasło), panel admina, lista wpisów z filtrami (`posts-browse.spec.ts`), cykl wpisu (szkic → walidacja → zapis → usunięcie) |
 
 E2E domyślnie biegnie na produkcji (`E2E_BASE_URL` zmienia cel); dane logowania: `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD` lub lokalny `.admin-password.txt`.
 

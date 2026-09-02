@@ -1,0 +1,70 @@
+---
+import PostsFilterBar from '@/components/posts/list/PostsFilterBar.astro';
+import PostsPagination from '@/components/posts/list/PostsPagination.astro';
+import PostsTable from '@/components/posts/list/PostsTable.astro';
+import { postsBrowse } from '@/i18n';
+import type { PostsPage } from '@/lib/posts/browse';
+import { hasActiveFilter, type PostsFilter } from '@/lib/posts/browse-model';
+
+type Option = { id: string; name: string };
+
+interface Props {
+	page: PostsPage;
+	filter: PostsFilter;
+	/** Adres listy (`/admin/posts`, `/dashboard`) — baza filtrów, sortowania i stron. */
+	basePath: string;
+	postHref: (id: string) => string;
+	editHref?: (id: string) => string;
+	sites?: Option[];
+	authors?: Option[];
+	showAuthor?: boolean;
+	/** Komunikat dla listy bez filtrów; domyślnie neutralne „Brak wpisów”. */
+	emptyText?: string;
+}
+
+const {
+	page,
+	filter,
+	basePath,
+	postHref,
+	editHref,
+	sites,
+	authors,
+	showAuthor,
+	emptyText,
+} = Astro.props;
+const filtered = hasActiveFilter(filter);
+const empty = filtered ? postsBrowse.emptyFiltered : (emptyText ?? postsBrowse.empty);
+---
+
+<PostsFilterBar
+	action={basePath}
+	{filter}
+	{sites}
+	{authors}
+	clearHref={filtered ? basePath : undefined}
+/>
+
+{
+	page.rows.length === 0 ? (
+		<p class="ui-empty mt-4">{empty}</p>
+	) : (
+		<>
+			<PostsTable
+				rows={page.rows}
+				{filter}
+				{basePath}
+				{postHref}
+				{editHref}
+				{showAuthor}
+			/>
+			<PostsPagination
+				{filter}
+				{basePath}
+				page={page.page}
+				pageCount={page.pageCount}
+				total={page.total}
+			/>
+		</>
+	)
+}

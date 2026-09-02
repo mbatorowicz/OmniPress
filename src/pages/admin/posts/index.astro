@@ -1,0 +1,48 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import PostsBrowser from '@/components/posts/list/PostsBrowser.astro';
+import PostsStatusTabs from '@/components/posts/list/PostsStatusTabs.astro';
+import Button from '@/components/ui/actions/Button.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+import { adminAllPosts, layout } from '@/i18n';
+import { loadAllPostsPage } from '@/lib/admin/all-posts-page';
+import { parsePostsFilter } from '@/lib/posts/browse-model';
+
+if (Astro.locals.profile?.role !== 'admin') return Astro.redirect('/dashboard');
+
+const BASE_PATH = '/admin/posts';
+const filter = parsePostsFilter(Astro.url.searchParams);
+const { page, counts, totalAll, sites, authors } = await loadAllPostsPage(
+	Astro.locals.supabase,
+	filter,
+);
+
+const breadcrumbs = [
+	{ label: layout.breadcrumb.admin, href: '/admin' },
+	{ label: adminAllPosts.heading },
+];
+---
+
+<AppLayout title={adminAllPosts.title} heading={adminAllPosts.heading} {breadcrumbs}>
+	<Panel>
+		<div class="flex flex-wrap items-start justify-between gap-4">
+			<p class="ui-muted max-w-2xl">{adminAllPosts.lead}</p>
+			<Button href="/admin" variant="secondary">{adminAllPosts.queueLink}</Button>
+		</div>
+
+		<div class="mt-4">
+			<PostsStatusTabs {filter} basePath={BASE_PATH} {counts} {totalAll} />
+		</div>
+
+		<PostsBrowser
+			{page}
+			{filter}
+			basePath={BASE_PATH}
+			postHref={(id) => `/admin/posts/${id}`}
+			editHref={(id) => `/admin/posts/${id}/edit`}
+			{sites}
+			{authors}
+			showAuthor
+		/>
+	</Panel>
+</AppLayout>

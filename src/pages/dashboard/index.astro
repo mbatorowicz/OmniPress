@@ -1,26 +1,23 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
-import StatusBadge from '@/components/ui/feedback/StatusBadge.astro';
+import PostsBrowser from '@/components/posts/list/PostsBrowser.astro';
 import Alert from '@/components/ui/feedback/Alert.astro';
 import Button from '@/components/ui/actions/Button.astro';
 import PageHeader from '@/components/ui/layout/PageHeader.astro';
 import Panel from '@/components/ui/layout/Panel.astro';
 import WorkflowStrip from '@/components/shared/WorkflowStrip.astro';
 import { common, dashboard, postError } from '@/i18n';
-import { loadAllowedSites } from '@/lib/posts';
+import { listPostsPage, loadAllowedSites } from '@/lib/posts';
+import { parsePostsFilter } from '@/lib/posts/browse-model';
 import { getUserSites } from '@/lib/auth';
-import type { PostStatus } from '@/lib/types';
 
 const profile = Astro.locals.profile!;
 const supabase = Astro.locals.supabase;
 const userSites = await getUserSites(supabase, profile.id);
 const allowedSites = await loadAllowedSites(supabase, profile, userSites);
 
-const { data: posts } = await supabase
-	.from('posts')
-	.select('id, title, status, updated_at, sites(name)')
-	.eq('author_id', profile.id)
-	.order('updated_at', { ascending: false });
+const filter = parsePostsFilter(Astro.url.searchParams);
+const postsPage = await listPostsPage(supabase, filter, { authorId: profile.id });
 
 const submitted = Astro.url.searchParams.get('submitted') === '1';
 const deleted = Astro.url.searchParams.get('deleted') === '1';
@@ -96,25 +93,14 @@ const errorMessage =
 	</Panel>
 
 	<Panel>
-		<h2 class="ui-heading">{dashboard.posts.heading}</h2>
-		{
-			!posts?.length ? (
-				<p class="ui-empty mt-4">{dashboard.posts.empty}</p>
-			) : (
-				<ul class="ui-list-divide mt-4">
-					{posts.map((post) => (
-						<li class="flex flex-wrap items-center justify-between gap-2 py-3">
-							<a href={`/dashboard/posts/${post.id}`} class="ui-link">
-								{post.title || common.untitled}
-							</a>
-							<div class="ui-muted flex items-center gap-3">
-								<span>{(post.sites as { name: string } | null)?.name}</span>
-								<StatusBadge status={post.status as PostStatus} />
-							</div>
-						</li>
-					))}
-				</ul>
-			)
-		}
+		<h2 class="ui-heading mb-4">{dashboard.posts.heading}</h2>
+		<PostsBrowser
+			page={postsPage}
+			{filter}
+			basePath="/dashboard"
+			postHref={(id) => `/dashboard/posts/${id}`}
+			sites={allowedSites.map((s) => ({ id: s.id, name: s.name }))}
+			emptyText={dashboard.posts.empty}
+		/>
 	</Panel>
 </AppLayout>
