@@ -13,46 +13,13 @@ import {
 	probeVercelProject,
 	resolveVercelToken,
 } from '@/lib/publish/vercel-api';
-import { auditGitHubToken, classifyGitHubToken, formatTokenExpiry } from './github-token';
-import { adminDestinations, adminUnit } from '@/i18n/pl/admin-panels';
+import { appendTokenAuditMessages } from './channel-test-token';
+import { adminDestinations } from '@/i18n/pl/admin-panels';
 import type { GitHubCredentials } from '@/lib/publish/credentials';
 
 export type ChannelTestResult = { ok: true; message: string } | { ok: false; message: string };
 
 const ct = adminDestinations.channelTest;
-
-function formatTokenAuditMessages(token: string): string[] {
-	const lines: string[] = [];
-	const kind = classifyGitHubToken(token);
-	if (kind === 'classic') {
-		lines.push(adminUnit.astroHelp.tokenClassicWarning);
-	}
-	return lines;
-}
-
-async function appendTokenAuditMessages(
-	cfg: NonNullable<ReturnType<typeof parseGitHubRepoConfig>>,
-	token: string,
-	baseMessage: string,
-): Promise<string> {
-	const warnings = formatTokenAuditMessages(token);
-	try {
-		const audit = await auditGitHubToken(cfg, token);
-		if (audit.repoAccessible) {
-			warnings.push(`${adminUnit.astroHelp.tokenRepoAccess} ${audit.repoDetail}`);
-			warnings.push(
-				audit.expiresAt ? ct.tokenExpiresAt(formatTokenExpiry(audit.expiresAt)) : ct.tokenNoExpiry,
-			);
-		} else {
-			warnings.push(`${adminUnit.astroHelp.tokenRepoDenied} ${audit.repoDetail}`);
-		}
-	} catch {
-		// probe już zwrócił błąd wyżej
-	}
-
-	if (warnings.length === 0) return baseMessage;
-	return `${baseMessage} ${warnings.join(' ')}`;
-}
 
 async function loadStoredCredentials(
 	supabase: SupabaseClient,
