@@ -24,7 +24,15 @@ export const adminDestinations = {
 		recentChangesPath: 'Plik ostatnich zmian w repozytorium',
 	},
 	actions: { testChannel: 'Testuj połączenie' },
+	publishErrors: {
+		badCredentials:
+			'Token GitHub jest nieważny lub wygasł (HTTP 401) — publikacja wstrzymana. Wejdź w Ustawienia jednostki → Kanał publikacji, wklej nowy fine-grained PAT (Contents: Read and write, Metadata: Read) i zapisz, a potem wyślij wpis ponownie.',
+		forbidden:
+			'GitHub odmówił dostępu (HTTP 403) — token nie ma uprawnień do repozytorium albo przekroczono limit zapytań. Sprawdź uprawnienia tokenu w Ustawieniach jednostki → Kanał publikacji.',
+	},
 	channelTest: {
+		tokenExpiresAt: (date: string) => `Token wygasa: ${date}.`,
+		tokenNoExpiry: 'Token bez daty wygaśnięcia.',
 		invalidRepo: 'Podaj repozytorium w formacie owner/nazwa.',
 		noGitHubToken:
 			'Brak tokena GitHub — wpisz PAT lub zapisz destynację z zapisanym tokenem.',

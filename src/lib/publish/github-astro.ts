@@ -28,6 +28,7 @@ import {
 	type GitHubConfig,
 	type GitHubFileWrite,
 } from './github-api';
+import { explainGitHubError } from './github-error-message';
 import {
 	formatExternalGitHubPath,
 	joinContentPath,
@@ -414,7 +415,7 @@ export async function publishToGitHubAstro(
 		const status = httpStatusFromError(msg);
 		return {
 			ok: false,
-			summary: msg.slice(0, 500),
+			summary: explainGitHubError(msg).slice(0, 500),
 			retryable: status !== null ? isGitHubRetryable(status) : true,
 		};
 	}

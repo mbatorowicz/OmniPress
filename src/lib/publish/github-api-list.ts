@@ -149,10 +149,16 @@ export async function resolveGitHubWithdrawPaths(
 export async function probeGitHubRepository(
 	cfg: GitHubConfig,
 	token: string,
-): Promise<{ ok: true } | { ok: false; status: number; detail: string }> {
+): Promise<
+	{ ok: true; tokenExpiresAt?: string } | { ok: false; status: number; detail: string }
+> {
 	const url = `${GH_API}/repos/${cfg.owner}/${cfg.repo}`;
 	const res = await fetch(url, { headers: ghHeaders(token) });
-	if (res.ok) return { ok: true };
+	if (res.ok) {
+		// GitHub podaje termin ważności PAT tylko w nagłówku odpowiedzi.
+		const expiration = res.headers.get('github-authentication-token-expiration');
+		return expiration ? { ok: true, tokenExpiresAt: expiration } : { ok: true };
+	}
 	const text = await res.text();
 	return { ok: false, status: res.status, detail: text.slice(0, 200) };
 }

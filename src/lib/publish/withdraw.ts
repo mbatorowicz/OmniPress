@@ -5,6 +5,7 @@ import {
 	parseGitHubRepoConfig,
 	resolveGitHubWithdrawPaths,
 } from './github-api';
+import { explainGitHubError } from './github-error-message';
 import { loadDestinationForPublish } from './dispatch';
 import type { DestinationForPublish } from './types';
 
@@ -39,7 +40,7 @@ async function withdrawFromGitHubBatch(
 		};
 	} catch (err) {
 		const msg = err instanceof Error ? err.message : 'GitHub: błąd batch delete';
-		return { ok: false, summary: msg.slice(0, 300) };
+		return { ok: false, summary: explainGitHubError(msg).slice(0, 300) };
 	}
 }
 

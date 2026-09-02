@@ -15,9 +15,11 @@ export type GitHubTokenAudit = {
 	kind: GitHubTokenKind;
 	repoAccessible: boolean;
 	repoDetail: string;
+	/** Data z nagłówka GitHub (np. „2026-09-01 08:07:47 UTC”); null dla tokenu bezterminowego. */
+	expiresAt: string | null;
 };
 
-/** Sprawdza typ tokena i dostęp do skonfigurowanego repozytorium. */
+/** Sprawdza typ tokena, dostęp do repozytorium i termin ważności. */
 export async function auditGitHubToken(
 	cfg: GitHubConfig,
 	token: string,
@@ -31,5 +33,13 @@ export async function auditGitHubToken(
 		repoDetail: probe.ok
 			? `${cfg.owner}/${cfg.repo}`
 			: `HTTP ${probe.status}: ${probe.detail}`,
+		expiresAt: probe.ok ? (probe.tokenExpiresAt ?? null) : null,
 	};
+}
+
+/** „2026-09-01 08:07:47 UTC” → „1 września 2026”; przy nieznanym formacie zwraca wejście. */
+export function formatTokenExpiry(raw: string): string {
+	const parsed = new Date(raw.replace(' UTC', 'Z').replace(' ', 'T'));
+	if (Number.isNaN(parsed.getTime())) return raw;
+	return parsed.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
 }

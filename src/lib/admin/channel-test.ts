@@ -13,7 +13,7 @@ import {
 	probeVercelProject,
 	resolveVercelToken,
 } from '@/lib/publish/vercel-api';
-import { auditGitHubToken, classifyGitHubToken } from './github-token';
+import { auditGitHubToken, classifyGitHubToken, formatTokenExpiry } from './github-token';
 import { adminDestinations, adminUnit } from '@/i18n/pl/admin-panels';
 import type { GitHubCredentials } from '@/lib/publish/credentials';
 
@@ -40,6 +40,9 @@ async function appendTokenAuditMessages(
 		const audit = await auditGitHubToken(cfg, token);
 		if (audit.repoAccessible) {
 			warnings.push(`${adminUnit.astroHelp.tokenRepoAccess} ${audit.repoDetail}`);
+			warnings.push(
+				audit.expiresAt ? ct.tokenExpiresAt(formatTokenExpiry(audit.expiresAt)) : ct.tokenNoExpiry,
+			);
 		} else {
 			warnings.push(`${adminUnit.astroHelp.tokenRepoDenied} ${audit.repoDetail}`);
 		}
