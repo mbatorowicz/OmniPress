@@ -35,8 +35,11 @@ test.describe('dodawanie użytkownika', () => {
 
 		const dialog = page.locator('#user-create-dialog');
 		const email = `e2e-user-${Date.now()}@example.com`;
+		// Nazwa unikalna per przebieg: konto zostawione przez przerwany test nie może
+		// wywracać kolejnych uruchomień na sprawdzeniu, że po usunięciu zniknęło z listy.
+		const displayName = `[E2E] Konto testowe ${Date.now()}`;
 		await dialog.locator('input[name="email"]').fill(email);
-		await dialog.locator('input[name="display_name"]').fill('[E2E] Konto testowe');
+		await dialog.locator('input[name="display_name"]').fill(displayName);
 		await dialog.locator('input[name="password"]').fill(`E2e-${Date.now()}!`);
 		await dialog.locator('select[name="role"]').selectOption('editor');
 		await page.getByRole('button', { name: adminUsers.create.submit }).click();
@@ -53,6 +56,6 @@ test.describe('dodawanie użytkownika', () => {
 		}
 
 		await page.goto('/admin/users');
-		await expect(page.getByRole('link', { name: '[E2E] Konto testowe' })).toBeHidden();
+		await expect(page.getByRole('link', { name: displayName })).toBeHidden();
 	});
 });
