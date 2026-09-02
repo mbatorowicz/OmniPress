@@ -6,12 +6,15 @@ import Alert from '@/components/ui/feedback/Alert.astro';
 import Button from '@/components/ui/actions/Button.astro';
 import { adminSitePages, dashboard } from '@/i18n';
 import { getSitePageById } from '@/lib/site-pages';
+import { pageDraftLiveStatus } from '@/lib/site-pages/sync-status';
 import { buildSitePagePublicPath } from '@/lib/site-pages/url';
+import { ensureSiteFromGitHub } from '@/lib/sync/ensure-site';
 import type { PageStatus } from '@/lib/types';
 
 const { id, pageId } = Astro.params;
 if (!id || !pageId || Astro.locals.profile?.role !== 'admin') return Astro.redirect('/admin');
 
+await ensureSiteFromGitHub(Astro.locals.supabase, id, Astro.locals.user?.id ?? null);
 const page = await getSitePageById(Astro.locals.supabase, pageId);
 if (!page || page.site_id !== id) {
 	return Astro.redirect(`/admin/units/${id}/pages?error=not_found`);
@@ -34,6 +37,15 @@ const saved = Astro.url.searchParams.get('saved') === '1';
 const published = Astro.url.searchParams.get('published') === '1';
 const publicPath = buildSitePagePublicPath(page.path_prefix, page.slug);
 const statusLabel = page.status === 'published' ? ui.statusPublished : ui.statusDraft;
+const syncStatus = pageDraftLiveStatus(page);
+const syncLabel =
+	syncStatus === 'in_sync'
+		? ui.sync.inSync
+		: syncStatus === 'draft_ahead'
+			? ui.sync.draftAhead
+			: syncStatus === 'live_ahead'
+				? ui.sync.liveAhead
+				: ui.sync.unknown;
 ---
 
 <AppLayout title={page.title || ui.title} heading={page.title || ui.title}>
@@ -46,6 +58,7 @@ const statusLabel = page.status === 'published' ? ui.statusPublished : ui.status
 
 	<p class="ui-muted mb-2">
 		<span class="ui-status-badge">{statusLabel}</span>
+		<span class="ui-hint ml-2">{syncLabel}</span>
 		<span class="ui-hint ml-2 font-mono">{publicPath}</span>
 	</p>
 

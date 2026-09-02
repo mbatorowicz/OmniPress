@@ -19,7 +19,9 @@ if (!id) return Astro.redirect('/admin/sites');
 const initial = await loadUnitFormInitial(Astro.locals.supabase, id);
 if (!initial) return Astro.redirect('/admin/sites');
 
-const ctx = await loadLayoutEditorContext(Astro.locals.supabase, id);
+const ctx = await loadLayoutEditorContext(Astro.locals.supabase, id, {
+	authorId: Astro.locals.user?.id ?? null,
+});
 if (!ctx) return Astro.redirect('/admin/sites');
 
 const postCount = await countSitePosts(Astro.locals.supabase, id);

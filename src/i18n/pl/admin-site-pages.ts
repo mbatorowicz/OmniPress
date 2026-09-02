@@ -1,7 +1,8 @@
 /** Teksty panelu stron statycznych. */
 export const adminSitePages = {
 	title: 'Strony statyczne',
-	lead: 'Treści pod stałe adresy URL (np. /gmina/plan-ogolny). Tylko administrator — publikacja od razu do repozytorium Astro.',
+	lead: 'Treści pod stałe adresy URL (np. /gmina/plan-ogolny). Tylko administrator — publikacja od razu do repozytorium Astro. Panel sam wczytuje strony z GitHub przy otwarciu.',
+	placeholderContent: 'Treść strony w przygotowaniu.',
 	empty: 'Brak stron — utwórz pierwszą stronę statyczną.',
 	create: '+ Nowa strona',
 	backToUnit: 'Wróć do ustawień strony',
@@ -23,12 +24,17 @@ export const adminSitePages = {
 		seedFromNav: 'Utwórz strony z menu',
 	},
 	seedFromNavHint:
-		'Tworzy brakujące strony statyczne dla linków wewnętrznych z menu Astro i publikuje je do GitHub.',
-	seedFromNavDone: 'Utworzono strony z menu i opublikowano w repozytorium.',
-	layoutSynced: 'Layout wysłany do GitHub.',
+		'Tworzy w Omni brakujące szkice dla linków z menu. Nie publikuje na stronę — treść z GitHub wczytuje się sama.',
+	seedFromNavDone: 'Utworzono brakujące szkice stron z menu. Nic nie zostało wysłane do repozytorium.',
 	saved: 'Strona zapisana.',
 	published: 'Strona opublikowana w repozytorium GitHub.',
 	deleted: 'Strona usunięta.',
+	sync: {
+		inSync: 'Zgodna ze stroną',
+		draftAhead: 'Szkic nowszy niż strona',
+		liveAhead: 'Strona zmieniona poza OmniPress',
+		unknown: 'Status względem GitHub nieznany',
+	},
 	errors: {
 		not_found: 'Strona nie istnieje.',
 		create_failed: 'Nie udało się utworzyć strony.',
@@ -42,5 +48,7 @@ export const adminSitePages = {
 		invalid_repo: 'Nieprawidłowa konfiguracja repozytorium.',
 		no_github_token: 'Brak tokenu GitHub.',
 		delete_failed: 'Usunięcie nie powiodło się.',
+		remote_richer:
+			'Na stronie jest już treść — Omni ma pusty szkic. Otwórz stronę ponownie, aby wczytać treść z GitHub, zamiast publikować pustkę.',
 	},
 } as const;

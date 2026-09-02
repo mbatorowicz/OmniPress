@@ -7,6 +7,7 @@ import Panel from '@/components/ui/layout/Panel.astro';
 import { adminAllPosts, layout } from '@/i18n';
 import { loadAllPostsPage } from '@/lib/admin/all-posts-page';
 import { parsePostsFilter } from '@/lib/posts/browse-model';
+import { ensureSitesFromGitHub } from '@/lib/sync/ensure-site';
 
 if (Astro.locals.profile?.role !== 'admin') return Astro.redirect('/dashboard');
 
@@ -15,6 +16,11 @@ const filter = parsePostsFilter(Astro.url.searchParams);
 const { page, counts, totalAll, sites, authors } = await loadAllPostsPage(
 	Astro.locals.supabase,
 	filter,
+);
+await ensureSitesFromGitHub(
+	Astro.locals.supabase,
+	sites.map((site) => site.id),
+	Astro.locals.user?.id ?? null,
 );
 
 const breadcrumbs = [

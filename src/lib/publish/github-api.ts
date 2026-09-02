@@ -17,6 +17,7 @@ export {
 } from './github-api-config';
 
 export {
+	getBranchHeadCommitSha,
 	getGitHubFile,
 	getGitHubFileBinary,
 	getGitHubFileBlobSha,
@@ -34,8 +35,10 @@ export {
 	listGitHubMarkdownPosts,
 	listGitHubSiblingAssets,
 	listGitHubTreeBlobPaths,
+	listGitHubTreeBlobs,
 	probeGitHubContentPath,
 	probeGitHubRepository,
 	resolveGitHubWithdrawPaths,
 	type GitHubDirBlob,
+	type GitHubTreeBlob,
 } from './github-api-list';

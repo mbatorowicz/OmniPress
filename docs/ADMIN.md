@@ -142,30 +142,28 @@ e-maili w tej wersji), więc przy większych zmianach uprzedź go poza systemem.
 
 ---
 
-## 6. Wygląd strony, import i bulk
+## 6. Wygląd strony, sync i bulk
 
-Model **szkic + publikacja**: edycja zapisuje roboczy layout w Supabase; strona live czyta JSON z repozytorium GitHub. Publikacja na stronę wymaga osobnego kliknięcia **Opublikuj na stronie**.
+Model **szkic + auto-pull + jawna publikacja**: edycja zapisuje roboczy stan w Supabase; strona live czyta pliki z GitHub. Przy wejściu na panel Omni **sam** wczytuje zmiany z `origin/main`, gdy nie masz niewysłanych poprawek. Publikacja na stronę wymaga kliknięcia **Opublikuj na stronie**.
 
 | Akcja | Supabase (szkic) | GitHub | Vercel |
 |-------|------------------|--------|--------|
+| **Wejście na panel** | uzupełnia brakujące / puste z live | odczyt | nie |
 | **Zapisz szkic** | tak | nie | nie |
-| **Importuj z GitHub** | nadpisuje szkic danymi live | odczyt | nie |
 | **Opublikuj na stronie** | tak (przed sync) | commit | webhook |
 
 - **Menu:** `/admin/units/[id]/navigation` — edytor drzewa nawigacji (do 3 poziomów). Publikacja wysyła tylko `omnipress-navigation.json`. Przed publikacją walidacja linków wewnętrznych.
 - **Kategorie:** `/admin/units/[id]/categories` — slug/nazwa kategorii + macierz widoczności w komponentach feed. Publikacja wysyła tylko `omnipress-categories.json`.
 - **Komponenty:** `/admin/units/[id]/components` — lista slotów (`home.*`, `sidebar.weather`, `sidebar.cert_advisories`, `sidebar.recent_changes`, `sidebar.banner` itd.) w tym samym pliku kategorii. Publikacja jak w zakładce Kategorie. Wspólne pole kolejności (`order`) dla sidebaru. `sidebar.weather` i `sidebar.cert_advisories` pobierają dane **na żywo** z API na stronie Astro — bez syncu JSON do repo. Widget CERT zawsze dopełnia listę do limitu z panelu.
-- **Strony statyczne:** `/admin/units/[id]/pages` — treści pod stałe URL; publikacja od razu do `src/content/pages/` w repo Astro.
-- **Import wpisów z GitHub:** `/admin` → synchronizacja (wpisy już na stronie).
+- **Strony statyczne:** `/admin/units/[id]/pages` — treści pod stałe URL; lista i edytor wczytują stan z GitHub. Publikacja nie nadpisze istniejącej treści pustym szkicem. *Utwórz strony z menu* dodaje tylko brakujące szkice (bez commita).
+- **Wpisy:** przy wejściu na kolejkę / listę Omni dociąga opublikowane pliki z repo; szkice i kolejka nie są nadpisywane.
 - **Ostatnie zmiany:** `/admin/units/[id]/changes`.
 - **Bulk (kolejka `/admin` i wpisy jednostki):**
   - *Do akceptacji* — zaznacz → **Zaakceptuj** lub **Odrzuć** (wspólne uwagi).
   - *Zaplanowane* — zaznacz → **Anuluj harmonogram** (powrót do szkicu; wpisy w trakcie publikacji pomijane).
   - *Na stronie* — zaznacz → zdejmij ze strony lub usuń.
 
-**Odzyskiwanie menu po regresji:** Importuj z GitHub (nie zapisuj na starym deployu) → sprawdź typy linków w tabeli → Zapisz szkic → Opublikuj na stronie.
-
-**Procedura odzyskania menu Gminy:** po deployu OmniPress z fixami linków — Import z GitHub → weryfikacja typów linków → Zapisz szkic → Opublikuj na stronie.
+**Odzyskiwanie menu po regresji:** otwórz zakładkę Menu (auto-pull z GitHub, gdy szkic nie wyprzedza live) → sprawdź typy linków → Zapisz szkic jeśli trzeba → Opublikuj na stronie.
 
 ---
 

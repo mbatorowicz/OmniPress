@@ -13,8 +13,8 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SITE_SLUG = process.env.SITE_SLUG || 'gmina-miedzna-pl';
 const SKIP_PATHS = new Set(['/', '/kontakt']);
 const PLACEHOLDER = 'Treść strony w przygotowaniu.';
-const dbOnly = process.argv.includes('--db-only');
-const syncLayout = !dbOnly && !process.argv.includes('--no-sync-layout');
+const dbOnly = true;
+const syncLayout = false;
 
 function loadEnvLocal() {
 	const envPath = resolve(root, '.env.local');
@@ -292,12 +292,7 @@ for (const [href, spec] of unique) {
 	}
 
 	if (dbOnly) {
-		await client.query(
-			`update site_pages set status = 'published', updated_at = now() where id = $1`,
-			[page.id],
-		);
-		published++;
-		console.log('Oznaczono opublikowaną (DB):', href);
+		console.log('Szkic w bazie (bez publikacji):', href);
 		continue;
 	}
 

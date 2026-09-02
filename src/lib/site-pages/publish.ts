@@ -5,13 +5,8 @@ import {
 	decryptDestinationCredentials,
 	isGitHubCredentials,
 } from '@/lib/publish/credentials';
-import { buildSitePageMarkdown } from './frontmatter';
-import { pagesContentPathFromConfig, sitePageMarkdownPath } from './paths';
 import type { SitePageForPublish } from './types';
-import {
-	formatExternalGitHubPath,
-	parseExternalGitHubPath,
-} from '@/lib/publish/paths';
+import { formatExternalGitHubPath, parseExternalGitHubPath } from '@/lib/publish/paths';
 import {
 	getGitHubFile,
 	parseGitHubRepoConfig,
@@ -19,12 +14,20 @@ import {
 	deleteGitHubFile,
 	type GitHubFileWrite,
 } from '@/lib/publish/github-api';
+import { hashPublishedContent } from '@/lib/sync/policy';
+import { buildSanitizedPageMarkdown, prepareSitePagePublish } from './publish-guard';
 import { prepareRecentChangeAppendWrite } from '@/lib/recent-changes/github';
 import type { RecentChangeEntry } from '@/lib/recent-changes/types';
 import { buildSitePagePublicPath } from './url';
 
 export type SitePagePublishResult =
-	| { ok: true; summary: string; externalId: string }
+	| {
+			ok: true;
+			summary: string;
+			externalId: string;
+			liveBlobSha: string;
+			publishedContentSha: string;
+	  }
 	| { ok: false; error: string; summary?: string };
 
 function buildPageRecentChangeEntry(page: SitePageForPublish): RecentChangeEntry {
@@ -52,16 +55,21 @@ export async function publishSitePageToGitHub(
 		return { ok: false, error: 'no_github_token' };
 	}
 
-	const pagesRoot = pagesContentPathFromConfig(dest.config);
-	const preferredPath = parseExternalGitHubPath(page.external_id);
-	const filePath =
-		preferredPath ?? sitePageMarkdownPath(pagesRoot, page.path_prefix, page.slug);
-	const body = buildSitePageMarkdown(
-		page.title,
-		page.path_prefix,
-		page.slug,
-		sanitizePublishMarkdown(page.content_md),
-	);
+	const body = buildSanitizedPageMarkdown(page, sanitizePublishMarkdown(page.content_md));
+	const prepared = await prepareSitePagePublish(cfg, creds.token, dest.config, page, body);
+	if (!prepared.ok) return { ok: false, error: prepared.error };
+
+	const { filePath } = prepared;
+	const contentSha = hashPublishedContent(page.content_md);
+	if (prepared.skipWrite) {
+		return {
+			ok: true,
+			summary: `Bez zmian ${filePath}`,
+			externalId: formatExternalGitHubPath(filePath),
+			liveBlobSha: prepared.remoteSha ?? '',
+			publishedContentSha: contentSha,
+		};
+	}
 
 	const batchFiles: GitHubFileWrite[] = [{ path: filePath, content: body }];
 	try {
@@ -77,7 +85,7 @@ export async function publishSitePageToGitHub(
 	}
 
 	try {
-		const { commitSha } = await putGitHubFilesBatch(
+		const { commitSha, blobShas } = await putGitHubFilesBatch(
 			cfg,
 			creds.token,
 			batchFiles,
@@ -87,6 +95,8 @@ export async function publishSitePageToGitHub(
 			ok: true,
 			summary: `Opublikowano ${filePath} (${commitSha.slice(0, 7)}, 1 commit)`,
 			externalId: formatExternalGitHubPath(filePath),
+			liveBlobSha: blobShas[filePath] ?? '',
+			publishedContentSha: contentSha,
 		};
 	} catch (err) {
 		const msg = err instanceof Error ? err.message : 'GitHub upload failed';

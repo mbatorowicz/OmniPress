@@ -9,7 +9,7 @@ export const adminLayoutStatus = {
 		draftAheadDetailNote: 'Zapisz szkic, potem „Opublikuj cały layout”, aby wysłać je na stronę.',
 		liveAheadCombined: 'Strona zmieniona poza OmniPress',
 		liveAheadDetail:
-			'Plik na GitHub różni się od szkicu — użyj „Pobierz ze strony”, aby zsynchronizować formularz.',
+			'Plik na GitHub różni się od szkicu. Panel sam wczyta stronę, gdy nie masz niewysłanych zmian lokalnych.',
 		legacyContract:
 			'Repo Astro używa starego formatu (3 pliki JSON). Wymagana migracja na omnipress-layout.json — publikacja nie zaktualizuje strony.',
 		layoutFileLabel: (path: string) => `Plik na stronie: ${path}`,
@@ -35,7 +35,8 @@ export const adminLayoutStatus = {
 		inSync: 'Panel odzwierciedla stronę live',
 		inSyncCombined: 'Panel odzwierciedla stronę — ustawienia identyczne z plikiem layoutu na GitHub.',
 		draftAhead: 'Szkic ma nieopublikowane zmiany — użyj „Opublikuj cały layout”, aby wysłać je na stronę.',
-		liveAhead: 'Strona live została zmieniona poza OmniPress — pobierz ze strony, aby zaktualizować formularz.',
+		liveAhead:
+			'Strona live została zmieniona poza OmniPress. Szkic zostaje — publikacja nadpisze stronę Twoją wersją.',
 		draftMissingHref:
 			'Menu bez linków — wczytaj menu z GitHub przed publikacją (strona live jest nadal poprawna).',
 		lastPublished: 'Publikacja',

@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.10.0** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.11.0** (kod + baza + panel).
 
 Produkcja: https://omni-press.cncsolutions.dev
 
@@ -76,10 +76,10 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Dezaktywacja / usunięcie opublikowanego (withdraw z GitHub) | ✅ |
 | Bulk: akceptacja / odrzucenie (pending), anulowanie harmonogramu, dezaktywacja / usuwanie | ✅ |
 | Przypinanie wpisu na stronie głównej (`pinned`) | ✅ migracja `setup:posts-pinned` |
-| Import wpisów z GitHub | ✅ |
+| Import wpisów z GitHub | ✅ auto przy wejściu na panel (bez przycisku) |
 | Layout Astro (menu, kategorie, sloty) + sync do repo | ✅ `/admin/units/[id]/navigation` itd. |
 | Ustawienia strony (nazwa, slug, GitHub, tokeny) | ✅ `/admin/units/[id]` |
-| Strony statyczne (admin) + publikacja do repo Astro | ✅ `/admin/units/[id]/pages` |
+| Strony statyczne (admin) + publikacja do repo Astro | ✅ `/admin/units/[id]/pages` — auto-pull z GitHub, publikacja nie nadpisze pustką |
 | Walidacja linków menu przed sync GitHub | ✅ |
 | Ostatnie zmiany (ogłoszenia) | ✅ `/admin/units/[id]/changes` |
 | Komunikaty CERT Polska (RSS → live API na stronie Astro) | ✅ Slot `sidebar.cert_advisories`; endpoint `/api/cert/advisories` na stronie jednostki (cache 15 min) |
@@ -132,6 +132,7 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub (jeden commit; listing 
 | `20250707000000_auth_rate_limits.sql` | `setup:auth-rate-limits` |
 | `20250718000000_assets_content_sha.sql` | `setup:assets-content-sha` |
 | `20250827000000_posts_pinned.sql` | `setup:posts-pinned` |
+| `20250902000000_github_reconcile.sql` | `setup:github-reconcile` |
 
 Tabela opisuje **zamierzony** stan bazy. `lint-docs-setup.mjs` pilnuje zgodności `package.json` ↔ ta tabela, ale nie sprawdza produkcji — w audycie P0-7 okazało się, że jedna migracja nigdy tam nie trafiła. Przy wątpliwościach: porównaj z bazą (triggery, polityki, kolumny), nie z tym dokumentem.
 
@@ -159,7 +160,7 @@ Tabela opisuje **zamierzony** stan bazy. `lint-docs-setup.mjs` pilnuje zgodnośc
 
 | Warstwa | Narzędzie | Zakres |
 |---------|-----------|--------|
-| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 96 plików testowych obok modułów (711 testów, w tym 22 RLS opt-in) |
+| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 104 plików testowych obok modułów (748 testów + 22 RLS opt-in) |
 | Typy (`npm run typecheck`) | `tsc --noEmit` | całe repo, zero błędów; wpięte w `npm run lint` jako bramka |
 | Integracyjne RLS (opt-in) | Vitest + `pg` | `src/lib/supabase/rls.integration.test.ts` — 22 przypadki: izolacja redaktorów, dane wrażliwe, eskalacja uprawnień |
 | E2E/UI (`npm run test:e2e`) | Playwright (`e2e/`) | produkcja: strefa publiczna, nagłówki bezpieczeństwa, CSRF, auth (logowanie/wylogowanie, błędne hasło), panel admina, lista wpisów z filtrami (`posts-browse.spec.ts`), cykl wpisu (szkic → walidacja → zapis → usunięcie) |
@@ -195,6 +196,13 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | SSO redaktorów | — |
 
 ---
+
+## 0.11.0 — Auto-reconcile Omni ↔ GitHub
+
+- Przy wejściu na panel Omni sam wczytuje wpisy, strony statyczne i layout z `origin/main`, gdy GitHub się zmienił i nie ma niewysłanych poprawek w Omni.
+- Publikacja strony odmawia pustki/placeholdera nad bogatszą treścią w repo.
+- *Utwórz strony z menu* tworzy tylko szkice — nic nie idzie do Gita.
+- Przyciski *Importuj z GitHub* usunięte. Migracja `setup:github-reconcile`.
 
 ## 0.10.0 — SSOT stylów UI
 

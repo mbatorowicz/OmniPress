@@ -1,11 +1,9 @@
 ---
-import AdminImportSection from '@/components/admin/queue/AdminImportSection.astro';
 import AdminQueueSection from '@/components/admin/queue/AdminQueueSection.astro';
 import FlashAlerts from '@/components/shared/FlashAlerts.astro';
 import WorkflowStrip from '@/components/shared/WorkflowStrip.astro';
 import { admin, adminAllPosts, layout } from '@/i18n';
 import type { FlashMessage } from '@/lib/ui/flash';
-import type { SiteRow } from '@/lib/posts/site';
 
 type PostRow = {
 	id: string;
@@ -20,17 +18,13 @@ type PostRow = {
 };
 
 interface Props {
-	sites: SiteRow[];
 	pending: PostRow[] | null;
 	scheduled: PostRow[] | null;
 	published: PostRow[] | null;
 	flashMessages: FlashMessage[];
-	defaultImportSiteId: string;
-	importSiteId: string | null;
 }
 
-const { sites, pending, scheduled, published, flashMessages, defaultImportSiteId, importSiteId } =
-	Astro.props;
+const { pending, scheduled, published, flashMessages } = Astro.props;
 const listLabels = admin.postList;
 const pendingCount = pending?.length ?? 0;
 
@@ -99,5 +93,3 @@ const workflowSteps = [
 	bulkActions={['deactivate', 'delete']}
 	variant="info"
 />
-
-<AdminImportSection sites={sites} {defaultImportSiteId} {importSiteId} />

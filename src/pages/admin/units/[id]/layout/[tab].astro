@@ -28,6 +28,7 @@ let ctx;
 try {
 	ctx = await loadLayoutEditorContext(Astro.locals.supabase, id, {
 		draftStatusScope: 'navigation',
+		authorId: Astro.locals.user?.id ?? null,
 	});
 } catch {
 	return Astro.redirect(layoutTabHref(id, activeTab) + '?error=layout_context_failed');

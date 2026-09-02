@@ -13,7 +13,8 @@ import StatusBadge from '@/components/ui/feedback/StatusBadge.astro';
 import Alert from '@/components/ui/feedback/Alert.astro';
 import Label from '@/components/ui/form/Label.astro';
 import Textarea from '@/components/ui/form/Textarea.astro';
-import { admin, adminReview, common, layout } from '@/i18n';
+import { admin, adminReview, adminSitePages, common, layout } from '@/i18n';
+import { pageDraftLiveStatus } from '@/lib/site-pages/sync-status';
 import { parsePostReviewFlash } from '@/lib/admin/post-review-flash';
 import { loadPostReviewPage } from '@/lib/admin/post-review-page';
 import type { PostStatus } from '@/lib/types';
@@ -29,6 +30,20 @@ const notReady = page.missingForPublish;
 const notReadyMessage = notReady ? adminReview.notReady[notReady] : null;
 const flashMessages = parsePostReviewFlash(Astro.url);
 const previewLabels = admin.preview;
+const postSync = pageDraftLiveStatus({
+	status: post.status === 'published' ? 'published' : 'draft',
+	content_md: post.content_md,
+	live_blob_sha: post.live_blob_sha ?? null,
+	published_content_sha: post.published_content_sha ?? null,
+});
+const postSyncLabel =
+	postSync === 'in_sync'
+		? adminSitePages.sync.inSync
+		: postSync === 'draft_ahead'
+			? adminSitePages.sync.draftAhead
+			: postSync === 'live_ahead'
+				? adminSitePages.sync.liveAhead
+				: adminSitePages.sync.unknown;
 
 const breadcrumbs = [
 	{ label: layout.breadcrumb.admin, href: '/admin' },
@@ -39,6 +54,7 @@ const breadcrumbs = [
 <AppLayout title={previewLabels.title} heading={previewLabels.heading} {breadcrumbs}>
 	<div class="ui-muted mb-4 flex flex-wrap gap-3">
 		<StatusBadge status={post.status as PostStatus} />
+		<span class="ui-hint">{postSyncLabel}</span>
 		{page.siteName && <span>{previewLabels.siteLabel} {page.siteName}</span>}
 		{page.authorName && <span>{previewLabels.authorLabel} {page.authorName}</span>}
 	</div>

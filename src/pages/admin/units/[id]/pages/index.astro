@@ -6,7 +6,10 @@ import Button from '@/components/ui/actions/Button.astro';
 import Panel from '@/components/ui/layout/Panel.astro';
 import { adminSitePages } from '@/i18n';
 import { listSitePages } from '@/lib/site-pages';
+import { pageDraftLiveStatus } from '@/lib/site-pages/sync-status';
 import { buildSitePagePublicPath } from '@/lib/site-pages/url';
+import { ensureSiteFromGitHub } from '@/lib/sync/ensure-site';
+import type { DraftLiveStatus } from '@/lib/astro-layout/layout-sync-meta';
 import type { PageStatus } from '@/lib/types';
 
 const { id } = Astro.params;
@@ -19,6 +22,7 @@ const { data: site } = await Astro.locals.supabase
 	.maybeSingle();
 if (!site) return Astro.redirect('/admin/sites');
 
+await ensureSiteFromGitHub(Astro.locals.supabase, id, Astro.locals.user?.id ?? null);
 const pages = await listSitePages(Astro.locals.supabase, id);
 const ui = adminSitePages;
 const errorCode = Astro.url.searchParams.get('error');
@@ -27,11 +31,17 @@ const errorMessage =
 		? ui.errors[errorCode as keyof typeof ui.errors]
 		: null;
 const deleted = Astro.url.searchParams.get('deleted') === '1';
-const seedFromNavDone = Astro.url.searchParams.has('seeded') || Astro.url.searchParams.has('published');
-const layoutSynced = Astro.url.searchParams.get('layout_synced') === '1';
+const seedFromNavDone = Astro.url.searchParams.has('seeded');
 
 function statusLabel(status: PageStatus): string {
 	return status === 'published' ? ui.statusPublished : ui.statusDraft;
+}
+
+function syncLabel(status: DraftLiveStatus): string {
+	if (status === 'in_sync') return ui.sync.inSync;
+	if (status === 'draft_ahead') return ui.sync.draftAhead;
+	if (status === 'live_ahead') return ui.sync.liveAhead;
+	return ui.sync.unknown;
 }
 ---
 
@@ -40,12 +50,7 @@ function statusLabel(status: PageStatus): string {
 	<p class="ui-muted mb-4">{ui.lead}</p>
 
 	{deleted && <Alert variant="success">{ui.deleted}</Alert>}
-	{seedFromNavDone && (
-		<Alert variant="success">
-			{ui.seedFromNavDone}
-			{layoutSynced ? ` ${ui.layoutSynced}` : ''}
-		</Alert>
-	)}
+	{seedFromNavDone && <Alert variant="success">{ui.seedFromNavDone}</Alert>}
 	{errorMessage && <Alert variant="error">{errorMessage}</Alert>}
 
 	<div class="mb-4 flex flex-wrap gap-3">
@@ -74,9 +79,10 @@ function statusLabel(status: PageStatus): string {
 									{buildSitePagePublicPath(page.path_prefix, page.slug)}
 								</p>
 							</div>
-							<span class="ui-status-badge">
-								{statusLabel(page.status as PageStatus)}
-							</span>
+							<div class="flex flex-wrap items-center gap-2">
+								<span class="ui-status-badge">{statusLabel(page.status as PageStatus)}</span>
+								<span class="ui-hint">{syncLabel(pageDraftLiveStatus(page))}</span>
+							</div>
 						</li>
 					))}
 				</ul>

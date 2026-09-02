@@ -45,6 +45,9 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		return redirect(`/admin/units/${siteId}/pages/${pageId}?error=${result.error}`);
 	}
 
-	await markSitePagePublished(supabase, pageId, result.externalId);
+	await markSitePagePublished(supabase, pageId, result.externalId, {
+		liveBlobSha: result.liveBlobSha,
+		publishedContentSha: result.publishedContentSha,
+	});
 	return redirect(`/admin/units/${siteId}/pages/${pageId}?published=1`);
 };

@@ -13,7 +13,9 @@ if (!id || Astro.locals.profile?.role !== 'admin') return Astro.redirect('/admin
 
 let ctx;
 try {
-	ctx = await loadLayoutEditorContext(Astro.locals.supabase, id);
+	ctx = await loadLayoutEditorContext(Astro.locals.supabase, id, {
+		authorId: Astro.locals.user?.id ?? null,
+	});
 } catch {
 	return Astro.redirect(`/admin/units/${id}/components?error=layout_context_failed`);
 }

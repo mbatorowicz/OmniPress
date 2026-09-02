@@ -27,7 +27,6 @@
 		"src/lib/publish/worker.ts": 2,
 		"src/lib/recent-changes/layout-entry.ts": 1,
 		"src/lib/site-pages/publish.ts": 1,
-		"src/lib/site-pages/seed-nav.ts": 1,
 		"src/lib/supabase/cookies.ts": 1,
 		"src/lib/supabase/env.ts": 1
 	}

@@ -23,7 +23,7 @@ export async function getPostById(
 	const { data, error } = await supabase
 		.from('posts')
 		.select(
-			'id, author_id, site_id, title, content_md, slug, status, rejection_note, category_slug, category_name, scheduled_publish_at, pinned',
+			'id, author_id, site_id, title, content_md, slug, status, rejection_note, category_slug, category_name, scheduled_publish_at, pinned, live_blob_sha, published_content_sha',
 		)
 		.eq('id', postId)
 		.maybeSingle();

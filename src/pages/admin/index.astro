@@ -5,25 +5,22 @@ import { admin } from '@/i18n';
 import { parseAdminHubFlash } from '@/lib/admin/hub-flash';
 import { loadAdminQueueHub } from '@/lib/admin/queue-hub';
 import { schedulePublishWorker } from '@/lib/publish/trigger-worker';
+import { ensureSitesFromGitHub } from '@/lib/sync/ensure-site';
 
 schedulePublishWorker();
 
-const importSiteId = Astro.url.searchParams.get('site_id');
-const { sites, pending, scheduled, published, defaultImportSiteId } = await loadAdminQueueHub(
+const { sites, pending, scheduled, published } = await loadAdminQueueHub(
 	Astro.locals.supabase,
-	importSiteId,
+	null,
+);
+await ensureSitesFromGitHub(
+	Astro.locals.supabase,
+	sites.map((site) => site.id),
+	Astro.locals.user?.id ?? null,
 );
 const flashMessages = parseAdminHubFlash(Astro.url);
 ---
 
 <AppLayout title={admin.title} heading={admin.queueHeading}>
-	<AdminQueueHub
-		{sites}
-		{pending}
-		{scheduled}
-		{published}
-		{flashMessages}
-		{defaultImportSiteId}
-		{importSiteId}
-	/>
+	<AdminQueueHub {pending} {scheduled} {published} {flashMessages} />
 </AppLayout>

@@ -1,122 +1,24 @@
 ﻿import type { SupabaseClient } from '@supabase/supabase-js';
-import { admin } from '@/i18n';
 import { loadSiteAstroDestination } from '@/lib/admin/sites';
-import { parseAstroPostFile, slugFromGitHubMarkdownPath } from './astro-post-parse';
 import { decryptDestinationCredentials, isGitHubCredentials } from './credentials';
 import {
-	getGitHubFileText,
 	filterGitHubMarkdownPosts,
-	listGitHubTreeBlobPaths,
+	listGitHubTreeBlobs,
 	parseGitHubRepoConfig,
-	type GitHubConfig,
+	type GitHubTreeBlob,
 } from './github-api';
-import { stripPublishedAttachments } from './import-asset-model';
-import { syncPostAssetsFromGitHub } from './import-assets';
-import { ensureSuccessPublishLog, findExistingPostId } from './import-publish-log';
-import { formatExternalGitHubPath } from './paths';
-import type { DestinationForPublish } from './types';
-import { sanitizeStorageMarkdown } from '@/lib/content/sanitize';
+import { importOnePost } from './github-import-one';
 
 export type ImportPostsResult =
 	| { ok: true; imported: number; updated: number; skipped: number; errors: string[] }
 	| { ok: false; error: string };
 
-async function importOnePost(
-	supabase: SupabaseClient,
-	cfg: GitHubConfig,
-	token: string,
-	destination: DestinationForPublish,
-	siteId: string,
-	authorId: string,
-	markdownPath: string,
-): Promise<{ action: 'imported' | 'updated' | 'skipped'; errors: string[] }> {
-	const raw = await getGitHubFileText(cfg, token, markdownPath);
-	if (!raw) {
-		return { action: 'skipped', errors: [admin.importPosts.postErrors.noContent(markdownPath)] };
-	}
-
-	const parsed = parseAstroPostFile(raw);
-	if (!parsed) {
-		return {
-			action: 'skipped',
-			errors: [admin.importPosts.postErrors.badFrontmatter(markdownPath)],
-		};
-	}
-	if (parsed.draft) return { action: 'skipped', errors: [] };
-
-	const slug = slugFromGitHubMarkdownPath(markdownPath, cfg.contentPath, cfg.contentLayout);
-	const externalId = formatExternalGitHubPath(markdownPath);
-	const existingId = await findExistingPostId(
-		supabase,
-		siteId,
-		destination.id,
-		externalId,
-		slug,
-	);
-
-	const postPayload = {
-		title: parsed.title,
-		slug,
-		content_md: sanitizeStorageMarkdown(stripPublishedAttachments(parsed.body)),
-		category_slug: parsed.categorySlug || null,
-		category_name: parsed.categoryName || null,
-		pinned: parsed.pinned,
-		status: 'published' as const,
-	};
-
-	let postId = existingId;
-	const errors: string[] = [];
-
-	if (postId) {
-		const { error } = await supabase.from('posts').update(postPayload).eq('id', postId);
-		if (error) {
-			return {
-				action: 'skipped',
-				errors: [admin.importPosts.postErrors.save(slug, error.message.slice(0, 80))],
-			};
-		}
-	} else {
-		const { data, error } = await supabase
-			.from('posts')
-			.insert({
-				...postPayload,
-				site_id: siteId,
-				author_id: authorId,
-			})
-			.select('id')
-			.single();
-		if (error || !data) {
-			return { action: 'skipped', errors: [admin.importPosts.postErrors.create(slug)] };
-		}
-		postId = data.id as string;
-	}
-
-	errors.push(
-		...(await syncPostAssetsFromGitHub(
-			supabase,
-			cfg,
-			token,
-			postId,
-			markdownPath,
-			parsed,
-		)),
-	);
-	await ensureSuccessPublishLog(
-		supabase,
-		postId,
-		destination.id,
-		externalId,
-		parsed.date,
-	);
-
-	return { action: existingId ? 'updated' : 'imported', errors };
-}
-
-/** Importuje opublikowane wpisy z GitHub do OmniPress (status published + publish_log). */
+/** Importuje opublikowane wpisy z GitHub (auto-reconcile; nie rusza szkiców). */
 export async function importPublishedPostsFromGitHub(
 	supabase: SupabaseClient,
 	siteId: string,
-	authorId: string,
+	authorId: string | null,
+	treeBlobs?: GitHubTreeBlob[],
 ): Promise<ImportPostsResult> {
 	const dest = await loadSiteAstroDestination(supabase, siteId);
 	if (!dest?.is_active) return { ok: false, error: 'no_astro_destination' };
@@ -129,18 +31,18 @@ export async function importPublishedPostsFromGitHub(
 		return { ok: false, error: 'no_github_token' };
 	}
 
-	let allBlobPaths: string[];
+	let blobs: GitHubTreeBlob[];
 	try {
-		allBlobPaths = await listGitHubTreeBlobPaths(cfg, creds.token);
+		blobs = treeBlobs ?? (await listGitHubTreeBlobs(cfg, creds.token));
 	} catch {
 		return { ok: false, error: 'github_tree_failed' };
 	}
 
-	const markdownPaths = filterGitHubMarkdownPosts(cfg, allBlobPaths);
-	if (markdownPaths.length === 0) {
-		return { ok: true, imported: 0, updated: 0, skipped: 0, errors: [] };
-	}
-
+	const markdownPaths = filterGitHubMarkdownPosts(
+		cfg,
+		blobs.map((blob) => blob.path),
+	);
+	const shaByPath = new Map(blobs.map((blob) => [blob.path, blob.sha]));
 	let imported = 0;
 	let updated = 0;
 	let skipped = 0;
@@ -155,6 +57,7 @@ export async function importPublishedPostsFromGitHub(
 			siteId,
 			authorId,
 			markdownPath,
+			shaByPath.get(markdownPath) ?? null,
 		);
 		if (result.action === 'imported') imported += 1;
 		else if (result.action === 'updated') updated += 1;

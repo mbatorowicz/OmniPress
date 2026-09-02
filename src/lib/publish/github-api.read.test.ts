@@ -162,7 +162,7 @@ describe('listGitHubTreeBlobPaths', () => {
 			if (call.url.includes('/git/commits/c1')) return jsonResponse({ tree: { sha: 't1' } });
 			return jsonResponse({
 				tree: [
-					{ path: 'a/index.md', type: 'blob' },
+					{ path: 'a/index.md', type: 'blob', sha: 's1' },
 					{ path: 'a', type: 'tree' },
 				],
 			});

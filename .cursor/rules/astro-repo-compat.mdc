@@ -35,6 +35,8 @@ OmniPress publikuje przez GitHub API **prosto do origin**, z pominięciem kopii 
 
 **Każda praca w repo B zaczyna się od `git pull`.** Analiza stanu strony bez pulla opisuje nieaktualną rzeczywistość.
 
+OmniPress przy otwarciu panelu **sam** reconciluje strony statyczne i wpisy z `origin/main` (oraz layout, jak dotychczas). `origin/main` zostaje SSOT opublikowanego. Omni nie pcha automatycznie. Publikacja strony odmawia nadpisania niepustego pliku pustką/placeholderem. Załączniki stron (`public/page-files/`) Omni nie importuje — chroni je, wczytując markdown z linkami `./…`.
+
 ## Zasady przy zmianach
 
 1. **Nie zmieniaj formatu JSON** bez aktualizacji czytnika w repo Astro (i odwrotnie). **Repo Astro waliduje wejście i przerywa build** przy niezgodności (`src/config/layout-contract.ts`), więc rozjazd nie kończy się pustą sekcją, tylko czerwonym deployem.

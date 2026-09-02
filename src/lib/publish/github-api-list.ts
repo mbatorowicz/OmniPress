@@ -3,7 +3,15 @@ import { encodeGitHubPath, parseExternalGitHubPath } from './paths';
 import { GH_API, ghHeaders, type GitHubConfig } from './github-api-config';
 import { getBranchHeadCommitSha, getCommitTreeSha } from './github-api-read';
 
-export async function listGitHubTreeBlobPaths(cfg: GitHubConfig, token: string): Promise<string[]> {
+export type GitHubTreeBlob = {
+	path: string;
+	sha: string;
+};
+
+export async function listGitHubTreeBlobs(
+	cfg: GitHubConfig,
+	token: string,
+): Promise<GitHubTreeBlob[]> {
 	const headSha = await getBranchHeadCommitSha(cfg, token);
 	const treeSha = await getCommitTreeSha(cfg, token, headSha);
 
@@ -15,8 +23,16 @@ export async function listGitHubTreeBlobPaths(cfg: GitHubConfig, token: string):
 		const text = await treeRes.text();
 		throw new Error(`GitHub tree ${treeRes.status}: ${text.slice(0, 200)}`);
 	}
-	const treeJson = (await treeRes.json()) as { tree?: { path: string; type: string }[] };
-	return (treeJson.tree ?? []).filter((item) => item.type === 'blob').map((item) => item.path);
+	const treeJson = (await treeRes.json()) as { tree?: { path?: string; type?: string; sha?: string }[] };
+	return (treeJson.tree ?? [])
+		.filter((item): item is { path: string; type: string; sha: string } =>
+			item.type === 'blob' && Boolean(item.path) && Boolean(item.sha),
+		)
+		.map((item) => ({ path: item.path, sha: item.sha }));
+}
+
+export async function listGitHubTreeBlobPaths(cfg: GitHubConfig, token: string): Promise<string[]> {
+	return (await listGitHubTreeBlobs(cfg, token)).map((blob) => blob.path);
 }
 
 /** Lista plików .md wpisów w content_path (flat lub folder/index.md). */

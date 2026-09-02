@@ -114,10 +114,20 @@ export async function markSitePagePublished(
 	supabase: SupabaseClient,
 	pageId: string,
 	externalId: string,
+	sync?: { liveBlobSha: string; publishedContentSha: string },
 ): Promise<boolean> {
 	const { error } = await supabase
 		.from('site_pages')
-		.update({ status: 'published', external_id: externalId })
+		.update({
+			status: 'published',
+			external_id: externalId,
+			...(sync
+				? {
+						live_blob_sha: sync.liveBlobSha,
+						published_content_sha: sync.publishedContentSha,
+					}
+				: {}),
+		})
 		.eq('id', pageId);
 	return !error;
 }

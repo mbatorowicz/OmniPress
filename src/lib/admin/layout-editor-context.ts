@@ -2,9 +2,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import {
 	fetchLiveLayoutFingerprint,
 	fetchLiveNavigationHrefCount,
-	loadSiteAstroLayout,
 } from '@/lib/astro-layout/store';
-import { ensureLayoutFromGitHub } from '@/lib/admin/layout-auto-import';
+import { loadLayoutForEditor } from '@/lib/admin/layout-editor-load';
 import type { DraftLiveScope, DraftLiveStatus } from '@/lib/astro-layout/layout-sync-meta';
 import {
 	computeCombinedDraftLiveStatus,
@@ -64,7 +63,11 @@ export type LayoutEditorContext = {
 export async function loadLayoutEditorContext(
 	supabase: SupabaseClient,
 	siteId: string,
-	options: { autoImport?: boolean; draftStatusScope?: DraftLiveScope } = {},
+	options: {
+		autoImport?: boolean;
+		draftStatusScope?: DraftLiveScope;
+		authorId?: string | null;
+	} = {},
 ): Promise<LayoutEditorContext | null> {
 	const { data: site } = await supabase
 		.from('sites')
@@ -74,22 +77,8 @@ export async function loadLayoutEditorContext(
 
 	if (!site) return null;
 
-	let autoImported = false;
-	let autoImportHrefCount: number | undefined;
-	let autoImportPath: string | undefined;
-	let autoImportError: string | undefined;
-
-	let layout: SiteAstroLayout;
-	if (options.autoImport !== false) {
-		const ensured = await ensureLayoutFromGitHub(supabase, siteId);
-		layout = ensured.layout;
-		autoImported = ensured.imported;
-		autoImportHrefCount = ensured.importReport?.hrefCount;
-		autoImportPath = ensured.importReport?.navigationPath;
-		autoImportError = ensured.importError;
-	} else {
-		layout = await loadSiteAstroLayout(supabase, siteId);
-	}
+	const loaded = await loadLayoutForEditor(supabase, siteId, options);
+	const { layout, autoImported, autoImportHrefCount, autoImportPath, autoImportError } = loaded;
 
 	const hasAstroChannel = Boolean(await loadSiteAstroDestination(supabase, siteId));
 	const draftStatusScope = options.draftStatusScope ?? 'navigation';

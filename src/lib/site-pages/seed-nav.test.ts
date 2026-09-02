@@ -23,3 +23,10 @@ describe('seed-nav', () => {
 		});
 	});
 });
+
+describe('seedNavSitePages — kontrakt', () => {
+	it('eksportuje funkcję bez publikacji (tylko szkice)', async () => {
+		const { seedNavSitePages } = await import('./seed-nav');
+		expect(seedNavSitePages.length).toBe(3);
+	});
+});

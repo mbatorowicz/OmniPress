@@ -35,7 +35,6 @@ const {
 	layoutContract,
 } = Astro.props;
 
-const importAction = `/api/admin/sites/${siteId}/layout/import`;
 const publishAllAction = `/api/admin/sites/${siteId}/layout/publish-all`;
 const publishBlocked = navHasMissingHref;
 
@@ -80,10 +79,6 @@ const metaParts = [
 		: null,
 ].filter(Boolean);
 
-const importConfirm =
-	combinedDraftStatus === 'draft_ahead' || combinedDraftStatus === 'live_ahead'
-		? adminLayout.syncBar.importConfirmOverwrite
-		: undefined;
 ---
 
 {
@@ -102,12 +97,6 @@ const importConfirm =
 					<p class="ui-hint mt-2 text-sm">{adminLayout.syncBar.saveBeforePublish}</p>
 				</div>
 				<div class="flex flex-wrap gap-2">
-					<form method="post" action={importAction}>
-						<input type="hidden" name="return_section" value={currentSection} />
-						<Button type="submit" variant="secondary" confirm={importConfirm}>
-							{adminLayout.syncBar.pullFromSite}
-						</Button>
-					</form>
 					<form method="post" action={publishAllAction}>
 						<input type="hidden" name="return_section" value={currentSection} />
 						<Button type="submit" variant="primary" disabled={publishBlocked || isLegacy}>

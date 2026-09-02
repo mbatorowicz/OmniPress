@@ -18,6 +18,8 @@ export type PostRow = {
 	category_name: string | null;
 	scheduled_publish_at: string | null;
 	pinned: boolean;
+	live_blob_sha?: string | null;
+	published_content_sha?: string | null;
 };
 
 /** Redaktor poprawia własny wpis tylko przed wysłaniem do akceptacji. */

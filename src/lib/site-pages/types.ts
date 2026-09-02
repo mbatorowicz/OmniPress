@@ -11,6 +11,8 @@ export type SitePage = {
 	content_md: string;
 	status: PageStatus;
 	external_id: string | null;
+	live_blob_sha: string | null;
+	published_content_sha: string | null;
 	created_at: string;
 	updated_at: string;
 };
