@@ -5,7 +5,7 @@ describe('explainGitHubError', () => {
 	it('401 tłumaczy na wskazówkę o wymianie tokenu', () => {
 		const msg = explainGitHubError('GitHub GET 401: {"message":"Bad credentials"}');
 		expect(msg).toContain('wygasł');
-		expect(msg).toContain('Kanał publikacji');
+		expect(msg).toContain('Publikacja na GitHub');
 		expect(msg).toContain('Bad credentials');
 	});
 
