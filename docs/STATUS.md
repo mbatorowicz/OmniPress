@@ -160,7 +160,7 @@ Tabela opisuje **zamierzony** stan bazy. `lint-docs-setup.mjs` pilnuje zgodnośc
 
 | Warstwa | Narzędzie | Zakres |
 |---------|-----------|--------|
-| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 104 plików testowych obok modułów (748 testów + 22 RLS opt-in) |
+| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 104 plików testowych obok modułów (754 testy + 22 RLS opt-in) |
 | Typy (`npm run typecheck`) | `tsc --noEmit` | całe repo, zero błędów; wpięte w `npm run lint` jako bramka |
 | Integracyjne RLS (opt-in) | Vitest + `pg` | `src/lib/supabase/rls.integration.test.ts` — 22 przypadki: izolacja redaktorów, dane wrażliwe, eskalacja uprawnień |
 | E2E/UI (`npm run test:e2e`) | Playwright (`e2e/`) | produkcja: strefa publiczna, nagłówki bezpieczeństwa, CSRF, auth (logowanie/wylogowanie, błędne hasło), panel admina, lista wpisów z filtrami (`posts-browse.spec.ts`), cykl wpisu (szkic → walidacja → zapis → usunięcie) |

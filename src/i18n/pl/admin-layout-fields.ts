@@ -122,7 +122,6 @@ export const adminLayoutFields = {
 		saveDraftCategories: 'Zapisz szkic kategorii',
 		saveDraftComponents: 'Zapisz szkic komponentów',
 		publishLayout: 'Opublikuj na stronie',
-		importFromGitHub: 'Importuj z GitHub',
 		addCategory: '+ Dodaj kategorię',
 		addComponent: '+ Dodaj komponent',
 		addNavRow: '+ Dodaj pozycję menu',

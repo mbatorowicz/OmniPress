@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Zmienione
+
+- **Higiena po auto-reconcile:** usunięte etykiety *Importuj z GitHub* / *Pobierz ze strony* (przycisków już nie ma). Komunikaty o pustym menu każą odświeżyć panel. Testy `seed-nav`, `publish` i `github-import` sprawdzają realne ścieżki, nie tylko arność funkcji.
+
 ### Dodane
 
 - **Auto-reconcile Omni ↔ repo Astro (0.11.0):** przy otwarciu panelu Omni sam zaciąga z `origin/main` layout, strony statyczne i wpisy — bez przycisków *Importuj*. GitHub jest prawdą opublikowaną, Omni zostaje szkicem: pusto/placeholder → pull; zmiana na origin bez lokalnych edycji → pull; szkic / pending / rejected / scheduled oraz poprawka opublikowanego → zostają. Bramka HEAD SHA (`sites.github_reconcile_sha`) unika zbędnych requestów. Publikacja strony porównuje plik na origin i odmawia nadpisania bogatszej treści pustką (`remote_richer`); identyczna treść = brak commita. *Utwórz strony z menu* tworzy wyłącznie szkice. Status zgodności (szkic nowszy / strona zmieniona poza Omni) na liście stron i przy wpisie. Migracja `setup:github-reconcile`. Testy: `sync/policy`, `sync/github-head`, `sync/ensure-site`, `site-pages/publish`, `site-pages/parse`, `publish/github-import`.

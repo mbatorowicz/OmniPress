@@ -160,7 +160,7 @@ const layoutText = {
 	navValidationHint:
 		'Publikacja jest zablokowana, dopóki menu wskazuje nieistniejące adresy. Utwórz strony statyczne lub popraw linki.',
 	publishBlockedMissingHref:
-		'Publikacja zablokowana — szkic nie ma linków, które są na stronie live. Użyj „Pobierz ze strony”, aby przywrócić menu ze strony.',
+		'Publikacja zablokowana — szkic nie ma linków, które są na stronie live. Odśwież zakładkę Menu — panel sam wczyta je z GitHub, gdy nie masz niewysłanych zmian.',
 	publishConfirmFewerLinks: (draftCount: number, liveCount: number) =>
 		`Szkic ma ${draftCount} linków, strona live ma ${liveCount}. Opublikować mimo to?`,
 	noPublishedPages: 'Brak opublikowanych stron statycznych.',

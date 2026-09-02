@@ -16,16 +16,13 @@ export const adminLayoutStatus = {
 		draftAheadDetail: (_nav: boolean, _categories: boolean) => '',
 		unknown: 'Status synchronizacji ze stroną nieznany — skonfiguruj GitHub w Ustawieniach',
 		saveBeforePublish: 'Zapisz szkic w formularzu przed publikacją, aby wysłać bieżące zmiany.',
-		pullFromSite: 'Pobierz ze strony',
 		publishAllLayout: 'Opublikuj cały layout',
-		importConfirmOverwrite:
-			'Szkic różni się od strony. Pobranie nadpisze lokalny szkic danymi z GitHub. Kontynuować?',
 	},
 	flash: {
 		savedTitle: 'Szkic zapisany',
 		savedNote: 'Zapisano w OmniPress — strona live bez zmian do publikacji.',
 		importedTitle: 'Layout wczytany ze strony',
-		importedAndSaved: 'Pobrano ze strony — formularz zsynchronizowany z GitHub.',
+		importedAndSaved: 'Wczytano ze strony — formularz zsynchronizowany z GitHub.',
 		inSyncShort: 'identyczne ze stroną live',
 		draftAheadShort: 'wymaga publikacji na stronie',
 		linkCount: (count: number) =>
@@ -55,7 +52,7 @@ export const adminLayoutStatus = {
 		dead_nav_links:
 			'Menu zawiera nieistniejące linki wewnętrzne — popraw je przed publikacją na stronie.',
 		missing_nav_hrefs:
-			'Menu w szkicu nie ma linków — użyj „Pobierz ze strony”, aby przywrócić menu ze strony live.',
+			'Menu w szkicu nie ma linków, które są na stronie. Odśwież zakładkę — panel sam wczyta menu z GitHub, gdy nie masz niewysłanych zmian.',
 		import_nav_missing:
 			'Nie znaleziono pliku menu w repozytorium GitHub — sprawdź ścieżkę navigation_path w Ustawieniach strony.',
 		import_nav_empty:
@@ -63,11 +60,11 @@ export const adminLayoutStatus = {
 		import_save_failed:
 			'Menu pobrano z GitHub, ale zapis szkicu nie powiódł się — sprawdź uprawnienia lub spróbuj ponownie.',
 		navigation_hrefs_lost:
-			'Zapis odrzucony — formularz nie zawiera linków menu. Użyj „Pobierz ze strony” zamiast „Zapisz szkic”.',
+			'Zapis odrzucony — formularz nie zawiera linków menu. Odśwież stronę, żeby wczytać menu z GitHub, zamiast zapisywać pusty szkic.',
 		sync_failed: 'Publikacja do GitHub nie powiodła się — szkic zapisany w OmniPress.',
 		invalid_layout:
 			'Plik layoutu na GitHub jest nieprawidłowy lub uszkodzony — sprawdź omnipress-layout.json w repozytorium.',
 		layout_context_failed:
-			'Nie udało się wczytać edytora layoutu — odśwież stronę lub użyj „Pobierz ze strony”.',
+			'Nie udało się wczytać edytora layoutu — odśwież stronę.',
 	},
 } as const;
