@@ -1,0 +1,67 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import FlashAlerts from '@/components/shared/FlashAlerts.astro';
+import Alert from '@/components/ui/feedback/Alert.astro';
+import BackLink from '@/components/ui/navigation/BackLink.astro';
+import StatusBadge from '@/components/ui/feedback/StatusBadge.astro';
+import PostEditorForm from '@/components/posts/editor/PostEditorForm.astro';
+import { adminReview, common, dashboard, layout, posts } from '@/i18n';
+import { loadPostEditorPage } from '@/lib/posts/editor-page';
+import type { PostStatus } from '@/lib/types';
+import { parseQueryFlash } from '@/lib/ui/flash';
+
+const { id } = Astro.params;
+const profile = Astro.locals.profile;
+if (!id || profile?.role !== 'admin') return Astro.redirect('/admin');
+
+const page = await loadPostEditorPage(Astro.locals.supabase, id, {
+	userId: Astro.locals.user!.id,
+	role: profile.role,
+});
+if (!page) return Astro.redirect('/admin?error=not_found');
+if (!page.editable) return Astro.redirect(`/admin/posts/${id}`);
+
+const { post, preview } = page;
+const reviewPath = `/admin/posts/${post.id}`;
+
+const flashMessages = parseQueryFlash(Astro.url, {
+	errorMap: posts.errors as Record<string, string>,
+	saved: adminReview.edited,
+});
+
+const breadcrumbs = [
+	{ label: layout.breadcrumb.admin, href: '/admin' },
+	{ label: post.title || common.untitled, href: reviewPath },
+	{ label: layout.breadcrumb.edit },
+];
+---
+
+<AppLayout title={adminReview.editTitle} heading={adminReview.editHeading} {breadcrumbs}>
+	<div class="ui-muted mb-4 flex flex-wrap items-center gap-3">
+		<StatusBadge status={post.status as PostStatus} />
+		{page.siteName && (
+			<span>
+				{dashboard.editor.siteLabel} <strong>{page.siteName}</strong>
+			</span>
+		)}
+	</div>
+
+	<FlashAlerts messages={flashMessages} />
+	<Alert variant="info" class="mb-4">{adminReview.editLead}</Alert>
+
+	<PostEditorForm
+		{post}
+		postId={post.id}
+		categories={page.categories}
+		categoryWarnings={page.categoryWarnings}
+		categoriesUnavailable={page.categoriesUnavailable}
+		isAmendment={page.isAmendment}
+		submittable={false}
+		deletable={false}
+		postAssets={preview.postAssets}
+		returnTo="admin"
+		saveLabel={adminReview.editSave}
+	/>
+
+	<BackLink href={reviewPath} label={adminReview.backToReview.replace('← ', '')} class="mt-6" />
+</AppLayout>

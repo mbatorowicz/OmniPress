@@ -26,8 +26,12 @@ interface Props {
 	submittable: boolean;
 	deletable: boolean;
 	postAssets: PostAsset[];
+	/** `admin` — zapis wraca do panelu akceptacji zamiast panelu redaktora. */
+	returnTo?: 'dashboard' | 'admin';
+	saveLabel?: string;
 }
 
+const ed = dashboard.editor;
 const {
 	post,
 	postId,
@@ -38,8 +42,9 @@ const {
 	submittable,
 	deletable,
 	postAssets,
+	returnTo = 'dashboard',
+	saveLabel = ed.actions.save,
 } = Astro.props;
-const ed = dashboard.editor;
 const gal = ed.gallery;
 const pdfUi = ed.pdfAttachments;
 const docxUi = ed.docxAttachments;
@@ -69,6 +74,7 @@ const fileUi = ed.fileAttachments;
 	action={`/api/posts/${postId}/save`}
 	class="ui-panel ui-panel--default space-y-4"
 >
+	{returnTo === 'admin' && <input type="hidden" name="return_to" value="admin" />}
 	<Label>
 		<span class="font-medium">{ed.fields.category}</span>
 		<Select name="category_slug" required disabled={categoriesUnavailable}>
@@ -124,7 +130,7 @@ const fileUi = ed.fileAttachments;
 			)
 		}
 		<Button type="submit" variant="secondary">
-			{ed.actions.save}
+			{saveLabel}
 		</Button>
 		{
 			deletable && (

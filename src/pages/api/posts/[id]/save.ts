@@ -25,10 +25,17 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	if (isGuardBlocked(auth)) return auth;
 	const { user, profile, supabase } = auth;
 
-	const post = await loadEditablePost(supabase, postId, user.id, profile.role);
-	if (!post) return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'forbidden');
-
 	const form = await request.formData();
+	// Korekta admina wraca do panelu akceptacji; redaktor zostaje w swoim panelu.
+	const fromAdminReview = profile.role === 'admin' && form.get('return_to') === 'admin';
+	const editorPath = fromAdminReview
+		? `/admin/posts/${postId}/edit`
+		: `/dashboard/posts/${postId}`;
+	const savedPath = fromAdminReview ? `/admin/posts/${postId}` : `/dashboard/posts/${postId}`;
+
+	const post = await loadEditablePost(supabase, postId, user.id, profile.role);
+	if (!post) return redirectPostError(redirect, editorPath, 'forbidden');
+
 	const title = String(form.get('title') ?? '').trim();
 	const content_md = sanitizeStorageMarkdown(String(form.get('content_md') ?? ''));
 	const slugInput = String(form.get('slug') ?? '').trim();
@@ -40,7 +47,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const categorySlug = String(form.get('category_slug') ?? '').trim();
 	const categoryFields = await resolvePostCategoryFields(supabase, post.site_id, categorySlug);
 	if (!categoryFields) {
-		return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'category_required');
+		return redirectPostError(redirect, editorPath, 'category_required');
 	}
 
 	const scheduleRaw = combineScheduleDateHour(
@@ -51,7 +58,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	if (scheduleRaw) {
 		scheduled_publish_at = wallTimeInZoneToUtcIso(scheduleRaw);
 		if (!scheduled_publish_at) {
-			return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'schedule_invalid');
+			return redirectPostError(redirect, editorPath, 'schedule_invalid');
 		}
 	}
 
@@ -67,7 +74,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		.eq('id', postId);
 
 	if (error) {
-		return redirectPostError(redirect, `/dashboard/posts/${postId}`, 'save_failed');
+		return redirectPostError(redirect, editorPath, 'save_failed');
 	}
 
 	await updatePostAssetDisplayModes(supabase, postId, parseAssetDisplayModes(form));
@@ -80,5 +87,5 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		parseFileOrder(form),
 	);
 
-	return redirect(`/dashboard/posts/${postId}?saved=1`);
+	return redirect(`${savedPath}?saved=1`);
 };

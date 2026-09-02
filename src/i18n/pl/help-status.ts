@@ -37,7 +37,7 @@ export const helpStatus = {
 	afterPairs: [
 		{
 			term: posts.status.pending,
-			desc: 'Czekaj. Administrator przeczyta artykuł i go przyjmie albo wróci z uwagami.',
+			desc: 'Czekaj. Administrator przeczyta artykuł i go przyjmie albo wróci z uwagami. Drobne rzeczy — literówkę, kolejność zdjęć, sposób pokazania PDF-a — może poprawić sam, bez odsyłania wpisu.',
 		},
 		{
 			term: posts.status.rejected,

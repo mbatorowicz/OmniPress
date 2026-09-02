@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+	canAdminEditPost,
 	canDeletePost,
 	canEditPost,
 	canSubmitPost,
@@ -34,9 +35,24 @@ describe('canEditPost', () => {
 		expect(canEditPost(draftPost({ status: 'publishing' }), 'author-1', 'editor')).toBe(false);
 	});
 
-	it('admin edytuje tylko draft/rejected', () => {
+	it('admin edytuje cudzy wpis przed publikacją', () => {
 		expect(canEditPost(draftPost(), 'other', 'admin')).toBe(true);
-		expect(canEditPost(draftPost({ status: 'pending' }), 'other', 'admin')).toBe(false);
+		expect(canEditPost(draftPost({ status: 'rejected' }), 'other', 'admin')).toBe(true);
+		expect(canEditPost(draftPost({ status: 'pending' }), 'other', 'admin')).toBe(true);
+		expect(canEditPost(draftPost({ status: 'scheduled' }), 'other', 'admin')).toBe(true);
+	});
+
+	it('admin nie edytuje wpisu w publikacji ani na stronie', () => {
+		expect(canEditPost(draftPost({ status: 'publishing' }), 'other', 'admin')).toBe(false);
+		expect(canEditPost(draftPost({ status: 'published' }), 'other', 'admin')).toBe(false);
+	});
+});
+
+describe('canAdminEditPost', () => {
+	it('pokrywa statusy sprzed publikacji', () => {
+		expect(canAdminEditPost(draftPost({ status: 'pending' }))).toBe(true);
+		expect(canAdminEditPost(draftPost({ status: 'scheduled' }))).toBe(true);
+		expect(canAdminEditPost(draftPost({ status: 'published' }))).toBe(false);
 	});
 });
 

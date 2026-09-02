@@ -13,6 +13,9 @@ export function parsePostReviewFlash(url: URL): FlashMessage[] {
 				params.get('scheduled') === '1' ? adminReview.approvedScheduled : adminReview.approved,
 		});
 	}
+	if (params.get('saved') === '1') {
+		messages.push({ variant: 'success', message: adminReview.edited });
+	}
 	if (params.get('rejected') === '1') {
 		messages.push({ variant: 'warning', message: adminReview.rejected });
 	}

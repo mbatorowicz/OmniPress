@@ -33,9 +33,29 @@ export async function getPostById(
 	return data as PostRow;
 }
 
+/** Redaktor poprawia własny wpis tylko przed wysłaniem do akceptacji. */
+const AUTHOR_EDITABLE_STATUSES: readonly PostStatus[] = ['draft', 'rejected'];
+
+/**
+ * Administrator poprawia wpis dopóki treść nie ruszyła na stronę — także po
+ * wysłaniu do akceptacji (`pending`) i po zaplanowaniu publikacji (`scheduled`).
+ * `publishing` i `published` są wyłączone: tam wchodzi się przez poprawkę
+ * (`reopen`) albo zdjęcie ze strony.
+ */
+const ADMIN_EDITABLE_STATUSES: readonly PostStatus[] = [
+	'draft',
+	'rejected',
+	'pending',
+	'scheduled',
+];
+
+export function canAdminEditPost(post: PostRow): boolean {
+	return ADMIN_EDITABLE_STATUSES.includes(post.status);
+}
+
 export function canEditPost(post: PostRow, userId: string, role: UserRole): boolean {
-	if (role === 'admin') return post.status === 'draft' || post.status === 'rejected';
-	return post.author_id === userId && (post.status === 'draft' || post.status === 'rejected');
+	if (role === 'admin') return canAdminEditPost(post);
+	return post.author_id === userId && AUTHOR_EDITABLE_STATUSES.includes(post.status);
 }
 
 /** Podgląd załączników (PDF) — admin: każdy wpis; redaktor: własne. */

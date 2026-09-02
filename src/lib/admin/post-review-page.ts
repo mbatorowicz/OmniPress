@@ -8,7 +8,7 @@ import { canReopenPost } from '@/lib/admin/posts';
 import { loadSiteAstroDestination } from '@/lib/admin/sites';
 import type { DestinationForPublish } from '@/lib/publish/types';
 import { listPublishLogsForPost, type PublishLogRow } from '@/lib/publish';
-import { getPostById, type PostRow } from '@/lib/posts/access';
+import { canAdminEditPost, getPostById, type PostRow } from '@/lib/posts/access';
 import { loadPostPreview, type PostPreview } from '@/lib/posts/post-preview';
 
 export type PostReviewPage = {
@@ -19,6 +19,8 @@ export type PostReviewPage = {
 	siteChannel: DestinationForPublish | null;
 	publishLogs: PublishLogRow[];
 	isPending: boolean;
+	/** Korekta treści przez admina — wpis jeszcze nie ruszył na stronę. */
+	canEdit: boolean;
 	canManagePinned: boolean;
 	canReopen: boolean;
 	preview: PostPreview;
@@ -53,6 +55,7 @@ export async function loadPostReviewPage(
 		siteChannel,
 		publishLogs,
 		isPending: post.status === 'pending',
+		canEdit: canAdminEditPost(post),
 		canManagePinned: post.status === 'published' || post.status === 'scheduled',
 		canReopen: await canReopenPost(supabase, post.id, post.status),
 		preview,

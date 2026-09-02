@@ -1,4 +1,5 @@
 export {
+	canAdminEditPost,
 	canDeletePost,
 	canEditPost,
 	canSubmitPost,

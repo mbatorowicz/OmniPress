@@ -84,12 +84,15 @@ Konta **administratorów i redaktorów** w jednym panelu (stare `/admin/editors`
 ## 5. Akceptacja wpisów
 
 1. `/admin` → sekcja *Do akceptacji* → wpis.
-2. **Zaakceptuj:** *Zaakceptuj i opublikuj* — wpis trafia do kolejki publikacji.
+2. **Popraw wpis** (opcjonalnie, przed decyzją) — przycisk nad podglądem otwiera edytor (`/admin/posts/[id]/edit`) z pełnym zestawem pól redaktora: kategoria, tytuł, slug, data i godzina publikacji, treść, galeria (kolejność, zajawka) oraz **tryb każdego PDF-a — link do pobrania albo podgląd na stronie**. Można też dodawać i usuwać załączniki.
+   - *Zapisz zmiany* wraca do ekranu akceptacji; **status wpisu się nie zmienia** i redaktor nie dostaje powiadomienia — korekta nie zastępuje odrzucenia z uwagami.
+   - Dostępne dla statusów: *Szkic*, *Do poprawki*, *Do akceptacji*, *Zaplanowany*. Wpis w trakcie publikacji lub już na stronie wymaga *Oddaj do poprawki* / *Zdejmij ze strony*.
+3. **Zaakceptuj:** *Zaakceptuj i opublikuj* — wpis trafia do kolejki publikacji.
    - Jeśli data publikacji **już minęła** lub jest teraz → status `publishing`, publikacja startuje od razu.
    - Jeśli data w **przyszłości** → status `scheduled`, wpis w sekcji *Zaplanowane*; publikacja po terminie (przy wejściu na `/admin` lub cronie Vercel).
    - `publish_logs`: `pending` (z `next_retry_at` przy harmonogramie) → worker → `success` / `failed`.
    - Po sukcesie: `published`. Data w frontmatter strony = data wybrana przez redaktora.
-3. **Odrzuć:** obowiązkowe uwagi → redaktor widzi `rejection_note` i może poprawić szkic.
+4. **Odrzuć:** obowiązkowe uwagi → redaktor widzi `rejection_note` i może poprawić szkic.
 
 Na podglądzie wpisu: tabela **Status publikacji**. Przy błędzie (`failed`): **Ponów publikację**.
 

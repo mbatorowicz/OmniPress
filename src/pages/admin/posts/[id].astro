@@ -26,7 +26,6 @@ if (!page) return Astro.redirect('/admin?error=not_found');
 
 const { post, siteChannel, isPending, preview } = page;
 const flashMessages = parsePostReviewFlash(Astro.url);
-const reopened = Astro.url.searchParams.get('reopened') === '1';
 const previewLabels = admin.preview;
 
 const breadcrumbs = [
@@ -43,11 +42,15 @@ const breadcrumbs = [
 	</div>
 
 	<FlashAlerts messages={flashMessages} />
+
 	{
-		reopened && (
-			<p class="mb-4 text-sm">
-				<a href={`/dashboard/posts/${post.id}`} class="ui-link">{adminReview.openEditor}</a>
-			</p>
+		page.canEdit && (
+			<Panel class="mb-6 space-y-3">
+				<p class="ui-muted">{adminReview.editHint}</p>
+				<Button href={`/admin/posts/${post.id}/edit`} variant="secondary">
+					{adminReview.edit}
+				</Button>
+			</Panel>
 		)
 	}
 

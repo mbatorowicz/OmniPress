@@ -22,6 +22,11 @@ const page = await loadPostEditorPage(Astro.locals.supabase, id, {
 });
 if (!page) return Astro.redirect('/dashboard?error=not_found');
 
+// Cudzy wpis admin prowadzi z panelu akceptacji — tam są korekta i decyzja.
+if (profile.role === 'admin' && page.post.author_id !== user.id) {
+	return Astro.redirect(`/admin/posts/${id}`);
+}
+
 const { post, preview } = page;
 
 const flashMessages = parseQueryFlash(Astro.url, {

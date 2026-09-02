@@ -49,7 +49,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Zapis szkicu, wysłanie do akceptacji | ✅ |
 | Data publikacji + godzina z listy 6:00–20:00 (czas polski); bez daty = publikacja w momencie wysłania | ✅ |
 | Usuwanie własnych wpisów (`draft` / `rejected`) wraz z plikami Storage | ✅ migracja `setup:posts-delete-own` |
-| Edycja tylko `draft` / `rejected`; poprawki opublikowanych (amendment) | ✅ |
+| Edycja tylko `draft` / `rejected`; poprawki opublikowanych (amendment) | ✅ (administrator poprawia także `pending` / `scheduled`) |
 | Podgląd treści po wysłaniu / odrzuceniu | ✅ |
 | Instrukcja w panelu (`/dashboard/help`) | ✅ | link *Pomoc* w nagłówku + *Instrukcja* na liście wpisów |
 
@@ -67,6 +67,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Kolejka: do akceptacji, zaplanowane (ze znacznikiem „Publikacja…”), na stronie | ✅ `/admin` |
 | Akceptacja → kolejka publikacji GitHub (natychmiast lub o zaplanowanej godzinie) | ✅ |
 | Odrzucenie z `rejection_note` | ✅ |
+| Korekta wpisu przed publikacją (`draft`, `rejected`, `pending`, `scheduled`) — treść, tytuł, slug, kategoria, data, tryb załącznika (link / podgląd), galeria | ✅ `/admin/posts/[id]/edit` |
 | Ponowne otwarcie wpisu (reopen) | ✅ |
 | Dezaktywacja / usunięcie opublikowanego (withdraw z GitHub) | ✅ |
 | Bulk: akceptacja / odrzucenie (pending), anulowanie harmonogramu, dezaktywacja / usuwanie | ✅ |
