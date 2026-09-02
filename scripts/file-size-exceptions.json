@@ -27,10 +27,6 @@
 		"limit": 420,
 		"reason": "DŁUG P2-3: parser JSON layoutu — symetryczny do parse-form.ts, dzielony razem z nim"
 	},
-	"src/lib/publish/github-import.ts": {
-		"limit": 405,
-		"reason": "DŁUG P2-3: import wpisów z repo Astro do podziału na pobranie i mapowanie"
-	},
 	"src/lib/admin/layout-slots-preview-client.ts": {
 		"limit": 325,
 		"reason": "DŁUG P2-3: podgląd slotów po stronie klienta"

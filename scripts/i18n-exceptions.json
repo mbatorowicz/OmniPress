@@ -21,7 +21,6 @@
 		"src/lib/publish/github-api-commit.ts": 1,
 		"src/lib/publish/github-api-write.ts": 1,
 		"src/lib/publish/github-astro.ts": 5,
-		"src/lib/publish/github-import.ts": 3,
 		"src/lib/publish/vercel-api.ts": 2,
 		"src/lib/publish/vercel-deploy.ts": 2,
 		"src/lib/publish/withdraw.ts": 7,

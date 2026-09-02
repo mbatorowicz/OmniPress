@@ -51,6 +51,18 @@ export const admin = {
 			no_github_token: 'Brak tokenu GitHub w destynacji.',
 			github_tree_failed: 'Nie udało się odczytać drzewa plików z GitHub.',
 		} as Record<string, string>,
+		assetErrors: {
+			missingOnGitHub: (name: string) => `${name}: brak pliku na GitHub`,
+			upload: (name: string, detail: string) => `${name}: ${detail}`,
+			save: (name: string) => `${name}: zapis w bazie`,
+			listing: (folder: string, detail: string) => `${folder}: ${detail || 'listing'}`,
+		},
+		postErrors: {
+			noContent: (path: string) => `${path}: brak treści`,
+			badFrontmatter: (path: string) => `${path}: nieprawidłowy front-matter`,
+			save: (slug: string, detail: string) => `${slug}: ${detail}`,
+			create: (slug: string) => `${slug}: nie udało się utworzyć wpisu`,
+		},
 	},
 	postList: {
 		colTitle: 'Tytuł',

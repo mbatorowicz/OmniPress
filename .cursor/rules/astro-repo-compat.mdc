@@ -19,6 +19,14 @@ OmniPress **pisze** do repo strony; Astro **czyta**. Każda zmiana formatu, ści
 
 Domyślna ścieżka layoutu: `src/config/omnipress-layout.json` (`DEFAULT_LAYOUT_PATH` w `types.ts`). Nadpisanie: destynacja (`layout_path`).
 
+## Nazwy załączników — publikacja pisze basename `storage_path`, nie `filename`
+
+Plik w repo dostaje nazwę z `assets.storage_path` (UUID nadany przy uploadzie), a nie z `assets.filename` (nazwa oryginalna, widoczna dla redaktora). SSOT: `assetName` w `github-astro.ts`.
+
+Wynika z tego reguła dla **każdego** kodu porównującego stan lokalny ze zdalnym: **paruj po basenamie `storage_path`** (`storageBasename` w `import-asset-model.ts`). Parowanie po `filename` nie trafia nigdy i produkuje duplikaty — a jeśli po takim porównaniu następuje sprzątanie osieroconych plików, kasuje ze Storage obiekt wskazywany przez świeżo dopisany wiersz (był taki błąd w imporcie: 25 utraconych plików). Przed `storage.remove` przepuść ścieżki przez `removablePaths`.
+
+Załączniki żyją **na liście `assets`, nie w treści wpisu** — linki (`[📄 …]`) i bloki podglądu PDF dokłada publikacja (`buildPublishedBodyMd`, `applyAssetDisplayToMarkdown`). Import musi je z treści usunąć (`stripPublishedAttachments`), inaczej kolejna publikacja dubluje listę.
+
 **Czytnik w repo Astro** (od 2026-08-27 rozbity, `load-config.ts` to barrel): typy w `config/layout-types.ts`, odczyt pliku i strefy w `config/layout-payload.ts`, nazwane sloty w `config/layout-slots.ts`, kategorie w `config/categories.ts`. Zmiana pola JSON = zmiana w `layout-types.ts` + odpowiednim czytniku.
 
 ## Stan repo B — źródłem prawdy jest `origin/main`
