@@ -8,7 +8,14 @@ import { canReopenPost } from '@/lib/admin/posts';
 import { loadSiteAstroDestination } from '@/lib/admin/sites';
 import type { DestinationForPublish } from '@/lib/publish/types';
 import { listPublishLogsForPost, type PublishLogRow } from '@/lib/publish';
-import { canAdminEditPost, getPostById, type PostRow } from '@/lib/posts/access';
+import {
+	canAdminEditPost,
+	getPostById,
+	isApprovableStatus,
+	missingForPublish,
+	type MissingForPublish,
+	type PostRow,
+} from '@/lib/posts/access';
 import { loadPostPreview, type PostPreview } from '@/lib/posts/post-preview';
 
 export type PostReviewPage = {
@@ -18,7 +25,12 @@ export type PostReviewPage = {
 	authorName: string | null;
 	siteChannel: DestinationForPublish | null;
 	publishLogs: PublishLogRow[];
+	/** Wpis czeka na decyzję — dopiero wtedy odrzucenie z uwagami ma sens. */
 	isPending: boolean;
+	/** Skierowanie do publikacji — także szkic i wpis do poprawki. */
+	canApprove: boolean;
+	/** Czego brakuje do publikacji (`null` = wpis gotowy). */
+	missingForPublish: MissingForPublish;
 	/** Korekta treści przez admina — wpis jeszcze nie ruszył na stronę. */
 	canEdit: boolean;
 	canManagePinned: boolean;
@@ -55,6 +67,8 @@ export async function loadPostReviewPage(
 		siteChannel,
 		publishLogs,
 		isPending: post.status === 'pending',
+		canApprove: isApprovableStatus(post.status),
+		missingForPublish: missingForPublish(post),
 		canEdit: canAdminEditPost(post),
 		canManagePinned: post.status === 'published' || post.status === 'scheduled',
 		canReopen: await canReopenPost(supabase, post.id, post.status),

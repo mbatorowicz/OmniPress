@@ -5,6 +5,8 @@ import {
 	canEditPost,
 	canSubmitPost,
 	canViewPostAssets,
+	isApprovableStatus,
+	missingForPublish,
 	type PostRow,
 } from './access';
 
@@ -69,10 +71,46 @@ describe('canViewPostAssets', () => {
 
 describe('canSubmitPost', () => {
 	it('autor wysyła draft i rejected', () => {
-		expect(canSubmitPost(draftPost(), 'author-1')).toBe(true);
-		expect(canSubmitPost(draftPost({ status: 'rejected' }), 'author-1')).toBe(true);
-		expect(canSubmitPost(draftPost({ status: 'pending' }), 'author-1')).toBe(false);
-		expect(canSubmitPost(draftPost(), 'other')).toBe(false);
+		expect(canSubmitPost(draftPost(), 'author-1', 'editor')).toBe(true);
+		expect(canSubmitPost(draftPost({ status: 'rejected' }), 'author-1', 'editor')).toBe(true);
+		expect(canSubmitPost(draftPost({ status: 'pending' }), 'author-1', 'editor')).toBe(false);
+		expect(canSubmitPost(draftPost(), 'other', 'editor')).toBe(false);
+	});
+
+	it('admin wysyła cudzy szkic do akceptacji', () => {
+		expect(canSubmitPost(draftPost(), 'other', 'admin')).toBe(true);
+		expect(canSubmitPost(draftPost({ status: 'rejected' }), 'other', 'admin')).toBe(true);
+	});
+
+	it('admin nie wysyła ponownie wpisu po akceptacji', () => {
+		expect(canSubmitPost(draftPost({ status: 'pending' }), 'other', 'admin')).toBe(false);
+		expect(canSubmitPost(draftPost({ status: 'scheduled' }), 'other', 'admin')).toBe(false);
+		expect(canSubmitPost(draftPost({ status: 'published' }), 'other', 'admin')).toBe(false);
+	});
+});
+
+describe('isApprovableStatus', () => {
+	it('obejmuje szkic i wpis do poprawki obok pending', () => {
+		expect(isApprovableStatus('draft')).toBe(true);
+		expect(isApprovableStatus('rejected')).toBe(true);
+		expect(isApprovableStatus('pending')).toBe(true);
+	});
+
+	it('pomija wpisy już skierowane na stronę', () => {
+		expect(isApprovableStatus('scheduled')).toBe(false);
+		expect(isApprovableStatus('publishing')).toBe(false);
+		expect(isApprovableStatus('published')).toBe(false);
+	});
+});
+
+describe('missingForPublish', () => {
+	it('wskazuje brak tytułu przed brakiem kategorii', () => {
+		expect(missingForPublish(draftPost({ title: '  ' }))).toBe('title');
+		expect(missingForPublish(draftPost({ title: 'Tytuł', category_slug: null }))).toBe('category');
+	});
+
+	it('null gdy wpis ma tytuł i kategorię', () => {
+		expect(missingForPublish(draftPost({ category_slug: 'aktualnosci' }))).toBeNull();
 	});
 });
 

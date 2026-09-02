@@ -88,14 +88,33 @@ Konta **administratorów i redaktorów** w jednym panelu (stare `/admin/editors`
 2. **Popraw wpis** (opcjonalnie, przed decyzją) — przycisk nad podglądem otwiera edytor (`/admin/posts/[id]/edit`) z pełnym zestawem pól redaktora: kategoria, tytuł, slug, data i godzina publikacji, treść, galeria (kolejność, zajawka) oraz **tryb każdego PDF-a — link do pobrania albo podgląd na stronie**. Można też dodawać i usuwać załączniki.
    - *Zapisz zmiany* wraca do ekranu akceptacji; **status wpisu się nie zmienia** i redaktor nie dostaje powiadomienia — korekta nie zastępuje odrzucenia z uwagami.
    - Dostępne dla statusów: *Szkic*, *Do poprawki*, *Do akceptacji*, *Zaplanowany*. Wpis w trakcie publikacji lub już na stronie wymaga *Oddaj do poprawki* / *Zdejmij ze strony*.
-3. **Zaakceptuj:** *Zaakceptuj i opublikuj* — wpis trafia do kolejki publikacji.
+3. **Zaakceptuj:** *Zaakceptuj i opublikuj* — wpis trafia do kolejki publikacji. Przy szkicu i wpisie do poprawki przycisk nazywa się *Opublikuj szkic* — patrz §5.2.
    - Jeśli data publikacji **już minęła** lub jest teraz → status `publishing`, publikacja startuje od razu.
    - Jeśli data w **przyszłości** → status `scheduled`, wpis w sekcji *Zaplanowane*; publikacja po terminie (przy wejściu na `/admin` lub cronie Vercel).
    - `publish_logs`: `pending` (z `next_retry_at` przy harmonogramie) → worker → `success` / `failed`.
    - Po sukcesie: `published`. Data w frontmatter strony = data wybrana przez redaktora.
-4. **Odrzuć:** obowiązkowe uwagi → redaktor widzi `rejection_note` i może poprawić szkic.
+4. **Odrzuć:** obowiązkowe uwagi → redaktor widzi `rejection_note` i może poprawić szkic. Odrzucenie dotyczy tylko wpisów *Do akceptacji* — szkicu redaktor nie wysłał, więc nie ma czego odrzucać.
 
 Na podglądzie wpisu: tabela **Status publikacji**. Przy błędzie (`failed`): **Ponów publikację**.
+
+### 5.2 Szkic redaktora na stronę — dwie drogi
+
+Administrator domyka wpis sam, kiedy redaktor nie może (urlop, choroba, pilny komunikat). Ekran
+akceptacji (`/admin/posts/[id]`) działa dla statusów *Szkic*, *Do poprawki* i *Do akceptacji*.
+
+| Droga | Kroki | Kiedy |
+|-------|-------|-------|
+| **Skrót** | *Opublikuj szkic* na ekranie akceptacji | Treść jest gotowa, liczy się czas |
+| **Ścieżka redaktora** | *Popraw wpis* → *Wyślij do akceptacji* → *Zaakceptuj i opublikuj* | Wpis ma przejść normalny obieg (wpis w kolejce, ślad w statusach) |
+
+- **Tytuł i kategoria są wymagane** — bez nich przycisk publikacji jest zablokowany, a nad nim
+  widać, czego brakuje. Uzupełnij w *Popraw wpis*.
+- **Data publikacji:** pusta = publikacja od razu (data wpisu na stronie = moment akceptacji);
+  data w przyszłości = status *Zaplanowany* i publikacja o wskazanej godzinie.
+- **Wysłanie za redaktora** blokuje mu edycję (status *Do akceptacji*), więc uprzedź go poza
+  systemem — powiadomień e-mail w tej wersji nie ma.
+- Jeśli redaktor wyśle wpis w tej samej chwili, gdy administrator go publikuje, wygrywa jedna
+  operacja — druga kończy się komunikatem, że wpisu nie można już skierować do publikacji.
 
 ### 5.1 Wszystkie wpisy — szkice redaktorów, filtry i sortowanie (`/admin/posts`)
 
@@ -117,9 +136,9 @@ Lista jest stronicowana po 25 wpisów; filtry, sortowanie i numer strony siedzą
 (np. „szkice redaktora X”) można zapisać w zakładkach przeglądarki.
 
 **Edycja szkicu redaktora** działa jak korekta z §5 pkt 2: zapis **nie zmienia statusu**, więc wpis
-zostaje szkicem u redaktora — administrator poprawia treść, ale nie wysyła jej za niego do
-akceptacji. Redaktor nie dostaje powiadomienia (brak e-maili w tej wersji), więc przy większych
-zmianach uprzedź go poza systemem.
+zostaje szkicem u redaktora. Osobne przyciski przenoszą go dalej: *Wyślij do akceptacji* w edytorze
+albo *Opublikuj szkic* na ekranie akceptacji (§5.2). Redaktor nie dostaje powiadomienia (brak
+e-maili w tej wersji), więc przy większych zmianach uprzedź go poza systemem.
 
 ---
 

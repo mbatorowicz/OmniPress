@@ -68,7 +68,9 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Kolejka: do akceptacji, zaplanowane (ze znacznikiem „Publikacja…”), na stronie | ✅ `/admin` |
 | Wszystkie wpisy redaktorów — także szkice i wpisy do poprawki; zakładki statusów z licznikami, filtr (tytuł, status, strona, autor), sortowanie kolumn, stronicowanie po 25 | ✅ `/admin/posts` |
 | Akceptacja → kolejka publikacji GitHub (natychmiast lub o zaplanowanej godzinie) | ✅ |
-| Odrzucenie z `rejection_note` | ✅ |
+| Publikacja szkicu / wpisu do poprawki bez czekania na redaktora (`draft`, `rejected`, `pending`) | ✅ blokada, gdy brak tytułu lub kategorii |
+| Wysłanie cudzego wpisu do akceptacji (pełna ścieżka redaktora) | ✅ `/admin/posts/[id]/edit` |
+| Odrzucenie z `rejection_note` | ✅ tylko `pending` |
 | Korekta wpisu przed publikacją (`draft`, `rejected`, `pending`, `scheduled`) — treść, tytuł, slug, kategoria, data, tryb załącznika (link / podgląd), galeria | ✅ `/admin/posts/[id]/edit` |
 | Ponowne otwarcie wpisu (reopen) | ✅ |
 | Dezaktywacja / usunięcie opublikowanego (withdraw z GitHub) | ✅ |
@@ -91,7 +93,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 
 ## Publikacja (worker)
 
-1. Admin akceptuje wpis → `publish_logs.pending` (z `next_retry_at` = data redaktora, jeśli w przyszłości).
+1. Admin akceptuje wpis (`draft`, `rejected` lub `pending`) → `publish_logs.pending` (z `next_retry_at` = data redaktora, jeśli w przyszłości). Szkic bez daty dostaje datę akceptacji.
 2. Status `scheduled` (czeka) lub `publishing` (od razu). Worker `/api/worker/publish`: start po akceptacji natychmiastowej, przy wejściu admina na `/admin`, oraz cron Vercel (plan Hobby: raz dziennie 06:00 UTC; docelowo co godzinę na Pro).
 3. **Atomowy commit** na GitHub (layout `flat` lub `folder`): tylko zmienione załączniki (SHA) + `index.md` + rejestr ostatnich zmian (+ PDF viewer / sprzątanie orphanów i starego folderu) — jeden deploy Vercel; bez zmian → bez commita.
 4. Opcjonalnie: weryfikacja deployu Vercel (niepowodzenie nie wywołuje ponownego uploadu).

@@ -19,10 +19,6 @@
 		"limit": 475,
 		"reason": "DŁUG P2-3: odczyt/zapis layoutu w Supabase do podziału na odczyt i mutacje"
 	},
-	"src/lib/admin/posts.ts": {
-		"limit": 445,
-		"reason": "DŁUG P2-3: zapytania kolejki moderacji do podziału na listę i akcje"
-	},
 	"src/lib/publish/github-astro.ts": {
 		"limit": 425,
 		"reason": "DŁUG P2-3: budowa commitu wpisu do podziału na front-matter, załączniki i wysyłkę"

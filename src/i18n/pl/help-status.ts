@@ -9,7 +9,7 @@ export const helpStatus = {
 	pairs: [
 		{
 			term: posts.status.draft,
-			desc: 'Wersja robocza. Możesz poprawiać, zapisywać, wysłać albo usunąć.',
+			desc: 'Wersja robocza. Możesz poprawiać, zapisywać, wysłać albo usunąć. Przy pilnym komunikacie administrator może wysłać szkic do akceptacji albo opublikować go za Ciebie.',
 		},
 		{
 			term: posts.status.pending,

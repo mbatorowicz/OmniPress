@@ -24,14 +24,16 @@ export {
 	rejectPost,
 	reopenPostForEditing,
 	canReopenPost,
-	deactivatePost,
-	deletePost,
+} from './posts';
+export { deactivatePost, deletePost } from './posts-withdraw';
+export {
 	bulkApprovePosts,
 	bulkRejectPosts,
 	bulkCancelScheduledPosts,
 	bulkDeactivatePosts,
 	bulkDeletePosts,
-} from './posts';
+	type BulkPostsResult,
+} from './posts-bulk';
 export { getEditorSiteIds, saveEditorSites, syncSiteDestinations } from './user-sites';
 export { testGitHubAstroChannel, type ChannelTestResult } from './channel-test';
 export {

@@ -48,6 +48,7 @@ const breadcrumbs = [
 
 	<FlashAlerts messages={flashMessages} />
 	<Alert variant="info" class="mb-4">{adminReview.editLead}</Alert>
+	{page.submittable && <p class="ui-hint mb-4">{adminReview.editSubmitHint}</p>}
 
 	<PostEditorForm
 		{post}
@@ -56,11 +57,13 @@ const breadcrumbs = [
 		categoryWarnings={page.categoryWarnings}
 		categoriesUnavailable={page.categoriesUnavailable}
 		isAmendment={page.isAmendment}
-		submittable={false}
+		submittable={page.submittable}
 		deletable={false}
 		postAssets={preview.postAssets}
 		returnTo="admin"
 		saveLabel={adminReview.editSave}
+		submitLabel={adminReview.submit}
+		submitConfirm={adminReview.submitConfirm}
 	/>
 
 	<BackLink href={reviewPath} label={adminReview.backToReview.replace('← ', '')} class="mt-6" />

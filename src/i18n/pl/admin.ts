@@ -110,6 +110,7 @@ export const admin = {
 	bulkErrors: {
 		none_selected: 'Nie zaznaczono żadnego wpisu.',
 		none_pending: 'Żaden z zaznaczonych wpisów nie oczekuje na akceptację.',
+		none_approvable: 'Żadnego z zaznaczonych wpisów nie można teraz skierować do publikacji.',
 		none_scheduled:
 			'Żaden z zaznaczonych wpisów nie jest zaplanowany (wpisy w trakcie publikacji są pomijane).',
 		none_published: 'Żaden z zaznaczonych wpisów nie jest na stronie.',

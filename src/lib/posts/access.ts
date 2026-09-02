@@ -3,12 +3,16 @@ import type { UserRole } from '../types';
 import { canEditPost, canSubmitPost, type PostRow } from './access-model';
 
 export {
+	APPROVABLE_STATUSES,
 	canAdminEditPost,
 	canDeletePost,
 	canEditPost,
 	canSubmitPost,
 	canViewPostAssets,
 	isAdminEditableStatus,
+	isApprovableStatus,
+	missingForPublish,
+	type MissingForPublish,
 	type PostRow,
 } from './access-model';
 
@@ -45,8 +49,9 @@ export async function loadSubmittablePost(
 	supabase: SupabaseClient,
 	postId: string,
 	userId: string,
+	role: UserRole,
 ): Promise<PostRow | null> {
 	const post = await getPostById(supabase, postId);
-	if (!post || !canSubmitPost(post, userId)) return null;
+	if (!post || !canSubmitPost(post, userId, role)) return null;
 	return post;
 }

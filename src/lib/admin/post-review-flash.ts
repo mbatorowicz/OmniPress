@@ -16,6 +16,9 @@ export function parsePostReviewFlash(url: URL): FlashMessage[] {
 	if (params.get('saved') === '1') {
 		messages.push({ variant: 'success', message: adminReview.edited });
 	}
+	if (params.get('submitted') === '1') {
+		messages.push({ variant: 'success', message: adminReview.submitted });
+	}
 	if (params.get('rejected') === '1') {
 		messages.push({ variant: 'warning', message: adminReview.rejected });
 	}

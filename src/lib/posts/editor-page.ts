@@ -53,7 +53,7 @@ export async function loadPostEditorPage(
 		post,
 		siteName: site?.name ?? null,
 		editable: canEditPost(post, viewer.userId, viewer.role),
-		submittable: canSubmitPost(post, viewer.userId),
+		submittable: canSubmitPost(post, viewer.userId, viewer.role),
 		deletable: canDeletePost(post, viewer.userId),
 		categories: categoriesResult.categories,
 		categoryWarnings: categoriesResult.warnings,

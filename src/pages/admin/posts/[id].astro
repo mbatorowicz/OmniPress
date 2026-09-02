@@ -24,7 +24,9 @@ if (!id || Astro.locals.profile?.role !== 'admin') return Astro.redirect('/admin
 const page = await loadPostReviewPage(Astro.locals.supabase, id);
 if (!page) return Astro.redirect('/admin?error=not_found');
 
-const { post, siteChannel, isPending, preview } = page;
+const { post, siteChannel, canApprove, isPending, preview } = page;
+const notReady = page.missingForPublish;
+const notReadyMessage = notReady ? adminReview.notReady[notReady] : null;
 const flashMessages = parsePostReviewFlash(Astro.url);
 const previewLabels = admin.preview;
 
@@ -47,6 +49,7 @@ const breadcrumbs = [
 		page.canEdit && (
 			<Panel class="mb-6 space-y-3">
 				<p class="ui-muted">{adminReview.editHint}</p>
+				{!isPending && canApprove && <p class="ui-hint">{adminReview.submitHint}</p>}
 				<Button href={`/admin/posts/${post.id}/edit`} variant="secondary">
 					{adminReview.edit}
 				</Button>
@@ -55,7 +58,7 @@ const breadcrumbs = [
 	}
 
 	{
-		isPending && !siteChannel && (
+		canApprove && !siteChannel && (
 			<Alert variant="warning" class="mb-6">
 				{adminReview.errors.no_site_channel}{' '}
 				<a href={`/admin/units/${post.site_id}`} class="ui-link">{adminReview.configureSite}</a>
@@ -64,30 +67,39 @@ const breadcrumbs = [
 	}
 
 	{
-		isPending && (
+		canApprove && (
 			<div class="ui-review-actions">
 				{siteChannel && (
 					<Panel class="space-y-3">
-						<p class="ui-muted">{adminReview.publishLead(siteChannel.name)}</p>
+						<p class="ui-muted">
+							{isPending
+								? adminReview.publishLead(siteChannel.name)
+								: adminReview.publishDraftLead(siteChannel.name)}
+						</p>
+						{notReadyMessage && <Alert variant="warning">{notReadyMessage}</Alert>}
 						<form method="post" action={`/api/admin/posts/${post.id}/approve`} class="space-y-3">
 							<label class="flex items-center gap-2">
 								<input type="checkbox" name="pinned" />
 								<span>{adminReview.pinned.label}</span>
 							</label>
 							<p class="ui-hint">{adminReview.pinned.hint}</p>
-							<Button type="submit">{adminReview.approve}</Button>
+							<Button type="submit" disabled={Boolean(notReady)}>
+								{isPending ? adminReview.approve : adminReview.approveDraft}
+							</Button>
 						</form>
 					</Panel>
 				)}
-				<Panel variant="danger" class="space-y-3">
-					<form method="post" action={`/api/admin/posts/${post.id}/reject`} class="space-y-3">
-						<Label>
-							<span class="font-medium">{adminReview.rejectionNote}</span>
-							<Textarea name="rejection_note" required rows={3} />
-						</Label>
-						<Button type="submit" variant="danger">{adminReview.reject}</Button>
-					</form>
-				</Panel>
+				{isPending && (
+					<Panel variant="danger" class="space-y-3">
+						<form method="post" action={`/api/admin/posts/${post.id}/reject`} class="space-y-3">
+							<Label>
+								<span class="font-medium">{adminReview.rejectionNote}</span>
+								<Textarea name="rejection_note" required rows={3} />
+							</Label>
+							<Button type="submit" variant="danger">{adminReview.reject}</Button>
+						</form>
+					</Panel>
+				)}
 			</div>
 		)
 	}

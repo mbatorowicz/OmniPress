@@ -101,7 +101,7 @@ Przy wysyłaniu pojawi się potwierdzenie. Po wysłaniu **nie zmienisz już teks
 
 | Status | Co możesz zrobić |
 |--------|------------------|
-| Szkic | Poprawiać, zapisywać, wysłać albo usunąć |
+| Szkic | Poprawiać, zapisywać, wysłać albo usunąć. Przy pilnym komunikacie administrator może wysłać szkic do akceptacji albo opublikować go za Ciebie |
 | Do akceptacji | Czekać — edycja zablokowana. Administrator może w tym czasie sam poprawić tekst i załączniki |
 | Zaplanowany | Zaakceptowany — publikacja o wskazanej godzinie |
 | Publikacja… | Czekać — trwa publikacja na stronę |
@@ -113,6 +113,7 @@ Przy wysyłaniu pojawi się potwierdzenie. Po wysłaniu **nie zmienisz już teks
 ## Po decyzji administratora
 
 - **Do akceptacji** — administrator przeczyta artykuł i go przyjmie albo wróci z uwagami. Drobne rzeczy (literówka, kolejność zdjęć, sposób pokazania PDF-a) może poprawić sam, bez odsyłania Ci wpisu — wtedy na stronie pojawi się jego wersja.
+- **Szkic, którego nie wysłałeś** — administrator widzi go na swojej liście i w pilnej sprawie (albo gdy jesteś nieobecny) może wysłać go do akceptacji lub opublikować za Ciebie. Wtedy edycja zostaje zablokowana tak samo jak po Twoim wysłaniu. Jeśli wpis nie jest gotowy, trzymaj w nim tylko tyle treści, ile chcesz pokazać.
 - **Do poprawki** — to prośba o zmiany, nie koniec pracy. Uwagi są na górze edytora.
 - **Zaplanowany** — nic nie musisz robić; artykuł pojawi się o wskazanej godzinie.
 - **Na stronie** — artykuł jest publiczny. Żeby go zmienić, potrzebna jest zgoda administratora.

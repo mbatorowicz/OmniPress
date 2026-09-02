@@ -29,6 +29,8 @@ interface Props {
 	/** `admin` — zapis wraca do panelu akceptacji zamiast panelu redaktora. */
 	returnTo?: 'dashboard' | 'admin';
 	saveLabel?: string;
+	submitLabel?: string;
+	submitConfirm?: string;
 }
 
 const ed = dashboard.editor;
@@ -44,6 +46,8 @@ const {
 	postAssets,
 	returnTo = 'dashboard',
 	saveLabel = ed.actions.save,
+	submitLabel = ed.actions.submit,
+	submitConfirm = ed.actions.confirmSubmit,
 } = Astro.props;
 const gal = ed.gallery;
 const pdfUi = ed.pdfAttachments;
@@ -123,9 +127,9 @@ const fileUi = ed.fileAttachments;
 					formaction={`/api/posts/${postId}/submit`}
 					variant="primary"
 					disabled={categoriesUnavailable || !post.category_slug}
-					confirm={ed.actions.confirmSubmit}
+					confirm={submitConfirm}
 				>
-					{ed.actions.submit}
+					{submitLabel}
 				</Button>
 			)
 		}

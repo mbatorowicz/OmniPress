@@ -1,6 +1,7 @@
 /** Teksty akceptacji wpisu i logów publikacji. */
 export const adminReview = {
 	approve: 'Zaakceptuj i opublikuj',
+	approveDraft: 'Opublikuj szkic',
 	pinned: {
 		label: 'Przypnij na stronie głównej',
 		hint: 'Wpis pojawi się w sekcji „Przypięte” na stronie głównej (jeśli slot jest włączony w layoucie).',
@@ -16,6 +17,8 @@ export const adminReview = {
 	editHeading: 'Korekta wpisu redaktora',
 	editLead:
 		'Zapis nie zmienia statusu wpisu ani nie powiadamia redaktora — po korekcie wróć do akceptacji.',
+	editSubmitHint:
+		'Szkic i wpis do poprawki możesz wysłać do akceptacji za redaktora — przycisk na dole formularza. Publikacja bez tego kroku: „Opublikuj szkic” na ekranie akceptacji.',
 	editSave: 'Zapisz zmiany',
 	edited: 'Zmiany zapisane.',
 	backToReview: '← Akceptacja wpisu',
@@ -23,6 +26,18 @@ export const adminReview = {
 	rejectionNote: 'Uwagi dla redaktora (wymagane przy odrzuceniu)',
 	destinations: 'Publikacja na stronie',
 	publishLead: (channelName: string) => `Publikacja na stronę przez ${channelName}.`,
+	publishDraftLead: (channelName: string) =>
+		`Redaktor nie wysłał jeszcze tego wpisu do akceptacji. Publikacja na stronę przez ${channelName} — od razu albo o ustawionej godzinie.`,
+	submit: 'Wyślij do akceptacji',
+	submitHint:
+		'Zamiast publikować od razu możesz przeprowadzić wpis ścieżką redaktora — otwórz korektę i użyj „Wyślij do akceptacji”.',
+	submitConfirm:
+		'Wysłać wpis do akceptacji za redaktora? Trafi do kolejki „Do akceptacji”, a redaktor straci możliwość edycji.',
+	submitted: 'Wpis wysłany do akceptacji.',
+	notReady: {
+		title: 'Wpis nie ma tytułu — uzupełnij go w korekcie przed publikacją.',
+		category: 'Wpis nie ma kategorii — wybierz ją w korekcie przed publikacją.',
+	},
 	configureSite: 'Skonfiguruj stronę →',
 	approved: 'Zaakceptowano — publikacja w tle.',
 	approvedScheduled: 'Zaakceptowano — publikacja zaplanowana.',
@@ -60,6 +75,9 @@ export const adminReview = {
 	},
 	errors: {
 		not_pending: 'Wpis nie oczekuje na akceptację.',
+		not_approvable: 'Tego wpisu nie można teraz skierować do publikacji.',
+		title_required: 'Uzupełnij tytuł wpisu przed publikacją.',
+		category_required: 'Wybierz kategorię wpisu przed publikacją.',
 		no_destinations: 'Strona nie ma skonfigurowanego repozytorium GitHub.',
 		no_site_channel: 'Strona nie ma skonfigurowanego repozytorium GitHub — przejdź do Ustawień.',
 		note_required: 'Podaj uwagi (min. 3 znaki).',

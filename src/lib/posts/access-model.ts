@@ -24,6 +24,13 @@ export type PostRow = {
 const AUTHOR_EDITABLE_STATUSES: readonly PostStatus[] = ['draft', 'rejected'];
 
 /**
+ * Statusy, z których administrator wypuszcza wpis na stronę. Poza `pending`
+ * także `draft` i `rejected` — administrator domyka ścieżkę redaktora sam,
+ * bez czekania, aż ten wyśle szkic do akceptacji.
+ */
+export const APPROVABLE_STATUSES: readonly PostStatus[] = ['draft', 'rejected', 'pending'];
+
+/**
  * Administrator poprawia wpis dopóki treść nie ruszyła na stronę — także po
  * wysłaniu do akceptacji (`pending`) i po zaplanowaniu publikacji (`scheduled`).
  * `publishing` i `published` są wyłączone: tam wchodzi się przez poprawkę
@@ -56,11 +63,27 @@ export function canViewPostAssets(post: PostRow, userId: string, role: UserRole)
 	return post.author_id === userId;
 }
 
-export function canSubmitPost(post: PostRow, userId: string): boolean {
-	return post.author_id === userId && (post.status === 'draft' || post.status === 'rejected');
+/** Wysłanie do akceptacji: redaktor własny wpis, administrator także cudzy szkic. */
+export function canSubmitPost(post: PostRow, userId: string, role: UserRole): boolean {
+	if (!AUTHOR_EDITABLE_STATUSES.includes(post.status)) return false;
+	return role === 'admin' || post.author_id === userId;
 }
 
 /** Redaktor usuwa tylko własne wpisy przed publikacją (szkic / odrzucony). */
 export function canDeletePost(post: PostRow, userId: string): boolean {
-	return post.author_id === userId && (post.status === 'draft' || post.status === 'rejected');
+	return post.author_id === userId && AUTHOR_EDITABLE_STATUSES.includes(post.status);
+}
+
+/** Czy administrator może teraz skierować wpis do publikacji (bez pełnego wiersza). */
+export function isApprovableStatus(status: PostStatus): boolean {
+	return APPROVABLE_STATUSES.includes(status);
+}
+
+/** Czego brakuje w szkicu do publikacji — front-matter wymaga tytułu i kategorii. */
+export type MissingForPublish = 'title' | 'category' | null;
+
+export function missingForPublish(post: PostRow): MissingForPublish {
+	if (!post.title.trim()) return 'title';
+	if (!post.category_slug?.trim()) return 'category';
+	return null;
 }

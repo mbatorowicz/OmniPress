@@ -1,4 +1,5 @@
 export {
+	APPROVABLE_STATUSES,
 	canAdminEditPost,
 	canDeletePost,
 	canEditPost,
@@ -6,8 +7,11 @@ export {
 	canViewPostAssets,
 	getPostById,
 	isAdminEditableStatus,
+	isApprovableStatus,
 	loadEditablePost,
 	loadSubmittablePost,
+	missingForPublish,
+	type MissingForPublish,
 	type PostRow,
 } from './access';
 export {
