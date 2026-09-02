@@ -1,6 +1,7 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { dashboard } from '@/i18n/pl/dashboard';
 import { posts } from '@/i18n/pl/posts';
+import { deletePostAsAdmin } from './helpers/posts';
 
 const ed = dashboard.editor;
 
@@ -9,17 +10,6 @@ function futureScheduleDate(): string {
 	const date = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 	const pad = (n: number) => String(n).padStart(2, '0');
 	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-}
-
-async function deletePostAsAdmin(page: Page, baseURL: string, postId: string): Promise<void> {
-	const response = await page.request.post(`/api/admin/posts/${postId}/delete`, {
-		// Astro checkOrigin (CSRF) wymaga nagłówka Origin przy POST.
-		headers: { origin: baseURL },
-		form: { confirm: '1' },
-		maxRedirects: 0,
-	});
-	expect(response.status()).toBe(302);
-	expect(response.headers()['location']).toContain('deleted=1');
 }
 
 // Integracja na żywym serwisie: szkic → walidacja → zapis → sprzątanie (usunięcie).
