@@ -24,34 +24,18 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 14 | Walidacja wejścia w repo B — ✅ **wykonane** | niskie | — |
 | 15 | Menu bez 404 + IA (Aktualności, Ochrona ludności) — ✅ **wykonane** | niskie | — |
 | 16 | Walidacja menu bez self-check (P0-9) — ✅ **wykonane** | niskie | — |
-| 17 | A11y / hamburger menu (P1-18) | niskie | — |
+| 17 | A11y / hamburger menu (P1-18) — ✅ **wykonane** | niskie | — |
 | 18 | Treść GOPS / Biblioteka / Druki z WP | średnie | po 15 |
 
 ---
 
-## Następna sesja — a11y hamburgera (po 16)
+## Następna sesja — treść GOPS / Biblioteka / Druki (po 17)
 
-**Wejście:** ten nagłówek. Podejście 16 zamknięte 2026-09-03. Zostało: [AUDYT.md](./AUDYT.md) P1-18. Canvas: `canvases/audyt-gornego-menu.canvas.tsx`.
+**Wejście:** ten nagłówek. Podejście 17 zamknięte 2026-09-03. Zostało: podejście 18 w [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md#podejście-18--treść-gops--biblioteka--druki-nie-w-tej-sesji).
 
-**Start sesji:** `git pull` w repo B (SSOT = `origin/main`). Domena `gmina-miedzna.pl` to nadal WordPress — audyt i ten plan dotyczą menu, które poleci po cutoverze na Astro, nie tego, co mieszkaniec klika dziś.
+**Start sesji:** `git pull` w repo B (SSOT = `origin/main`).
 
-**Decyzje już podjęte (nie pytać ponownie):**
-
-- Trzech martwych pozycji **nie zostawiamy** w menu. Nie publikujemy pustych placeholderów „w przygotowaniu”.
-- GOPS / Biblioteka / Druki wracają do menu dopiero po migracji treści z WP (podejście 18, osobna sesja).
-- Kolejność poziomu 1: **Aktualności, Gmina, Gospodarka odpadami, Ochrona ludności, Kontakt, BIP**.
-- Grupy z jednym dzieckiem spłaszczyć: znika „Pliki do pobrania” (razem z Drukami); „RODO” → sam liść „Klauzula informacyjna”.
-- Stopka, DNS cutover, `aria-current`, pułapka fokusu wyszukiwarki — **poza** tą sesją.
-
-**Kolejność:** 17 (Astro). 18 nie w tej sesji.
-
-| # | Co | Repo | Kryterium wyjścia |
-|---|----|------|-------------------|
-| 15 | Zdjąć `/gmina/gops`, `/gmina/biblioteka`, `/gmina/druki`; dodać Aktualności i Ochronę ludności; spłaszczyć RODO — ✅ | A → origin B `a69a7f8` | W `omnipress-layout.json` nie ma trzech martwych `href`; są `/aktualnosci` i `/ochrona-ludnosci` |
-| 16 | `collectNavInternalPageOptions` zostaje w edytorze; **nie** idzie do known paths — ✅ | A | Test: `/gmina/gops` przy znanych `/gmina/wojt` + kategoriach → `dead_link`. `npm test` + `npm run build` |
-| 17 | Skip-link; rodzice bez `href="#"`; Escape i klik poza zamykają hamburger; BIP `rel="noopener noreferrer"` + zapowiedź nowej karty | B | `npm test` + `npm run build` w B |
-
-**Poza sesją (18):** przenieść treść GOPS / Biblioteka / Druki z WordPressa, opublikować strony, dopiero wtedy wrócić do menu.
+**Poza zakresem 18 (osobne sesje):** `aria-current`, pułapka fokusu wyszukiwarki, stopka, DNS cutover.
 
 ---
 
@@ -687,7 +671,17 @@ Do tego `admin/github-token.ts` importował nieistniejący typ `GitHubRepoConfig
 
 **Commit:** repo B.
 
-## Podejście 18 — treść GOPS / Biblioteka / Druki (nie w tej sesji)
+### Wykonano (2026-09-03)
+
+- `Layout.astro` — skip-link „Przejdź do treści” przed topbarem, cel `#main-content` na `<main>`.
+- `Navigation.astro` + `NavDropdown.astro` — rodzice z dziećmi jako `<button type="button">` zamiast `href="#"`; linki zewnętrzne (BIP) z `target="_blank"`, `rel="noopener noreferrer"` i `<span class="sr-only"> (otwiera się w nowej karcie)</span>`.
+- `nav-menu-client.ts` — Escape i klik poza menu zamykają też hamburger (`.nav-list.active`, `aria-expanded` na `.menu-toggle`).
+- `global.css` — klasy `.skip-link` i `.sr-only`; `layers.css` — token `--z-skip-link`.
+- `nav-link.ts` + test jednostkowy `isExternalNavHref`.
+
+**Wynik weryfikacji:** repo B — commit `5c5ddce` · `npm test` 97/97 · `npm run lint` OK · `npm run build` OK.
+
+**Poza zakresem (osobne sesje):** `aria-current`, pułapka fokusu wyszukiwarki.
 
 **Cel:** przywrócić trzy strony z WordPressa, potem wrócić do menu.
 

@@ -103,13 +103,11 @@ Kategorie `/aktualnosci` (najwięcej wpisów, kafelek „Więcej” na home) i `
 
 **Zamknięte w podejściu 15:** poziom 1 to Aktualności, Gmina, Gospodarka odpadami, Ochrona ludności, Kontakt, BIP.
 
-### P1-18 — menu górne: klawiatura i telefon
+### P1-18 — menu górne: klawiatura i telefon — ✅ zamknięte (2026-09-03, podejście 17)
 
-- brak skip-linku do `#` / `main` w `Layout.astro`
-- rodzice z dziećmi dostają `href="#"` — na desktop klik „Gmina” skacze na górę
-- Escape i klik poza zamykają tylko dropdowny, nie hamburger (`.nav-list.active`)
-- BIP bez `rel` / zapowiedzi nowej karty (sidebar banner ma `target` + `rel`)
-- brak `aria-current`; wyszukiwarka bez pułapki fokusu (P2 w tej samej sesji — poza planem 15–18)
+Zamknięte: skip-link, rodzice z dziećmi bez `href="#"`, Escape/klik poza zamykają hamburger, BIP z `rel` i zapowiedzią nowej karty.
+
+**Poza zakresem (osobne sesje):** brak `aria-current`; wyszukiwarka bez pułapki fokusu.
 
 ### P1-1 — lokalne repo Astro rozjeżdża się z origin
 

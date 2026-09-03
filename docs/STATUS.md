@@ -4,7 +4,7 @@
 
 Produkcja: https://omni-press.cncsolutions.dev
 
-**Następna sesja:** a11y hamburgera (P1-18) — plan w [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md#następna-sesja--a11y-hamburgera-po-16). Podejście 16 (walidacja menu bez self-check) zamknięte 2026-09-03.
+**Następna sesja:** treść GOPS / Biblioteka / Druki (podejście 18) — plan w [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md#następna-sesja--treść-gops--biblioteka--druki-po-17). Podejście 17 (a11y hamburgera, P1-18) zamknięte 2026-09-03.
 
 ---
 
