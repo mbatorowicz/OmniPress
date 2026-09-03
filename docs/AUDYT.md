@@ -69,11 +69,45 @@ Repo Astro filtruje slot `home.pinned` po polu `pinned` we front-matterze (`src/
 
 Typ istnieje w `src/lib/astro-layout/types.ts:62`, ale pole nie występuje ani w `parse.ts`, ani w `parse-form.ts` — OmniPress go nie zapisze. Repo Astro jest na nie gotowe (`src/lib/imgw/weather-config.ts:50-53`) i po cichu wchodzi w `undefined`, czyli ostrzeżenia pogodowe działają bez filtra gminy.
 
-### P0-6 — trzy martwe linki w menu produkcyjnym
+### P0-6 — trzy martwe linki w menu produkcyjnym — ✅ zamknięte (2026-08)
 
-Menu w `omnipress-layout.json` zawiera pozycje `/informacje/aktywizacja-zawodowa-osob-bezrobotnych-w-powiecie-wegrowskim`, `/informacje/las-letnia-akademia-sanepidu-twoje-decyzje-maja-znaczenie` i `/informacje/las-…-znaczenie-2`. Kategoria `informacje` **nie istnieje** — te wpisy mają `category: "aktualnosci"`, a `getStaticPaths` w `[category]/[slug].astro:17-23` buduje ścieżki wyłącznie z `entry.data.category`. Te trzy linki zwracają dziś 404.
+Menu w `omnipress-layout.json` zawierało pozycje `/informacje/…` do nieistniejącej kategorii. Usunięte przy migracji slugów (podejście 4). **Następca:** [P0-8](#p0-8--trzy-martwe-linki-w-menu-astro-gops-biblioteka-druki----zamknięte-2026-09-03).
 
-[STATUS.md](./STATUS.md) oznacza „Walidacja linków menu przed sync GitHub" jako ✅. Walidacja albo nie sprawdza kategorii wpisu, albo nie jest uruchamiana na tej ścieżce — do ustalenia w porcji 1.
+[STATUS.md](./STATUS.md) oznacza „Walidacja linków menu przed sync GitHub" jako ✅ — to było mylące; przyczyna systemowa jest w [P0-9](#p0-9--walidacja-menu-sprawdza-menu-wobec-samego-menu).
+
+### P0-8 — trzy martwe linki w menu Astro (GOPS, Biblioteka, Druki) — ✅ zamknięte (2026-09-03)
+
+Audyt 2026-09-03 (`origin/main` repo B, `52a4167`). Slot `header.navigation` miał `href` bez strony w `src/content/pages/`:
+
+| Menu | Adres | Stan |
+|------|--------|------|
+| Gmina → Jednostki → GOPS | `/gmina/gops` | brak strony |
+| Gmina → Jednostki → Biblioteka | `/gmina/biblioteka` | brak strony |
+| Gmina → Pliki → Wnioski i druki | `/gmina/druki` | brak strony |
+
+Na WordPressie te treści istnieją (inne permalinki). To luka migracji, nie wymysł. Puste placeholdery na produkcji są gorsze niż chwilowy brak w menu.
+
+**Zamknięte w podejściu 15** (commit `a69a7f8` repo B): trzy `href` zdjęte z menu; GOPS / Biblioteka / Druki wrócą po migracji treści (podejście 18). Plan: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md#podejście-15--menu-bez-404--ia).
+
+### P0-9 — walidacja menu sprawdza menu wobec samego menu
+
+`publish.ts`, `publish-all.ts` i `layout-editor-context.ts` dokładają do `buildKnownNavPaths(..., extraPaths)` wynik `collectNavInternalPageOptions(navigation)` — czyli **wszystkie href z drzewa menu**. `validateNavigationLinks` porównuje menu z kopią menu: `dead_link` nie zapala się dla pozycji już zapisanej w drzewie. `mergePageOptionsForNavEditor` słusznie używa tego zbioru w selectcie edytora; ten sam zbiór nie może iść do walidatora.
+
+Dlatego P0-6 i P0-8 przeszły publikację mimo ✅ w STATUS.
+
+### P1-17 — Aktualności i Ochrona ludności poza menu górnym — ✅ zamknięte (2026-09-03)
+
+Kategorie `/aktualnosci` (najwięcej wpisów, kafelek „Więcej” na home) i `/ochrona-ludnosci` (commit `52a4167`, banner w sidebarze) nie były w `header.navigation`. Mieszkaniec bez sidebara ich nie znajdzie.
+
+**Zamknięte w podejściu 15:** poziom 1 to Aktualności, Gmina, Gospodarka odpadami, Ochrona ludności, Kontakt, BIP.
+
+### P1-18 — menu górne: klawiatura i telefon
+
+- brak skip-linku do `#` / `main` w `Layout.astro`
+- rodzice z dziećmi dostają `href="#"` — na desktop klik „Gmina” skacze na górę
+- Escape i klik poza zamykają tylko dropdowny, nie hamburger (`.nav-list.active`)
+- BIP bez `rel` / zapowiedzi nowej karty (sidebar banner ma `target` + `rel`)
+- brak `aria-current`; wyszukiwarka bez pułapki fokusu (P2 w tej samej sesji — poza planem 15–18)
 
 ### P1-1 — lokalne repo Astro rozjeżdża się z origin
 

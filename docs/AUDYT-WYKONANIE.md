@@ -22,6 +22,36 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 12 | Assety poza gita — ✅ **rozstrzygnięte** (zostają w gicie) | **decyzja** | — |
 | 13 | Typecheck w pipeline — ✅ **wykonane** | niskie | — |
 | 14 | Walidacja wejścia w repo B — ✅ **wykonane** | niskie | — |
+| 15 | Menu bez 404 + IA (Aktualności, Ochrona ludności) — ✅ **wykonane** | niskie | — |
+| 16 | Walidacja menu bez self-check (P0-9) | niskie | — |
+| 17 | A11y / hamburger menu (P1-18) | niskie | — |
+| 18 | Treść GOPS / Biblioteka / Druki z WP | średnie | po 15 |
+
+---
+
+## Następna sesja — walidacja menu + a11y (po 15)
+
+**Wejście:** ten nagłówek. Podejście 15 zamknięte 2026-09-03. Zostały: [AUDYT.md](./AUDYT.md) P0-9, P1-18. Canvas: `canvases/audyt-gornego-menu.canvas.tsx`.
+
+**Start sesji:** `git pull` w repo B (SSOT = `origin/main`). Domena `gmina-miedzna.pl` to nadal WordPress — audyt i ten plan dotyczą menu, które poleci po cutoverze na Astro, nie tego, co mieszkaniec klika dziś.
+
+**Decyzje już podjęte (nie pytać ponownie):**
+
+- Trzech martwych pozycji **nie zostawiamy** w menu. Nie publikujemy pustych placeholderów „w przygotowaniu”.
+- GOPS / Biblioteka / Druki wracają do menu dopiero po migracji treści z WP (podejście 18, osobna sesja).
+- Kolejność poziomu 1: **Aktualności, Gmina, Gospodarka odpadami, Ochrona ludności, Kontakt, BIP**.
+- Grupy z jednym dzieckiem spłaszczyć: znika „Pliki do pobrania” (razem z Drukami); „RODO” → sam liść „Klauzula informacyjna”.
+- Stopka, DNS cutover, `aria-current`, pułapka fokusu wyszukiwarki — **poza** tą sesją.
+
+**Kolejność w sesji:** 16 (walidator) → 17 (Astro). 18 nie w tej sesji.
+
+| # | Co | Repo | Kryterium wyjścia |
+|---|----|------|-------------------|
+| 15 | Zdjąć `/gmina/gops`, `/gmina/biblioteka`, `/gmina/druki`; dodać Aktualności i Ochronę ludności; spłaszczyć RODO — ✅ | A → origin B `a69a7f8` | W `omnipress-layout.json` nie ma trzech martwych `href`; są `/aktualnosci` i `/ochrona-ludnosci` |
+| 16 | `collectNavInternalPageOptions` zostaje w edytorze; **nie** idzie do `extraPaths` w `publish.ts`, `publish-all.ts`, `layout-editor-context.ts` | A | Test: `/gmina/gops` przy znanych `/gmina/wojt` + kategoriach → `dead_link`. Publikacja z martwym href → `dead_nav_links`. `npm test` + `npm run build` |
+| 17 | Skip-link; rodzice bez `href="#"`; Escape i klik poza zamykają hamburger; BIP `rel="noopener noreferrer"` + zapowiedź nowej karty | B | `npm test` + `npm run build` w B |
+
+**Poza sesją (18):** przenieść treść GOPS / Biblioteka / Druki z WordPressa, opublikować strony, dopiero wtedy wrócić do menu.
 
 ---
 
@@ -589,6 +619,71 @@ Do tego `admin/github-token.ts` importował nieistniejący typ `GitHubRepoConfig
 **Rozmiar:** pierwsza wersja walidatora miała 210 linii i wywaliła `lint-file-size` — stąd podział na `layout-contract.ts` + `layout-contract-slots.ts` + `layout-components.ts` zamiast wpisu na liście wyjątków.
 
 **Wynik weryfikacji:** repo B — `npm run lint` OK (75 plików) · `npm run check` 0 errors · `npm test` 79/79 (+19) · `npm run build` OK. Repo A — `npm run lint` OK · `npm test` 652/652 (+22 RLS opt-in) · `npm run build` OK.
+
+---
+
+## Podejście 15 — menu bez 404 + IA
+
+**Cel:** P0-8 i P1-17. Jedna publikacja layoutu.
+
+**Kroki**
+
+1. Repo B: `git pull`.
+2. W drzewie `header.navigation` usunąć `/gmina/gops`, `/gmina/biblioteka`, `/gmina/druki`.
+3. Usunąć grupę „Pliki do pobrania” (zostaje pusta po zdjęciu Druków).
+4. Spłaszczyć „RODO” do liścia „Klauzula informacyjna” → `/gmina/klauzula-rodo`.
+5. Dodać poziom 1: Aktualności → `/aktualnosci`, Ochrona ludności → `/ochrona-ludnosci`.
+6. Kolejność: Aktualności, Gmina, Gospodarka odpadami, Ochrona ludności, Kontakt, BIP.
+7. Zapisać szkic i opublikować layout na origin (panel albo sync). Upewnić się, że `sites.astro_layout` = plik w B — inaczej kolejny reconcile cofnie zmianę.
+
+**Weryfikacja:** w `src/config/omnipress-layout.json` na `origin/main` nie ma trzech martwych `href`; są dwa nowe. `npm test` w A jeśli ruszany był parser.
+
+**Commit:** publikacja layoutu (commit w B przez GitHub API) + ewentualnie commit w A tylko gdy ruszany kod.
+
+### Wykonano (2026-09-03)
+
+- `reshapeTopNav` w repo A (`src/lib/astro-layout/reshape-top-nav.ts`) — zdejmuje trzy martwe `href`, usuwa pustą grupę „Pliki do pobrania”, spłaszcza zagnieżdżone grupy z jednym dzieckiem (RODO → Klauzula informacyjna), dokłada `/aktualnosci` i `/ochrona-ludnosci`, ustawia kolejność poziomu 1. 7 testów, w tym idempotencja.
+- Publikacja: commit `a69a7f8` na `origin/main` repo B (plik `src/config/omnipress-layout.json`).
+- `sites.astro_layout` jednostki `gmina-miedzna-pl` zsynchronizowany z plikiem (nawigacja + `publishedLayoutHash` / blob `ce9906a`).
+- Poziom 1: Aktualności, Gmina, Gospodarka odpadami, Ochrona ludności, Kontakt, BIP. Jednostki: szkoła + przedszkole (GOPS i Biblioteka wrócą w podejściu 18).
+
+**Wynik weryfikacji:** origin blob = `ce9906a` · w pliku brak `/gmina/gops`, `/gmina/biblioteka`, `/gmina/druki` · są `/aktualnosci` i `/ochrona-ludnosci` · repo A `npm test` 761/761 · repo B `npm test` 95/95 (kontrakt layoutu OK).
+
+## Podejście 16 — walidacja menu bez self-check
+
+**Cel:** P0-9. `dead_link` znowu znaczy 404.
+
+**Kroki**
+
+1. W `publish.ts`, `publish-all.ts`, `layout-editor-context.ts` nie przekazywać `collectNavInternalPageOptions(navigation)` jako `extraPaths` do `buildKnownNavPaths`. Zostawić `DEFAULT_STATIC_ROUTES` + opublikowane strony + slugi kategorii.
+2. `collectNavInternalPageOptions` zostaje w `mergePageOptionsForNavEditor` (select w edytorze).
+3. Test w `validate-nav.test.ts` (albo kontekst publikacji): menu z `/gmina/gops` przy known `/gmina/wojt` + kategorie `aktualnosci` itd. → jeden `dead_link`. `/aktualnosci/cokolwiek` nadal OK (prefiks kategorii).
+4. `npm test`, `npm run build` w A.
+
+**Weryfikacja:** publikacja layoutu z martwym href kończy się `dead_nav_links`, nie commitem.
+
+**Commit:** repo A.
+
+## Podejście 17 — a11y i hamburger
+
+**Cel:** P1-18. Bez zmiany kontraktu JSON.
+
+**Kroki**
+
+1. Repo B: `git pull`.
+2. `Layout.astro` — skip-link „Przejdź do treści” przed topbarem, cel na `main`.
+3. `Navigation.astro` — rodzice z dziećmi bez `href="#"` (pominięty href albo przycisk); BIP: `rel="noopener noreferrer"` + zapowiedź nowej karty (wzorzec: `SidebarBanner.astro`).
+4. `nav-menu-client.ts` — Escape i klik poza zamykają też hamburger (`.nav-list.active`, `aria-expanded` na `.menu-toggle`).
+5. Teksty UI strony B — jeśli nowy napis, zgodnie z konwencją repo B (tu hardkod PL jest normą strony, nie panelu).
+6. `npm test`, `npm run build` w B.
+
+**Commit:** repo B.
+
+## Podejście 18 — treść GOPS / Biblioteka / Druki (nie w tej sesji)
+
+**Cel:** przywrócić trzy strony z WordPressa, potem wrócić do menu.
+
+**Kroki (szkic):** zaciągnąć treść z WP (`/druki-do-pobrania/gops/` itd.) → strony w OmniPress → publikacja → dopisać `href` do menu. Nie robić placeholderów.
 
 ---
 
