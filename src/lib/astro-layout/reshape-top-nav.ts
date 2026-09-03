@@ -1,12 +1,6 @@
 import type { NavItem } from './types';
 import { isExternalHref, normalizeInternalHref } from './validate-nav';
 
-export const DEAD_TOP_NAV_HREFS = [
-	'/gmina/gops',
-	'/gmina/biblioteka',
-	'/gmina/druki',
-] as const;
-
 /** Klucz = href albo etykieta grupy bez href. Bez polskich znakow — SSOT i18n. */
 export const TOP_NAV_LEVEL1_KEYS = [
 	'/aktualnosci',
@@ -27,14 +21,7 @@ function level1Key(item: NavItem): string {
 	return hrefKey(item.href) ?? item.label;
 }
 
-function isDeadHref(href: string | undefined): boolean {
-	const key = hrefKey(href);
-	return key !== null && (DEAD_TOP_NAV_HREFS as readonly string[]).includes(key);
-}
-
 function reshapeItem(item: NavItem, depth: number): NavItem | null {
-	if (isDeadHref(item.href)) return null;
-
 	if (!item.children?.length) {
 		return item.href?.trim() ? item : null;
 	}

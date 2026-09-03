@@ -46,10 +46,15 @@ describe('buildKnownNavPaths', () => {
 		expect(known.has('/gmina/gops')).toBe(false);
 	});
 
-	it('P0-9: href z menu nie wchodzi do known — /gmina/gops jest dead_link', async () => {
+	it('P0-9: href z menu nie wchodzi do known — nieopublikowana strona jest dead_link', async () => {
 		const fake = createSupabaseFake((op) => {
 			if (op.table !== 'site_pages') return undefined;
-			return { data: [{ path_prefix: 'gmina', slug: 'wojt', status: 'published' }] };
+			return {
+				data: [
+					{ path_prefix: 'gmina', slug: 'wojt', status: 'published' },
+					{ path_prefix: 'gmina', slug: 'gops', status: 'published' },
+				],
+			};
 		});
 
 		const known = await buildKnownNavPaths(fake.client, 'site-1', [
@@ -60,13 +65,15 @@ describe('buildKnownNavPaths', () => {
 			[
 				{ label: 'Wójt', href: '/gmina/wojt' },
 				{ label: 'GOPS', href: '/gmina/gops' },
+				{ label: 'Brak', href: '/gmina/brak-strony' },
 				{ label: 'Wpis', href: '/aktualnosci/cokolwiek' },
 			],
 			known,
 		);
 
+		expect(known.has('/gmina/gops')).toBe(true);
 		expect(issues).toEqual([
-			expect.objectContaining({ href: '/gmina/gops', reason: 'dead_link' }),
+			expect.objectContaining({ href: '/gmina/brak-strony', reason: 'dead_link' }),
 		]);
 	});
 });

@@ -77,17 +77,13 @@ Menu w `omnipress-layout.json` zawierało pozycje `/informacje/…` do nieistnie
 
 ### P0-8 — trzy martwe linki w menu Astro (GOPS, Biblioteka, Druki) — ✅ zamknięte (2026-09-03)
 
-Audyt 2026-09-03 (`origin/main` repo B, `52a4167`). Slot `header.navigation` miał `href` bez strony w `src/content/pages/`:
-
 | Menu | Adres | Stan |
 |------|--------|------|
-| Gmina → Jednostki → GOPS | `/gmina/gops` | brak strony |
-| Gmina → Jednostki → Biblioteka | `/gmina/biblioteka` | brak strony |
-| Gmina → Pliki → Wnioski i druki | `/gmina/druki` | brak strony |
+| Gmina → Jednostki → GOPS | `/gmina/gops` | strona opublikowana (podejście 18) |
+| Gmina → Jednostki → Biblioteka | `/gmina/biblioteka` | strona opublikowana (podejście 18) |
+| Gmina → Wnioski i druki | `/gmina/druki` | strona opublikowana (podejście 18) |
 
-Na WordPressie te treści istnieją (inne permalinki). To luka migracji, nie wymysł. Puste placeholdery na produkcji są gorsze niż chwilowy brak w menu.
-
-**Zamknięte w podejściu 15** (commit `a69a7f8` repo B): trzy `href` zdjęte z menu; GOPS / Biblioteka / Druki wrócą po migracji treści (podejście 18). Plan: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md#podejście-15--menu-bez-404--ia).
+Tymczasowo zdjęte w podejściu 15 (brak treści w repo). Przywrócone po migracji z WordPressa w podejściu 18. Plan: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md#podejście-18--treść-gops--biblioteka--druki).
 
 ### P0-9 — walidacja menu sprawdza menu wobec samego menu — ✅ zamknięte (2026-09-03)
 

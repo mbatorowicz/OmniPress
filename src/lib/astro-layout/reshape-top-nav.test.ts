@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { NavItem } from './types';
-import {
-	collectInternalNavHrefs,
-	DEAD_TOP_NAV_HREFS,
-	reshapeTopNav,
-} from './reshape-top-nav';
+import { collectInternalNavHrefs, reshapeTopNav } from './reshape-top-nav';
 
 const LEVEL1_LEAVES: NavItem[] = [
 	{ href: '/aktualnosci', label: 'Aktualności' },
@@ -67,15 +63,18 @@ describe('reshapeTopNav', () => {
 	const next = reshapeTopNav(productionLikeNav, LEVEL1_LEAVES);
 	const hrefs = collectInternalNavHrefs(next);
 
-	it('zdejmuje trzy martwe adresy', () => {
-		for (const href of DEAD_TOP_NAV_HREFS) {
-			expect(hrefs).not.toContain(href);
-		}
+	it('zachowuje GOPS, Bibliotekę i Druki (podejście 18)', () => {
+		expect(hrefs).toEqual(
+			expect.arrayContaining(['/gmina/gops', '/gmina/biblioteka', '/gmina/druki']),
+		);
 	});
 
-	it('usuwa pustą grupę Pliki do pobrania', () => {
+	it('spłaszcza grupę Pliki do pobrania do liścia Wnioski i druki', () => {
 		const gmina = next.find((item) => item.label === 'Gmina');
 		expect(gmina?.children?.some((child) => child.label === 'Pliki do pobrania')).toBe(false);
+		expect(gmina?.children).toEqual(
+			expect.arrayContaining([{ href: '/gmina/druki', label: 'Wnioski i druki' }]),
+		);
 	});
 
 	it('spłaszcza RODO do liścia Klauzula informacyjna', () => {
@@ -88,12 +87,14 @@ describe('reshapeTopNav', () => {
 		);
 	});
 
-	it('zostawia resztę jednostek i zachowuje mega-menu Gminy', () => {
+	it('zachowuje wszystkie jednostki organizacyjne i mega-menu Gminy', () => {
 		const gmina = next.find((item) => item.label === 'Gmina');
 		const jednostki = gmina?.children?.find((child) => child.label === 'Jednostki organizacyjne');
 		expect(jednostki?.children?.map((child) => child.href)).toEqual([
 			'/gmina/szkolapodstawowa',
+			'/gmina/gops',
 			'/gmina/przedszkole',
+			'/gmina/biblioteka',
 		]);
 		expect(gmina?.menuColumns).toBe(2);
 		expect(gmina?.menuColumnWidths).toEqual(['300px', '300px']);

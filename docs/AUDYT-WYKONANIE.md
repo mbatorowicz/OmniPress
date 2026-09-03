@@ -25,17 +25,15 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 15 | Menu bez 404 + IA (Aktualności, Ochrona ludności) — ✅ **wykonane** | niskie | — |
 | 16 | Walidacja menu bez self-check (P0-9) — ✅ **wykonane** | niskie | — |
 | 17 | A11y / hamburger menu (P1-18) — ✅ **wykonane** | niskie | — |
-| 18 | Treść GOPS / Biblioteka / Druki z WP | średnie | po 15 |
+| 18 | Treść GOPS / Biblioteka / Druki z WP — ✅ **wykonane** | średnie | po 15 |
 
 ---
 
-## Następna sesja — treść GOPS / Biblioteka / Druki (po 17)
+## Następna sesja
 
-**Wejście:** ten nagłówek. Podejście 17 zamknięte 2026-09-03. Zostało: podejście 18 w [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md#podejście-18--treść-gops--biblioteka--druki-nie-w-tej-sesji).
+Podejście 18 zamknięte 2026-09-03. Kolejne tematy poza audytem: `aria-current`, pułapka fokusu wyszukiwarki, stopka, DNS cutover.
 
 **Start sesji:** `git pull` w repo B (SSOT = `origin/main`).
-
-**Poza zakresem 18 (osobne sesje):** `aria-current`, pułapka fokusu wyszukiwarki, stopka, DNS cutover.
 
 ---
 
@@ -683,9 +681,28 @@ Do tego `admin/github-token.ts` importował nieistniejący typ `GitHubRepoConfig
 
 **Poza zakresem (osobne sesje):** `aria-current`, pułapka fokusu wyszukiwarki.
 
-**Cel:** przywrócić trzy strony z WordPressa, potem wrócić do menu.
+## Podejście 18 — treść GOPS / Biblioteka / Druki
 
-**Kroki (szkic):** zaciągnąć treść z WP (`/druki-do-pobrania/gops/` itd.) → strony w OmniPress → publikacja → dopisać `href` do menu. Nie robić placeholderów.
+**Cel:** przywrócić trzy strony z WordPressa, potem wrócić do menu (P0-8).
+
+**Kroki**
+
+1. Repo B: `git pull`.
+2. Pobrać treść z WP (REST API): GOPS (kontakt + druki), Biblioteka, Wnioski i druki (ogólne, USC, referat).
+3. Utworzyć `src/content/pages/gmina/{gops,biblioteka,druki}/` z PDF obok markdown.
+4. Przywrócić `/gmina/gops`, `/gmina/biblioteka`, `/gmina/druki` w `omnipress-layout.json`.
+5. Repo A: usunąć `DEAD_TOP_NAV_HREFS` z `reshapeTopNav` (strony już istnieją).
+6. `npm test`, `npm run build` w obu repo.
+
+**Commit:** repo B (strony + menu), repo A (skrypt migracji + reshape + testy).
+
+### Wykonano (2026-09-03)
+
+- Skrypt `scripts/migrate-wp-gops-pages.mjs` — pobiera treść i 22 PDF z WP.
+- Repo B: trzy strony z pełną treścią (bez placeholderów); menu w `omnipress-layout.json`.
+- Repo A: `reshapeTopNav` bez filtrowania martwych href; testy P0-9 na generycznym `/gmina/brak-strony`.
+
+**Wynik weryfikacji:** repo B — 97/97 testów, build OK (29 stron, `/gmina/gops`, `/gmina/biblioteka`, `/gmina/druki` w output). Repo A — reshape + nav tests OK.
 
 ---
 

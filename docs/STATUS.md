@@ -4,7 +4,7 @@
 
 Produkcja: https://omni-press.cncsolutions.dev
 
-**Następna sesja:** treść GOPS / Biblioteka / Druki (podejście 18) — plan w [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md#następna-sesja--treść-gops--biblioteka--druki-po-17). Podejście 17 (a11y hamburgera, P1-18) zamknięte 2026-09-03.
+**Audyt migracji:** podejścia 1–18 zamknięte (2026-09-03). Szczegóły: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md).
 
 ---
 

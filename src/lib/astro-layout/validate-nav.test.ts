@@ -71,22 +71,24 @@ describe('validate-nav', () => {
 		expect(isKnownInternalPath('/informacje/foo', known)).toBe(false);
 	});
 
-	it('P0-9: martwa strona w menu jest dead_link, wpis w znanej kategorii nie', () => {
+	it('P0-9: martwa strona w menu jest dead_link, opublikowana strona i wpis w kategorii nie', () => {
 		const nav: NavItem[] = [
 			{ label: 'Wójt', href: '/gmina/wojt' },
 			{ label: 'GOPS', href: '/gmina/gops' },
+			{ label: 'Brak strony', href: '/gmina/brak-strony' },
 			{ label: 'Wpis', href: '/aktualnosci/cokolwiek' },
 		];
 		const known = new Set([
 			'/',
 			'/kontakt',
 			'/gmina/wojt',
+			'/gmina/gops',
 			'/aktualnosci',
 			'/ochrona-ludnosci',
 		]);
 		const issues = validateNavigationLinks(nav, known);
 		expect(issues).toEqual([
-			expect.objectContaining({ href: '/gmina/gops', reason: 'dead_link' }),
+			expect.objectContaining({ href: '/gmina/brak-strony', reason: 'dead_link' }),
 		]);
 	});
 });
