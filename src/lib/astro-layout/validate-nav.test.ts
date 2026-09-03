@@ -70,6 +70,25 @@ describe('validate-nav', () => {
 		expect(isKnownInternalPath('/aktualnosci/foo', known)).toBe(true);
 		expect(isKnownInternalPath('/informacje/foo', known)).toBe(false);
 	});
+
+	it('P0-9: martwa strona w menu jest dead_link, wpis w znanej kategorii nie', () => {
+		const nav: NavItem[] = [
+			{ label: 'Wójt', href: '/gmina/wojt' },
+			{ label: 'GOPS', href: '/gmina/gops' },
+			{ label: 'Wpis', href: '/aktualnosci/cokolwiek' },
+		];
+		const known = new Set([
+			'/',
+			'/kontakt',
+			'/gmina/wojt',
+			'/aktualnosci',
+			'/ochrona-ludnosci',
+		]);
+		const issues = validateNavigationLinks(nav, known);
+		expect(issues).toEqual([
+			expect.objectContaining({ href: '/gmina/gops', reason: 'dead_link' }),
+		]);
+	});
 });
 
 describe('collectNavHrefs labelPath', () => {

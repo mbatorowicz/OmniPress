@@ -21,10 +21,7 @@ import { buildKnownNavPaths } from '@/lib/astro-layout/nav-known-paths';
 import { listSitePages } from '@/lib/site-pages/access';
 import { buildSitePagePublicPath } from '@/lib/site-pages/url';
 import { loadSiteAstroDestination } from './sites';
-import { collectNavInternalPageOptions } from '@/lib/admin/navigation-tree';
 import type { PageOption } from './link-options';
-
-export const DEFAULT_STATIC_ROUTES = ['/', '/kontakt'] as const;
 
 export type LayoutEditorSection =
 	| 'layout'
@@ -94,7 +91,6 @@ export async function loadLayoutEditorContext(
 		supabase,
 		siteId,
 		layout.categories.map((c) => c.slug),
-		[...DEFAULT_STATIC_ROUTES, ...collectNavInternalPageOptions(layout.navigation).map((p) => p.path)],
 	);
 	const navIssues = validateNavigationLinks(layout.navigation, knownNavPaths);
 	const navWarningLines = formatNavValidationIssues(navIssues);

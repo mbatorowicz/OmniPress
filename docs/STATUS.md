@@ -4,7 +4,7 @@
 
 Produkcja: https://omni-press.cncsolutions.dev
 
-**Następna sesja:** walidacja menu bez self-check (P0-9) i a11y hamburgera (P1-18) — plan w [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md#następna-sesja--walidacja-menu--a11y-po-15). Podejście 15 (menu bez 404) zamknięte 2026-09-03.
+**Następna sesja:** a11y hamburgera (P1-18) — plan w [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md#następna-sesja--a11y-hamburgera-po-16). Podejście 16 (walidacja menu bez self-check) zamknięte 2026-09-03.
 
 ---
 
@@ -162,7 +162,7 @@ Tabela opisuje **zamierzony** stan bazy. `lint-docs-setup.mjs` pilnuje zgodnośc
 
 | Warstwa | Narzędzie | Zakres |
 |---------|-----------|--------|
-| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 105 plików testowych obok modułów (761 testy + 22 RLS opt-in) |
+| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 106 plików testowych obok modułów (766 testy + 22 RLS opt-in) |
 | Typy (`npm run typecheck`) | `tsc --noEmit` | całe repo, zero błędów; wpięte w `npm run lint` jako bramka |
 | Integracyjne RLS (opt-in) | Vitest + `pg` | `src/lib/supabase/rls.integration.test.ts` — 22 przypadki: izolacja redaktorów, dane wrażliwe, eskalacja uprawnień |
 | E2E/UI (`npm run test:e2e`) | Playwright (`e2e/`) | produkcja: strefa publiczna, nagłówki bezpieczeństwa, CSRF, auth (logowanie/wylogowanie, błędne hasło), panel admina, lista wpisów z filtrami (`posts-browse.spec.ts`), cykl wpisu (szkic → walidacja → zapis → usunięcie) |

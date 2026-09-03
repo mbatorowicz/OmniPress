@@ -23,15 +23,15 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 13 | Typecheck w pipeline — ✅ **wykonane** | niskie | — |
 | 14 | Walidacja wejścia w repo B — ✅ **wykonane** | niskie | — |
 | 15 | Menu bez 404 + IA (Aktualności, Ochrona ludności) — ✅ **wykonane** | niskie | — |
-| 16 | Walidacja menu bez self-check (P0-9) | niskie | — |
+| 16 | Walidacja menu bez self-check (P0-9) — ✅ **wykonane** | niskie | — |
 | 17 | A11y / hamburger menu (P1-18) | niskie | — |
 | 18 | Treść GOPS / Biblioteka / Druki z WP | średnie | po 15 |
 
 ---
 
-## Następna sesja — walidacja menu + a11y (po 15)
+## Następna sesja — a11y hamburgera (po 16)
 
-**Wejście:** ten nagłówek. Podejście 15 zamknięte 2026-09-03. Zostały: [AUDYT.md](./AUDYT.md) P0-9, P1-18. Canvas: `canvases/audyt-gornego-menu.canvas.tsx`.
+**Wejście:** ten nagłówek. Podejście 16 zamknięte 2026-09-03. Zostało: [AUDYT.md](./AUDYT.md) P1-18. Canvas: `canvases/audyt-gornego-menu.canvas.tsx`.
 
 **Start sesji:** `git pull` w repo B (SSOT = `origin/main`). Domena `gmina-miedzna.pl` to nadal WordPress — audyt i ten plan dotyczą menu, które poleci po cutoverze na Astro, nie tego, co mieszkaniec klika dziś.
 
@@ -43,12 +43,12 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 - Grupy z jednym dzieckiem spłaszczyć: znika „Pliki do pobrania” (razem z Drukami); „RODO” → sam liść „Klauzula informacyjna”.
 - Stopka, DNS cutover, `aria-current`, pułapka fokusu wyszukiwarki — **poza** tą sesją.
 
-**Kolejność w sesji:** 16 (walidator) → 17 (Astro). 18 nie w tej sesji.
+**Kolejność:** 17 (Astro). 18 nie w tej sesji.
 
 | # | Co | Repo | Kryterium wyjścia |
 |---|----|------|-------------------|
 | 15 | Zdjąć `/gmina/gops`, `/gmina/biblioteka`, `/gmina/druki`; dodać Aktualności i Ochronę ludności; spłaszczyć RODO — ✅ | A → origin B `a69a7f8` | W `omnipress-layout.json` nie ma trzech martwych `href`; są `/aktualnosci` i `/ochrona-ludnosci` |
-| 16 | `collectNavInternalPageOptions` zostaje w edytorze; **nie** idzie do `extraPaths` w `publish.ts`, `publish-all.ts`, `layout-editor-context.ts` | A | Test: `/gmina/gops` przy znanych `/gmina/wojt` + kategoriach → `dead_link`. Publikacja z martwym href → `dead_nav_links`. `npm test` + `npm run build` |
+| 16 | `collectNavInternalPageOptions` zostaje w edytorze; **nie** idzie do known paths — ✅ | A | Test: `/gmina/gops` przy znanych `/gmina/wojt` + kategoriach → `dead_link`. `npm test` + `npm run build` |
 | 17 | Skip-link; rodzice bez `href="#"`; Escape i klik poza zamykają hamburger; BIP `rel="noopener noreferrer"` + zapowiedź nowej karty | B | `npm test` + `npm run build` w B |
 
 **Poza sesją (18):** przenieść treść GOPS / Biblioteka / Druki z WordPressa, opublikować strony, dopiero wtedy wrócić do menu.
@@ -663,6 +663,14 @@ Do tego `admin/github-token.ts` importował nieistniejący typ `GitHubRepoConfig
 **Weryfikacja:** publikacja layoutu z martwym href kończy się `dead_nav_links`, nie commitem.
 
 **Commit:** repo A.
+
+### Wykonano (2026-09-03)
+
+- `buildKnownNavPaths` nie przyjmuje `extraPaths` — known paths to wyłącznie `DEFAULT_STATIC_ROUTES` + opublikowane `site_pages` + slugi kategorii. Parametr był jedyną furtką self-checku.
+- `collectNavInternalPageOptions` zostaje w `NavigationTreeSection` / `mergePageOptionsForNavEditor` (select edytora).
+- Testy: `validate-nav.test.ts` (P0-9), `nav-known-paths.test.ts` (skład known + regresja callerów).
+
+**Wynik weryfikacji:** repo A — `npm test` 766/766 (+22 RLS opt-in) · `npm run build` OK.
 
 ## Podejście 17 — a11y i hamburger
 

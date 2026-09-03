@@ -89,11 +89,13 @@ Na WordPressie te treści istnieją (inne permalinki). To luka migracji, nie wym
 
 **Zamknięte w podejściu 15** (commit `a69a7f8` repo B): trzy `href` zdjęte z menu; GOPS / Biblioteka / Druki wrócą po migracji treści (podejście 18). Plan: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md#podejście-15--menu-bez-404--ia).
 
-### P0-9 — walidacja menu sprawdza menu wobec samego menu
+### P0-9 — walidacja menu sprawdza menu wobec samego menu — ✅ zamknięte (2026-09-03)
 
-`publish.ts`, `publish-all.ts` i `layout-editor-context.ts` dokładają do `buildKnownNavPaths(..., extraPaths)` wynik `collectNavInternalPageOptions(navigation)` — czyli **wszystkie href z drzewa menu**. `validateNavigationLinks` porównuje menu z kopią menu: `dead_link` nie zapala się dla pozycji już zapisanej w drzewie. `mergePageOptionsForNavEditor` słusznie używa tego zbioru w selectcie edytora; ten sam zbiór nie może iść do walidatora.
+`publish.ts`, `publish-all.ts` i `layout-editor-context.ts` dokładały do `buildKnownNavPaths(..., extraPaths)` wynik `collectNavInternalPageOptions(navigation)` — czyli **wszystkie href z drzewa menu**. `validateNavigationLinks` porównywał menu z kopią menu: `dead_link` nie zapalał się dla pozycji już zapisanej w drzewie. `mergePageOptionsForNavEditor` słusznie używa tego zbioru w selectcie edytora; ten sam zbiór nie może iść do walidatora.
 
 Dlatego P0-6 i P0-8 przeszły publikację mimo ✅ w STATUS.
+
+**Zamknięte w podejściu 16:** `buildKnownNavPaths` nie przyjmuje już `extraPaths`. Known paths = trasy statyczne + opublikowane strony + slugi kategorii. `collectNavInternalPageOptions` zostaje tylko w edytorze.
 
 ### P1-17 — Aktualności i Ochrona ludności poza menu górnym — ✅ zamknięte (2026-09-03)
 

@@ -1,10 +1,6 @@
 import type { APIRoute } from 'astro';
 import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
-import {
-	DEFAULT_STATIC_ROUTES,
-	layoutSectionReturnPath,
-} from '@/lib/admin/layout-editor-context';
-import { collectNavInternalPageOptions } from '@/lib/admin/navigation-tree';
+import { layoutSectionReturnPath } from '@/lib/admin/layout-editor-context';
 import { layoutSectionToSyncScope } from '@/lib/astro-layout/layout-sync-meta';
 import { parseLayoutSection } from '@/lib/astro-layout/parse-form';
 import {
@@ -45,15 +41,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	}
 
 	const categorySlugs = parsed.layout.categories.map((c) => c.slug);
-	const navInternalPaths = collectNavInternalPageOptions(parsed.layout.navigation).map(
-		(p) => p.path,
-	);
-	const knownPaths = await buildKnownNavPaths(
-		supabase,
-		siteId,
-		categorySlugs,
-		[...DEFAULT_STATIC_ROUTES, ...navInternalPaths],
-	);
+	const knownPaths = await buildKnownNavPaths(supabase, siteId, categorySlugs);
 	const navIssues = validateNavigationLinks(parsed.layout.navigation, knownPaths);
 	if (navIssues.length > 0) {
 		const errorCode = hasMissingHrefIssues(navIssues) ? 'missing_nav_hrefs' : 'dead_nav_links';
