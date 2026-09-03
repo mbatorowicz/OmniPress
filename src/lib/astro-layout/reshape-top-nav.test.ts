@@ -4,8 +4,21 @@ import {
 	collectInternalNavHrefs,
 	DEAD_TOP_NAV_HREFS,
 	reshapeTopNav,
-	TOP_NAV_LEVEL1_ORDER,
 } from './reshape-top-nav';
+
+const LEVEL1_LEAVES: NavItem[] = [
+	{ href: '/aktualnosci', label: 'Aktualności' },
+	{ href: '/ochrona-ludnosci', label: 'Ochrona ludności' },
+];
+
+const LEVEL1_LABELS = [
+	'Aktualności',
+	'Gmina',
+	'Gospodarka odpadami',
+	'Ochrona ludności',
+	'Kontakt',
+	'BIP',
+];
 
 const productionLikeNav: NavItem[] = [
 	{
@@ -51,7 +64,7 @@ const productionLikeNav: NavItem[] = [
 ];
 
 describe('reshapeTopNav', () => {
-	const next = reshapeTopNav(productionLikeNav);
+	const next = reshapeTopNav(productionLikeNav, LEVEL1_LEAVES);
 	const hrefs = collectInternalNavHrefs(next);
 
 	it('zdejmuje trzy martwe adresy', () => {
@@ -92,7 +105,7 @@ describe('reshapeTopNav', () => {
 	});
 
 	it('dokłada Aktualności i Ochronę ludności oraz ustawia kolejność poziomu 1', () => {
-		expect(next.map((item) => item.label)).toEqual([...TOP_NAV_LEVEL1_ORDER]);
+		expect(next.map((item) => item.label)).toEqual(LEVEL1_LABELS);
 		expect(next[0]).toEqual({ href: '/aktualnosci', label: 'Aktualności' });
 		expect(next[3]).toEqual({ href: '/ochrona-ludnosci', label: 'Ochrona ludności' });
 		expect(hrefs).toEqual(
@@ -101,6 +114,7 @@ describe('reshapeTopNav', () => {
 	});
 
 	it('jest idempotentna', () => {
+		expect(reshapeTopNav(next, LEVEL1_LEAVES)).toEqual(next);
 		expect(reshapeTopNav(next)).toEqual(next);
 	});
 });

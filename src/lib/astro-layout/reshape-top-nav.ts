@@ -7,22 +7,24 @@ export const DEAD_TOP_NAV_HREFS = [
 	'/gmina/druki',
 ] as const;
 
-export const TOP_NAV_LEVEL1_ORDER = [
-	'Aktualności',
+/** Klucz = href albo etykieta grupy bez href. Bez polskich znakow — SSOT i18n. */
+export const TOP_NAV_LEVEL1_KEYS = [
+	'/aktualnosci',
 	'Gmina',
 	'Gospodarka odpadami',
-	'Ochrona ludności',
+	'/ochrona-ludnosci',
 	'Kontakt',
 	'BIP',
 ] as const;
-
-const AKTUALNOSCI: NavItem = { href: '/aktualnosci', label: 'Aktualności' };
-const OCHRONA_LUDNOSCI: NavItem = { href: '/ochrona-ludnosci', label: 'Ochrona ludności' };
 
 function hrefKey(href: string | undefined): string | null {
 	if (!href?.trim()) return null;
 	if (isExternalHref(href)) return href.trim();
 	return normalizeInternalHref(href);
+}
+
+function level1Key(item: NavItem): string {
+	return hrefKey(item.href) ?? item.label;
 }
 
 function isDeadHref(href: string | undefined): boolean {
@@ -66,21 +68,23 @@ function hasItem(items: NavItem[], incoming: NavItem): boolean {
 }
 
 function sortLevel1(items: NavItem[]): NavItem[] {
-	const rank = new Map<string, number>(TOP_NAV_LEVEL1_ORDER.map((label, index) => [label, index]));
+	const rank = new Map<string, number>(TOP_NAV_LEVEL1_KEYS.map((key, index) => [key, index]));
 	return [...items].sort((a, b) => {
-		const left = rank.get(a.label) ?? TOP_NAV_LEVEL1_ORDER.length;
-		const right = rank.get(b.label) ?? TOP_NAV_LEVEL1_ORDER.length;
+		const left = rank.get(level1Key(a)) ?? TOP_NAV_LEVEL1_KEYS.length;
+		const right = rank.get(level1Key(b)) ?? TOP_NAV_LEVEL1_KEYS.length;
 		return left - right;
 	});
 }
 
-export function reshapeTopNav(navigation: NavItem[]): NavItem[] {
+export function reshapeTopNav(navigation: NavItem[], ensureLeaves: NavItem[] = []): NavItem[] {
 	const next = navigation
 		.map((item) => reshapeItem(item, 0))
 		.filter((item): item is NavItem => item !== null);
-	const withNews = hasItem(next, AKTUALNOSCI) ? next : [...next, AKTUALNOSCI];
-	const withBoth = hasItem(withNews, OCHRONA_LUDNOSCI) ? withNews : [...withNews, OCHRONA_LUDNOSCI];
-	return sortLevel1(withBoth);
+	let withLeaves = next;
+	for (const leaf of ensureLeaves) {
+		if (!hasItem(withLeaves, leaf)) withLeaves = [...withLeaves, leaf];
+	}
+	return sortLevel1(withLeaves);
 }
 
 export function collectInternalNavHrefs(navigation: NavItem[]): string[] {
