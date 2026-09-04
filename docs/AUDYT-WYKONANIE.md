@@ -26,12 +26,13 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 16 | Walidacja menu bez self-check (P0-9) — ✅ **wykonane** | niskie | — |
 | 17 | A11y / hamburger menu (P1-18) — ✅ **wykonane** | niskie | — |
 | 18 | Treść GOPS / Biblioteka / Druki z WP — ✅ **wykonane** | średnie | po 15 |
+| 19 | `aria-current` w menu górnym — ✅ **wykonane** | niskie | — |
 
 ---
 
 ## Następna sesja
 
-Podejście 18 zamknięte 2026-09-03. Kolejne tematy poza audytem: `aria-current`, pułapka fokusu wyszukiwarki, stopka, DNS cutover.
+Podejście 19 zamknięte 2026-09-03. Kolejne tematy poza audytem: pułapka fokusu wyszukiwarki, stopka, DNS cutover.
 
 **Start sesji:** `git pull` w repo B (SSOT = `origin/main`).
 
@@ -679,7 +680,7 @@ Do tego `admin/github-token.ts` importował nieistniejący typ `GitHubRepoConfig
 
 **Wynik weryfikacji:** repo B — commit `5c5ddce` · `npm test` 97/97 · `npm run lint` OK · `npm run build` OK.
 
-**Poza zakresem (osobne sesje):** `aria-current`, pułapka fokusu wyszukiwarki.
+**Poza zakresem (osobne sesje):** pułapka fokusu wyszukiwarki. `aria-current` — podejście 19.
 
 ## Podejście 18 — treść GOPS / Biblioteka / Druki
 
@@ -703,6 +704,28 @@ Do tego `admin/github-token.ts` importował nieistniejący typ `GitHubRepoConfig
 - Repo A: `reshapeTopNav` bez filtrowania martwych href; testy P0-9 na generycznym `/gmina/brak-strony`.
 
 **Wynik weryfikacji:** repo B — 97/97 testów, build OK (29 stron, `/gmina/gops`, `/gmina/biblioteka`, `/gmina/druki` w output). Repo A — reshape + nav tests OK.
+
+## Podejście 19 — aria-current w menu
+
+**Cel:** czytnik ekranu i wzrokowe oznaczenie bieżącej strony w menu górnym. Bez zmiany kontraktu JSON.
+
+**Kroki**
+
+1. Repo B: `git pull`.
+2. `nav-current.ts` — normalizacja ścieżki, najdłuższy pasujący href (`/` tylko dokładny).
+3. `Navigation.astro` + `NavDropdown.astro` — `aria-current="page"` na trafionym linku; klasa `is-current-section` na rodzicu.
+4. `navigation.css` — podkreślenie bieżącej pozycji (nie tylko kolor).
+5. `npm test`, `npm run lint`, `npm run build` w B.
+
+**Commit:** repo B.
+
+### Wykonano (2026-09-03)
+
+- `normalizeNavPath` / `matchCurrentNavHref` — dokładne + prefiks (stronicowanie, wpis kategorii); `/` nie oznacza całego menu.
+- Menu: `aria-current="page"` na linku, `is-current-section` na gałęzi (np. Gmina przy `/gmina/gops`).
+- Styl: dolny pasek na poziomie 1, lewy pasek w dropdownie.
+
+**Wynik weryfikacji:** repo B — `npm test` 104/104 · `npm run lint` OK · `npm run build` OK. HTML: `/` bez znacznika; `/aktualnosci/strona/2` → Aktualności; `/gmina/gops` → GOPS + sekcja Gmina; `/ochrona-ludnosci/plecak-ewakuacyjny` → Ochrona ludności.
 
 ---
 

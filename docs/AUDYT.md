@@ -103,7 +103,7 @@ Kategorie `/aktualnosci` (najwięcej wpisów, kafelek „Więcej” na home) i `
 
 Zamknięte: skip-link, rodzice z dziećmi bez `href="#"`, Escape/klik poza zamykają hamburger, BIP z `rel` i zapowiedzią nowej karty.
 
-**Poza zakresem (osobne sesje):** brak `aria-current`; wyszukiwarka bez pułapki fokusu.
+**Poza zakresem (osobne sesje):** wyszukiwarka bez pułapki fokusu. `aria-current` — podejście 19.
 
 ### P1-1 — lokalne repo Astro rozjeżdża się z origin
 
