@@ -15,8 +15,8 @@ import {
 	countNavigationHrefs,
 	formatNavValidationIssues,
 	hasMissingHrefIssues,
-	validateNavigationLinks,
 } from '@/lib/astro-layout/validate-nav';
+import { validateLayoutPublicLinks } from '@/lib/astro-layout/validate-layout-links';
 import { buildKnownNavPaths } from '@/lib/astro-layout/nav-known-paths';
 import { listSitePages } from '@/lib/site-pages/access';
 import { buildSitePagePublicPath } from '@/lib/site-pages/url';
@@ -92,7 +92,7 @@ export async function loadLayoutEditorContext(
 		siteId,
 		layout.categories.map((c) => c.slug),
 	);
-	const navIssues = validateNavigationLinks(layout.navigation, knownNavPaths);
+	const navIssues = validateLayoutPublicLinks(layout, knownNavPaths);
 	const navWarningLines = formatNavValidationIssues(navIssues);
 	const navHasMissingHref = hasMissingHrefIssues(navIssues);
 	const draftHrefCount = countNavigationHrefs(layout.navigation);

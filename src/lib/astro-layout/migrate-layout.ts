@@ -81,8 +81,8 @@ export function defaultFooterWidget() {
 			},
 		},
 		legalLinks: [
-			{ label: 'Deklaracja dostępności', href: '/deklaracja-dostepnosci' },
-			{ label: 'Polityka prywatności', href: '/polityka-prywatnosci' },
+			{ label: 'Deklaracja dostępności', href: '/gmina/deklaracja-dostepnosci' },
+			{ label: 'Klauzula informacyjna', href: '/gmina/klauzula-rodo' },
 		],
 		copyrightSuffix: 'Wszelkie prawa zastrzeżone.',
 		contactCtaLabel: 'Przejdź do kontaktu i mapy dojazdu',

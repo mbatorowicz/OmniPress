@@ -103,7 +103,7 @@ Kategorie `/aktualnosci` (najwięcej wpisów, kafelek „Więcej” na home) i `
 
 Zamknięte: skip-link, rodzice z dziećmi bez `href="#"`, Escape/klik poza zamykają hamburger, BIP z `rel` i zapowiedzią nowej karty.
 
-**Poza zakresem (osobne sesje):** stopka, DNS cutover. `aria-current` — podejście 19. Pułapka fokusu wyszukiwarki — podejście 20.
+**Poza zakresem (osobne sesje):** DNS cutover. `aria-current` — podejście 19. Pułapka fokusu wyszukiwarki — podejście 20. Stopka — podejście 21.
 
 ### P1-1 — lokalne repo Astro rozjeżdża się z origin
 

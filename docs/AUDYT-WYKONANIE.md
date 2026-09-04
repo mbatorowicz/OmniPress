@@ -28,12 +28,13 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 18 | Treść GOPS / Biblioteka / Druki z WP — ✅ **wykonane** | średnie | po 15 |
 | 19 | `aria-current` w menu górnym — ✅ **wykonane** | niskie | — |
 | 20 | Pułapka fokusu wyszukiwarki — ✅ **wykonane** | niskie | — |
+| 21 | Stopka: martwe linki prawne + walidacja — ✅ **wykonane** | niskie | — |
 
 ---
 
 ## Następna sesja
 
-Podejście 20 zamknięte 2026-09-04. Kolejne tematy poza audytem: stopka, DNS cutover.
+Podejście 21 zamknięte 2026-09-04. Kolejny temat poza audytem: DNS cutover.
 
 **Start sesji:** `git pull` w repo B (SSOT = `origin/main`).
 
@@ -750,6 +751,32 @@ Do tego `admin/github-token.ts` importował nieistniejący typ `GitHubRepoConfig
 - Lupa: `aria-haspopup="dialog"` + `aria-controls="search-modal"`.
 
 **Wynik weryfikacji:** repo B — `npm test` 116/116 · `npm run lint` OK · `npm run check` 0 errors · `npm run build` OK. HTML (home, GOPS, Aktualności, Ochrona ludności): `role="dialog"` + `aria-modal` + `inert` + lupa `aria-haspopup="dialog"`.
+
+## Podejście 21 — stopka: martwe linki + walidacja
+
+**Cel:** dwa 404 w stopce (ta sama klasa co P0-8 w menu) i luka walidacji — publikacja layoutu nie sprawdzała `legalLinks` / `contactCtaHref`.
+
+**Kroki**
+
+1. Repo B: `git pull`.
+2. `omnipress-layout.json` — `/deklaracja-dostepnosci` → `/gmina/deklaracja-dostepnosci`, `/polityka-prywatnosci` → `/gmina/klauzula-rodo` (etykieta: Klauzula informacyjna, jak w menu).
+3. `astro.config.mjs` — przekierowania 301 ze starych adresów.
+4. Repo A: `validateFooterLinks` + `validateLayoutPublicLinks` w publikacji i w edytorze (te same known paths co menu, bez self-checku).
+5. Defaulty `migrate-layout.ts` i fallback w `Footer.astro` — te same ścieżki.
+6. a11y: `tel:` przy numerach, `aria-current` na linkach prawnych, `rel` + zapowiedź nowej karty jak w menu; CSS wyniesiony do `footer.css` (koniec wyjątku P2-3 na `Footer.astro`).
+
+**Weryfikacja:** `npm test` w A i B; publikacja layoutu z `/polityka-prywatnosci` kończy się `dead_nav_links`.
+
+**Commit:** repo B (layout + stopka + 301) + repo A (walidacja + defaulty + docs).
+
+### Wykonano (2026-09-04)
+
+- Layout: poprawione `legalLinks` w `footer.main`; 301 `/deklaracja-dostepnosci` i `/polityka-prywatnosci`.
+- OmniPress: `validate-footer.ts` / `validate-layout-links.ts` — `publish.ts`, `publish-all.ts`, `layout-editor-context.ts`.
+- Defaulty seedu i fallback strony wskazują `/gmina/deklaracja-dostepnosci` i `/gmina/klauzula-rodo`.
+- Stopka: `phoneToTelHref`, `aria-current`, etykieta CTA ze slota, `nav` „Linki prawne”; `Footer.astro` 150 linii.
+
+**Wynik weryfikacji:** repo A — `npm test` 771/771 (+22 RLS opt-in) · `npm run lint` OK · `npm run build` OK. Repo B — `npm test` 120/120 · `npm run lint` OK · `npm run check` 0 errors · `npm run build` OK. HTML: home — `tel:+48256918327`, legal `/gmina/deklaracja-dostepnosci` + `/gmina/klauzula-rodo`; `/gmina/deklaracja-dostepnosci` — `aria-current="page"` na deklaracji.
 
 ---
 

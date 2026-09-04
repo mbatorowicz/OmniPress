@@ -50,7 +50,7 @@ export const adminLayoutStatus = {
 		invalid_repo: 'Nieprawidłowa konfiguracja repozytorium.',
 		no_github_token: 'Brak tokenu GitHub — dodaj PAT w Ustawieniach.',
 		dead_nav_links:
-			'Menu zawiera nieistniejące linki wewnętrzne — popraw je przed publikacją na stronie.',
+			'Menu lub stopka zawiera nieistniejące linki wewnętrzne — popraw je przed publikacją na stronie.',
 		missing_nav_hrefs:
 			'Menu w szkicu nie ma linków, które są na stronie. Odśwież zakładkę — panel sam wczyta menu z GitHub, gdy nie masz niewysłanych zmian.',
 		import_nav_missing:

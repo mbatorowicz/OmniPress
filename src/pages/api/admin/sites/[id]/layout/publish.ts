@@ -3,10 +3,8 @@ import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
 import { layoutSectionReturnPath } from '@/lib/admin/layout-editor-context';
 import { layoutSectionToSyncScope } from '@/lib/astro-layout/layout-sync-meta';
 import { parseLayoutSection } from '@/lib/astro-layout/parse-form';
-import {
-	hasMissingHrefIssues,
-	validateNavigationLinks,
-} from '@/lib/astro-layout/validate-nav';
+import { hasMissingHrefIssues } from '@/lib/astro-layout/validate-nav';
+import { validateLayoutPublicLinks } from '@/lib/astro-layout/validate-layout-links';
 import { buildKnownNavPaths } from '@/lib/astro-layout/nav-known-paths';
 import {
 	loadSiteAstroLayout,
@@ -42,7 +40,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 
 	const categorySlugs = parsed.layout.categories.map((c) => c.slug);
 	const knownPaths = await buildKnownNavPaths(supabase, siteId, categorySlugs);
-	const navIssues = validateNavigationLinks(parsed.layout.navigation, knownPaths);
+	const navIssues = validateLayoutPublicLinks(parsed.layout, knownPaths);
 	if (navIssues.length > 0) {
 		const errorCode = hasMissingHrefIssues(navIssues) ? 'missing_nav_hrefs' : 'dead_nav_links';
 		return redirect(
