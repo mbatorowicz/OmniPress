@@ -17,7 +17,6 @@ export const layout = {
 		units: 'Strony',
 		users: 'Użytkownicy',
 		unitNew: 'Nowa strona',
-		postReview: 'Podgląd wpisu',
 		unit: 'Strona',
 		layout: 'Wygląd strony',
 		navigation: 'Menu',

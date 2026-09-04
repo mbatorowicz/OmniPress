@@ -1,0 +1,146 @@
+---
+import { adminLayout, ui } from '@/i18n';
+import NavDepthSelect from '@/components/admin/layout/NavDepthSelect.astro';
+import NavDropdownLayoutCell from '@/components/admin/layout/NavDropdownLayoutCell.astro';
+import NavLinkTypeSelect from '@/components/admin/layout/NavLinkTypeSelect.astro';
+import NavTargetCell from '@/components/admin/layout/NavTargetCell.astro';
+import NavParentSelect from '@/components/admin/layout/NavParentSelect.astro';
+import type { FlatNavRow } from '@/lib/admin/navigation-tree';
+import { formatNavTargetSummary, type NavTargetOptions } from '@/lib/admin/nav-target-options';
+import {
+	formatNavDropdownLayoutSummary,
+	resolveNavDropdownLayout,
+} from '@/lib/admin/nav-dropdown-layout';
+import { navHrefSubmitValue } from '@/lib/admin/nav-tree-section-data';
+
+interface Props {
+	row: FlatNavRow;
+	rowIndex: number;
+	parentRowMeta: { label: string; depth: number }[];
+	navTargetOptions: NavTargetOptions;
+}
+
+const { row, rowIndex, parentRowMeta, navTargetOptions } = Astro.props;
+const linkSummary = formatNavTargetSummary(
+	row.hrefKind,
+	row.hrefValue,
+	navTargetOptions,
+	adminLayout.navHrefKinds,
+);
+const layoutSummary =
+	row.depth === 0
+		? formatNavDropdownLayoutSummary(resolveNavDropdownLayout({
+				menuColumns: row.menuColumns,
+				menuColumnWidths: [
+					row.menuColumnWidth0,
+					row.menuColumnWidth1,
+				].filter(Boolean),
+			}), adminLayout.navMenuColumnOptions)
+		: '';
+---
+
+<div
+	class:list={['nav-entry', `nav-row--depth-${row.depth}`]}
+	data-nav-entry={String(rowIndex)}
+>
+	<div class="nav-tile nav-row-summary">
+		<div class="nav-tile-main">
+			<span class="nav-summary-label">{row.label.trim() || '—'}</span>
+			<span class="nav-summary-sep" aria-hidden="true">·</span>
+			<span class="nav-summary-link-text">{linkSummary}</span>
+			{
+				row.depth === 0 && (
+					<span class="nav-summary-layout">{layoutSummary}</span>
+				)
+			}
+		</div>
+		<div class="nav-tile-actions">
+			<button type="button" class="edit-nav-row ui-btn ui-btn--link text-xs">
+				{adminLayout.actions.editNavRow}
+			</button>
+			{
+				row.depth < 2 && (
+					<button type="button" class="add-nav-child ui-btn ui-btn--link text-xs">
+						{adminLayout.actions.addNavChild}
+					</button>
+				)
+			}
+			<button type="button" class="remove-nav-row ui-btn ui-btn--link-danger text-xs">
+				{adminLayout.actions.removeNavRow}
+			</button>
+		</div>
+	</div>
+	<div
+		class="nav-row-editor hidden"
+		data-nav-kind={row.hrefKind}
+		data-nav-href={row.hrefValue}
+		data-nav-parent={row.parentRowIndex ?? ''}
+	>
+		<div class="nav-row-editor-panel">
+			<div class="nav-row-editor-grid">
+				<label class="nav-row-editor-field">
+					<span class="nav-row-editor-label">{adminLayout.fields.navDepth}</span>
+					<NavDepthSelect depth={row.depth as 0 | 1 | 2} />
+				</label>
+				<div class="nav-row-editor-field">
+					<span class="nav-row-editor-label">{adminLayout.fields.navParent}</span>
+					<NavParentSelect
+						asCell={false}
+						rowIndex={rowIndex}
+						depth={row.depth as 0 | 1 | 2}
+						parentRowIndex={row.parentRowIndex}
+						rows={parentRowMeta}
+					/>
+				</div>
+				<label class="nav-row-editor-field nav-row-editor-field--wide">
+					<span class="nav-row-editor-label">{adminLayout.fields.navLabel}</span>
+					<input
+						name="nav_label"
+						value={row.label}
+						required
+						class="ui-input-compact w-full"
+					/>
+				</label>
+				<label class="nav-row-editor-field">
+					<span class="nav-row-editor-label">{adminLayout.fields.navLinkType}</span>
+					<NavLinkTypeSelect kind={row.hrefKind} />
+				</label>
+				<label class="nav-row-editor-field nav-row-editor-field--wide">
+					<span class="nav-row-editor-label">{adminLayout.fields.navLinkTarget}</span>
+					<div class="nav-href-values">
+						<input
+							type="hidden"
+							name="nav_href_value"
+							class="nav-href-value-submit"
+							value={navHrefSubmitValue(row)}
+						/>
+						<NavTargetCell
+							kind={row.hrefKind}
+							value={row.hrefValue}
+							options={navTargetOptions}
+						/>
+					</div>
+				</label>
+				<div class="nav-row-editor-field nav-row-editor-field--wide nav-dropdown-layout-field-wrap">
+					<span class="nav-row-editor-label">{adminLayout.fields.navMenuColumns}</span>
+					<NavDropdownLayoutCell
+						asCell={false}
+						depth={row.depth as 0 | 1 | 2}
+						item={{
+							menuColumns: row.menuColumns,
+							menuColumnWidths: [
+								row.menuColumnWidth0,
+								row.menuColumnWidth1,
+							].filter(Boolean),
+						}}
+					/>
+				</div>
+			</div>
+			<div class="nav-row-editor-footer">
+				<button type="button" class="close-nav-row ui-btn ui-btn--ghost text-xs">
+					{ui.actions.close}
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

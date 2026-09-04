@@ -13,7 +13,6 @@ export const adminLayoutStatus = {
 		legacyContract:
 			'Repo Astro używa starego formatu (3 pliki JSON). Wymagana migracja na omnipress-layout.json — publikacja nie zaktualizuje strony.',
 		layoutFileLabel: (path: string) => `Plik na stronie: ${path}`,
-		draftAheadDetail: (_nav: boolean, _categories: boolean) => '',
 		unknown: 'Status synchronizacji ze stroną nieznany — skonfiguruj GitHub w Ustawieniach',
 		saveBeforePublish: 'Zapisz szkic w formularzu przed publikacją, aby wysłać bieżące zmiany.',
 		publishAllLayout: 'Opublikuj cały layout',
@@ -43,8 +42,6 @@ export const adminLayoutStatus = {
 		invalid_navigation: 'Menu: nieprawidłowy JSON lub struktura.',
 		no_categories: 'Dodaj co najmniej jedną kategorię (slug + nazwa).',
 		no_slots: 'Dodaj co najmniej jeden komponent.',
-		no_category_feed_slots:
-			'Dodaj komponent „Przypięte” lub „Najnowsze”, aby przypisywać kategorie.',
 		save_failed: 'Zapis nie powiódł się.',
 		no_astro_destination: 'Brak repozytorium GitHub — skonfiguruj je w Ustawieniach strony.',
 		invalid_repo: 'Nieprawidłowa konfiguracja repozytorium.',
@@ -57,8 +54,6 @@ export const adminLayoutStatus = {
 			'Nie znaleziono pliku menu w repozytorium GitHub — sprawdź ścieżkę navigation_path w Ustawieniach strony.',
 		import_nav_empty:
 			'Plik menu w GitHub nie zawiera poprawnych linków — import przerwany, szkic nie został zmieniony.',
-		import_save_failed:
-			'Menu pobrano z GitHub, ale zapis szkicu nie powiódł się — sprawdź uprawnienia lub spróbuj ponownie.',
 		navigation_hrefs_lost:
 			'Zapis odrzucony — formularz nie zawiera linków menu. Odśwież stronę, żeby wczytać menu z GitHub, zamiast zapisywać pusty szkic.',
 		sync_failed: 'Publikacja do GitHub nie powiodła się — szkic zapisany w OmniPress.',

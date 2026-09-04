@@ -450,7 +450,7 @@ Przy `github-api.ts` trzy niemal identyczne pętle „tree → commit → PATCH 
 
 **Wynik weryfikacji (repo B):** `npm run lint` OK (72 pliki, 8 wyjątków) · `npm run check` 0 errors · `npm test` 60/60 · `npm run build` OK.
 
-**Pozostaje:** 16 wpisów `DŁUG P2-3` w repo A i 5 w repo B.
+**Pozostaje:** 16 wpisów `DŁUG P2-3` w repo A i 5 w repo B — **zamknięte 2026-09-04** (podział wszystkich plików z prefiksem `DŁUG`; wyjątki to wyłącznie SSOT i arkusze CSS).
 
 ---
 

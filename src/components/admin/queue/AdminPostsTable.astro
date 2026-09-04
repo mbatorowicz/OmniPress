@@ -1,12 +1,11 @@
 ---
-import Button from '@/components/ui/actions/Button.astro';
 import Table from '@/components/ui/table/Table.astro';
 import TableHead from '@/components/ui/table/TableHead.astro';
 import TableBody from '@/components/ui/table/TableBody.astro';
 import TableRow from '@/components/ui/table/TableRow.astro';
 import TableCell from '@/components/ui/table/TableCell.astro';
-import Label from '@/components/ui/form/Label.astro';
 import PostsTableRow from '@/components/admin/queue/PostsTableRow.astro';
+import PostsBulkForm from '@/components/admin/queue/PostsBulkForm.astro';
 import ConfirmScript from '@/components/shared/ConfirmScript.astro';
 
 type PostRow = {
@@ -74,129 +73,19 @@ function formatWhen(post: PostRow): string {
 	const rawDate = post[dateField] ?? post.updated_at;
 	return rawDate ? dateFmt.format(new Date(rawDate)) : '—';
 }
-
-const has = (action: BulkAction) => bulkActions.includes(action);
 ---
 
 {
 	showBulkActions ? (
-		<form
-			method="post"
-			action="/api/admin/posts/bulk"
-			id={formId}
-			class="space-y-3"
-			data-bulk-posts-form
-			data-selected-template={labels.selected}
-		>
-			{section && <input type="hidden" name="section" value={section} />}
-			<div class="ui-bulk-bar" data-bulk-bar>
-				<span class="ui-label-muted" data-selected-label>
-					{labels.selected.replace('{n}', '0')}
-				</span>
-				{has('approve') && (
-					<Button
-						type="submit"
-						name="action"
-						value="approve"
-						variant="primary"
-						disabled
-						confirm={labels.bulkApproveConfirm}
-						dataset={{ 'bulk-action': '' }}
-					>
-						{labels.bulkApprove}
-					</Button>
-				)}
-				{has('cancel_schedule') && (
-					<Button
-						type="submit"
-						name="action"
-						value="cancel_schedule"
-						variant="warning"
-						disabled
-						confirm={labels.bulkCancelScheduleConfirm}
-						dataset={{ 'bulk-action': '' }}
-					>
-						{labels.bulkCancelSchedule}
-					</Button>
-				)}
-				{has('deactivate') && (
-					<Button
-						type="submit"
-						name="action"
-						value="deactivate"
-						variant="warning"
-						disabled
-						confirm={labels.bulkDeactivateConfirm}
-						dataset={{ 'bulk-action': '' }}
-					>
-						{labels.bulkDeactivate}
-					</Button>
-				)}
-				{has('delete') && (
-					<Button
-						type="submit"
-						name="action"
-						value="delete"
-						variant="danger"
-						disabled
-						confirm={labels.bulkDeleteConfirm}
-						dataset={{ 'bulk-action': '' }}
-					>
-						{labels.bulkDelete}
-					</Button>
-				)}
-			</div>
-			{has('reject') && (
-				<div class="ui-bulk-bar flex-col items-stretch gap-2 sm:flex-row sm:items-end">
-					<Label class="min-w-0 flex-1">
-						<span class="font-medium">{labels.bulkRejectNote}</span>
-						<textarea
-							name="rejection_note"
-							rows={2}
-							minlength={3}
-							class="ui-textarea"
-							data-bulk-reject-note
-						></textarea>
-					</Label>
-					<Button
-						type="submit"
-						name="action"
-						value="reject"
-						variant="danger"
-						disabled
-						confirm={labels.bulkRejectConfirm}
-						dataset={{ 'bulk-action': '' }}
-					>
-						{labels.bulkReject}
-					</Button>
-				</div>
-			)}
-			<Table class={posts.length ? 'mt-0' : 'mt-4'}>
-				<TableHead>
-					<TableRow>
-						<TableCell header class="w-10 px-3">
-							<input type="checkbox" class="ui-checkbox" data-select-all aria-label={labels.selectAll} />
-						</TableCell>
-						<TableCell header>{labels.colTitle}</TableCell>
-						<TableCell header>{labels.colCategory}</TableCell>
-						<TableCell header class="hidden sm:table-cell">{labels.colSite}</TableCell>
-						<TableCell header>{dateHeader}</TableCell>
-						<TableCell header>{labels.colActions}</TableCell>
-					</TableRow>
-				</TableHead>
-				<TableBody>
-					{posts.map((p) => (
-						<PostsTableRow
-							post={p}
-							when={formatWhen(p)}
-							selectable
-							{section}
-							labels={labels}
-						/>
-					))}
-				</TableBody>
-			</Table>
-		</form>
+		<PostsBulkForm
+			{posts}
+			{labels}
+			{bulkActions}
+			{section}
+			{formId}
+			{dateHeader}
+			{formatWhen}
+		/>
 	) : (
 		<Table class="mt-4">
 			<TableHead>

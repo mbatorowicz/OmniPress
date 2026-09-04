@@ -7,6 +7,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Zmienione
 
+- **Dług P2-3 i P2-5:** podział wszystkich plików z prefiksem `DŁUG` w OmniPress i repo strony (baryłki zachowują dotychczasowe importy). Usunięte potwierdzone martwe klucze i18n (zakładki layoutu, `savedDraft`, `pdfTooLarge`, `alreadyConfigured` i ~40 dalszych unikalnych). Wyjątki rozmiaru: 4 uzasadnione w OmniPress, 6 arkuszy CSS w repo strony.
+
 - **Higiena po auto-reconcile:** usunięte etykiety *Importuj z GitHub* / *Pobierz ze strony* (przycisków już nie ma). Komunikaty o pustym menu każą odświeżyć panel. Testy `seed-nav`, `publish` i `github-import` sprawdzają realne ścieżki, nie tylko arność funkcji.
 
 ### Dodane

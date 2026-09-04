@@ -1,0 +1,165 @@
+import type { RecentChangeEntry } from '@/lib/recent-changes/types';
+import { validateBannerWidget } from './banners';
+import { isLayoutComponentId } from './components';
+import { readHomeTileHeight } from './home-feed';
+import { normalizeNavItems } from './parse-nav';
+import type { DisplaySlot, SlotWidgetConfig } from './types';
+
+function parseWidget(raw: unknown): SlotWidgetConfig | undefined {
+	if (!raw || typeof raw !== 'object') return undefined;
+	const w = raw as SlotWidgetConfig;
+	const widget: SlotWidgetConfig = {};
+	if (typeof w.title === 'string' && w.title.trim()) widget.title = w.title.trim();
+	if (typeof w.sectionTitle === 'string' && w.sectionTitle.trim())
+		widget.sectionTitle = w.sectionTitle.trim();
+	if (typeof w.emptyText === 'string' && w.emptyText.trim()) widget.emptyText = w.emptyText.trim();
+	if (w.hideWhenEmpty === true) widget.hideWhenEmpty = true;
+	if (typeof w.moreLink === 'string' && w.moreLink.trim()) widget.moreLink = w.moreLink.trim();
+	const tileHeight = readHomeTileHeight(w.tileHeight);
+	if (tileHeight !== undefined) widget.tileHeight = tileHeight;
+	if (typeof w.limit === 'number' && w.limit > 0) widget.limit = Math.floor(w.limit);
+	if (w.enabled === false) widget.enabled = false;
+	if (w.variant === 'alert' || w.variant === 'default') widget.variant = w.variant;
+	if (w.pinnedOnly === true) widget.pinnedOnly = true;
+	if (w.pinnedOnly === false) widget.pinnedOnly = false;
+	if (typeof w.order === 'number' && Number.isFinite(w.order) && w.order >= 0) {
+		widget.order = Math.floor(w.order);
+	}
+	if (typeof w.categoryFilter === 'string' && w.categoryFilter.trim()) {
+		widget.categoryFilter = w.categoryFilter.trim();
+	}
+	if (typeof w.terytPowiat === 'string' && w.terytPowiat.trim()) {
+		widget.terytPowiat = w.terytPowiat.trim();
+	}
+	if (typeof w.terytGmina === 'string' && w.terytGmina.trim()) {
+		widget.terytGmina = w.terytGmina.trim();
+	}
+	if (w.mapCenter && typeof w.mapCenter === 'object') {
+		const lat = Number((w.mapCenter as { lat?: unknown }).lat);
+		const lon = Number((w.mapCenter as { lon?: unknown }).lon);
+		if (Number.isFinite(lat) && Number.isFinite(lon)) {
+			widget.mapCenter = { lat, lon };
+		}
+	}
+	if (typeof w.mapZoom === 'number' && w.mapZoom > 0) {
+		widget.mapZoom = Math.floor(w.mapZoom);
+	}
+	if (w.showMap === false) widget.showMap = false;
+	if (Array.isArray(w.mapScopePowiaty)) {
+		const codes = w.mapScopePowiaty
+			.filter((c): c is string => typeof c === 'string')
+			.map((c) => c.trim())
+			.filter(Boolean);
+		if (codes.length > 0) widget.mapScopePowiaty = codes;
+	}
+	if (w.detailsDisplay === 'modal' || w.detailsDisplay === 'inline') {
+		widget.detailsDisplay = w.detailsDisplay;
+	}
+	if (w.detailsLayout === 'stacked' || w.detailsLayout === 'grid') {
+		widget.detailsLayout = w.detailsLayout;
+	}
+	if (typeof w.detailsSummary === 'string' && w.detailsSummary.trim()) {
+		widget.detailsSummary = w.detailsSummary.trim();
+	}
+	if (typeof w.detailsCloseLabel === 'string' && w.detailsCloseLabel.trim()) {
+		widget.detailsCloseLabel = w.detailsCloseLabel.trim();
+	}
+	if (typeof w.bannerLabel === 'string' && w.bannerLabel.trim()) {
+		widget.bannerLabel = w.bannerLabel.trim();
+	}
+	if (w.style === 'text' || w.style === 'image') widget.style = w.style;
+	if (typeof w.imageUrl === 'string' && w.imageUrl.trim()) widget.imageUrl = w.imageUrl.trim();
+	if (w.imageVariant === 'blue') widget.imageVariant = 'blue';
+	if (typeof w.textTitle === 'string' && w.textTitle.trim()) widget.textTitle = w.textTitle.trim();
+	if (typeof w.textButton === 'string' && w.textButton.trim()) widget.textButton = w.textButton.trim();
+	if (w.linkType === 'category' || w.linkType === 'page' || w.linkType === 'external') {
+		widget.linkType = w.linkType;
+	}
+	if (typeof w.categorySlug === 'string' && w.categorySlug.trim()) {
+		widget.categorySlug = w.categorySlug.trim();
+	}
+	if (typeof w.pagePath === 'string' && w.pagePath.trim()) widget.pagePath = w.pagePath.trim();
+	if (typeof w.externalUrl === 'string' && w.externalUrl.trim()) widget.externalUrl = w.externalUrl.trim();
+	if (typeof w.text === 'string' && w.text.trim()) widget.text = w.text.trim();
+	if (w.accessibilityTools === false) widget.accessibilityTools = false;
+	if (typeof w.name === 'string' && w.name.trim()) widget.name = w.name.trim();
+	if (typeof w.description === 'string' && w.description.trim()) widget.description = w.description.trim();
+	if (typeof w.url === 'string' && w.url.trim()) widget.url = w.url.trim();
+	if (typeof w.logoUrl === 'string' && w.logoUrl.trim()) widget.logoUrl = w.logoUrl.trim();
+	if (typeof w.logoAlt === 'string' && w.logoAlt.trim()) widget.logoAlt = w.logoAlt.trim();
+	if (typeof w.homeHref === 'string' && w.homeHref.trim()) widget.homeHref = w.homeHref.trim();
+	if (typeof w.copyrightSuffix === 'string' && w.copyrightSuffix.trim()) {
+		widget.copyrightSuffix = w.copyrightSuffix.trim();
+	}
+	if (typeof w.contactCtaLabel === 'string' && w.contactCtaLabel.trim()) {
+		widget.contactCtaLabel = w.contactCtaLabel.trim();
+	}
+	if (typeof w.contactCtaHref === 'string' && w.contactCtaHref.trim()) {
+		widget.contactCtaHref = w.contactCtaHref.trim();
+	}
+	if (w.contact && typeof w.contact === 'object') widget.contact = w.contact as SlotWidgetConfig['contact'];
+	if (Array.isArray(w.bankAccounts)) widget.bankAccounts = w.bankAccounts as SlotWidgetConfig['bankAccounts'];
+	if (Array.isArray(w.officeHours)) widget.officeHours = w.officeHours as SlotWidgetConfig['officeHours'];
+	if (w.invoiceData && typeof w.invoiceData === 'object') {
+		widget.invoiceData = w.invoiceData as SlotWidgetConfig['invoiceData'];
+	}
+	if (Array.isArray(w.legalLinks)) {
+		widget.legalLinks = w.legalLinks
+			.filter((link): link is { label: string; href: string } => {
+				if (!link || typeof link !== 'object') return false;
+				const l = link as { label?: unknown; href?: unknown };
+				return typeof l.label === 'string' && typeof l.href === 'string';
+			})
+			.map((link) => ({ label: link.label.trim(), href: link.href.trim() }));
+	}
+	if (Array.isArray(w.navigation)) {
+		widget.navigation = normalizeNavItems(w.navigation);
+	}
+	return Object.keys(widget).length > 0 ? widget : undefined;
+}
+
+function isRecentChangeEntry(raw: unknown): raw is RecentChangeEntry {
+	if (!raw || typeof raw !== 'object') return false;
+	const o = raw as RecentChangeEntry;
+	return (
+		typeof o.title === 'string' &&
+		typeof o.href === 'string' &&
+		typeof o.kind === 'string' &&
+		typeof o.changedAt === 'string'
+	);
+}
+
+function parseRecentChangeEntries(raw: unknown): RecentChangeEntry[] | undefined {
+	if (!Array.isArray(raw)) return undefined;
+	const entries = raw.filter(isRecentChangeEntry).map((e) => ({
+		title: e.title.trim(),
+		href: e.href.trim(),
+		kind: e.kind,
+		changedAt: e.changedAt,
+		sourceId: e.sourceId?.trim() || undefined,
+	}));
+	return entries.length > 0 ? entries : undefined;
+}
+
+export function parseSlot(raw: unknown): DisplaySlot | null {
+	if (!raw || typeof raw !== 'object') return null;
+	const o = raw as DisplaySlot;
+	if (typeof o.id !== 'string' || !o.id.trim()) return null;
+	if (typeof o.label !== 'string' || !o.label.trim()) return null;
+	if (typeof o.component !== 'string' || !o.component.trim()) return null;
+	if (!isLayoutComponentId(o.component.trim())) return null;
+
+	const slot: DisplaySlot = {
+		id: o.id.trim(),
+		label: o.label.trim(),
+		component: o.component.trim(),
+		widget: parseWidget(o.widget),
+		entries: parseRecentChangeEntries((o as DisplaySlot).entries),
+	};
+
+	if (slot.component === 'sidebar.banner' && !validateBannerWidget(slot.widget ?? {}, slot.label)) {
+		return null;
+	}
+
+	return slot;
+}

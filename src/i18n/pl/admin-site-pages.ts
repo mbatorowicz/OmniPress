@@ -5,7 +5,6 @@ export const adminSitePages = {
 	placeholderContent: 'Treść strony w przygotowaniu.',
 	empty: 'Brak stron — utwórz pierwszą stronę statyczną.',
 	create: '+ Nowa strona',
-	backToUnit: 'Wróć do ustawień strony',
 	statusDraft: 'Szkic',
 	statusPublished: 'Opublikowana',
 	fields: {

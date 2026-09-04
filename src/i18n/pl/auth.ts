@@ -60,7 +60,6 @@ export const auth = {
 		enrollFailed: 'Nie udało się rozpocząć konfiguracji MFA — spróbuj ponownie.',
 		verifyFailed: 'Nieprawidłowy kod — spróbuj ponownie.',
 		missingCode: 'Wpisz 6-cyfrowy kod.',
-		alreadyConfigured: 'MFA jest już skonfigurowane.',
 	},
 	supabase: {
 		invalidCredentials: 'Nieprawidłowy e-mail lub hasło.',
@@ -68,7 +67,6 @@ export const auth = {
 			'Potwierdź adres e-mail przed logowaniem (Supabase → Auth → Users).',
 		redirectMisconfig: `Błąd konfiguracji Supabase (Redirect URLs). Administrator musi ustawić Site URL na ${APP.productionOrigin}`,
 		rateLimit: 'Zbyt wiele prób — odczekaj chwilę i spróbuj ponownie.',
-		userNotFound: 'Jeśli konto istnieje, wysłaliśmy link (sprawdź też spam).',
 		signupDisabled: 'Rejestracja jest wyłączona — poproś administratora o konto.',
 		genericFailure: 'Operacja nie powiodła się — spróbuj ponownie.',
 		prefix: 'Błąd: ',

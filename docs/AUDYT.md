@@ -258,7 +258,7 @@ Zamknięte w podejściu 11: `lib/editor/attachment-panel.ts` (wspólny cykl) + `
 | [STATUS.md](./STATUS.md) | tabela migracji | brak `20250621000000_fix_kgw_post_slug.sql` |
 | [README.md](./README.md) | tabela npm | brak `setup:auth-rate-limits`, `setup:auth-mfa`, `setup:author-on-delete`, `setup:assets-*`, `setup:storage-import-admin`, `setup:posts-rejected-resubmit`, `verify:*`, `seed:nav-pages`, `lint`, `lint:ui`, `build:pdf-viewer` |
 
-### P2-3 — pliki ponad limit konwencji
+### P2-3 — pliki ponad limit konwencji — ✅ zamknięte (2026-09-04)
 
 [KONWENCJE.md](./KONWENCJE.md) wymaga poniżej 150 linii i podziału powyżej 200. Realnie 28 plików przekraczało 200 linii.
 
@@ -273,7 +273,7 @@ Zamknięte w podejściu 11: `lib/editor/attachment-panel.ts` (wspólny cykl) + `
 | Astro | `src/config/load-config.ts` | 423 | 21 (barrel) |
 | Astro | `src/components/WeatherWidget.astro` | 385 | 47 |
 
-Limit egzekwuje `scripts/lint-file-size.mjs` — w obu repo (podejście 11). Każdy plik ponad limit ma jawny wpis w `scripts/file-size-exceptions.json` z własnym limitem, więc nie może rosnąć dalej: 18 wyjątków w OmniPress (16 to dług `DŁUG P2-3`) i 8 w repo Astro (5 długu, 3 arkusze CSS z uzasadnieniem). W repo Astro zakres skryptu obejmuje też `.css`, bo styl komponentów wyniesiono do arkuszy globalnych.
+Limit egzekwuje `scripts/lint-file-size.mjs` — w obu repo (podejście 11). **Dług `DŁUG P2-3` zamknięty (2026-09-04):** wszystkie pliki z prefiksem `DŁUG` podzielone; wyjątki to wyłącznie uzasadnione arkusze CSS i dwa SSOT (typy layoutu, lista ID komponentów, migracja zones, montaż PDF). W repo Astro zakres skryptu obejmuje też `.css`.
 
 ### P2-4 — pliki robocze w OmniPress — ✅ zamknięte
 
@@ -281,9 +281,9 @@ Pięć nieśledzonych skryptów: `scripts/tmp-probe-users.mjs`, `tmp-probe-creat
 
 Zamknięte w podejściu 1: `scripts/tmp-*` trafiło do `.gitignore`. `pdf-viewer.js` **musi** zostać w gicie — czyta go runtime publikacji, a build jest deterministyczny, więc nie generuje diffu.
 
-### P2-5 — martwe klucze i18n
+### P2-5 — martwe klucze i18n — ✅ zamknięte (2026-09-04)
 
-Ponad 25 potwierdzonych kluczy bez odwołań w kodzie, w trzech grupach: duplikaty (`admin.postList.invalidAction` ≡ `admin.bulkErrors.invalid_action`, to samo dla `remoteFailed`), pozostałości po refaktorze zakładek layoutu (`layoutTabMenu`, `layoutTabCategories`, `layoutTabTopbar` wraz z `*Lead`) oraz klucze nigdy nie podpięte do UI (`adminLayout.backToUnit`, `adminLayout.savedDraft`, `layout.breadcrumbs.postReview`, `posts.upload.pdfTooLarge`, `auth.mfa.alreadyConfigured`). Kolejne ~25 kandydatów w `admin-panels.ts` wymaga potwierdzenia przy sprzątaniu edytora layoutu.
+Usunięte potwierdzone klucze bez odwołań: pozostałości zakładek layoutu (`layoutTabTopbar` / `Menu` / `Categories` + `*Lead`), nigdy niepodpięte (`savedDraft`, `adminSitePages.backToUnit`, `layout.breadcrumb.postReview`, `posts.upload.pdfTooLarge`, `auth.mfa.alreadyConfigured`) oraz ~40 dalszych unikalnych segmentów (martwe etykiety slotów, kody błędów których nic nie emituje, `admin.sites`, `ui.actions.saveDraft`). Duplikaty `invalidAction` / `remoteFailed` usunięte wcześniej w podejściu 9. Klucze o pospolitych nazwach (`title`, `lead`, `empty`) zostawione — destrukturyzacja mogłaby je ukryć.
 
 ### P2-6 — martwy kod odczytu w repo Astro
 

@@ -1,0 +1,180 @@
+---
+import Button from '@/components/ui/actions/Button.astro';
+import Table from '@/components/ui/table/Table.astro';
+import TableHead from '@/components/ui/table/TableHead.astro';
+import TableBody from '@/components/ui/table/TableBody.astro';
+import TableRow from '@/components/ui/table/TableRow.astro';
+import TableCell from '@/components/ui/table/TableCell.astro';
+import Label from '@/components/ui/form/Label.astro';
+import PostsTableRow from '@/components/admin/queue/PostsTableRow.astro';
+
+type BulkAction = 'approve' | 'reject' | 'cancel_schedule' | 'deactivate' | 'delete';
+
+type PostRow = {
+	id: string;
+	title: string;
+	status?: string;
+	category_name: string | null;
+	category_slug: string | null;
+	updated_at: string;
+	created_at?: string;
+	scheduled_publish_at?: string | null;
+	sites: { name: string } | null;
+};
+
+type Labels = {
+	colTitle: string;
+	colCategory: string;
+	colSite: string;
+	colDate: string;
+	colActions: string;
+	noCategory: string;
+	open: string;
+	approveQuick?: string;
+	approveQuickConfirm?: string;
+	selectAll: string;
+	selected: string;
+	bulkApprove: string;
+	bulkReject: string;
+	bulkRejectNote: string;
+	bulkCancelSchedule: string;
+	bulkDeactivate: string;
+	bulkDelete: string;
+	bulkApproveConfirm: string;
+	bulkRejectConfirm: string;
+	bulkCancelScheduleConfirm: string;
+	bulkDeactivateConfirm: string;
+	bulkDeleteConfirm: string;
+};
+
+type Props = {
+	posts: PostRow[];
+	labels: Labels;
+	bulkActions: BulkAction[];
+	section?: 'pending' | 'scheduled' | 'published';
+	formId: string;
+	dateHeader: string;
+	formatWhen: (post: PostRow) => string;
+};
+
+const { posts, labels, bulkActions, section, formId, dateHeader, formatWhen } = Astro.props;
+const has = (action: BulkAction) => bulkActions.includes(action);
+---
+
+<form
+	method="post"
+	action="/api/admin/posts/bulk"
+	id={formId}
+	class="space-y-3"
+	data-bulk-posts-form
+	data-selected-template={labels.selected}
+>
+	{section && <input type="hidden" name="section" value={section} />}
+	<div class="ui-bulk-bar" data-bulk-bar>
+		<span class="ui-label-muted" data-selected-label>
+			{labels.selected.replace('{n}', '0')}
+		</span>
+		{has('approve') && (
+			<Button
+				type="submit"
+				name="action"
+				value="approve"
+				variant="primary"
+				disabled
+				confirm={labels.bulkApproveConfirm}
+				dataset={{ 'bulk-action': '' }}
+			>
+				{labels.bulkApprove}
+			</Button>
+		)}
+		{has('cancel_schedule') && (
+			<Button
+				type="submit"
+				name="action"
+				value="cancel_schedule"
+				variant="warning"
+				disabled
+				confirm={labels.bulkCancelScheduleConfirm}
+				dataset={{ 'bulk-action': '' }}
+			>
+				{labels.bulkCancelSchedule}
+			</Button>
+		)}
+		{has('deactivate') && (
+			<Button
+				type="submit"
+				name="action"
+				value="deactivate"
+				variant="warning"
+				disabled
+				confirm={labels.bulkDeactivateConfirm}
+				dataset={{ 'bulk-action': '' }}
+			>
+				{labels.bulkDeactivate}
+			</Button>
+		)}
+		{has('delete') && (
+			<Button
+				type="submit"
+				name="action"
+				value="delete"
+				variant="danger"
+				disabled
+				confirm={labels.bulkDeleteConfirm}
+				dataset={{ 'bulk-action': '' }}
+			>
+				{labels.bulkDelete}
+			</Button>
+		)}
+	</div>
+	{has('reject') && (
+		<div class="ui-bulk-bar flex-col items-stretch gap-2 sm:flex-row sm:items-end">
+			<Label class="min-w-0 flex-1">
+				<span class="font-medium">{labels.bulkRejectNote}</span>
+				<textarea
+					name="rejection_note"
+					rows={2}
+					minlength={3}
+					class="ui-textarea"
+					data-bulk-reject-note
+				></textarea>
+			</Label>
+			<Button
+				type="submit"
+				name="action"
+				value="reject"
+				variant="danger"
+				disabled
+				confirm={labels.bulkRejectConfirm}
+				dataset={{ 'bulk-action': '' }}
+			>
+				{labels.bulkReject}
+			</Button>
+		</div>
+	)}
+	<Table class={posts.length ? 'mt-0' : 'mt-4'}>
+		<TableHead>
+			<TableRow>
+				<TableCell header class="w-10 px-3">
+					<input type="checkbox" class="ui-checkbox" data-select-all aria-label={labels.selectAll} />
+				</TableCell>
+				<TableCell header>{labels.colTitle}</TableCell>
+				<TableCell header>{labels.colCategory}</TableCell>
+				<TableCell header class="hidden sm:table-cell">{labels.colSite}</TableCell>
+				<TableCell header>{dateHeader}</TableCell>
+				<TableCell header>{labels.colActions}</TableCell>
+			</TableRow>
+		</TableHead>
+		<TableBody>
+			{posts.map((p) => (
+				<PostsTableRow
+					post={p}
+					when={formatWhen(p)}
+					selectable
+					{section}
+					labels={labels}
+				/>
+			))}
+		</TableBody>
+	</Table>
+</form>

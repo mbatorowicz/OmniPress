@@ -2,7 +2,6 @@ export const ui = {
 	actions: {
 		edit: 'Edytuj',
 		save: 'Zapisz',
-		saveDraft: 'Zapisz szkic',
 		cancel: 'Anuluj',
 		remove: 'Usuń',
 		delete: 'Usuń',

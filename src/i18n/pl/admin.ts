@@ -9,10 +9,6 @@ export const admin = {
 		publish: 'Publikacja',
 		live: 'Na stronie',
 	},
-	sites: {
-		empty: 'Dodaj stronę, np.',
-		exampleName: 'UG Miedzna',
-	},
 	queueNav: {
 		pending: 'Do akceptacji',
 		scheduled: 'Zaplanowane',
@@ -100,7 +96,6 @@ export const admin = {
 		bulkDeactivated: (n: number) => `${n} wpisów zdjętych ze strony.`,
 		bulkDeleted: (n: number) => `${n} wpisów usuniętych z OmniPress.`,
 		bulkSkipped: (n: number) => `${n} pozycji pominięto (np. inny status).`,
-		noneSelected: 'Nie zaznaczono żadnego wpisu.',
 		remoteWarning: 'Nie udało się zdjąć wpisu ze strony — wpisy w CMS nie zostały usunięte.',
 	},
 	preview: {

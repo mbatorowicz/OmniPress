@@ -17,9 +17,7 @@ export const posts = {
 		submit_failed: 'Wysłanie do akceptacji nie powiodło się.',
 		title_required: 'Podaj tytuł przed wysłaniem do akceptacji.',
 		category_required: 'Wybierz kategorię wpisu (lista z repozytorium Astro).',
-		categories_unavailable: 'Nie udało się pobrać kategorii — sprawdź kanały publikacji.',
 		schedule_invalid: 'Nieprawidłowa data publikacji.',
-		schedule_past: 'Data publikacji musi być w przyszłości.',
 		delete_failed: 'Nie udało się usunąć wpisu.',
 		not_found: 'Wpis nie istnieje.',
 	},
@@ -28,7 +26,6 @@ export const posts = {
 			'Dozwolone formaty: JPEG, PNG, WebP, GIF, PDF, DOCX, XLSX, ZIP, GPKG.',
 		invalidContent: 'Zawartość pliku nie odpowiada deklarowanemu formatowi.',
 		tooLarge: 'Zdjęcie jest za duże (max 10 MB).',
-		pdfTooLarge: 'Plik PDF jest za duży (max 50 MB).',
 		fileTooLarge: 'Plik jest za duży (max 50 MB).',
 	},
 	pdfViewer: {

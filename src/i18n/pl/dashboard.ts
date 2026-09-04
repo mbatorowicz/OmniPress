@@ -119,10 +119,6 @@ export const dashboard = {
 			empty: 'Brak plików — użyj „Dodaj plik” powyżej.',
 			displayLink: 'Link do pobrania',
 			displayEmbed: 'Podgląd PDF na stronie',
-			inlineImage: 'Wyświetlane w treści',
-			coverImage: 'Zdjęcie zajawkowe',
-			galleryImage: 'Galeria',
-			unusedImage: 'Nie wstawione w treść',
 		},
 		actions: {
 			save: 'Zapisz szkic',
@@ -130,7 +126,6 @@ export const dashboard = {
 			confirmSubmit: 'Wysłać do akceptacji? Edycja będzie zablokowana do decyzji administratora.',
 			delete: 'Usuń wpis',
 			confirmDelete: ui.confirm.deleteEntry,
-			addImage: 'Dodaj plik (zdjęcie / PDF)',
 			goToReview: 'Przejdź do akceptacji →',
 		},
 		uploadFailed: 'Upload nie powiódł się',

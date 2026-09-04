@@ -7,46 +7,6 @@
 		"limit": 225,
 		"reason": "SSOT listy ID komponentów (kontrakt z repo Astro) — tablica danych, nie logika"
 	},
-	"src/lib/admin/layout-slots-client.ts": {
-		"limit": 535,
-		"reason": "DŁUG P2-3: skrypt klienta panelu slotów do podziału"
-	},
-	"src/lib/admin/layout-slots-sections.ts": {
-		"limit": 530,
-		"reason": "DŁUG P2-3: render sekcji slotów do podziału per typ sekcji"
-	},
-	"src/lib/astro-layout/store.ts": {
-		"limit": 475,
-		"reason": "DŁUG P2-3: odczyt/zapis layoutu w Supabase do podziału na odczyt i mutacje"
-	},
-	"src/lib/publish/github-astro.ts": {
-		"limit": 425,
-		"reason": "DŁUG P2-3: budowa commitu wpisu do podziału na front-matter, załączniki i wysyłkę"
-	},
-	"src/lib/astro-layout/parse.ts": {
-		"limit": 420,
-		"reason": "DŁUG P2-3: parser JSON layoutu — symetryczny do parse-form.ts, dzielony razem z nim"
-	},
-	"src/lib/admin/layout-slots-preview-client.ts": {
-		"limit": 325,
-		"reason": "DŁUG P2-3: podgląd slotów po stronie klienta"
-	},
-	"src/lib/admin/categories-form-client.ts": {
-		"limit": 320,
-		"reason": "DŁUG P2-3: skrypt klienta formularza kategorii"
-	},
-	"src/lib/admin/layout-editor-status.ts": {
-		"limit": 295,
-		"reason": "DŁUG P2-3: status synchronizacji layoutu"
-	},
-	"src/components/admin/layout/NavigationTreeSection.astro": {
-		"limit": 285,
-		"reason": "DŁUG P2-3: sekcja drzewa nawigacji — markup + style w jednym pliku"
-	},
-	"src/lib/admin/unit.ts": {
-		"limit": 265,
-		"reason": "DŁUG P2-3: dane jednostki administracyjnej"
-	},
 	"src/lib/astro-layout/migrate-layout.ts": {
 		"limit": 255,
 		"reason": "Migracja legacy → zones: jedna ścieżka wykonania, podział rozbiłby kolejność kroków"
@@ -54,13 +14,5 @@
 	"src/lib/pdf-viewer/mount.ts": {
 		"limit": 250,
 		"reason": "Montaż PDF.js — cykl życia jednego widgetu (init, render, cleanup) trzymany razem"
-	},
-	"src/lib/posts/upload.ts": {
-		"limit": 245,
-		"reason": "DŁUG P2-3: upload załączników wpisu"
-	},
-	"src/components/admin/queue/AdminPostsTable.astro": {
-		"limit": 240,
-		"reason": "DŁUG P2-3: tabela kolejki moderacji — markup + style w jednym pliku"
 	}
 }

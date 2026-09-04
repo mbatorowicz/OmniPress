@@ -60,7 +60,5 @@ export const adminAllPosts = {
 	heading: 'Wszystkie wpisy',
 	lead: 'Wpisy wszystkich redaktorów — także szkice i wpisy do poprawki. Otwórz wpis, aby go podejrzeć lub poprawić.',
 	statusAll: 'Wszystkie',
-	statusCount: (label: string, n: number) => `${label} (${n})`,
 	queueLink: 'Kolejka akceptacji',
-	draftsHint: (n: number) => `Szkice redaktorów: ${n}`,
 } as const;

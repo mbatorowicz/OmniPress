@@ -16,8 +16,6 @@ export const adminDestinations = {
 		vercelTeamId: 'ID zespołu Vercel (opcjonalnie)',
 		vercelToken: 'Token Vercel (opcjonalnie)',
 		credentialsHint: 'Pozostaw puste, aby zachować obecne credentials.',
-		credentialsOptional: 'Tokeny opcjonalne przy tworzeniu — dodasz je w Ustawieniach przed publikacją.',
-		noEncryption: 'Brak ENCRYPTION_KEY — credentials nie zostaną zapisane (publikacja zablokowana).',
 		layoutPath: 'Plik layoutu w repozytorium (omnipress-layout.json)',
 		categoriesPath: 'Plik kategorii w repozytorium',
 		navigationPath: 'Plik menu w repozytorium',

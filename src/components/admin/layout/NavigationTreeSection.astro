@@ -1,98 +1,27 @@
 ---
-import { adminLayout, ui } from '@/i18n';
+import { adminLayout } from '@/i18n';
 import Button from '@/components/ui/actions/Button.astro';
 import Panel from '@/components/ui/layout/Panel.astro';
 import SectionTitle from '@/components/ui/layout/SectionTitle.astro';
-import NavDepthSelect from '@/components/admin/layout/NavDepthSelect.astro';
-import NavDropdownLayoutCell from '@/components/admin/layout/NavDropdownLayoutCell.astro';
-import NavLinkTypeSelect from '@/components/admin/layout/NavLinkTypeSelect.astro';
-import NavTargetCell from '@/components/admin/layout/NavTargetCell.astro';
-import NavParentSelect from '@/components/admin/layout/NavParentSelect.astro';
-import { flattenNavigation, collectNavInternalPageOptions } from '@/lib/admin/navigation-tree';
-import { buildCategoryLinkOptions, mergePageOptionsForNavEditor, type PageOption } from '@/lib/admin/link-options';
-import { buildNavTargetOptions, formatNavTargetSummary } from '@/lib/admin/nav-target-options';
+import NavTreeEntry from '@/components/admin/layout/NavTreeEntry.astro';
 import {
-	formatNavDropdownLayoutSummary,
-	resolveNavDropdownLayout,
-} from '@/lib/admin/nav-dropdown-layout';
-import {
-	navEditorDepthColorsToStyle,
-	resolveNavEditorDepthColors,
-	type NavEditorDepthColors,
-} from '@/lib/admin/nav-editor-colors';
+	buildNavTreeSectionData,
+	type NavTreeSectionProps,
+} from '@/lib/admin/nav-tree-section-data';
 
-interface Props {
-	navigation: NavItem[];
-	categories: CategoryDefinition[];
-	publishedPages: PageOption[];
-	navEditorDepthColors?: NavEditorDepthColors;
-}
+interface Props extends NavTreeSectionProps {}
 
-const { navigation, categories, publishedPages, navEditorDepthColors } = Astro.props;
-const pageOptions = mergePageOptionsForNavEditor(
-	publishedPages,
-	collectNavInternalPageOptions(navigation),
-);
-const rows =
-	navigation.length > 0
-		? flattenNavigation(navigation, categories, pageOptions)
-		: [{
-			label: '',
-			depth: 0,
-			parentRowIndex: null,
-			hrefKind: 'none' as const,
-			hrefValue: '',
-			menuColumns: 1 as const,
-			menuColumnWidth0: '',
-			menuColumnWidth1: '',
-		}];
-
-const parentRowMeta = rows.map((row) => ({ label: row.label, depth: row.depth }));
-
-const categoryOptions = buildCategoryLinkOptions(categories);
-const navigationJsonPreview =
-	navigation.length > 0 ? `${JSON.stringify(navigation, null, '\t')}\n` : '';
-
-function navHrefSubmitValue(row: (typeof rows)[number]): string {
-	if (row.hrefKind === 'none') return '';
-	return row.hrefValue;
-}
-
-const depthLabels = adminLayout.navDepthLabels;
-const depthColors = resolveNavEditorDepthColors(navEditorDepthColors);
-const navBodyStyle = navEditorDepthColorsToStyle(depthColors);
-const navTableLabels = {
-	remove: adminLayout.actions.removeNavRow,
-	edit: adminLayout.actions.editNavRow,
-	closeEdit: ui.actions.close,
-	depth0: depthLabels[0],
-	depth1: depthLabels[1],
-	depth2: depthLabels[2],
-	menuColumnOne: adminLayout.navMenuColumnOptions.one,
-	menuColumnTwo: adminLayout.navMenuColumnOptions.two,
-	menuColumnsHint: adminLayout.navMenuColumnsHint,
-	addNavChild: adminLayout.actions.addNavChild,
-	navParentRoot: adminLayout.navParentRoot,
-	navParentMissing: adminLayout.navParentMissing,
-	navParentPrefix: 'pod:',
-	hrefKinds: adminLayout.navHrefKinds,
-	fieldLabels: {
-		navDepth: adminLayout.fields.navDepth,
-		navParent: adminLayout.fields.navParent,
-		navLabel: adminLayout.fields.navLabel,
-		navLinkType: adminLayout.fields.navLinkType,
-		navLinkTarget: adminLayout.fields.navLinkTarget,
-		navMenuColumns: adminLayout.fields.navMenuColumns,
-		navMenuColumnCount: adminLayout.fields.navMenuColumnCount,
-		navMenuColumnWidth1: adminLayout.fields.navMenuColumnWidth1,
-		navMenuColumnWidth2: adminLayout.fields.navMenuColumnWidth2,
-	},
-};
-const navTargetOptions = buildNavTargetOptions(categoryOptions, pageOptions, {
-	emptyCategory: adminLayout.noCategoriesForNav,
-	emptyPage: adminLayout.noPublishedPages,
-});
-const navTargetOptionsJson = JSON.stringify(navTargetOptions);
+const {
+	rows,
+	parentRowMeta,
+	navigationJsonPreview,
+	depthLabels,
+	depthColors,
+	navBodyStyle,
+	navTableLabels,
+	navTargetOptions,
+	navTargetOptionsJson,
+} = buildNavTreeSectionData(Astro.props);
 ---
 
 <Panel class="ui-form-section">
@@ -129,131 +58,14 @@ const navTargetOptionsJson = JSON.stringify(navTargetOptions);
 
 	<div id="navigation-body" class="nav-tile-list w-full" style={navBodyStyle}>
 		{
-			rows.map((row, rowIndex) => {
-				const linkSummary = formatNavTargetSummary(
-					row.hrefKind,
-					row.hrefValue,
-					navTargetOptions,
-					adminLayout.navHrefKinds,
-				);
-				const layoutSummary =
-					row.depth === 0
-						? formatNavDropdownLayoutSummary(resolveNavDropdownLayout({
-								menuColumns: row.menuColumns,
-								menuColumnWidths: [
-									row.menuColumnWidth0,
-									row.menuColumnWidth1,
-								].filter(Boolean),
-							}), adminLayout.navMenuColumnOptions)
-						: '';
-				return (
-					<div
-						class:list={['nav-entry', `nav-row--depth-${row.depth}`]}
-						data-nav-entry={String(rowIndex)}
-					>
-						<div class="nav-tile nav-row-summary">
-							<div class="nav-tile-main">
-								<span class="nav-summary-label">{row.label.trim() || '—'}</span>
-								<span class="nav-summary-sep" aria-hidden="true">·</span>
-								<span class="nav-summary-link-text">{linkSummary}</span>
-								{
-									row.depth === 0 && (
-										<span class="nav-summary-layout">{layoutSummary}</span>
-									)
-								}
-							</div>
-							<div class="nav-tile-actions">
-								<button type="button" class="edit-nav-row ui-btn ui-btn--link text-xs">
-									{adminLayout.actions.editNavRow}
-								</button>
-								{
-									row.depth < 2 && (
-										<button type="button" class="add-nav-child ui-btn ui-btn--link text-xs">
-											{adminLayout.actions.addNavChild}
-										</button>
-									)
-								}
-								<button type="button" class="remove-nav-row ui-btn ui-btn--link-danger text-xs">
-									{adminLayout.actions.removeNavRow}
-								</button>
-							</div>
-						</div>
-						<div
-							class="nav-row-editor hidden"
-							data-nav-kind={row.hrefKind}
-							data-nav-href={row.hrefValue}
-							data-nav-parent={row.parentRowIndex ?? ''}
-						>
-							<div class="nav-row-editor-panel">
-								<div class="nav-row-editor-grid">
-									<label class="nav-row-editor-field">
-										<span class="nav-row-editor-label">{adminLayout.fields.navDepth}</span>
-										<NavDepthSelect depth={row.depth as 0 | 1 | 2} />
-									</label>
-									<div class="nav-row-editor-field">
-										<span class="nav-row-editor-label">{adminLayout.fields.navParent}</span>
-										<NavParentSelect
-											asCell={false}
-											rowIndex={rowIndex}
-											depth={row.depth as 0 | 1 | 2}
-											parentRowIndex={row.parentRowIndex}
-											rows={parentRowMeta}
-										/>
-									</div>
-									<label class="nav-row-editor-field nav-row-editor-field--wide">
-										<span class="nav-row-editor-label">{adminLayout.fields.navLabel}</span>
-										<input
-											name="nav_label"
-											value={row.label}
-											required
-											class="ui-input-compact w-full"
-										/>
-									</label>
-									<label class="nav-row-editor-field">
-										<span class="nav-row-editor-label">{adminLayout.fields.navLinkType}</span>
-										<NavLinkTypeSelect kind={row.hrefKind} />
-									</label>
-									<label class="nav-row-editor-field nav-row-editor-field--wide">
-										<span class="nav-row-editor-label">{adminLayout.fields.navLinkTarget}</span>
-										<div class="nav-href-values">
-											<input
-												type="hidden"
-												name="nav_href_value"
-												class="nav-href-value-submit"
-												value={navHrefSubmitValue(row)}
-											/>
-											<NavTargetCell
-												kind={row.hrefKind}
-												value={row.hrefValue}
-												options={navTargetOptions}
-											/>
-										</div>
-									</label>
-									<div class="nav-row-editor-field nav-row-editor-field--wide nav-dropdown-layout-field-wrap">
-										<span class="nav-row-editor-label">{adminLayout.fields.navMenuColumns}</span>
-										<NavDropdownLayoutCell
-											asCell={false}
-											depth={row.depth as 0 | 1 | 2}
-											item={{
-												menuColumns: row.menuColumns,
-												menuColumnWidths: [
-													row.menuColumnWidth0,
-													row.menuColumnWidth1,
-												].filter(Boolean),
-											}}
-										/>
-									</div>
-								</div>
-								<div class="nav-row-editor-footer">
-									<button type="button" class="close-nav-row ui-btn ui-btn--ghost text-xs">
-										{ui.actions.close}
-									</button>
-								</div>
-							</div>
-						</div>
-					</div>
-				);
-			})
+			rows.map((row, rowIndex) => (
+				<NavTreeEntry
+					{row}
+					{rowIndex}
+					{parentRowMeta}
+					{navTargetOptions}
+				/>
+			))
 		}
 	</div>
 	<Button type="button" id="add-nav-row" variant="add">

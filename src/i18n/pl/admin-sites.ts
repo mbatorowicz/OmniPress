@@ -79,8 +79,6 @@ export const adminUnit = {
 	componentsLink: 'Komponenty',
 	pagesLink: 'Strony statyczne',
 	changesLink: 'Ostatnie zmiany',
-	contextGroupAppearance: 'Wygląd strony',
-	contextGroupContent: 'Treść',
 	advancedPathsTitle: 'Zaawansowane — ścieżki plików w repozytorium',
 } as const;
 
