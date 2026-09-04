@@ -27,12 +27,13 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 17 | A11y / hamburger menu (P1-18) — ✅ **wykonane** | niskie | — |
 | 18 | Treść GOPS / Biblioteka / Druki z WP — ✅ **wykonane** | średnie | po 15 |
 | 19 | `aria-current` w menu górnym — ✅ **wykonane** | niskie | — |
+| 20 | Pułapka fokusu wyszukiwarki — ✅ **wykonane** | niskie | — |
 
 ---
 
 ## Następna sesja
 
-Podejście 19 zamknięte 2026-09-03. Kolejne tematy poza audytem: pułapka fokusu wyszukiwarki, stopka, DNS cutover.
+Podejście 20 zamknięte 2026-09-04. Kolejne tematy poza audytem: stopka, DNS cutover.
 
 **Start sesji:** `git pull` w repo B (SSOT = `origin/main`).
 
@@ -726,6 +727,29 @@ Do tego `admin/github-token.ts` importował nieistniejący typ `GitHubRepoConfig
 - Styl: dolny pasek na poziomie 1, lewy pasek w dropdownie.
 
 **Wynik weryfikacji:** repo B — `npm test` 104/104 · `npm run lint` OK · `npm run build` OK. HTML: `/` bez znacznika; `/aktualnosci/strona/2` → Aktualności; `/gmina/gops` → GOPS + sekcja Gmina; `/ochrona-ludnosci/plecak-ewakuacyjny` → Ochrona ludności.
+
+## Podejście 20 — pułapka fokusu wyszukiwarki
+
+**Cel:** Tab nie wychodzi z otwartej wyszukiwarki; zamknięcie wraca fokus na lupę. Bez zmiany kontraktu JSON.
+
+**Kroki**
+
+1. Repo B: `git pull`.
+2. `focus-trap.ts` — `resolveTabWrap` (ostatni Tab → pierwszy, pierwszy Shift+Tab → ostatni).
+3. `SearchModal.astro` — `role="dialog"`, `aria-modal`, `inert` + `visibility: hidden` gdy zamknięta; przycisk zamknięcia z etykietą.
+4. `search-modal-client.ts` — otwarcie fokusuje pole, Escape zamyka bez hamburgera, fokus wraca na lupę; wyniki escapowane (XSS).
+5. `npm test`, `npm run lint`, `npm run build` w B.
+
+**Commit:** repo B (+ docs w A).
+
+### Wykonano (2026-09-04)
+
+- `resolveTabWrap` + 6 testów; dopasowanie wyników i escape HTML w `search-match.ts` (6 testów).
+- Modal: dialog + `inert` / `aria-hidden` / `visibility: hidden` poza otwarciem; `aria-live` na liście.
+- Klient: pułapka Tab, przywracanie fokusu, blokada scrolla `body`; Escape nie zamyka hamburgera (`isSearchModalOpen` w `nav-menu-client`).
+- Lupa: `aria-haspopup="dialog"` + `aria-controls="search-modal"`.
+
+**Wynik weryfikacji:** repo B — `npm test` 116/116 · `npm run lint` OK · `npm run check` 0 errors · `npm run build` OK. HTML (home, GOPS, Aktualności, Ochrona ludności): `role="dialog"` + `aria-modal` + `inert` + lupa `aria-haspopup="dialog"`.
 
 ---
 

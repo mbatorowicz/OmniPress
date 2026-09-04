@@ -11,7 +11,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | **Operacyjne** | [ADMIN.md](./ADMIN.md), [REDAKTOR.md](./REDAKTOR.md) | Dla użytkowników panelu |
 | **Techniczne** | [AUTH.md](./AUTH.md), [WDROZENIE.md](./WDROZENIE.md) | Dev / bootstrap |
 | **Kod** | [KONWENCJE.md](./KONWENCJE.md), [ROLE_AGENT.md](./ROLE_AGENT.md) | Konwencje i proces agenta |
-| **Jakość** | [AUDYT.md](./AUDYT.md), [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) | Rejestr znalezisk i kroki naprawcze. **Kolejka:** pułapka fokusu wyszukiwarki — [następna sesja](./AUDYT-WYKONANIE.md#następna-sesja) |
+| **Jakość** | [AUDYT.md](./AUDYT.md), [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) | Rejestr znalezisk i kroki naprawcze. **Kolejka:** stopka — [następna sesja](./AUDYT-WYKONANIE.md#następna-sesja) |
 
 ## Indeks plików
 
