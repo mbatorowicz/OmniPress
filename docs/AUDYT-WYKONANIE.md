@@ -34,7 +34,9 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 
 ## Następna sesja
 
-Podejście 21 zamknięte 2026-09-04. Kolejny temat poza audytem: DNS cutover.
+Podejścia 1–21 zamknięte 2026-09-04. Audyt jest domknięty.
+
+**DNS cutover jest ostatnim krokiem projektu, nie następną sesją.** Domena produkcyjna `gmina-miedzna.pl` zostaje na starym hostingu do odwołania. Nowa strona działa pod `gmina-miedzna.cncsolutions.dev`.
 
 **Start sesji:** `git pull` w repo B (SSOT = `origin/main`).
 
