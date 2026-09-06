@@ -40,7 +40,7 @@ const canEdit = Boolean(editUrl) && isAdminEditableStatus(row.status);
 	<TableCell class="ui-muted hidden whitespace-nowrap md:table-cell">
 		{formatWhen(row.created_at)}
 	</TableCell>
-	<TableCell class="ui-muted whitespace-nowrap">{formatWhen(row.updated_at)}</TableCell>
+	<TableCell class="ui-muted whitespace-nowrap">{formatWhen(row.scheduled_publish_at)}</TableCell>
 	<TableCell>
 		<div class="flex flex-wrap items-center gap-2">
 			<Button {href} variant="ghost">{labels.actions.open}</Button>

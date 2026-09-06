@@ -18,6 +18,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Naprawione
 
+- **Listy w panelu sortują po dacie publikacji.** Kolejka *Na stronie*, *Wszystkie wpisy*, lista redaktora i kolejka jednostki pokazywały *Ostatnią zmianę* — po poprawce wpis skakał na górę. Domyślnie jest data pierwszej publikacji (`scheduled_publish_at`); ostatnia zmiana zostaje w selekcie sortowania. Testy: `queue-hub`, `browse-model`, `browse`.
+
 - **Data w artykule na stronie = pierwsza publikacja.** Front-matter (`date` / `pubDate`) brał `updated_at` albo „teraz” przy poprawce i republish — stary wpis wskakiwał na górę spisu. Publikacja bierze datę harmonogramu albo najstarszy sukces z logu; zapis i wysłanie nie kasują tej daty, gdy pole jest puste. Import z GitHub zapisuje datę z pliku do `scheduled_publish_at`. Testy: `publish-date`, `import-publish-log`, `github-import`.
 
 - **Edytor wpisu: odświeżenie nie kasuje pól, upload pokazuje postęp i miniaturę.** Niewysłane pola (kategoria, tytuł, slug, data, treść) zostają w karcie i wracają po F5; zapis / wysłanie / usunięcie czyści ten szkic, nowszy stan z serwera nie jest nadpisywany. Załączniki od razu pokazują miniaturę (zdjęcia z pliku) i pasek postępu — nie trzeba czekać na koniec uploadu ani odświeżać strony. Testy: `draft-store`, `draft-persist`, `upload-xhr`, `attachment-pending`, `attachment-upload`.

@@ -70,7 +70,7 @@ const dateFmt = new Intl.DateTimeFormat('pl-PL', { dateStyle: 'short', timeStyle
 const formId = section ? `bulk-posts-form-${section}` : 'bulk-posts-form';
 
 function formatWhen(post: PostRow): string {
-	const rawDate = post[dateField] ?? post.updated_at;
+	const rawDate = post[dateField];
 	return rawDate ? dateFmt.format(new Date(rawDate)) : '—';
 }
 ---

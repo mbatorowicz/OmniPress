@@ -46,8 +46,8 @@ const columns = postsBrowse.columns;
 				class="hidden whitespace-nowrap md:table-cell"
 			/>
 			<PostsSortHeader
-				label={columns.updatedAt}
-				sortKey="updated_at"
+				label={columns.publishedAt}
+				sortKey="scheduled_publish_at"
 				{filter}
 				{basePath}
 				class="whitespace-nowrap"

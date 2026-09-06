@@ -18,7 +18,10 @@ describe('listPostsPage', () => {
 		const op = opsFor(fake, 'posts')[0];
 		expect(op.steps.filter((s) => s.method === 'eq')).toHaveLength(0);
 		expect(stepArgs(op, 'range')).toEqual([0, 24]);
-		expect(stepArgs(op, 'order')).toEqual(['updated_at', { ascending: false }]);
+		expect(stepArgs(op, 'order')).toEqual([
+			'scheduled_publish_at',
+			{ ascending: false, nullsFirst: false },
+		]);
 	});
 
 	it('sklada filtry statusu, strony, autora i frazy', async () => {

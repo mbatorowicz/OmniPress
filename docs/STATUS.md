@@ -53,7 +53,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Usuwanie własnych wpisów (`draft` / `rejected`) wraz z plikami Storage | ✅ migracja `setup:posts-delete-own` |
 | Edycja tylko `draft` / `rejected`; poprawki opublikowanych (amendment) | ✅ (administrator poprawia także `pending` / `scheduled`) |
 | Podgląd treści po wysłaniu / odrzuceniu | ✅ |
-| Lista własnych wpisów: filtr (tytuł, status, strona), sortowanie, stronicowanie po 25 | ✅ `/dashboard` |
+| Lista własnych wpisów: filtr (tytuł, status, strona), sortowanie (domyślnie data publikacji), stronicowanie po 25 | ✅ `/dashboard` |
 | Instrukcja w panelu (`/dashboard/help`) | ✅ | link *Pomoc* w nagłówku + *Instrukcja* na liście wpisów |
 
 ---
@@ -68,7 +68,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Uprawnienia redaktora (strony + domyślna); blokada: własne konto / ostatni admin | ✅ |
 | Usunięcie konta zostawia wpisy (autor: „konto usunięte”) | ✅ migracja `setup:author-on-delete` |
 | Kolejka: do akceptacji, zaplanowane (ze znacznikiem „Publikacja…”), na stronie | ✅ `/admin` |
-| Wszystkie wpisy redaktorów — także szkice i wpisy do poprawki; zakładki statusów z licznikami, filtr (tytuł, status, strona, autor), sortowanie kolumn, stronicowanie po 25 | ✅ `/admin/posts` |
+| Wszystkie wpisy redaktorów — także szkice i wpisy do poprawki; zakładki statusów z licznikami, filtr (tytuł, status, strona, autor), sortowanie kolumn (domyślnie data publikacji), stronicowanie po 25 | ✅ `/admin/posts` |
 | Akceptacja → kolejka publikacji GitHub (natychmiast lub o zaplanowanej godzinie) | ✅ |
 | Publikacja szkicu / wpisu do poprawki bez czekania na redaktora (`draft`, `rejected`, `pending`) | ✅ blokada, gdy brak tytułu lub kategorii |
 | Wysłanie cudzego wpisu do akceptacji (pełna ścieżka redaktora) | ✅ `/admin/posts/[id]/edit` |

@@ -10,6 +10,7 @@ import {
 	sanitizePostsSearch,
 	sortAscending,
 	sortKeyOf,
+	postsOrderOptions,
 	toggleSort,
 } from './browse-model';
 
@@ -42,7 +43,7 @@ describe('parsePostsFilter', () => {
 	});
 
 	it('odrzuca sortowanie poza lista', () => {
-		expect(filterFrom('sort=content_md_desc').sort).toBe('updated_at_desc');
+		expect(filterFrom('sort=content_md_desc').sort).toBe('scheduled_publish_at_desc');
 	});
 
 	it('odrzuca identyfikatory, ktore nie sa UUID', () => {
@@ -78,19 +79,35 @@ describe('sortowanie', () => {
 	it('rozklada wartosc na kolumne i kierunek', () => {
 		expect(sortKeyOf('created_at_asc')).toBe('created_at');
 		expect(sortKeyOf('title_desc')).toBe('title');
+		expect(sortKeyOf('scheduled_publish_at_desc')).toBe('scheduled_publish_at');
 		expect(sortKeyOf('updated_at_desc')).toBe('updated_at');
 		expect(sortAscending('created_at_asc')).toBe(true);
 		expect(sortAscending('created_at_desc')).toBe(false);
 	});
 
 	it('klik w te sama kolumne odwraca kierunek', () => {
-		expect(toggleSort('updated_at_desc', 'updated_at')).toBe('updated_at_asc');
-		expect(toggleSort('updated_at_asc', 'updated_at')).toBe('updated_at_desc');
+		expect(toggleSort('scheduled_publish_at_desc', 'scheduled_publish_at')).toBe(
+			'scheduled_publish_at_asc',
+		);
+		expect(toggleSort('scheduled_publish_at_asc', 'scheduled_publish_at')).toBe(
+			'scheduled_publish_at_desc',
+		);
 	});
 
 	it('klik w inna kolumne ustawia jej domyslny kierunek', () => {
-		expect(toggleSort('updated_at_desc', 'title')).toBe('title_asc');
+		expect(toggleSort('scheduled_publish_at_desc', 'title')).toBe('title_asc');
 		expect(toggleSort('title_asc', 'created_at')).toBe('created_at_desc');
+	});
+
+	it('data publikacji idzie na koniec listy gdy pole jest puste', () => {
+		expect(postsOrderOptions('scheduled_publish_at_desc')).toEqual({
+			column: 'scheduled_publish_at',
+			options: { ascending: false, nullsFirst: false },
+		});
+		expect(postsOrderOptions('title_asc')).toEqual({
+			column: 'title',
+			options: { ascending: true },
+		});
 	});
 });
 

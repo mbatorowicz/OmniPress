@@ -90,6 +90,8 @@ const workflowSteps = [
 	empty={admin.published.empty}
 	posts={published}
 	labels={listLabels}
+	dateField="scheduled_publish_at"
+	dateColumnLabel={listLabels.colPublishAt}
 	bulkActions={['deactivate', 'delete']}
 	variant="info"
 />

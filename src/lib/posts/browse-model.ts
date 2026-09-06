@@ -16,10 +16,12 @@ export const POST_STATUS_FILTERS: readonly PostStatus[] = [
 ];
 
 /** Kolumna sortowania (tylko wartości bezpieczne dla `order()`). */
-export type PostsSortKey = 'updated_at' | 'created_at' | 'title';
+export type PostsSortKey = 'scheduled_publish_at' | 'updated_at' | 'created_at' | 'title';
 
 /** Sortowanie jako jedna wartość — jeden parametr w URL, jedna opcja w selekcie. */
 export type PostsSort =
+	| 'scheduled_publish_at_desc'
+	| 'scheduled_publish_at_asc'
 	| 'updated_at_desc'
 	| 'updated_at_asc'
 	| 'created_at_desc'
@@ -28,6 +30,8 @@ export type PostsSort =
 	| 'title_desc';
 
 export const POSTS_SORTS: readonly PostsSort[] = [
+	'scheduled_publish_at_desc',
+	'scheduled_publish_at_asc',
 	'updated_at_desc',
 	'updated_at_asc',
 	'created_at_desc',
@@ -36,7 +40,7 @@ export const POSTS_SORTS: readonly PostsSort[] = [
 	'title_desc',
 ];
 
-export const DEFAULT_POSTS_SORT: PostsSort = 'updated_at_desc';
+export const DEFAULT_POSTS_SORT: PostsSort = 'scheduled_publish_at_desc';
 
 export const POSTS_PAGE_SIZE = 25;
 
@@ -115,6 +119,7 @@ export function parsePostsFilter(params: URLSearchParams): PostsFilter {
 }
 
 export function sortKeyOf(sort: PostsSort): PostsSortKey {
+	if (sort.startsWith('scheduled_publish_at')) return 'scheduled_publish_at';
 	if (sort.startsWith('created_at')) return 'created_at';
 	if (sort.startsWith('title')) return 'title';
 	return 'updated_at';
@@ -122,6 +127,19 @@ export function sortKeyOf(sort: PostsSort): PostsSortKey {
 
 export function sortAscending(sort: PostsSort): boolean {
 	return sort.endsWith('_asc');
+}
+
+/** Argumenty `order()` — wpisy bez daty publikacji na końcu, nie na górze. */
+export function postsOrderOptions(sort: PostsSort): {
+	column: PostsSortKey;
+	options: { ascending: boolean; nullsFirst?: boolean };
+} {
+	const column = sortKeyOf(sort);
+	const ascending = sortAscending(sort);
+	if (column === 'scheduled_publish_at') {
+		return { column, options: { ascending, nullsFirst: false } };
+	}
+	return { column, options: { ascending } };
 }
 
 /** Klik w nagłówek kolumny: ta sama kolumna odwraca kierunek, inna startuje domyślnie. */

@@ -55,7 +55,10 @@ export async function loadAdminQueueHub(
 			.from('posts')
 			.select(POST_SELECT)
 			.eq('status', status)
-			.order(orderColumn, { ascending });
+			.order(orderColumn, {
+				ascending,
+				...(orderColumn === 'scheduled_publish_at' ? { nullsFirst: false } : {}),
+			});
 		if (limit) query = query.limit(limit);
 		const { data } = await query;
 		// Supabase typuje zagnieżdżone `sites(name)` jako tablicę, choć relacja jest 1:1.
@@ -66,7 +69,7 @@ export async function loadAdminQueueHub(
 		byStatus('pending', 'created_at', false),
 		byStatus('scheduled', 'scheduled_publish_at', true),
 		byStatus('publishing', 'created_at', false),
-		byStatus('published', 'updated_at', false, PUBLISHED_LIMIT),
+		byStatus('published', 'scheduled_publish_at', false, PUBLISHED_LIMIT),
 	]);
 
 	return {

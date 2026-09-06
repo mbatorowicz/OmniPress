@@ -11,8 +11,7 @@ import {
 	POST_STATUS_FILTERS,
 	postsPageCount,
 	postsPageRange,
-	sortAscending,
-	sortKeyOf,
+	postsOrderOptions,
 	type PostsFilter,
 } from './browse-model';
 import type { PostStatus } from '@/lib/types';
@@ -60,9 +59,10 @@ export async function listPostsPage(
 	if (filter.siteId) query = query.eq('site_id', filter.siteId);
 	if (filter.q) query = query.ilike('title', `%${filter.q}%`);
 
+	const { column, options } = postsOrderOptions(filter.sort);
 	const { data, count } = await query
 		// Drugi klucz sortowania stabilizuje kolejność między stronami przy równych datach.
-		.order(sortKeyOf(filter.sort), { ascending: sortAscending(filter.sort) })
+		.order(column, options)
 		.order('id', { ascending: true })
 		.range(from, to);
 

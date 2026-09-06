@@ -17,6 +17,8 @@ export const postsBrowse = {
 		clear: 'Wyczyść filtry',
 	},
 	sortOptions: {
+		scheduled_publish_at_desc: 'Data publikacji — najnowsze',
+		scheduled_publish_at_asc: 'Data publikacji — najstarsze',
 		updated_at_desc: 'Ostatnia zmiana — najnowsze',
 		updated_at_asc: 'Ostatnia zmiana — najstarsze',
 		created_at_desc: 'Data utworzenia — najnowsze',
@@ -31,6 +33,7 @@ export const postsBrowse = {
 		category: 'Kategoria',
 		site: 'Strona',
 		updatedAt: 'Ostatnia zmiana',
+		publishedAt: 'Data publikacji',
 		createdAt: 'Utworzono',
 		actions: 'Akcje',
 	},

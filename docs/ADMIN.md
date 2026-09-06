@@ -127,8 +127,8 @@ razem ze **szkicami** i wpisami **do poprawki**, których redaktorzy jeszcze nie
 | Zakładki statusów | Jeden klik na *Szkic*, *Do akceptacji*, *Zaplanowany*, *Publikacja…*, *Na stronie*, *Do poprawki*; liczba w odznace = ile wpisów ma ten status |
 | *Szukaj w tytule* | Fraza z tytułu (bez znaków wieloznacznych) |
 | *Status*, *Strona*, *Autor* | Zawężenie listy; **Filtruj** zatwierdza |
-| *Sortowanie* | Ostatnia zmiana / data utworzenia / tytuł, rosnąco lub malejąco |
-| Nagłówki *Tytuł*, *Utworzono*, *Ostatnia zmiana* | Klik sortuje po kolumnie, drugi klik odwraca kolejność |
+| *Sortowanie* | Data publikacji (domyślnie) / ostatnia zmiana / data utworzenia / tytuł, rosnąco lub malejąco |
+| Nagłówki *Tytuł*, *Utworzono*, *Data publikacji* | Klik sortuje po kolumnie, drugi klik odwraca kolejność |
 | **Otwórz** | Podgląd wpisu (`/admin/posts/[id]`) |
 | **Edytuj** | Edytor treści (`/admin/posts/[id]/edit`) — widoczny dla statusów *Szkic*, *Do poprawki*, *Do akceptacji*, *Zaplanowany* |
 

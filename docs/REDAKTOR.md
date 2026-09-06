@@ -42,7 +42,7 @@ Po zalogowaniu widzisz ścieżkę pracy, przycisk nowego artykułu i listę swoi
 | **Instrukcja** / **Pomoc** | Ten przewodnik w panelu |
 
 Lista pokazuje 25 wpisów na stronę (przyciski *Poprzednie* / *Następne* pod tabelą). Kliknięcie
-nagłówka *Tytuł*, *Utworzono* lub *Ostatnia zmiana* sortuje po tej kolumnie; drugi klik odwraca
+nagłówka *Tytuł*, *Utworzono* lub *Data publikacji* sortuje po tej kolumnie; drugi klik odwraca
 kolejność. Filtry i sortowanie zapisują się w adresie, więc widok można dodać do zakładek.
 
 Jeśli nie masz przypisanej strony, zamiast przycisku zobaczysz *Brak strony docelowej* — poproś administratora o dostęp.
