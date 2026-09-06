@@ -41,10 +41,10 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 |---------|--------|
 | Logowanie e-mail/hasło | ✅ |
 | Przypisanie do stron (`user_sites`, `default_site_id`) | ✅ |
-| Tworzenie szkicu na dozwolonej stronie | ✅ |
+| Tworzenie szkicu na dozwolonej stronie | ✅ odświeżenie karty przywraca niewysłane pola |
 | Edytor WYSIWYG (TipTap) → Markdown | ✅ |
 | Kategoria wpisu (z pliku w repo Astro) | ✅ |
-| Galeria zdjęć (cover + kolejność) | ✅ |
+| Galeria zdjęć (cover + kolejność) | ✅ miniatura i postęp uploadu od razu |
 | Załączniki PDF (link / podgląd, do 50 MB) | ✅ signed upload → Supabase Storage |
 | Załączniki DOCX (link, do 50 MB) | ✅ |
 | Pliki do pobrania (GPKG / XLSX / ZIP, do 50 MB) | ✅ `setup:storage-xlsx-zip` |

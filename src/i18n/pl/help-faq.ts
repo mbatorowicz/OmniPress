@@ -21,7 +21,11 @@ export const helpFaq = {
 		},
 		{
 			term: ed.uploadFailed,
-			desc: 'Sprawdź format i rozmiar pliku (zdjęcie do 10 MB, pozostałe do 50 MB). Jeśli plik jest poprawny, zgłoś problem administratorowi.',
+			desc: 'Sprawdź format i rozmiar pliku (zdjęcie do 10 MB, pozostałe do 50 MB). Miniatura i postęp powinny pojawić się od razu. Jeśli plik jest poprawny, zgłoś problem administratorowi.',
+		},
+		{
+			term: ed.draftRestored,
+			desc: 'To informacja, nie błąd — po odświeżeniu karty wróciły niewysłane pola. Żeby szkic był na liście po zamknięciu karty, kliknij „Zapisz szkic”.',
 		},
 		{
 			term: 'Chcę poprawić artykuł już na stronie',

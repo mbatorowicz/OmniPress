@@ -34,7 +34,7 @@ export const helpFields = {
 	mediaPairs: [
 		{
 			term: ed.gallery.heading,
-			desc: `${ed.gallery.hint} ${ed.gallery.add}. Kolejność strzałkami, usuwanie krzyżykiem. Pierwsze zdjęcie ma znacznik „${ed.gallery.cover}”. Formaty: JPEG, PNG, WebP, GIF — max 10 MB.`,
+			desc: `${ed.gallery.hint} ${ed.gallery.add}. Miniatura i postęp widać od razu. Kolejność strzałkami, usuwanie krzyżykiem. Pierwsze zdjęcie ma znacznik „${ed.gallery.cover}”. Formaty: JPEG, PNG, WebP, GIF — max 10 MB.`,
 		},
 		{
 			term: ed.pdfAttachments.heading,
@@ -53,7 +53,7 @@ export const helpFields = {
 	actionsPairs: [
 		{
 			term: ed.actions.save,
-			desc: `Zachowuje wersję roboczą. Wpis zostaje jako „${posts.status.draft}” albo „${posts.status.rejected}” i możesz go dalej poprawiać.`,
+			desc: `Zachowuje wersję roboczą na serwerze. Wpis zostaje jako „${posts.status.draft}” albo „${posts.status.rejected}” i możesz go dalej poprawiać. Odświeżenie karty i tak przywraca niewysłane pola.`,
 		},
 		{
 			term: ed.actions.submit,

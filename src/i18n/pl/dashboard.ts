@@ -130,5 +130,7 @@ export const dashboard = {
 		},
 		uploadFailed: 'Upload nie powiódł się',
 		uploadNetworkError: 'Błąd połączenia przy uploadzie.',
+		uploading: 'Wysyłanie…',
+		draftRestored: 'Przywrócono niewysłane zmiany z tej karty.',
 	},
 } as const;

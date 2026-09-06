@@ -1,3 +1,4 @@
+import { initPostDraftPersist, persistOpenDraft } from './draft-persist';
 import { editorHtmlToMarkdown, markdownToEditorHtml } from './html-markdown';
 
 export type GalleryAsset = {
@@ -15,6 +16,10 @@ export function initPostRichEditor(): void {
 		return;
 	}
 
+	if (form instanceof HTMLFormElement) {
+		initPostDraftPersist(form);
+	}
+
 	const initialMarkdown = hidden.value;
 	const placeholder = root.dataset.placeholder ?? '';
 	const linkPrompt = root.dataset.linkPrompt ?? '';
@@ -27,6 +32,7 @@ export function initPostRichEditor(): void {
 			linkPrompt,
 			onChange(html) {
 				hidden.value = editorHtmlToMarkdown(html);
+				if (form instanceof HTMLFormElement) persistOpenDraft(form);
 			},
 		});
 

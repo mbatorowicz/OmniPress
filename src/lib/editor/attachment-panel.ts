@@ -3,7 +3,14 @@
  * kolejność, przenoszenie, usuwanie, upload. Różni je wyłącznie markup wiersza —
  * dostarcza go `renderItem`.
  */
-import { uploadPostAsset, type UploadedAsset } from '@/lib/editor/upload-asset';
+import { uploadSelectedFiles } from '@/lib/editor/attachment-upload';
+import {
+	renderPendingAttachmentRow,
+	revokeBlobUrl,
+	revokePendingPreview,
+	type PendingUpload,
+} from '@/lib/editor/attachment-pending';
+import type { UploadKind, UploadedAsset } from '@/lib/editor/upload-asset';
 
 export type AttachmentAsset = {
 	id: string;
@@ -25,24 +32,19 @@ export type AttachmentItemContext<A extends AttachmentAsset, L extends Attachmen
 	index: number;
 	total: number;
 	labels: L;
-	/** Nazwa atrybutu sterującego, np. `data-pdf-up` — wiersz musi ją wystawić. */
 	attr: (action: 'up' | 'down' | 'remove') => string;
 };
 
 export type AttachmentPanelConfig<A extends AttachmentAsset, L extends AttachmentPanelLabels> = {
-	/** Prefiks atrybutów `data-*` panelu, np. `pdf` → `data-pdf-list`, `data-pdf-order`. */
 	prefix: string;
-	kind: Parameters<typeof uploadPostAsset>[2];
+	kind: UploadKind;
 	labels: L;
 	initialAssets: A[];
 	renderItem: (ctx: AttachmentItemContext<A, L>) => HTMLElement;
-	/** Kontener listy; domyślnie `[data-{prefix}-list]`. */
+	renderPending?: (pending: PendingUpload, uploadingLabel: string) => HTMLElement;
 	listSelector?: string;
-	/** Element „brak załączników"; domyślnie `[data-{prefix}-empty]`. */
 	emptySelector?: string;
-	/** Element wygaszany na czas uploadu; domyślnie `<label>` opakowujący input. */
 	uploadBusySelector?: string;
-	/** Galeria przyjmuje wiele plików naraz. */
 	multiple?: boolean;
 	toAsset: (uploaded: UploadedAsset) => A;
 };
@@ -62,8 +64,10 @@ export function createAttachmentPanel<A extends AttachmentAsset, L extends Attac
 	const listSelector = config.listSelector ?? `[data-${prefix}-list]`;
 	const emptySelector = config.emptySelector ?? `[data-${prefix}-empty]`;
 	const attr = (action: 'up' | 'down' | 'remove') => `data-${prefix}-${action}`;
+	const uploadingLabel = () => root.dataset.labelUploading ?? '';
 
 	let order: A[] = [...config.initialAssets];
+	let pending: PendingUpload[] = [];
 
 	function syncOrderInput(): void {
 		const input = root.querySelector(`[data-${prefix}-order]`);
@@ -95,6 +99,8 @@ export function createAttachmentPanel<A extends AttachmentAsset, L extends Attac
 				button?.removeAttribute('disabled');
 				return;
 			}
+			const removed = order.find((a) => a.id === assetId);
+			revokeBlobUrl(removed?.url);
 			order = order.filter((a) => a.id !== assetId);
 			render();
 		} catch {
@@ -108,22 +114,23 @@ export function createAttachmentPanel<A extends AttachmentAsset, L extends Attac
 		if (!(list instanceof HTMLElement)) return;
 
 		list.innerHTML = '';
-		root.querySelector(emptySelector)?.classList.toggle('hidden', order.length > 0);
+		root.querySelector(emptySelector)?.classList.toggle('hidden', order.length + pending.length > 0);
 
 		order.forEach((asset, index) => {
 			const item = config.renderItem({ asset, index, total: order.length, labels, attr });
 			item.dataset.assetId = asset.id;
-
 			item.querySelector(`[${attr('up')}]`)?.addEventListener('click', () => swap(index, index - 1));
-			item
-				.querySelector(`[${attr('down')}]`)
-				?.addEventListener('click', () => swap(index, index + 1));
+			item.querySelector(`[${attr('down')}]`)?.addEventListener('click', () => swap(index, index + 1));
 			item.querySelector(`[${attr('remove')}]`)?.addEventListener('click', () => {
 				void removeAsset(asset.id, item.querySelector(`[${attr('remove')}]`));
 			});
-
 			list.appendChild(item);
 		});
+
+		const renderPending = config.renderPending ?? renderPendingAttachmentRow;
+		for (const item of pending) {
+			list.appendChild(renderPending(item, uploadingLabel()));
+		}
 
 		syncOrderInput();
 	}
@@ -141,23 +148,38 @@ export function createAttachmentPanel<A extends AttachmentAsset, L extends Attac
 			: input.closest('label');
 		busy?.classList.add('opacity-50', 'pointer-events-none');
 
-		const uploadLabels = {
-			uploadFailed: root.dataset.labelUploadFailed ?? '',
-			networkError: root.dataset.labelNetworkError ?? '',
-		};
-
-		for (const file of config.multiple ? files : files.slice(0, 1)) {
-			const result = await uploadPostAsset(postId, file, config.kind, uploadLabels);
-			if (!result.ok) {
-				alert(result.error || `${uploadLabels.uploadFailed}: ${file.name}`);
-				continue;
-			}
-			order.push(config.toAsset(result.asset));
-		}
+		pending = await uploadSelectedFiles(files, pending, {
+			postId,
+			kind: config.kind,
+			multiple: config.multiple,
+			labels: {
+				uploadFailed: root.dataset.labelUploadFailed ?? '',
+				networkError: root.dataset.labelNetworkError ?? '',
+				uploading: uploadingLabel(),
+			},
+			listRoot: root,
+			onPendingChange(next) {
+				pending = next;
+				render();
+			},
+			toAsset(uploaded, previewUrl) {
+				const asset = config.toAsset({
+					...uploaded,
+					url: previewUrl || uploaded.url,
+				});
+				order.push(asset);
+				render();
+			},
+		});
 		render();
 
 		input.value = '';
 		busy?.classList.remove('opacity-50', 'pointer-events-none');
+	});
+
+	window.addEventListener('pagehide', () => {
+		pending.forEach(revokePendingPreview);
+		order.forEach((asset) => revokeBlobUrl(asset.url));
 	});
 
 	return {

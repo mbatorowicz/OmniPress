@@ -7,6 +7,7 @@ import {
 	type AttachmentItemContext,
 	type AttachmentPanelLabels,
 } from '@/lib/editor/attachment-panel';
+import { renderPendingGalleryCard } from '@/lib/editor/attachment-pending';
 import type { GalleryAsset } from './client-init';
 import { iconButtonHtml, stepButtonHtml } from '@/lib/ui/button-markup';
 
@@ -57,6 +58,7 @@ export function mountGalleryPanel(
 		listSelector: '[data-gallery-grid]',
 		uploadBusySelector: '[data-gallery-upload-label]',
 		renderItem: renderCard,
+		renderPending: renderPendingGalleryCard,
 		toAsset: (uploaded) => ({
 			id: uploaded.id,
 			url: uploaded.url,

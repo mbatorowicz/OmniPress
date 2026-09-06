@@ -3,6 +3,13 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createAttachmentPanel, type AttachmentAsset } from './attachment-panel';
+import { uploadPostAsset } from './upload-asset';
+
+vi.mock('./upload-asset', () => ({
+	uploadPostAsset: vi.fn(),
+}));
+
+const uploadMock = vi.mocked(uploadPostAsset);
 
 const labels = {
 	moveUp: 'W górę',
@@ -74,9 +81,15 @@ function orderValue(root: HTMLElement): string {
 describe('createAttachmentPanel', () => {
 	beforeEach(() => {
 		document.body.innerHTML = '';
+		vi.stubGlobal('URL', {
+			...URL,
+			createObjectURL: vi.fn(() => 'blob:pending-preview'),
+			revokeObjectURL: vi.fn(),
+		});
 	});
 
 	afterEach(() => {
+		uploadMock.mockReset();
 		vi.unstubAllGlobals();
 	});
 
@@ -212,5 +225,49 @@ describe('createAttachmentPanel', () => {
 
 		expect(filenames(root)).toEqual(['a.pdf', 'b.pdf']);
 		expect(orderValue(root)).toBe('a,b');
+	});
+
+	it('podczas uploadu pokazuje wiersz postępu, a po sukcesie gotowy plik', async () => {
+		let report!: (fraction: number) => void;
+		let finish!: (value: Awaited<ReturnType<typeof uploadPostAsset>>) => void;
+		uploadMock.mockImplementation((_postId, _file, _kind, _labels, onProgress) => {
+			report = onProgress ?? (() => {});
+			return new Promise((resolve) => {
+				finish = resolve;
+			});
+		});
+
+		const { root } = mount([]);
+		root.dataset.labelUploading = 'Wysyłanie…';
+		const input = root.querySelector('[data-pdf-upload]') as HTMLInputElement;
+		const file = new File(['x'], 'akt.pdf', { type: 'application/pdf' });
+		Object.defineProperty(input, 'files', { value: [file] });
+		input.dispatchEvent(new Event('change'));
+
+		await vi.waitFor(() => expect(root.querySelector('[data-pending-id]')).toBeTruthy());
+		expect(root.querySelector('[data-pdf-empty]')?.classList.contains('hidden')).toBe(true);
+		expect(orderValue(root)).toBe('');
+
+		report(0.4);
+		await vi.waitFor(() =>
+			expect(root.querySelector('[data-upload-status]')?.textContent).toBe('Wysyłanie… 40%'),
+		);
+
+		finish({
+			ok: true,
+			asset: {
+				id: 'new',
+				url: 'https://example.test/new.pdf',
+				filename: 'akt.pdf',
+				mime_type: 'application/pdf',
+				display_mode: 'link',
+				sort_order: 0,
+			},
+			markdown: null,
+		});
+
+		await vi.waitFor(() => expect(filenames(root)).toEqual(['akt.pdf']));
+		expect(root.querySelector('[data-pending-id]')).toBeNull();
+		expect(orderValue(root)).toBe('new');
 	});
 });

@@ -1,3 +1,5 @@
+import { putSignedUpload, uploadStagePercent, type UploadProgressHandler } from './upload-xhr';
+
 export type UploadKind = 'gallery' | 'pdf' | 'docx' | 'file';
 
 export type UploadedAsset = {
@@ -28,13 +30,17 @@ type UploadCompleteResponse = {
 	error?: string;
 };
 
+export type UploadAssetLabels = { uploadFailed: string; networkError: string };
+
 export async function uploadPostAsset(
 	postId: string,
 	file: File,
 	kind: UploadKind,
-	labels: { uploadFailed: string; networkError: string },
+	labels: UploadAssetLabels,
+	onProgress?: UploadProgressHandler,
 ): Promise<UploadAssetResult> {
 	try {
+		onProgress?.(uploadStagePercent('url') / 100);
 		const urlRes = await fetch(`/api/posts/${postId}/upload-url`, {
 			method: 'POST',
 			credentials: 'same-origin',
@@ -51,21 +57,20 @@ export async function uploadPostAsset(
 			return { ok: false, error: urlData.error ?? labels.uploadFailed };
 		}
 
-		// Jak @supabase/storage-js uploadToSignedUrl dla Blob/File — multipart FormData.
-		// Wymuszamy MIME z API (np. GPKG zamiast octet-stream z przeglądarki).
 		const typedFile = new File([file], file.name, { type: urlData.mime });
 		const body = new FormData();
 		body.append('cacheControl', '3600');
 		body.append('', typedFile, file.name);
-		const putRes = await fetch(urlData.signedUrl, {
-			method: 'PUT',
-			headers: { 'x-upsert': 'false' },
-			body,
-		});
-		if (!putRes.ok) {
-			return { ok: false, error: labels.uploadFailed };
+		try {
+			await putSignedUpload(urlData.signedUrl, body, (fraction) => {
+				onProgress?.(uploadStagePercent('put', fraction) / 100);
+			});
+		} catch (err) {
+			const network = err instanceof Error && err.message === 'network';
+			return { ok: false, error: network ? labels.networkError : labels.uploadFailed };
 		}
 
+		onProgress?.(uploadStagePercent('complete') / 100);
 		const completeRes = await fetch(`/api/posts/${postId}/upload-complete`, {
 			method: 'POST',
 			credentials: 'same-origin',
@@ -83,6 +88,7 @@ export async function uploadPostAsset(
 			return { ok: false, error: completeData.error ?? labels.uploadFailed };
 		}
 
+		onProgress?.(uploadStagePercent('done') / 100);
 		return {
 			ok: true,
 			asset: completeData.asset,

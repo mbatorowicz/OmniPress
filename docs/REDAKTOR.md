@@ -54,9 +54,9 @@ Jeśli nie masz przypisanej strony, zamiast przycisku zobaczysz *Brak strony doc
 1. Na panelu kliknij **+ Nowy artykuł**.
 2. Jeśli masz dostęp do kilku stron, najpierw wybierz jednostkę z listy *Strona*. Przy jednej stronie wybór nie jest potrzebny.
 3. Otworzy się pusty edytor. Wybierz **kategorię** i wpisz **tytuł** — bez tego nie zapiszesz ani nie wyślesz artykułu.
-4. Napisz treść. Zdjęcia i pliki dodaj w sekcjach pod edytorem.
+4. Napisz treść. Zdjęcia i pliki dodaj w sekcjach pod edytorem. Miniatura i pasek postępu pojawiają się od razu po wyborze pliku.
 5. Opcjonalnie ustaw datę i godzinę publikacji oraz adres w polu *Slug*.
-6. Kliknij **Zapisz szkic**, jeśli chcesz dokończyć później. Albo **Wyślij do akceptacji**, gdy artykuł jest gotowy.
+6. Odświeżenie karty **nie kasuje** wpisanych pól. Kliknij **Zapisz szkic**, jeśli chcesz dokończyć później z listy. Albo **Wyślij do akceptacji**, gdy artykuł jest gotowy.
 
 Przy wysyłaniu pojawi się potwierdzenie. Po wysłaniu **nie zmienisz już tekstu**, dopóki administrator nie podejmie decyzji.
 
@@ -89,7 +89,7 @@ Przy wysyłaniu pojawi się potwierdzenie. Po wysłaniu **nie zmienisz już teks
 
 | Przycisk | Skutek |
 |----------|--------|
-| **Zapisz szkic** | Wersja robocza. Możesz wracać i poprawiać (status *Szkic* albo *Do poprawki*). |
+| **Zapisz szkic** | Wersja robocza na serwerze. Możesz wracać i poprawiać (status *Szkic* albo *Do poprawki*). Odświeżenie karty i tak przywraca niewysłane pola. |
 | **Wyślij do akceptacji** | Przekazuje artykuł administratorowi. Edycja zostaje zablokowana. |
 | **Usuń wpis** | Kasuje artykuł razem z plikami. Tylko *Szkic* albo *Do poprawki*. **Nie można cofnąć.** |
 

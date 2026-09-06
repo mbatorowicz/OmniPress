@@ -197,6 +197,27 @@
 	.ui-gallery-cover-badge {
 		@apply absolute left-2 top-2 z-10 rounded bg-brand px-2 py-0.5 text-xs font-medium text-white;
 	}
+	.ui-gallery-card--pending {
+		@apply opacity-90;
+	}
+	.ui-gallery-pending-placeholder {
+		@apply aspect-[4/3] w-full bg-surface-muted;
+	}
+	.ui-upload-pending {
+		@apply opacity-90;
+	}
+	.ui-upload-meter {
+		@apply h-1.5 w-full appearance-none overflow-hidden rounded-full bg-surface-muted;
+	}
+	.ui-upload-meter::-webkit-progress-bar {
+		@apply bg-surface-muted;
+	}
+	.ui-upload-meter::-webkit-progress-value {
+		@apply bg-brand;
+	}
+	.ui-upload-meter::-moz-progress-bar {
+		@apply bg-brand;
+	}
 	.ui-warning-text {
 		@apply text-sm text-warning-text;
 	}

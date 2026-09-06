@@ -15,6 +15,7 @@ import { dashboard } from '@/i18n';
 import type { PostAsset } from '@/lib/publish/asset-model';
 import type { PostRow } from '@/lib/posts';
 import type { CategoryOption } from '@/lib/categories/types';
+import { DEFAULT_PUBLISH_HOUR, utcIsoToWallTimeInput } from '@/lib/posts/scheduled-publish';
 
 interface Props {
 	post: PostRow;
@@ -53,6 +54,16 @@ const gal = ed.gallery;
 const pdfUi = ed.pdfAttachments;
 const docxUi = ed.docxAttachments;
 const fileUi = ed.fileAttachments;
+const wall = utcIsoToWallTimeInput(post.scheduled_publish_at);
+const [scheduleDate = '', scheduleTime = ''] = wall ? wall.split('T') : ['', ''];
+const draftBaseline = {
+	title: post.title ?? '',
+	slug: post.slug ?? '',
+	category_slug: post.category_slug ?? '',
+	content_md: post.content_md ?? '',
+	scheduled_publish_date: scheduleDate,
+	scheduled_publish_hour: scheduleTime || DEFAULT_PUBLISH_HOUR,
+};
 ---
 
 {categoryWarnings.length > 0 && (
@@ -77,7 +88,10 @@ const fileUi = ed.fileAttachments;
 	method="post"
 	action={`/api/posts/${postId}/save`}
 	class="ui-panel ui-panel--default space-y-4"
+	data-post-id={postId}
+	data-draft-baseline={JSON.stringify(draftBaseline)}
 >
+	<p class="ui-hint hidden" data-draft-restored>{ed.draftRestored}</p>
 	{returnTo === 'admin' && <input type="hidden" name="return_to" value="admin" />}
 	<Label>
 		<span class="font-medium">{ed.fields.category}</span>
