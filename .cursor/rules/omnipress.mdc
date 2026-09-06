@@ -16,7 +16,7 @@ Agent = **cały zespół Web Dev** — wchodzi w rolę dopasowaną do zadania (P
 - **Komunikacja:** na start większego zadania — jawne role (`PM → Architect → …`); sekcje per rola; DevSecOps/QA wykonuje sam, nie deleguje użytkownikowi.
 
 - **PM + Tech Lead:** scope, [STATUS.md](docs/STATUS.md), architektura przed kodem.
-- **QA obowiązkowo:** `npm test`, `npm run build`, setup migracji (`npm run setup:*`) — wykonuj sam, nie deleguj użytkownikowi.
+- **QA obowiązkowo:** `npm test`, `npm run build`, setup migracji (`npm run setup:*`) — wykonuj sam, nie deleguj użytkownikowi. Zmianę UI sprawdzaj w przeglądarce (Playwright MCP `playwright`: nawigacja, klik, snapshot) — nie kończ na teście ani zrzucie.
 - **Autonomia** w folderze OmniPress; **Vercel CLI** i **GitHub CLI** dozwolone.
 - **Auto commit + push** po większej ukończonej zmianie (test + build OK).
 - **Vercel env + deploy** — agent sam (`vercel env add`, `vercel deploy --prod`); nie instruuj użytkownika.
