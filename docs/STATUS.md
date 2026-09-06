@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.12.0** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.12.1** (kod + baza + panel).
 
 Produkcja: https://omni-press.cncsolutions.dev
 
@@ -42,7 +42,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Logowanie e-mail/hasło | ✅ |
 | Przypisanie do stron (`user_sites`, `default_site_id`) | ✅ |
 | Tworzenie szkicu na dozwolonej stronie | ✅ odświeżenie karty przywraca niewysłane pola |
-| Edytor WYSIWYG (TipTap) → Markdown | ✅ |
+| Edytor WYSIWYG (TipTap) → Markdown | ✅ jeden renderer Markdown + ten sam odstęp akapitów w edytorze, podglądzie i na stronie |
 | Kategoria główna + dodatkowe (np. Aktualności → strona główna) | ✅ |
 | Galeria zdjęć (cover + kolejność) | ✅ miniatura i postęp uploadu od razu |
 | Załączniki PDF (link / podgląd, do 50 MB) | ✅ signed upload → Supabase Storage |

@@ -15,20 +15,23 @@
 		pointer-events: none;
 	}
 
-	.rich-editor .tiptap h2 {
+	.rich-editor .tiptap h2,
+	.post-content-html :where(h2) {
 		font-size: 1.35rem;
 		font-weight: 600;
 		margin: 1rem 0 0.5rem;
 	}
 
-	.rich-editor .tiptap h3 {
+	.rich-editor .tiptap h3,
+	.post-content-html :where(h3) {
 		font-size: 1.15rem;
 		font-weight: 600;
 		margin: 0.75rem 0 0.5rem;
 	}
 
 	.rich-editor .tiptap ul,
-	.rich-editor .tiptap ol {
+	.rich-editor .tiptap ol,
+	.post-content-html :where(ul, ol) {
 		padding-left: 1.5rem;
 		margin: 0.5rem 0;
 	}
@@ -38,22 +41,23 @@
 		@apply text-link underline;
 	}
 
-	.rich-editor .tiptap blockquote {
+	.rich-editor .tiptap blockquote,
+	.post-content-html :where(blockquote) {
 		border-left: 3px solid var(--color-border-strong);
 		margin: 0.75rem 0;
 		padding-left: 1rem;
 		color: var(--color-text-secondary);
 	}
 
+	.rich-editor .tiptap p,
 	.post-content-html :where(p) {
-		margin-bottom: 1rem;
+		margin: 0 0 0.85rem;
 		line-height: 1.65;
 	}
 
-	.post-content-html :where(h2, h3) {
-		margin-top: 1.5rem;
-		margin-bottom: 0.75rem;
-		font-weight: 600;
+	.rich-editor .tiptap p:last-child,
+	.post-content-html :where(p:last-child) {
+		margin-bottom: 0;
 	}
 
 	.post-content-html :where(img) {

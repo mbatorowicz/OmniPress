@@ -62,7 +62,7 @@ export const dashboard = {
 			slug: 'Slug (opcjonalnie)',
 			slugPlaceholder: 'np. komunikat-urzedu',
 			content: 'Treść artykułu',
-			contentHint: 'Pogrubienie, nagłówki, listy i linki. Zdjęcia i PDF dodaj poniżej.',
+			contentHint: 'Enter zaczyna akapit. Wklejony tekst wygląda tak samo w edytorze, podglądzie i na stronie. Zdjęcia i PDF dodaj poniżej.',
 			contentPlaceholder: 'Wpisz treść artykułu…',
 			amendmentHint:
 				'Poprawka wpisu na stronie — zapisz i wyślij ponownie. Do kolejnej akceptacji zostaje poprzednia wersja.',

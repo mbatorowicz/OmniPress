@@ -75,7 +75,7 @@ Import z barrela (`@/lib/posts`) w komponencie zwykle wywala lint, bo barrel re-
 - **Klasy:** `src/styles/ui.css` (importuje partiale z `src/styles/ui/`) — prefiks `ui-*`.
 - **Tokeny:** `src/styles/global.css` (`@theme`) — brand, surface, tekst, obramowania, link, danger, info, warning, nav depth.
 - **Typografia:** `src/styles/ui/typography.css` — `ui-title-brand`, `ui-title-page`, `ui-title-preview`, `ui-nav-group-label`.
-- **Treść:** `src/styles/ui/rich-content.css` — edytor TipTap i render HTML postów.
+- **Treść:** `src/styles/ui/rich-content.css` — te same style akapitów w edytorze TipTap i podglądzie. Markdown → HTML: `lib/content/render-markdown.ts` (edytor i podgląd). Normalizacja złamanych wierszy: `lib/content/unwrap-paragraphs.ts` (lustro w repo Astro: `remark-unwrap-hard-wraps.js`).
 - **Layouty:** `src/layouts/` — `BaseLayout`, `PublicLayout`, `AuthLayout`, `AppLayout`.
 - **Powłoka:** `src/components/shell/` — header, footer, `AdminSidebar` (stała nawigacja admina), `AdminContextNav` (kontekst jednostki). Breadcrumby: `ui/navigation/Breadcrumbs` — przekazywane przez prop `breadcrumbs` w `AppLayout`.
 - **Design system:** `src/components/ui/` — podfoldery `actions/`, `feedback/`, `form/`, `table/`, `layout/`, `navigation/`.

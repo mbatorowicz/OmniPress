@@ -17,7 +17,7 @@ import {
 } from '@/lib/posts';
 import { combineScheduleDateHour, wallTimeInZoneToUtcIso } from '@/lib/posts/scheduled-publish';
 import { loadFirstPublishedAt, resolveSavedPublishAt } from '@/lib/publish/publish-date';
-import { sanitizeStorageMarkdown } from '@/lib/content/sanitize';
+import { prepareStorageMarkdown } from '@/lib/content/prepare-markdown';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const postId = params.id;
@@ -39,7 +39,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	if (!post) return redirectPostError(redirect, editorPath, 'forbidden');
 
 	const title = String(form.get('title') ?? '').trim();
-	const content_md = sanitizeStorageMarkdown(String(form.get('content_md') ?? ''));
+	const content_md = prepareStorageMarkdown(String(form.get('content_md') ?? ''));
 	const slugInput = String(form.get('slug') ?? '').trim();
 	const rawSlug = slugInput || (title ? normalizeSlug(title) : post.slug ?? '');
 	const baseSlug = rawSlug ? normalizeSlug(rawSlug) : '';

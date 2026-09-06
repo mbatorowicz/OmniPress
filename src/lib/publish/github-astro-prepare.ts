@@ -24,7 +24,7 @@ import {
 	postSlugFromMarkdownPath,
 	resolvePostSlug,
 } from './paths';
-import { sanitizePublishMarkdown } from '@/lib/content/sanitize';
+import { preparePublishMarkdown } from '@/lib/content/prepare-markdown';
 import type { PostForPublish, PublishResult } from './types';
 import { collectPostAssetWrites } from './github-astro-assets';
 import { resolvePublishMarkdownPath, resolveStaleFolderDeletes } from './github-astro-paths';
@@ -117,7 +117,7 @@ export async function prepareGitHubAstroPublish(
 	});
 	const hasPdfEmbed = assetsForDisplay.some((a) => a.display_mode === 'embed');
 	const pdfViewerWrites = hasPdfEmbed ? await preparePdfViewerWrites(cfg, token) : [];
-	const publishedBody = sanitizePublishMarkdown(
+	const publishedBody = preparePublishMarkdown(
 		applyAssetDisplayToMarkdown(bodyWithFiles, assetsForDisplay, {
 			forPublish: true,
 		}),

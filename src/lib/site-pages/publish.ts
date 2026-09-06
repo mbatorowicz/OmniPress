@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { loadSiteAstroDestination } from '@/lib/admin/sites';
-import { sanitizePublishMarkdown } from '@/lib/content/sanitize';
+import { preparePublishMarkdown } from '@/lib/content/prepare-markdown';
 import {
 	decryptDestinationCredentials,
 	isGitHubCredentials,
@@ -55,7 +55,7 @@ export async function publishSitePageToGitHub(
 		return { ok: false, error: 'no_github_token' };
 	}
 
-	const body = buildSanitizedPageMarkdown(page, sanitizePublishMarkdown(page.content_md));
+	const body = buildSanitizedPageMarkdown(page, preparePublishMarkdown(page.content_md));
 	const prepared = await prepareSitePagePublish(cfg, creds.token, dest.config, page, body);
 	if (!prepared.ok) return { ok: false, error: prepared.error };
 

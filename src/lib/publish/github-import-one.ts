@@ -7,7 +7,7 @@ import { syncPostAssetsFromGitHub } from './import-assets';
 import { ensureSuccessPublishLog, findExistingPostId } from './import-publish-log';
 import { formatExternalGitHubPath } from './paths';
 import type { DestinationForPublish } from './types';
-import { sanitizeStorageMarkdown } from '@/lib/content/sanitize';
+import { prepareStorageMarkdown } from '@/lib/content/prepare-markdown';
 import { decideReconcile, hashPublishedContent } from '@/lib/sync/policy';
 import { toPublishAtIso } from './publish-date';
 
@@ -101,7 +101,7 @@ export async function importOnePost(
 		if (next !== 'pull') return { action: 'skipped', errors: [] };
 	}
 
-	const contentMd = sanitizeStorageMarkdown(stripPublishedAttachments(parsed.body));
+	const contentMd = prepareStorageMarkdown(stripPublishedAttachments(parsed.body));
 	const postPayload = {
 		title: parsed.title,
 		slug,

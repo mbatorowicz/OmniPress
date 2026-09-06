@@ -7,7 +7,7 @@ import {
 	resolveSitePageFields,
 	updateSitePage,
 } from '@/lib/site-pages';
-import { sanitizeStorageMarkdown } from '@/lib/content/sanitize';
+import { prepareStorageMarkdown } from '@/lib/content/prepare-markdown';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const auth = guardAdminRedirect(locals, redirect);
@@ -27,7 +27,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		String(form.get('title') ?? ''),
 		String(form.get('slug') ?? ''),
 		String(form.get('path_prefix') ?? ''),
-		sanitizeStorageMarkdown(String(form.get('content_md') ?? '')),
+		prepareStorageMarkdown(String(form.get('content_md') ?? '')),
 		page.slug,
 	);
 	if (!resolved.ok) {

@@ -3,6 +3,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import StarterKit from '@tiptap/starter-kit';
 import { Editor } from '@tiptap/core';
 import { isSafeUrl } from '@/lib/content/sanitize';
+import { unwrapHardWrappedHtml } from '@/lib/content/unwrap-html';
 
 type CreatePostEditorOptions = {
 	element: HTMLElement;
@@ -35,9 +36,9 @@ export function createPostEditor(opts: CreatePostEditorOptions): Editor {
 		content: opts.initialHtml,
 		editorProps: {
 			attributes: {
-				class:
-					'prose prose-sm max-w-none min-h-[280px] px-4 py-3 focus:outline-none text-text-emphasis',
+				class: 'min-h-[280px] px-4 py-3 focus:outline-none text-text-emphasis',
 			},
+			transformPastedHTML: (html) => unwrapHardWrappedHtml(html),
 		},
 		onUpdate: ({ editor: ed }) => {
 			opts.onChange(ed.getHTML());

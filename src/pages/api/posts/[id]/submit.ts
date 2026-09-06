@@ -3,7 +3,7 @@ import { guardAuthRedirect, isGuardBlocked, redirectPostError } from '@/lib/api'
 import { loadSubmittablePost, parseExtraCategorySlugs, resolvePostCategoryFields } from '@/lib/posts';
 import { combineScheduleDateHour, parseScheduledPublishAtInput } from '@/lib/posts/scheduled-publish';
 import { loadFirstPublishedAt, resolveSavedPublishAt } from '@/lib/publish/publish-date';
-import { sanitizeStorageMarkdown } from '@/lib/content/sanitize';
+import { prepareStorageMarkdown } from '@/lib/content/prepare-markdown';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const postId = params.id;
@@ -27,7 +27,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	if (!post) return redirectPostError(redirect, editorPath, 'forbidden');
 
 	const title = String(form.get('title') ?? '').trim() || post.title;
-	const content_md = sanitizeStorageMarkdown(String(form.get('content_md') ?? post.content_md));
+	const content_md = prepareStorageMarkdown(String(form.get('content_md') ?? post.content_md));
 	const categorySlug = String(form.get('category_slug') ?? '').trim() || post.category_slug;
 	const extraSlugs = parseExtraCategorySlugs(form);
 

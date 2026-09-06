@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Naprawione
+
+- **Edytor, podgląd i strona pokazują te same akapity.** Wklejka z Worda albo Enter w połowie zdania zapisywały każdy wiersz jako osobny akapit — w edytorze odstępy były małe, w podglądzie i na stronie ogromne. Jest jedna konwersja Markdown → HTML (`marked` + sanityzacja) i ta sama normalizacja złamanych wierszy przy zapisie, imporcie, publikacji i renderze. Repo strony scala te same pozorne akapity przy budowie (`remarkUnwrapHardWraps`).
+
 ### Zmienione
 
 - **Dług P2-3 i P2-5:** podział wszystkich plików z prefiksem `DŁUG` w OmniPress i repo strony (baryłki zachowują dotychczasowe importy). Usunięte potwierdzone martwe klucze i18n (zakładki layoutu, `savedDraft`, `pdfTooLarge`, `alreadyConfigured` i ~40 dalszych unikalnych). Wyjątki rozmiaru: 4 uzasadnione w OmniPress, 6 arkuszy CSS w repo strony.
