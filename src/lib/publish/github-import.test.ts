@@ -128,6 +128,7 @@ describe('importOnePost', () => {
 			title: 'Wpis z GitHub',
 			slug: 'wpis',
 			status: 'published',
+			scheduled_publish_at: '2026-09-01T00:00:00.000Z',
 			live_blob_sha: 'live-blob',
 		});
 		expect(deps.ensureSuccessPublishLog).toHaveBeenCalled();
@@ -175,6 +176,7 @@ describe('importOnePost', () => {
 		expect(patch).toMatchObject({
 			content_md: 'Treść na origin',
 			status: 'published',
+			scheduled_publish_at: '2026-09-01T00:00:00.000Z',
 			live_blob_sha: 'new-blob',
 		});
 	});

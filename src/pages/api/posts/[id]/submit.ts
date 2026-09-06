@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { guardAuthRedirect, isGuardBlocked, redirectPostError } from '@/lib/api';
 import { loadSubmittablePost, resolvePostCategoryFields } from '@/lib/posts';
 import { combineScheduleDateHour, parseScheduledPublishAtInput } from '@/lib/posts/scheduled-publish';
+import { loadFirstPublishedAt, resolveSavedPublishAt } from '@/lib/publish/publish-date';
 import { sanitizeStorageMarkdown } from '@/lib/content/sanitize';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
@@ -49,8 +50,13 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	if (schedule.error === 'invalid') {
 		return redirectPostError(redirect, editorPath, 'schedule_invalid');
 	}
-	// Brak daty = publikacja w momencie wysłania (po akceptacji administratora).
-	const scheduled_publish_at = schedule.value ?? new Date().toISOString();
+	// Brak daty przy pierwszym wysłaniu = teraz; poprawka zostawia datę pierwszej publikacji.
+	const scheduled_publish_at = resolveSavedPublishAt({
+		formValue: schedule.value,
+		existingScheduledAt: post.scheduled_publish_at,
+		firstPublishedAt: await loadFirstPublishedAt(supabase, postId),
+		defaultToNow: true,
+	});
 
 	const { error } = await supabase
 		.from('posts')

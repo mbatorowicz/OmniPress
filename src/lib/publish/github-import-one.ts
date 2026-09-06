@@ -9,6 +9,7 @@ import { formatExternalGitHubPath } from './paths';
 import type { DestinationForPublish } from './types';
 import { sanitizeStorageMarkdown } from '@/lib/content/sanitize';
 import { decideReconcile, hashPublishedContent } from '@/lib/sync/policy';
+import { toPublishAtIso } from './publish-date';
 
 export type ImportOneAction = 'imported' | 'updated' | 'skipped';
 
@@ -109,6 +110,7 @@ export async function importOnePost(
 		category_name: parsed.categoryName || null,
 		pinned: parsed.pinned,
 		status: 'published' as const,
+		scheduled_publish_at: toPublishAtIso(parsed.date),
 		live_blob_sha: liveBlobSha,
 		published_content_sha: hashPublishedContent(contentMd),
 	};

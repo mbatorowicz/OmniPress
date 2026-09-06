@@ -49,7 +49,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Załączniki DOCX (link, do 50 MB) | ✅ |
 | Pliki do pobrania (GPKG / XLSX / ZIP, do 50 MB) | ✅ `setup:storage-xlsx-zip` |
 | Zapis szkicu, wysłanie do akceptacji | ✅ |
-| Data publikacji + godzina z listy 6:00–20:00 (czas polski); bez daty = publikacja w momencie wysłania | ✅ |
+| Data publikacji + godzina z listy 6:00–20:00 (czas polski); bez daty = publikacja w momencie wysłania | ✅ na stronie zostaje data pierwszej publikacji (poprawka jej nie zmienia) |
 | Usuwanie własnych wpisów (`draft` / `rejected`) wraz z plikami Storage | ✅ migracja `setup:posts-delete-own` |
 | Edycja tylko `draft` / `rejected`; poprawki opublikowanych (amendment) | ✅ (administrator poprawia także `pending` / `scheduled`) |
 | Podgląd treści po wysłaniu / odrzuceniu | ✅ |

@@ -15,6 +15,7 @@ import {
 	updatePostAssetDisplayModes,
 } from '@/lib/posts';
 import { combineScheduleDateHour, wallTimeInZoneToUtcIso } from '@/lib/posts/scheduled-publish';
+import { loadFirstPublishedAt, resolveSavedPublishAt } from '@/lib/publish/publish-date';
 import { sanitizeStorageMarkdown } from '@/lib/content/sanitize';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
@@ -54,13 +55,19 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		form.get('scheduled_publish_date'),
 		form.get('scheduled_publish_hour'),
 	);
-	let scheduled_publish_at: string | null = null;
+	let formSchedule: string | null = null;
 	if (scheduleRaw) {
-		scheduled_publish_at = wallTimeInZoneToUtcIso(scheduleRaw);
-		if (!scheduled_publish_at) {
+		formSchedule = wallTimeInZoneToUtcIso(scheduleRaw);
+		if (!formSchedule) {
 			return redirectPostError(redirect, editorPath, 'schedule_invalid');
 		}
 	}
+	const scheduled_publish_at = resolveSavedPublishAt({
+		formValue: formSchedule,
+		existingScheduledAt: post.scheduled_publish_at,
+		firstPublishedAt: await loadFirstPublishedAt(supabase, postId),
+		defaultToNow: false,
+	});
 
 	const { error } = await supabase
 		.from('posts')

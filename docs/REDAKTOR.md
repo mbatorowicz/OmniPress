@@ -69,7 +69,7 @@ Przy wysyłaniu pojawi się potwierdzenie. Po wysłaniu **nie zmienisz już teks
 | Kategoria | Wymagana. Lista ze strony. Gdy jest pusta — poproś administratora. |
 | Tytuł | Nagłówek artykułu na stronie. Wymagany. |
 | Slug (opcjonalnie) | Krótki adres w linku, np. `komunikat-urzedu`. Puste pole = system utworzy adres z tytułu (polskie znaki zamieni na zwykłe). |
-| Data publikacji + godzina | Opcjonalnie. **Puste** = po akceptacji od razu. **Data w przyszłości** = o wybranej godzinie. **Data wsteczna** = data w artykule, publikacja po akceptacji. Czas polski, godziny 6:00–20:00. |
+| Data publikacji + godzina | Opcjonalnie. **Puste** = po akceptacji od razu. **Data w przyszłości** = o wybranej godzinie. **Data wsteczna** = data w artykule, publikacja po akceptacji. Poprawka już opublikowanego wpisu **nie zmienia** daty na stronie, jeśli nie ustawisz nowej. Czas polski, godziny 6:00–20:00. |
 | Treść artykułu | Edytor z pogrubieniem, kursywą, nagłówkami, listami i linkami. Zdjęcia i PDF dodaj poniżej, nie wklejaj ich w tekst. |
 
 ---

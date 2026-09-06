@@ -27,6 +27,7 @@ import { sanitizePublishMarkdown } from '@/lib/content/sanitize';
 import type { PostForPublish, PublishResult } from './types';
 import { collectPostAssetWrites } from './github-astro-assets';
 import { resolvePublishMarkdownPath, resolveStaleFolderDeletes } from './github-astro-paths';
+import { loadFirstPublishedAt, resolvePublishDate } from './publish-date';
 
 export type PreparedGitHubAstroPublish =
 	| { status: 'done'; result: PublishResult }
@@ -126,7 +127,10 @@ export async function prepareGitHubAstroPublish(
 	if (!excerpt.trim() && fileAssets.length > 0) {
 		excerpt = fileAssets[0]!.filename.replace(/\.(pdf|docx|gpkg|xlsx|zip)$/i, '');
 	}
-	const pubDate = post.scheduled_publish_at ?? post.updated_at ?? new Date().toISOString();
+	const pubDate = resolvePublishDate({
+		scheduledPublishAt: post.scheduled_publish_at,
+		firstPublishedAt: await loadFirstPublishedAt(supabase, post.id),
+	});
 	const fileContent = buildAstroMarkdown(post.title, prepared.bodyMd, pubDate, cfg.contentLayout, {
 		slug: post.category_slug ?? '',
 		name: post.category_name ?? '',

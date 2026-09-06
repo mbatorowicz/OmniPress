@@ -52,7 +52,7 @@ export async function ensureSuccessPublishLog(
 
 	const { data: existing } = await supabase
 		.from('publish_logs')
-		.select('id')
+		.select('id, published_at')
 		.eq('post_id', postId)
 		.eq('destination_id', destinationId)
 		.order('created_at', { ascending: false })
@@ -60,7 +60,10 @@ export async function ensureSuccessPublishLog(
 		.maybeSingle();
 
 	if (existing?.id) {
-		await supabase.from('publish_logs').update(payload).eq('id', existing.id);
+		const next = existing.published_at
+			? { ...payload, published_at: existing.published_at as string }
+			: payload;
+		await supabase.from('publish_logs').update(next).eq('id', existing.id);
 		return;
 	}
 
