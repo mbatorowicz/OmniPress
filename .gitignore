@@ -21,6 +21,7 @@ pnpm-debug.log*
 # macOS / IDE
 .DS_Store
 .idea/
+.cursor/mcp.json
 
 # Vercel
 .vercel
