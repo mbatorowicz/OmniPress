@@ -116,7 +116,7 @@ const layoutText = {
 	homeFeedPinnedHint:
 		'W sekcji przypiętych wyświetlają się tylko wpisy z flagą przypięcia — sam checkbox kategorii nie wystarczy.',
 	homeFeedTileHeightHint:
-		'Puste pole = automatyczna wysokość (proporcja miniatury 16:10). Wpisz wartość 200–600, aby ustawić stałą wysokość całego kafelka.',
+		'Puste pole = automatyczna wysokość (miniatura 16:10). Wartość 200–600 ustawia stałą wysokość wszystkich kafelków wpisów — na stronie głównej i w archiwach kategorii.',
 	previewChipNoCategories: 'Brak przypisanych kategorii',
 	previewChipCategoriesPrefix: 'Kategorie:',
 	previewChipPinnedOnly: 'tylko przypięte',
@@ -153,7 +153,7 @@ const layoutText = {
 		'Modal otwiera szczegóły w szerokim oknie nad stroną — zalecane dla czytelności długich treści ostrzeżeń.',
 	categoriesHint: 'Slug musi odpowiadać segmentowi URL wpisu (/{category}/{slug}).',
 	categoryArchiveHint:
-		'Dotyczy listy wpisów na stronie /{slug}/ — kafelki (z miniaturą i zajawką) lub lista tytułów z datą.',
+		'Dotyczy listy wpisów na stronie /{slug}/ — kafelki (miniatura 16:10 i zajawka; wysokość z komponentu strony głównej) lub lista tytułów z datą.',
 } as const;
 
 export const adminLayout = {
