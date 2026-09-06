@@ -86,4 +86,34 @@ describe('mountCategoriesForm', () => {
 		const newEditor = editors[1] as HTMLElement;
 		expect(newEditor.classList.contains('hidden')).toBe(false);
 	});
+
+	it('podpowiada slug z nazwy, dopóki redaktor go nie zmieni', () => {
+		document.body.innerHTML = `
+			<form data-categories-form>
+				<table>
+					<tbody id="categories-body">
+						<tr class="category-row-summary" data-category-entry="0">
+							<td>
+								<span class="category-summary-name">—</span>
+								<span class="category-summary-slug">—</span>
+							</td>
+						</tr>
+						<tr class="category-row-editor" data-category-entry="0">
+							<td colspan="2">
+								<input name="category_slug" value="" />
+								<input name="category_name" value="" />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</form>
+		`;
+
+		mountCategoriesForm(labels);
+		const name = document.querySelector('input[name="category_name"]') as HTMLInputElement;
+		const slug = document.querySelector('input[name="category_slug"]') as HTMLInputElement;
+		name.value = 'Mazowsze bez smogu';
+		name.dispatchEvent(new Event('input', { bubbles: true }));
+		expect(slug.value).toBe('mazowsze-bez-smogu');
+	});
 });

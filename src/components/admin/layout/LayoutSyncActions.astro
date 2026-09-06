@@ -4,9 +4,10 @@ import Button from '@/components/ui/actions/Button.astro';
 
 interface Props {
 	section: 'navigation' | 'categories' | 'components';
+	siteId?: string;
 }
 
-const { section } = Astro.props;
+const { section, siteId } = Astro.props;
 
 const saveLabel =
 	section === 'navigation'
@@ -14,10 +15,20 @@ const saveLabel =
 		: section === 'categories'
 			? adminLayout.actions.saveDraftCategories
 			: adminLayout.actions.saveDraftComponents;
+
+const publishAction =
+	section === 'categories' && siteId ? `/api/admin/sites/${siteId}/layout/publish` : null;
 ---
 
 <div class="flex flex-wrap items-center gap-3">
 	<Button type="submit" variant="secondary">
 		{saveLabel}
 	</Button>
+	{
+		publishAction && (
+			<Button type="submit" variant="primary" formaction={publishAction}>
+				{adminLayout.actions.publishCategories}
+			</Button>
+		)
+	}
 </div>

@@ -40,6 +40,8 @@ const layoutText = {
 	slotZoneBadge: 'Strefa',
 	categoriesFeedAssignHint:
 		'Przypisanie kategorii do sekcji strony głównej ustawiasz w zakładce Komponenty → Konfiguracja slotów (przy feedzie strony głównej).',
+	categoriesPublishHint:
+		'„Opublikuj kategorie na stronie” wysyła listę kategorii do GitHub. Menu i stopka zostają takie, jak na żywej stronie.',
 	lead: 'Menu, kategorie i komponenty — szkic w OmniPress, publikacja na żądanie do repozytorium GitHub.',
 	publishedLayout: 'Layout wysłany na stronę — panel pokazuje dokładnie opublikowaną konfigurację.',
 	publishSkipped: 'Bez zmian względem strony — pominięto commit na GitHub.',

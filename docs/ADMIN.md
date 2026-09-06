@@ -153,7 +153,7 @@ Model **szkic + auto-pull + jawna publikacja**: edycja zapisuje roboczy stan w S
 | **Opublikuj na stronie** | tak (przed sync) | commit | webhook |
 
 - **Menu:** `/admin/units/[id]/navigation` — edytor drzewa nawigacji (do 3 poziomów). Publikacja wysyła tylko `omnipress-navigation.json`. Przed publikacją walidacja linków wewnętrznych.
-- **Kategorie:** `/admin/units/[id]/categories` — slug/nazwa kategorii + macierz widoczności w komponentach feed. Publikacja wysyła tylko `omnipress-categories.json`.
+- **Kategorie:** `/admin/units/[id]/posts` — slug, nazwa i układ archiwum. „Opublikuj kategorie na stronie” nakłada listę na aktualny `omnipress-layout.json` (menu i stopka zostają z live). Feedy i menu ustawiasz osobno w Komponentach / Nagłówku.
 - **Komponenty:** `/admin/units/[id]/components` — lista slotów (`home.*`, `sidebar.weather`, `sidebar.cert_advisories`, `sidebar.recent_changes`, `sidebar.banner` itd.) w tym samym pliku kategorii. Publikacja jak w zakładce Kategorie. Wspólne pole kolejności (`order`) dla sidebaru. `sidebar.weather` i `sidebar.cert_advisories` pobierają dane **na żywo** z API na stronie Astro — bez syncu JSON do repo. Widget CERT zawsze dopełnia listę do limitu z panelu.
 - **Strony statyczne:** `/admin/units/[id]/pages` — treści pod stałe URL; lista i edytor wczytują stan z GitHub. Publikacja nie nadpisze istniejącej treści pustym szkicem. *Utwórz strony z menu* dodaje tylko brakujące szkice (bez commita).
 - **Wpisy:** przy wejściu na kolejkę / listę Omni dociąga opublikowane pliki z repo; szkice i kolejka nie są nadpisywane.
@@ -172,7 +172,7 @@ Model **szkic + auto-pull + jawna publikacja**: edycja zapisuje roboczy stan w S
 | Problem | Działanie |
 |---------|-----------|
 | Publikacja `failed` | Podgląd wpisu → kolumna podsumowania (GitHub / Vercel) → **Ponów publikację** |
-| Brak kategorii w edytorze | *Kategorie* → kategorie + plik `omnipress-categories.json` w repo |
+| Brak kategorii w edytorze | *Wpisy* jednostki → kategorie + publikacja do `omnipress-layout.json` |
 | Credentials nie zapisują się | Ustaw `ENCRYPTION_KEY` na Vercel |
 | Worker nie działa | Vercel: `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, redeploy |
 

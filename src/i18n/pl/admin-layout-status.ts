@@ -6,7 +6,7 @@ export const adminLayoutStatus = {
 		inSyncDetail:
 			'Ustawienia w formularzu są identyczne z plikiem layoutu na GitHub, z którego renderuje Astro.',
 		draftAheadCombined: 'Strona jeszcze nie ma Twoich zmian',
-		draftAheadDetailNote: 'Zapisz szkic, potem „Opublikuj cały layout”, aby wysłać je na stronę.',
+		draftAheadDetailNote: 'Zapisz szkic, potem opublikuj na stronie, żeby zmiany zobaczyli mieszkańcy.',
 		liveAheadCombined: 'Strona zmieniona poza OmniPress',
 		liveAheadDetail:
 			'Plik na GitHub różni się od szkicu. Panel sam wczyta stronę, gdy nie masz niewysłanych zmian lokalnych.',
@@ -30,7 +30,7 @@ export const adminLayoutStatus = {
 	draftStatus: {
 		inSync: 'Panel odzwierciedla stronę live',
 		inSyncCombined: 'Panel odzwierciedla stronę — ustawienia identyczne z plikiem layoutu na GitHub.',
-		draftAhead: 'Szkic ma nieopublikowane zmiany — użyj „Opublikuj cały layout”, aby wysłać je na stronę.',
+		draftAhead: 'Szkic ma nieopublikowane zmiany — opublikuj je na stronie, żeby pojawiły się u mieszkańców.',
 		liveAhead:
 			'Strona live została zmieniona poza OmniPress. Szkic zostaje — publikacja nadpisze stronę Twoją wersją.',
 		draftMissingHref:

@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
 import { layoutSectionReturnPath } from '@/lib/admin/layout-editor-context';
+import { resolveLayoutBaseForSectionSave } from '@/lib/admin/layout-section-save-base';
 import { parseLayoutSection } from '@/lib/astro-layout/parse-form';
 import { countNavigationHrefs } from '@/lib/astro-layout/validate-nav';
 import { loadSiteAstroLayout, saveSiteAstroLayout } from '@/lib/astro-layout/store';
@@ -12,12 +13,17 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const siteId = params.id;
 	if (!siteId) return redirect('/admin/sites');
 
-	const existing = await loadSiteAstroLayout(supabase, siteId);
+	const stored = await loadSiteAstroLayout(supabase, siteId);
 	const form = await request.formData();
 	const section = String(form.get('section') ?? 'all').trim();
 	const returnTab = String(form.get('return_tab') ?? '').trim() || null;
 	const returnContext = String(form.get('return_context') ?? '').trim() || null;
 	const returnSegment = layoutSectionReturnPath(section, returnTab, returnContext);
+	const base = await resolveLayoutBaseForSectionSave(supabase, siteId, stored, section);
+	if (!base.ok) {
+		return redirect(`/admin/units/${siteId}/${returnSegment}?error=${base.error}`);
+	}
+	const existing = base.layout;
 
 	const parsed = parseLayoutSection(form, existing);
 

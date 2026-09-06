@@ -146,4 +146,19 @@ describe('importSiteAstroLayoutFromGitHub', () => {
 		expect(result.error).toBe('import_nav_empty');
 		expect(mocks.updatePayload).not.toHaveBeenCalled();
 	});
+
+	it('przy persist:false nie zapisuje szkicu w bazie', async () => {
+		mocks.getGitHubFileText.mockImplementation(async (_cfg, _token, path: string) => {
+			if (path === LAYOUT_PATH) return null;
+			if (path.includes('navigation')) return GMINA_NAV;
+			return null;
+		});
+
+		const { importSiteAstroLayoutFromGitHub } = await import('./store');
+		const result = await importSiteAstroLayoutFromGitHub(createSupabase(), 'site-1', {
+			persist: false,
+		});
+		expect(result.ok).toBe(true);
+		expect(mocks.updatePayload).not.toHaveBeenCalled();
+	});
 });

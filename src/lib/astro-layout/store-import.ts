@@ -29,6 +29,7 @@ export type LayoutImportResult =
 export async function importSiteAstroLayoutFromGitHub(
 	supabase: SupabaseClient,
 	siteId: string,
+	options: { persist?: boolean } = {},
 ): Promise<LayoutImportResult> {
 	const dest = await loadSiteAstroDestination(supabase, siteId);
 	if (!dest?.is_active) return { ok: false, error: 'no_astro_destination' };
@@ -56,21 +57,27 @@ export async function importSiteAstroLayoutFromGitHub(
 		layoutContract: imported.layoutContract,
 	});
 
+	const report: LayoutImportReport = {
+		hrefCount: collectNavHrefs(merged.navigation).length,
+		layoutPath: layout.layoutPath,
+		layoutHash: imported.layoutHash,
+		navigationPath: layout.navigationPath,
+		navHash: imported.layoutHash,
+	};
+
+	if (options.persist === false) {
+		return { ok: true, layout: merged, report };
+	}
+
 	const saved = await saveSiteAstroLayout(supabase, siteId, merged, { updateDraftMeta: false });
 	if (!saved.ok) return { ok: false, error: 'save_failed' };
 
 	const persisted = await loadSiteAstroLayout(supabase, siteId);
-	const persistedHrefCount = collectNavHrefs(persisted.navigation).length;
+	report.hrefCount = collectNavHrefs(persisted.navigation).length;
 
 	return {
 		ok: true,
 		layout: persisted,
-		report: {
-			hrefCount: persistedHrefCount,
-			layoutPath: layout.layoutPath,
-			layoutHash: imported.layoutHash,
-			navigationPath: layout.navigationPath,
-			navHash: imported.layoutHash,
-		},
+		report,
 	};
 }

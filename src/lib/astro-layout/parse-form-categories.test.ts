@@ -41,6 +41,26 @@ describe('parseCategoriesFromForm', () => {
 		const result = parseCategoriesFromForm(categoryForm([['', 'Aktualności']]));
 		expect(result).toEqual({ ok: false, error: 'invalid_category_slug' });
 	});
+
+	it('zachowuje 1 kolumnę gdy lista tytułów też wysyła kolumny', () => {
+		const form = new FormData();
+		form.append('category_slug', 'zarzadzenia');
+		form.append('category_name', 'Zarządzenia');
+		form.append('category_archive_layout', 'title-list');
+		form.append('category_archive_columns', '1');
+		form.append('category_slug', 'ochrona-ludnosci');
+		form.append('category_name', 'Ochrona ludności');
+		form.append('category_archive_layout', 'tiles');
+		form.append('category_archive_columns', '1');
+
+		const result = parseCategoriesFromForm(form);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.categories).toEqual([
+			{ slug: 'zarzadzenia', name: 'Zarządzenia', archiveLayout: 'title-list' },
+			{ slug: 'ochrona-ludnosci', name: 'Ochrona ludności', archiveColumns: 1 },
+		]);
+	});
 });
 
 describe('mergeLayoutFromFormData categories', () => {

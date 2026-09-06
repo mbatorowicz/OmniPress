@@ -129,9 +129,13 @@ const categoryLabels = {
 												<span class="category-row-editor-label">{adminLayout.fields.categoryArchiveColumns}</span>
 												<select
 													name="category_archive_columns"
-													class="category-archive-columns ui-select-compact w-full"
+													class:list={[
+														'category-archive-columns ui-select-compact w-full',
+														settings.layout === 'title-list' && 'is-inert',
+													]}
 													data-initial-columns={String(settings.columns)}
-													disabled={settings.layout === 'title-list'}
+													aria-disabled={settings.layout === 'title-list' ? 'true' : 'false'}
+													tabindex={settings.layout === 'title-list' ? -1 : 0}
 												>
 													<option value="1" selected={settings.columns === 1}>
 														{adminLayout.categoryArchiveColumnsOptions.one}

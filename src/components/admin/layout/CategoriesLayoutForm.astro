@@ -25,6 +25,7 @@ const { siteId, layout } = Astro.props;
 	<h2 class="ui-section-title">{adminLayout.categoriesTitle}</h2>
 	<Alert variant="info" class="ui-alert--note">{adminLayout.categoriesSlugWarning}</Alert>
 	<Alert variant="info" class="ui-alert--note">{adminLayout.categoriesFeedAssignHint}</Alert>
+	<Alert variant="info" class="ui-alert--note">{adminLayout.categoriesPublishHint}</Alert>
 	<CategoryMatrixSection {layout} />
-	<LayoutSyncActions section="categories" />
+	<LayoutSyncActions section="categories" {siteId} />
 </form>

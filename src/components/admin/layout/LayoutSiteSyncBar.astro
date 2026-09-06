@@ -37,6 +37,7 @@ const {
 
 const publishAllAction = `/api/admin/sites/${siteId}/layout/publish-all`;
 const publishBlocked = navHasMissingHref;
+const showPublishAll = currentSection !== 'categories';
 
 const isLegacy = layoutContract === 'legacy';
 
@@ -94,16 +95,20 @@ const metaParts = [
 					{metaParts.length > 0 && (
 						<p class="ui-muted mt-1 text-sm">{metaParts.join(' · ')}</p>
 					)}
-					<p class="ui-hint mt-2 text-sm">{adminLayout.syncBar.saveBeforePublish}</p>
+					{showPublishAll && (
+						<p class="ui-hint mt-2 text-sm">{adminLayout.syncBar.saveBeforePublish}</p>
+					)}
 				</div>
-				<div class="flex flex-wrap gap-2">
-					<form method="post" action={publishAllAction}>
-						<input type="hidden" name="return_section" value={currentSection} />
-						<Button type="submit" variant="primary" disabled={publishBlocked || isLegacy}>
-							{adminLayout.syncBar.publishAllLayout}
-						</Button>
-					</form>
-				</div>
+				{showPublishAll && (
+					<div class="flex flex-wrap gap-2">
+						<form method="post" action={publishAllAction}>
+							<input type="hidden" name="return_section" value={currentSection} />
+							<Button type="submit" variant="primary" disabled={publishBlocked || isLegacy}>
+								{adminLayout.syncBar.publishAllLayout}
+							</Button>
+						</form>
+					</div>
+				)}
 			</div>
 		</Panel>
 	)

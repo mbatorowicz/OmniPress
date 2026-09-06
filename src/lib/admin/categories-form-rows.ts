@@ -1,6 +1,7 @@
 import type { CategoriesFormLabels } from './categories-form-client';
 import {
 	bindCategoryArchiveFields,
+	bindCategorySlugFromName,
 	getEditorForSummary,
 	getEditorRows,
 	initCategoryArchiveFields,
@@ -85,6 +86,7 @@ function createCategoryEntryElements(
 export function initCategoryRow(editorRow: HTMLElement, labels: CategoriesFormLabels): void {
 	initCategoryArchiveFields(editorRow);
 	bindCategoryArchiveFields(editorRow, labels);
+	bindCategorySlugFromName(editorRow, labels);
 	syncCategorySummary(editorRow, labels);
 }
 

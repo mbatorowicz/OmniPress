@@ -307,4 +307,8 @@
 	.category-row-editor-footer {
 		@apply mt-3 flex justify-end border-t border-border-soft pt-2;
 	}
+
+	.category-archive-columns.is-inert {
+		@apply pointer-events-none cursor-not-allowed opacity-50;
+	}
 }

@@ -107,6 +107,7 @@ export const adminLayoutFields = {
 	actions: {
 		saveDraftNavigation: 'Zapisz szkic menu',
 		saveDraftCategories: 'Zapisz szkic kategorii',
+		publishCategories: 'Opublikuj kategorie na stronie',
 		saveDraftComponents: 'Zapisz szkic komponentów',
 		publishLayout: 'Opublikuj na stronie',
 		addCategory: '+ Dodaj kategorię',

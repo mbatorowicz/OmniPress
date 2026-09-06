@@ -84,5 +84,5 @@ export const adminUnit = {
 
 export const adminUnitPosts = {
 	title: 'Wpisy',
-	lead: 'Kategorie wpisów oraz kolejka akceptacji i publikacji.',
+	lead: 'Tu zarządzasz kategoriami wpisów — dodajesz, edytujesz i publikujesz je na stronie. Poniżej kolejka akceptacji i publikacji.',
 } as const;

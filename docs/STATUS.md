@@ -79,7 +79,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Bulk: akceptacja / odrzucenie (pending), anulowanie harmonogramu, dezaktywacja / usuwanie | ✅ |
 | Przypinanie wpisu na stronie głównej (`pinned`) | ✅ migracja `setup:posts-pinned` |
 | Import wpisów z GitHub | ✅ auto przy wejściu na panel (bez przycisku) |
-| Layout Astro (menu, kategorie, sloty) + sync do repo | ✅ `/admin/units/[id]/navigation` itd. |
+| Layout Astro (menu, kategorie, sloty) + sync do repo | ✅ menu `/navigation`; kategorie `/posts` (publikacja listy na live); sloty `/components` |
 | Ustawienia strony (nazwa, slug, GitHub, tokeny) | ✅ `/admin/units/[id]` |
 | Strony statyczne (admin) + publikacja do repo Astro | ✅ `/admin/units/[id]/pages` — auto-pull z GitHub, publikacja nie nadpisze pustką |
 | Walidacja linków menu przed sync GitHub | ✅ |

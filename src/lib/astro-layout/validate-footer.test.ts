@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { emptySiteAstroLayout } from './types';
 import { migrateFlatSlotsToZones } from './zones';
 import { validateFooterLinks } from './validate-footer';
-import { validateLayoutPublicLinks } from './validate-layout-links';
+import { blockingLayoutLinkIssues, validateLayoutPublicLinks } from './validate-layout-links';
 
 const known = new Set([
 	'/',
@@ -97,5 +97,22 @@ describe('validateLayoutPublicLinks', () => {
 			'/gmina/brak-strony',
 			'/deklaracja-dostepnosci',
 		]);
+	});
+});
+
+describe('blockingLayoutLinkIssues', () => {
+	const dead = { href: '/stary', labelPath: 'Stary', reason: 'dead_link' as const };
+
+	it('przy kategoriach pomija linki, które już były na live', () => {
+		expect(blockingLayoutLinkIssues('categories', [dead], [dead])).toEqual([]);
+	});
+
+	it('przy kategoriach blokuje nowy martwy link', () => {
+		const added = { href: '/nowy', labelPath: 'Nowy', reason: 'dead_link' as const };
+		expect(blockingLayoutLinkIssues('categories', [dead], [dead, added])).toEqual([added]);
+	});
+
+	it('przy innych sekcjach zostawia wszystkie zgłoszenia', () => {
+		expect(blockingLayoutLinkIssues('navigation', [dead], [dead])).toEqual([dead]);
 	});
 });

@@ -1,3 +1,4 @@
+import { normalizeSlug } from '@/lib/admin/slug';
 import type { CategoriesFormLabels } from './categories-form-client';
 
 export function getEditorRows(body: HTMLElement): HTMLElement[] {
@@ -41,7 +42,11 @@ export function syncArchiveColumnsField(editorRow: HTMLElement): void {
 	const columnsSelect = editorRow.querySelector('.category-archive-columns') as HTMLSelectElement | null;
 	if (!layoutSelect || !columnsSelect) return;
 	const isTitleList = layoutSelect.value === 'title-list';
-	columnsSelect.disabled = isTitleList;
+	// Nie używamy `disabled` — pole nie wchodzi wtedy do FormData i przesuwa
+	// kolejne `category_archive_columns` (Ochrona ludności traciła 1 kolumnę).
+	columnsSelect.ariaDisabled = isTitleList ? 'true' : 'false';
+	columnsSelect.classList.toggle('is-inert', isTitleList);
+	columnsSelect.tabIndex = isTitleList ? -1 : 0;
 }
 
 export function initCategoryArchiveFields(editorRow: HTMLElement): void {
@@ -73,6 +78,25 @@ export function bindCategoryArchiveFields(editorRow: HTMLElement, labels: Catego
 			syncCategorySummary(editorRow, labels);
 		});
 	}
+}
+
+export function bindCategorySlugFromName(editorRow: HTMLElement, labels: CategoriesFormLabels): void {
+	const slugInput = editorRow.querySelector('input[name="category_slug"]');
+	const nameInput = editorRow.querySelector('input[name="category_name"]');
+	if (!(slugInput instanceof HTMLInputElement) || !(nameInput instanceof HTMLInputElement)) return;
+	if (slugInput.dataset.slugFromNameBound === '1') return;
+	slugInput.dataset.slugFromNameBound = '1';
+	if (!slugInput.value.trim()) slugInput.dataset.slugManual = '0';
+
+	nameInput.addEventListener('input', () => {
+		if (slugInput.dataset.slugManual === '1') return;
+		slugInput.value = normalizeSlug(nameInput.value);
+		syncCategorySummary(editorRow, labels);
+	});
+	slugInput.addEventListener('input', () => {
+		slugInput.dataset.slugManual = '1';
+		syncCategorySummary(editorRow, labels);
+	});
 }
 
 export function syncCategorySummary(editorRow: HTMLElement, labels: CategoriesFormLabels): void {
@@ -112,5 +136,14 @@ export function openCategoryEditor(editorRow: HTMLElement, body: HTMLElement, la
 	editorRow.classList.remove('hidden');
 	editorRow.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
 	const slugInput = editorRow.querySelector('input[name="category_slug"]');
+	const nameInput = editorRow.querySelector('input[name="category_name"]');
+	if (
+		slugInput instanceof HTMLInputElement &&
+		!slugInput.value.trim() &&
+		nameInput instanceof HTMLInputElement
+	) {
+		nameInput.focus();
+		return;
+	}
 	if (slugInput instanceof HTMLInputElement) slugInput.focus();
 }
