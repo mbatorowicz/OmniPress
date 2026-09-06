@@ -4,6 +4,7 @@ import AdminContextNav from '@/components/shell/AdminContextNav.astro';
 import AdminQueueSection from '@/components/admin/queue/AdminQueueSection.astro';
 import CategoriesLayoutForm from '@/components/admin/layout/CategoriesLayoutForm.astro';
 import LayoutEditorStatus from '@/components/admin/layout/LayoutEditorStatus.astro';
+import LayoutSiteSyncBar from '@/components/admin/layout/LayoutSiteSyncBar.astro';
 import FlashAlerts from '@/components/shared/FlashAlerts.astro';
 import { admin, adminUnitPosts } from '@/i18n';
 import { loadLayoutEditorContext } from '@/lib/admin/layout-editor-context';
@@ -74,14 +75,29 @@ const summary = [
 
 	<FlashAlerts messages={flashMessages} />
 
+	<LayoutSiteSyncBar
+		siteId={id}
+		hasAstroChannel={ctx.hasAstroChannel}
+		currentSection="categories"
+		combinedDraftStatus={ctx.combinedDraftStatus}
+		navDraftStatus={ctx.navDraftStatus}
+		categoriesDraftStatus={ctx.categoriesDraftStatus}
+		navHasMissingHref={ctx.navHasMissingHref}
+		lastPublishedAt={ctx.lastPublishedAt}
+		lastPublishedSha={ctx.lastPublishedSha}
+		lastDraftSavedAt={ctx.lastDraftSavedAt}
+		layoutFilePath={ctx.layoutFilePath}
+		layoutContract={ctx.layoutContract}
+	/>
+
 	<LayoutEditorStatus
 		draftStatus={ctx.categoriesDraftStatus}
-		navHasMissingHref={false}
+		navHasMissingHref={ctx.navHasMissingHref}
 		lastPublishedAt={ctx.lastPublishedAt}
 		lastPublishedSha={ctx.lastPublishedSha}
 		lastDraftSavedAt={ctx.lastDraftSavedAt}
 		hasAstroChannel={ctx.hasAstroChannel}
-		navWarningLines={[]}
+		navWarningLines={ctx.navWarningLines}
 		{...layoutFlash}
 		errorMessage={layoutFlash.errorMessage}
 	/>

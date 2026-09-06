@@ -8,6 +8,7 @@ describe('admin slug', () => {
 
 	it('akceptuje poprawny slug', () => {
 		expect(isValidSlug('ug-miedzna')).toBe(true);
+		expect(isValidSlug('zarzadzenia')).toBe(true);
 	});
 
 	it('odrzuca zbyt krótki', () => {

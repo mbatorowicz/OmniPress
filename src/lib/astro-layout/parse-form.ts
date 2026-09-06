@@ -40,6 +40,8 @@ export type LayoutFormSection = 'navigation' | 'categories' | 'components' | 'la
 export type LayoutFormError =
 	| 'invalid_navigation'
 	| 'no_categories'
+	| 'invalid_category_slug'
+	| 'duplicate_category_slug'
 	| 'no_slots'
 	| 'invalid_section';
 
@@ -120,8 +122,10 @@ export function mergeLayoutFromFormData(
 	}
 
 	if (section === 'categories' || section === 'all') {
-		const categories = parseCategoriesFromForm(form);
-		if (categories.length === 0) return { ok: false, error: 'no_categories' };
+		const parsed = parseCategoriesFromForm(form);
+		if (!parsed.ok) return parsed;
+		if (parsed.categories.length === 0) return { ok: false, error: 'no_categories' };
+		const categories = parsed.categories;
 		layout.categories = categories;
 		layout.categoryDisplays =
 			section === 'all'

@@ -41,6 +41,10 @@ export const adminLayoutStatus = {
 	errors: {
 		invalid_navigation: 'Menu: nieprawidłowy JSON lub struktura.',
 		no_categories: 'Dodaj co najmniej jedną kategorię (slug + nazwa).',
+		invalid_category_slug:
+			'Każda kategoria musi mieć poprawny slug (litery, cyfry i myślniki, min. 2 znaki) oraz nazwę.',
+		duplicate_category_slug:
+			'Dwie kategorie mają ten sam slug po normalizacji — zmień jeden z nich.',
 		no_slots: 'Dodaj co najmniej jeden komponent.',
 		save_failed: 'Zapis nie powiódł się.',
 		no_astro_destination: 'Brak repozytorium GitHub — skonfiguruj je w Ustawieniach strony.',

@@ -29,12 +29,16 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 19 | `aria-current` w menu górnym — ✅ **wykonane** | niskie | — |
 | 20 | Pułapka fokusu wyszukiwarki — ✅ **wykonane** | niskie | — |
 | 21 | Stopka: martwe linki prawne + walidacja — ✅ **wykonane** | niskie | — |
+| 22 | Kategorie: publikacja na miejscu + walidacja slugu (K-1, K-5, K-6) | niskie | 23, 24 |
+| 23 | Kategorie: jedna reguła opublikowanej listy (K-2, K-7) | średnie | — |
+| 24 | Kategorie: remap slugu + checklist dodawania (K-3, K-4) | średnie | po 22 |
+| 25 | Kategorie: UX formularza + ADMIN.md (K-8–K-11) | zerowe | po 22 |
 
 ---
 
 ## Następna sesja
 
-Podejścia 1–21 zamknięte 2026-09-04. Audyt jest domknięty.
+Podejścia 1–21 zamknięte 2026-09-04. **Otwarte:** flow kategorii — podejścia **22 → 23 → 24 → 25** (kolejność wiążąca). Znaleziska: [AUDYT.md](./AUDYT.md) §Audyt kategorii wpisów.
 
 **DNS cutover jest ostatnim krokiem projektu, nie następną sesją.** Domena produkcyjna `gmina-miedzna.pl` zostaje na starym hostingu do odwołania. Nowa strona działa pod `gmina-miedzna.cncsolutions.dev`.
 
@@ -779,6 +783,85 @@ Do tego `admin/github-token.ts` importował nieistniejący typ `GitHubRepoConfig
 - Stopka: `phoneToTelHref`, `aria-current`, etykieta CTA ze slota, `nav` „Linki prawne”; `Footer.astro` 150 linii.
 
 **Wynik weryfikacji:** repo A — `npm test` 771/771 (+22 RLS opt-in) · `npm run lint` OK · `npm run build` OK. Repo B — `npm test` 120/120 · `npm run lint` OK · `npm run check` 0 errors · `npm run build` OK. HTML: home — `tel:+48256918327`, legal `/gmina/deklaracja-dostepnosci` + `/gmina/klauzula-rodo`; `/gmina/deklaracja-dostepnosci` — `aria-current="page"` na deklaracji.
+
+---
+
+## Podejście 22 — publikacja na miejscu + walidacja slugu
+
+**Cel:** administrator publikuje kategorię z tego samego ekranu, na którym ją dodaje; OmniPress nie wypchnie slugu, który padnie na buildzie Astro (K-1, K-5, K-6).
+
+**Kroki**
+
+1. Wstawić `LayoutSiteSyncBar` na `/admin/units/[id]/posts` (obok `LayoutEditorStatus`). `return_section=categories` już wraca na `/posts`.
+2. W `parseCategoriesFromForm`: po `normalizeSlug` wołać `isValidSlug`; duplikaty (case-insensitive, po normalizacji) → błąd formularza, nie ciche pominięcie. Pusty wynik normalizacji → `invalid_category_slug`, nie `continue`.
+3. Przed `putGitHubFilesBatch` w `syncSiteAstroLayoutToGitHub`: `assertLayoutFileContract` na payloadzie. Lustro regexu Astro: `/^[a-z0-9]+(?:-[a-z0-9]+)*$/`.
+4. Zaostrzyć `categorySchema` w `layout-file-schema.ts` (format + unikalność slugów). Testy: `zarządzenia` + `zarzadzenia` → błąd; `!!` → błąd; `zarzadzenia` → OK (regresja `parse.test.ts`).
+
+**Weryfikacja:** `npm test` (parse + layout-contract + sync); na `/posts` widać „Opublikuj cały layout”; publikacja z duplikatem slugu nie commituje.
+
+**Commit:** tylko repo A.
+
+### Wykonano (2026-09-06)
+
+- `/admin/units/[id]/posts` — `LayoutSiteSyncBar` obok statusu (`return_section=categories`).
+- `parseCategoriesFromForm`: `isValidSlug` po `normalizeSlug`; pusty wynik i zły format → `invalid_category_slug`; duplikat po normalizacji → `duplicate_category_slug`.
+- `categorySchema`: regex `/^[a-z0-9]+(?:-[a-z0-9]+)*$/` + unikalność slugów; `assertLayoutFileContract` przed `putGitHubFilesBatch`.
+- Testy: `parse-form-categories.test.ts`, `layout-contract.test.ts`.
+
+**Wynik weryfikacji:** `npm test` 780/780 (+22 RLS opt-in; 1 flaka `ensure-site` na timeout, przy powtórce OK) · `npm run lint` OK · `npm run build` OK. Brak narzędzi przeglądarki w sesji — przycisk to ten sam `LayoutSiteSyncBar` co na ustawieniach i w edytorze wyglądu.
+
+---
+
+## Podejście 23 — jedna reguła opublikowanej listy
+
+**Cel:** redaktor i akceptacja widzą te same kategorie co strona publiczna (K-2, K-7).
+
+**Kroki**
+
+1. Rozdzielić źródło: select redaktora / `resolvePostCategoryFields` czyta **opublikowany** layout (hash / kopia live), nie sam szkic. Szkic zostaje w panelu admina.
+2. Albo (łagodniej, ten sam efekt dla wpisu): szkic w selectcie z etykietą „szkic — nie na stronie” i blokadą submit/approve, dopóki layout nie jest opublikowany.
+3. `submit.ts`: usunąć fallback `resolvedCategory ?? { category_slug }`. Brak kategorii z listy = `category_required`, jak w `save.ts`.
+4. `approvePost`: poza `missingForPublish` sprawdzić, że `category_slug` jest na liście opublikowanych kategorii.
+5. Testy: szkic nowej kategorii → redaktor jej nie wyśle; submit z osieroconym slugiem → błąd; approve bez kategorii z listy → `category_required`.
+
+**Weryfikacja:** `npm test`; ręcznie: zapisz szkic kategorii bez publikacji → select redaktora bez nowej pozycji (albo z blokadą).
+
+**Commit:** tylko repo A.
+
+---
+
+## Podejście 24 — remap slugu + checklist dodawania
+
+**Cel:** zmiana slugu nie gubi wpisów i feedów; dodanie kategorii prowadzi przez layout / feed / menu (K-3, K-4).
+
+**Kroki**
+
+1. Przy zapisie sekcji `categories` wykryć zmianę slugu (stary → nowy, po normalizacji). Zliczyć `posts` z starym `category_slug`. Zablokować zapis albo zapytać i przepisać: `posts.category_slug` / `category_name`, `categoryDisplays`, `widget.categorySlug` banerów.
+2. Republika wpisów **nie** jest automatyczna (świadomie — K-4 ostrzega o URL). Po remap w bazie pokazać liczbę opublikowanych wpisów wymagających ponownej publikacji.
+3. Checklist na formularzu kategorii (i18n): szkic zapisany → layout opublikowany → kategoria w feedzie `home.*` → pozycja w menu. Stan z `draftStatus` + `categoryDisplays` + `buildKnownNavPaths` / drzewa menu.
+4. Opcjonalnie przy dodaniu: checkbox „dodaj do feedu Aktualności” i „dodaj do menu” — tylko gdy admin zaznaczy; domyślnie off, ale widoczne.
+
+**Weryfikacja:** test remap (`odpady` → `gospodarka-odpadami`) zostawia `displays` i baner; test prune bez remap nie kasuje po cichu. `npm test`.
+
+**Commit:** tylko repo A. Jeśli checklist wymaga tekstów — `src/i18n/pl/admin-layout.ts`.
+
+---
+
+## Podejście 25 — UX formularza + dokumentacja
+
+**Cel:** slug nie zaskakuje po zapisie; instrukcja zgadza się z kodem (K-8–K-11).
+
+**Kroki**
+
+1. Autopodpowiedź slugu z nazwy (`normalizeSlug`) przy pustym polu slugu; podgląd `/{slug}/` na żywo w podsumowaniu wiersza.
+2. Usunięcie: `confirm` z i18n + liczba wpisów w kategorii; ostatnia kategoria — widoczny komunikat, nie cichy no-op.
+3. [ADMIN.md](./ADMIN.md): kategorie na `/admin/units/[id]/posts`; publikacja całego `omnipress-layout.json`; feedy w Komponentach; menu w Nagłówku. Zdjąć `omnipress-categories.json` z troubleshooting.
+4. Stopka formularza: `layout.layoutPath` (domyślnie `src/config/omnipress-layout.json`), nie `categoriesPath`.
+5. [STATUS.md](./STATUS.md): ścieżka edycji kategorii = `/admin/units/[id]/posts`, nie `/navigation`.
+
+**Weryfikacja:** `npm test` (form client); grep w `docs/ADMIN.md` bez `omnipress-categories.json` jako aktualnej ścieżki publikacji.
+
+**Commit:** tylko repo A (docs + UI).
 
 ---
 

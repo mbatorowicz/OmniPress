@@ -114,4 +114,36 @@ describe('layout file contract', () => {
 		const withLegacy = { ...payload, weather: { terytCodes: ['1465'] } };
 		expect(() => layoutFileSchema.parse(withLegacy)).toThrow();
 	});
+
+	it('akceptuje slug zarzadzenia (regresja)', () => {
+		const payload = parseLayoutFilePayload(buildLayoutFilePayload(sampleLayout()));
+		payload.categories = [{ slug: 'zarzadzenia', name: 'Zarządzenia' }];
+		expect(() => layoutFileSchema.parse(payload)).not.toThrow();
+	});
+
+	it('odrzuca slug kategorii poza regexem Astro', () => {
+		const payload = parseLayoutFilePayload(buildLayoutFilePayload(sampleLayout()));
+		payload.categories = [{ slug: '!!', name: 'Złe' }];
+		expect(() => layoutFileSchema.parse(payload)).toThrow();
+		payload.categories = [{ slug: 'zarządzenia', name: 'Zarządzenia' }];
+		expect(() => layoutFileSchema.parse(payload)).toThrow();
+	});
+
+	it('odrzuca duplikat slugu kategorii (case-insensitive)', () => {
+		const payload = parseLayoutFilePayload(buildLayoutFilePayload(sampleLayout()));
+		payload.categories = [
+			{ slug: 'zarzadzenia', name: 'A' },
+			{ slug: 'zarzadzenia', name: 'B' },
+		];
+		expect(() => layoutFileSchema.parse(payload)).toThrow(/duplikat slugu/);
+	});
+
+	it('assertLayoutFileContract blokuje publikację z niepoprawnym slugiem', () => {
+		const layout = sampleLayout();
+		layout.categories = [
+			{ slug: 'zarządzenia', name: 'A' },
+			{ slug: 'zarzadzenia', name: 'B' },
+		];
+		expect(() => assertLayoutFileContract(buildLayoutFilePayload(layout))).toThrow();
+	});
 });

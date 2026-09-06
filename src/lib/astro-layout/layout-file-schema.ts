@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SLUG_PATTERN } from '@/lib/admin/slug';
 import { LAYOUT_COMPONENT_IDS, LAYOUT_ZONE_ORDER } from './components';
 
 /**
@@ -30,11 +31,27 @@ const layoutZoneSectionSchema = z.object({
 });
 
 const categorySchema = z.object({
-	slug: z.string().min(1),
+	slug: z.string().regex(SLUG_PATTERN),
 	name: z.string(),
 	archiveLayout: z.enum(['tiles', 'title-list']).optional(),
 	archiveColumns: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional(),
 });
+
+function uniqueCategorySlugs(categories: Array<{ slug: string }>, ctx: z.RefinementCtx): void {
+	const seen = new Set<string>();
+	categories.forEach((category, index) => {
+		const key = category.slug.toLowerCase();
+		if (seen.has(key)) {
+			ctx.addIssue({
+				code: 'custom',
+				message: `duplikat slugu kategorii «${category.slug}»`,
+				path: [index, 'slug'],
+			});
+			return;
+		}
+		seen.add(key);
+	});
+}
 
 const zonesSchema = z.object(
 	Object.fromEntries(LAYOUT_ZONE_ORDER.map((zone) => [zone, layoutZoneSectionSchema])) as Record<
@@ -45,7 +62,7 @@ const zonesSchema = z.object(
 
 export const layoutFileSchema = z
 	.object({
-		categories: z.array(categorySchema),
+		categories: z.array(categorySchema).superRefine(uniqueCategorySlugs),
 		displays: z.record(z.string(), z.array(z.string())),
 		zones: zonesSchema,
 	})

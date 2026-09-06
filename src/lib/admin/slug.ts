@@ -30,6 +30,9 @@ export function normalizeSlug(input: string): string {
 		.slice(0, 80);
 }
 
+/** Lustro regexu Astro (`layout-contract.ts` → `CATEGORY_SLUG`). */
+export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
 export function isValidSlug(slug: string): boolean {
-	return slug.length >= 2 && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
+	return slug.length >= 2 && SLUG_PATTERN.test(slug);
 }

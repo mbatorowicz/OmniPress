@@ -2,21 +2,37 @@
 import { isCategoryFeedComponent } from './components';
 import { mergeCategoryDisplays } from './slots';
 import { applyCategoryArchiveFieldsFromForm } from './category-archive';
-import { normalizeSlug } from '@/lib/admin/slug';
+import { isValidSlug, normalizeSlug } from '@/lib/admin/slug';
 import { formHasDisplayFields } from './parse-form-fields';
 import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from './types';
 
-export function parseCategoriesFromForm(form: FormData): CategoryDefinition[] {
+export type ParseCategoriesError = 'invalid_category_slug' | 'duplicate_category_slug';
+
+export function parseCategoriesFromForm(
+	form: FormData,
+): { ok: true; categories: CategoryDefinition[] } | { ok: false; error: ParseCategoriesError } {
 	const slugs = form.getAll('category_slug').map((v) => String(v).trim());
 	const names = form.getAll('category_name').map((v) => String(v).trim());
 	const layouts = form.getAll('category_archive_layout').map((v) => String(v).trim());
 	const columns = form.getAll('category_archive_columns').map((v) => String(v).trim());
 	const categories: CategoryDefinition[] = [];
+	const seen = new Set<string>();
 
 	for (let i = 0; i < slugs.length; i++) {
-		const slug = normalizeSlug(slugs[i]);
+		const rawSlug = slugs[i] ?? '';
 		const name = names[i] ?? '';
-		if (!slug || !name) continue;
+		if (!rawSlug && !name) continue;
+
+		const slug = normalizeSlug(rawSlug);
+		if (!slug || !isValidSlug(slug) || !name) {
+			return { ok: false, error: 'invalid_category_slug' };
+		}
+		const key = slug.toLowerCase();
+		if (seen.has(key)) {
+			return { ok: false, error: 'duplicate_category_slug' };
+		}
+		seen.add(key);
+
 		const item: CategoryDefinition = { slug, name };
 		applyCategoryArchiveFieldsFromForm(item, layouts[i] ?? 'tiles', columns[i] ?? '2');
 		// Kolumny mają sens tylko dla kafelków; wartość domyślna nie trafia do pliku.
@@ -28,7 +44,7 @@ export function parseCategoriesFromForm(form: FormData): CategoryDefinition[] {
 		}
 		categories.push(item);
 	}
-	return categories;
+	return { ok: true, categories };
 }
 
 /** Przypisania czytamy tylko dla slotów obecnych w formularzu — reszta zostaje z zapisanego stanu. */

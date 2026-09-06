@@ -1,6 +1,6 @@
 # Audyt spójności OmniPress ↔ repo Astro
 
-**SSOT:** plan audytu i rejestr znalezisk. Stan na 2026-08-27, wersja OmniPress `0.10.0`.
+**SSOT:** plan audytu i rejestr znalezisk. Stan na 2026-09-06, wersja OmniPress `0.11.0`. Rejestr P0–P2 z 2026-08-27; kategorie wpisów — sekcja z 2026-09-06.
 
 Projekt opiera się o **dwa repozytoria**: OmniPress (panel, zapisuje) i `mbatorowicz/gmina-miedzna.pl` (strona Astro, czyta). Kontrakt między nimi: [astro-repo-compat](../.cursor/rules/astro-repo-compat.mdc).
 
@@ -50,9 +50,13 @@ Dotkniętych jest **7 z 23** opublikowanych wpisów. Migracja `20250621000000_fi
 
 `slugFromTitle` (`lib/posts/access.ts`) i `normalizeSlug` (`lib/admin/slug.ts`) mają różne regexy i różny zakres (`[^a-z0-9]` vs `[^a-z0-9-]`, kolaps myślników tylko w jednej). Żadna nie jest wskazana jako obowiązująca.
 
-### P0-3 — slugi kategorii bez normalizacji
+### P0-3 — slugi kategorii bez normalizacji — ✅ zamknięte (podejście 2 + 4)
 
-Pole `category_slug` to surowy input (`src/lib/admin/categories-form-client.ts:141`), bez wywołania `normalizeSlug`. W produkcyjnym `src/config/omnipress-layout.json` znajdują się w efekcie:
+Mechanizm: `parseCategoriesFromForm` woła `normalizeSlug`. Migracja wsteczna: `zarządzenia` → `zarzadzenia`, `planogólnygminymiedzna` → `plan-ogolny-gminy-miedzna`.
+
+**Następca (2026-09-06):** flow dodawania kategorii — [K-1](#k-1--brak-publikacji-przy-edycji-kategorii)–[K-11](#k-11--categoriespath-pokazuje-plik-legacy). Plan: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) podejścia 22–25 (22 zamknięte).
+
+Historyczny opis (stan sprzed naprawy): pole `category_slug` było surowym inputem, bez `normalizeSlug`. W produkcyjnym `src/config/omnipress-layout.json` znajdowały się:
 
 ```
 planogólnygminymiedzna
@@ -418,6 +422,76 @@ Jeden wpis przechodzący całą drogę: szkic → akceptacja → commit GitHub �
 
 ---
 
+## Audyt kategorii wpisów (2026-09-06)
+
+**SSOT planu:** [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) podejścia 22–25 (22 zamknięte).
+
+P0-3 (normalizacja slugu) jest zamknięte. Luka jest w **kompletności flow**, nie w samym zapisie slugu. Dodać kategorię da się, ale to rytuał na czterech ekranach, a pierwszy nie ma przycisku publikacji.
+
+| ID | Priorytet | Stan | Podejście |
+|----|-----------|------|-----------|
+| K-1 | P1 | ✅ zamknięte | 22 |
+| K-2 | P1 | otwarte | 23 |
+| K-3 | P1 | otwarte | 24 |
+| K-4 | P1 | otwarte | 24 |
+| K-5 | P1 | ✅ zamknięte | 22 |
+| K-6 | P1 | ✅ zamknięte | 22 |
+| K-7 | P1 | otwarte | 23 |
+| K-8 | P2 | otwarte | 25 |
+| K-9 | P2 | otwarte | 25 |
+| K-10 | P2 | otwarte | 25 |
+| K-11 | P2 | otwarte | 25 |
+
+### K-1 — brak publikacji przy edycji kategorii — ✅ zamknięte (podejście 22)
+
+Formularz na `/admin/units/[id]/posts` ma tylko „Zapisz szkic kategorii” (`LayoutSyncActions`). `LayoutSiteSyncBar` („Opublikuj cały layout”) jest na ustawieniach jednostki i w edytorze wyglądu — nie na stronie, na której dodaje się kategorię.
+
+Skutek: administrator zapisuje i wychodzi. Kategoria żyje w Supabase, nie w `omnipress-layout.json`.
+
+### K-2 — szkic kategorii = lista dla redaktora
+
+`loadSiteCategories` czyta `sites.astro_layout` zanim layout trafi na GitHub. Redaktor widzi nową kategorię od razu i może wysłać wpis. Strona wpisu `/{cat}/{slug}` powstanie z front-matteru; archiwum `/{cat}/` buduje się wyłącznie z listy w opublikowanym layoucie — 404 do czasu publikacji.
+
+### K-3 — nowa kategoria nie wchodzi do feedów ani menu
+
+Zapis sekcji `categories` woła `pruneCategoryDisplays` — wycina stare slugi, nie przypisuje nowych. Menu i banery (`categorySlug`) są osobnym krokiem, bez checklisty.
+
+Na produkcji (2026-09-06): 5 kategorii, w `displays` tylko `aktualnosci`.
+
+### K-4 — zmiana slugu osieroca wpisy
+
+Ostrzeżenie `categoriesSlugWarning` jest poprawne; automatu nie ma. Zmiana slugu nie przepisuje `posts.category_slug`, `displays`, ani `widget.categorySlug` banera. `prune` kasuje przypisanie do feedu. Stare URL-e zostają; nowe archiwum jest puste.
+
+### K-5 — publikacja layoutu bez kontraktu slugu — ✅ zamknięte (podejście 22)
+
+`buildLayoutFilePayload` / `syncSiteAstroLayoutToGitHub` nie woła `assertLayoutFileContract`. Zod w OmniPress: `slug.min(1)`, bez unikalności i regexu. Astro (`layout-contract.ts`) przerywa build przy duplikacie albo slugu poza `[a-z0-9-]`.
+
+### K-6 — `isValidSlug` nieużywane; pusty slug znika po cichu — ✅ zamknięte (podejście 22)
+
+`isValidSlug` (>= 2 znaki) istnieje w `lib/admin/slug.ts`, `parseCategoriesFromForm` go nie woła. Wiersz, który po `normalizeSlug` jest pusty, jest pomijany (`if (!slug || !name) continue`) — admin myśli, że dodał kategorię.
+
+### K-7 — save ≠ submit ≠ approve
+
+`save.ts` wymaga kategorii z listy. `submit.ts` zostawia surowy slug, gdy listy nie ma. Akceptacja sprawdza tylko, czy `category_slug` nie jest puste. Można opublikować wpis w usuniętej albo przemianowanej kategorii.
+
+### K-8 — slug bez podglądu URL i bez normalizacji na żywo
+
+Pole jest ręcznym inputem. W UI widać `zarządzenia`; po zapisie serwer zapisuje `zarzadzenia`. Brak autopodpowiedzi z nazwy.
+
+### K-9 — usuwanie bez feedbacku
+
+Ostatniej kategorii nie da się usunąć (klient), bez komunikatu. Brak `confirm` i liczby wpisów przy usuwaniu.
+
+### K-10 — ADMIN.md opisuje stary kontrakt
+
+Dokument nadal: publikacja `omnipress-categories.json`, macierz feedów w zakładce Kategorie. Fakt: jeden plik `omnipress-layout.json`, feedy w Komponentach, edycja na `/admin/units/[id]/posts`.
+
+### K-11 — `categoriesPath` pokazuje plik legacy
+
+Stopka formularza: `src/config/omnipress-categories.json`. Prawdziwy zapis: `src/config/omnipress-layout.json`.
+
+---
+
 ## Wniosek nadrzędny
 
 Struktura kontraktu jest zdrowsza, niż sugerowałby stan dokumentacji: wszystkie ID komponentów mają odpowiedniki po obu stronach, kształt `zones` się zgadza, strony statyczne są symetryczne. Problem leży gdzie indziej i ma jedną wspólną przyczynę.
@@ -437,4 +511,5 @@ Decyzja o wstecznej zmianie slugów (porcja 2) upraszcza porcję 3: skoro po mig
 - [STATUS.md](./STATUS.md) — stan implementacji
 - [KONWENCJE.md](./KONWENCJE.md) — konwencje kodu
 - [WDROZENIE.md](./WDROZENIE.md) — bootstrap techniczny
+- [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) — podejścia 1–22 (zamknięte) i 23–25 (kategorie)
 - [astro-repo-compat](../.cursor/rules/astro-repo-compat.mdc) — kontrakt między repozytoriami

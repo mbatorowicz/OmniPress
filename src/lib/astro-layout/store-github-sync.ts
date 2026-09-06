@@ -16,6 +16,7 @@ import { upsertRecentChange } from '@/lib/recent-changes/upsert';
 import { type LayoutSyncScope } from './layout-sync-meta';
 import { hashLayoutFile, withPublishedMeta } from './layout-sync-meta.server';
 import { syncNavigationInLayout } from './migrate-layout';
+import { assertLayoutFileContract } from './layout-file-schema';
 import { buildLayoutFilePayload } from './parse';
 import { saveSiteAstroLayout } from './store-persist';
 import type { SiteAstroLayout } from './types';
@@ -79,6 +80,7 @@ export async function syncSiteAstroLayoutToGitHub(
 
 	try {
 		const content = buildLayoutFilePayload(publishLayout);
+		assertLayoutFileContract(content);
 		const publishHash = hashLayoutFile(publishLayout);
 
 		const storedHash = layout.sync?.publishedLayoutHash;
