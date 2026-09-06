@@ -3,6 +3,7 @@ import { guardAuthRedirect, isGuardBlocked, redirectPostError } from '@/lib/api'
 import { normalizeSlug } from '@/lib/admin/slug';
 import {
 	loadEditablePost,
+	parseExtraCategorySlugs,
 	resolvePostCategoryFields,
 	resolveUniquePostSlug,
 	parseAssetDisplayModes,
@@ -46,7 +47,12 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		? await resolveUniquePostSlug(supabase, post.site_id, baseSlug, postId)
 		: null;
 	const categorySlug = String(form.get('category_slug') ?? '').trim();
-	const categoryFields = await resolvePostCategoryFields(supabase, post.site_id, categorySlug);
+	const categoryFields = await resolvePostCategoryFields(
+		supabase,
+		post.site_id,
+		categorySlug,
+		parseExtraCategorySlugs(form),
+	);
 	if (!categoryFields) {
 		return redirectPostError(redirect, editorPath, 'category_required');
 	}

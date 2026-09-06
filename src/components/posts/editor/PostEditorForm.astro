@@ -3,7 +3,8 @@ import Alert from '@/components/ui/feedback/Alert.astro';
 import Button from '@/components/ui/actions/Button.astro';
 import Label from '@/components/ui/form/Label.astro';
 import Input from '@/components/ui/form/Input.astro';
-import Select from '@/components/ui/form/Select.astro';
+import PostCategoryFields from '@/components/posts/editor/PostCategoryFields.astro';
+import PostCategoryFieldsScript from '@/components/posts/editor/PostCategoryFieldsScript.astro';
 import PostRichEditor from '@/components/posts/PostRichEditor.astro';
 import PostGalleryPanel from '@/components/posts/PostGalleryPanel.astro';
 import PostPdfAttachments from '@/components/posts/PostPdfAttachments.astro';
@@ -60,6 +61,7 @@ const draftBaseline = {
 	title: post.title ?? '',
 	slug: post.slug ?? '',
 	category_slug: post.category_slug ?? '',
+	extra_category_slugs: (post.extra_category_slugs ?? []).join(','),
 	content_md: post.content_md ?? '',
 	scheduled_publish_date: scheduleDate,
 	scheduled_publish_hour: scheduleTime || DEFAULT_PUBLISH_HOUR,
@@ -93,18 +95,12 @@ const draftBaseline = {
 >
 	<p class="ui-hint hidden" data-draft-restored>{ed.draftRestored}</p>
 	{returnTo === 'admin' && <input type="hidden" name="return_to" value="admin" />}
-	<Label>
-		<span class="font-medium">{ed.fields.category}</span>
-		<Select name="category_slug" required disabled={categoriesUnavailable}>
-			<option value="">{ed.fields.categoryPlaceholder}</option>
-			{categories.map((c) => (
-				<option value={c.slug} selected={post.category_slug === c.slug}>
-					{c.name}
-				</option>
-			))}
-		</Select>
-	</Label>
-	<p class="ui-hint">{ed.fields.categoryHint}</p>
+	<PostCategoryFields
+		primarySlug={post.category_slug ?? ''}
+		extraSlugs={post.extra_category_slugs ?? []}
+		{categories}
+		{categoriesUnavailable}
+	/>
 	<Label>
 		<span class="font-medium">{ed.fields.title}</span>
 		<Input type="text" name="title" required value={post.title} />
@@ -168,3 +164,4 @@ const draftBaseline = {
 </form>
 
 <ConfirmScript />
+<PostCategoryFieldsScript />

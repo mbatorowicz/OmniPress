@@ -1,9 +1,13 @@
+import { normalizeExtraCategorySlugs } from '@/lib/posts/category-model';
+import { parseYamlQuotedStringArray } from './yaml-inline-array';
+
 export type ParsedAstroPost = {
 	title: string;
 	date: string | null;
 	author: string;
 	categorySlug: string;
 	categoryName: string;
+	extraCategorySlugs: string[];
 	draft: boolean;
 	pinned: boolean;
 	excerpt: string | null;
@@ -22,12 +26,6 @@ function parseYamlValue(raw: string): string | boolean {
 	return v;
 }
 
-function parseGalleryImagesLine(line: string): string[] {
-	const m = line.match(/galleryImages:\s*\[(.*)\]\s*$/);
-	if (!m?.[1]) return [];
-	return [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]!).filter(Boolean);
-}
-
 /** Parsuje plik .md opublikowany przez OmniPress / Astro. */
 export function parseAstroPostFile(raw: string): ParsedAstroPost | null {
 	const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
@@ -39,7 +37,9 @@ export function parseAstroPostFile(raw: string): ParsedAstroPost | null {
 
 	for (const line of fm.split('\n')) {
 		const trimmed = line.trim();
-		if (!trimmed || trimmed.startsWith('galleryImages:')) continue;
+		if (!trimmed || trimmed.startsWith('galleryImages:') || trimmed.startsWith('categories:')) {
+			continue;
+		}
 		const idx = trimmed.indexOf(':');
 		if (idx <= 0) continue;
 		const key = trimmed.slice(0, idx).trim();
@@ -47,8 +47,15 @@ export function parseAstroPostFile(raw: string): ParsedAstroPost | null {
 		fields[key] = value;
 	}
 
-	const galleryLine = fm.split('\n').find((l) => l.trimStart().startsWith('galleryImages:'));
-	const galleryImages = galleryLine ? parseGalleryImagesLine(galleryLine.trim()) : [];
+	const lines = fm.split('\n');
+	const galleryLine = lines.find((l) => l.trimStart().startsWith('galleryImages:'));
+	const galleryImages = galleryLine
+		? (parseYamlQuotedStringArray(galleryLine.trim(), 'galleryImages') ?? [])
+		: [];
+	const categoriesLine = lines.find((l) => l.trimStart().startsWith('categories:'));
+	const allCategorySlugs = categoriesLine
+		? (parseYamlQuotedStringArray(categoriesLine.trim(), 'categories') ?? [])
+		: [];
 
 	const title = String(fields.title ?? '').trim();
 	if (!title) return null;
@@ -65,6 +72,11 @@ export function parseAstroPostFile(raw: string): ParsedAstroPost | null {
 		author: String(fields.author ?? 'Administrator').trim() || 'Administrator',
 		categorySlug,
 		categoryName: String(fields.categoryName ?? categorySlug).trim() || categorySlug,
+		extraCategorySlugs: normalizeExtraCategorySlugs(
+			allCategorySlugs,
+			categorySlug,
+			new Set(allCategorySlugs),
+		),
 		draft: fields.draft === true,
 		pinned: fields.pinned === true,
 		excerpt: typeof fields.excerpt === 'string' ? fields.excerpt : null,

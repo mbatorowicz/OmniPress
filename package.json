@@ -1,7 +1,7 @@
 {
   "name": "omnipress",
   "type": "module",
-	"version": "0.11.0",
+	"version": "0.12.0",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -37,6 +37,7 @@
     "setup:posts-rejected-resubmit": "node scripts/apply-migration.mjs supabase/migrations/20250619000000_posts_rejected_resubmit.sql",
     "setup:posts-pinned": "node scripts/apply-migration.mjs supabase/migrations/20250827000000_posts_pinned.sql",
     "setup:github-reconcile": "node scripts/apply-migration.mjs supabase/migrations/20250902000000_github_reconcile.sql",
+    "setup:extra-categories": "node scripts/apply-migration.mjs supabase/migrations/20250906000000_post_extra_categories.sql",
     "setup:assets-delete-own": "node scripts/apply-migration.mjs supabase/migrations/20250620000000_assets_delete_own.sql",
     "setup:assets-content-sha": "node scripts/apply-migration.mjs supabase/migrations/20250718000000_assets_content_sha.sql",
     "setup:auth-rate-limits": "node scripts/apply-migration.mjs supabase/migrations/20250707000000_auth_rate_limits.sql",

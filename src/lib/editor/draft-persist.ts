@@ -1,4 +1,9 @@
 import {
+	applyExtraCategoryDraftValue,
+	readExtraCategoryDraftValue,
+	syncExtraCategoryOptions,
+} from './extra-categories';
+import {
 	clearDraft,
 	fieldsEqual,
 	parseDraftFields,
@@ -8,7 +13,7 @@ import {
 	type PostDraftFields,
 } from './draft-store';
 
-const FIELD_NAMES: (keyof PostDraftFields)[] = [
+const TEXT_FIELD_NAMES: (keyof PostDraftFields)[] = [
 	'title',
 	'slug',
 	'category_slug',
@@ -37,6 +42,7 @@ export function readFormDraftFields(form: HTMLFormElement): PostDraftFields {
 		title: fieldValue(form, 'title'),
 		slug: fieldValue(form, 'slug'),
 		category_slug: fieldValue(form, 'category_slug'),
+		extra_category_slugs: readExtraCategoryDraftValue(form),
 		content_md: fieldValue(form, 'content_md'),
 		scheduled_publish_date: fieldValue(form, 'scheduled_publish_date'),
 		scheduled_publish_hour: fieldValue(form, 'scheduled_publish_hour'),
@@ -44,7 +50,7 @@ export function readFormDraftFields(form: HTMLFormElement): PostDraftFields {
 }
 
 export function applyFormDraftFields(form: HTMLFormElement, values: PostDraftFields): void {
-	for (const name of FIELD_NAMES) {
+	for (const name of TEXT_FIELD_NAMES) {
 		const el = form.elements.namedItem(name);
 		if (
 			el instanceof HTMLInputElement ||
@@ -54,6 +60,7 @@ export function applyFormDraftFields(form: HTMLFormElement, values: PostDraftFie
 			el.value = values[name];
 		}
 	}
+	applyExtraCategoryDraftValue(form, values.extra_category_slugs);
 }
 
 export function persistPostDraft(
@@ -108,9 +115,13 @@ export function initPostDraftPersist(form: HTMLFormElement): boolean {
 	const { restored, baseline } = restorePostDraft(form, postId);
 	baselines.set(form, baseline);
 
+	syncExtraCategoryOptions(form);
 	const persist = () => persistPostDraft(form, postId, baseline);
 	form.addEventListener('input', persist);
-	form.addEventListener('change', persist);
+	form.addEventListener('change', () => {
+		syncExtraCategoryOptions(form);
+		persist();
+	});
 	form.addEventListener('submit', () => clearDraft(sessionStorage, postId));
 	window.addEventListener('pagehide', persist);
 

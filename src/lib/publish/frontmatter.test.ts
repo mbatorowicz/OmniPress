@@ -33,6 +33,25 @@ describe('buildAstroMarkdown', () => {
 		expect(md).toContain('Treść');
 	});
 
+	it('dodaje categories gdy wpis ma dodatkowe kategorie', () => {
+		const md = buildAstroMarkdown('Tytuł', 'Treść', '2026-06-03T12:00:00Z', 'folder', {
+			slug: 'mazowsze-bez-smogu',
+			name: 'Mazowsze bez smogu',
+			categories: ['mazowsze-bez-smogu', 'aktualnosci'],
+		});
+		expect(md).toContain('category: "mazowsze-bez-smogu"');
+		expect(md).toContain('categories: ["mazowsze-bez-smogu", "aktualnosci"]');
+	});
+
+	it('nie dopisuje categories gdy jest tylko główna', () => {
+		const md = buildAstroMarkdown('Tytuł', 'Treść', '2026-06-03T12:00:00Z', 'folder', {
+			slug: 'aktualnosci',
+			name: 'Aktualności',
+			categories: ['aktualnosci'],
+		});
+		expect(md).not.toContain('\ncategories:');
+	});
+
 	it('dodaje pinned: true gdy wpis przypięty (folder)', () => {
 		const md = buildAstroMarkdown('Tytuł', 'Treść', '2026-06-03T12:00:00Z', 'folder', {
 			slug: 'aktualnosci',

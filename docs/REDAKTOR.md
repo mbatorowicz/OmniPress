@@ -53,7 +53,7 @@ Jeśli nie masz przypisanej strony, zamiast przycisku zobaczysz *Brak strony doc
 
 1. Na panelu kliknij **+ Nowy artykuł**.
 2. Jeśli masz dostęp do kilku stron, najpierw wybierz jednostkę z listy *Strona*. Przy jednej stronie wybór nie jest potrzebny.
-3. Otworzy się pusty edytor. Wybierz **kategorię** i wpisz **tytuł** — bez tego nie zapiszesz ani nie wyślesz artykułu.
+3. Otworzy się pusty edytor. Wybierz **kategorię główną** i wpisz **tytuł** — bez tego nie zapiszesz ani nie wyślesz artykułu. Opcjonalnie zaznacz **Pokaż też w** (np. Aktualności), żeby wpis wszedł też na stronę główną.
 4. Napisz treść. Zdjęcia i pliki dodaj w sekcjach pod edytorem. Miniatura i pasek postępu pojawiają się od razu po wyborze pliku.
 5. Opcjonalnie ustaw datę i godzinę publikacji oraz adres w polu *Slug*.
 6. Odświeżenie karty **nie kasuje** wpisanych pól. Kliknij **Zapisz szkic**, jeśli chcesz dokończyć później z listy. Albo **Wyślij do akceptacji**, gdy artykuł jest gotowy.
@@ -66,7 +66,8 @@ Przy wysyłaniu pojawi się potwierdzenie. Po wysłaniu **nie zmienisz już teks
 
 | Pole | Opis |
 |------|------|
-| Kategoria | Wymagana. Lista ze strony. Gdy jest pusta — poproś administratora. |
+| Kategoria główna | Wymagana. Ustala adres artykułu na stronie. Lista ze strony. Gdy jest pusta — poproś administratora. |
+| Pokaż też w | Opcjonalnie. Zaznacz Aktualności, jeśli wpis ma pojawić się na stronie głównej i w archiwum Aktualności. Adres zostaje przy kategorii głównej. |
 | Tytuł | Nagłówek artykułu na stronie. Wymagany. |
 | Slug (opcjonalnie) | Krótki adres w linku, np. `komunikat-urzedu`. Puste pole = system utworzy adres z tytułu (polskie znaki zamieni na zwykłe). |
 | Data publikacji + godzina | Opcjonalnie. **Puste** = po akceptacji od razu. **Data w przyszłości** = o wybranej godzinie. **Data wsteczna** = data w artykule, publikacja po akceptacji. Poprawka już opublikowanego wpisu **nie zmienia** daty na stronie, jeśli nie ustawisz nowej. Czas polski, godziny 6:00–20:00. |

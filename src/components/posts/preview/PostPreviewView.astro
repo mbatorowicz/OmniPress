@@ -17,9 +17,10 @@ interface Props {
 	isAdmin: boolean;
 	galleryHeading: string;
 	coverLabel: string;
+	extraCategoryNames?: string[];
 }
 
-const { post, contentHtml, galleryAssets, canReopen, isAdmin, galleryHeading, coverLabel } = Astro.props;
+const { post, contentHtml, galleryAssets, canReopen, isAdmin, galleryHeading, coverLabel, extraCategoryNames = [] } = Astro.props;
 const ed = dashboard.editor;
 ---
 
@@ -27,6 +28,11 @@ const ed = dashboard.editor;
 	{post.category_name && (
 		<p class="ui-muted">
 			{ed.fields.category}: <strong>{post.category_name}</strong>
+		</p>
+	)}
+	{extraCategoryNames.length > 0 && (
+		<p class="ui-muted">
+			{ed.fields.extraCategories}: <strong>{extraCategoryNames.join(', ')}</strong>
 		</p>
 	)}
 	<h2 class="ui-title-preview">{post.title || common.untitled}</h2>

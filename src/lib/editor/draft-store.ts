@@ -7,6 +7,7 @@ export type PostDraftFields = {
 	title: string;
 	slug: string;
 	category_slug: string;
+	extra_category_slugs: string;
 	content_md: string;
 	scheduled_publish_date: string;
 	scheduled_publish_hour: string;
@@ -21,6 +22,7 @@ export const POST_DRAFT_FIELDS = [
 	'title',
 	'slug',
 	'category_slug',
+	'extra_category_slugs',
 	'content_md',
 	'scheduled_publish_date',
 	'scheduled_publish_hour',
@@ -35,6 +37,7 @@ export function emptyDraftFields(): PostDraftFields {
 		title: '',
 		slug: '',
 		category_slug: '',
+		extra_category_slugs: '',
 		content_md: '',
 		scheduled_publish_date: '',
 		scheduled_publish_hour: '',
@@ -57,6 +60,7 @@ export function parseDraftFields(value: unknown): PostDraftFields | null {
 		title: record.title as string,
 		slug: record.slug as string,
 		category_slug: record.category_slug as string,
+		extra_category_slugs: record.extra_category_slugs as string,
 		content_md: record.content_md as string,
 		scheduled_publish_date: record.scheduled_publish_date as string,
 		scheduled_publish_hour: record.scheduled_publish_hour as string,

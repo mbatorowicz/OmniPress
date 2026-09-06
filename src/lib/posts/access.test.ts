@@ -21,6 +21,7 @@ const draftPost = (overrides: Partial<PostRow> = {}): PostRow => ({
 	rejection_note: null,
 	category_slug: null,
 	category_name: null,
+	extra_category_slugs: [],
 	scheduled_publish_at: null,
 	pinned: false,
 	...overrides,

@@ -54,6 +54,7 @@ npm run setup:storage
 npm run setup:phase3
 npm run setup:phase4
 npm run setup:categories
+npm run setup:extra-categories
 npm run setup:layout
 npm run setup:storage-pdf
 npm run setup:storage-docx

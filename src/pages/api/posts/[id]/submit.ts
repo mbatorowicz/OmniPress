@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { guardAuthRedirect, isGuardBlocked, redirectPostError } from '@/lib/api';
-import { loadSubmittablePost, resolvePostCategoryFields } from '@/lib/posts';
+import { loadSubmittablePost, parseExtraCategorySlugs, resolvePostCategoryFields } from '@/lib/posts';
 import { combineScheduleDateHour, parseScheduledPublishAtInput } from '@/lib/posts/scheduled-publish';
 import { loadFirstPublishedAt, resolveSavedPublishAt } from '@/lib/publish/publish-date';
 import { sanitizeStorageMarkdown } from '@/lib/content/sanitize';
@@ -29,6 +29,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const title = String(form.get('title') ?? '').trim() || post.title;
 	const content_md = sanitizeStorageMarkdown(String(form.get('content_md') ?? post.content_md));
 	const categorySlug = String(form.get('category_slug') ?? '').trim() || post.category_slug;
+	const extraSlugs = parseExtraCategorySlugs(form);
 
 	if (!title.trim()) {
 		return redirectPostError(redirect, editorPath, 'title_required');
@@ -39,8 +40,16 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	}
 
 	// Nazwa kategorii idzie do front-matteru; przy niedostępnej liście zostaje sam slug.
-	const resolvedCategory = await resolvePostCategoryFields(supabase, post.site_id, categorySlug);
-	const category = resolvedCategory ?? { category_slug: categorySlug };
+	const resolvedCategory = await resolvePostCategoryFields(
+		supabase,
+		post.site_id,
+		categorySlug,
+		extraSlugs,
+	);
+	const category = resolvedCategory ?? {
+		category_slug: categorySlug,
+		extra_category_slugs: extraSlugs.filter((s) => s !== categorySlug),
+	};
 
 	const scheduleRaw = combineScheduleDateHour(
 		form.get('scheduled_publish_date'),

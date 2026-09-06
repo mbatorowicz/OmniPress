@@ -19,6 +19,17 @@ describe('news frontmatter contract (↔ repo Astro content.config.ts)', () => {
 		expect(() => astroNewsFrontmatterSchema.parse(fields)).not.toThrow();
 	});
 
+	it('folder z dodatkowymi kategoriami — categories przechodzi strict schema', () => {
+		const md = buildAstroMarkdown('Tytuł wpisu', 'Treść', '2026-08-27T14:00:00Z', 'folder', {
+			slug: 'mazowsze-bez-smogu',
+			name: 'Mazowsze bez smogu',
+			categories: ['mazowsze-bez-smogu', 'aktualnosci'],
+		});
+		const fields = parseRawFrontmatterFields(md);
+		expect(fields.categories).toEqual(['mazowsze-bez-smogu', 'aktualnosci']);
+		expect(() => astroNewsFrontmatterSchema.parse(fields)).not.toThrow();
+	});
+
 	it('flat layout — pubDate zamiast date', () => {
 		const md = buildAstroMarkdown('Tytuł', 'Treść', '2026-06-03T12:00:00Z', 'flat');
 		const fields = parseRawFrontmatterFields(md);

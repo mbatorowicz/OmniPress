@@ -1,0 +1,52 @@
+---
+import Label from '@/components/ui/form/Label.astro';
+import Select from '@/components/ui/form/Select.astro';
+import Checkbox from '@/components/ui/form/Checkbox.astro';
+import { dashboard } from '@/i18n';
+import type { CategoryOption } from '@/lib/categories/types';
+
+interface Props {
+	primarySlug: string;
+	extraSlugs: string[];
+	categories: CategoryOption[];
+	categoriesUnavailable: boolean;
+}
+
+const ed = dashboard.editor;
+const { primarySlug, extraSlugs, categories, categoriesUnavailable } = Astro.props;
+const extraSet = new Set(extraSlugs);
+---
+
+<Label>
+	<span class="font-medium">{ed.fields.category}</span>
+	<Select name="category_slug" required disabled={categoriesUnavailable}>
+		<option value="">{ed.fields.categoryPlaceholder}</option>
+		{categories.map((c) => (
+			<option value={c.slug} selected={primarySlug === c.slug}>
+				{c.name}
+			</option>
+		))}
+	</Select>
+</Label>
+<p class="ui-hint">{ed.fields.categoryHint}</p>
+{
+	categories.length > 1 && (
+		<fieldset class="space-y-1">
+			<legend class="font-medium">{ed.fields.extraCategories}</legend>
+			<p class="ui-hint">{ed.fields.extraCategoriesHint}</p>
+			<div class="mt-2 flex flex-col gap-1">
+				{categories.map((c) => (
+					<label class="flex items-start gap-2 text-sm">
+						<Checkbox
+							name="extra_category_slug"
+							value={c.slug}
+							checked={extraSet.has(c.slug)}
+							disabled={categoriesUnavailable || c.slug === primarySlug}
+						/>
+						<span>{c.name}</span>
+					</label>
+				))}
+			</div>
+		</fieldset>
+	)
+}

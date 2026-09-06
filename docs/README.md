@@ -73,6 +73,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | `setup:posts-rejected-resubmit` | Ponowne wysłanie odrzuconego wpisu |
 | `setup:posts-pinned` | Przypinanie wpisu na stronie głównej |
 | `setup:github-reconcile` | Auto-reconcile Omni ↔ GitHub (SHA HEAD + odciski treści) |
+| `setup:extra-categories` | Dodatkowe kategorie wpisu (`extra_category_slugs`) |
 | `setup:fix-kgw-slug` | Korekta slug wpisu KGW (jednorazowa) |
 | `setup:auth-rate-limits` | Rate limit auth (Upstash / RPC) |
 | `seed:nav-pages` | Seed stron nawigacji (tylko baza) |

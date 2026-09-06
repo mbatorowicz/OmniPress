@@ -108,6 +108,7 @@ export async function importOnePost(
 		content_md: contentMd,
 		category_slug: parsed.categorySlug || null,
 		category_name: parsed.categoryName || null,
+		extra_category_slugs: parsed.extraCategorySlugs,
 		pinned: parsed.pinned,
 		status: 'published' as const,
 		scheduled_publish_at: toPublishAtIso(parsed.date),

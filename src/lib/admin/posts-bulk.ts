@@ -42,7 +42,7 @@ export async function bulkApprovePosts(
 	const { data: posts } = await supabase
 		.from('posts')
 		.select(
-			'id, author_id, site_id, title, content_md, slug, status, rejection_note, category_slug, category_name, scheduled_publish_at, pinned',
+			'id, author_id, site_id, title, content_md, slug, status, rejection_note, category_slug, category_name, extra_category_slugs, scheduled_publish_at, pinned',
 		)
 		.in('id', ids)
 		.in('status', [...APPROVABLE_STATUSES]);

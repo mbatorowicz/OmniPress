@@ -11,9 +11,10 @@ interface Props {
 	post: PostRow;
 	contentHtml: string;
 	galleryAssets: PostAsset[];
+	extraCategoryNames?: string[];
 }
 
-const { post, contentHtml, galleryAssets } = Astro.props;
+const { post, contentHtml, galleryAssets, extraCategoryNames = [] } = Astro.props;
 const preview = admin.preview;
 ---
 
@@ -24,6 +25,13 @@ const preview = admin.preview;
 			<p class="ui-muted mt-1">
 				{preview.categoryLabel} <strong>{post.category_name}</strong>
 				{post.category_slug && <span class="ui-code font-mono"> ({post.category_slug})</span>}
+			</p>
+		)
+	}
+	{
+		extraCategoryNames.length > 0 && (
+			<p class="ui-muted mt-1">
+				{preview.extraCategoriesLabel} <strong>{extraCategoryNames.join(', ')}</strong>
 			</p>
 		)
 	}

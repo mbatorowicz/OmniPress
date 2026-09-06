@@ -21,6 +21,7 @@ function parsed(overrides: Partial<ParsedAstroPost> = {}): ParsedAstroPost {
 		author: 'Administrator',
 		categorySlug: 'aktualnosci',
 		categoryName: 'Aktualnosci',
+		extraCategorySlugs: [],
 		draft: false,
 		pinned: false,
 		excerpt: null,

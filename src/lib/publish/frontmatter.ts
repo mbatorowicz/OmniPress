@@ -1,4 +1,5 @@
 import type { ContentLayout } from './content-layout';
+import { formatYamlQuotedStringArray } from './yaml-inline-array';
 
 export type AstroCategoryFields = {
 	slug: string;
@@ -8,6 +9,8 @@ export type AstroCategoryFields = {
 export type AstroPostFrontmatter = AstroCategoryFields & {
 	coverImage?: string;
 	galleryImages?: string[];
+	/** Pełna lista slugów (główna + dodatkowe). Pomijana, gdy jest tylko główna. */
+	categories?: string[];
 	excerpt?: string;
 	pinned?: boolean;
 };
@@ -21,7 +24,10 @@ function frontmatterExtras(meta?: Partial<AstroPostFrontmatter>): string {
 	let lines = '';
 	if (meta.coverImage) lines += `\ncoverImage: ${yamlQuote(meta.coverImage)}`;
 	if (meta.galleryImages?.length) {
-		lines += `\ngalleryImages: [${meta.galleryImages.map(yamlQuote).join(', ')}]`;
+		lines += `\ngalleryImages: ${formatYamlQuotedStringArray(meta.galleryImages)}`;
+	}
+	if (meta.categories && meta.categories.length > 1) {
+		lines += `\ncategories: ${formatYamlQuotedStringArray(meta.categories)}`;
 	}
 	if (meta.excerpt) lines += `\nexcerpt: ${yamlQuote(meta.excerpt)}`;
 	if (meta.pinned === true) lines += '\npinned: true';

@@ -12,6 +12,10 @@ export const helpFields = {
 			desc: `${ed.fields.categoryHint} Lista pochodzi ze strony. Gdy jest pusta („${ed.fields.categoryEmpty}”), poproś administratora.`,
 		},
 		{
+			term: ed.fields.extraCategories,
+			desc: ed.fields.extraCategoriesHint,
+		},
+		{
 			term: ed.fields.title,
 			desc: 'Widoczny nagłówek artykułu na stronie. Wymagany.',
 		},

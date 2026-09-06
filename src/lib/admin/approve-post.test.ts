@@ -27,6 +27,7 @@ function post(overrides: Partial<PostRow> = {}): PostRow {
 		rejection_note: null,
 		category_slug: 'aktualnosci',
 		category_name: 'Aktualności',
+		extra_category_slugs: [],
 		scheduled_publish_at: null,
 		pinned: false,
 		...overrides,

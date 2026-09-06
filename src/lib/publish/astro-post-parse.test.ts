@@ -45,6 +45,23 @@ Treść artykułu.`;
 		expect(parsed?.coverImage).toBe('./01.jpg');
 		expect(parsed?.galleryImages).toEqual(['./02.jpg', './03.jpg']);
 		expect(parsed?.excerpt).toBe('Krótki opis');
+		expect(parsed?.extraCategorySlugs).toEqual([]);
+	});
+
+	it('parsuje dodatkowe kategorie z tablicy categories', () => {
+		const raw = `---
+title: "Smog"
+date: "2026-09-06"
+category: "mazowsze-bez-smogu"
+categoryName: "Mazowsze bez smogu"
+categories: ["mazowsze-bez-smogu", "aktualnosci"]
+---
+
+Treść.`;
+
+		const parsed = parseAstroPostFile(raw);
+		expect(parsed?.categorySlug).toBe('mazowsze-bez-smogu');
+		expect(parsed?.extraCategorySlugs).toEqual(['aktualnosci']);
 	});
 });
 

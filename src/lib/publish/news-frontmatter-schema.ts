@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { parseYamlQuotedStringArray } from './yaml-inline-array';
 
 /**
  * Kontrakt front-matteru wpisów news — lustrzane odbicie `src/content.config.ts`
@@ -15,6 +16,7 @@ export const astroNewsFrontmatterSchema = z
 		author: z.string().optional(),
 		category: z.string().optional(),
 		categoryName: z.string().optional(),
+		categories: z.array(z.string()).optional(),
 		excerpt: z.string().optional(),
 		coverImage: z.string().optional(),
 		galleryImages: z.array(z.string()).optional(),
@@ -35,11 +37,14 @@ export function parseRawFrontmatterFields(md: string): Record<string, unknown> {
 		const trimmed = line.trim();
 		if (!trimmed) continue;
 
-		if (trimmed.startsWith('galleryImages:')) {
-			const inner = trimmed.match(/galleryImages:\s*\[(.*)\]\s*$/);
-			fields.galleryImages = inner?.[1]
-				? [...inner[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]!)
-				: [];
+		const gallery = parseYamlQuotedStringArray(trimmed, 'galleryImages');
+		if (gallery) {
+			fields.galleryImages = gallery;
+			continue;
+		}
+		const categories = parseYamlQuotedStringArray(trimmed, 'categories');
+		if (categories) {
+			fields.categories = categories;
 			continue;
 		}
 

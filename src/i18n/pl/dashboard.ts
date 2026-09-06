@@ -51,9 +51,12 @@ export const dashboard = {
 			linkPrompt: 'Adres linku (URL):',
 		},
 		fields: {
-			category: 'Kategoria',
+			category: 'Kategoria główna',
 			categoryPlaceholder: '— wybierz kategorię —',
-			categoryHint: 'Wymagana przed wysłaniem.',
+			categoryHint: 'Ustala adres artykułu na stronie. Wymagana przed wysłaniem.',
+			extraCategories: 'Pokaż też w',
+			extraCategoriesHint:
+				'Zaznacz Aktualności, jeśli wpis ma pojawić się na stronie głównej. Adres zostaje przy kategorii głównej.',
 			categoryEmpty: 'Brak kategorii — poproś administratora.',
 			title: 'Tytuł',
 			slug: 'Slug (opcjonalnie)',

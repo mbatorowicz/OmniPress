@@ -72,6 +72,7 @@ describe('loadPostForPublish', () => {
 			'content_md',
 			'category_slug',
 			'category_name',
+			'extra_category_slugs',
 			'pinned',
 			'scheduled_publish_at',
 		]) {

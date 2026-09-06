@@ -22,7 +22,13 @@ export {
 	type PostsScope,
 } from './browse';
 export { deleteOwnPost } from './delete-own';
-export { resolvePostCategoryFields } from './category';
+export { resolvePostCategoryFields, type PostCategoryFields } from './category';
+export {
+	allPostCategorySlugs,
+	extraCategoryNames,
+	normalizeExtraCategorySlugs,
+	parseExtraCategorySlugs,
+} from './category-model';
 export {
 	collectAllowedSites,
 	loadAllowedSites,

@@ -8,6 +8,7 @@ import {
 	galleryUrlsFromAssets,
 	prepareAstroPostFromGallery,
 } from './post-gallery';
+import { allPostCategorySlugs } from '@/lib/posts/category-model';
 import { buildAstroMarkdown } from './frontmatter';
 import { gitBlobShaFromText } from './git-blob';
 import {
@@ -131,9 +132,14 @@ export async function prepareGitHubAstroPublish(
 		scheduledPublishAt: post.scheduled_publish_at,
 		firstPublishedAt: await loadFirstPublishedAt(supabase, post.id),
 	});
+	const categorySlugs = allPostCategorySlugs(
+		post.category_slug ?? '',
+		post.extra_category_slugs ?? [],
+	);
 	const fileContent = buildAstroMarkdown(post.title, prepared.bodyMd, pubDate, cfg.contentLayout, {
 		slug: post.category_slug ?? '',
 		name: post.category_name ?? '',
+		categories: categorySlugs.length > 1 ? categorySlugs : undefined,
 		coverImage: prepared.coverImage ?? undefined,
 		galleryImages: prepared.galleryImages.length ? prepared.galleryImages : undefined,
 		excerpt: excerpt || undefined,

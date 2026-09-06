@@ -16,6 +16,7 @@ export type PostRow = {
 	rejection_note: string | null;
 	category_slug: string | null;
 	category_name: string | null;
+	extra_category_slugs: string[];
 	scheduled_publish_at: string | null;
 	pinned: boolean;
 	live_blob_sha?: string | null;

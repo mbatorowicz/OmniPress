@@ -16,6 +16,8 @@ import {
 	type MissingForPublish,
 	type PostRow,
 } from '@/lib/posts/access';
+import { extraCategoryNames } from '@/lib/posts/category-model';
+import { loadSiteCategories } from '@/lib/categories';
 import { loadPostPreview, type PostPreview } from '@/lib/posts/post-preview';
 
 export type PostReviewPage = {
@@ -36,6 +38,7 @@ export type PostReviewPage = {
 	canManagePinned: boolean;
 	canReopen: boolean;
 	preview: PostPreview;
+	extraCategoryNames: string[];
 };
 
 export async function loadPostReviewPage(
@@ -45,11 +48,12 @@ export async function loadPostReviewPage(
 	const post = await getPostById(supabase, postId);
 	if (!post) return null;
 
-	const [{ data: site }, siteChannel, publishLogs, preview] = await Promise.all([
+	const [{ data: site }, siteChannel, publishLogs, preview, categoriesResult] = await Promise.all([
 		supabase.from('sites').select('name').eq('id', post.site_id).single(),
 		loadSiteAstroDestination(supabase, post.site_id),
 		listPublishLogsForPost(supabase, post.id),
 		loadPostPreview(supabase, post.id, post.content_md),
+		loadSiteCategories(supabase, post.site_id),
 	]);
 
 	const { data: author } = post.author_id
@@ -73,5 +77,9 @@ export async function loadPostReviewPage(
 		canManagePinned: post.status === 'published' || post.status === 'scheduled',
 		canReopen: await canReopenPost(supabase, post.id, post.status),
 		preview,
+		extraCategoryNames: extraCategoryNames(
+			post.extra_category_slugs ?? [],
+			categoriesResult.categories,
+		),
 	};
 }

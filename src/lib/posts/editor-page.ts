@@ -15,6 +15,7 @@ import {
 } from '@/lib/posts/access';
 import { loadPostPreview, type PostPreview } from '@/lib/posts/post-preview';
 import type { UserRole } from '@/lib/types';
+import { extraCategoryNames } from '@/lib/posts/category-model';
 import type { CategoryOption } from '@/lib/categories/types';
 
 export type PostEditorPage = {
@@ -30,6 +31,7 @@ export type PostEditorPage = {
 	isAmendment: boolean;
 	canReopen: boolean;
 	preview: PostPreview;
+	extraCategoryNames: string[];
 };
 
 export async function loadPostEditorPage(
@@ -63,5 +65,9 @@ export async function loadPostEditorPage(
 			publishLogs.some((log) => log.external_id || log.status === 'withdrawn'),
 		canReopen: isAdmin && (await canReopenPost(supabase, post.id, post.status)),
 		preview,
+		extraCategoryNames: extraCategoryNames(
+			post.extra_category_slugs ?? [],
+			categoriesResult.categories,
+		),
 	};
 }

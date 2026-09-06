@@ -1,0 +1,18 @@
+---
+/**
+ * Ukrywa checkbox dodatkowej kategorii, gdy jest już kategorią główną.
+ * Szkic w karcie (`draft-persist`) woła ten sam sync przy change.
+ */
+---
+
+<script>
+	import { syncExtraCategoryOptions } from '@/lib/editor/extra-categories';
+
+	const form = document.getElementById('post-form');
+	if (form instanceof HTMLFormElement) {
+		syncExtraCategoryOptions(form);
+		form.elements.namedItem('category_slug')?.addEventListener('change', () => {
+			syncExtraCategoryOptions(form);
+		});
+	}
+</script>

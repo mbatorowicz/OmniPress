@@ -120,7 +120,12 @@ const breadcrumbs = [
 		)
 	}
 
-	<AdminPostPreview {post} contentHtml={preview.contentHtml} galleryAssets={preview.galleryAssets} />
+	<AdminPostPreview
+		{post}
+		contentHtml={preview.contentHtml}
+		galleryAssets={preview.galleryAssets}
+		extraCategoryNames={page.extraCategoryNames}
+	/>
 	{page.canManagePinned && <PostPinnedPanel postId={post.id} pinned={post.pinned} />}
 	<PublishLogsPanel postId={post.id} logs={page.publishLogs} />
 

@@ -19,6 +19,7 @@ const typed: PostDraftFields = {
 	title: 'Komunikat',
 	content_md: 'Treść szkicu',
 	category_slug: 'aktualnosci',
+	extra_category_slugs: '',
 };
 
 const record = (baseline: PostDraftFields, values: PostDraftFields): PostDraftRecord => ({

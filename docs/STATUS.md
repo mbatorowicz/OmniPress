@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.11.0** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.12.0** (kod + baza + panel).
 
 Produkcja: https://omni-press.cncsolutions.dev
 
@@ -43,7 +43,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Przypisanie do stron (`user_sites`, `default_site_id`) | ✅ |
 | Tworzenie szkicu na dozwolonej stronie | ✅ odświeżenie karty przywraca niewysłane pola |
 | Edytor WYSIWYG (TipTap) → Markdown | ✅ |
-| Kategoria wpisu (z pliku w repo Astro) | ✅ |
+| Kategoria główna + dodatkowe (np. Aktualności → strona główna) | ✅ |
 | Galeria zdjęć (cover + kolejność) | ✅ miniatura i postęp uploadu od razu |
 | Załączniki PDF (link / podgląd, do 50 MB) | ✅ signed upload → Supabase Storage |
 | Załączniki DOCX (link, do 50 MB) | ✅ |
@@ -73,7 +73,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Publikacja szkicu / wpisu do poprawki bez czekania na redaktora (`draft`, `rejected`, `pending`) | ✅ blokada, gdy brak tytułu lub kategorii |
 | Wysłanie cudzego wpisu do akceptacji (pełna ścieżka redaktora) | ✅ `/admin/posts/[id]/edit` |
 | Odrzucenie z `rejection_note` | ✅ tylko `pending` |
-| Korekta wpisu przed publikacją (`draft`, `rejected`, `pending`, `scheduled`) — treść, tytuł, slug, kategoria, data, tryb załącznika (link / podgląd), galeria | ✅ `/admin/posts/[id]/edit` |
+| Korekta wpisu przed publikacją (`draft`, `rejected`, `pending`, `scheduled`) — treść, tytuł, slug, kategoria główna i dodatkowe, data, tryb załącznika (link / podgląd), galeria | ✅ `/admin/posts/[id]/edit` |
 | Ponowne otwarcie wpisu (reopen) | ✅ |
 | Dezaktywacja / usunięcie opublikowanego (withdraw z GitHub) | ✅ |
 | Bulk: akceptacja / odrzucenie (pending), anulowanie harmonogramu, dezaktywacja / usuwanie | ✅ |
@@ -135,6 +135,7 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub (jeden commit; listing 
 | `20250718000000_assets_content_sha.sql` | `setup:assets-content-sha` |
 | `20250827000000_posts_pinned.sql` | `setup:posts-pinned` |
 | `20250902000000_github_reconcile.sql` | `setup:github-reconcile` |
+| `20250906000000_post_extra_categories.sql` | `setup:extra-categories` |
 
 Tabela opisuje **zamierzony** stan bazy. `lint-docs-setup.mjs` pilnuje zgodności `package.json` ↔ ta tabela, ale nie sprawdza produkcji — w audycie P0-7 okazało się, że jedna migracja nigdy tam nie trafiła. Przy wątpliwościach: porównaj z bazą (triggery, polityki, kolumny), nie z tym dokumentem.
 
@@ -162,7 +163,7 @@ Tabela opisuje **zamierzony** stan bazy. `lint-docs-setup.mjs` pilnuje zgodnośc
 
 | Warstwa | Narzędzie | Zakres |
 |---------|-----------|--------|
-| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 107 plików testowych obok modułów (771 testy + 22 RLS opt-in) |
+| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 120 plików testowych obok modułów (836 testy + 22 RLS opt-in) |
 | Typy (`npm run typecheck`) | `tsc --noEmit` | całe repo, zero błędów; wpięte w `npm run lint` jako bramka |
 | Integracyjne RLS (opt-in) | Vitest + `pg` | `src/lib/supabase/rls.integration.test.ts` — 22 przypadki: izolacja redaktorów, dane wrażliwe, eskalacja uprawnień |
 | E2E/UI (`npm run test:e2e`) | Playwright (`e2e/`) | produkcja: strefa publiczna, nagłówki bezpieczeństwa, CSRF, auth (logowanie/wylogowanie, błędne hasło), panel admina, lista wpisów z filtrami (`posts-browse.spec.ts`), cykl wpisu (szkic → walidacja → zapis → usunięcie) |
@@ -198,6 +199,12 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | SSO redaktorów | — |
 
 ---
+
+## 0.12.0 — Dodatkowe kategorie wpisu
+
+- Wpis ma **jedną kategorię główną** (adres `/{kategoria}/{slug}`) i opcjonalnie dodatkowe.
+- Przykład: główna *Mazowsze bez smogu*, dodatkowa *Aktualności* — wpis jest też na stronie głównej i w archiwum Aktualności.
+- Migracja `setup:extra-categories`. Front-matter: opcjonalne `categories`.
 
 ## 0.11.0 — Auto-reconcile Omni ↔ GitHub
 
