@@ -12,6 +12,7 @@ export {
 	isAdminEditableStatus,
 	isApprovableStatus,
 	missingForPublish,
+	missingForPublishOnSite,
 	type MissingForPublish,
 	type PostRow,
 } from './access-model';

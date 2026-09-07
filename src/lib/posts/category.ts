@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { findCategoryBySlug, loadSiteCategories } from '@/lib/categories';
+import { findCategoryBySlug, loadPublishedSiteCategories } from '@/lib/categories';
 import { normalizeExtraCategorySlugs } from './category-model';
 
 export type PostCategoryFields = {
@@ -17,7 +17,7 @@ export async function resolvePostCategoryFields(
 	const slug = categorySlug.trim();
 	if (!slug) return null;
 
-	const { categories } = await loadSiteCategories(supabase, siteId);
+	const { categories } = await loadPublishedSiteCategories(supabase, siteId);
 	const found = findCategoryBySlug(categories, slug);
 	if (!found) return null;
 

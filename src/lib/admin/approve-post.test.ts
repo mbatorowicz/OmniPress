@@ -5,6 +5,12 @@ import type { PostRow } from '@/lib/posts';
 const resolveSitePublishDestinationIds = vi.hoisted(() => vi.fn());
 vi.mock('./sites', () => ({ resolveSitePublishDestinationIds }));
 
+const loadPublishedSiteCategories = vi.hoisted(() => vi.fn());
+vi.mock('@/lib/categories', async (importOriginal) => {
+	const actual = await importOriginal<typeof import('@/lib/categories')>();
+	return { ...actual, loadPublishedSiteCategories };
+});
+
 const schedulePublishWorker = vi.hoisted(() => vi.fn());
 vi.mock('@/lib/publish/trigger-worker', () => ({ schedulePublishWorker }));
 
@@ -38,6 +44,11 @@ beforeEach(() => {
 	resolveSitePublishDestinationIds.mockReset();
 	resolveSitePublishDestinationIds.mockResolvedValue(['dest-1']);
 	schedulePublishWorker.mockReset();
+	loadPublishedSiteCategories.mockReset();
+	loadPublishedSiteCategories.mockResolvedValue({
+		categories: [{ slug: 'aktualnosci', name: 'Aktualności', sources: ['github_astro'] }],
+		warnings: [],
+	});
 });
 
 describe('approvePost', () => {
@@ -99,6 +110,14 @@ describe('approvePost', () => {
 		});
 		expect(
 			await approvePost(fake.client, post({ status: 'draft', category_slug: null })),
+		).toEqual({ ok: false, error: 'category_required' });
+		expect(resolveSitePublishDestinationIds).not.toHaveBeenCalled();
+	});
+
+	it('nie publikuje wpisu z kategorią spoza opublikowanej listy', async () => {
+		const fake = createSupabaseFake();
+		expect(
+			await approvePost(fake.client, post({ status: 'draft', category_slug: 'szkic' })),
 		).toEqual({ ok: false, error: 'category_required' });
 		expect(resolveSitePublishDestinationIds).not.toHaveBeenCalled();
 	});

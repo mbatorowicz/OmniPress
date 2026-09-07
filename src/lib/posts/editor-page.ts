@@ -4,7 +4,7 @@
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { canReopenPost } from '@/lib/admin/posts';
-import { loadSiteCategories } from '@/lib/categories';
+import { loadPublishedSiteCategories } from '@/lib/categories';
 import { listPublishLogsForPost } from '@/lib/publish';
 import {
 	canDeletePost,
@@ -44,7 +44,7 @@ export async function loadPostEditorPage(
 
 	const [{ data: site }, categoriesResult, preview, publishLogs] = await Promise.all([
 		supabase.from('sites').select('name').eq('id', post.site_id).single(),
-		loadSiteCategories(supabase, post.site_id),
+		loadPublishedSiteCategories(supabase, post.site_id),
 		loadPostPreview(supabase, post.id, post.content_md),
 		listPublishLogsForPost(supabase, post.id),
 	]);

@@ -28,6 +28,11 @@ export const posts = {
 		tooLarge: 'Zdjęcie jest za duże (max 10 MB).',
 		fileTooLarge: 'Plik jest za duży (max 50 MB).',
 	},
+	categorySource: {
+		failed: (source: string, detail: string) =>
+			`Nie udało się wczytać kategorii ze strony ${source} (${detail}).`,
+		unknownError: 'nieznany błąd',
+	},
 	pdfViewer: {
 		prev: 'Poprzednia',
 		next: 'Następna',

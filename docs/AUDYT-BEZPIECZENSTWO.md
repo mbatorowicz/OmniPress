@@ -13,7 +13,7 @@ Oznaczenia: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | S-3 ✅ | Bucket `post-assets` prywatny + signed URL | A (+ Storage) | **wysoka** | — |
 | S-4 ✅ | Panel: escape nazw, Origin na POST, IP z hopa Vercel | A | średnia | po S-1 |
 
-**Następna sesja:** pierwsze niezamknięte S-*. Podejścia S-1–S-4 zamknięte. Kategorie (AUDYT-WYKONANIE 22–25) zostają otwarte.
+**Następna sesja:** S-1–S-4 zamknięte. Podejście 23 zamknięte. Następne otwarte: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) **24 → 25**.
 
 Kategorie wpisów (AUDYT-WYKONANIE 22–25) zostają otwarte, ale **nie zaczynaj od nich**, dopóki S-1 i S-2 nie są zamknięte — XSS na stronie gminy jest ważniejszy niż flow kategorii.
 
@@ -167,7 +167,7 @@ Testy: `origin`, `guard-request`, `rate-limit`, `pipeline` (CSRF), `api/worker`,
 
 ## Start kolejnego chatu
 
-Agent czyta **ten plik** (nie canvas). Bierze pierwsze S-* bez ✅. S-1–S-4 są zamknięte — następne otwarte to kategorie w [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) (22–25), o ile użytkownik nie poda innego scope.
+Agent czyta **ten plik** (nie canvas). Bierze pierwsze S-* bez ✅. S-1–S-4 są zamknięte — następne otwarte to [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) **24 → 25**, o ile użytkownik nie poda innego scope.
 
 ```
 PM → Architect → BE/FE → DevSecOps → QA

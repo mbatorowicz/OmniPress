@@ -15,7 +15,6 @@
 		"src/lib/astro-layout/parse-nav.ts": 2,
 		"src/lib/astro-layout/store-github-sync.ts": 2,
 		"src/lib/categories/astro-github.ts": 2,
-		"src/lib/categories/site.ts": 1,
 		"src/lib/cert/types.ts": 3,
 		"src/lib/crypto.ts": 1,
 		"src/lib/publish/dispatch.ts": 1,

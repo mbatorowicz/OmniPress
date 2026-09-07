@@ -12,12 +12,12 @@ import {
 	canAdminEditPost,
 	getPostById,
 	isApprovableStatus,
-	missingForPublish,
+	missingForPublishOnSite,
 	type MissingForPublish,
 	type PostRow,
 } from '@/lib/posts/access';
 import { extraCategoryNames } from '@/lib/posts/category-model';
-import { loadSiteCategories } from '@/lib/categories';
+import { loadPublishedSiteCategories, publishedCategorySlugs } from '@/lib/categories';
 import { loadPostPreview, type PostPreview } from '@/lib/posts/post-preview';
 
 export type PostReviewPage = {
@@ -53,7 +53,7 @@ export async function loadPostReviewPage(
 		loadSiteAstroDestination(supabase, post.site_id),
 		listPublishLogsForPost(supabase, post.id),
 		loadPostPreview(supabase, post.id, post.content_md),
-		loadSiteCategories(supabase, post.site_id),
+		loadPublishedSiteCategories(supabase, post.site_id),
 	]);
 
 	const { data: author } = post.author_id
@@ -72,7 +72,10 @@ export async function loadPostReviewPage(
 		publishLogs,
 		isPending: post.status === 'pending',
 		canApprove: isApprovableStatus(post.status),
-		missingForPublish: missingForPublish(post),
+		missingForPublish: missingForPublishOnSite(
+			post,
+			publishedCategorySlugs(categoriesResult.categories),
+		),
 		canEdit: canAdminEditPost(post),
 		canManagePinned: post.status === 'published' || post.status === 'scheduled',
 		canReopen: await canReopenPost(supabase, post.id, post.status),

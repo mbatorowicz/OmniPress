@@ -426,19 +426,19 @@ Jeden wpis przechodzący całą drogę: szkic → akceptacja → commit GitHub �
 
 ## Audyt kategorii wpisów (2026-09-06)
 
-**SSOT planu:** [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) podejścia 22–25 (22 zamknięte).
+**SSOT planu:** [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) podejścia 22–25 (22–23 zamknięte).
 
 P0-3 (normalizacja slugu) jest zamknięte. Luka jest w **kompletności flow**, nie w samym zapisie slugu. Dodać kategorię da się, ale to rytuał na czterech ekranach, a pierwszy nie ma przycisku publikacji.
 
 | ID | Priorytet | Stan | Podejście |
 |----|-----------|------|-----------|
 | K-1 | P1 | ✅ zamknięte | 22 |
-| K-2 | P1 | otwarte | 23 |
+| K-2 | P1 | ✅ zamknięte | 23 |
 | K-3 | P1 | otwarte | 24 |
 | K-4 | P1 | otwarte | 24 |
 | K-5 | P1 | ✅ zamknięte | 22 |
 | K-6 | P1 | ✅ zamknięte | 22 |
-| K-7 | P1 | otwarte | 23 |
+| K-7 | P1 | ✅ zamknięte | 23 |
 | K-8 | P2 | otwarte | 25 |
 | K-9 | P2 | otwarte | 25 |
 | K-10 | P2 | otwarte | 25 |
@@ -450,9 +450,11 @@ Formularz na `/admin/units/[id]/posts` ma tylko „Zapisz szkic kategorii” (`L
 
 Skutek: administrator zapisuje i wychodzi. Kategoria żyje w Supabase, nie w `omnipress-layout.json`.
 
-### K-2 — szkic kategorii = lista dla redaktora
+### K-2 — szkic kategorii = lista dla redaktora — ✅ zamknięte (podejście 23)
 
-`loadSiteCategories` czyta `sites.astro_layout` zanim layout trafi na GitHub. Redaktor widzi nową kategorię od razu i może wysłać wpis. Strona wpisu `/{cat}/{slug}` powstanie z front-matteru; archiwum `/{cat}/` buduje się wyłącznie z listy w opublikowanym layoucie — 404 do czasu publikacji.
+`loadSiteCategories` czytało `sites.astro_layout` zanim layout trafił na GitHub. Redaktor widział nową kategorię od razu i mógł wysłać wpis. Strona wpisu `/{cat}/{slug}` powstanie z front-matteru; archiwum `/{cat}/` buduje się wyłącznie z listy w opublikowanym layoucie — 404 do czasu publikacji.
+
+**Naprawa:** select i walidacja czytają `loadPublishedSiteCategories` (hash publikacji albo GitHub). Szkic zostaje w panelu admina.
 
 ### K-3 — nowa kategoria nie wchodzi do feedów ani menu
 
@@ -472,9 +474,11 @@ Ostrzeżenie `categoriesSlugWarning` jest poprawne; automatu nie ma. Zmiana slug
 
 `isValidSlug` (>= 2 znaki) istnieje w `lib/admin/slug.ts`, `parseCategoriesFromForm` go nie woła. Wiersz, który po `normalizeSlug` jest pusty, jest pomijany (`if (!slug || !name) continue`) — admin myśli, że dodał kategorię.
 
-### K-7 — save ≠ submit ≠ approve
+### K-7 — save ≠ submit ≠ approve — ✅ zamknięte (podejście 23)
 
-`save.ts` wymaga kategorii z listy. `submit.ts` zostawia surowy slug, gdy listy nie ma. Akceptacja sprawdza tylko, czy `category_slug` nie jest puste. Można opublikować wpis w usuniętej albo przemianowanej kategorii.
+`save.ts` wymaga kategorii z listy. `submit.ts` zostawiał surowy slug, gdy listy nie ma. Akceptacja sprawdzała tylko, czy `category_slug` nie jest puste. Można było opublikować wpis w usuniętej albo przemianowanej kategorii.
+
+**Naprawa:** submit i approve wymagają slugu z opublikowanej listy (`category_required`).
 
 ### K-8 — slug bez podglądu URL i bez normalizacji na żywo
 
@@ -513,5 +517,5 @@ Decyzja o wstecznej zmianie slugów (porcja 2) upraszcza porcję 3: skoro po mig
 - [STATUS.md](./STATUS.md) — stan implementacji
 - [KONWENCJE.md](./KONWENCJE.md) — konwencje kodu
 - [WDROZENIE.md](./WDROZENIE.md) — bootstrap techniczny
-- [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) — podejścia 1–22 (zamknięte) i 23–25 (kategorie)
+- [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) — podejścia 1–23 (zamknięte) i 24–25 (kategorie)
 - [astro-repo-compat](../.cursor/rules/astro-repo-compat.mdc) — kontrakt między repozytoriami

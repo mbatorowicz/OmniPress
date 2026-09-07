@@ -39,17 +39,15 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		return redirectPostError(redirect, editorPath, 'category_required');
 	}
 
-	// Nazwa kategorii idzie do front-matteru; przy niedostępnej liście zostaje sam slug.
-	const resolvedCategory = await resolvePostCategoryFields(
+	const category = await resolvePostCategoryFields(
 		supabase,
 		post.site_id,
 		categorySlug,
 		extraSlugs,
 	);
-	const category = resolvedCategory ?? {
-		category_slug: categorySlug,
-		extra_category_slugs: extraSlugs.filter((s) => s !== categorySlug),
-	};
+	if (!category) {
+		return redirectPostError(redirect, editorPath, 'category_required');
+	}
 
 	const scheduleRaw = combineScheduleDateHour(
 		form.get('scheduled_publish_date'),

@@ -30,7 +30,7 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 20 | Pułapka fokusu wyszukiwarki — ✅ **wykonane** | niskie | — |
 | 21 | Stopka: martwe linki prawne + walidacja — ✅ **wykonane** | niskie | — |
 | 22 | Kategorie: publikacja na miejscu + walidacja slugu (K-1, K-5, K-6) | niskie | 23, 24 |
-| 23 | Kategorie: jedna reguła opublikowanej listy (K-2, K-7) | średnie | — |
+| 23 | Kategorie: jedna reguła opublikowanej listy (K-2, K-7) — ✅ **wykonane** | średnie | — |
 | 24 | Kategorie: remap slugu + checklist dodawania (K-3, K-4) | średnie | po 22 |
 | 25 | Kategorie: UX formularza + ADMIN.md (K-8–K-11) | zerowe | po 22 |
 
@@ -38,9 +38,7 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 
 ## Następna sesja
 
-**Priorytet (2026-09-07):** bezpieczeństwo — [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md), podejścia **S-1 → S-2 → S-3 → S-4**. XSS na stronie gminy przed flowem kategorii.
-
-Podejścia 1–21 zamknięte 2026-09-04. **Otwarte (po S-2):** flow kategorii — **22 → 23 → 24 → 25**. Znaleziska: [AUDYT.md](./AUDYT.md) §Audyt kategorii wpisów.
+Podejścia 1–23 zamknięte (22: 2026-09-06, 23: 2026-09-07). Audyt bezpieczeństwa S-1–S-4 zamknięty. **Otwarte:** flow kategorii — **24 → 25**. Znaleziska: [AUDYT.md](./AUDYT.md) §Audyt kategorii wpisów.
 
 **DNS cutover jest ostatnim krokiem projektu, nie następną sesją.** Domena produkcyjna `gmina-miedzna.pl` zostaje na starym hostingu do odwołania. Nowa strona działa pod `gmina-miedzna.cncsolutions.dev`.
 
@@ -829,6 +827,15 @@ Do tego `admin/github-token.ts` importował nieistniejący typ `GitHubRepoConfig
 **Weryfikacja:** `npm test`; ręcznie: zapisz szkic kategorii bez publikacji → select redaktora bez nowej pozycji (albo z blokadą).
 
 **Commit:** tylko repo A.
+
+### Wykonano (2026-09-07)
+
+- Select redaktora, API `/api/sites/{id}/categories`, `resolvePostCategoryFields` i akceptacja czytają `loadPublishedSiteCategories`: gdy hash szkicu = `publishedLayoutHash` — lista z bazy; w przeciwnym razie kopia z GitHub. Szkic zostaje w `loadDraftSiteCategories` (panel layoutu).
+- `submit.ts`: brak kategorii z opublikowanej listy = `category_required` (usunięty fallback `resolvedCategory ?? { slug }`).
+- `approvePost` + `missingForPublishOnSite`: slug spoza listy opublikowanych = `category_required`.
+- Testy: `categories/published-model`, `categories/published`, `categories/site`, `posts/category`, `posts/access`, `admin/approve-post`.
+
+**Wynik weryfikacji:** `npm test` 908/908 (+22 RLS opt-in) · `npm run lint` OK · `npm run build` OK.
 
 ---
 

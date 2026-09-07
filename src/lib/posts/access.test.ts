@@ -7,6 +7,7 @@ import {
 	canViewPostAssets,
 	isApprovableStatus,
 	missingForPublish,
+	missingForPublishOnSite,
 	type PostRow,
 } from './access';
 
@@ -112,6 +113,22 @@ describe('missingForPublish', () => {
 
 	it('null gdy wpis ma tytuł i kategorię', () => {
 		expect(missingForPublish(draftPost({ category_slug: 'aktualnosci' }))).toBeNull();
+	});
+});
+
+describe('missingForPublishOnSite', () => {
+	const published = new Set(['aktualnosci']);
+
+	it('osierocony slug traktuje jak brak kategorii', () => {
+		expect(
+			missingForPublishOnSite(draftPost({ category_slug: 'szkic' }), published),
+		).toBe('category');
+	});
+
+	it('null gdy slug jest na opublikowanej liście', () => {
+		expect(
+			missingForPublishOnSite(draftPost({ category_slug: 'aktualnosci' }), published),
+		).toBeNull();
 	});
 });
 

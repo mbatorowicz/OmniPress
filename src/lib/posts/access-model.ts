@@ -90,3 +90,15 @@ export function missingForPublish(post: PostRow): MissingForPublish {
 	if (!post.category_slug?.trim()) return 'category';
 	return null;
 }
+
+/** Jak `missingForPublish`, plus slug spoza opublikowanej listy (K-7). */
+export function missingForPublishOnSite(
+	post: PostRow,
+	publishedSlugs: ReadonlySet<string>,
+): MissingForPublish {
+	const missing = missingForPublish(post);
+	if (missing) return missing;
+	const slug = post.category_slug?.trim().toLowerCase() ?? '';
+	if (!publishedSlugs.has(slug)) return 'category';
+	return null;
+}

@@ -5,6 +5,7 @@
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { PostRow } from '@/lib/posts';
+import { findCategoryBySlug, loadPublishedSiteCategories } from '@/lib/categories';
 import { isApprovableStatus, missingForPublish } from '@/lib/posts/access-model';
 import { schedulePublishWorker } from '@/lib/publish/trigger-worker';
 import { queueNotBefore, queuePublishForDestination } from './publish-queue';
@@ -27,6 +28,11 @@ export async function approvePost(
 	const missing = missingForPublish(post);
 	if (missing) {
 		return { ok: false, error: missing === 'title' ? 'title_required' : 'category_required' };
+	}
+
+	const { categories } = await loadPublishedSiteCategories(supabase, post.site_id);
+	if (!findCategoryBySlug(categories, post.category_slug ?? '')) {
+		return { ok: false, error: 'category_required' };
 	}
 
 	const destinationIds = await resolveSitePublishDestinationIds(supabase, post.site_id);

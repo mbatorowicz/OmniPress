@@ -15,6 +15,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Naprawione
 
+- **Kategorie: redaktor i akceptacja widzą tę samą listę co strona (K-2, K-7).** Szkic nowej kategorii w panelu admina nie pojawia się w selectcie redaktora i nie da się go wysłać ani zaakceptować, dopóki layout nie jest opublikowany. Wysłanie i akceptacja odrzucają osierocony slug (usunięta / przemianowana kategoria). Testy: `categories/published`, `posts/category`, `admin/approve-post`.
+
 - **S-1 — sanityzer nie przepuszcza XSS w zapisie i publikacji.** `stripRawHtmlTags` wołał czyszczenie na pojedynczym tagu, więc `div`/`a` z `onclick` i `javascript:` zostawały w markdownie (podgląd je wycinał — admin widział czysty wpis). Teraz `parse5` czyści cały fragment; ten sam rdzeń dla szkicu, publikacji, podglądu i edytora. Testy: `sanitize.test.ts`.
 
 - **Edytor, podgląd i strona pokazują te same akapity.** Wklejka z Worda albo Enter w połowie zdania zapisywały każdy wiersz jako osobny akapit — w edytorze odstępy były małe, w podglądzie i na stronie ogromne. Jest jedna konwersja Markdown → HTML (`marked` + sanityzacja) i ta sama normalizacja złamanych wierszy przy zapisie, imporcie, publikacji i renderze. Repo strony scala te same pozorne akapity przy budowie (`remarkUnwrapHardWraps`).

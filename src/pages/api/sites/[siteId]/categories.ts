@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { api } from '@/i18n';
 import { getUserSites } from '@/lib/auth';
 import { guardAuthJson, isGuardBlocked, jsonError, jsonOk } from '@/lib/api';
-import { loadSiteCategories } from '@/lib/categories';
+import { loadPublishedSiteCategories } from '@/lib/categories';
 import { loadAllowedSites } from '@/lib/posts';
 
 export const GET: APIRoute = async ({ params, locals }) => {
@@ -18,6 +18,6 @@ export const GET: APIRoute = async ({ params, locals }) => {
 		return jsonError(api.posts.forbidden, 403);
 	}
 
-	const { categories, warnings } = await loadSiteCategories(auth.supabase, siteId);
+	const { categories, warnings } = await loadPublishedSiteCategories(auth.supabase, siteId);
 	return jsonOk({ categories, warnings });
 };

@@ -11,6 +11,7 @@ export {
 	loadEditablePost,
 	loadSubmittablePost,
 	missingForPublish,
+	missingForPublishOnSite,
 	type MissingForPublish,
 	type PostRow,
 } from './access';
