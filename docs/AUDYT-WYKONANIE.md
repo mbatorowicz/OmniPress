@@ -29,16 +29,16 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 19 | `aria-current` w menu górnym — ✅ **wykonane** | niskie | — |
 | 20 | Pułapka fokusu wyszukiwarki — ✅ **wykonane** | niskie | — |
 | 21 | Stopka: martwe linki prawne + walidacja — ✅ **wykonane** | niskie | — |
-| 22 | Kategorie: publikacja na miejscu + walidacja slugu (K-1, K-5, K-6) | niskie | 23, 24 |
+| 22 | Kategorie: publikacja na miejscu + walidacja slugu (K-1, K-5, K-6) — ✅ **wykonane** | niskie | 23, 24 |
 | 23 | Kategorie: jedna reguła opublikowanej listy (K-2, K-7) — ✅ **wykonane** | średnie | — |
-| 24 | Kategorie: remap slugu + checklist dodawania (K-3, K-4) | średnie | po 22 |
+| 24 | Kategorie: remap slugu + checklist dodawania (K-3, K-4) — ✅ **wykonane** | średnie | po 22 |
 | 25 | Kategorie: UX formularza + ADMIN.md (K-8–K-11) | zerowe | po 22 |
 
 ---
 
 ## Następna sesja
 
-Podejścia 1–23 zamknięte (22: 2026-09-06, 23: 2026-09-07). Audyt bezpieczeństwa S-1–S-4 zamknięty. **Otwarte:** flow kategorii — **24 → 25**. Znaleziska: [AUDYT.md](./AUDYT.md) §Audyt kategorii wpisów.
+Podejścia 1–24 zamknięte (22: 2026-09-06, 23–24: 2026-09-07). Audyt bezpieczeństwa S-1–S-4 zamknięty. **Otwarte:** flow kategorii — **25**. Znaleziska: [AUDYT.md](./AUDYT.md) §Audyt kategorii wpisów.
 
 **DNS cutover jest ostatnim krokiem projektu, nie następną sesją.** Domena produkcyjna `gmina-miedzna.pl` zostaje na starym hostingu do odwołania. Nowa strona działa pod `gmina-miedzna.cncsolutions.dev`.
 
@@ -853,6 +853,15 @@ Do tego `admin/github-token.ts` importował nieistniejący typ `GitHubRepoConfig
 **Weryfikacja:** test remap (`odpady` → `gospodarka-odpadami`) zostawia `displays` i baner; test prune bez remap nie kasuje po cichu. `npm test`.
 
 **Commit:** tylko repo A. Jeśli checklist wymaga tekstów — `src/i18n/pl/admin-layout.ts`.
+
+### Wykonano (2026-09-07)
+
+- Zapis sekcji `categories` wykrywa zmianę slugu (1:1 albo `category_prev_slug`) i przepisuje `categoryDisplays`, `widget.categorySlug` banerów oraz `posts.category_slug` / `category_name` / `extra_category_slugs`.
+- Republika wpisów nie jest automatyczna — flash podaje liczbę opublikowanych do ponownej publikacji; klient pyta o potwierdzenie, gdy zmiana slugu dotyczy wpisów.
+- Checklist na `/posts`: szkic → publikacja layoutu → feed `home.*` → pozycja w menu. Przy nowej kategorii: checkboxy „dodaj do feedu Aktualności” i „dodaj do menu” (domyślnie off).
+- Testy: `categories/remap-model`, `categories/remap`, `categories/checklist-model`, `categories/onboard-model`, `parse-form-categories`, `category-merge`.
+
+**Wynik weryfikacji:** `npm test` 925/925 (+22 RLS opt-in; 1 flaka `ensure-site` na timeout, przy powtórce OK) · `npm run lint` OK · `npm run build` OK.
 
 ---
 

@@ -26,7 +26,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | [KONWENCJE.md](./KONWENCJE.md) | Kod, i18n, UI SSOT |
 | [VERSIONING.md](./VERSIONING.md) | `semver+commit` |
 | [AUDYT.md](./AUDYT.md) | Znaleziska audytu OmniPress ↔ repo Astro (co i dlaczego); kategorie wpisów: K-1–K-11 |
-| [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) | Kroki naprawcze kontraktu (jak); otwarte kategorie: 24–25 |
+| [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) | Kroki naprawcze kontraktu (jak); otwarte kategorie: 25 |
 | [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md) | S-1–S-4 zamknięte; B-1–B-8 |
 | [ROLE_AGENT.md](./ROLE_AGENT.md) | Proces agenta AI |
 | [../CHANGELOG.md](../CHANGELOG.md) | Historia wydań |

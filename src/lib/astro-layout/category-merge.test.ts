@@ -22,4 +22,17 @@ describe('mergeDraftCategoriesOntoLive', () => {
 		expect(merged.categories.map((c) => c.slug)).toEqual(['aktualnosci', 'mazowsze-bez-smogu']);
 		expect(merged.categoryDisplays.home_latest).toEqual(['aktualnosci']);
 	});
+
+	it('remap slugu na publikacji zostawia feed i nie kasuje go prune', () => {
+		const live = emptySiteAstroLayout();
+		live.categories = [{ slug: 'odpady', name: 'Odpady' }];
+		live.slots = [{ id: 'home_latest', label: 'Aktualności', component: 'home.latest' }];
+		live.categoryDisplays = { home_latest: ['odpady'] };
+
+		const draft = emptySiteAstroLayout();
+		draft.categories = [{ slug: 'gospodarka-odpadami', name: 'Gospodarka odpadami' }];
+
+		const merged = mergeDraftCategoriesOntoLive(live, draft);
+		expect(merged.categoryDisplays.home_latest).toEqual(['gospodarka-odpadami']);
+	});
 });

@@ -6,7 +6,7 @@ Produkcja: https://omni-press.cncsolutions.dev
 
 **Audyt migracji:** podejścia 1–18 zamknięte (2026-09-03). Szczegóły: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md).
 
-**Audyt bezpieczeństwa (2026-09-07):** S-1–S-4 zamknięte. **Audyt kategorii:** 22–23 zamknięte. Następna sesja: **24** (remap slugu + checklist). Plan: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md).
+**Audyt bezpieczeństwa (2026-09-07):** S-1–S-4 zamknięte. **Audyt kategorii:** 22–24 zamknięte. Następna sesja: **25** (UX formularza + ADMIN.md). Plan: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md).
 
 ---
 

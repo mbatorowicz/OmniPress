@@ -55,6 +55,13 @@ const { data: published } = await postsForSite()
 	.limit(30);
 
 const scheduledQueue = [...(publishing ?? []), ...(scheduled ?? [])];
+const { data: categoryPostRows } = await supabase.from('posts').select('category_slug').eq('site_id', id);
+const postCounts: Record<string, number> = {};
+for (const row of categoryPostRows ?? []) {
+	const slug = row.category_slug;
+	if (!slug) continue;
+	postCounts[slug] = (postCounts[slug] ?? 0) + 1;
+}
 const layoutFlash = parseLayoutPageFlash(Astro.url);
 const flashMessages: FlashMessage[] = parseAdminHubFlash(Astro.url);
 
@@ -102,7 +109,13 @@ const summary = [
 		errorMessage={layoutFlash.errorMessage}
 	/>
 
-	<CategoriesLayoutForm siteId={id} layout={ctx.layout} />
+	<CategoriesLayoutForm
+		siteId={id}
+		layout={ctx.layout}
+		hasAstroChannel={ctx.hasAstroChannel}
+		draftStatus={ctx.categoriesDraftStatus}
+		postCounts={postCounts}
+	/>
 
 	<nav class="ui-queue-summary mt-8" aria-label={admin.queueNav.pending}>
 		{

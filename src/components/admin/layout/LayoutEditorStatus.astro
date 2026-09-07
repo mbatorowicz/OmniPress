@@ -24,6 +24,7 @@ interface Props {
 	imported?: boolean;
 	importHrefCount?: number | null;
 	importPath?: string | null;
+	remapPublished?: number | null;
 }
 
 const {
@@ -43,6 +44,7 @@ const {
 	imported,
 	importHrefCount,
 	importPath,
+	remapPublished,
 } = Astro.props;
 
 const view = buildLayoutEditorStatus(
@@ -63,6 +65,7 @@ const view = buildLayoutEditorStatus(
 		imported,
 		importHrefCount,
 		importPath,
+		remapPublished,
 	},
 	layoutEditorStatusMessagesFromI18n(adminLayout),
 );

@@ -3,15 +3,25 @@ import { adminLayout } from '@/i18n';
 import Alert from '@/components/ui/feedback/Alert.astro';
 import LayoutSyncActions from '@/components/admin/layout/LayoutSyncActions.astro';
 import CategoryMatrixSection from '@/components/admin/layout/CategoryMatrixSection.astro';
+import CategoryPublishChecklist from '@/components/admin/layout/CategoryPublishChecklist.astro';
 import type { SiteAstroLayout } from '@/lib/astro-layout/types';
+import type { DraftLiveStatus } from '@/lib/astro-layout/layout-sync-meta';
+import {
+	buildCategoryChecklistRows,
+	buildCategoryChecklistSteps,
+} from '@/lib/categories/checklist-model';
 
 interface Props {
 	siteId: string;
 	layout: SiteAstroLayout;
 	hasAstroChannel: boolean;
+	draftStatus?: DraftLiveStatus;
+	postCounts?: Record<string, number>;
 }
 
-const { siteId, layout } = Astro.props;
+const { siteId, layout, draftStatus = 'unknown', postCounts = {} } = Astro.props;
+const steps = buildCategoryChecklistSteps(layout, draftStatus);
+const rows = buildCategoryChecklistRows(layout);
 ---
 
 <form
@@ -20,12 +30,14 @@ const { siteId, layout } = Astro.props;
 	class="ui-form-stack max-w-5xl scroll-mt-6"
 	id="categories"
 	data-categories-form
+	data-post-counts={JSON.stringify(postCounts)}
 >
 	<input type="hidden" name="section" value="categories" />
 	<h2 class="ui-section-title">{adminLayout.categoriesTitle}</h2>
 	<Alert variant="info" class="ui-alert--note">{adminLayout.categoriesSlugWarning}</Alert>
 	<Alert variant="info" class="ui-alert--note">{adminLayout.categoriesFeedAssignHint}</Alert>
 	<Alert variant="info" class="ui-alert--note">{adminLayout.categoriesPublishHint}</Alert>
+	<CategoryPublishChecklist {steps} {rows} />
 	<CategoryMatrixSection {layout} />
 	<LayoutSyncActions section="categories" {siteId} />
 </form>

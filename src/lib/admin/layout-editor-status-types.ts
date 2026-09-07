@@ -17,6 +17,7 @@ export type LayoutEditorStatusInput = {
 	imported?: boolean;
 	importHrefCount?: number | null;
 	importPath?: string | null;
+	remapPublished?: number | null;
 };
 
 export type LayoutEditorStatusMessages = {
@@ -40,6 +41,8 @@ export type LayoutEditorStatusMessages = {
 	navValidationHeading: string;
 	navValidationHint: string;
 	publishBlockedMissingHref: string;
+	remapPublishedNote: (count: number) => string;
+	remapPublishedNone: string;
 };
 
 export type LayoutEditorStatusView = {

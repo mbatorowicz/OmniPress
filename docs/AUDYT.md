@@ -426,7 +426,7 @@ Jeden wpis przechodzący całą drogę: szkic → akceptacja → commit GitHub �
 
 ## Audyt kategorii wpisów (2026-09-06)
 
-**SSOT planu:** [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) podejścia 22–25 (22–23 zamknięte).
+**SSOT planu:** [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) podejścia 22–25 (22–24 zamknięte).
 
 P0-3 (normalizacja slugu) jest zamknięte. Luka jest w **kompletności flow**, nie w samym zapisie slugu. Dodać kategorię da się, ale to rytuał na czterech ekranach, a pierwszy nie ma przycisku publikacji.
 
@@ -434,8 +434,8 @@ P0-3 (normalizacja slugu) jest zamknięte. Luka jest w **kompletności flow**, n
 |----|-----------|------|-----------|
 | K-1 | P1 | ✅ zamknięte | 22 |
 | K-2 | P1 | ✅ zamknięte | 23 |
-| K-3 | P1 | otwarte | 24 |
-| K-4 | P1 | otwarte | 24 |
+| K-3 | P1 | ✅ zamknięte | 24 |
+| K-4 | P1 | ✅ zamknięte | 24 |
 | K-5 | P1 | ✅ zamknięte | 22 |
 | K-6 | P1 | ✅ zamknięte | 22 |
 | K-7 | P1 | ✅ zamknięte | 23 |
@@ -456,15 +456,19 @@ Skutek: administrator zapisuje i wychodzi. Kategoria żyje w Supabase, nie w `om
 
 **Naprawa:** select i walidacja czytają `loadPublishedSiteCategories` (hash publikacji albo GitHub). Szkic zostaje w panelu admina.
 
-### K-3 — nowa kategoria nie wchodzi do feedów ani menu
+### K-3 — nowa kategoria nie wchodzi do feedów ani menu — ✅ zamknięte (podejście 24)
 
 Zapis sekcji `categories` woła `pruneCategoryDisplays` — wycina stare slugi, nie przypisuje nowych. Menu i banery (`categorySlug`) są osobnym krokiem, bez checklisty.
 
 Na produkcji (2026-09-06): 5 kategorii, w `displays` tylko `aktualnosci`.
 
-### K-4 — zmiana slugu osieroca wpisy
+**Naprawa:** checklist na formularzu (szkic → publikacja → feed `home.*` → menu). Przy dodaniu: opcjonalne checkboxy „dodaj do feedu Aktualności” i „dodaj do menu”.
+
+### K-4 — zmiana slugu osieroca wpisy — ✅ zamknięte (podejście 24)
 
 Ostrzeżenie `categoriesSlugWarning` jest poprawne; automatu nie ma. Zmiana slugu nie przepisuje `posts.category_slug`, `displays`, ani `widget.categorySlug` banera. `prune` kasuje przypisanie do feedu. Stare URL-e zostają; nowe archiwum jest puste.
+
+**Naprawa:** remap przed prune (displays + baner + wpisy w bazie). Republika na GitHub zostaje ręczna — flash podaje liczbę opublikowanych.
 
 ### K-5 — publikacja layoutu bez kontraktu slugu — ✅ zamknięte (podejście 22)
 

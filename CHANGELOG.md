@@ -15,6 +15,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Naprawione
 
+- **Kategorie: zmiana slugu nie gubi wpisów i feedów (K-3, K-4).** Zapis listy kategorii wykrywa remap (`odpady` → `gospodarka-odpadami`), przepisuje feedy, banery i wpisy w bazie. Republika na stronie zostaje ręczna — panel pokazuje ile opublikowanych wpisów wymaga ponownej publikacji. Checklist na formularzu prowadzi przez szkic → publikację layoutu → feed strony głównej → menu; przy dodaniu widać checkboxy „dodaj do feedu Aktualności” i „dodaj do menu”. Testy: `categories/remap`, `categories/checklist-model`, `parse-form-categories`.
+
 - **Kategorie: redaktor i akceptacja widzą tę samą listę co strona (K-2, K-7).** Szkic nowej kategorii w panelu admina nie pojawia się w selectcie redaktora i nie da się go wysłać ani zaakceptować, dopóki layout nie jest opublikowany. Wysłanie i akceptacja odrzucają osierocony slug (usunięta / przemianowana kategoria). Testy: `categories/published`, `posts/category`, `admin/approve-post`.
 
 - **S-1 — sanityzer nie przepuszcza XSS w zapisie i publikacji.** `stripRawHtmlTags` wołał czyszczenie na pojedynczym tagu, więc `div`/`a` z `onclick` i `javascript:` zostawały w markdownie (podgląd je wycinał — admin widział czysty wpis). Teraz `parse5` czyści cały fragment; ten sam rdzeń dla szkicu, publikacji, podglądu i edytora. Testy: `sanitize.test.ts`.

@@ -10,6 +10,7 @@ export function parseLayoutPageFlash(url: URL): {
 	imported: boolean;
 	importHrefCount: number | null;
 	importPath: string | null;
+	remapPublished: number | null;
 } {
 	const errorCode = url.searchParams.get('error');
 	const layoutErrors = adminLayout.errors;
@@ -23,6 +24,11 @@ export function parseLayoutPageFlash(url: URL): {
 		importHrefsRaw !== null && importHrefsRaw !== '' && Number.isFinite(Number(importHrefsRaw))
 			? Number(importHrefsRaw)
 			: null;
+	const remapRaw = url.searchParams.get('remap_published');
+	const remapPublished =
+		remapRaw !== null && remapRaw !== '' && Number.isFinite(Number(remapRaw))
+			? Number(remapRaw)
+			: null;
 
 	return {
 		errorMessage,
@@ -34,5 +40,6 @@ export function parseLayoutPageFlash(url: URL): {
 		imported: url.searchParams.get('imported') === '1',
 		importHrefCount,
 		importPath: url.searchParams.get('import_path')?.trim() || null,
+		remapPublished,
 	};
 }

@@ -3,7 +3,10 @@ import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
 import { layoutSectionReturnPath } from '@/lib/admin/layout-editor-context';
 import { resolveLayoutBaseForSectionSave } from '@/lib/admin/layout-section-save-base';
 import { parseLayoutSection } from '@/lib/astro-layout/parse-form';
+import { parseCategoryFormPairs } from '@/lib/astro-layout/parse-form-categories';
 import { countNavigationHrefs } from '@/lib/astro-layout/validate-nav';
+import { detectCategorySlugRemaps } from '@/lib/categories/remap-model';
+import { remapSitePostCategories } from '@/lib/categories/remap';
 import { loadSiteAstroLayout, saveSiteAstroLayout } from '@/lib/astro-layout/store';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
@@ -44,5 +47,20 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		return redirect(`/admin/units/${siteId}/${returnSegment}?error=save_failed`);
 	}
 
-	return redirect(`/admin/units/${siteId}/${returnSegment}?saved=1`);
+	const remaps =
+		section === 'categories'
+			? detectCategorySlugRemaps(
+					existing.categories,
+					parsed.layout.categories,
+					parseCategoryFormPairs(form),
+				)
+			: [];
+	if (remaps.length === 0) {
+		return redirect(`/admin/units/${siteId}/${returnSegment}?saved=1`);
+	}
+
+	const remapped = await remapSitePostCategories(supabase, siteId, remaps);
+	return redirect(
+		`/admin/units/${siteId}/${returnSegment}?saved=1&remap_published=${remapped.publishedNeedingRepublish}`,
+	);
 };

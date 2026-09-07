@@ -25,10 +25,16 @@ import {
 } from './parse-form-slots';
 import { parseNavigationSection } from './parse-form-nav';
 import {
+	applyCategoryOnboardFromForm,
 	parseCategoriesFromForm,
 	parseCategoryDisplaysFromForm,
+	parseCategoryFormPairs,
 	pruneCategoryDisplays,
 } from './parse-form-categories';
+import {
+	applyCategorySlugRemapsToLayout,
+	detectCategorySlugRemaps,
+} from '@/lib/categories/remap-model';
 import type { SiteAstroLayout } from './types';
 
 export { collectSlotIdentities, type SlotIdentity } from './parse-form-fields';
@@ -126,11 +132,20 @@ export function mergeLayoutFromFormData(
 		if (!parsed.ok) return parsed;
 		if (parsed.categories.length === 0) return { ok: false, error: 'no_categories' };
 		const categories = parsed.categories;
+		const remaps = detectCategorySlugRemaps(
+			existing.categories,
+			categories,
+			parseCategoryFormPairs(form),
+		);
+		if (remaps.length) layout = applyCategorySlugRemapsToLayout(layout, remaps);
 		layout.categories = categories;
 		layout.categoryDisplays =
 			section === 'all'
 				? parseCategoryDisplaysFromForm(form, layout.slots, categories, {})
-				: pruneCategoryDisplays(existing, categories);
+				: pruneCategoryDisplays(layout, categories);
+		if (section === 'categories') {
+			layout = applyCategoryOnboardFromForm(form, layout, categories);
+		}
 	}
 
 	if (section === 'components') {

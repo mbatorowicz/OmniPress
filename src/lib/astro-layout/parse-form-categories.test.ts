@@ -87,6 +87,82 @@ describe('mergeLayoutFromFormData categories', () => {
 		expect(result).toEqual({ ok: false, error: 'duplicate_category_slug' });
 	});
 
+	it('remap odpady → gospodarka-odpadami zostawia displays i baner', () => {
+		const existingWithFeed: SiteAstroLayout = {
+			...existing,
+			categories: [{ slug: 'odpady', name: 'Odpady' }],
+			slots: [
+				{ id: 'home_latest', label: 'Aktualności', component: 'home.latest' },
+				{
+					id: 'banner_odpady',
+					label: 'Baner',
+					component: 'sidebar.banner',
+					widget: { linkType: 'category', categorySlug: 'odpady' },
+				},
+			],
+			categoryDisplays: { home_latest: ['odpady'] },
+		};
+		existingWithFeed.zones = migrateFlatSlotsToZones(existingWithFeed.slots);
+		const form = categoryForm([['gospodarka-odpadami', 'Gospodarka odpadami']]);
+		form.append('category_prev_slug', 'odpady');
+		const result = mergeLayoutFromFormData(form, existingWithFeed, 'categories');
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.layout.categoryDisplays.home_latest).toEqual(['gospodarka-odpadami']);
+		expect(result.layout.slots.find((slot) => slot.id === 'banner_odpady')?.widget?.categorySlug).toBe(
+			'gospodarka-odpadami',
+		);
+	});
+
+	it('prune bez remap nie kasuje po cichu innych feedów — tylko osierocony slug', () => {
+		const existingWithFeed: SiteAstroLayout = {
+			...existing,
+			categories: [
+				{ slug: 'aktualnosci', name: 'Aktualności' },
+				{ slug: 'stara', name: 'Stara' },
+			],
+			slots: [{ id: 'home_latest', label: 'Aktualności', component: 'home.latest' }],
+			categoryDisplays: { home_latest: ['aktualnosci', 'stara'] },
+		};
+		existingWithFeed.zones = migrateFlatSlotsToZones(existingWithFeed.slots);
+		const result = mergeLayoutFromFormData(
+			categoryForm([['aktualnosci', 'Aktualności']]),
+			existingWithFeed,
+			'categories',
+		);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.layout.categoryDisplays.home_latest).toEqual(['aktualnosci']);
+	});
+
+	it('checkbox przy nowej kategorii dopisuje feed i menu', () => {
+		const existingWithFeed: SiteAstroLayout = {
+			...existing,
+			slots: [{ id: 'home_latest', label: 'Aktualności', component: 'home.latest' }],
+			categoryDisplays: { home_latest: ['aktualnosci'] },
+			navigation: [{ label: 'Aktualności', href: '/aktualnosci' }],
+		};
+		existingWithFeed.zones = migrateFlatSlotsToZones(existingWithFeed.slots);
+		const form = categoryForm([
+			['aktualnosci', 'Aktualności'],
+			['nowa', 'Nowa'],
+		]);
+		form.append('category_prev_slug', 'aktualnosci');
+		form.append('category_prev_slug', '');
+		form.append('category_entry', '0');
+		form.append('category_entry', '1');
+		form.append('category_add_to_news_feed', '1');
+		form.append('category_add_to_menu', '1');
+		const result = mergeLayoutFromFormData(form, existingWithFeed, 'categories');
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.layout.categoryDisplays.home_latest).toEqual(['aktualnosci', 'nowa']);
+		expect(result.layout.navigation.map((item) => item.href)).toEqual([
+			'/aktualnosci',
+			'/nowa',
+		]);
+	});
+
 	it('składa layout z poprawnym slugiem zarzadzenia', () => {
 		const form = new FormData();
 		form.set('navigation_json', '[{"label":"Kontakt","href":"/kontakt"}]');

@@ -6,6 +6,7 @@
 import { adminLayoutFields } from './admin-layout-fields';
 import { adminLayoutOptions } from './admin-layout-options';
 import { adminLayoutStatus } from './admin-layout-status';
+import { adminLayoutCategories } from './admin-layout-categories';
 
 const layoutText = {
 	title: 'Wygląd strony',
@@ -161,4 +162,5 @@ export const adminLayout = {
 	...adminLayoutOptions,
 	...adminLayoutFields,
 	...adminLayoutStatus,
+	...adminLayoutCategories,
 } as const;

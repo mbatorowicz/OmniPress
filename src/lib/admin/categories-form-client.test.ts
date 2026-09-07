@@ -22,6 +22,9 @@ const labels: CategoriesFormLabels = {
 	columnsThree: '3',
 	summaryTilesPrefix: 'Kafelki',
 	summaryTitleList: 'Lista tytułów',
+	addToNewsFeed: 'Dodaj do feedu Aktualności',
+	addToMenu: 'Dodaj do menu',
+	remapConfirm: 'Zmiana slugu przepisze {n} wpisów.',
 };
 
 describe('mountCategoriesForm', () => {
@@ -55,6 +58,9 @@ describe('mountCategoriesForm', () => {
 		expect(document.querySelectorAll('.category-row-editor')).toHaveLength(1);
 		document.getElementById('add-category')!.click();
 		expect(document.querySelectorAll('.category-row-editor')).toHaveLength(2);
+		const added = document.querySelectorAll('.category-row-editor')[1] as HTMLElement;
+		expect(added.querySelector('input[name="category_add_to_news_feed"]')).toBeTruthy();
+		expect(added.querySelector<HTMLInputElement>('input[name="category_prev_slug"]')?.value).toBe('');
 	});
 
 	it('otwiera edycję nowej kategorii od razu po dodaniu', () => {

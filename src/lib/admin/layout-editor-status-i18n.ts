@@ -26,6 +26,8 @@ export function layoutEditorStatusMessagesFromI18n(adminLayout: {
 	navValidationHeading: string;
 	navValidationHint: string;
 	publishBlockedMissingHref: string;
+	remapPublishedNote: (count: number) => string;
+	remapPublishedNone: string;
 }): LayoutEditorStatusMessages {
 	return {
 		draftMissingHref: adminLayout.draftStatus.draftMissingHref,
@@ -48,5 +50,7 @@ export function layoutEditorStatusMessagesFromI18n(adminLayout: {
 		navValidationHeading: adminLayout.navValidationHeading,
 		navValidationHint: adminLayout.navValidationHint,
 		publishBlockedMissingHref: adminLayout.publishBlockedMissingHref,
+		remapPublishedNote: adminLayout.remapPublishedNote,
+		remapPublishedNone: adminLayout.remapPublishedNone,
 	};
 }

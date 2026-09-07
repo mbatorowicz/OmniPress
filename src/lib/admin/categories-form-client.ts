@@ -1,3 +1,4 @@
+import { confirmAction } from '@/lib/ui/confirm';
 import { getEditorRows } from './categories-form-dom';
 import { handleCategoriesClick, initCategoryRow, resetCategoryEntryIds } from './categories-form-rows';
 
@@ -16,6 +17,9 @@ export type CategoriesFormLabels = {
 	columnsThree: string;
 	summaryTilesPrefix: string;
 	summaryTitleList: string;
+	addToNewsFeed: string;
+	addToMenu: string;
+	remapConfirm: string;
 };
 
 export function mountCategoriesForm(labels: CategoriesFormLabels): void {
@@ -39,6 +43,9 @@ export function mountCategoriesForm(labels: CategoriesFormLabels): void {
 			interactionRoot.addEventListener('click', (event) => {
 				handleCategoriesClick(event, labels);
 			});
+			if (interactionRoot instanceof HTMLFormElement) {
+				bindCategoryRemapConfirm(interactionRoot, labels);
+			}
 		}
 	};
 
@@ -67,5 +74,36 @@ export function initCategoriesTable(removeCategoryLabel: string): void {
 		columnsThree: '3 kolumny',
 		summaryTilesPrefix: 'Kafelki',
 		summaryTitleList: 'Lista tytułów',
+		addToNewsFeed: '',
+		addToMenu: '',
+		remapConfirm: '',
 	});
+}
+
+function bindCategoryRemapConfirm(form: HTMLFormElement, labels: CategoriesFormLabels): void {
+	if (!labels.remapConfirm || form.dataset.remapConfirmBound === '1') return;
+	form.dataset.remapConfirmBound = '1';
+	form.addEventListener('submit', (event) => {
+		let affected = 0;
+		const counts = parsePostCounts(form.dataset.postCounts);
+		for (const editor of form.querySelectorAll('.category-row-editor')) {
+			const prev = editor.querySelector<HTMLInputElement>('input[name="category_prev_slug"]')?.value.trim();
+			const slug = editor.querySelector<HTMLInputElement>('input[name="category_slug"]')?.value.trim();
+			if (prev && slug && prev !== slug) affected += counts[prev] ?? 0;
+		}
+		if (affected > 0 && !confirmAction(labels.remapConfirm, affected)) event.preventDefault();
+	});
+}
+
+function parsePostCounts(raw: string | undefined): Record<string, number> {
+	if (!raw) return {};
+	try {
+		const parsed: unknown = JSON.parse(raw);
+		if (!parsed || typeof parsed !== 'object') return {};
+		return Object.fromEntries(
+			Object.entries(parsed).filter((entry): entry is [string, number] => typeof entry[1] === 'number'),
+		);
+	} catch {
+		return {};
+	}
 }

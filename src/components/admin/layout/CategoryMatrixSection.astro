@@ -8,6 +8,7 @@ import TableRow from '@/components/ui/table/TableRow.astro';
 import TableCell from '@/components/ui/table/TableCell.astro';
 import { resolveCategoryArchiveSettings } from '@/lib/astro-layout/category-archive';
 import type { SiteAstroLayout } from '@/lib/astro-layout/types';
+import CategoryOnboardFields from '@/components/admin/layout/CategoryOnboardFields.astro';
 
 interface Props {
 	layout: SiteAstroLayout;
@@ -47,6 +48,9 @@ const categoryLabels = {
 	columnsThree: adminLayout.categoryArchiveColumnsOptions.three,
 	summaryTilesPrefix: adminLayout.categoryArchiveLayoutOptions.tiles,
 	summaryTitleList: adminLayout.categoryArchiveLayoutOptions.titleList,
+	addToNewsFeed: adminLayout.categoryAddToNewsFeed,
+	addToMenu: adminLayout.categoryAddToMenu,
+	remapConfirm: adminLayout.remapConfirm,
 };
 ---
 
@@ -94,6 +98,8 @@ const categoryLabels = {
 										<div class="category-row-editor-grid">
 											<label class="category-row-editor-field">
 												<span class="category-row-editor-label">{adminLayout.fields.categorySlug}</span>
+												<input type="hidden" name="category_prev_slug" value={cat.slug} />
+												<input type="hidden" name="category_entry" value={String(rowIndex)} />
 												<input
 													name="category_slug"
 													value={cat.slug}
@@ -149,6 +155,7 @@ const categoryLabels = {
 												</select>
 											</label>
 										</div>
+										{!cat.slug && <CategoryOnboardFields entryId={String(rowIndex)} />}
 										<div class="category-row-editor-footer">
 											<button type="button" class="close-category ui-btn ui-btn--ghost text-xs">
 												{ui.actions.close}

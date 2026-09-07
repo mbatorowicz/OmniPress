@@ -8,3 +8,13 @@ export {
 	isLayoutInPublishedSync,
 	publishedCategorySlugs,
 } from './published-model';
+export {
+	detectCategorySlugRemaps,
+	applyCategorySlugRemapsToLayout,
+	type CategorySlugRemap,
+} from './remap-model';
+export { remapSitePostCategories } from './remap';
+export {
+	buildCategoryChecklistRows,
+	buildCategoryChecklistSteps,
+} from './checklist-model';

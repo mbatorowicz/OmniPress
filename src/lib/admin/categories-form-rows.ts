@@ -21,6 +21,8 @@ function buildCategoryEditorHtml(labels: CategoriesFormLabels): string {
 			<div class="category-row-editor-grid">
 				<label class="category-row-editor-field">
 					<span class="category-row-editor-label">${labels.fieldSlug}</span>
+					<input type="hidden" name="category_prev_slug" value="" />
+					<input type="hidden" name="category_entry" value="" />
 					<input name="category_slug" required class="ui-input-compact ui-input-compact--mono w-full" />
 				</label>
 				<label class="category-row-editor-field">
@@ -41,6 +43,16 @@ function buildCategoryEditorHtml(labels: CategoriesFormLabels): string {
 						<option value="2" selected>${labels.columnsTwo}</option>
 						<option value="3">${labels.columnsThree}</option>
 					</select>
+				</label>
+			</div>
+			<div class="category-row-onboard mt-2 flex flex-col gap-1">
+				<label class="ui-label-inline">
+					<input type="checkbox" name="category_add_to_news_feed" value="" />
+					${labels.addToNewsFeed}
+				</label>
+				<label class="ui-label-inline">
+					<input type="checkbox" name="category_add_to_menu" value="" />
+					${labels.addToMenu}
 				</label>
 			</div>
 			<div class="category-row-editor-footer">
@@ -79,6 +91,11 @@ function createCategoryEntryElements(
 	editorTr.className = `category-row-editor ui-table-dense-row${openEditor ? '' : ' hidden'}`;
 	editorTr.dataset.categoryEntry = entryId;
 	editorTr.innerHTML = `<td colspan="2" class="ui-table-dense-td--wide">${buildCategoryEditorHtml(labels)}</td>`;
+	const entryInput = editorTr.querySelector('input[name="category_entry"]');
+	if (entryInput instanceof HTMLInputElement) entryInput.value = entryId;
+	for (const box of editorTr.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')) {
+		box.value = entryId;
+	}
 
 	return [summaryTr, editorTr];
 }

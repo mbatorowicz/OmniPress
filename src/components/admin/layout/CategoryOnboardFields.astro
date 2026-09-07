@@ -1,0 +1,20 @@
+---
+import { adminLayout } from '@/i18n';
+
+interface Props {
+	entryId: string;
+}
+
+const { entryId } = Astro.props;
+---
+
+<div class="category-row-onboard mt-2 flex flex-col gap-1">
+	<label class="ui-label-inline">
+		<input type="checkbox" name="category_add_to_news_feed" value={entryId} />
+		{adminLayout.categoryAddToNewsFeed}
+	</label>
+	<label class="ui-label-inline">
+		<input type="checkbox" name="category_add_to_menu" value={entryId} />
+		{adminLayout.categoryAddToMenu}
+	</label>
+</div>

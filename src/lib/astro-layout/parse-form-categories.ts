@@ -3,6 +3,8 @@ import { isCategoryFeedComponent } from './components';
 import { mergeCategoryDisplays } from './slots';
 import { applyCategoryArchiveFieldsFromForm } from './category-archive';
 import { isValidSlug, normalizeSlug } from '@/lib/admin/slug';
+import { addCategoryToMenu, addSlugToHomeFeed } from '@/lib/categories/onboard-model';
+import type { CategoryFormPair } from '@/lib/categories/remap-model';
 import { formHasDisplayFields } from './parse-form-fields';
 import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from './types';
 
@@ -45,6 +47,41 @@ export function parseCategoriesFromForm(
 		categories.push(item);
 	}
 	return { ok: true, categories };
+}
+
+export function parseCategoryFormPairs(form: FormData): CategoryFormPair[] {
+	const slugs = form.getAll('category_slug').map((v) => String(v).trim());
+	const names = form.getAll('category_name').map((v) => String(v).trim());
+	const prev = form.getAll('category_prev_slug').map((v) => String(v).trim());
+	const entries = form.getAll('category_entry').map((v) => String(v).trim());
+	const pairs: CategoryFormPair[] = [];
+	for (let i = 0; i < slugs.length; i++) {
+		const slug = slugs[i] ?? '';
+		const name = names[i] ?? '';
+		if (!slug && !name) continue;
+		pairs.push({ prevSlug: prev[i] ?? '', slug, name, entry: entries[i] ?? '' });
+	}
+	return pairs;
+}
+
+export function applyCategoryOnboardFromForm(
+	form: FormData,
+	layout: SiteAstroLayout,
+	categories: CategoryDefinition[],
+): SiteAstroLayout {
+	const pairs = parseCategoryFormPairs(form);
+	const news = new Set(form.getAll('category_add_to_news_feed').map((v) => String(v)));
+	const menu = new Set(form.getAll('category_add_to_menu').map((v) => String(v)));
+	const bySlug = new Map(categories.map((item) => [item.slug, item]));
+	let next = layout;
+	for (const pair of pairs) {
+		if (pair.prevSlug) continue;
+		const category = bySlug.get(normalizeSlug(pair.slug));
+		if (!category || !pair.entry) continue;
+		if (news.has(pair.entry)) next = addSlugToHomeFeed(next, category.slug);
+		if (menu.has(pair.entry)) next = addCategoryToMenu(next, category.slug, category.name);
+	}
+	return next;
 }
 
 /** Przypisania czytamy tylko dla slotów obecnych w formularzu — reszta zostaje z zapisanego stanu. */

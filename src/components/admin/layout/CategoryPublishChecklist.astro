@@ -1,0 +1,52 @@
+---
+import { adminLayout } from '@/i18n';
+import Panel from '@/components/ui/layout/Panel.astro';
+import SectionTitle from '@/components/ui/layout/SectionTitle.astro';
+import type { CategoryChecklistRow, CategoryChecklistStep } from '@/lib/categories/checklist-model';
+
+interface Props {
+	steps: CategoryChecklistStep[];
+	rows: CategoryChecklistRow[];
+}
+
+const { steps, rows } = Astro.props;
+
+const stepLabel: Record<CategoryChecklistStep['id'], string> = {
+	draft: adminLayout.categoryChecklistDraft,
+	published: adminLayout.categoryChecklistPublished,
+	homeFeed: adminLayout.categoryChecklistHomeFeed,
+	menu: adminLayout.categoryChecklistMenu,
+};
+---
+
+<Panel class="ui-form-section">
+	<SectionTitle>{adminLayout.categoryChecklistTitle}</SectionTitle>
+	<p class="ui-hint">{adminLayout.categoryChecklistLead}</p>
+	<ul class="mt-2 space-y-1">
+		{
+			steps.map((step) => (
+				<li class="ui-caption">
+					{step.done ? '✓' : '○'} {stepLabel[step.id]}
+				</li>
+			))
+		}
+	</ul>
+	{
+		rows.length > 0 && (
+			<ul class="mt-3 space-y-1">
+				{rows.map((row) => (
+					<li class="ui-caption">
+						<span class="font-medium">{row.name}</span>
+						<span class="ui-input-compact--mono"> /{row.slug}/</span>
+						{' · '}
+						{adminLayout.categoryChecklistHomeFeed}:{' '}
+						{row.inHomeFeed ? adminLayout.categoryChecklistYes : adminLayout.categoryChecklistNo}
+						{' · '}
+						{adminLayout.categoryChecklistMenu}:{' '}
+						{row.inMenu ? adminLayout.categoryChecklistYes : adminLayout.categoryChecklistNo}
+					</li>
+				))}
+			</ul>
+		)
+	}
+</Panel>

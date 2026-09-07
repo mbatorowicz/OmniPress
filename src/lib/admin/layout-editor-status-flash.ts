@@ -72,6 +72,13 @@ export function tryLayoutEditorActionStatus(
 	else if (input.draftStatus === 'draft_ahead' && input.saved) {
 		metaParts.push(messages.draftAheadShort);
 	}
+	if (input.remapPublished != null) {
+		metaParts.push(
+			input.remapPublished === 0
+				? messages.remapPublishedNone
+				: messages.remapPublishedNote(input.remapPublished),
+		);
+	}
 	if (dates.draftLabel) metaParts.push(`${messages.lastDraft} ${dates.draftLabel}`);
 
 	return {
