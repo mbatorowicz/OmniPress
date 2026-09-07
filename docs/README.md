@@ -11,7 +11,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | **Operacyjne** | [ADMIN.md](./ADMIN.md), [REDAKTOR.md](./REDAKTOR.md) | Dla użytkowników panelu |
 | **Techniczne** | [AUTH.md](./AUTH.md), [WDROZENIE.md](./WDROZENIE.md) | Dev / bootstrap |
 | **Kod** | [KONWENCJE.md](./KONWENCJE.md), [ROLE_AGENT.md](./ROLE_AGENT.md) | Konwencje i proces agenta |
-| **Jakość** | [AUDYT.md](./AUDYT.md), [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) | Rejestr znalezisk i kroki naprawcze. DNS cutover — na koniec projektu. |
+| **Jakość** | [AUDYT.md](./AUDYT.md), [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md), [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md) | Rejestr znalezisk i kroki naprawcze. DNS cutover — na koniec projektu. Bezpieczeństwo: S-1–S-4. |
 
 ## Indeks plików
 
@@ -26,7 +26,8 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | [KONWENCJE.md](./KONWENCJE.md) | Kod, i18n, UI SSOT |
 | [VERSIONING.md](./VERSIONING.md) | `semver+commit` |
 | [AUDYT.md](./AUDYT.md) | Znaleziska audytu OmniPress ↔ repo Astro (co i dlaczego); kategorie wpisów: K-1–K-11 |
-| [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) | Kroki naprawcze w podejściach (jak); otwarte: 23–25 |
+| [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) | Kroki naprawcze kontraktu (jak); otwarte kategorie: 23–25 |
+| [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md) | **Następna sesja: S-2** — podatności B-1–B-8 i naprawa S-1–S-4 (kolejność wiążąca) |
 | [ROLE_AGENT.md](./ROLE_AGENT.md) | Proces agenta AI |
 | [../CHANGELOG.md](../CHANGELOG.md) | Historia wydań |
 | [../README.md](../README.md) | Wejście do repo |

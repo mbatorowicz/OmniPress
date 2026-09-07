@@ -7,6 +7,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Naprawione
 
+- **S-1 — sanityzer nie przepuszcza XSS w zapisie i publikacji.** `stripRawHtmlTags` wołał czyszczenie na pojedynczym tagu, więc `div`/`a` z `onclick` i `javascript:` zostawały w markdownie (podgląd je wycinał — admin widział czysty wpis). Teraz `parse5` czyści cały fragment; ten sam rdzeń dla szkicu, publikacji, podglądu i edytora. Testy: `sanitize.test.ts`.
+
 - **Edytor, podgląd i strona pokazują te same akapity.** Wklejka z Worda albo Enter w połowie zdania zapisywały każdy wiersz jako osobny akapit — w edytorze odstępy były małe, w podglądzie i na stronie ogromne. Jest jedna konwersja Markdown → HTML (`marked` + sanityzacja) i ta sama normalizacja złamanych wierszy przy zapisie, imporcie, publikacji i renderze. Repo strony scala te same pozorne akapity przy budowie (`remarkUnwrapHardWraps`).
 
 ### Zmienione

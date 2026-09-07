@@ -8,6 +8,8 @@ Audyt podzielony na **porcje** — każda samodzielna, z własnym kryterium wyj�
 
 Ten dokument odpowiada na pytanie **co i dlaczego**. Konkretne kroki naprawcze, rozpisane na wykonalne podejścia: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md).
 
+**Bezpieczeństwo (XSS, Storage, CSRF)** — osobny SSOT, priorytet sesji: [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md) (S-1–S-4).
+
 ---
 
 ## Stan wyjściowy

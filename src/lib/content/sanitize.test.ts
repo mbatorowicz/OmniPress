@@ -29,6 +29,21 @@ describe('sanitizeHtml', () => {
 	it('odrzuca link javascript:', () => {
 		expect(sanitizeHtml('<a href="javascript:alert(1)">x</a>')).toBe('x');
 	});
+
+	it('zdejmuje onclick z p (regresja)', () => {
+		expect(sanitizeHtml('<p onclick="alert(1)">ok</p>')).toBe('<p>ok</p>');
+	});
+
+	it('usuwa div z onclick — parę i niezamknięty', () => {
+		expect(sanitizeHtml('<div onclick="alert(1)">x</div>')).toBe('x');
+		expect(sanitizeHtml('<div onmouseover="alert(1)">x')).toBe('x');
+		expect(sanitizeHtml('<div onclick="alert(1)">')).not.toContain('onclick');
+		expect(sanitizeHtml('<div onclick="alert(1)">')).not.toContain('<div');
+	});
+
+	it('nie zostawia javascript: w href po encjach HTML', () => {
+		expect(sanitizeHtml('<a href="javascript&#58;alert(1)">x</a>')).toBe('x');
+	});
 });
 
 describe('sanitizeEditorHtml', () => {
@@ -49,6 +64,17 @@ describe('sanitizeStorageMarkdown', () => {
 		const md = '[klik](javascript:alert(1))';
 		expect(sanitizeStorageMarkdown(md)).toBe('klik');
 	});
+
+	it('usuwa onclick z p w markdownie', () => {
+		expect(sanitizeStorageMarkdown('<p onclick="alert(1)">ok</p>')).toBe('<p>ok</p>');
+	});
+
+	it('usuwa div z onclick (para i niezamknięty) oraz javascript: w a', () => {
+		expect(sanitizeStorageMarkdown('<div onclick="alert(1)">x</div>')).toBe('x');
+		expect(sanitizeStorageMarkdown('przed <div onmouseover="alert(1)">po')).toBe('przed po');
+		expect(sanitizeStorageMarkdown('<a href="javascript:alert(1)">klik</a>')).toBe('klik');
+		expect(sanitizeStorageMarkdown('<div onclick="alert(1)">')).not.toContain('onclick');
+	});
 });
 
 describe('sanitizePublishMarkdown', () => {
@@ -61,5 +87,16 @@ describe('sanitizePublishMarkdown', () => {
 		expect(out).toContain('op-pdf-viewer');
 		expect(out).toContain('/omnipress/pdf-viewer.js');
 		expect(out).not.toContain('<iframe');
+	});
+
+	it('nie publikuje handlerów ani javascript:', () => {
+		const md =
+			'<div onclick="alert(1)">trucizna</div>\n\n<a href="javascript:alert(1)">klik</a>\n\n**ok**';
+		const out = sanitizePublishMarkdown(md);
+		expect(out).not.toContain('onclick');
+		expect(out).not.toContain('javascript:');
+		expect(out).toContain('trucizna');
+		expect(out).toContain('klik');
+		expect(out).toContain('**ok**');
 	});
 });

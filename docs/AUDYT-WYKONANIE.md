@@ -38,7 +38,9 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 
 ## Następna sesja
 
-Podejścia 1–21 zamknięte 2026-09-04. **Otwarte:** flow kategorii — podejścia **22 → 23 → 24 → 25** (kolejność wiążąca). Znaleziska: [AUDYT.md](./AUDYT.md) §Audyt kategorii wpisów.
+**Priorytet (2026-09-07):** bezpieczeństwo — [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md), podejścia **S-1 → S-2 → S-3 → S-4**. XSS na stronie gminy przed flowem kategorii.
+
+Podejścia 1–21 zamknięte 2026-09-04. **Otwarte (po S-2):** flow kategorii — **22 → 23 → 24 → 25**. Znaleziska: [AUDYT.md](./AUDYT.md) §Audyt kategorii wpisów.
 
 **DNS cutover jest ostatnim krokiem projektu, nie następną sesją.** Domena produkcyjna `gmina-miedzna.pl` zostaje na starym hostingu do odwołania. Nowa strona działa pod `gmina-miedzna.cncsolutions.dev`.
 
@@ -867,7 +869,8 @@ Do tego `admin/github-token.ts` importował nieistniejący typ `GitHubRepoConfig
 
 ## Powiązane dokumenty
 
-- [AUDYT.md](./AUDYT.md) — rejestr znalezisk i uzasadnienia
+- [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md) — podatności i naprawa S-1–S-4 (priorytet sesji)
+- [AUDYT.md](./AUDYT.md) — rejestr znalezisk kontraktu i uzasadnienia
 - [KONWENCJE.md](./KONWENCJE.md) — konwencje kodu
 - [STATUS.md](./STATUS.md) — stan implementacji
 - [astro-repo-compat](../.cursor/rules/astro-repo-compat.mdc) — kontrakt między repozytoriami
