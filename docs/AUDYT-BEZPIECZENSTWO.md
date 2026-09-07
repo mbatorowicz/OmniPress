@@ -88,7 +88,7 @@ Redaktor bez TOTP. Przejęte konto + B-1 wystarczy do podłożenia XSS (akceptac
 
 **Commit:** tylko A. Po scaleniu zaktualizować ten plik (S-1 ✅) i [CHANGELOG.md](../CHANGELOG.md).
 
-**Wykonano (2026-09-07):** `parse5` parsuje cały fragment; `stripRawHtmlTags` usunięty. Jeden rdzeń (`sanitizeHtml`) dla zapisu, publikacji, podglądu i edytora — allowlisty EDITOR / PUBLISH + blok PDF bez zmian. Testy: `div`/`a` z handlerami (para i niezamknięty), `javascript:`, `p onclick`, `script`, embed PDF.
+**Wykonano (2026-09-07, `d68d629`):** `parse5` parsuje cały fragment; `stripRawHtmlTags` usunięty. Jeden rdzeń (`sanitizeHtml`) dla zapisu, publikacji, podglądu i edytora — allowlisty EDITOR / PUBLISH + blok PDF bez zmian. Testy: `div`/`a` z handlerami (para i niezamknięty), `javascript:`, `p onclick`, `script`, embed PDF.
 
 ---
 
