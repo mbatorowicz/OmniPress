@@ -6,7 +6,7 @@ Produkcja: https://omni-press.cncsolutions.dev
 
 **Audyt migracji:** podejścia 1–18 zamknięte (2026-09-03). Szczegóły: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md).
 
-**Audyt bezpieczeństwa (2026-09-07):** S-1 zamknięte (sanityzer całego fragmentu). Następna sesja: **S-2** (repo B: `rehype-sanitize` + CSP). Plan: [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md).
+**Audyt bezpieczeństwa (2026-09-07):** S-1 i S-2 zamknięte. Następna sesja: **S-3** (prywatny bucket `post-assets`). Plan: [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md).
 
 ---
 

@@ -9,11 +9,11 @@ Oznaczenia: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | # | Podejście | Repo | Waga | Blokuje |
 |---|-----------|------|------|---------|
 | S-1 ✅ | Sanityzer całego dokumentu (nie tag po tagu) | A | **wysoka** | S-2 (stare commity i tak wymaga CSP) |
-| S-2 | Strona: `rehype-sanitize` + CSP / XFO / HSTS | B | **wysoka** | — |
+| S-2 ✅ | Strona: `rehype-sanitize` + CSP / XFO / HSTS | B | **wysoka** | — |
 | S-3 | Bucket `post-assets` prywatny + signed URL | A (+ Storage) | **wysoka** | — |
 | S-4 | Panel: escape nazw, Origin na POST, IP z hopa Vercel | A | średnia | po S-1 |
 
-**Następna sesja:** pierwsze niezamknięte S-*. Dziś: **S-2**.
+**Następna sesja:** pierwsze niezamknięte S-*. Dziś: **S-3**.
 
 Kategorie wpisów (AUDYT-WYKONANIE 22–25) zostają otwarte, ale **nie zaczynaj od nich**, dopóki S-1 i S-2 nie są zamknięte — XSS na stronie gminy jest ważniejszy niż flow kategorii.
 
@@ -106,6 +106,8 @@ Redaktor bez TOTP. Przejęte konto + B-1 wystarczy do podłożenia XSS (akceptac
 **Weryfikacja:** `npm test` · `npm run lint` · `npm run check` · `npm run build` w B. Przeglądarka: wpis z galerią + PDF embed + DevTools → nagłówki obecne.
 
 **Commit:** B (+ nota w A tylko jeśli reguła compat). Deploy Vercel strony po pushu.
+
+**Wykonano (2026-09-07, `7a50feb` w B):** `rehype-raw` → `rehype-sanitize` (schemat PDF + `./`) → `rehypeSafeAssetRefs` → `rehypePostAssetUrls`. Skrypt z treści wycinany; viewer z layoutu. CSP bez `unsafe-inline` w `script-src` (WCAG i lightbox w `/public/js/`), plus XFO / nosniff / Referrer-Policy / HSTS. Testy: `sanitize-schema.test.ts`, `headers.test.ts`. Nota w `astro-repo-compat.mdc`.
 
 ---
 

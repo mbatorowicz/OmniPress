@@ -37,6 +37,12 @@ OmniPress publikuje przez GitHub API **prosto do origin**, z pominięciem kopii 
 
 OmniPress przy otwarciu panelu **sam** reconciluje strony statyczne i wpisy z `origin/main` (oraz layout, jak dotychczas). `origin/main` zostaje SSOT opublikowanego. Omni nie pcha automatycznie. Publikacja strony odmawia nadpisania niepustego pliku pustką/placeholderem. Załączniki stron (`public/page-files/`) Omni nie importuje — chroni je, wczytując markdown z linkami `./…`.
 
+## Sanityzacja markdownu na stronie (S-2)
+
+Repo Astro nie renderuje gołego HTML z wpisu. Pipeline: `rehype-raw` → `rehype-sanitize` (`src/lib/markdown/sanitize-schema.js`) → `rehypeSafeAssetRefs` → `rehypePostAssetUrls`. Allowlista zostawia blok `op-pdf-viewer` i względne `./`; `script` / `onclick` / `javascript:` z treści są wycinane. Viewer PDF jest w `Layout.astro` (`/omnipress/pdf-viewer.js`), nie w markdownie. Nagłówki CSP/XFO/HSTS: `src/lib/security/headers.ts`.
+
+Publikacja OmniPress nadal może dopisywać blok PDF + skrypt viewera w markdownie — strona skrypt z treści i tak odrzuci.
+
 ## Zasady przy zmianach
 
 1. **Nie zmieniaj formatu JSON** bez aktualizacji czytnika w repo Astro (i odwrotnie). **Repo Astro waliduje wejście i przerywa build** przy niezgodności (`src/config/layout-contract.ts`), więc rozjazd nie kończy się pustą sekcją, tylko czerwonym deployem.

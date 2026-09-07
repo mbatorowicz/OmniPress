@@ -27,7 +27,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | [VERSIONING.md](./VERSIONING.md) | `semver+commit` |
 | [AUDYT.md](./AUDYT.md) | Znaleziska audytu OmniPress ↔ repo Astro (co i dlaczego); kategorie wpisów: K-1–K-11 |
 | [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) | Kroki naprawcze kontraktu (jak); otwarte kategorie: 23–25 |
-| [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md) | **Następna sesja: S-2** — podatności B-1–B-8 i naprawa S-1–S-4 (kolejność wiążąca) |
+| [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md) | **Następna sesja: S-3** — podatności B-1–B-8 i naprawa S-1–S-4 (kolejność wiążąca) |
 | [ROLE_AGENT.md](./ROLE_AGENT.md) | Proces agenta AI |
 | [../CHANGELOG.md](../CHANGELOG.md) | Historia wydań |
 | [../README.md](../README.md) | Wejście do repo |

@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Bezpieczeństwo
+
+- **S-2 — strona gminy nie wykonuje HTML z wpisu.** Repo Astro: `rehype-sanitize` po `rehype-raw` (blok PDF i `./` na allowliście), CSP bez `unsafe-inline` w `script-src`, XFO / nosniff / HSTS. Nota w `astro-repo-compat.mdc`. Testy w repo B: `sanitize-schema.test.ts`, `headers.test.ts`.
+
 ### Naprawione
 
 - **S-1 — sanityzer nie przepuszcza XSS w zapisie i publikacji.** `stripRawHtmlTags` wołał czyszczenie na pojedynczym tagu, więc `div`/`a` z `onclick` i `javascript:` zostawały w markdownie (podgląd je wycinał — admin widział czysty wpis). Teraz `parse5` czyści cały fragment; ten sam rdzeń dla szkicu, publikacji, podglądu i edytora. Testy: `sanitize.test.ts`.

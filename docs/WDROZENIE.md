@@ -28,6 +28,10 @@ Hasło w `.admin-password.txt`.
 
 ---
 
+## Nagłówki strony publicznej (repo Astro)
+
+Strona gminy (nie ten panel) wysyła CSP / XFO / HSTS — `src/lib/security/headers.ts` + `vercel.json` w repo `gmina-miedzna.pl`. Deploy strony: push na `main` (webhook Vercel). Audyt: [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md) S-2.
+
 ## Vercel + Supabase
 
 1. Integracja Vercel ↔ Supabase: **pusty** Custom Prefix.
