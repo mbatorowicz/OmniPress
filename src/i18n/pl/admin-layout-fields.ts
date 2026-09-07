@@ -102,6 +102,7 @@ export const adminLayoutFields = {
 	},
 	paths: {
 		navigation: 'Plik menu w repozytorium',
+		layout: 'Plik layoutu w repozytorium',
 		categories: 'Plik kategorii w repozytorium',
 	},
 	actions: {

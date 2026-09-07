@@ -6,8 +6,9 @@ import Table from '@/components/ui/table/Table.astro';
 import TableHead from '@/components/ui/table/TableHead.astro';
 import TableRow from '@/components/ui/table/TableRow.astro';
 import TableCell from '@/components/ui/table/TableCell.astro';
+import { formatCategoryUrlPreview } from '@/lib/admin/categories-form-model';
 import { resolveCategoryArchiveSettings } from '@/lib/astro-layout/category-archive';
-import type { SiteAstroLayout } from '@/lib/astro-layout/types';
+import { DEFAULT_LAYOUT_PATH, type SiteAstroLayout } from '@/lib/astro-layout/types';
 import CategoryOnboardFields from '@/components/admin/layout/CategoryOnboardFields.astro';
 
 interface Props {
@@ -51,6 +52,8 @@ const categoryLabels = {
 	addToNewsFeed: adminLayout.categoryAddToNewsFeed,
 	addToMenu: adminLayout.categoryAddToMenu,
 	remapConfirm: adminLayout.remapConfirm,
+	removeConfirm: adminLayout.removeConfirm,
+	lastCategory: adminLayout.lastCategory,
 };
 ---
 
@@ -76,7 +79,7 @@ const categoryLabels = {
 									<div class="flex min-w-0 flex-col gap-0.5">
 										<span class="category-summary-name">{cat.name.trim() || '—'}</span>
 										<span class="category-summary-slug ui-caption ui-input-compact--mono">
-											{cat.slug.trim() || '—'}
+											{formatCategoryUrlPreview(cat.slug)}
 										</span>
 										<span class="category-summary-layout ui-caption">{formatCategoryArchiveSummary(cat)}</span>
 									</div>
@@ -173,8 +176,14 @@ const categoryLabels = {
 	<button type="button" id="add-category" data-add-category class="ui-btn ui-btn--add mt-2">
 		{adminLayout.actions.addCategory}
 	</button>
+	<p
+		class="ui-alert ui-alert--warning mt-3 hidden"
+		data-categories-last-msg
+		role="status"
+		hidden
+	></p>
 	<p class="ui-hint mt-2">
-		{adminLayout.paths.categories}: <code class="ui-code">{layout.categoriesPath}</code>
+		{adminLayout.paths.layout}: <code class="ui-code">{layout.layoutPath.trim() || DEFAULT_LAYOUT_PATH}</code>
 	</p>
 </Panel>
 

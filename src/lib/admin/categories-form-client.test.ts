@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
 	mountCategoriesForm,
 	type CategoriesFormLabels,
@@ -25,6 +25,8 @@ const labels: CategoriesFormLabels = {
 	addToNewsFeed: 'Dodaj do feedu Aktualności',
 	addToMenu: 'Dodaj do menu',
 	remapConfirm: 'Zmiana slugu przepisze {n} wpisów.',
+	removeConfirm: 'Usunąć kategorię? Wpisów: {n}.',
+	lastCategory: 'Nie można usunąć ostatniej kategorii.',
 };
 
 describe('mountCategoriesForm', () => {
@@ -121,5 +123,142 @@ describe('mountCategoriesForm', () => {
 		name.value = 'Mazowsze bez smogu';
 		name.dispatchEvent(new Event('input', { bubbles: true }));
 		expect(slug.value).toBe('mazowsze-bez-smogu');
+		expect(document.querySelector('.category-summary-slug')?.textContent).toBe(
+			'/mazowsze-bez-smogu/',
+		);
 	});
+
+	it('nie nadpisuje istniejącego slugu przy zmianie nazwy', () => {
+		document.body.innerHTML = `
+			<form data-categories-form>
+				<table>
+					<tbody id="categories-body">
+						<tr class="category-row-summary" data-category-entry="0">
+							<td>
+								<span class="category-summary-name">Zarządzenia</span>
+								<span class="category-summary-slug">/zarzadzenia/</span>
+							</td>
+						</tr>
+						<tr class="category-row-editor" data-category-entry="0">
+							<td colspan="2">
+								<input name="category_slug" value="zarzadzenia" />
+								<input name="category_name" value="Zarządzenia" />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</form>
+		`;
+
+		mountCategoriesForm(labels);
+		const name = document.querySelector('input[name="category_name"]') as HTMLInputElement;
+		const slug = document.querySelector('input[name="category_slug"]') as HTMLInputElement;
+		name.value = 'Ogłoszenia';
+		name.dispatchEvent(new Event('input', { bubbles: true }));
+		expect(slug.value).toBe('zarzadzenia');
+	});
+
+	it('normalizuje ręczny slug po opuszczeniu pola i pokazuje podgląd URL', () => {
+		document.body.innerHTML = `
+			<form data-categories-form>
+				<table>
+					<tbody id="categories-body">
+						<tr class="category-row-summary" data-category-entry="0">
+							<td>
+								<span class="category-summary-name">—</span>
+								<span class="category-summary-slug">—</span>
+							</td>
+						</tr>
+						<tr class="category-row-editor" data-category-entry="0">
+							<td colspan="2">
+								<input name="category_slug" value="" />
+								<input name="category_name" value="" />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</form>
+		`;
+
+		mountCategoriesForm(labels);
+		const slug = document.querySelector('input[name="category_slug"]') as HTMLInputElement;
+		slug.value = 'Zarządzenia';
+		slug.dispatchEvent(new Event('input', { bubbles: true }));
+		expect(document.querySelector('.category-summary-slug')?.textContent).toBe('/zarzadzenia/');
+		slug.dispatchEvent(new Event('blur', { bubbles: true }));
+		expect(slug.value).toBe('zarzadzenia');
+	});
+
+	it('pokazuje komunikat zamiast cichego no-op przy ostatniej kategorii', () => {
+		document.body.innerHTML = `
+			<form data-categories-form>
+				<table>
+					<tbody id="categories-body">
+						<tr class="category-row-summary" data-category-entry="0">
+							<td><span class="category-summary-name">Aktualności</span></td>
+							<td><button type="button" class="remove-category">Usuń</button></td>
+						</tr>
+						<tr class="category-row-editor hidden" data-category-entry="0">
+							<td colspan="2">
+								<input name="category_prev_slug" value="aktualnosci" />
+								<input name="category_slug" value="aktualnosci" />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<p class="hidden" data-categories-last-msg hidden></p>
+			</form>
+		`;
+
+		mountCategoriesForm(labels);
+		document.querySelector('.remove-category')!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+		expect(document.querySelectorAll('.category-row-editor')).toHaveLength(1);
+		const msg = document.querySelector('[data-categories-last-msg]') as HTMLElement;
+		expect(msg.hidden).toBe(false);
+		expect(msg.classList.contains('hidden')).toBe(false);
+		expect(msg.textContent).toBe(labels.lastCategory);
+	});
+
+	it('pyta o potwierdzenie i podaje liczbę wpisów przed usunięciem', () => {
+		document.body.innerHTML = `
+			<form data-categories-form data-post-counts='{"odpady":4}'>
+				<table>
+					<tbody id="categories-body">
+						<tr class="category-row-summary" data-category-entry="0">
+							<td><button type="button" class="remove-category">Usuń</button></td>
+						</tr>
+						<tr class="category-row-editor" data-category-entry="0">
+							<td>
+								<input name="category_prev_slug" value="odpady" />
+								<input name="category_slug" value="odpady" />
+							</td>
+						</tr>
+						<tr class="category-row-summary" data-category-entry="1">
+							<td><button type="button" class="remove-category">Usuń</button></td>
+						</tr>
+						<tr class="category-row-editor" data-category-entry="1">
+							<td>
+								<input name="category_prev_slug" value="aktualnosci" />
+								<input name="category_slug" value="aktualnosci" />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</form>
+		`;
+
+		const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+		mountCategoriesForm(labels);
+		document.querySelector('.remove-category')!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+		expect(confirmSpy).toHaveBeenCalledWith('Usunąć kategorię? Wpisów: 4.');
+		expect(document.querySelectorAll('.category-row-editor')).toHaveLength(2);
+
+		confirmSpy.mockReturnValue(true);
+		document.querySelector('.remove-category')!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+		expect(document.querySelectorAll('.category-row-editor')).toHaveLength(1);
+	});
+});
+
+afterEach(() => {
+	vi.restoreAllMocks();
 });

@@ -11,6 +11,9 @@ export const adminLayoutCategories = {
 	categoryChecklistNo: 'Nie',
 	categoryAddToNewsFeed: 'Dodaj do feedu Aktualności',
 	categoryAddToMenu: 'Dodaj do menu',
+	removeConfirm:
+		'Usunąć kategorię? Wpisów w tej kategorii: {n}. Zmiana wejdzie w życie po zapisie szkicu.',
+	lastCategory: 'Nie można usunąć ostatniej kategorii — strona musi mieć przynajmniej jedną.',
 	remapConfirm:
 		'Zmiana slugu przepisze {n} wpisów w bazie. Opublikowane adresy na stronie nie zmienią się same — wymagają ponownej publikacji. Kontynuować?',
 	remapPublishedNote: (count: number) =>

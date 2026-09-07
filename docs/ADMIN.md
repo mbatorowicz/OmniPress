@@ -12,7 +12,7 @@ Operacyjny przewodnik po panelu OmniPress. Stan funkcji: [STATUS.md](./STATUS.md
 - **Sidebar** (tylko w `/admin/*`, po lewej): *Kolejka wpisów* (`/admin`), *Wszystkie wpisy* (`/admin/posts`), *Strony* (`/admin/sites`), *Użytkownicy* (`/admin/users`). Na mobile — pozioma belka nad treścią.
 - **Breadcrumby** na każdej podstronie pokazują ścieżkę (np. `Administracja / Strony / UG Miedzna / Strony statyczne`).
 - W kontekście strony (`/admin/units/[id]/*`) zakładki pogrupowane:
-  - **Wygląd strony:** *Menu* (`/navigation`), *Kategorie* (`/categories`), *Komponenty* (`/components`)
+  - **Wygląd strony:** *Menu* (`/navigation`), *Kategorie* (`/posts#categories`), *Komponenty* (`/components`)
   - **Treść:** *Strony statyczne* (`/pages`), *Ostatnie zmiany* (`/changes`)
   - **Ustawienia** (`/admin/units/[id]`) — nazwa, slug, kanał GitHub i tokeny w jednym formularzu (na końcu subnav)
 - Stare trasy `/admin/units/[id]/layout` → *Menu*, `/admin/units/[id]/publish` → *Ustawienia* (301).
@@ -152,9 +152,9 @@ Model **szkic + auto-pull + jawna publikacja**: edycja zapisuje roboczy stan w S
 | **Zapisz szkic** | tak | nie | nie |
 | **Opublikuj na stronie** | tak (przed sync) | commit | webhook |
 
-- **Menu:** `/admin/units/[id]/navigation` — edytor drzewa nawigacji (do 3 poziomów). Publikacja wysyła tylko `omnipress-navigation.json`. Przed publikacją walidacja linków wewnętrznych.
-- **Kategorie:** `/admin/units/[id]/posts` — slug, nazwa i układ archiwum. „Opublikuj kategorie na stronie” nakłada listę na aktualny `omnipress-layout.json` (menu i stopka zostają z live). Feedy i menu ustawiasz osobno w Komponentach / Nagłówku.
-- **Komponenty:** `/admin/units/[id]/components` — lista slotów (`home.*`, `sidebar.weather`, `sidebar.cert_advisories`, `sidebar.recent_changes`, `sidebar.banner` itd.) w tym samym pliku kategorii. Publikacja jak w zakładce Kategorie. Wspólne pole kolejności (`order`) dla sidebaru. `sidebar.weather` i `sidebar.cert_advisories` pobierają dane **na żywo** z API na stronie Astro — bez syncu JSON do repo. Widget CERT zawsze dopełnia listę do limitu z panelu.
+- **Menu (Nagłówek):** `/admin/units/[id]/navigation` — edytor drzewa nawigacji (do 3 poziomów). Zapis to szkic; publikacja idzie do `src/config/omnipress-layout.json`. Przed publikacją walidacja linków wewnętrznych.
+- **Kategorie:** `/admin/units/[id]/posts` — slug, nazwa i układ archiwum (stara trasa `/categories` przekierowuje tutaj). Zapis to szkic; **Opublikuj kategorie na stronie** zapisuje listę do tego samego `omnipress-layout.json`. Feedy (`home.*`) ustawiasz w **Komponentach**, pozycję w menu w **Nagłówku**.
+- **Komponenty:** `/admin/units/[id]/components` — lista slotów (`home.*`, `sidebar.weather`, `sidebar.cert_advisories`, `sidebar.recent_changes`, `sidebar.banner` itd.) w `omnipress-layout.json`. Publikacja jak przy kategoriach. Wspólne pole kolejności (`order`) dla sidebaru. `sidebar.weather` i `sidebar.cert_advisories` pobierają dane **na żywo** z API na stronie Astro — bez syncu JSON do repo. Widget CERT zawsze dopełnia listę do limitu z panelu.
 - **Strony statyczne:** `/admin/units/[id]/pages` — treści pod stałe URL; lista i edytor wczytują stan z GitHub. Publikacja nie nadpisze istniejącej treści pustym szkicem. *Utwórz strony z menu* dodaje tylko brakujące szkice (bez commita).
 - **Wpisy:** przy wejściu na kolejkę / listę Omni dociąga opublikowane pliki z repo; szkice i kolejka nie są nadpisywane.
 - **Ostatnie zmiany:** `/admin/units/[id]/changes`.

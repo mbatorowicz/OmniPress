@@ -1,4 +1,5 @@
 import { normalizeSlug } from '@/lib/admin/slug';
+import { formatCategoryUrlPreview } from './categories-form-model';
 import type { CategoriesFormLabels } from './categories-form-client';
 
 export function getEditorRows(body: HTMLElement): HTMLElement[] {
@@ -86,15 +87,21 @@ export function bindCategorySlugFromName(editorRow: HTMLElement, labels: Categor
 	if (!(slugInput instanceof HTMLInputElement) || !(nameInput instanceof HTMLInputElement)) return;
 	if (slugInput.dataset.slugFromNameBound === '1') return;
 	slugInput.dataset.slugFromNameBound = '1';
-	if (!slugInput.value.trim()) slugInput.dataset.slugManual = '0';
+	slugInput.dataset.slugManual = slugInput.value.trim() ? '1' : '0';
 
 	nameInput.addEventListener('input', () => {
-		if (slugInput.dataset.slugManual === '1') return;
+		if (slugInput.dataset.slugManual === '1' && slugInput.value.trim()) return;
+		slugInput.dataset.slugManual = '0';
 		slugInput.value = normalizeSlug(nameInput.value);
 		syncCategorySummary(editorRow, labels);
 	});
 	slugInput.addEventListener('input', () => {
-		slugInput.dataset.slugManual = '1';
+		slugInput.dataset.slugManual = slugInput.value.trim() ? '1' : '0';
+		syncCategorySummary(editorRow, labels);
+	});
+	slugInput.addEventListener('blur', () => {
+		const next = normalizeSlug(slugInput.value);
+		if (next !== slugInput.value) slugInput.value = next;
 		syncCategorySummary(editorRow, labels);
 	});
 }
@@ -104,8 +111,7 @@ export function syncCategorySummary(editorRow: HTMLElement, labels: CategoriesFo
 	if (!summary) return;
 
 	const slug =
-		(editorRow.querySelector('input[name="category_slug"]') as HTMLInputElement | null)?.value.trim() ||
-		'—';
+		(editorRow.querySelector('input[name="category_slug"]') as HTMLInputElement | null)?.value ?? '';
 	const name =
 		(editorRow.querySelector('input[name="category_name"]') as HTMLInputElement | null)?.value.trim() ||
 		'—';
@@ -118,7 +124,7 @@ export function syncCategorySummary(editorRow: HTMLElement, labels: CategoriesFo
 	if (nameEl) nameEl.textContent = name;
 
 	const slugEl = summary.querySelector('.category-summary-slug');
-	if (slugEl) slugEl.textContent = slug;
+	if (slugEl) slugEl.textContent = formatCategoryUrlPreview(slug);
 
 	const layoutEl = summary.querySelector('.category-summary-layout');
 	if (layoutEl) layoutEl.textContent = formatArchiveSummary(layout, columns, labels);

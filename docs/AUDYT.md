@@ -56,7 +56,7 @@ Dotkniętych jest **7 z 23** opublikowanych wpisów. Migracja `20250621000000_fi
 
 Mechanizm: `parseCategoriesFromForm` woła `normalizeSlug`. Migracja wsteczna: `zarządzenia` → `zarzadzenia`, `planogólnygminymiedzna` → `plan-ogolny-gminy-miedzna`.
 
-**Następca (2026-09-06):** flow dodawania kategorii — [K-1](#k-1--brak-publikacji-przy-edycji-kategorii)–[K-11](#k-11--categoriespath-pokazuje-plik-legacy). Plan: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) podejścia 22–25 (22 zamknięte).
+**Następca (2026-09-06):** flow dodawania kategorii — [K-1](#k-1--brak-publikacji-przy-edycji-kategorii)–[K-11](#k-11--categoriespath-pokazuje-plik-legacy). Plan: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) podejścia 22–25 (zamknięte).
 
 Historyczny opis (stan sprzed naprawy): pole `category_slug` było surowym inputem, bez `normalizeSlug`. W produkcyjnym `src/config/omnipress-layout.json` znajdowały się:
 
@@ -426,7 +426,7 @@ Jeden wpis przechodzący całą drogę: szkic → akceptacja → commit GitHub �
 
 ## Audyt kategorii wpisów (2026-09-06)
 
-**SSOT planu:** [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) podejścia 22–25 (22–24 zamknięte).
+**SSOT planu:** [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) podejścia 22–25 (zamknięte).
 
 P0-3 (normalizacja slugu) jest zamknięte. Luka jest w **kompletności flow**, nie w samym zapisie slugu. Dodać kategorię da się, ale to rytuał na czterech ekranach, a pierwszy nie ma przycisku publikacji.
 
@@ -439,10 +439,10 @@ P0-3 (normalizacja slugu) jest zamknięte. Luka jest w **kompletności flow**, n
 | K-5 | P1 | ✅ zamknięte | 22 |
 | K-6 | P1 | ✅ zamknięte | 22 |
 | K-7 | P1 | ✅ zamknięte | 23 |
-| K-8 | P2 | otwarte | 25 |
-| K-9 | P2 | otwarte | 25 |
-| K-10 | P2 | otwarte | 25 |
-| K-11 | P2 | otwarte | 25 |
+| K-8 | P2 | ✅ zamknięte | 25 |
+| K-9 | P2 | ✅ zamknięte | 25 |
+| K-10 | P2 | ✅ zamknięte | 25 |
+| K-11 | P2 | ✅ zamknięte | 25 |
 
 ### K-1 — brak publikacji przy edycji kategorii — ✅ zamknięte (podejście 22)
 
@@ -484,21 +484,27 @@ Ostrzeżenie `categoriesSlugWarning` jest poprawne; automatu nie ma. Zmiana slug
 
 **Naprawa:** submit i approve wymagają slugu z opublikowanej listy (`category_required`).
 
-### K-8 — slug bez podglądu URL i bez normalizacji na żywo
+### K-8 — slug bez podglądu URL i bez normalizacji na żywo — ✅ zamknięte (podejście 25)
 
 Pole jest ręcznym inputem. W UI widać `zarządzenia`; po zapisie serwer zapisuje `zarzadzenia`. Brak autopodpowiedzi z nazwy.
 
-### K-9 — usuwanie bez feedbacku
+**Naprawa:** pusty slug dostaje `normalizeSlug` z nazwy; ręczny slug normalizuje się na `blur`; podsumowanie pokazuje `/{slug}/`.
+
+### K-9 — usuwanie bez feedbacku — ✅ zamknięte (podejście 25)
 
 Ostatniej kategorii nie da się usunąć (klient), bez komunikatu. Brak `confirm` i liczby wpisów przy usuwaniu.
 
-### K-10 — ADMIN.md opisuje stary kontrakt
+**Naprawa:** `confirm` z liczbą wpisów; ostatnia kategoria — widoczny komunikat.
+
+### K-10 — ADMIN.md opisuje stary kontrakt — ✅ zamknięte (podejście 25)
 
 Dokument nadal: publikacja `omnipress-categories.json`, macierz feedów w zakładce Kategorie. Fakt: jeden plik `omnipress-layout.json`, feedy w Komponentach, edycja na `/admin/units/[id]/posts`.
 
-### K-11 — `categoriesPath` pokazuje plik legacy
+### K-11 — `categoriesPath` pokazuje plik legacy — ✅ zamknięte (podejście 25)
 
 Stopka formularza: `src/config/omnipress-categories.json`. Prawdziwy zapis: `src/config/omnipress-layout.json`.
+
+**Naprawa:** stopka pokazuje `layout.layoutPath`.
 
 ---
 

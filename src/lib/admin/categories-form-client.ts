@@ -1,4 +1,5 @@
 import { confirmAction } from '@/lib/ui/confirm';
+import { parseCategoryPostCounts } from './categories-form-model';
 import { getEditorRows } from './categories-form-dom';
 import { handleCategoriesClick, initCategoryRow, resetCategoryEntryIds } from './categories-form-rows';
 
@@ -20,6 +21,8 @@ export type CategoriesFormLabels = {
 	addToNewsFeed: string;
 	addToMenu: string;
 	remapConfirm: string;
+	removeConfirm: string;
+	lastCategory: string;
 };
 
 export function mountCategoriesForm(labels: CategoriesFormLabels): void {
@@ -77,6 +80,8 @@ export function initCategoriesTable(removeCategoryLabel: string): void {
 		addToNewsFeed: '',
 		addToMenu: '',
 		remapConfirm: '',
+		removeConfirm: '',
+		lastCategory: '',
 	});
 }
 
@@ -85,7 +90,7 @@ function bindCategoryRemapConfirm(form: HTMLFormElement, labels: CategoriesFormL
 	form.dataset.remapConfirmBound = '1';
 	form.addEventListener('submit', (event) => {
 		let affected = 0;
-		const counts = parsePostCounts(form.dataset.postCounts);
+		const counts = parseCategoryPostCounts(form.dataset.postCounts);
 		for (const editor of form.querySelectorAll('.category-row-editor')) {
 			const prev = editor.querySelector<HTMLInputElement>('input[name="category_prev_slug"]')?.value.trim();
 			const slug = editor.querySelector<HTMLInputElement>('input[name="category_slug"]')?.value.trim();
@@ -93,17 +98,4 @@ function bindCategoryRemapConfirm(form: HTMLFormElement, labels: CategoriesFormL
 		}
 		if (affected > 0 && !confirmAction(labels.remapConfirm, affected)) event.preventDefault();
 	});
-}
-
-function parsePostCounts(raw: string | undefined): Record<string, number> {
-	if (!raw) return {};
-	try {
-		const parsed: unknown = JSON.parse(raw);
-		if (!parsed || typeof parsed !== 'object') return {};
-		return Object.fromEntries(
-			Object.entries(parsed).filter((entry): entry is [string, number] => typeof entry[1] === 'number'),
-		);
-	} catch {
-		return {};
-	}
 }

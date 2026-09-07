@@ -3,11 +3,11 @@ import {
 	bindCategoryArchiveFields,
 	bindCategorySlugFromName,
 	getEditorForSummary,
-	getEditorRows,
 	initCategoryArchiveFields,
 	openCategoryEditor,
 	syncCategorySummary,
 } from './categories-form-dom';
+import { hideLastCategoryMessage, removeCategoryEntry } from './categories-form-remove';
 
 let nextCategoryEntryId = 0;
 
@@ -108,18 +108,13 @@ export function initCategoryRow(editorRow: HTMLElement, labels: CategoriesFormLa
 }
 
 function appendCategoryEntry(body: HTMLElement, labels: CategoriesFormLabels, openEditor = true): void {
+	const form = body.closest('[data-categories-form]');
+	if (form instanceof HTMLFormElement) hideLastCategoryMessage(form);
 	const [summaryTr, editorTr] = createCategoryEntryElements(labels, openEditor);
 	body.appendChild(summaryTr);
 	body.appendChild(editorTr);
 	initCategoryRow(editorTr, labels);
 	if (openEditor) openCategoryEditor(editorTr, body, labels);
-}
-
-function removeCategoryEntry(summaryRow: HTMLElement, body: HTMLElement): void {
-	const editor = getEditorForSummary(summaryRow);
-	if (getEditorRows(body).length <= 1) return;
-	summaryRow.remove();
-	editor?.remove();
 }
 
 export function handleCategoriesClick(event: Event, labels: CategoriesFormLabels): void {
@@ -159,7 +154,8 @@ export function handleCategoriesClick(event: Event, labels: CategoriesFormLabels
 
 	const removeBtn = target.closest('.remove-category');
 	if (!removeBtn) return;
+	event.preventDefault();
 	const summary = removeBtn.closest('.category-row-summary');
 	if (!(summary instanceof HTMLElement)) return;
-	removeCategoryEntry(summary, body);
+	removeCategoryEntry(summary, body, labels, form);
 }

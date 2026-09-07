@@ -15,6 +15,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Naprawione
 
+- **Kategorie: slug i usuwanie nie zaskakują (K-8–K-11).** Pusty slug dostaje podpowiedź z nazwy; w wierszu widać adres `/{slug}/` (to, co zapisze serwer). Usunięcie pyta o potwierdzenie i podaje liczbę wpisów; ostatniej kategorii nie da się skasować po cichu. Stopka formularza i ADMIN.md wskazują `omnipress-layout.json` oraz `/admin/units/[id]/posts`, nie legacy `omnipress-categories.json`. Testy: `admin/categories-form-client`, `admin/categories-form-model`.
+
 - **Kategorie: zmiana slugu nie gubi wpisów i feedów (K-3, K-4).** Zapis listy kategorii wykrywa remap (`odpady` → `gospodarka-odpadami`), przepisuje feedy, banery i wpisy w bazie. Republika na stronie zostaje ręczna — panel pokazuje ile opublikowanych wpisów wymaga ponownej publikacji. Checklist na formularzu prowadzi przez szkic → publikację layoutu → feed strony głównej → menu; przy dodaniu widać checkboxy „dodaj do feedu Aktualności” i „dodaj do menu”. Testy: `categories/remap`, `categories/checklist-model`, `parse-form-categories`.
 
 - **Kategorie: redaktor i akceptacja widzą tę samą listę co strona (K-2, K-7).** Szkic nowej kategorii w panelu admina nie pojawia się w selectcie redaktora i nie da się go wysłać ani zaakceptować, dopóki layout nie jest opublikowany. Wysłanie i akceptacja odrzucają osierocony slug (usunięta / przemianowana kategoria). Testy: `categories/published`, `posts/category`, `admin/approve-post`.

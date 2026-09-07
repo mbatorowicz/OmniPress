@@ -1,19 +1,17 @@
 ---
-description: Otwarty plan naprawy bezpieczeństwa — kolejność S-1…S-4
+description: Plan bezpieczeństwa S-1–S-4 i audyt kategorii — zamknięte
 alwaysApply: true
 ---
 
-# Audyt bezpieczeństwa (otwarty)
+# Audyt bezpieczeństwa (zamknięty)
 
-SSOT: `docs/AUDYT-BEZPIECZENSTWO.md`. Kolejność wiążąca: **S-1 → S-2 → S-3 → S-4**.
+SSOT: `docs/AUDYT-BEZPIECZENSTWO.md`. Kolejność była wiążąca: **S-1 → S-2 → S-3 → S-4**. Wszystkie ✅.
 
-Gdy użytkownik prosi o kontynuację, naprawę, następne zadanie albo nie podaje innego scope — weź **pierwsze podejście S-\* bez ✅**.
+Gdy użytkownik prosi o kontynuację albo nie podaje scope — **nie otwieraj DNS cutover**. S-1–S-4 i [AUDYT-WYKONANIE.md](../../docs/AUDYT-WYKONANIE.md) 22–25 są zamknięte.
 
-- **S-1** (teraz): sanityzer całego dokumentu w OmniPress (`sanitize.ts`). Nie tag po tagu.
-- **S-2**: repo B — `git pull`, potem `rehype-sanitize` + CSP / XFO / HSTS. Nie goły `rehype-raw`.
-- **S-3**: bucket `post-assets` prywatny + signed URL.
-- **S-4**: escape nazw plików, Origin na POST, IP z hopa Vercel.
+- **S-1** ✅: sanityzer całego dokumentu (`sanitize.ts`).
+- **S-2** ✅: repo B — `rehype-sanitize` + CSP / XFO / HSTS.
+- **S-3** ✅: bucket `post-assets` prywatny + proxy panelu.
+- **S-4** ✅: escape nazw, Origin na POST, IP z hopa Vercel.
 
-Nie zaczynaj od kategorii (AUDYT-WYKONANIE 22–25), dopóki S-1 i S-2 nie są zamknięte.
-
-Po zamknięciu: ✅ w tabeli SSOT, „Wykonano”, CHANGELOG; AUTH.md / WDROZENIE.md gdy zmiana sesji, Storage albo nagłówków.
+Po zamknięciu podejścia: ✅ w tabeli SSOT, „Wykonano”, CHANGELOG; AUTH.md / WDROZENIE.md gdy zmiana sesji, Storage albo nagłówków.

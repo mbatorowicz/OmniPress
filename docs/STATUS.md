@@ -6,7 +6,7 @@ Produkcja: https://omni-press.cncsolutions.dev
 
 **Audyt migracji:** podejścia 1–18 zamknięte (2026-09-03). Szczegóły: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md).
 
-**Audyt bezpieczeństwa (2026-09-07):** S-1–S-4 zamknięte. **Audyt kategorii:** 22–24 zamknięte. Następna sesja: **25** (UX formularza + ADMIN.md). Plan: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md).
+**Audyt bezpieczeństwa (2026-09-07):** S-1–S-4 zamknięte. **Audyt kategorii:** 22–25 zamknięte. Plan: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md).
 
 ---
 
@@ -81,7 +81,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Bulk: akceptacja / odrzucenie (pending), anulowanie harmonogramu, dezaktywacja / usuwanie | ✅ |
 | Przypinanie wpisu na stronie głównej (`pinned`) | ✅ migracja `setup:posts-pinned` |
 | Import wpisów z GitHub | ✅ auto przy wejściu na panel (bez przycisku) |
-| Layout Astro (menu, kategorie, sloty) + sync do repo | ✅ menu `/navigation`; kategorie `/posts` (publikacja listy na live); sloty `/components` |
+| Layout Astro (menu, kategorie, sloty) + sync do repo | ✅ menu `/navigation`; kategorie `/admin/units/[id]/posts`; sloty `/components` |
 | Ustawienia strony (nazwa, slug, GitHub, tokeny) | ✅ `/admin/units/[id]` |
 | Strony statyczne (admin) + publikacja do repo Astro | ✅ `/admin/units/[id]/pages` — auto-pull z GitHub, publikacja nie nadpisze pustką |
 | Walidacja linków menu przed sync GitHub | ✅ |

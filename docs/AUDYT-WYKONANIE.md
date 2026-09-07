@@ -32,13 +32,13 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | 22 | Kategorie: publikacja na miejscu + walidacja slugu (K-1, K-5, K-6) — ✅ **wykonane** | niskie | 23, 24 |
 | 23 | Kategorie: jedna reguła opublikowanej listy (K-2, K-7) — ✅ **wykonane** | średnie | — |
 | 24 | Kategorie: remap slugu + checklist dodawania (K-3, K-4) — ✅ **wykonane** | średnie | po 22 |
-| 25 | Kategorie: UX formularza + ADMIN.md (K-8–K-11) | zerowe | po 22 |
+| 25 | Kategorie: UX formularza + ADMIN.md (K-8–K-11) — ✅ **wykonane** | zerowe | po 22 |
 
 ---
 
 ## Następna sesja
 
-Podejścia 1–24 zamknięte (22: 2026-09-06, 23–24: 2026-09-07). Audyt bezpieczeństwa S-1–S-4 zamknięty. **Otwarte:** flow kategorii — **25**. Znaleziska: [AUDYT.md](./AUDYT.md) §Audyt kategorii wpisów.
+Podejścia 1–25 zamknięte (22: 2026-09-06, 23–25: 2026-09-07). Audyt bezpieczeństwa S-1–S-4 zamknięty. Znaleziska: [AUDYT.md](./AUDYT.md) §Audyt kategorii wpisów.
 
 **DNS cutover jest ostatnim krokiem projektu, nie następną sesją.** Domena produkcyjna `gmina-miedzna.pl` zostaje na starym hostingu do odwołania. Nowa strona działa pod `gmina-miedzna.cncsolutions.dev`.
 
@@ -880,6 +880,15 @@ Do tego `admin/github-token.ts` importował nieistniejący typ `GitHubRepoConfig
 **Weryfikacja:** `npm test` (form client); grep w `docs/ADMIN.md` bez `omnipress-categories.json` jako aktualnej ścieżki publikacji.
 
 **Commit:** tylko repo A (docs + UI).
+
+### Wykonano (2026-09-07)
+
+- Autopodpowiedź slugu z nazwy przy pustym polu; ręczny slug normalizowany na `blur`; podgląd `/{slug}/` w podsumowaniu wiersza (to, co zapisze serwer).
+- Usuwanie: `confirm` z liczbą wpisów; ostatnia kategoria — widoczny komunikat, nie cichy no-op.
+- Stopka formularza: `layout.layoutPath` (`src/config/omnipress-layout.json`), nie `categoriesPath`.
+- [ADMIN.md](./ADMIN.md): kategorie na `/admin/units/[id]/posts`; jeden plik layoutu; feedy w Komponentach; menu w Nagłówku. [STATUS.md](./STATUS.md): ta sama ścieżka.
+
+**Wynik weryfikacji:** `npm test` 934/934 (+22 RLS opt-in) · `npm run lint` OK · `npm run build` OK. `docs/ADMIN.md` bez `omnipress-categories.json`.
 
 ---
 
