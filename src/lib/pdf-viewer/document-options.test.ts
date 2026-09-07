@@ -15,7 +15,7 @@ describe('pdfDocumentOptions', () => {
 	});
 
 	it('pozwala czytać zakresami plik z zewnętrznego hosta', () => {
-		const src = 'https://xyz.supabase.co/storage/v1/object/public/post-assets/a/b.pdf';
+		const src = 'https://gmina-miedzna.pl/post-files/wpis/b.pdf';
 		expect(pdfDocumentOptions(src, ORIGIN)).toEqual({ url: src });
 	});
 

@@ -27,12 +27,11 @@ function buildContentSecurityPolicy(options: SecurityHeaderOptions): string | nu
 	if (!nonce) return null;
 
 	const supabase = supabaseOrigins(options.supabaseUrl);
+	// Bucket post-assets jest prywatny (S-3) — obrazki idą przez proxy panelu,
+	// więc Supabase zostaje tylko w connect-src (auth, dane, signed upload).
 	const imgSrc = ["'self'", 'data:', 'blob:'];
 	const connectSrc = ["'self'"];
-	if (supabase) {
-		imgSrc.push(supabase.https);
-		connectSrc.push(supabase.https, supabase.wss);
-	}
+	if (supabase) connectSrc.push(supabase.https, supabase.wss);
 
 	return [
 		"default-src 'self'",

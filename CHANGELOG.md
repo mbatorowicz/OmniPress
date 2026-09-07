@@ -7,6 +7,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Bezpieczeństwo
 
+- **S-3 — załączniki nieopublikowanych wpisów zniknęły z internetu.** Bucket `post-assets` był publiczny: kto znał adres pliku (a ten trafiał do markdownu, referrera i logów), czytał szkic bez logowania. Bucket jest prywatny (migracja `setup:storage-private`, zastosowana na produkcji), a plik wychodzi tylko przez `/api/posts/{id}/assets/{assetId}/file` — sesja redaktora lub admina. Publikacja pobiera bajty klientem Storage i commituje je do repo strony, więc na stronie gminy nic się nie zmienia. Weryfikacja pliku po uploadzie idzie krótkim signed URL-em z `Range` zamiast publicznego adresu. `img-src` w CSP panelu zawężony do własnego origin. Stare treści z adresami `/object/public/…` publikują się dalej — parowanie rozpoznaje oba adresy. Testy: `publish/asset-model`, `publish/github-astro-assets`, `post-gallery`, `posts/asset-model`, `security/headers`.
+
 - **S-2 — strona gminy nie wykonuje HTML z wpisu.** Repo Astro: `rehype-sanitize` po `rehype-raw` (blok PDF i `./` na allowliście), CSP bez `unsafe-inline` w `script-src`, XFO / nosniff / HSTS. Nota w `astro-repo-compat.mdc`. Testy w repo B: `sanitize-schema.test.ts`, `headers.test.ts`.
 
 ### Naprawione

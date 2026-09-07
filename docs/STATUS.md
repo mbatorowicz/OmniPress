@@ -121,6 +121,7 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub (jeden commit; listing 
 | `20250622000000_storage_post_assets_docx.sql` | `setup:storage-docx` |
 | `20250623000000_storage_post_assets_gpkg.sql` | `setup:storage-gpkg` |
 | `20250719000000_storage_post_assets_xlsx_zip.sql` | `setup:storage-xlsx-zip` |
+| `20250907000000_storage_post_assets_private.sql` | `setup:storage-private` |
 | `20250610000000_asset_display_mode.sql` | `setup:asset-display` |
 | `20250611000000_asset_sort_order.sql` | `setup:asset-sort` |
 | `20250612000000_remove_wordpress.sql` | `setup:remove-wordpress` |

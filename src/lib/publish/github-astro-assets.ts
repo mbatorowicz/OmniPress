@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { updateAssetContentSha } from './assets';
-import { publicAssetUrl, type PostAsset } from './asset-model';
+import { assetUrlKeys, type PostAsset } from './asset-model';
 import { gitBlobShaFromBytes } from './git-blob';
 import {
 	listGitHubDirectoryBlobs,
@@ -73,33 +73,35 @@ export async function collectPostAssetWrites(
 
 	await Promise.all(
 		assets.map(async (asset) => {
-			const sourceUrl = publicAssetUrl(asset.storage_path);
-			if (!sourceUrl) {
-				errors.push(`${asset.filename}: brak publicznego URL Supabase`);
-				return;
-			}
-
+			// Treść może wskazywać asset proxy albo starym publicznym URL-em Supabase.
+			const sourceUrls = assetUrlKeys(asset);
 			const assetName = asset.storage_path.split('/').pop() ?? asset.filename;
 			keepNames.add(assetName);
 			const gitPath = assetGitPath(cfg, postDir, assetName);
 			const relative = publishedAssetUrl(cfg, postDir, assetName);
 			const remoteSha = remoteByName.get(assetName);
+			const mapSourceUrls = () => {
+				for (const url of sourceUrls) map.set(url, relative);
+			};
 
 			if (asset.content_sha && remoteSha && asset.content_sha === remoteSha) {
-				map.set(sourceUrl, relative);
+				mapSourceUrls();
 				return;
 			}
 
 			try {
-				const res = await fetch(sourceUrl);
-				if (!res.ok) {
-					errors.push(`${asset.filename}: pobranie HTTP ${res.status}`);
+				// Bucket jest prywatny (S-3) — bajty idą klientem Storage (worker: service role).
+				const { data, error } = await supabase.storage
+					.from('post-assets')
+					.download(asset.storage_path);
+				if (error || !data) {
+					errors.push(`${asset.filename}: ${error?.message ?? 'brak pliku w Storage'}`);
 					return;
 				}
-				const content = await res.arrayBuffer();
+				const content = await data.arrayBuffer();
 				const sha = gitBlobShaFromBytes(content);
 				shaUpdates.push({ id: asset.id, sha });
-				map.set(sourceUrl, relative);
+				mapSourceUrls();
 				if (remoteSha && remoteSha === sha) return;
 				writes.push({ path: gitPath, content });
 			} catch (err) {

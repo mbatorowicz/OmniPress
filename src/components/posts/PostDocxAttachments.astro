@@ -1,6 +1,6 @@
 ---
 import { dashboard } from '@/i18n';
-import { isDocxAsset, publicUrlForAsset, type PostAssetRow } from '@/lib/posts/asset-model';
+import { assetFileUrlFor, isDocxAsset, type PostAssetRow } from '@/lib/posts/asset-model';
 
 type Props = {
 	postId: string;
@@ -20,7 +20,7 @@ type Props = {
 const { postId, assets, labels } = Astro.props;
 const docxAssets = assets.filter(isDocxAsset).map((a) => ({
 	id: a.id,
-	url: publicUrlForAsset(a.storage_path) ?? '',
+	url: assetFileUrlFor(postId, a.id),
 	filename: a.filename,
 }));
 const initialOrder = docxAssets.map((a) => a.id).join(',');

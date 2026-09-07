@@ -67,11 +67,12 @@ sequenceDiagram
 2. **RLS profiles** — trigger `profiles_guard_self_update` blokuje zmianę `role` i `default_site_id` przez redaktora (`npm run setup:profiles-guard`).
 3. **Auth POST** — rate limit (20 / 15 min / IP, Upstash lub Supabase RPC) + odrzucenie żądań z obcym nagłówkiem `Origin`. IP z `x-real-ip`.
 4. **MFA admin** — TOTP obowiązkowy (AAL2); enrollment `/auth/mfa/setup`, challenge `/auth/mfa`.
-5. **CSP** — nonce per żądanie; `script-src 'self' 'nonce-…' 'wasm-unsafe-eval'` (pdf.js). Brak `unsafe-inline`, więc każdy `<script>` w HTML musi mieć nonce **albo** być osobnym plikiem — patrz [KONWENCJE.md](./KONWENCJE.md#8-skrypty-klienta-i-csp).
+5. **CSP** — nonce per żądanie; `script-src 'self' 'nonce-…' 'wasm-unsafe-eval'` (pdf.js). Brak `unsafe-inline`, więc każdy `<script>` w HTML musi mieć nonce **albo** być osobnym plikiem — patrz [KONWENCJE.md](./KONWENCJE.md#8-skrypty-klienta-i-csp). `img-src` bez Supabase — załączniki idą z własnego origin.
 6. **Reset hasła** — zawsze ten sam komunikat sukcesu (brak enumeracji e-maili).
 7. **Logowanie** — generyczny komunikat błędu (`invalidCredentials`).
 8. **Nagłówki** — `X-Frame-Options`, `HSTS` (prod), `nosniff`, `Referrer-Policy`, CSP (middleware).
-9. **Upload** — weryfikacja magic bytes + limit rozmiaru; bez surowych błędów storage w JSON.
+9. **Upload** — weryfikacja magic bytes + limit rozmiaru (`lib/posts/upload-verify.ts`); bez surowych błędów storage w JSON.
+10. **Załączniki** — bucket `post-assets` jest prywatny (`npm run setup:storage-private`). Plik wychodzi wyłącznie przez `/api/posts/{id}/assets/{assetId}/file` (sesja + `canViewPostAssets`); publikacja czyta bajty klientem Storage i commituje je do repo strony. Zero adresów `/object/public/…` w panelu i w treści szkicu.
 
 ## Ochrona API
 

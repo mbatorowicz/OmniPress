@@ -1,6 +1,6 @@
 ---
 import { dashboard } from '@/i18n';
-import { isPdfAsset, publicUrlForAsset, type PostAssetRow } from '@/lib/posts/asset-model';
+import { assetFileUrlFor, isPdfAsset, type PostAssetRow } from '@/lib/posts/asset-model';
 
 type Props = {
 	postId: string;
@@ -22,7 +22,7 @@ type Props = {
 const { postId, assets, labels } = Astro.props;
 const pdfAssets = assets.filter(isPdfAsset).map((a) => ({
 	id: a.id,
-	url: publicUrlForAsset(a.storage_path) ?? '',
+	url: assetFileUrlFor(postId, a.id),
 	filename: a.filename,
 	display_mode: a.display_mode,
 }));

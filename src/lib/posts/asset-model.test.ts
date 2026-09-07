@@ -1,14 +1,20 @@
 import { describe, expect, it, vi } from 'vitest';
-import { assetsForPreviewRender, canDeletePostAsset, previewAssetFileUrl } from './asset-model';
+import { assetFileUrl, assetsForPreviewRender, canDeletePostAsset } from './asset-model';
 
-describe('previewAssetFileUrl', () => {
+describe('assetFileUrl', () => {
 	it('zwraca same-origin URL API', () => {
-		expect(previewAssetFileUrl('post-1', 'asset-2')).toBe('/api/posts/post-1/assets/asset-2/file');
+		expect(assetFileUrl({ id: 'asset-2', storage_path: 'post-1/x.pdf' })).toBe(
+			'/api/posts/post-1/assets/asset-2/file',
+		);
+	});
+
+	it('nie zgaduje adresu bez id assetu', () => {
+		expect(assetFileUrl({ storage_path: 'post-1/x.pdf' })).toBeNull();
 	});
 });
 
 describe('assetsForPreviewRender', () => {
-	it('ustawia publishUrl na proxy API', () => {
+	it('serwuje podgląd wyłącznie przez proxy API, nie z publicznego Storage', () => {
 		vi.stubEnv('PUBLIC_SUPABASE_URL', 'https://test.supabase.co');
 		const assets = assetsForPreviewRender('post-1', [
 			{
@@ -21,6 +27,7 @@ describe('assetsForPreviewRender', () => {
 			},
 		]);
 		expect(assets[0]?.publishUrl).toBe('/api/posts/post-1/assets/asset-2/file');
+		expect(assets[0]?.sourceUrl).toBe('/api/posts/post-1/assets/asset-2/file');
 	});
 });
 

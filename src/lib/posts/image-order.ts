@@ -1,5 +1,6 @@
 import { parseImageRefsFromMarkdown } from '@/lib/publish/post-content';
-import { publicUrlForAsset, type PostAssetRow } from './asset-model';
+import { assetUrlKeys } from '@/lib/publish/asset-model';
+import { type PostAssetRow } from './asset-model';
 
 const IMAGE_MIME_PREFIX = 'image/';
 
@@ -9,8 +10,9 @@ export function isImageAsset(asset: PostAssetRow): boolean {
 	return asset.mime_type.startsWith(IMAGE_MIME_PREFIX);
 }
 
-function urlMatchesAsset(url: string, asset: PostAssetRow, publicUrl: string | null): boolean {
-	if (publicUrl && url === publicUrl) return true;
+/** Treść może wskazywać obrazek proxy panelu albo starym publicznym URL-em Supabase. */
+function urlMatchesAsset(url: string, asset: PostAssetRow): boolean {
+	if (assetUrlKeys(asset).includes(url)) return true;
 	if (url.includes(asset.storage_path.split('/').pop() ?? '')) return true;
 	if (url.includes(encodeURIComponent(asset.filename))) return true;
 	return url.endsWith(asset.filename);
@@ -33,7 +35,7 @@ export function imageRolesByAssetId(
 	for (const ref of refs) {
 		const asset = assets.find((a) => {
 			if (!isImageAsset(a)) return false;
-			return urlMatchesAsset(ref.url, a, publicUrlForAsset(a.storage_path));
+			return urlMatchesAsset(ref.url, a);
 		});
 		if (!asset) continue;
 		const role: ImageAttachmentRole = imageIndex === 0 ? 'cover' : 'gallery';

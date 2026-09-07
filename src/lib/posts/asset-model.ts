@@ -3,8 +3,10 @@
  * adresy, mapowanie na render i odczyt pól formularza. Operacje na bazie:
  * `@/lib/posts/assets`.
  */
-import { publicAssetUrl } from '@/lib/publish/asset-model';
+import { assetFileUrl, assetFileUrlFor } from '@/lib/publish/asset-model';
 import type { AssetDisplayMode, AssetForDisplay } from '@/lib/publish/asset-markdown';
+
+export { assetFileUrl, assetFileUrlFor };
 
 export type PostAssetRow = {
 	id: string;
@@ -61,37 +63,25 @@ export function canDeletePostAsset(asset: Pick<PostAssetRow, 'mime_type'>): bool
 	);
 }
 
-export function publicUrlForAsset(storagePath: string): string | null {
-	return publicAssetUrl(storagePath);
-}
-
-/** Same-origin URL do podglądu PDF w panelu (PDF.js + cookies sesji). */
-export function previewAssetFileUrl(postId: string, assetId: string): string {
-	return `/api/posts/${postId}/assets/${assetId}/file`;
-}
-
 export function assetsForPreviewRender(postId: string, assets: PostAssetRow[]): AssetForDisplay[] {
-	return assets.flatMap((asset) => {
-		const sourceUrl = publicUrlForAsset(asset.storage_path);
-		if (!sourceUrl) return [];
-		return [
-			{
-				filename: asset.filename,
-				mime_type: asset.mime_type,
-				display_mode: asset.display_mode,
-				sourceUrl,
-				publishUrl: previewAssetFileUrl(postId, asset.id),
-			},
-		];
+	return assets.map((asset) => {
+		const url = assetFileUrlFor(postId, asset.id);
+		return {
+			filename: asset.filename,
+			mime_type: asset.mime_type,
+			display_mode: asset.display_mode,
+			sourceUrl: url,
+			publishUrl: url,
+		};
 	});
 }
 
 export function assetsForContentRender(
 	assets: PostAssetRow[],
-	urlForPath: (storagePath: string) => string | null = publicUrlForAsset,
+	urlForAsset: (asset: PostAssetRow) => string | null = assetFileUrl,
 ): AssetForDisplay[] {
 	return assets.flatMap((asset) => {
-		const sourceUrl = urlForPath(asset.storage_path);
+		const sourceUrl = urlForAsset(asset);
 		if (!sourceUrl) return [];
 		return [
 			{

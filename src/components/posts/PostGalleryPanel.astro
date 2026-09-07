@@ -1,6 +1,6 @@
 ---
 import { dashboard } from '@/i18n';
-import { isGalleryImageAsset, publicUrlForAsset, type PostAssetRow } from '@/lib/posts/asset-model';
+import { assetFileUrlFor, isGalleryImageAsset, type PostAssetRow } from '@/lib/posts/asset-model';
 
 type Props = {
 	postId: string;
@@ -23,7 +23,7 @@ type Props = {
 const { postId, assets, labels } = Astro.props;
 const galleryAssets = assets.filter(isGalleryImageAsset).map((a) => ({
 	id: a.id,
-	url: publicUrlForAsset(a.storage_path) ?? '',
+	url: assetFileUrlFor(postId, a.id),
 	filename: a.filename,
 }));
 const initialOrder = galleryAssets.map((a) => a.id).join(',');

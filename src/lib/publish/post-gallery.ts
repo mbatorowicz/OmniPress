@@ -1,5 +1,5 @@
 import { markdownForUploadedAsset } from '@/lib/posts/upload';
-import { publicAssetUrl } from '@/lib/publish/asset-model';
+import { assetUrlKeys, resolveAssetUrl } from '@/lib/publish/asset-model';
 import type { PostAsset } from '@/lib/publish/asset-model';
 import {
 	markdownToPlainExcerpt,
@@ -15,9 +15,8 @@ export function buildPublishedBodyMd(
 ): string {
 	let body = stripImageMarkdown(contentMd).trim();
 	for (const asset of fileAssets) {
-		const sourceUrl = publicAssetUrl(asset.storage_path);
-		if (!sourceUrl) continue;
-		const url = urlMap.get(sourceUrl) ?? sourceUrl;
+		const url = resolveAssetUrl(asset, urlMap);
+		if (!url) continue;
 		body += `\n\n${markdownForUploadedAsset(asset.filename, url, asset.mime_type)}\n`;
 	}
 	return body.trim();
@@ -41,10 +40,12 @@ export function galleryUrlsFromAssets(
 	imageAssets: PostAsset[],
 	urlMap: Map<string, string>,
 ): string[] {
+	// Galeria na stronie musi wskazywać plik w repo Astro — adres panelu nie wystarczy.
 	return imageAssets.flatMap((asset) => {
-		const sourceUrl = publicAssetUrl(asset.storage_path);
-		if (!sourceUrl) return [];
-		const published = urlMap.get(sourceUrl);
-		return published ? [published] : [];
+		for (const key of assetUrlKeys(asset)) {
+			const published = urlMap.get(key);
+			if (published) return [published];
+		}
+		return [];
 	});
 }

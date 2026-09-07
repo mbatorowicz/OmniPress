@@ -10,10 +10,10 @@ Oznaczenia: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 |---|-----------|------|------|---------|
 | S-1 ✅ | Sanityzer całego dokumentu (nie tag po tagu) | A | **wysoka** | S-2 (stare commity i tak wymaga CSP) |
 | S-2 ✅ | Strona: `rehype-sanitize` + CSP / XFO / HSTS | B | **wysoka** | — |
-| S-3 | Bucket `post-assets` prywatny + signed URL | A (+ Storage) | **wysoka** | — |
+| S-3 ✅ | Bucket `post-assets` prywatny + signed URL | A (+ Storage) | **wysoka** | — |
 | S-4 | Panel: escape nazw, Origin na POST, IP z hopa Vercel | A | średnia | po S-1 |
 
-**Następna sesja:** pierwsze niezamknięte S-*. Dziś: **S-3**.
+**Następna sesja:** pierwsze niezamknięte S-*. Dziś: **S-4**.
 
 Kategorie wpisów (AUDYT-WYKONANIE 22–25) zostają otwarte, ale **nie zaczynaj od nich**, dopóki S-1 i S-2 nie są zamknięte — XSS na stronie gminy jest ważniejszy niż flow kategorii.
 
@@ -127,6 +127,14 @@ Redaktor bez TOTP. Przejęte konto + B-1 wystarczy do podłożenia XSS (akceptac
 **Weryfikacja:** `npm test` · `npm run lint` · `npm run build`. Po migracji: stary publiczny URL szkicu → 400/403.
 
 **Commit:** A. Migracja zastosowana na prod przez agenta.
+
+**Wykonano (2026-09-07):** migracja `20250907000000_storage_post_assets_private.sql` (`public = false`) + `npm run setup:storage-private`, zastosowana na produkcji. Sprawdzone: `storage.buckets.public = false`, anonimowy GET na `/object/public/post-assets/…` → **400** (200 z pierwszego żądania to cache CDN sprzed migracji, TTL 1 h).
+
+Zamiast signed URL dla panelu — **proxy** `/api/posts/{id}/assets/{assetId}/file` (istniało, `canViewPostAssets`): brak adresu z terminem ważności, który mógłby wyciec dalej niż sesja. SSOT adresu: `assetFileUrl` / `assetFileUrlFor` w `lib/publish/asset-model.ts`. `publicAssetUrl` → `legacyPublicAssetUrl`: **nie serwuje pliku**, zostaje wyłącznie jako klucz parowania starych treści (`assetUrlKeys`, `resolveAssetUrl` mapują i proxy, i legacy — publikacja starych wpisów działa bez migracji danych).
+
+Ścieżki bez publicznego URL: `fetchStorageHead` → signed URL z `Range` (16 bajtów zamiast 50 MB) w nowym `lib/posts/upload-verify.ts`; `completePostAssetUpload` zwraca proxy; `collectPostAssetWrites` → `storage.download()` (worker: service role); galeria, PDF/DOCX/pliki i podgląd → proxy. `img-src` w CSP zawężony do `'self'` (Supabase zostaje w `connect-src`).
+
+Testy: `publish/asset-model.test.ts`, `publish/github-astro-assets.test.ts` (pobranie bez `fetch`, mapowanie obu adresów, błąd Storage), `post-gallery.test.ts`, `posts/asset-model.test.ts`, `security/headers.test.ts`.
 
 ---
 

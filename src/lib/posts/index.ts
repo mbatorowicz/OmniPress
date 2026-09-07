@@ -63,9 +63,9 @@ export { createPostAssetSignedUpload, completePostAssetUpload } from './signed-u
 export {
 	assetsForContentRender,
 	assetsForPreviewRender,
-	previewAssetFileUrl,
+	assetFileUrl,
+	assetFileUrlFor,
 	parseAssetDisplayModes,
-	publicUrlForAsset,
 	parseGalleryOrder,
 	parsePdfOrder,
 	parseDocxOrder,

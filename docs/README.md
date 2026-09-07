@@ -56,6 +56,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | `setup:storage-docx` | DOCX w bucket |
 | `setup:storage-gpkg` | GPKG + limit 50 MB w bucket |
 | `setup:storage-xlsx-zip` | XLSX + ZIP w bucket |
+| `setup:storage-private` | Bucket prywatny — pliki tylko przez proxy panelu |
 | `setup:storage-import-admin` | Import assetów z GitHub (admin) |
 | `setup:asset-display` | Tryb wyświetlania assetów |
 | `setup:asset-sort` | Kolejność galerii |

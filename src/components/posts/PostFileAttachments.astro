@@ -1,6 +1,6 @@
 ---
 import { dashboard } from '@/i18n';
-import { isDownloadFileAsset, publicUrlForAsset, type PostAssetRow } from '@/lib/posts/asset-model';
+import { assetFileUrlFor, isDownloadFileAsset, type PostAssetRow } from '@/lib/posts/asset-model';
 
 type Props = {
 	postId: string;
@@ -20,7 +20,7 @@ type Props = {
 const { postId, assets, labels } = Astro.props;
 const fileAssets = assets.filter(isDownloadFileAsset).map((a) => ({
 	id: a.id,
-	url: publicUrlForAsset(a.storage_path) ?? '',
+	url: assetFileUrlFor(postId, a.id),
 	filename: a.filename,
 }));
 const initialOrder = fileAssets.map((a) => a.id).join(',');

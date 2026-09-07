@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { loadPostAssets } from './assets';
-import { publicAssetUrl } from './asset-model';
+import { resolveAssetUrl } from './asset-model';
 import { applyAssetDisplayToMarkdown, type AssetForDisplay } from './asset-markdown';
 import { preparePdfViewerWrites } from './github-pdf-viewer';
 import {
@@ -103,15 +103,15 @@ export async function prepareGitHubAstroPublish(
 
 	const bodyWithFiles = buildPublishedBodyMd(post.content_md, fileAssets, urlMap);
 	const assetsForDisplay: AssetForDisplay[] = pdfAssets.flatMap((asset) => {
-		const sourceUrl = publicAssetUrl(asset.storage_path);
-		if (!sourceUrl) return [];
+		const url = resolveAssetUrl(asset, urlMap);
+		if (!url) return [];
 		return [
 			{
 				filename: asset.filename,
 				mime_type: asset.mime_type,
 				display_mode: asset.display_mode === 'embed' ? 'embed' : 'link',
-				sourceUrl,
-				publishUrl: urlMap.get(sourceUrl) ?? sourceUrl,
+				sourceUrl: url,
+				publishUrl: url,
 			},
 		];
 	});

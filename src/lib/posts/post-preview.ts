@@ -11,7 +11,6 @@ import {
 	isFileAttachmentAsset,
 	isGalleryImageAsset,
 	isPdfAsset,
-	publicUrlForAsset,
 	type PostAssetRow,
 } from '@/lib/posts/asset-model';
 import { loadPostAssetsForPost } from '@/lib/posts/assets';
@@ -32,15 +31,8 @@ export async function loadPostPreview(
 	const fileAssets = postAssets.filter(isFileAttachmentAsset);
 	const pdfAssets = postAssets.filter(isPdfAsset);
 
-	// Podgląd pokazuje pliki spod tych samych adresów, pod którymi wyjdą na stronę.
-	const fileUrlMap = new Map(
-		fileAssets.flatMap((a) => {
-			const url = publicUrlForAsset(a.storage_path);
-			return url ? ([[url, url]] as const) : [];
-		}),
-	);
-
-	const previewMd = buildPublishedBodyMd(contentMd, fileAssets as PostAsset[], fileUrlMap);
+	// Pusta mapa publikacji: podgląd serwuje pliki z proxy panelu, bo bucket jest prywatny.
+	const previewMd = buildPublishedBodyMd(contentMd, fileAssets as PostAsset[], new Map());
 
 	return {
 		postAssets,

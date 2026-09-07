@@ -1,16 +1,15 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { api, formatUploadError, posts } from '@/i18n';
+import { api, formatUploadError } from '@/i18n';
 import { nextGallerySortOrder } from '@/lib/posts/assets';
-import { publicAssetUrl } from '@/lib/publish/asset-model';
+import { assetFileUrlFor } from '@/lib/publish/asset-model';
 import {
 	extensionForMime,
 	markdownForUploadedAsset,
-	MAX_FILE_ATTACHMENT_BYTES,
 	parseUploadKind,
-	validateMagicBytesForMime,
 	validateUploadMeta,
 	type UploadKind,
 } from '@/lib/posts/upload';
+import { verifyUploadedFile } from '@/lib/posts/upload-verify';
 
 export type SignedUploadUrlResult =
 	| {
@@ -39,8 +38,6 @@ export type CompleteUploadResult =
 			};
 	  }
 	| { ok: false; status: number; error: string };
-
-const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 export async function createPostAssetSignedUpload(
 	supabase: SupabaseClient,
@@ -80,38 +77,6 @@ export async function createPostAssetSignedUpload(
 	};
 }
 
-async function fetchStorageHead(path: string): Promise<{
-	size: number | null;
-	head: Uint8Array | null;
-}> {
-	const url = publicAssetUrl(path);
-	if (!url) return { size: null, head: null };
-
-	const res = await fetch(url, { headers: { Range: 'bytes=0-15' } });
-	if (!res.ok && res.status !== 206) return { size: null, head: null };
-
-	const contentRange = res.headers.get('content-range');
-	let size: number | null = null;
-	if (contentRange) {
-		const match = contentRange.match(/\/(\d+)\s*$/);
-		if (match) size = Number(match[1]);
-	}
-	if (size == null) {
-		const len = res.headers.get('content-length');
-		if (len) size = Number(len);
-	}
-
-	const head = new Uint8Array(await res.arrayBuffer());
-	return { size, head };
-}
-
-function sizeErrorForMime(mime: string, size: number): string | null {
-	if (mime.startsWith('image/')) {
-		return size > MAX_IMAGE_BYTES ? posts.upload.tooLarge : null;
-	}
-	return size > MAX_FILE_ATTACHMENT_BYTES ? posts.upload.fileTooLarge : null;
-}
-
 export async function completePostAssetUpload(
 	supabase: SupabaseClient,
 	postId: string,
@@ -136,17 +101,10 @@ export async function completePostAssetUpload(
 		return { ok: false, status: 400, error: api.posts.missingFile };
 	}
 
-	const { size, head } = await fetchStorageHead(input.path);
-	if (!head || !validateMagicBytesForMime(head, meta.mime)) {
+	const verified = await verifyUploadedFile(supabase, input.path, meta.mime, input.size);
+	if (!verified.ok) {
 		await supabase.storage.from('post-assets').remove([input.path]);
-		return { ok: false, status: 400, error: posts.upload.invalidContent };
-	}
-
-	const effectiveSize = size ?? input.size;
-	const sizeErr = sizeErrorForMime(meta.mime, effectiveSize);
-	if (sizeErr) {
-		await supabase.storage.from('post-assets').remove([input.path]);
-		return { ok: false, status: 400, error: sizeErr };
+		return { ok: false, status: 400, error: verified.error };
 	}
 
 	const sortOrder = kind === 'gallery' ? await nextGallerySortOrder(supabase, postId) : 0;
@@ -168,16 +126,15 @@ export async function completePostAssetUpload(
 		return { ok: false, status: 500, error: api.posts.uploadFailed };
 	}
 
-	const { data: publicData } = supabase.storage.from('post-assets').getPublicUrl(input.path);
-	const publicUrl = publicData.publicUrl;
+	const fileUrl = assetFileUrlFor(postId, assetRow.id);
 	const markdown =
 		kind === 'pdf' || kind === 'docx' || kind === 'file'
-			? markdownForUploadedAsset(input.filename, publicUrl, meta.mime)
+			? markdownForUploadedAsset(input.filename, fileUrl, meta.mime)
 			: null;
 
 	return {
 		ok: true,
-		url: publicUrl,
+		url: fileUrl,
 		markdown,
 		asset: {
 			id: assetRow.id,
@@ -185,7 +142,7 @@ export async function completePostAssetUpload(
 			mime_type: assetRow.mime_type,
 			display_mode: assetRow.display_mode ?? 'link',
 			sort_order: assetRow.sort_order ?? 0,
-			url: publicUrl,
+			url: fileUrl,
 		},
 	};
 }
