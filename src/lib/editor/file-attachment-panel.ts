@@ -11,6 +11,7 @@ import {
 } from '@/lib/editor/attachment-panel';
 import { iconButtonHtml, stepButtonHtml } from '@/lib/ui/button-markup';
 import { iconSvg } from '@/lib/ui/icons';
+import { isSafeUrl } from '@/lib/content/sanitize-url';
 
 export type FileAttachmentKind = 'pdf' | 'docx' | 'file';
 
@@ -33,19 +34,26 @@ function readLabels(root: HTMLElement): FileAttachmentLabels {
 	};
 }
 
-/** Radio link/podgląd — tylko PDF, reszta plików ma jedną formę prezentacji. */
-function displayModeFieldset(asset: FileAttachmentAsset): string {
-	return `
-			<fieldset class="ui-label-muted flex shrink-0 flex-col gap-1 text-xs">
-				<label class="flex cursor-pointer items-center gap-2">
-					<input type="radio" name="asset_mode_${asset.id}" value="link" class="text-brand" ${asset.display_mode !== 'embed' ? 'checked' : ''} />
-					<span data-label-link></span>
-				</label>
-				<label class="flex cursor-pointer items-center gap-2">
-					<input type="radio" name="asset_mode_${asset.id}" value="embed" class="text-brand" ${asset.display_mode === 'embed' ? 'checked' : ''} />
-					<span data-label-embed></span>
-				</label>
-			</fieldset>`;
+function appendDisplayMode(host: HTMLElement, asset: FileAttachmentAsset, labels: FileAttachmentLabels): void {
+	const fieldset = document.createElement('fieldset');
+	fieldset.className = 'ui-label-muted flex shrink-0 flex-col gap-1 text-xs';
+
+	for (const mode of ['link', 'embed'] as const) {
+		const label = document.createElement('label');
+		label.className = 'flex cursor-pointer items-center gap-2';
+		const input = document.createElement('input');
+		input.type = 'radio';
+		input.name = `asset_mode_${asset.id}`;
+		input.value = mode;
+		input.className = 'text-brand';
+		input.checked = mode === 'embed' ? asset.display_mode === 'embed' : asset.display_mode !== 'embed';
+		const text = document.createElement('span');
+		text.textContent = mode === 'link' ? labels.displayLink : labels.displayEmbed;
+		label.append(input, text);
+		fieldset.append(label);
+	}
+
+	host.append(fieldset);
 }
 
 function renderRow(
@@ -56,28 +64,40 @@ function renderRow(
 	const li = document.createElement('li');
 	li.className = 'ui-inline-card';
 
-	li.innerHTML = `
-			<div class="min-w-0 flex-1">
-				<p class="ui-subheading flex items-center gap-1.5 truncate">
-					<span class="inline-flex shrink-0 ui-muted pointer-events-none">${iconSvg('file-text', 16)}</span>
-					<span class="truncate">${asset.filename}</span>
-				</p>
-				<a href="${asset.url}" target="_blank" rel="noopener noreferrer" class="ui-link text-xs">${asset.url}</a>
-			</div>${withDisplayMode ? displayModeFieldset(asset) : ''}
-			<div class="flex shrink-0 gap-1">
-				${stepButtonHtml({ ariaLabel: labels.moveUp, label: '↑', disabled: index === 0, attrs: { [attr('up')]: '' } })}
-				${stepButtonHtml({ ariaLabel: labels.moveDown, label: '↓', disabled: index === total - 1, attrs: { [attr('down')]: '' } })}
-				${iconButtonHtml({ variant: 'iconDanger', ariaLabel: labels.remove, icon: 'x', attrs: { [attr('remove')]: '' } })}
-			</div>
-		`;
+	const body = document.createElement('div');
+	body.className = 'min-w-0 flex-1';
 
-	if (withDisplayMode) {
-		const labelLink = li.querySelector('[data-label-link]');
-		const labelEmbed = li.querySelector('[data-label-embed]');
-		if (labelLink) labelLink.textContent = labels.displayLink;
-		if (labelEmbed) labelEmbed.textContent = labels.displayEmbed;
+	const title = document.createElement('p');
+	title.className = 'ui-subheading flex items-center gap-1.5 truncate';
+	const icon = document.createElement('span');
+	icon.className = 'inline-flex shrink-0 ui-muted pointer-events-none';
+	icon.innerHTML = iconSvg('file-text', 16);
+	const name = document.createElement('span');
+	name.className = 'truncate';
+	name.textContent = asset.filename;
+	title.append(icon, name);
+
+	const link = document.createElement('a');
+	link.className = 'ui-link text-xs';
+	link.target = '_blank';
+	link.rel = 'noopener noreferrer';
+	if (isSafeUrl(asset.url)) {
+		link.href = asset.url;
+		link.textContent = asset.url;
 	}
 
+	body.append(title, link);
+	li.append(body);
+	if (withDisplayMode) appendDisplayMode(li, asset, labels);
+
+	const actions = document.createElement('div');
+	actions.className = 'flex shrink-0 gap-1';
+	actions.innerHTML = `
+		${stepButtonHtml({ ariaLabel: labels.moveUp, label: '↑', disabled: index === 0, attrs: { [attr('up')]: '' } })}
+		${stepButtonHtml({ ariaLabel: labels.moveDown, label: '↓', disabled: index === total - 1, attrs: { [attr('down')]: '' } })}
+		${iconButtonHtml({ variant: 'iconDanger', ariaLabel: labels.remove, icon: 'x', attrs: { [attr('remove')]: '' } })}
+	`;
+	li.append(actions);
 	return li;
 }
 

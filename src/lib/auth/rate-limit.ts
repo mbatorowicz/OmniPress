@@ -5,12 +5,19 @@ export type RateLimitResult = { allowed: true } | { allowed: false; retryAfterSe
 const WINDOW_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS = 20;
 
-function clientIp(request: Request): string {
-	const realIp = request.headers.get('x-real-ip')?.trim();
-	if (realIp) return realIp;
+/**
+ * Adres klienta do limitu prób. Na Vercel hop ustawia platforma
+ * (`x-vercel-forwarded-for`, potem pierwszy hop `X-Forwarded-For`).
+ * `x-real-ip` pomijamy — klient może go podłożyć, gdy front go nie nadpisze.
+ */
+export function clientIp(request: Request): string {
+	const vercel = request.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim();
+	if (vercel) return vercel;
 
-	const forwarded = request.headers.get('x-forwarded-for');
-	return forwarded?.split(',')[0]?.trim() || 'unknown';
+	const forwarded = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
+	if (forwarded) return forwarded;
+
+	return 'unknown';
 }
 
 function clientKey(request: Request, action: string): string {

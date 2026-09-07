@@ -11,9 +11,9 @@ Oznaczenia: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | S-1 ✅ | Sanityzer całego dokumentu (nie tag po tagu) | A | **wysoka** | S-2 (stare commity i tak wymaga CSP) |
 | S-2 ✅ | Strona: `rehype-sanitize` + CSP / XFO / HSTS | B | **wysoka** | — |
 | S-3 ✅ | Bucket `post-assets` prywatny + signed URL | A (+ Storage) | **wysoka** | — |
-| S-4 | Panel: escape nazw, Origin na POST, IP z hopa Vercel | A | średnia | po S-1 |
+| S-4 ✅ | Panel: escape nazw, Origin na POST, IP z hopa Vercel | A | średnia | po S-1 |
 
-**Następna sesja:** pierwsze niezamknięte S-*. Dziś: **S-4**.
+**Następna sesja:** pierwsze niezamknięte S-*. Podejścia S-1–S-4 zamknięte. Kategorie (AUDYT-WYKONANIE 22–25) zostają otwarte.
 
 Kategorie wpisów (AUDYT-WYKONANIE 22–25) zostają otwarte, ale **nie zaczynaj od nich**, dopóki S-1 i S-2 nie są zamknięte — XSS na stronie gminy jest ważniejszy niż flow kategorii.
 
@@ -154,11 +154,20 @@ Testy: `publish/asset-model.test.ts`, `publish/github-astro-assets.test.ts` (pob
 
 **Commit:** tylko A.
 
+**Wykonano (2026-09-07):**
+
+1. Galeria i lista załączników budują nazwę i URL przez `textContent` / `isSafeUrl` — `javascript:` i `"><img onerror>` nie wchodzą do DOM. Test: `editor/attachment-markup.test.ts`.
+2. `isCrossOriginPost`: brak `Origin` = odrzuć, chyba że `Sec-Fetch-Site: same-origin`. GET nie podlega. Middleware blokuje POST/PUT/PATCH/DELETE na `/api/posts/*` i `/api/admin/*` (`api.csrf`). Auth dalej przez `guardSameOriginPost` / `guardAuthMutationRequest`. Worker cron poza zakresem.
+3. `clientIp`: `x-vercel-forwarded-for`, potem pierwszy hop `X-Forwarded-For`. `x-real-ip` ignorowany.
+4. Worker: `timingSafeEqual` na `Bearer`, JSON 500 bez `err.message`. MFA redaktora zostaje produktem — nie w tej sesji.
+
+Testy: `origin`, `guard-request`, `rate-limit`, `pipeline` (CSRF), `api/worker`, `attachment-markup`. AUTH.md: Origin, IP, escape, CSRF middleware.
+
 ---
 
 ## Start kolejnego chatu
 
-Agent czyta **ten plik** (nie canvas). Bierze pierwsze S-* bez ✅. Nie pyta o scope, gdy tabela jest jednoznaczna.
+Agent czyta **ten plik** (nie canvas). Bierze pierwsze S-* bez ✅. S-1–S-4 są zamknięte — następne otwarte to kategorie w [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) (22–25), o ile użytkownik nie poda innego scope.
 
 ```
 PM → Architect → BE/FE → DevSecOps → QA

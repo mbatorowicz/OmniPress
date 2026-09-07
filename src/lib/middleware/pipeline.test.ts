@@ -66,7 +66,11 @@ function fakeClient(options: SessionOptions | null): SupabaseClient {
 	} as unknown as SupabaseClient;
 }
 
-async function run(pathname: string, session: SessionOptions | null = null) {
+async function run(
+	pathname: string,
+	session: SessionOptions | null = null,
+	init: { method?: string; headers?: Record<string, string> } = {},
+) {
 	mocks.client = fakeClient(session);
 	const url = new URL(`https://panel.test${pathname}`);
 	const locals = {} as App.Locals;
@@ -75,7 +79,7 @@ async function run(pathname: string, session: SessionOptions | null = null) {
 		url,
 		locals,
 		cookies: {},
-		request: new Request(url),
+		request: new Request(url, { method: init.method ?? 'GET', headers: init.headers }),
 		redirect: (to: string, status = 302) =>
 			new Response(null, { status, headers: { Location: to } }),
 	} as unknown as APIContext;
@@ -288,6 +292,52 @@ describe('API administratora', () => {
 
 	it('API auth nie podlega guardowi admina', async () => {
 		const { next } = await run('/api/auth/sign-out', { role: 'editor' });
+		expect(next).toHaveBeenCalledOnce();
+	});
+});
+
+describe('CSRF mutacji panelu', () => {
+	const sameOrigin = { Origin: 'https://panel.test', Host: 'panel.test' };
+	const crossOrigin = { Origin: 'https://evil.example', Host: 'panel.test' };
+
+	it('odrzuca POST /api/posts bez Origin', async () => {
+		const { response, next } = await run(
+			'/api/posts/abc/save',
+			{ role: 'editor' },
+			{ method: 'POST' },
+		);
+		expect(response.status).toBe(403);
+		await expect(response.json()).resolves.toEqual({ ok: false, error: api.csrf });
+		expect(next).not.toHaveBeenCalled();
+	});
+
+	it('odrzuca POST /api/admin z obcego Origin', async () => {
+		const { response, next } = await run(
+			'/api/admin/posts',
+			{ role: 'admin', totp: [{ status: 'verified' }], aal: AAL2 },
+			{ method: 'POST', headers: crossOrigin },
+		);
+		expect(response.status).toBe(403);
+		await expect(response.json()).resolves.toEqual({ ok: false, error: api.csrf });
+		expect(next).not.toHaveBeenCalled();
+	});
+
+	it('przepuszcza POST /api/posts z własnego Origin', async () => {
+		const { next } = await run(
+			'/api/posts/abc/save',
+			{ role: 'editor' },
+			{ method: 'POST', headers: sameOrigin },
+		);
+		expect(next).toHaveBeenCalledOnce();
+	});
+
+	it('nie blokuje GET załącznika (proxy pliku)', async () => {
+		const { next } = await run('/api/posts/abc/assets/file-1/file', { role: 'editor' });
+		expect(next).toHaveBeenCalledOnce();
+	});
+
+	it('nie blokuje workera cron', async () => {
+		const { next } = await run('/api/worker/publish', null, { method: 'GET' });
 		expect(next).toHaveBeenCalledOnce();
 	});
 });

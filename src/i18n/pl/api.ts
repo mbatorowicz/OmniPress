@@ -1,4 +1,5 @@
 export const api = {
+	csrf: 'Żądanie z innej domeny zostało odrzucone.',
 	admin: {
 		forbidden: 'Brak uprawnień administratora.',
 		unauthorized: 'Niezalogowany',

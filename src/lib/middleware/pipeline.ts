@@ -16,6 +16,7 @@ import { resolveSupabaseUrl } from '@/lib/supabase/resolve-env';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { applySecurityHeaders } from '@/lib/security/headers';
 import { generateCspNonce } from '@/lib/security/nonce';
+import { isCrossOriginPost, isPanelMutationPath } from '@/lib/auth/origin';
 
 function withHeaders(response: Response, locals: App.Locals): Response {
 	const supabaseUrl = isSupabaseConfigured() ? resolveSupabaseUrl() : undefined;
@@ -38,6 +39,10 @@ export const runMiddlewarePipeline: MiddlewareHandler = async (context, next) =>
 	const pathname = url.pathname;
 
 	locals.cspNonce = generateCspNonce();
+
+	if (isPanelMutationPath(pathname) && isCrossOriginPost(context.request)) {
+		return withHeaders(jsonError(api.csrf, 403), locals);
+	}
 
 	const codeRedirect = authCodeRedirectTarget(url);
 	if (codeRedirect) {

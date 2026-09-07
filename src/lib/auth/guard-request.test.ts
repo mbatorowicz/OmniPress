@@ -43,8 +43,16 @@ describe('guardAuthMutationRequest — CSRF', () => {
 		expect(await guardAuthMutationRequest(post(sameOrigin), 'login')).toEqual({ ok: true });
 	});
 
-	it('przepuszcza POST bez nagłówka Origin (formularz bez JS)', async () => {
-		expect(await guardAuthMutationRequest(post(), 'login')).toEqual({ ok: true });
+	it('przepuszcza POST bez Origin przy Sec-Fetch-Site: same-origin', async () => {
+		expect(
+			await guardAuthMutationRequest(post({ 'Sec-Fetch-Site': 'same-origin' }), 'login'),
+		).toEqual({ ok: true });
+	});
+
+	it('odrzuca POST bez Origin i bez Sec-Fetch-Site', async () => {
+		const result = await guardAuthMutationRequest(post(), 'login');
+		expect(result.ok).toBe(false);
+		if (!result.ok) expect(result.status).toBe(403);
 	});
 
 	it('nie zużywa budżetu rate limitu na odrzuconym cross-origin', async () => {
@@ -70,10 +78,10 @@ describe('guardAuthMutationRequest — rate limit', () => {
 
 	it('liczy limit osobno dla każdej akcji', async () => {
 		for (let i = 0; i < AUTH_RATE_LIMIT_MAX; i++) {
-			await guardAuthMutationRequest(post(), 'login');
+			await guardAuthMutationRequest(post(sameOrigin), 'login');
 		}
-		expect((await guardAuthMutationRequest(post(), 'login')).ok).toBe(false);
-		expect((await guardAuthMutationRequest(post(), 'reset')).ok).toBe(true);
+		expect((await guardAuthMutationRequest(post(sameOrigin), 'login')).ok).toBe(false);
+		expect((await guardAuthMutationRequest(post(sameOrigin), 'reset')).ok).toBe(true);
 	});
 });
 

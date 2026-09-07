@@ -10,6 +10,7 @@ import {
 import { renderPendingGalleryCard } from '@/lib/editor/attachment-pending';
 import type { GalleryAsset } from './client-init';
 import { iconButtonHtml, stepButtonHtml } from '@/lib/ui/button-markup';
+import { isSafeUrl } from '@/lib/content/sanitize-url';
 
 export type GalleryLabels = AttachmentPanelLabels & {
 	cover: string;
@@ -23,24 +24,34 @@ function renderCard(ctx: AttachmentItemContext<GalleryAsset, GalleryLabels>): HT
 	const card = document.createElement('div');
 	card.className = 'ui-gallery-card';
 
-	const badge =
-		index === 0
-			? `<span class="ui-gallery-cover-badge">${labels.cover}</span>`
-			: `<span class="ui-gallery-badge-secondary">${labels.gallery}</span>`;
+	const badge = document.createElement('span');
+	badge.className = index === 0 ? 'ui-gallery-cover-badge' : 'ui-gallery-badge-secondary';
+	badge.textContent = index === 0 ? labels.cover : labels.gallery;
 
-	card.innerHTML = `
-			${badge}
-			<img src="${asset.url}" alt="${asset.filename}" class="aspect-[4/3] w-full object-cover" loading="lazy" />
-			<div class="ui-gallery-card-footer">
-				<span class="ui-hint truncate" title="${asset.filename}">${asset.filename}</span>
-				<div class="flex shrink-0 gap-1">
-					${stepButtonHtml({ ariaLabel: labels.moveUp, label: '↑', disabled: index === 0, attrs: { [attr('up')]: '' } })}
-					${stepButtonHtml({ ariaLabel: labels.moveDown, label: '↓', disabled: index === total - 1, attrs: { [attr('down')]: '' } })}
-					${iconButtonHtml({ variant: 'iconDanger', ariaLabel: labels.remove, icon: 'x', attrs: { [attr('remove')]: '' } })}
-				</div>
-			</div>
-		`;
+	const img = document.createElement('img');
+	if (isSafeUrl(asset.url)) img.src = asset.url;
+	img.alt = asset.filename;
+	img.className = 'aspect-[4/3] w-full object-cover';
+	img.loading = 'lazy';
 
+	const footer = document.createElement('div');
+	footer.className = 'ui-gallery-card-footer';
+
+	const name = document.createElement('span');
+	name.className = 'ui-hint truncate';
+	name.title = asset.filename;
+	name.textContent = asset.filename;
+
+	const actions = document.createElement('div');
+	actions.className = 'flex shrink-0 gap-1';
+	actions.innerHTML = `
+		${stepButtonHtml({ ariaLabel: labels.moveUp, label: '↑', disabled: index === 0, attrs: { [attr('up')]: '' } })}
+		${stepButtonHtml({ ariaLabel: labels.moveDown, label: '↓', disabled: index === total - 1, attrs: { [attr('down')]: '' } })}
+		${iconButtonHtml({ variant: 'iconDanger', ariaLabel: labels.remove, icon: 'x', attrs: { [attr('remove')]: '' } })}
+	`;
+
+	footer.append(name, actions);
+	card.append(badge, img, footer);
 	return card;
 }
 
