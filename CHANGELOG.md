@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Zmienione
+
+- **Układ dropdownu w menu** — hint w panelu opisuje to, co robi strona: przy 2 kolumnach pozycje idą od góry w lewej, potem w prawej; podpozycje pod rodzicem; widać po publikacji layoutu.
+
 ### Bezpieczeństwo
 
 - **S-4 — panel nie ufa nazwie pliku, obcemu Origin ani podłożonemu IP.** Nazwa i URL załącznika w galerii i na liście plików idą przez `textContent` / `isSafeUrl`, nie przez `innerHTML`. POST bez `Origin` (albo z obcym) jest odrzucany — wyjątek to `Sec-Fetch-Site: same-origin`. Middleware pilnuje `/api/posts/*` i `/api/admin/*`. Limit logowania bierze hop Vercel (`x-vercel-forwarded-for`), nie `x-real-ip` od klienta. Worker porównuje sekret stałoczasowo i nie oddaje `err.message` w JSON 500. Testy: `origin`, `guard-request`, `rate-limit`, `pipeline`, `api/worker`, `attachment-markup`.
