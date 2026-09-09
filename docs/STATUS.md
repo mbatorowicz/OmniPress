@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.12.1** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.13.0** (kod + baza + panel).
 
 Produkcja: https://omni-press.cncsolutions.dev
 
@@ -69,7 +69,8 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Użytkownicy: admini + redaktorzy (tworzenie z rolą, ustawienia konta, hasło, usuwanie) | ✅ `/admin/users`, `/admin/users/[id]` |
 | Uprawnienia redaktora (strony + domyślna); blokada: własne konto / ostatni admin | ✅ |
 | Usunięcie konta zostawia wpisy (autor: „konto usunięte”) | ✅ migracja `setup:author-on-delete` |
-| Kolejka: do akceptacji, zaplanowane (ze znacznikiem „Publikacja…”), na stronie | ✅ `/admin` |
+| Kolejka: do akceptacji, zaplanowane (ze znacznikiem „Publikacja…”), na stronie | ✅ `/admin` — odznaka z liczbą *pending* przy *Administracja* i *Kolejka wpisów* |
+| Powiadomienie Telegram po wysłaniu do akceptacji | ✅ opcjonalne `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`; awaria bota nie blokuje submitu |
 | Wszystkie wpisy redaktorów — także szkice i wpisy do poprawki; zakładki statusów z licznikami, filtr (tytuł, status, strona, autor), sortowanie kolumn (domyślnie data publikacji), stronicowanie po 25 | ✅ `/admin/posts` |
 | Akceptacja → kolejka publikacji GitHub (natychmiast lub o zaplanowanej godzinie) | ✅ |
 | Publikacja szkicu / wpisu do poprawki bez czekania na redaktora (`draft`, `rejected`, `pending`) | ✅ blokada, gdy brak tytułu lub kategorii |
@@ -189,6 +190,7 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | `ENCRYPTION_KEY` | tak (credentials) | Szyfrowanie tokenów GitHub/Vercel w bazie |
 | `VERCEL_TOKEN` | opcjonalnie | Globalny token do weryfikacji buildów (alternatywa: per destynacja) |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | opcjonalnie (prod zalecane) | Współdzielony rate limit auth między instancjami Vercel |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | opcjonalnie | Powiadomienie admina po *Wyślij do akceptacji* (BotFather) |
 
 ---
 
@@ -202,6 +204,12 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | SSO redaktorów | — |
 
 ---
+
+## 0.13.0 — Powiadomienie o wpisie do akceptacji
+
+- Redaktor wysyła szkic → administrator dostaje wiadomość na Telegram (tytuł, strona, autor, link do `/admin/posts/{id}`).
+- Bez tokenu submit działa jak wcześniej; odznaka w panelu i tak pokazuje liczbę oczekujących.
+- E-mail o akceptacji/odrzuceniu nadal poza zakresem.
 
 ## 0.12.0 — Dodatkowe kategorie wpisu
 

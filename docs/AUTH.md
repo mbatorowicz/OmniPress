@@ -54,7 +54,7 @@ sequenceDiagram
 | `src/lib/security/headers.ts` | Nagłówki bezpieczeństwa HTTP + CSP z nonce |
 | `src/lib/security/nonce.ts` | Generator nonce CSP |
 | `src/middleware.ts` | Cienki entrypoint → `lib/middleware/pipeline.ts` |
-| `src/lib/middleware/pipeline.ts` | Sesja SSR, guard tras HTML i `/api/admin/*` |
+| `src/lib/middleware/pipeline.ts` | Sesja SSR, guard tras HTML i `/api/admin/*`, `locals.pendingCount` (odznaka kolejki) |
 | `src/lib/api/guards.ts` | `guardAuthRedirect`, `guardAdminRedirect`, `guardAuthJson`, `guardAdminJson` |
 | `src/lib/api/response.ts` | `jsonOk`, `jsonError` — ujednolicony JSON |
 | `src/lib/api/worker.ts` | Autoryzacja cron (`CRON_SECRET`) |

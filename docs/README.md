@@ -29,6 +29,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) | Kroki naprawcze kontraktu (jak); kategorie 22–25 zamknięte |
 | [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md) | S-1–S-4 zamknięte; B-1–B-8 |
 | [ROLE_AGENT.md](./ROLE_AGENT.md) | Proces agenta AI |
+| [PLAN-POWIADOMIENIA.md](./PLAN-POWIADOMIENIA.md) | Plan: Telegram + odznaka przy wpisie do akceptacji |
 | [../CHANGELOG.md](../CHANGELOG.md) | Historia wydań |
 | [../README.md](../README.md) | Wejście do repo |
 

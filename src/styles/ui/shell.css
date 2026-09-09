@@ -6,7 +6,7 @@
 		@apply flex items-center gap-4 text-sm;
 	}
 	.ui-header-nav-link {
-		@apply rounded-md px-2 py-1 text-text-secondary hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2;
+		@apply inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-text-secondary hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2;
 	}
 	.ui-header-nav-link--active {
 		@apply bg-brand/10 font-medium text-brand;

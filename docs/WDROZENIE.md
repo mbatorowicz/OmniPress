@@ -108,8 +108,19 @@ Panel OmniPress ostrzega przy teście kanału, gdy wykryje classic PAT, i pokazu
 | `ENCRYPTION_KEY` | Szyfrowanie tokenów GitHub/Vercel (base64, 32 bajty) |
 | `VERCEL_TOKEN` | Opcjonalnie — weryfikacja buildu strony Astro |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Opcjonalnie (zalecane prod) — współdzielony rate limit auth |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Opcjonalnie — powiadomienie admina po *Wyślij do akceptacji* |
 
 Bez `ENCRYPTION_KEY`: konfiguracja jednostki zapisze się, ale **tokeny nie** (tylko dev).
+
+### Telegram (powiadomienie o kolejce)
+
+Bez tych zmiennych wysłanie wpisu działa jak dotychczas; odznaka w panelu i tak pokazuje liczbę oczekujących.
+
+1. W Telegramie otwórz [@BotFather](https://t.me/BotFather) → `/newbot` → nazwa i nazwa użytkownika bota.
+2. Skopiuj token (`TELEGRAM_BOT_TOKEN`).
+3. Napisz do bota dowolną wiadomość (czat prywatny) albo dodaj bota do grupy administratorów.
+4. `TELEGRAM_CHAT_ID`: po wiadomości do bota wejdź na `https://api.telegram.org/bot<TOKEN>/getUpdates` i odczytaj `message.chat.id` (dla grupy bywa ujemne).
+5. Agent dopisuje zmienne na Vercel (Production) i robi deploy.
 
 Cron: `vercel.json` → worker raz dziennie (backup). Publikacja startuje też **od razu po akceptacji**.
 

@@ -1,6 +1,12 @@
 ---
+import PendingCountBadge from '@/components/shell/PendingCountBadge.astro';
 import { layout } from '@/i18n';
 
+interface Props {
+	pendingCount?: number;
+}
+
+const { pendingCount = 0 } = Astro.props;
 const pathname = Astro.url.pathname;
 const nav = layout.sidebar;
 
@@ -8,6 +14,8 @@ type SidebarLink = {
 	href: string;
 	label: string;
 	active: boolean;
+	badge?: number;
+	ariaLabel?: string;
 };
 
 const links: SidebarLink[] = [
@@ -15,6 +23,8 @@ const links: SidebarLink[] = [
 		href: '/admin',
 		label: nav.queue,
 		active: pathname === '/admin',
+		badge: pendingCount,
+		ariaLabel: pendingCount > 0 ? layout.aria.queuePending(pendingCount) : undefined,
 	},
 	{
 		href: '/admin/posts',
@@ -42,8 +52,10 @@ const links: SidebarLink[] = [
 					href={link.href}
 					class:list={['ui-sidebar-link', link.active && 'ui-sidebar-link--active']}
 					aria-current={link.active ? 'page' : undefined}
+					aria-label={link.ariaLabel}
 				>
 					{link.label}
+					{link.badge != null && <PendingCountBadge count={link.badge} />}
 				</a>
 			))
 		}

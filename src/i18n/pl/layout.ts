@@ -35,5 +35,7 @@ export const layout = {
 		breadcrumbs: 'Okruszki nawigacyjne',
 		adminContext: 'Kontekst strony',
 		queueSections: 'Sekcje kolejki wpisów',
+		adminPending: (n: number) => `Administracja, do akceptacji: ${n}`,
+		queuePending: (n: number) => `Kolejka wpisów, do akceptacji: ${n}`,
 	},
 } as const;

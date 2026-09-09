@@ -21,3 +21,4 @@ export { adminUsers } from './admin-users';
 export { api, formatUploadError } from './api';
 export { home } from './home';
 export { callbackPage } from './callback';
+export { notify } from './notify';

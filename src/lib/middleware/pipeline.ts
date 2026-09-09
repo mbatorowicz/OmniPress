@@ -17,6 +17,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { applySecurityHeaders } from '@/lib/security/headers';
 import { generateCspNonce } from '@/lib/security/nonce';
 import { isCrossOriginPost, isPanelMutationPath } from '@/lib/auth/origin';
+import { countPendingPosts } from '@/lib/admin/pending-count';
 
 function withHeaders(response: Response, locals: App.Locals): Response {
 	const supabaseUrl = isSupabaseConfigured() ? resolveSupabaseUrl() : undefined;
@@ -39,6 +40,7 @@ export const runMiddlewarePipeline: MiddlewareHandler = async (context, next) =>
 	const pathname = url.pathname;
 
 	locals.cspNonce = generateCspNonce();
+	locals.pendingCount = 0;
 
 	if (isPanelMutationPath(pathname) && isCrossOriginPost(context.request)) {
 		return withHeaders(jsonError(api.csrf, 403), locals);
@@ -109,6 +111,12 @@ export const runMiddlewarePipeline: MiddlewareHandler = async (context, next) =>
 		if (await enforceAdminMfa(supabase, pathname)) {
 			return withHeaders(jsonError(api.admin.mfaRequired, 403), locals);
 		}
+	}
+
+	const wantsBadge =
+		pathname.startsWith('/admin') || pathname.startsWith('/dashboard');
+	if (user && locals.profile?.role === 'admin' && wantsBadge) {
+		locals.pendingCount = await countPendingPosts(supabase);
 	}
 
 	return withHeaders(await next(), locals);

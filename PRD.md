@@ -56,7 +56,7 @@ stateDiagram-v2
 
 **Redaktor** — własne wpisy na przypisanych stronach; bez widoku tokenów i cudzych szkiców.
 
-**Administrator** — jednostki, redaktorzy, akceptacja, import z GitHub, layout, dezaktywacja/usuwanie na stronie.
+**Administrator** — jednostki, redaktorzy, akceptacja, import z GitHub, layout, dezaktywacja/usuwanie na stronie. Po *Wyślij do akceptacji* dostaje sygnał na Telegram (gdy bot jest skonfigurowany) i widzi liczbę oczekujących w panelu.
 
 ---
 
@@ -68,4 +68,4 @@ Astro SSR · Tailwind · Supabase · Vercel · TipTap · GitHub API
 
 ## Poza zakresem (obecnie)
 
-Powiadomienia e-mail, MFA admina, audit log, SSO, wersjonowanie treści (`post_revisions`).
+Powiadomienia e-mail (akceptacja/odrzucenie do redaktora), audit log, SSO, wersjonowanie treści (`post_revisions`).

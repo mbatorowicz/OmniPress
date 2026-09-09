@@ -19,6 +19,8 @@ interface ImportMetaEnv {
 	readonly VERCEL_TOKEN?: string;
 	readonly UPSTASH_REDIS_REST_URL?: string;
 	readonly UPSTASH_REDIS_REST_TOKEN?: string;
+	readonly TELEGRAM_BOT_TOKEN?: string;
+	readonly TELEGRAM_CHAT_ID?: string;
 }
 
 interface ImportMeta {

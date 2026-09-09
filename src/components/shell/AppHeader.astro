@@ -1,13 +1,20 @@
 ---
 import Button from '@/components/ui/actions/Button.astro';
+import PendingCountBadge from '@/components/shell/PendingCountBadge.astro';
 import { common, layout } from '@/i18n';
 
+interface Props {
+	pendingCount?: number;
+}
+
+const { pendingCount = 0 } = Astro.props;
 const profile = Astro.locals.profile;
 const pathname = Astro.url.pathname;
 const isAdmin = profile?.role === 'admin';
 const adminActive = pathname.startsWith('/admin');
 const helpActive = pathname === '/dashboard/help';
 const panelActive = pathname.startsWith('/dashboard') && !helpActive;
+const adminLabel = pendingCount > 0 ? layout.aria.adminPending(pendingCount) : undefined;
 ---
 
 <header class="ui-app-header">
@@ -21,8 +28,10 @@ const panelActive = pathname.startsWith('/dashboard') && !helpActive;
 							href="/admin"
 							class:list={['ui-header-nav-link', adminActive && 'ui-header-nav-link--active']}
 							aria-current={adminActive ? 'page' : undefined}
+							aria-label={adminLabel}
 						>
 							{layout.navAdmin}
+							<PendingCountBadge count={pendingCount} />
 						</a>
 					)}
 					<a

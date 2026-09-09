@@ -11,6 +11,8 @@ declare global {
 			user: User | null;
 			profile: Profile | null;
 			cspNonce: string;
+			/** Liczba wpisów `pending` — odznaka w panelu (tylko admin). */
+			pendingCount: number;
 		}
 	}
 }

@@ -4,6 +4,7 @@ import { loadSubmittablePost, parseExtraCategorySlugs, resolvePostCategoryFields
 import { combineScheduleDateHour, parseScheduledPublishAtInput } from '@/lib/posts/scheduled-publish';
 import { loadFirstPublishedAt, resolveSavedPublishAt } from '@/lib/publish/publish-date';
 import { prepareStorageMarkdown } from '@/lib/content/prepare-markdown';
+import { notifyPostSubmitted } from '@/lib/notify/review';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const postId = params.id;
@@ -80,6 +81,13 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	if (error) {
 		return redirectPostError(redirect, editorPath, 'submit_failed');
 	}
+
+	await notifyPostSubmitted(supabase, {
+		id: postId,
+		title,
+		site_id: post.site_id,
+		author_id: post.author_id,
+	});
 
 	return redirect(submittedPath);
 };

@@ -24,6 +24,7 @@ type SessionOptions = {
 	role?: UserRole;
 	totp?: Factor[];
 	aal?: Aal;
+	pendingCount?: number;
 };
 
 const AAL2: Aal = { currentLevel: 'aal2', nextLevel: 'aal2' };
@@ -53,16 +54,28 @@ function fakeClient(options: SessionOptions | null): SupabaseClient {
 				getAuthenticatorAssuranceLevel: async () => ({ data: options?.aal ?? AAL2 }),
 			},
 		},
-		from: () => ({
-			select: () => ({
-				eq: () => ({
-					maybeSingle: async () => ({
-						data: options ? profileOf(options.role ?? 'editor') : null,
-						error: null,
+		from: (table: string) => {
+			if (table === 'posts') {
+				const result = { data: null, error: null, count: options?.pendingCount ?? 0 };
+				const query: Record<string, unknown> = {
+					select: () => query,
+					eq: () => query,
+					then: (onOk?: (value: unknown) => unknown, onErr?: (reason: unknown) => unknown) =>
+						Promise.resolve(result).then(onOk, onErr),
+				};
+				return query;
+			}
+			return {
+				select: () => ({
+					eq: () => ({
+						maybeSingle: async () => ({
+							data: options ? profileOf(options.role ?? 'editor') : null,
+							error: null,
+						}),
 					}),
 				}),
-			}),
-		}),
+			};
+		},
 	} as unknown as SupabaseClient;
 }
 
@@ -354,5 +367,26 @@ describe('locals', () => {
 		const { locals } = await run('/login');
 		expect(locals.user).toBeNull();
 		expect(locals.profile).toBeNull();
+		expect(locals.pendingCount).toBe(0);
+	});
+
+	it('redaktor nie dostaje licznika pending', async () => {
+		const { locals } = await run('/dashboard', { role: 'editor', pendingCount: 4 });
+		expect(locals.pendingCount).toBe(0);
+	});
+
+	it('admin na panelu dostaje liczbę oczekujących', async () => {
+		const { locals } = await run('/dashboard', {
+			role: 'admin',
+			totp: [{ status: 'verified' }],
+			aal: AAL2,
+			pendingCount: 4,
+		});
+		expect(locals.pendingCount).toBe(4);
+	});
+
+	it('admin na API nie woła licznika (zostaje 0)', async () => {
+		const { locals } = await run('/api/admin/posts/bulk', { role: 'admin', pendingCount: 4 });
+		expect(locals.pendingCount).toBe(0);
 	});
 });

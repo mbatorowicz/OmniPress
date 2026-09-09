@@ -8,8 +8,8 @@ Operacyjny przewodnik po panelu OmniPress. Stan funkcji: [STATUS.md](./STATUS.md
 
 ## 0. Nawigacja panelu
 
-- **Nagłówek** (u góry): przyciski *Administracja* (`/admin`) i *Panel treści* (`/dashboard`) — lewe menu zależy od wyboru (panel treści nie ma sidebar).
-- **Sidebar** (tylko w `/admin/*`, po lewej): *Kolejka wpisów* (`/admin`), *Wszystkie wpisy* (`/admin/posts`), *Strony* (`/admin/sites`), *Użytkownicy* (`/admin/users`). Na mobile — pozioma belka nad treścią.
+- **Nagłówek** (u góry): przyciski *Administracja* (`/admin`) i *Panel treści* (`/dashboard`) — lewe menu zależy od wyboru (panel treści nie ma sidebar). Gdy czekają wpisy do akceptacji, przy *Administracja* widać ich liczbę (także z `/dashboard`).
+- **Sidebar** (tylko w `/admin/*`, po lewej): *Kolejka wpisów* (`/admin`), *Wszystkie wpisy* (`/admin/posts`), *Strony* (`/admin/sites`), *Użytkownicy* (`/admin/users`). Na mobile — pozioma belka nad treścią. Przy *Kolejka wpisów* ta sama liczba oczekujących.
 - **Breadcrumby** na każdej podstronie pokazują ścieżkę (np. `Administracja / Strony / UG Miedzna / Strony statyczne`).
 - W kontekście strony (`/admin/units/[id]/*`) zakładki pogrupowane:
   - **Wygląd strony:** *Menu* (`/navigation`), *Kategorie* (`/posts#categories`), *Komponenty* (`/components`)
@@ -18,6 +18,7 @@ Operacyjny przewodnik po panelu OmniPress. Stan funkcji: [STATUS.md](./STATUS.md
 - Stare trasy `/admin/units/[id]/layout` → *Menu*, `/admin/units/[id]/publish` → *Ustawienia* (301).
 - `/admin/posts` to pełna lista wpisów wszystkich redaktorów (także szkiców) z filtrami — patrz §5.1.
 - `/admin` to wyłącznie kolejka wpisów — sekcje (*Do akceptacji*, *Zaplanowane / w publikacji*, *Na stronie*) mają u góry ścieżkę workflow i liczniki; wpisy w trakcie publikacji są w sekcji *Zaplanowane* ze znacznikiem **Publikacja…**; z listy można szybko zaakceptować; import z GitHub jest zwijaną sekcją na dole.
+- **Sygnał o nowym wpisie do akceptacji:** odznaka z liczbą w nagłówku i sidebarze (zawsze, gdy `count > 0`) oraz wiadomość Telegram z tytułem i linkiem do recenzji — gdy skonfigurowano bota ([WDROZENIE.md](./WDROZENIE.md)). E-mail do redaktora o akceptacji/odrzuceniu w tej wersji nie wychodzi.
 
 ---
 
@@ -175,6 +176,7 @@ Model **szkic + auto-pull + jawna publikacja**: edycja zapisuje roboczy stan w S
 | Brak kategorii w edytorze | *Wpisy* jednostki → kategorie + publikacja do `omnipress-layout.json` |
 | Credentials nie zapisują się | Ustaw `ENCRYPTION_KEY` na Vercel |
 | Worker nie działa | Vercel: `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, redeploy |
+| Brak wiadomości Telegram po submitcie | Token i chat z [WDROZENIE.md](./WDROZENIE.md); odznaka w panelu działa bez bota |
 
 ---
 

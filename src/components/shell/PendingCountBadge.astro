@@ -1,0 +1,15 @@
+---
+interface Props {
+	count: number;
+}
+
+const { count } = Astro.props;
+---
+
+{
+	count > 0 && (
+		<span class="ui-pending-count" aria-hidden="true">
+			{count}
+		</span>
+	)
+}

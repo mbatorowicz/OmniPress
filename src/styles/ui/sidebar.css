@@ -15,7 +15,7 @@
 		@apply hidden w-full px-3 pb-1 pt-4 text-xs font-semibold uppercase tracking-wide text-text-subtle first:pt-0 lg:block;
 	}
 	.ui-sidebar-link {
-		@apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 rounded-md px-3 py-2 text-sm text-text-secondary hover:bg-brand/5 hover:text-brand;
+		@apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm text-text-secondary hover:bg-brand/5 hover:text-brand;
 	}
 	.ui-sidebar-link--active {
 		@apply bg-brand/10 font-medium text-brand;

@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { adminReview } from '@/i18n/pl/admin-review';
 import { dashboard } from '@/i18n/pl/dashboard';
+import { layout } from '@/i18n/pl/layout';
 import { posts } from '@/i18n/pl/posts';
 import { deletePostAsAdmin } from './helpers/posts';
 
@@ -30,8 +31,21 @@ test.describe('korekta wpisu przez administratora', () => {
 			expect(submitted.status()).toBe(302);
 			expect(submitted.headers()['location']).toContain('submitted=1');
 
+			await page.goto('/dashboard');
+			await expect(
+				page.getByRole('navigation', { name: layout.aria.mainNav }).getByRole('link', {
+					name: new RegExp(`^${layout.navAdmin},`),
+				}),
+			).toBeVisible();
+
 			await page.goto(`/admin/posts/${postId}`);
 			await expect(page.getByText(posts.status.pending).first()).toBeVisible();
+
+			await expect(
+				page.getByRole('navigation', { name: layout.aria.sidebarNav }).getByRole('link', {
+					name: new RegExp(`^${layout.sidebar.queue},`),
+				}),
+			).toBeVisible();
 
 			await page.getByRole('link', { name: adminReview.edit }).click();
 			await page.waitForURL(new RegExp(`/admin/posts/${postId}/edit$`));

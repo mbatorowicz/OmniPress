@@ -20,4 +20,7 @@
 	.ui-badge--rejected {
 		@apply bg-red-100 text-danger-text;
 	}
+	.ui-pending-count {
+		@apply inline-flex min-w-5 items-center justify-center rounded-full bg-amber-100 px-1.5 py-0.5 text-xs font-semibold tabular-nums text-amber-900;
+	}
 }
