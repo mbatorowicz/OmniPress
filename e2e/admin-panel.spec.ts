@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { admin } from '@/i18n/pl/admin';
+import { adminLayout } from '@/i18n/pl/admin-layout';
 import { adminSites, adminUnit } from '@/i18n/pl/admin-panels';
 import { adminUsers } from '@/i18n/pl/admin-users';
 import { dashboard } from '@/i18n/pl/dashboard';
@@ -51,6 +52,32 @@ test.describe('panel administratora', () => {
 		await page.goto('/admin/units/new');
 		await expect(page.getByRole('heading', { name: adminUnit.title })).toBeVisible();
 		await expect(page.getByRole('button', { name: adminUnit.actions.create })).toBeVisible();
+	});
+
+	test('pasek zgodności ze stroną ma jasny stan bez żargonu', async ({ page }) => {
+		await page.goto('/admin/sites');
+		await expect(page.getByRole('heading', { name: adminSites.title })).toBeVisible();
+		await page
+			.getByRole('link')
+			.filter({ hasNotText: adminSites.addTile })
+			.filter({ has: page.locator('.ui-tile-title') })
+			.first()
+			.click();
+
+		await expect(page.getByText(adminLayout.syncBar.parityTitle)).toBeVisible();
+		await expect(
+			page
+				.getByText(adminLayout.syncBar.inSyncCombined)
+				.or(page.getByText(adminLayout.syncBar.draftAheadCombined))
+				.or(page.getByText(adminLayout.syncBar.liveAheadCombined)),
+		).toBeVisible();
+		await expect(page.getByText('src/config/omnipress-layout.json')).toHaveCount(0);
+
+		const liveAhead = await page.getByText(adminLayout.syncBar.liveAheadCombined).count();
+		if (liveAhead > 0) {
+			await expect(page.getByRole('button', { name: adminLayout.syncBar.pullFromSite })).toBeVisible();
+			await expect(page.getByRole('button', { name: adminLayout.syncBar.publishAllLayout })).toHaveCount(0);
+		}
 	});
 
 	test('/dashboard dostępny dla admina (tworzenie wpisów)', async ({ page }) => {
