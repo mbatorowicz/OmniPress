@@ -131,7 +131,7 @@ const layoutText = {
 	menuJsonFallbackHint:
 		'Wklej pełną tablicę JSON zamiast wierszy powyżej — nadpisuje drzewo przy zapisie.',
 	navMenuColumnsHint:
-		'Szerokość każdej kolumny na stronie (np. 300px). Przy 2 kolumnach pozycje wypełniają najpierw lewą kolumnę od góry, potem prawą. Podpozycje widać pod rodzicem — dopiero po publikacji layoutu.',
+		'Szerokość każdej kolumny na stronie (np. 300px). Przy 2 kolumnach pozycje wypełniają najpierw lewą kolumnę od góry, potem prawą. Podpozycje rozwijają się strzałką w bok — widać po publikacji layoutu.',
 	navMenuColumnWidthPlaceholder: 'np. 320px',
 	navMenuColumnWidth2Placeholder: 'np. 1fr',
 	categoriesSlugWarning: 'Zmiana slug nie aktualizuje URL-i już opublikowanych wpisów — wymagają republikacji.',

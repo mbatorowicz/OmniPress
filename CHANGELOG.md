@@ -7,7 +7,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Zmienione
 
-- **Układ dropdownu w menu** — hint w panelu opisuje to, co robi strona: przy 2 kolumnach pozycje idą od góry w lewej, potem w prawej; podpozycje pod rodzicem; widać po publikacji layoutu.
+- **Układ dropdownu w menu** — hint w panelu: przy 2 kolumnach pozycje idą od góry w lewej, potem w prawej; podpozycje rozwijają się strzałką w bok; widać po publikacji layoutu.
 
 ### Bezpieczeństwo
 
