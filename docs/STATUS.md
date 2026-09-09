@@ -191,7 +191,7 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | `ENCRYPTION_KEY` | tak (credentials) | Szyfrowanie tokenów GitHub/Vercel w bazie |
 | `VERCEL_TOKEN` | opcjonalnie | Globalny token do weryfikacji buildów (alternatywa: per destynacja) |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | opcjonalnie (prod zalecane) | Współdzielony rate limit auth między instancjami Vercel |
-| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | opcjonalnie | Powiadomienie i przycisk *Akceptuj* w Telegramie (BotFather); webhook: `setup:telegram-webhook` |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | opcjonalnie | Powiadomienie i przycisk *Akceptuj* w Telegramie (BotFather); webhook: `setup:telegram-webhook`; zdjęcie profilu: `setup:telegram-photo` |
 
 ---
 

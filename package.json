@@ -44,6 +44,7 @@
     "setup:auth-rate-limits": "node scripts/apply-migration.mjs supabase/migrations/20250707000000_auth_rate_limits.sql",
     "setup:auth-mfa": "node scripts/setup-auth-mfa.mjs",
     "setup:telegram-webhook": "node scripts/setup-telegram-webhook.mjs",
+    "setup:telegram-photo": "node scripts/setup-telegram-photo.mjs",
     "verify:auth-rate-limits": "node scripts/verify-rate-limits.mjs",
     "verify:auth-mfa": "node scripts/verify-mfa-enabled.mjs",
     "env:pull": "vercel env pull .env.local --yes",

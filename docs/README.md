@@ -53,6 +53,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | `setup:auth-urls` | Site URL Supabase Auth |
 | `setup:auth-mfa` | Włączenie MFA TOTP w Supabase Auth |
 | `setup:telegram-webhook` | Webhook bota — przycisk Akceptuj w Telegramie |
+| `setup:telegram-photo` | Zdjęcie profilu bota (znak OmniPress) |
 | `setup:storage` | Bucket assetów wpisów |
 | `setup:storage-pdf` | PDF w bucket |
 | `setup:storage-docx` | DOCX w bucket |

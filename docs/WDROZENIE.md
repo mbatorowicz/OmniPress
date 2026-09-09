@@ -122,6 +122,7 @@ Bez tych zmiennych wysłanie wpisu działa jak dotychczas; odznaka w panelu i ta
 4. `TELEGRAM_CHAT_ID`: po wiadomości do bota wejdź na `https://api.telegram.org/bot<TOKEN>/getUpdates` i odczytaj `message.chat.id` (dla grupy bywa ujemne).
 5. Agent dopisuje zmienne na Vercel (Production) i robi deploy.
 6. `npm run setup:telegram-webhook` — rejestruje `POST /api/telegram/webhook` (przycisk *Akceptuj*). Sekret webhooka to HMAC tokenu bota, bez osobnej zmiennej.
+7. `npm run setup:telegram-photo` — wgrywa znak OmniPress jako zdjęcie profilu bota (`public/brand/telegram-profile.jpg`). Ten sam znak jest faviconą panelu.
 
 Przycisk *Akceptuj* publikuje wpis `pending` tak samo jak panel. *Odrzuć* i przypięcie — w panelu (*Otwórz w panelu*).
 
