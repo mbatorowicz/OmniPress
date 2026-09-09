@@ -27,7 +27,6 @@ export function tryLayoutEditorNavMissingHref(
 export function buildLayoutEditorIdleStatus(
 	input: LayoutEditorStatusInput,
 	messages: LayoutEditorStatusMessages,
-	dates: LayoutEditorStatusDates,
 ): LayoutEditorStatusView {
 	if (!input.hasAstroChannel) {
 		return {
@@ -35,51 +34,6 @@ export function buildLayoutEditorIdleStatus(
 			variant: 'warning',
 			title: messages.noAstroChannel,
 			metaLines: [],
-			showNavIssues: false,
-			navWarningLines: input.navWarningLines,
-			navHasMissingHref: false,
-		};
-	}
-
-	if (input.draftStatus === 'live_ahead') {
-		return {
-			show: true,
-			variant: 'warning',
-			title: messages.liveAhead,
-			metaLines: joinLayoutStatusMeta([
-				dates.draftLabel ? `${messages.lastDraft} ${dates.draftLabel}` : null,
-				dates.publishedMeta,
-			]),
-			showNavIssues: false,
-			navWarningLines: input.navWarningLines,
-			navHasMissingHref: false,
-		};
-	}
-
-	if (input.draftStatus === 'draft_ahead') {
-		return {
-			show: true,
-			variant: 'warning',
-			title: messages.draftAhead,
-			metaLines: joinLayoutStatusMeta([
-				dates.draftLabel ? `${messages.lastDraft} ${dates.draftLabel}` : null,
-				dates.publishedMeta,
-			]),
-			showNavIssues: false,
-			navWarningLines: input.navWarningLines,
-			navHasMissingHref: false,
-		};
-	}
-
-	if (input.draftStatus === 'in_sync') {
-		return {
-			show: true,
-			variant: 'success',
-			title: messages.inSync,
-			metaLines: joinLayoutStatusMeta([
-				dates.draftLabel ? `${messages.lastDraft} ${dates.draftLabel}` : null,
-				dates.publishedMeta,
-			]),
 			showNavIssues: false,
 			navWarningLines: input.navWarningLines,
 			navHasMissingHref: false,

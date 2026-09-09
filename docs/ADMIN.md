@@ -145,7 +145,17 @@ e-maili w tej wersji), więc przy większych zmianach uprzedź go poza systemem.
 
 ## 6. Wygląd strony, sync i bulk
 
-Model **szkic + auto-pull + jawna publikacja**: edycja zapisuje roboczy stan w Supabase; strona live czyta pliki z GitHub. Przy wejściu na panel Omni **sam** wczytuje zmiany z `origin/main`, gdy nie masz niewysłanych poprawek. Publikacja na stronę wymaga kliknięcia **Opublikuj na stronie**.
+Model **szkic + auto-wczytanie + jawna publikacja**: edycja zapisuje roboczy stan w panelu; strona gminy czyta plik z GitHub. Przy wejściu Omni **sam** wczytuje układ ze strony, gdy nie masz niewysłanych poprawek.
+
+Pasek **Zgodność ze stroną**:
+
+| Stan | Znaczenie | Co robić |
+|------|-----------|----------|
+| Panel i strona są zgodne | Formularz = strona | Nic |
+| Zmiany jeszcze nie są na stronie | Masz szkic | Zapisz formularz, potem **Opublikuj na stronie** |
+| Strona ma nowszą wersję | Strona poszła do przodu, szkic bez lokalnych zmian | **Wczytaj ze strony** (nie publikuj — to by nadpisało stronę) |
+
+Publikacja na stronę wymaga kliknięcia **Opublikuj na stronie**.
 
 | Akcja | Supabase (szkic) | GitHub | Vercel |
 |-------|------------------|--------|--------|

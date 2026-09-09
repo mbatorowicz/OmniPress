@@ -3,10 +3,7 @@ import { buildLayoutEditorStatus, type LayoutEditorStatusMessages } from './layo
 
 const messages: LayoutEditorStatusMessages = {
 	draftMissingHref: 'Brak linków',
-	inSync: 'Menu zgodne ze stroną live',
-	inSyncShort: 'zgodne ze stroną live',
-	draftAhead: 'Nieopublikowane zmiany',
-	liveAhead: 'Strona zmieniona poza OmniPress',
+	inSyncShort: 'zgodne ze stroną',
 	draftAheadShort: 'wymaga publikacji',
 	lastPublished: 'Publikacja',
 	lastDraft: 'Zapis szkicu',
@@ -46,7 +43,7 @@ describe('buildLayoutEditorStatus', () => {
 		expect(view.variant).toBe('success');
 		expect(view.title).toBe('Menu wczytane z GitHub');
 		expect(view.metaLines[0]).toContain('32 linków');
-		expect(view.metaLines[0]).toContain('zgodne ze stroną live');
+		expect(view.metaLines[0]).toContain('zgodne ze stroną');
 		expect(view.metaLines).toHaveLength(1);
 	});
 
@@ -81,7 +78,7 @@ describe('buildLayoutEditorStatus', () => {
 		expect(view.metaLines[0]).toContain('wymaga publikacji');
 	});
 
-	it('pokazuje spokojny status gdy brak akcji flash', () => {
+	it('nie dubluje paska zgodności gdy brak akcji flash', () => {
 		const view = buildLayoutEditorStatus(
 			{
 				hasAstroChannel: true,
@@ -93,7 +90,19 @@ describe('buildLayoutEditorStatus', () => {
 			messages,
 		);
 
-		expect(view.variant).toBe('success');
-		expect(view.title).toBe('Menu zgodne ze stroną live');
+		expect(view.show).toBe(false);
+	});
+
+	it('nie dubluje paska przy nowszej stronie', () => {
+		const view = buildLayoutEditorStatus(
+			{
+				hasAstroChannel: true,
+				draftStatus: 'live_ahead',
+				navHasMissingHref: false,
+				navWarningLines: [],
+			},
+			messages,
+		);
+		expect(view.show).toBe(false);
 	});
 });

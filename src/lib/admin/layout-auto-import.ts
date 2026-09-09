@@ -1,9 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import {
-	hashCategoriesLayout,
-	hashLayoutFile,
-	hashNavigationLayout,
-} from '@/lib/astro-layout/layout-sync-meta.server';
+import { hashLayoutFile } from '@/lib/astro-layout/layout-sync-meta.server';
 import {
 	fetchLiveLayoutFingerprint,
 	importSiteAstroLayoutFromGitHub,
@@ -25,23 +21,24 @@ export type LayoutAutoImportResult = {
 };
 
 export type LayoutAutoImportHashes = {
-	draftNavHash: string;
-	draftCategoriesHash: string;
-	liveNavHash?: string | null;
-	liveCategoriesHash?: string | null;
-	publishedNavHash?: string;
-	publishedCategoriesHash?: string;
+	draftHash: string;
+	liveHash?: string | null;
+	publishedHash?: string;
 };
+
+function isEmptyLayout(layout: SiteAstroLayout): boolean {
+	return (
+		layout.navigation.length === 0 &&
+		layout.categories.length === 0 &&
+		layout.slots.length === 0
+	);
+}
 
 export function shouldAutoImportLayoutFromGitHub(
 	layout: SiteAstroLayout,
 	options: { draftHrefCount: number; hashes: LayoutAutoImportHashes },
 ): boolean {
-	const emptyLayout =
-		layout.navigation.length === 0 &&
-		layout.categories.length === 0 &&
-		layout.slots.length === 0;
-	if (emptyLayout) return true;
+	if (isEmptyLayout(layout)) return true;
 
 	if (
 		layout.navigation.length > 0 &&
@@ -51,26 +48,10 @@ export function shouldAutoImportLayoutFromGitHub(
 		return true;
 	}
 
-	const {
-		draftNavHash,
-		draftCategoriesHash,
-		liveNavHash,
-		liveCategoriesHash,
-		publishedNavHash,
-		publishedCategoriesHash,
-	} = options.hashes;
-
-	const liveDiffers =
-		(Boolean(liveNavHash) && draftNavHash !== liveNavHash) ||
-		(Boolean(liveCategoriesHash) && draftCategoriesHash !== liveCategoriesHash);
-
-	const localEditsAhead =
-		(Boolean(publishedNavHash) && draftNavHash !== publishedNavHash) ||
-		(Boolean(publishedCategoriesHash) && draftCategoriesHash !== publishedCategoriesHash);
-
-	if (liveDiffers && !localEditsAhead) return true;
-
-	return false;
+	const { draftHash, liveHash, publishedHash } = options.hashes;
+	const liveDiffers = Boolean(liveHash) && draftHash !== liveHash;
+	const localEditsAhead = Boolean(publishedHash) && draftHash !== publishedHash;
+	return liveDiffers && !localEditsAhead;
 }
 
 export async function ensureLayoutFromGitHub(
@@ -100,19 +81,10 @@ export async function ensureLayoutFromGitHub(
 		return { layout, imported: false };
 	}
 
-	const liveHashes = liveFingerprint?.layoutHash
-		? {
-				navHash: liveFingerprint.layoutHash,
-				categoriesHash: liveFingerprint.layoutHash,
-			}
-		: null;
 	const hashes: LayoutAutoImportHashes = {
-		draftNavHash: hashNavigationLayout(layout.navigation),
-		draftCategoriesHash: hashCategoriesLayout(layout),
-		liveNavHash: liveHashes?.navHash,
-		liveCategoriesHash: liveHashes?.categoriesHash,
-		publishedNavHash: layout.sync?.publishedNavHash,
-		publishedCategoriesHash: layout.sync?.publishedCategoriesHash,
+		draftHash,
+		liveHash: liveFingerprint?.layoutHash,
+		publishedHash,
 	};
 
 	if (!shouldAutoImportLayoutFromGitHub(layout, { draftHrefCount, hashes })) {

@@ -31,7 +31,7 @@ export const adminSitePages = {
 	sync: {
 		inSync: 'Zgodna ze stroną',
 		draftAhead: 'Szkic nowszy niż strona',
-		liveAhead: 'Strona zmieniona poza OmniPress',
+		liveAhead: 'Strona ma nowszą wersję',
 		unknown: 'Status względem GitHub nieznany',
 	},
 	errors: {

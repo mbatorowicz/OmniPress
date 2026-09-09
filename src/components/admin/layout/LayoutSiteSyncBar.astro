@@ -5,20 +5,18 @@ import Panel from '@/components/ui/layout/Panel.astro';
 import type { DraftLiveStatus } from '@/lib/astro-layout/layout-sync-meta';
 import type { LayoutContract } from '@/lib/astro-layout/types';
 import type { LayoutEditorSection } from '@/lib/admin/layout-editor-context';
-import { formatLayoutStatusDate } from '@/lib/admin/layout-editor-status';
+import {
+	buildLayoutSyncBarView,
+} from '@/lib/admin/layout-sync-bar-view';
+import { layoutSyncBarMessagesFromI18n } from '@/lib/admin/layout-sync-bar-i18n';
 
 interface Props {
 	siteId: string;
 	hasAstroChannel: boolean;
 	currentSection: LayoutEditorSection;
 	combinedDraftStatus: DraftLiveStatus;
-	navDraftStatus: DraftLiveStatus;
-	categoriesDraftStatus: DraftLiveStatus;
 	navHasMissingHref?: boolean;
-	lastPublishedAt?: string;
-	lastPublishedSha?: string;
 	lastDraftSavedAt?: string;
-	layoutFilePath?: string;
 	layoutContract?: LayoutContract;
 }
 
@@ -28,83 +26,51 @@ const {
 	currentSection,
 	combinedDraftStatus,
 	navHasMissingHref = false,
-	lastPublishedAt,
-	lastPublishedSha,
 	lastDraftSavedAt,
-	layoutFilePath,
 	layoutContract,
 } = Astro.props;
 
-const publishAllAction = `/api/admin/sites/${siteId}/layout/publish-all`;
-const publishBlocked = navHasMissingHref;
-const showPublishAll = currentSection !== 'categories';
+const messages = layoutSyncBarMessagesFromI18n(adminLayout);
+const view = buildLayoutSyncBarView(
+	{
+		hasAstroChannel,
+		status: combinedDraftStatus,
+		layoutContract,
+		currentSection,
+		navHasMissingHref,
+		lastDraftSavedAt,
+	},
+	messages,
+);
 
-const isLegacy = layoutContract === 'legacy';
-
-const statusTitle = isLegacy
-	? adminLayout.syncBar.legacyContract
-	: combinedDraftStatus === 'in_sync'
-		? adminLayout.syncBar.inSyncCombined
-		: combinedDraftStatus === 'live_ahead'
-			? adminLayout.syncBar.liveAheadCombined
-			: combinedDraftStatus === 'draft_ahead'
-				? adminLayout.syncBar.draftAheadCombined
-				: adminLayout.syncBar.unknown;
-
-const statusDetail = isLegacy
-	? null
-	: combinedDraftStatus === 'in_sync'
-		? adminLayout.syncBar.inSyncDetail
-		: combinedDraftStatus === 'live_ahead'
-			? adminLayout.syncBar.liveAheadDetail
-			: combinedDraftStatus === 'draft_ahead'
-				? adminLayout.syncBar.draftAheadDetailNote
-				: null;
-
-const panelClass =
-	combinedDraftStatus === 'in_sync' && !isLegacy
-		? 'layout-parity-bar layout-parity-bar--sync mb-4 max-w-5xl'
-		: combinedDraftStatus === 'draft_ahead'
-			? 'layout-parity-bar layout-parity-bar--draft mb-4 max-w-5xl'
-			: combinedDraftStatus === 'live_ahead' || isLegacy
-				? 'layout-parity-bar layout-parity-bar--alert mb-4 max-w-5xl'
-				: 'mb-4 max-w-5xl';
-
-const publishedLabel = formatLayoutStatusDate(lastPublishedAt);
-const draftLabel = formatLayoutStatusDate(lastDraftSavedAt);
-const metaParts = [
-	layoutFilePath ? adminLayout.syncBar.layoutFileLabel(layoutFilePath) : null,
-	draftLabel ? `${adminLayout.draftStatus.lastDraft} ${draftLabel}` : null,
-	publishedLabel
-		? `${adminLayout.draftStatus.lastPublished} ${publishedLabel}${lastPublishedSha ? ` (${lastPublishedSha})` : ''}`
-		: null,
-].filter(Boolean);
-
+const publishAction = `/api/admin/sites/${siteId}/layout/publish-all`;
+const pullAction = `/api/admin/sites/${siteId}/layout/import`;
+const panelClass = `layout-parity-bar layout-parity-bar--${view.tone} mb-4 max-w-5xl`;
 ---
 
 {
-	hasAstroChannel && (
+	view.show && (
 		<Panel class={panelClass}>
 			<div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 				<div>
 					<p class="text-xs font-semibold uppercase tracking-wide opacity-70">
-						{adminLayout.syncBar.parityTitle}
+						{messages.parityTitle}
 					</p>
-					<p class="mt-1 font-medium">{statusTitle}</p>
-					{statusDetail && <p class="ui-muted mt-1 text-sm">{statusDetail}</p>}
-					{metaParts.length > 0 && (
-						<p class="ui-muted mt-1 text-sm">{metaParts.join(' · ')}</p>
-					)}
-					{showPublishAll && (
-						<p class="ui-hint mt-2 text-sm">{adminLayout.syncBar.saveBeforePublish}</p>
-					)}
+					<p class="mt-1 font-medium">{view.title}</p>
+					{view.detail && <p class="ui-muted mt-1 text-sm">{view.detail}</p>}
+					{view.meta && <p class="ui-muted mt-1 text-sm">{view.meta}</p>}
+					{view.hint && <p class="ui-hint mt-2 text-sm">{view.hint}</p>}
 				</div>
-				{showPublishAll && (
+				{view.action && (
 					<div class="flex flex-wrap gap-2">
-						<form method="post" action={publishAllAction}>
+						<form method="post" action={view.action === 'pull' ? pullAction : publishAction}>
 							<input type="hidden" name="return_section" value={currentSection} />
-							<Button type="submit" variant="primary" disabled={publishBlocked || isLegacy}>
-								{adminLayout.syncBar.publishAllLayout}
+							<Button
+								type="submit"
+								variant={view.action === 'pull' ? 'secondary' : 'primary'}
+								disabled={view.actionDisabled}
+							>
+								{view.actionLabel}
 							</Button>
 						</form>
 					</div>

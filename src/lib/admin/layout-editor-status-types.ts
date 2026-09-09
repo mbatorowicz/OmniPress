@@ -22,10 +22,7 @@ export type LayoutEditorStatusInput = {
 
 export type LayoutEditorStatusMessages = {
 	draftMissingHref: string;
-	inSync: string;
 	inSyncShort: string;
-	draftAhead: string;
-	liveAhead: string;
 	draftAheadShort: string;
 	lastPublished: string;
 	lastDraft: string;

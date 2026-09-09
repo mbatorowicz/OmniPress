@@ -3,10 +3,7 @@ import { shouldAutoImportLayoutFromGitHub } from './layout-auto-import';
 import { DEFAULT_LAYOUT_PATH, type SiteAstroLayout } from '@/lib/astro-layout/types';
 import { emptyZones } from '@/lib/astro-layout/zones';
 import { navigationHasLeafWithoutHref } from '@/lib/astro-layout/validate-nav';
-import {
-	hashCategoriesLayout,
-	hashNavigationLayout,
-} from '@/lib/astro-layout/layout-sync-meta.server';
+import { hashLayoutFile } from '@/lib/astro-layout/layout-sync-meta.server';
 
 const baseLayout: SiteAstroLayout = {
 	navigation: [],
@@ -17,6 +14,13 @@ const baseLayout: SiteAstroLayout = {
 	layoutPath: DEFAULT_LAYOUT_PATH,
 	navigationPath: 'src/config/omnipress-navigation.json',
 	categoriesPath: 'src/config/omnipress-categories.json',
+};
+
+const filledLayout: SiteAstroLayout = {
+	...baseLayout,
+	navigation: [{ label: 'Kontakt', href: '/kontakt' }],
+	categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],
+	slots: [{ id: 'home_feed', label: 'Feed', component: 'home.latest' }],
 };
 
 describe('navigationHasLeafWithoutHref', () => {
@@ -40,10 +44,7 @@ describe('shouldAutoImportLayoutFromGitHub', () => {
 		expect(
 			shouldAutoImportLayoutFromGitHub(baseLayout, {
 				draftHrefCount: 0,
-				hashes: {
-					draftNavHash: hashNavigationLayout(baseLayout.navigation),
-					draftCategoriesHash: hashCategoriesLayout(baseLayout),
-				},
+				hashes: { draftHash: hashLayoutFile(baseLayout) },
 			}),
 		).toBe(true);
 	});
@@ -56,79 +57,61 @@ describe('shouldAutoImportLayoutFromGitHub', () => {
 		expect(
 			shouldAutoImportLayoutFromGitHub(layout, {
 				draftHrefCount: 0,
-				hashes: {
-					draftNavHash: hashNavigationLayout(layout.navigation),
-					draftCategoriesHash: hashCategoriesLayout(layout),
-				},
+				hashes: { draftHash: hashLayoutFile(layout) },
 			}),
 		).toBe(true);
 	});
 
-	it('importuje gdy live rozni sie od szkicu bez lokalnych zmian', () => {
+	it('importuje gdy strona zmieniła się po ostatniej publikacji z panelu', () => {
+		const publishedHash = hashLayoutFile(filledLayout);
 		const layout: SiteAstroLayout = {
-			...baseLayout,
-			navigation: [{ label: 'Kontakt', href: '/kontakt' }],
-			sync: { publishedNavHash: hashNavigationLayout([{ label: 'Kontakt', href: '/kontakt' }]) },
+			...filledLayout,
+			sync: { publishedLayoutHash: publishedHash },
 		};
-		const liveNav = hashNavigationLayout([
-			{
-				label: 'Kontakt',
-				href: '/kontakt',
-				menuColumns: 2,
-				menuColumnWidths: ['320px', '320px'],
-				children: [{ label: 'Pod', href: '/pod' }],
-			},
-		]);
 		expect(
 			shouldAutoImportLayoutFromGitHub(layout, {
 				draftHrefCount: 1,
 				hashes: {
-					draftNavHash: hashNavigationLayout(layout.navigation),
-					draftCategoriesHash: hashCategoriesLayout(layout),
-					liveNavHash: liveNav,
-					publishedNavHash: layout.sync?.publishedNavHash,
+					draftHash: publishedHash,
+					liveHash: 'other-live-hash',
+					publishedHash,
 				},
 			}),
 		).toBe(true);
 	});
 
-	it('nie importuje gdy szkic ma lokalne zmiany wzgledem ostatniego znanego stanu', () => {
-		const publishedNav = hashNavigationLayout([{ label: 'Kontakt', href: '/kontakt' }]);
+	it('nie importuje gdy szkic ma lokalne zmiany względem ostatniej publikacji', () => {
+		const publishedHash = hashLayoutFile(filledLayout);
 		const layout: SiteAstroLayout = {
-			...baseLayout,
+			...filledLayout,
 			navigation: [{ label: 'Edytowane', href: '/edit' }],
-			sync: { publishedNavHash: publishedNav },
+			sync: { publishedLayoutHash: publishedHash },
 		};
-		const liveNav = hashNavigationLayout([{ label: 'Kontakt', href: '/kontakt' }]);
 		expect(
 			shouldAutoImportLayoutFromGitHub(layout, {
 				draftHrefCount: 1,
 				hashes: {
-					draftNavHash: hashNavigationLayout(layout.navigation),
-					draftCategoriesHash: hashCategoriesLayout(layout),
-					liveNavHash: liveNav,
-					publishedNavHash: publishedNav,
+					draftHash: hashLayoutFile(layout),
+					liveHash: 'other-live-hash',
+					publishedHash,
 				},
 			}),
 		).toBe(false);
 	});
 
-	it('nie importuje gdy szkic i live sa zgodne', () => {
-		const navigation = [{ label: 'Kontakt', href: '/kontakt' }];
+	it('nie importuje gdy szkic i strona są zgodne', () => {
+		const hash = hashLayoutFile(filledLayout);
 		const layout: SiteAstroLayout = {
-			...baseLayout,
-			navigation,
-			sync: { publishedNavHash: hashNavigationLayout(navigation) },
+			...filledLayout,
+			sync: { publishedLayoutHash: hash },
 		};
-		const liveNav = hashNavigationLayout(navigation);
 		expect(
 			shouldAutoImportLayoutFromGitHub(layout, {
 				draftHrefCount: 1,
 				hashes: {
-					draftNavHash: liveNav,
-					draftCategoriesHash: hashCategoriesLayout(layout),
-					liveNavHash: liveNav,
-					publishedNavHash: liveNav,
+					draftHash: hash,
+					liveHash: hash,
+					publishedHash: hash,
 				},
 			}),
 		).toBe(false);

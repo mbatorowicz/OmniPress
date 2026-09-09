@@ -3,10 +3,6 @@ import type { LayoutEditorStatusMessages } from './layout-editor-status-types';
 export function layoutEditorStatusMessagesFromI18n(adminLayout: {
 	draftStatus: {
 		draftMissingHref: string;
-		inSync: string;
-		inSyncCombined: string;
-		draftAhead: string;
-		liveAhead: string;
 		lastPublished: string;
 		lastDraft: string;
 	};
@@ -31,10 +27,7 @@ export function layoutEditorStatusMessagesFromI18n(adminLayout: {
 }): LayoutEditorStatusMessages {
 	return {
 		draftMissingHref: adminLayout.draftStatus.draftMissingHref,
-		inSync: adminLayout.draftStatus.inSyncCombined,
 		inSyncShort: adminLayout.flash.inSyncShort,
-		draftAhead: adminLayout.draftStatus.draftAhead,
-		liveAhead: adminLayout.draftStatus.liveAhead,
 		draftAheadShort: adminLayout.flash.draftAheadShort,
 		lastPublished: adminLayout.draftStatus.lastPublished,
 		lastDraft: adminLayout.draftStatus.lastDraft,

@@ -15,6 +15,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Naprawione
 
+- **Pasek zgodności ze stroną nie straszy fałszywym alarmem.** Po publikacji panel porównywał hash całego pliku układu z hashem samego menu, więc nigdy nie wczytywał nowszej strony i pokazywał „Strona zmieniona poza OmniPress” razem z przyciskiem publikacji (nadpisanie). Auto-wczytanie idzie po jednym hashu layoutu. Pasek ma jeden komunikat i jedną akcję: zgodne — bez przycisku; szkic — *Opublikuj na stronie*; nowsza strona — *Wczytaj ze strony*. Bez ścieżki pliku i SHA. Idle alert pod paskiem nie dubluje tego stanu. Testy: `layout-auto-import`, `layout-sync-bar-view`, `layout-editor-status`.
+
 - **Kategorie: slug i usuwanie nie zaskakują (K-8–K-11).** Pusty slug dostaje podpowiedź z nazwy; w wierszu widać adres `/{slug}/` (to, co zapisze serwer). Usunięcie pyta o potwierdzenie i podaje liczbę wpisów; ostatniej kategorii nie da się skasować po cichu. Stopka formularza i ADMIN.md wskazują `omnipress-layout.json` oraz `/admin/units/[id]/posts`, nie legacy `omnipress-categories.json`. Testy: `admin/categories-form-client`, `admin/categories-form-model`.
 
 - **Kategorie: zmiana slugu nie gubi wpisów i feedów (K-3, K-4).** Zapis listy kategorii wykrywa remap (`odpady` → `gospodarka-odpadami`), przepisuje feedy, banery i wpisy w bazie. Republika na stronie zostaje ręczna — panel pokazuje ile opublikowanych wpisów wymaga ponownej publikacji. Checklist na formularzu prowadzi przez szkic → publikację layoutu → feed strony głównej → menu; przy dodaniu widać checkboxy „dodaj do feedu Aktualności” i „dodaj do menu”. Testy: `categories/remap`, `categories/checklist-model`, `parse-form-categories`.

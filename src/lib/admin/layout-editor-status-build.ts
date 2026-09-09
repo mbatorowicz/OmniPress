@@ -19,6 +19,6 @@ export function buildLayoutEditorStatus(
 		tryLayoutEditorErrorStatus(input) ??
 		tryLayoutEditorNavMissingHref(input, messages, dates) ??
 		tryLayoutEditorActionStatus(input, messages, dates) ??
-		buildLayoutEditorIdleStatus(input, messages, dates)
+		buildLayoutEditorIdleStatus(input, messages)
 	);
 }

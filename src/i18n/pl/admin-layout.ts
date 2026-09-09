@@ -12,7 +12,7 @@ const layoutText = {
 	title: 'Wygląd strony',
 	layoutTitle: 'Wygląd strony',
 	layoutLead:
-		'Formularz odzwierciedla stronę Astro po publikacji. Szkic w OmniPress ≠ strona live — zmiany trafiają na GitHub dopiero po „Opublikuj cały layout”.',
+		'Formularz to szkic. Żeby mieszkańcy zobaczyli zmiany, zapisz szkic i opublikuj na stronie.',
 	categoriesTitle: 'Kategorie',
 	componentsTitle: 'Komponenty',
 	componentsLead:
@@ -139,7 +139,7 @@ const layoutText = {
 	navValidationHint:
 		'Publikacja jest zablokowana, dopóki menu wskazuje nieistniejące adresy. Utwórz strony statyczne lub popraw linki.',
 	publishBlockedMissingHref:
-		'Publikacja zablokowana — szkic nie ma linków, które są na stronie live. Odśwież zakładkę Menu — panel sam wczyta je z GitHub, gdy nie masz niewysłanych zmian.',
+		'Publikacja zablokowana — w szkicu brakuje linków, które są na stronie. Odśwież zakładkę Menu, panel wczyta je ze strony.',
 	noPublishedPages: 'Brak opublikowanych stron statycznych.',
 	noCategoriesForNav: 'Brak kategorii — dodaj w zakładce Kategorie.',
 	navParentRoot: '—',
