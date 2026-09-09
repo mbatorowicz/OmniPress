@@ -60,5 +60,6 @@ describe('isPanelMutationPath', () => {
 	it('nie obejmuje workera ani auth', () => {
 		expect(isPanelMutationPath('/api/worker/publish')).toBe(false);
 		expect(isPanelMutationPath('/api/auth/login')).toBe(false);
+		expect(isPanelMutationPath('/api/telegram/webhook')).toBe(false);
 	});
 });

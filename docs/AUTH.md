@@ -58,6 +58,7 @@ sequenceDiagram
 | `src/lib/api/guards.ts` | `guardAuthRedirect`, `guardAdminRedirect`, `guardAuthJson`, `guardAdminJson` |
 | `src/lib/api/response.ts` | `jsonOk`, `jsonError` — ujednolicony JSON |
 | `src/lib/api/worker.ts` | Autoryzacja cron (`CRON_SECRET`) |
+| `src/lib/notify/telegram-webhook.ts` | Webhook bota — sekret HMAC + `chat_id` |
 | `src/pages/api/*` | Cienkie handlery — guard + logika z `lib/` |
 | `src/pages/api/auth/*` | Mutacje auth (POST only) |
 
@@ -73,13 +74,15 @@ sequenceDiagram
 8. **Nagłówki** — `X-Frame-Options`, `HSTS` (prod), `nosniff`, `Referrer-Policy`, CSP (middleware).
 9. **Upload** — weryfikacja magic bytes + limit rozmiaru (`lib/posts/upload-verify.ts`); bez surowych błędów storage w JSON.
 10. **Załączniki** — bucket `post-assets` jest prywatny (`npm run setup:storage-private`). Plik wychodzi wyłącznie przez `/api/posts/{id}/assets/{assetId}/file` (sesja + `canViewPostAssets`); publikacja czyta bajty klientem Storage i commituje je do repo strony. Zero adresów `/object/public/…` w panelu i w treści szkicu. Nazwa pliku i URL w panelu galerii / listy załączników idą przez `textContent` / `isSafeUrl`, nie przez `innerHTML`.
-11. **CSRF mutacji panelu** — middleware odrzuca POST/PUT/PATCH/DELETE na `/api/posts/*` i `/api/admin/*` z obcego lub brakującego `Origin` (wyjątek: `Sec-Fetch-Site: same-origin`). Worker cron (`/api/worker/*`) i GET (proxy pliku) nie podlegają.
+11. **CSRF mutacji panelu** — middleware odrzuca POST/PUT/PATCH/DELETE na `/api/posts/*` i `/api/admin/*` z obcego lub brakującego `Origin` (wyjątek: `Sec-Fetch-Site: same-origin`). Worker cron (`/api/worker/*`), webhook Telegram (`/api/telegram/webhook`) i GET (proxy pliku) nie podlegają.
+12. **Webhook Telegram** — `POST /api/telegram/webhook`. Brak sesji panelu: sekret `X-Telegram-Bot-Api-Secret-Token` (HMAC-SHA256 tokenu bota) oraz `chat_id` zgodny z `TELEGRAM_CHAT_ID`. Akceptacja tylko wpisów `pending`, klientem service role.
 
 ## Ochrona API
 
 | Warstwa | Zachowanie |
 |---------|------------|
 | Middleware mutacje `/api/posts/*`, `/api/admin/*` | Obcy / brak Origin → JSON 403 (`api.csrf`) |
+| Webhook Telegram `/api/telegram/webhook` | Sekret HMAC + `chat_id`; bez sesji; 401 przy złym sekretcie |
 | Middleware `/api/admin/*` | Brak sesji → JSON 401; redaktor → JSON 403 |
 | Handler `guardAdminRedirect` | Defense in depth dla form POST (redirect `/login` lub `/dashboard`) |
 | Handler `guardAuthJson` / `guardAdminJson` | Fetch API — JSON 401/403 z i18n |
@@ -105,3 +108,4 @@ Trasy `/api/posts/*` i `/api/sites/*` — dostęp do wpisu w handlerze (`loadEdi
 | POST | `/api/auth/set-password` | Zapis nowego hasła (sesja recovery) |
 | POST | `/api/auth/establish-session` | Token z hash → ciasteczka |
 | POST | `/api/auth/signout` | Wylogowanie |
+| POST | `/api/telegram/webhook` | Callback bota — akceptacja wpisu `pending` |

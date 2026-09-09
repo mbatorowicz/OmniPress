@@ -18,7 +18,7 @@ Operacyjny przewodnik po panelu OmniPress. Stan funkcji: [STATUS.md](./STATUS.md
 - Stare trasy `/admin/units/[id]/layout` → *Menu*, `/admin/units/[id]/publish` → *Ustawienia* (301).
 - `/admin/posts` to pełna lista wpisów wszystkich redaktorów (także szkiców) z filtrami — patrz §5.1.
 - `/admin` to wyłącznie kolejka wpisów — sekcje (*Do akceptacji*, *Zaplanowane / w publikacji*, *Na stronie*) mają u góry ścieżkę workflow i liczniki; wpisy w trakcie publikacji są w sekcji *Zaplanowane* ze znacznikiem **Publikacja…**; z listy można szybko zaakceptować; import z GitHub jest zwijaną sekcją na dole.
-- **Sygnał o nowym wpisie do akceptacji:** odznaka z liczbą w nagłówku i sidebarze (zawsze, gdy `count > 0`) oraz wiadomość Telegram z tytułem i linkiem do recenzji — gdy skonfigurowano bota ([WDROZENIE.md](./WDROZENIE.md)). E-mail do redaktora o akceptacji/odrzuceniu w tej wersji nie wychodzi.
+- **Sygnał o nowym wpisie do akceptacji:** odznaka z liczbą w nagłówku i sidebarze (zawsze, gdy `count > 0`) oraz wiadomość Telegram z tytułem, linkiem i przyciskiem *Akceptuj* — gdy skonfigurowano bota ([WDROZENIE.md](./WDROZENIE.md)). Odrzucenie i przypięcie zostają w panelu. E-mail do redaktora o akceptacji/odrzuceniu w tej wersji nie wychodzi.
 
 ---
 
@@ -177,6 +177,7 @@ Model **szkic + auto-pull + jawna publikacja**: edycja zapisuje roboczy stan w S
 | Credentials nie zapisują się | Ustaw `ENCRYPTION_KEY` na Vercel |
 | Worker nie działa | Vercel: `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, redeploy |
 | Brak wiadomości Telegram po submitcie | Token i chat z [WDROZENIE.md](./WDROZENIE.md); odznaka w panelu działa bez bota |
+| Przycisk Akceptuj w Telegramie nie działa | Po deployu `setup:telegram-webhook`; ten sam czat co `TELEGRAM_CHAT_ID` |
 
 ---
 

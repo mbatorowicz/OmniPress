@@ -108,11 +108,11 @@ Panel OmniPress ostrzega przy teście kanału, gdy wykryje classic PAT, i pokazu
 | `ENCRYPTION_KEY` | Szyfrowanie tokenów GitHub/Vercel (base64, 32 bajty) |
 | `VERCEL_TOKEN` | Opcjonalnie — weryfikacja buildu strony Astro |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Opcjonalnie (zalecane prod) — współdzielony rate limit auth |
-| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Opcjonalnie — powiadomienie admina po *Wyślij do akceptacji* |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Opcjonalnie — powiadomienie i przycisk *Akceptuj* po *Wyślij do akceptacji* |
 
 Bez `ENCRYPTION_KEY`: konfiguracja jednostki zapisze się, ale **tokeny nie** (tylko dev).
 
-### Telegram (powiadomienie o kolejce)
+### Telegram (powiadomienie i akceptacja)
 
 Bez tych zmiennych wysłanie wpisu działa jak dotychczas; odznaka w panelu i tak pokazuje liczbę oczekujących.
 
@@ -121,6 +121,9 @@ Bez tych zmiennych wysłanie wpisu działa jak dotychczas; odznaka w panelu i ta
 3. Napisz do bota dowolną wiadomość (czat prywatny) albo dodaj bota do grupy administratorów.
 4. `TELEGRAM_CHAT_ID`: po wiadomości do bota wejdź na `https://api.telegram.org/bot<TOKEN>/getUpdates` i odczytaj `message.chat.id` (dla grupy bywa ujemne).
 5. Agent dopisuje zmienne na Vercel (Production) i robi deploy.
+6. `npm run setup:telegram-webhook` — rejestruje `POST /api/telegram/webhook` (przycisk *Akceptuj*). Sekret webhooka to HMAC tokenu bota, bez osobnej zmiennej.
+
+Przycisk *Akceptuj* publikuje wpis `pending` tak samo jak panel. *Odrzuć* i przypięcie — w panelu (*Otwórz w panelu*).
 
 Cron: `vercel.json` → worker raz dziennie (backup). Publikacja startuje też **od razu po akceptacji**.
 
@@ -135,6 +138,7 @@ Cron: `vercel.json` → worker raz dziennie (backup). Publikacja startuje też *
 | Brak /admin | `npm run setup:password` (rola admin) |
 | Publikacja failed | Logi w podglądzie wpisu → Ponów publikację |
 | Worker nie działa | `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, redeploy |
+| Przycisk Akceptuj w Telegramie nie działa | `npm run setup:telegram-webhook` po deployu; `SUPABASE_SERVICE_ROLE_KEY`; czat musi być ten z `TELEGRAM_CHAT_ID` |
 
 ---
 

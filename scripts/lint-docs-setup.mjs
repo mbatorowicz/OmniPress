@@ -15,6 +15,7 @@ const SETUP_WITHOUT_MIGRATION = new Set([
 	'setup:password',
 	'setup:auth-urls',
 	'setup:auth-mfa',
+	'setup:telegram-webhook',
 ]);
 
 /** setup:* z migracją poza apply-migration.mjs */

@@ -1,6 +1,6 @@
 # Plan: powiadomienie o wpisie do akceptacji
 
-**Status:** wdrożone w kodzie (0.13.0) — odznaka w panelu działa od razu; Telegram na produkcji czeka na bota (BotFather + `TELEGRAM_CHAT_ID`).  
+**Status:** wdrożone (0.14.0) — odznaka w panelu, wiadomość Telegram z przyciskiem *Akceptuj*; webhook `setup:telegram-webhook`.  
 **Role:** PM → Architect → UX → FE/BE → DevSecOps → QA
 
 Gdy redaktor kliknie *Wyślij do akceptacji*, administrator ma dostać sygnał od razu (telefon) i widzieć liczbę oczekujących wpisów przy każdym wejściu do panelu.
@@ -86,7 +86,7 @@ Miejsca:
 
 ## Kryteria akceptacji
 
-- Redaktor wysyła szkic → w czacie Telegrama jest tytuł i link do `/admin/posts/{id}`.
+- Redaktor wysyła szkic → w czacie Telegrama jest tytuł, link do `/admin/posts/{id}` i przycisk *Akceptuj*.
 - Awaria Telegrama nie blokuje wysłania wpisu.
 - Admin widzi liczbę pending przy *Administracja* i *Kolejka wpisów*; przy 0 odznaki nie ma.
 - Zero hardkodowanych napisów poza `src/i18n/pl/`.

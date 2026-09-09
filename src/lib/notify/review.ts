@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { PostRow } from '@/lib/posts/access-model';
-import { formatReviewMessage } from './review-model';
+import { formatReviewMessage, reviewInlineKeyboard } from './review-model';
 import { isTelegramConfigured, sendTelegramMessage } from './telegram';
 
 export type ReviewNotifyPost = Pick<PostRow, 'id' | 'title' | 'site_id' | 'author_id'>;
@@ -47,7 +47,11 @@ export async function notifyPostSubmitted(
 			authorName,
 			postId: post.id,
 		});
-		await (opts.send ?? sendTelegramMessage)(text);
+		if (opts.send) {
+			await opts.send(text);
+		} else {
+			await sendTelegramMessage(text, { replyMarkup: reviewInlineKeyboard(post.id) });
+		}
 	} catch {
 		// Submit już zapisany — powiadomienie nie może go cofnąć.
 	}

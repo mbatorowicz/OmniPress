@@ -56,7 +56,7 @@ stateDiagram-v2
 
 **Redaktor** — własne wpisy na przypisanych stronach; bez widoku tokenów i cudzych szkiców.
 
-**Administrator** — jednostki, redaktorzy, akceptacja, import z GitHub, layout, dezaktywacja/usuwanie na stronie. Po *Wyślij do akceptacji* dostaje sygnał na Telegram (gdy bot jest skonfigurowany) i widzi liczbę oczekujących w panelu.
+**Administrator** — jednostki, redaktorzy, akceptacja, import z GitHub, layout, dezaktywacja/usuwanie na stronie. Po *Wyślij do akceptacji* dostaje sygnał na Telegram (gdy bot jest skonfigurowany) z przyciskiem *Akceptuj* i widzi liczbę oczekujących w panelu.
 
 ---
 

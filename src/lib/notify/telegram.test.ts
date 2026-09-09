@@ -54,6 +54,17 @@ describe('sendTelegramMessage', () => {
 		});
 	});
 
+	it('dokłada reply_markup gdy podano klawiaturę', async () => {
+		const fetchMock = vi.fn().mockResolvedValue(new Response('{}', { status: 200 }));
+		const replyMarkup = { inline_keyboard: [[{ text: 'Akceptuj', callback_data: 'a:1' }]] };
+		await sendTelegramMessage('Wpis', { fetch: fetchMock, config: CONFIG, replyMarkup });
+
+		const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+		expect(JSON.parse(String(init.body))).toMatchObject({
+			reply_markup: replyMarkup,
+		});
+	});
+
 	it('nie rzuca przy błędzie HTTP', async () => {
 		const fetchMock = vi.fn().mockResolvedValue(new Response('fail', { status: 500 }));
 		await expect(

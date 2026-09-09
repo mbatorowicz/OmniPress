@@ -353,6 +353,11 @@ describe('CSRF mutacji panelu', () => {
 		const { next } = await run('/api/worker/publish', null, { method: 'GET' });
 		expect(next).toHaveBeenCalledOnce();
 	});
+
+	it('nie blokuje webhooka Telegram (brak Origin)', async () => {
+		const { next } = await run('/api/telegram/webhook', null, { method: 'POST' });
+		expect(next).toHaveBeenCalledOnce();
+	});
 });
 
 describe('locals', () => {

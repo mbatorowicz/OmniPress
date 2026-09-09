@@ -71,6 +71,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Usunięcie konta zostawia wpisy (autor: „konto usunięte”) | ✅ migracja `setup:author-on-delete` |
 | Kolejka: do akceptacji, zaplanowane (ze znacznikiem „Publikacja…”), na stronie | ✅ `/admin` — odznaka z liczbą *pending* przy *Administracja* i *Kolejka wpisów* |
 | Powiadomienie Telegram po wysłaniu do akceptacji | ✅ opcjonalne `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`; awaria bota nie blokuje submitu |
+| Akceptacja wpisu z Telegrama | ✅ przycisk *Akceptuj* w wiadomości bota; webhook `/api/telegram/webhook`; odrzucenie w panelu |
 | Wszystkie wpisy redaktorów — także szkice i wpisy do poprawki; zakładki statusów z licznikami, filtr (tytuł, status, strona, autor), sortowanie kolumn (domyślnie data publikacji), stronicowanie po 25 | ✅ `/admin/posts` |
 | Akceptacja → kolejka publikacji GitHub (natychmiast lub o zaplanowanej godzinie) | ✅ |
 | Publikacja szkicu / wpisu do poprawki bez czekania na redaktora (`draft`, `rejected`, `pending`) | ✅ blokada, gdy brak tytułu lub kategorii |
@@ -190,7 +191,7 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | `ENCRYPTION_KEY` | tak (credentials) | Szyfrowanie tokenów GitHub/Vercel w bazie |
 | `VERCEL_TOKEN` | opcjonalnie | Globalny token do weryfikacji buildów (alternatywa: per destynacja) |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | opcjonalnie (prod zalecane) | Współdzielony rate limit auth między instancjami Vercel |
-| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | opcjonalnie | Powiadomienie admina po *Wyślij do akceptacji* (BotFather) |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | opcjonalnie | Powiadomienie i przycisk *Akceptuj* w Telegramie (BotFather); webhook: `setup:telegram-webhook` |
 
 ---
 
@@ -204,6 +205,12 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | SSO redaktorów | — |
 
 ---
+
+## 0.14.0 — Akceptacja z Telegrama
+
+- Wiadomość o wpisie do akceptacji ma przyciski *Akceptuj* i *Otwórz w panelu*.
+- *Akceptuj* publikuje tylko `pending` (szkic nadal z panelu). Odrzucenie i przypięcie — w panelu.
+- Webhook: `POST /api/telegram/webhook`. Po deployu: `npm run setup:telegram-webhook`.
 
 ## 0.13.0 — Powiadomienie o wpisie do akceptacji
 

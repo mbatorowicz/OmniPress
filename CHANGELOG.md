@@ -35,6 +35,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Dodane
 
+- **Akceptacja wpisu z Telegrama (0.14.0):** wiadomość o kolejce ma przyciski *Akceptuj* i *Otwórz w panelu*. Dotknięcie *Akceptuj* uruchamia tę samą publikację co w panelu (tylko wpisy `pending`). Webhook `/api/telegram/webhook` — sekret HMAC z tokenu bota + zgodny `chat_id`. Odrzucenie i przypięcie zostają w panelu. Skrypt `setup:telegram-webhook`.
+
 - **Powiadomienie o wpisie do akceptacji (0.13.0):** po *Wyślij do akceptacji* administrator dostaje wiadomość na Telegram (tytuł, strona, autor, link do recenzji na produkcji). Awaria bota nie blokuje wysłania wpisu. W panelu odznaka z liczbą oczekujących przy *Administracja* i *Kolejka wpisów*. Env: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` (opcjonalne). E-mail o akceptacji/odrzuceniu zostaje poza zakresem.
 
 - **Dodatkowe kategorie wpisu:** redaktor wybiera kategorię główną (adres artykułu) i może zaznaczyć *Pokaż też w* — np. *Mazowsze bez smogu* + *Aktualności*, żeby wpis wszedł na stronę główną i do archiwum Aktualności. Front-matter: opcjonalne `categories`. Migracja `setup:extra-categories`. Kontrakt w repo strony: `content.config.ts` + filtry archiwum i feedów.

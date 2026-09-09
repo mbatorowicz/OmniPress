@@ -1,7 +1,7 @@
 {
   "name": "omnipress",
   "type": "module",
-	"version": "0.13.0",
+	"version": "0.14.0",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -43,6 +43,7 @@
     "setup:assets-content-sha": "node scripts/apply-migration.mjs supabase/migrations/20250718000000_assets_content_sha.sql",
     "setup:auth-rate-limits": "node scripts/apply-migration.mjs supabase/migrations/20250707000000_auth_rate_limits.sql",
     "setup:auth-mfa": "node scripts/setup-auth-mfa.mjs",
+    "setup:telegram-webhook": "node scripts/setup-telegram-webhook.mjs",
     "verify:auth-rate-limits": "node scripts/verify-rate-limits.mjs",
     "verify:auth-mfa": "node scripts/verify-mfa-enabled.mjs",
     "env:pull": "vercel env pull .env.local --yes",
