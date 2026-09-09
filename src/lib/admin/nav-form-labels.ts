@@ -21,12 +21,17 @@ export type NavigationTableLabels = {
 		custom: string;
 		external: string;
 	};
+	linkHintNone: string;
+	linkHintWithTarget: string;
 	fieldLabels: {
 		navDepth: string;
 		navParent: string;
 		navLabel: string;
 		navLinkType: string;
 		navLinkTarget: string;
+		navSectionPosition: string;
+		navSectionLink: string;
+		navSectionDropdown: string;
 		navMenuColumns: string;
 		navMenuColumnCount: string;
 		navMenuColumnWidth1: string;

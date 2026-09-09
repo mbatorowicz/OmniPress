@@ -27,6 +27,8 @@ const labels: NavigationTableLabels = {
 	navParentRoot: '—',
 	navParentMissing: 'Brak pozycji nadrzędnej',
 	navParentPrefix: 'pod:',
+	linkHintNone: 'Bez adresu tylko rozwija.',
+	linkHintWithTarget: 'Najechanie rozwija, klik otwiera adres.',
 	hrefKinds: {
 		none: 'Bez linku',
 		category: 'Kategoria wpisów',
@@ -41,6 +43,9 @@ const labels: NavigationTableLabels = {
 		navLabel: 'Etykieta',
 		navLinkType: 'Typ linku',
 		navLinkTarget: 'Adres / cel',
+		navSectionPosition: 'Pozycja',
+		navSectionLink: 'Link',
+		navSectionDropdown: 'Rozwijane menu',
 		navMenuColumns: 'Układ dropdownu',
 		navMenuColumnCount: 'Liczba kolumn',
 		navMenuColumnWidth1: 'Szerokość kolumny 1',
@@ -128,6 +133,22 @@ describe('mountNavigationForm', () => {
 		expect(form?.dataset.navigationFormBound).toBe('1');
 	});
 
+	it('po zmianie typu na static pokazuje cel i hint z adresem', () => {
+		buildNavigationList('/gmina/urzad');
+		mountNavigationForm(labels);
+		document.getElementById('add-nav-row')!.click();
+
+		const added = document.querySelectorAll('.nav-row-editor')[1] as HTMLElement;
+		const kindSelect = added.querySelector('.nav-href-kind') as HTMLSelectElement;
+		kindSelect.value = 'static';
+		kindSelect.dispatchEvent(new Event('change', { bubbles: true }));
+
+		expect(added.querySelector('.nav-link-target-field')?.classList.contains('hidden')).toBe(false);
+		expect(added.querySelector('.nav-link-hint')?.textContent).toBe(labels.linkHintWithTarget);
+		const target = added.querySelector('.nav-href-target-control') as HTMLSelectElement;
+		expect(target.value).toBe('/');
+	});
+
 	it('po zmianie typu na category podmienia opcje celu na kategorie', () => {
 		buildNavigationList('/gmina/urzad');
 		mountNavigationForm(labels);
@@ -153,6 +174,10 @@ describe('mountNavigationForm', () => {
 		expect(document.querySelectorAll('.nav-entry')).toHaveLength(1);
 		document.getElementById('add-nav-row')!.click();
 		expect(document.querySelectorAll('.nav-entry')).toHaveLength(2);
+
+		const added = document.querySelectorAll('.nav-row-editor')[1] as HTMLElement;
+		expect(added.querySelector('.nav-link-target-field')?.classList.contains('hidden')).toBe(true);
+		expect(added.querySelector('.nav-link-hint')?.textContent).toBe(labels.linkHintNone);
 	});
 
 	it('dodaje podpozycję z poziomem 1 i pozycją nadrzędną', () => {

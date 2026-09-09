@@ -163,7 +163,7 @@ Publikacja na stronę wymaga kliknięcia **Opublikuj na stronie**.
 | **Zapisz szkic** | tak | nie | nie |
 | **Opublikuj na stronie** | tak (przed sync) | commit | webhook |
 
-- **Menu (Nagłówek):** `/admin/units/[id]/navigation` — edytor drzewa nawigacji (do 3 poziomów). Zapis to szkic; publikacja idzie do `src/config/omnipress-layout.json`. Przed publikacją walidacja linków wewnętrznych.
+- **Menu (Nagłówek):** `/admin/units/[id]/navigation` — edytor drzewa nawigacji (do 3 poziomów). Typ linku ustawia dokąd prowadzi klik w etykietę; najechanie i tak rozwija podpozycje. „Bez linku” tylko rozwija. Zapis to szkic; publikacja idzie do `src/config/omnipress-layout.json`. Przed publikacją walidacja linków wewnętrznych.
 - **Kategorie:** `/admin/units/[id]/posts` — slug, nazwa i układ archiwum (stara trasa `/categories` przekierowuje tutaj). Zapis to szkic; **Opublikuj kategorie na stronie** zapisuje listę do tego samego `omnipress-layout.json`. Feedy (`home.*`) ustawiasz w **Komponentach**, pozycję w menu w **Nagłówku**.
 - **Komponenty:** `/admin/units/[id]/components` — lista slotów (`home.*`, `sidebar.weather`, `sidebar.cert_advisories`, `sidebar.recent_changes`, `sidebar.banner` itd.) w `omnipress-layout.json`. Publikacja jak przy kategoriach. Wspólne pole kolejności (`order`) dla sidebaru. `sidebar.weather` i `sidebar.cert_advisories` pobierają dane **na żywo** z API na stronie Astro — bez syncu JSON do repo. Widget CERT zawsze dopełnia listę do limitu z panelu.
 - **Strony statyczne:** `/admin/units/[id]/pages` — treści pod stałe URL; lista i edytor wczytują stan z GitHub. Publikacja nie nadpisze istniejącej treści pustym szkicem. *Utwórz strony z menu* dodaje tylko brakujące szkice (bez commita).

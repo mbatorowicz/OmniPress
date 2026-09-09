@@ -119,6 +119,10 @@
 		@apply block;
 	}
 
+	.nav-dropdown-layout-field-wrap:has(.nav-dropdown-layout-cell.hidden) {
+		display: none;
+	}
+
 	.nav-dropdown-layout-field-wrap .nav-dropdown-layout-cell.hidden .nav-dropdown-layout-grid,
 	.nav-dropdown-layout-field-wrap .nav-dropdown-layout-cell.hidden .ui-hint {
 		display: none;
@@ -221,6 +225,14 @@
 
 	.nav-row-editor-panel {
 		@apply rounded-md border border-border-strong bg-surface-subtle/60 p-3;
+	}
+
+	.nav-row-editor-section + .nav-row-editor-section {
+		@apply mt-3 border-t border-border-soft pt-3;
+	}
+
+	.nav-row-editor-section-title {
+		@apply mb-2 text-[11px] font-semibold uppercase tracking-wide text-text-secondary;
 	}
 
 	.nav-row-editor-grid {

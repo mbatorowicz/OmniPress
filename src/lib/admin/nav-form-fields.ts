@@ -28,6 +28,21 @@ export function syncSubmitFields(row: HTMLElement): void {
 	row.dataset.navHref = valueHidden.value;
 	const parent = readParentValue(row);
 	row.dataset.navParent = parent === null ? '' : String(parent);
+	syncNavLinkHint(row);
+}
+
+/** Hint i pole celu zależą od typu: bez linku ukrywamy adres. */
+export function syncNavLinkHint(row: HTMLElement): void {
+	const kind = readRowKind(row);
+	const hint = row.querySelector('.nav-link-hint');
+	if (hint instanceof HTMLElement) {
+		hint.textContent =
+			kind === 'none' ? (hint.dataset.hintNone ?? '') : (hint.dataset.hintTarget ?? '');
+	}
+	const targetField = row.querySelector('.nav-link-target-field');
+	if (targetField instanceof HTMLElement) {
+		targetField.classList.toggle('hidden', kind === 'none');
+	}
 }
 
 /** Kontrolka celu zależy od typu linku: tekst dla URL, select dla kategorii/stron/tras. */

@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Naprawione
+
+- **Klik w pozycję menu z podmenu otwiera adres z ustawień.** Rodzic z typem linku (np. Gmina → stała trasa `/`) jest linkiem: najechanie rozwija listę, klik przechodzi na stronę. „Bez linku (tylko rozwijane)” zostaje przyciskiem. W panelu ustawienia są w grupach Pozycja / Link / Rozwijane menu, a cel pokazuje ścieżkę (`Strona główna (/)`).
+
 ### Zmienione
 
 - **Układ dropdownu w menu** — hint w panelu: przy 2 kolumnach pozycje idą od góry w lewej, potem w prawej; podpozycje rozwijają się strzałką w bok; widać po publikacji layoutu.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildNavTargetOptions, formatNavTargetSummary, pickNavTargetValue } from './nav-target-options';
+import { buildNavTargetOptions, formatNavOptionLabel, formatNavTargetSummary, pickNavTargetValue } from './nav-target-options';
 
 const options = buildNavTargetOptions(
 	[{ path: '/zarzadzenia', title: 'Zarządzenia' }],
@@ -16,6 +16,17 @@ const hrefKindLabels = {
 	external: 'Zewnętrzny',
 };
 
+describe('formatNavOptionLabel', () => {
+	it('dopisuje ścieżkę do nazwy', () => {
+		expect(formatNavOptionLabel('Strona główna', '/')).toBe('Strona główna (/)');
+		expect(formatNavOptionLabel('Kontakt', '/kontakt')).toBe('Kontakt (/kontakt)');
+	});
+
+	it('nie dubluje gdy nazwa to już ścieżka', () => {
+		expect(formatNavOptionLabel('/kontakt', '/kontakt')).toBe('/kontakt');
+	});
+});
+
 describe('formatNavTargetSummary', () => {
 	it('zwraca etykietę typu bez linku', () => {
 		expect(formatNavTargetSummary('none', '', options, hrefKindLabels)).toBe('Bez linku');
@@ -23,7 +34,13 @@ describe('formatNavTargetSummary', () => {
 
 	it('łączy typ i etykietę celu strony', () => {
 		expect(formatNavTargetSummary('page', '/kontakt', options, hrefKindLabels)).toBe(
-			'Strona · Kontakt',
+			'Strona · Kontakt (/kontakt)',
+		);
+	});
+
+	it('pokazuje ścieżkę przy stałej trasie', () => {
+		expect(formatNavTargetSummary('static', '/', options, hrefKindLabels)).toBe(
+			'Stała trasa · Strona główna (/)',
 		);
 	});
 });

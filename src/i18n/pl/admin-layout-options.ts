@@ -28,7 +28,7 @@ export const adminLayoutOptions = {
 		none: 'Bez linku (tylko rozwijane)',
 		category: 'Kategoria wpisów',
 		page: 'Strona z menu / CMS',
-		static: 'Stała trasa (/, /kontakt)',
+		static: 'Stała trasa',
 		custom: 'Własny URL wewnętrzny',
 		external: 'Adres zewnętrzny',
 	},

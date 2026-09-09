@@ -15,6 +15,13 @@ export const adminLayoutFields = {
 		navDepthColor: 'Kolor',
 		navLinkType: 'Typ linku',
 		navLinkTarget: 'Adres / cel',
+		navSectionPosition: 'Pozycja',
+		navSectionLink: 'Link',
+		navSectionDropdown: 'Rozwijane menu',
+		navLinkHintNone:
+			'Bez adresu pozycja tylko rozwija listę — najechanie na komputerze, kliknięcie na telefonie.',
+		navLinkHintWithTarget:
+			'Najechanie rozwija listę podpozycji. Kliknięcie otwiera wybrany adres.',
 		navMenuColumns: 'Układ dropdownu',
 		navMenuColumnCount: 'Liczba kolumn',
 		navMenuColumnWidth1: 'Szerokość kolumny 1',

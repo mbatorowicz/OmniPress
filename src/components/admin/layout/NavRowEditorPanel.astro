@@ -1,0 +1,104 @@
+---
+import { adminLayout, ui } from '@/i18n';
+import NavDepthSelect from '@/components/admin/layout/NavDepthSelect.astro';
+import NavDropdownLayoutCell from '@/components/admin/layout/NavDropdownLayoutCell.astro';
+import NavLinkTypeSelect from '@/components/admin/layout/NavLinkTypeSelect.astro';
+import NavTargetCell from '@/components/admin/layout/NavTargetCell.astro';
+import NavParentSelect from '@/components/admin/layout/NavParentSelect.astro';
+import type { FlatNavRow } from '@/lib/admin/navigation-tree';
+import type { NavTargetOptions } from '@/lib/admin/nav-target-options';
+import { navHrefSubmitValue } from '@/lib/admin/nav-tree-section-data';
+
+interface Props {
+	row: FlatNavRow;
+	rowIndex: number;
+	parentRowMeta: { label: string; depth: number }[];
+	navTargetOptions: NavTargetOptions;
+}
+
+const { row, rowIndex, parentRowMeta, navTargetOptions } = Astro.props;
+const f = adminLayout.fields;
+const linkHint =
+	row.hrefKind === 'none' ? f.navLinkHintNone : f.navLinkHintWithTarget;
+---
+
+<div class="nav-row-editor-panel">
+	<section class="nav-row-editor-section">
+		<h3 class="nav-row-editor-section-title">{f.navSectionPosition}</h3>
+		<div class="nav-row-editor-grid">
+			<label class="nav-row-editor-field">
+				<span class="nav-row-editor-label">{f.navDepth}</span>
+				<NavDepthSelect depth={row.depth as 0 | 1 | 2} />
+			</label>
+			<div class="nav-row-editor-field">
+				<span class="nav-row-editor-label">{f.navParent}</span>
+				<NavParentSelect
+					asCell={false}
+					rowIndex={rowIndex}
+					depth={row.depth as 0 | 1 | 2}
+					parentRowIndex={row.parentRowIndex}
+					rows={parentRowMeta}
+				/>
+			</div>
+			<label class="nav-row-editor-field nav-row-editor-field--wide">
+				<span class="nav-row-editor-label">{f.navLabel}</span>
+				<input name="nav_label" value={row.label} required class="ui-input-compact w-full" />
+			</label>
+		</div>
+	</section>
+	<section class="nav-row-editor-section">
+		<h3 class="nav-row-editor-section-title">{f.navSectionLink}</h3>
+		<div class="nav-row-editor-grid">
+			<label class="nav-row-editor-field">
+				<span class="nav-row-editor-label">{f.navLinkType}</span>
+				<NavLinkTypeSelect kind={row.hrefKind} />
+			</label>
+			<label
+				class:list={[
+					'nav-row-editor-field',
+					'nav-row-editor-field--wide',
+					'nav-link-target-field',
+					row.hrefKind === 'none' && 'hidden',
+				]}
+			>
+				<span class="nav-row-editor-label">{f.navLinkTarget}</span>
+				<div class="nav-href-values">
+					<input
+						type="hidden"
+						name="nav_href_value"
+						class="nav-href-value-submit"
+						value={navHrefSubmitValue(row)}
+					/>
+					<NavTargetCell
+						kind={row.hrefKind}
+						value={row.hrefValue}
+						options={navTargetOptions}
+					/>
+				</div>
+			</label>
+		</div>
+		<p
+			class="ui-hint nav-link-hint mt-1 text-[10px] leading-tight"
+			data-hint-none={f.navLinkHintNone}
+			data-hint-target={f.navLinkHintWithTarget}
+		>
+			{linkHint}
+		</p>
+	</section>
+	<section class="nav-row-editor-section nav-dropdown-layout-field-wrap">
+		<h3 class="nav-row-editor-section-title">{f.navSectionDropdown}</h3>
+		<NavDropdownLayoutCell
+			asCell={false}
+			depth={row.depth as 0 | 1 | 2}
+			item={{
+				menuColumns: row.menuColumns,
+				menuColumnWidths: [row.menuColumnWidth0, row.menuColumnWidth1].filter(Boolean),
+			}}
+		/>
+	</section>
+	<div class="nav-row-editor-footer">
+		<button type="button" class="close-nav-row ui-btn ui-btn--ghost text-xs">
+			{ui.actions.close}
+		</button>
+	</div>
+</div>

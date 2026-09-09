@@ -2,6 +2,13 @@ import { STATIC_ROUTE_OPTIONS, type PageOption } from '@/lib/admin/link-options'
 
 export type NavTargetOption = { value: string; label: string };
 
+export function formatNavOptionLabel(title: string, path: string): string {
+	const name = title.trim();
+	const href = path.trim();
+	if (!href || name === href) return name || href;
+	return `${name} (${href})`;
+}
+
 export type NavTargetOptions = {
 	category: NavTargetOption[];
 	page: NavTargetOption[];
@@ -18,10 +25,13 @@ export function buildNavTargetOptions(
 	return {
 		category: categoryPages.map((c) => ({
 			value: c.path.replace(/^\//, ''),
-			label: c.title,
+			label: formatNavOptionLabel(c.title, c.path),
 		})),
-		page: pageOptions.map((p) => ({ value: p.path, label: p.title })),
-		static: STATIC_ROUTE_OPTIONS.map((o) => ({ value: o.path, label: o.title })),
+		page: pageOptions.map((p) => ({ value: p.path, label: formatNavOptionLabel(p.title, p.path) })),
+		static: STATIC_ROUTE_OPTIONS.map((o) => ({
+			value: o.path,
+			label: formatNavOptionLabel(o.title, o.path),
+		})),
 		emptyCategory: labels.emptyCategory,
 		emptyPage: labels.emptyPage,
 	};
