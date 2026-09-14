@@ -40,7 +40,9 @@ Oznaczenia repo: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 
 Podejścia 1–25 zamknięte (22: 2026-09-06, 23–25: 2026-09-07). Audyt bezpieczeństwa S-1–S-4 zamknięty. Znaleziska: [AUDYT.md](./AUDYT.md) §Audyt kategorii wpisów.
 
-**DNS cutover jest ostatnim krokiem projektu, nie następną sesją.** Domena produkcyjna `gmina-miedzna.pl` zostaje na starym hostingu do odwołania. Nowa strona działa pod `gmina-miedzna.cncsolutions.dev`.
+**Treść WP poza wykluczeniami scalona (2026-09-14).** Do repo B weszły pozostałe kategorie z wpisami (inwestycje, fundusze, mazowsze bez smogu, plan ogólny, USC, …). Pominięte: `imgw`, `lasy`, `ogolne`, `ogloszenia`, `rolnictwo`, `unia-europejska`, `czystosc-i-porzadek` oraz puste. Skrypt: OmniPress `scripts/migrate-wp-remaining-posts.mjs`. Staging: `gmina-miedzna.cncsolutions.dev`.
+
+**DNS cutover jest ostatnim krokiem projektu.** Domena produkcyjna `gmina-miedzna.pl` zostaje na starym hostingu do odwołania — tylko na jawną prośbę.
 
 **Start sesji:** `git pull` w repo B (SSOT = `origin/main`).
 

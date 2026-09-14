@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Dodane
+
+- **Migracja pozostałej treści WP do repo strony.** Skrypt `scripts/migrate-wp-remaining-posts.mjs` zaciąga wpisy z REST WordPressa (poza pominiętymi kategoriami i pustymi), zapisuje je w `gmina-miedzna.pl` i dokłada 301 ze starych permalinków. DNS produkcyjny bez zmian.
+
 ### Naprawione
 
 - **Klik w pozycję menu z podmenu otwiera adres z ustawień.** Rodzic z typem linku (np. Gmina → stała trasa `/`) jest linkiem: najechanie rozwija listę, klik przechodzi na stronę. „Bez linku (tylko rozwijane)” zostaje przyciskiem. W panelu ustawienia są w grupach Pozycja / Link / Rozwijane menu, a cel pokazuje ścieżkę (`Strona główna (/)`).
