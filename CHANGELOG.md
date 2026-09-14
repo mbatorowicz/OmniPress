@@ -7,6 +7,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Naprawione
 
+- **Osobna korekta językowa treści.** Po czyszczeniu artefaktów: literówki (`rozporczęciu` → `rozpoczęciu`), `w/w` → `ww.`, `i/lub` → `lub`, WFOŚiGW, cudzysłowy przy `pn.`, urwane zdania, tytuły i zajawki. Skrypt `scripts/proofread-news.mjs` + `clean-md-language*.mjs`; skaner `scan-language.mjs`. Testy: `clean-md-language.test.ts`.
+
 - **Treści WP bez śmieci z importu.** Publikacja PDF nie wkłada już skryptu viewera do markdownu (ładuje go layout strony). Skrypt czyszczenia ściąga shortcody galerii, samolinki, tracking w URL, twarde łamanie, sklejone słowa i nazwy plików w etykietach. Druga passa: czytelne bannery dofinansowania zamiast WIELKICH LITER, `2019 r.` zamiast `2019r.`, odmiana miesięcy, polskie znaki w etykietach PDF, adresy z twardym łamaniem. Testy: `clean-md-artifacts.test.ts`, `clean-md-readability.test.ts`, `asset-markdown.test.ts`.
 
 ### Dodane
