@@ -18,7 +18,13 @@ export function humanizeLabel(raw: string, fallback = 'Dokument PDF'): string {
 	t = t.replace(/^\d{1,2}[a-z]?[.)]\s+/i, '');
 	t = t.replace(/^\d{1,2}(?=\s+[a-ząćęłńóśźż])/u, '').trim();
 	t = t.replace(/-\d{1,2}$/g, '');
+	t = t.replace(/\bgm\.\s*-?\s*/gi, 'gm. ');
+	t = t.replace(/zalacznik/gi, (m) => (/^[A-Z]/.test(m) ? 'Załącznik' : 'załącznik'));
+	t = t.replace(/\bwzor\b/gi, 'wzór');
+	t = t.replace(/bezplatn/gi, 'bezpłatn');
+	t = t.replace(/ogoln/gi, 'ogóln');
+	t = t.replace(/audyty i p\b/gi, 'audyty i przeglądy');
 	t = t.replace(/\s{2,}/g, ' ').trim();
-	if (t.length > 24) t = t.replace(/\s+\d+$/g, '').trim();
+	if (t.length > 24) t = t.replace(/\s+\d{1,2}$/g, '').trim();
 	return t || fallback;
 }

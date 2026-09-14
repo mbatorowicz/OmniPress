@@ -7,7 +7,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Naprawione
 
-- **Treści WP bez śmieci z importu.** Publikacja PDF nie wkłada już skryptu viewera do markdownu (ładuje go layout strony). Skrypt czyszczenia ściąga shortcody galerii, samolinki, tracking w URL, twarde łamanie, sklejone słowa i nazwy plików w etykietach. Testy: `clean-md-artifacts.test.ts`, `asset-markdown.test.ts`.
+- **Treści WP bez śmieci z importu.** Publikacja PDF nie wkłada już skryptu viewera do markdownu (ładuje go layout strony). Skrypt czyszczenia ściąga shortcody galerii, samolinki, tracking w URL, twarde łamanie, sklejone słowa i nazwy plików w etykietach. Druga passa: czytelne bannery dofinansowania zamiast WIELKICH LITER, `2019 r.` zamiast `2019r.`, odmiana miesięcy, polskie znaki w etykietach PDF, adresy z twardym łamaniem. Testy: `clean-md-artifacts.test.ts`, `clean-md-readability.test.ts`, `asset-markdown.test.ts`.
 
 ### Dodane
 

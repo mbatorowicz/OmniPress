@@ -1,3 +1,4 @@
+import { humanizeLabel } from '@/lib/content/humanize-label';
 import { pdfEmbedHtml as buildPdfEmbedHtml } from '@/lib/pdf-viewer/embed-html';
 
 export type AssetDisplayMode = 'link' | 'embed';
@@ -42,7 +43,7 @@ export function applyAssetDisplayToMarkdown(
 	let out = contentMd;
 	for (const asset of assets) {
 		if (asset.mime_type !== PDF_MIME || asset.display_mode !== 'embed') continue;
-		const embed = pdfEmbedHtml(asset.publishUrl, asset.filename, forPublish);
+		const embed = pdfEmbedHtml(asset.publishUrl, humanizeLabel(asset.filename), forPublish);
 		out = out.replace(pdfLinkPattern(asset.filename, asset.sourceUrl), embed);
 		out = out.replace(pdfLinkPattern(asset.filename), embed);
 	}

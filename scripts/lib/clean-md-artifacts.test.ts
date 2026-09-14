@@ -18,6 +18,15 @@ describe('cleanMarkdownArtifacts', () => {
 		expect(out).toContain('data-op-pdf-title="Dokument"');
 	});
 
+	it('nie skleja adresu szkoły', () => {
+		const md = 'ul. Kościelna 15  \n07-106 Miedzna  \ntel. (0-25) 791-05-81  \ne-mail: a@b.pl  \nDyrektor – Anna.';
+		const out = cleanMarkdownArtifacts(md);
+		expect(out).toContain('ul. Kościelna 15  ');
+		expect(out).toMatch(/07-106 Miedzna {2}\n/);
+		expect(out).toMatch(/tel\. \(0-25\) 791-05-81 {2}\n/);
+		expect(out).toContain('Dyrektor – Anna.');
+	});
+
 	it('nie skleja osobnych akapitów pogrubionych', () => {
 		const md = '**Szanowni Mieszkańcy,**\n\n**Z radością informujemy.**';
 		expect(cleanMarkdownArtifacts(md)).toBe(md);
@@ -74,6 +83,47 @@ describe('cleanMarkdownArtifacts', () => {
 			'w ramach „MAZOWSZE 2019” zrealizowała',
 		);
 	});
+
+	it('rozbija banner DOFINANSOWANO na czytelne zdania', () => {
+		const md =
+			'**DOFINANSOWANO ZE ŚRODKÓW – RZĄDOWY FUNDUSZ ROZWOJU DRÓG „Remont drogi gminnej nr 420508W w sołectwie Rostki”\n' +
+			'DOFINANSOWANIE 336 045,95 zł CAŁKOWITA WARTOŚĆ INWESTYCJI 482 525,65 zł** Gmina Miedzna zawiadamia.';
+		const out = cleanMarkdownArtifacts(md);
+		expect(out).toContain('**Dofinansowano ze środków Rządowego Funduszu Rozwoju Dróg**');
+		expect(out).toContain('Dofinansowanie: 336 045,95 zł.');
+		expect(out).toContain('Całkowita wartość inwestycji: 482 525,65 zł.');
+		expect(out).toContain('Gmina Miedzna zawiadamia');
+		expect(out).not.toContain('DOFINANSOWANO ZE ŚRODKÓW');
+	});
+
+	it('rozbija też banner bez pogrubienia', () => {
+		const md =
+			'DOFINANSOWANO ZE ŚRODKÓW RZĄDOWEGO FUNDUSZU ROZWOJU DRÓG „Remont drogi gminnej nr 420509W” DOFINANSOWANIE 630 984,43 zł CAŁKOWITA WARTOŚĆ INWESTYCJI 901 650,66 zł';
+		const out = cleanMarkdownArtifacts(md);
+		expect(out).toContain('**Dofinansowano ze środków Rządowego Funduszu Rozwoju Dróg**');
+		expect(out).toContain('Dofinansowanie: 630 984,43 zł.');
+	});
+
+	it('dokleja „własne Gminy” do linii kwoty i poprawia 2019r.', () => {
+		const md =
+			'Całkowita wartość zadania (brutto) – 20 803,07 zł w tym środki: dotacji z budżetu Województwa – 10 000,00 zł – 48,07 %\n' +
+			'własne Gminy – 10 803,07 zł – 51,93 %\n\nOkres realizacji zadania: 15 sierpnia 2019r. – 30 wrzesień 2019 r.';
+		const out = cleanMarkdownArtifacts(md);
+		expect(out).toContain('48,07 %, własne Gminy');
+		expect(out).toContain('2019 r.');
+		expect(out).toContain('30 września 2019 r.');
+		expect(out).not.toContain('2019r.');
+	});
+
+	it('scala urwany akapit i czyści etykietę 📎', () => {
+		const md =
+			'eksploatować\n\nbędzie można wyłącznie urządzenia.\n\n' +
+			'[📎 Zał.\\_Formularz\\_Program\\_współpracy\\_2027.docx](./a.docx)\n\n[📎 aaaa-bbbb-cccc-dddd-eeeeeeeeeeee.docx](./a.docx)';
+		const out = cleanMarkdownArtifacts(md, 'Program współpracy');
+		expect(out).toContain('eksploatować będzie można');
+		expect(out).toContain('[📎 Zał. Formularz Program współpracy 2027](./a.docx)');
+		expect(out.match(/\[📎 /g)?.length).toBe(1);
+	});
 });
 
 describe('humanizePdfTitle', () => {
@@ -81,10 +131,9 @@ describe('humanizePdfTitle', () => {
 		expect(humanizePdfTitle('Poradnik bezpieczeństwa')).toBe('Poradnik bezpieczeństwa');
 	});
 
-	it('bierze polski tytuł wpisu zamiast ASCII z nazwy pliku', () => {
-		expect(humanizePdfTitle('Plan ogolny w pytaniach i odpowiedziach', 'Plan ogólny w pytaniach i odpowiedziach')).toBe(
-			'Plan ogólny w pytaniach i odpowiedziach',
-		);
+	it('przywraca polskie znaki z ASCII nazwy pliku', () => {
+		expect(humanizePdfTitle('Zalacznik nr 1 wniosek o audyt')).toBe('Załącznik nr 1 wniosek o audyt');
+		expect(humanizePdfTitle('ulotka reklamowa audyty i p')).toBe('Ulotka reklamowa audyty i przeglądy');
 	});
 });
 
@@ -103,5 +152,8 @@ describe('cleanExcerpt', () => {
 			'rolnych na terenie',
 		);
 		expect(cleanExcerpt('m. in.: \\\\- komputery \\\\- monitory', 'Zbiórka elektrośmieci')).not.toContain('\\');
+		expect(
+			cleanExcerpt('DOFINANSOWANO ZE ŚRODKÓW – RZĄDOWY FUNDUSZ ROZWOJU DRÓG „Remont drogi”', 'Remont drogi'),
+		).toBe('Remont drogi');
 	});
 });

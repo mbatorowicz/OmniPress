@@ -1,5 +1,5 @@
 /**
- * Jednorazowe czyszczenie artefaktów WP w treściach news (repo Astro).
+ * Jednorazowe czyszczenie artefaktów WP w treściach (repo Astro).
  * Użycie: node scripts/clean-news-artifacts.mjs
  */
 import fs from 'node:fs';
@@ -12,9 +12,10 @@ import {
 	cleanPlainText,
 	unescapeYamlScalar,
 } from './lib/clean-md-artifacts.mjs';
+import { deriveTitleFromBody, softenAllCapsRun } from './lib/clean-md-readability.mjs';
 
 const REPO_B = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../gmina-miedzna.pl');
-const NEWS = path.join(REPO_B, 'src/content/news');
+const ROOTS = [path.join(REPO_B, 'src/content/news'), path.join(REPO_B, 'src/content/pages')];
 
 function normalize(raw) {
 	return raw.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
@@ -39,39 +40,54 @@ function setQuoted(fm, key, value) {
 	return fm.replace(line, `${key}: ${yamlQuote(value)}`);
 }
 
-function cleanTitle(value) {
-	return cleanPlainText(value).replace(/"([^"]+)"/g, '„$1”');
+function walk(dir, acc = []) {
+	if (!fs.existsSync(dir)) return acc;
+	for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+		const p = path.join(dir, ent.name);
+		if (ent.isDirectory()) walk(p, acc);
+		else if (ent.name === 'index.md') acc.push(p);
+	}
+	return acc;
+}
+
+function cleanTitle(value, body) {
+	let title = deriveTitleFromBody(value, body);
+	title = softenAllCapsRun(title);
+	title = cleanPlainText(title).replace(/"([^"]+)"/g, '„$1”');
+	title = title.replace(/\s*;\)\s*$/g, '').replace(/\s+zapraszamy\.?$/i, '').replace(/\.$/, '');
+	return title.trim();
 }
 
 let changed = 0;
-for (const dir of fs.readdirSync(NEWS, { withFileTypes: true }).filter((d) => d.isDirectory())) {
-	const file = path.join(NEWS, dir.name, 'index.md');
-	if (!fs.existsSync(file)) continue;
-	const raw = normalize(fs.readFileSync(file, 'utf8'));
-	const { fm, body } = splitFm(raw);
-	if (!fm) {
-		console.warn('brak frontmatter', dir.name);
-		continue;
-	}
-	const title = cleanTitle(readQuoted(fm, 'title'));
-	const excerpt = readQuoted(fm, 'excerpt');
-	let nextFm = fm;
-	if (title) nextFm = setQuoted(nextFm, 'title', title);
-	if (excerpt) nextFm = setQuoted(nextFm, 'excerpt', cleanExcerpt(excerpt, title));
-	const hasCover = /^coverImage:/m.test(fm);
-	let nextBody;
-	if (body.trim()) {
-		nextBody = `${cleanMarkdownArtifacts(body, title)}\n`;
-	} else if (hasCover) {
-		nextBody = '\n';
-	} else {
-		nextBody = `${title.replace(/\.$/, '')}.\n`;
-	}
-	const next = `${nextFm}\n\n${nextBody}`;
-	if (next !== raw) {
-		fs.writeFileSync(file, next);
-		changed += 1;
-		console.log('cleaned', dir.name);
+for (const root of ROOTS) {
+	for (const file of walk(root)) {
+		const raw = normalize(fs.readFileSync(file, 'utf8'));
+		const { fm, body } = splitFm(raw);
+		if (!fm) {
+			console.warn('brak frontmatter', path.relative(REPO_B, file));
+			continue;
+		}
+		const isPage = /type:\s*page/.test(fm);
+		const title = cleanTitle(readQuoted(fm, 'title'), body);
+		const excerpt = readQuoted(fm, 'excerpt');
+		let nextFm = fm;
+		if (title) nextFm = setQuoted(nextFm, 'title', title);
+		if (excerpt) nextFm = setQuoted(nextFm, 'excerpt', cleanExcerpt(excerpt, title));
+		const hasCover = /^coverImage:/m.test(fm);
+		let nextBody;
+		if (body.trim()) {
+			nextBody = `${cleanMarkdownArtifacts(body, title)}\n`;
+		} else if (hasCover || isPage) {
+			nextBody = body.trim() ? `${body.trim()}\n` : '\n';
+		} else {
+			nextBody = `${title.replace(/\.$/, '')}.\n`;
+		}
+		const next = `${nextFm}\n\n${nextBody}`;
+		if (next !== raw) {
+			fs.writeFileSync(file, next);
+			changed += 1;
+			console.log('cleaned', path.relative(REPO_B, file).replaceAll('\\', '/'));
+		}
 	}
 }
-console.log('Zmieniono wpisów:', changed);
+console.log('Zmieniono plików:', changed);

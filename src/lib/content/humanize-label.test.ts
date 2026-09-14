@@ -17,8 +17,7 @@ describe('humanizeLabel', () => {
 		expect(humanizeLabel('')).toBe('Dokument PDF');
 	});
 
-	it('ściąga prefiks numeru pliku i podwójne spacje', () => {
-		expect(humanizeLabel('Zarządzenie nr   42.pdf')).toBe('Zarządzenie nr 42');
-		expect(humanizeLabel('1. Regulamin naboru.pdf')).toBe('Regulamin naboru');
+	it('przywraca polskie znaki z ASCII nazwy pliku', () => {
+		expect(humanizeLabel('Zalacznik nr 1 wniosek o audyt.pdf')).toBe('Załącznik nr 1 wniosek o audyt');
 	});
 });

@@ -1,3 +1,16 @@
+import {
+	capitalizeLabel,
+	fixOfficialSpelling,
+	formatFundingBanner,
+	joinFundingLines,
+	joinOrphanLowercase,
+	preserveAddressBreaks,
+	restorePolishAscii,
+	softenAllCapsRun,
+	softenHardBreaks,
+	spaceMarkdownHeadings,
+} from './clean-md-readability.mjs';
+
 const SECTION_START =
 	/^(Sołectwo|Zakres |Całkowita |Okres realizacji|Wójt |Źródła finansowania|Remont |w tym środki|W świetlicy|Przed budynkiem)/;
 
@@ -33,7 +46,7 @@ export function humanizePdfTitle(raw, fallback = 'Dokument PDF') {
 		.replace(/\\_/g, '_')
 		.replace(/&quot;/g, '"')
 		.replace(/&amp;/g, '&')
-		.replace(/\.pdf$/i, '')
+		.replace(/\.(pdf|docx|gml)$/i, '')
 		.replace(/!{2,}/g, '')
 		.replace(/\s*\(\d+\)\s*$/g, '')
 		.trim();
@@ -46,8 +59,15 @@ export function humanizePdfTitle(raw, fallback = 'Dokument PDF') {
 	t = t.replace(/^\d{1,2}(?=\s+[a-ząćęłńóśźż])/u, '').trim();
 	t = t.replace(/-\d{1,2}$/g, '');
 	t = t.replace(/([a-ząćęłńóśźżA-ZĄĆĘŁŃÓŚŹŻ])(\d{4})$/g, '$1 $2');
+	t = restorePolishAscii(t);
+	t = t.replace(/\b([A-ZĄĆĘŁŃÓŚŹŻ]{4,})\b/g, (word) => {
+		if (/^(ALARM|PDF|LED|OSP|KGW|CEEB|QMP|ASF|BIP|GML|RODO|LAS|POŚ|NFOŚIGW|WFOŚIGW)$/i.test(word))
+			return word.toLocaleUpperCase('pl');
+		return word.charAt(0) + word.slice(1).toLocaleLowerCase('pl');
+	});
+	t = capitalizeLabel(t);
 	t = t.replace(/\s{2,}/g, ' ').trim();
-	if (t.length > 24) t = t.replace(/\s+\d+$/g, '').trim();
+	if (t.length > 24) t = t.replace(/\s+\d{1,2}$/g, '').trim();
 	if (/\d{5,}/.test(t)) return fallback;
 	if (fallback) {
 		const fh = foldPl(t);
@@ -55,20 +75,6 @@ export function humanizePdfTitle(raw, fallback = 'Dokument PDF') {
 		if (fh && ff && (fh === ff || ff.startsWith(fh) || fh.startsWith(ff))) return fallback;
 	}
 	return t || fallback;
-}
-
-function softenHardBreaks(md) {
-	return md.replace(/ {2}\n/g, (match, offset, source) => {
-		const next = source.slice(offset + 3).split('\n')[0]?.trim() ?? '';
-		const prev = (source.slice(0, offset).split('\n').at(-1) ?? '').replace(/ {2}$/, '').trimEnd();
-		if (!next) return '\n';
-		if (/\*\*/.test(prev) && next.startsWith('**')) return '\n\n';
-		if (/^Wójt Gminy/.test(prev) && /^[A-ZĄĆĘŁŃÓŚŹŻ]/.test(next)) return '\n';
-		if (/^[-–*#>]|\d+\.\s/.test(next) || next.startsWith('<') || next.startsWith('\\') || next.startsWith('\uE000'))
-			return '\n';
-		if (SECTION_START.test(next)) return '\n\n';
-		return ' ';
-	});
 }
 
 function unwrapWrappedLines(md) {
@@ -83,15 +89,23 @@ function unwrapWrappedLines(md) {
 		}
 		const a = cur.trimEnd();
 		const b = next.trim();
-		const noJoinNext = SECTION_START.test(b) || /^(w tym środki|własne )/.test(b);
+		const noJoinNext =
+			SECTION_START.test(b) ||
+			/^(w tym środki|własne |tel\.|fax|e-mail|NIP|REGON|Dyrektor|Data |Do budynku|W budynku|Toalety|\*\*)/.test(
+				b,
+			) ||
+			/^\d{2}-\d{3}/.test(b);
+		const noJoinPrev =
+			/^(ul\.|tel\.|fax|e-mail|NIP|REGON|\*\*)/.test(a) || /^\d{2}-\d{3}/.test(a) || /\*\*$/.test(a);
 		const joinLower =
-			!noJoinNext && /[a-ząćęłńóśźż,;]$/.test(a) && /^[a-ząćęłńóśźż]/.test(b);
+			!noJoinNext && !noJoinPrev && /[a-ząćęłńóśźż,;]$/.test(a) && /^[a-ząćęłńóśźż]/.test(b);
 		const joinTitle =
 			a.length > 0 &&
 			b.length > 0 &&
 			!/[.!?:]$/.test(a) &&
 			/^[A-ZĄĆĘŁŃÓŚŹŻ]/.test(b) &&
 			!noJoinNext &&
+			!noJoinPrev &&
 			!/^[-–*#>|\d]/.test(b) &&
 			!a.startsWith('<') &&
 			!b.startsWith('<') &&
@@ -139,11 +153,11 @@ function dropDuplicatePdfViewers(md) {
 
 function humanizeDownloadLinks(md, fallbackTitle) {
 	const seen = new Set();
-	return md.replace(/\[📄\s*([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
+	return md.replace(/\[(📄|📎)\s*([^\]]+)\]\(([^)]+)\)/g, (_, icon, label, href) => {
 		if (seen.has(href)) return '';
 		seen.add(href);
 		const clean = humanizePdfTitle(label.replace(/\\_/g, '_'), fallbackTitle);
-		return `[📄 ${clean}](${href})`;
+		return `[${icon} ${clean}](${href})`;
 	});
 }
 
@@ -159,28 +173,34 @@ function looksLikeFilename(value) {
 }
 
 export function cleanPlainText(value) {
-	return applyGlued(
-		String(value)
-			.replace(/\u00a0/g, ' ')
-			.replace(/\\-/g, ' ')
-			.replace(/\\_/g, '_')
-			.replace(/\uFE0F/g, '')
-			.replace(/([A-Za-zĄĆĘŁŃÓŚŹŻ])>(\s)/g, '$1$2')
-			.replace(/[“„]([^”"]+)[”"]/g, '„$1”')
-			.replace(/"([^"]+)"/g, '„$1”')
-			.replace(/([!?])([A-ZĄĆĘŁŃÓŚŹŻ])/g, '$1 $2')
-			.replace(/([a-ząćęłńóśźż])([A-ZĄĆĘŁŃÓŚŹŻ])/g, '$1 $2')
-			.replace(/([A-ZĄĆĘŁŃÓŚŹŻ0-9])(„)/g, '$1 $2')
-			.replace(/”([A-ZĄĆĘŁŃÓŚŹŻ])/g, '” $1')
-			.replace(/ +([”"])/g, '$1')
-			.replace(/pn\.\s*[„“”"]\s*/gi, 'pn. „')
-			.replace(/\s+/g, ' ')
-			.trim(),
+	return fixOfficialSpelling(
+		applyGlued(
+			softenAllCapsRun(
+				String(value)
+					.replace(/\u00a0/g, ' ')
+					.replace(/\\-/g, ' ')
+					.replace(/\\_/g, '_')
+					.replace(/\uFE0F/g, '')
+					.replace(/([A-Za-zĄĆĘŁŃÓŚŹŻ])>(\s)/g, '$1$2')
+					.replace(/[“„]([^”"]+)[”"]/g, '„$1”')
+					.replace(/"([^"]+)"/g, '„$1”')
+					.replace(/([!?])([A-ZĄĆĘŁŃÓŚŹŻ])/g, '$1 $2')
+					.replace(/([a-ząćęłńóśźż])([A-ZĄĆĘŁŃÓŚŹŻ])/g, '$1 $2')
+					.replace(/([A-ZĄĆĘŁŃÓŚŹŻ0-9])(„)/g, '$1 $2')
+					.replace(/”([A-ZĄĆĘŁŃÓŚŹŻ])/g, '” $1')
+					.replace(/ +([”"])/g, '$1')
+					.replace(/pn\.\s*[„“”"]\s*/gi, 'pn. „')
+					.replace(/\s+/g, ' ')
+					.trim(),
+			),
+		),
 	);
 }
 
 export function cleanExcerpt(value, fallbackTitle = '') {
-	const cleaned = cleanPlainText(unescapeYamlScalar(value));
+	const raw = unescapeYamlScalar(value);
+	if (/^DOFINANSOWANO/i.test(raw.trim())) return fallbackTitle || cleanPlainText(raw);
+	const cleaned = cleanPlainText(raw);
 	if (looksLikeFilename(cleaned) || cleaned.length < 12) return fallbackTitle || cleaned;
 	return cleaned;
 }
@@ -208,6 +228,7 @@ export function cleanMarkdownArtifacts(md, fallbackTitle = '') {
 	);
 	work = work.replace(/http:\/\/(?:www\.)?gmina-miedzna\.pl/g, 'https://gmina-miedzna.pl');
 	work = stripTracking(work);
+	work = formatFundingBanner(work);
 	work = work.replace(/\*\* +\*\*/g, ' ').replace(/\*{3,}/g, '');
 	work = work.replace(/ {2}\n\*\*\s*$/gm, '**');
 	work = work.replace(/^\\-\s+/gm, '- ');
@@ -239,10 +260,16 @@ export function cleanMarkdownArtifacts(md, fallbackTitle = '') {
 	work = work.replace(/(\d)\s+\.(\d{3})/g, '$1 $2');
 	work = work.replace(/(\d)(m²)/g, '$1 $2');
 	work = applyGlued(work);
+	work = fixOfficialSpelling(work);
 	work = softenHardBreaks(work);
 	work = unwrapWrappedLines(work);
+	work = joinFundingLines(work);
+	work = joinOrphanLowercase(work);
+	work = spaceMarkdownHeadings(work);
 	work = work.replace(/(\S) {2,}(?=\S)/g, '$1 ');
 	work = work.replace(/^\*\*\s*$/gm, '');
+	work = work.replace(/[ \t]+$/gm, '');
+	work = preserveAddressBreaks(work);
 	work = work.replace(/\uE000PDF(\d+)\uE001/g, (_, i) => blocks[Number(i)] ?? '');
 	work = humanizeDownloadLinks(work, fallbackTitle);
 	return work.replace(/\n{3,}/g, '\n\n').trim();
