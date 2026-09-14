@@ -1,4 +1,5 @@
 import TurndownService from 'turndown';
+import { cleanMarkdownArtifacts, humanizePdfTitle } from './clean-md-artifacts.mjs';
 import { PDF_LABELS, WP } from './wp-migrate-map.mjs';
 
 const turndown = new TurndownService({
@@ -129,16 +130,18 @@ export function htmlToMarkdown(html, assets) {
 	for (const { token, asset } of placeholders) {
 		const block =
 			asset.kind === 'pdf'
-				? pdfEmbedHtml(`./${asset.filename}`, asset.label || asset.filename)
+				? pdfEmbedHtml(`./${asset.filename}`, humanizePdfTitle(asset.label || asset.filename))
 				: `[📄 ${asset.label || asset.filename}](./${asset.filename})`;
 		md = md.replace(token, block);
 	}
 
-	return stripWpUploadLinks(
-		md
-			.replace(/WPASSET\d+ZZ/g, '')
-			.replace(/\n{3,}/g, '\n\n')
-			.trim(),
+	return cleanMarkdownArtifacts(
+		stripWpUploadLinks(
+			md
+				.replace(/WPASSET\d+ZZ/g, '')
+				.replace(/\n{3,}/g, '\n\n')
+				.trim(),
+		),
 	);
 }
 

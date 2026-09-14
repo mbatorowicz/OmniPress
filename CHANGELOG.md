@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Naprawione
+
+- **Treści WP bez śmieci z importu.** Publikacja PDF nie wkłada już skryptu viewera do markdownu (ładuje go layout strony). Skrypt czyszczenia ściąga shortcody galerii, samolinki, tracking w URL, twarde łamanie, sklejone słowa i nazwy plików w etykietach. Testy: `clean-md-artifacts.test.ts`, `asset-markdown.test.ts`.
+
 ### Dodane
 
 - **Migracja pozostałej treści WP do repo strony.** Skrypt `scripts/migrate-wp-remaining-posts.mjs` zaciąga wpisy z REST WordPressa (poza pominiętymi kategoriami i pustymi), zapisuje je w `gmina-miedzna.pl` i dokłada 301 ze starych permalinków. DNS produkcyjny bez zmian.

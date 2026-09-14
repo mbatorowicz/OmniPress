@@ -78,14 +78,14 @@ describe('sanitizeStorageMarkdown', () => {
 });
 
 describe('sanitizePublishMarkdown', () => {
-	it('zachowuje blok PDF embed z viewer script', () => {
+	it('zachowuje blok PDF embed bez skryptu viewera', () => {
 		const embed =
 			'<div class="op-pdf-viewer" data-op-pdf-src="./doc.pdf" data-op-pdf-title="doc.pdf" data-op-pdf-labels="{}"></div>' +
 			'<script type="module" src="/omnipress/pdf-viewer.js"></script>';
 		const md = `Wstęp\n\n${embed}\n\nKoniec`;
 		const out = sanitizePublishMarkdown(md);
 		expect(out).toContain('op-pdf-viewer');
-		expect(out).toContain('/omnipress/pdf-viewer.js');
+		expect(out).not.toContain('<script');
 		expect(out).not.toContain('<iframe');
 	});
 

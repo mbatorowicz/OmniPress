@@ -28,7 +28,7 @@ function sanitizeMarkdown(md: string, allowedTags: Set<string>, forPublish: bool
 
 	work = sanitizeHtml(work, {
 		allowedTags,
-		allowPdfViewerScript: forPublish,
+		allowPdfViewerScript: false,
 		escapeText: false,
 	});
 	work = sanitizeMarkdownUrls(work);

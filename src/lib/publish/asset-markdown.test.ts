@@ -8,9 +8,10 @@ describe('pdfEmbedHtml', () => {
 		expect(pdfEmbedHtml('./doc.pdf', 'Doc')).not.toContain('<iframe');
 	});
 
-	it('dodaje skrypt viewer przy publikacji', () => {
+	it('nie wkłada skryptu viewera do treści — ładuje go layout strony', () => {
 		const html = pdfEmbedHtml('./doc.pdf', 'Doc', true);
-		expect(html).toContain('/omnipress/pdf-viewer.js');
+		expect(html).toContain('op-pdf-viewer');
+		expect(html).not.toContain('<script');
 	});
 });
 
