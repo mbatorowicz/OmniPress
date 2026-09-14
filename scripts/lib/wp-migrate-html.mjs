@@ -49,7 +49,7 @@ export function slugifyFilename(name) {
 		.replace(/[^a-z0-9]+/g, '-')
 		.replace(/^-+|-+$/g, '')
 		.slice(0, 80);
-	return `${base || 'plik'}${ext}`;
+	return `${(base || 'plik').slice(0, 40)}${ext}`;
 }
 
 function originalUploadUrl(url) {
