@@ -19,7 +19,7 @@ Headless CMS do przygotowania treści przez redaktorów i publikacji na stronach
 
 ## Stack
 
-- Astro 6 SSR + Tailwind CSS v4
+- Astro 7 SSR + Tailwind CSS v4
 - Supabase (Auth, PostgreSQL, RLS, Storage)
 - Deploy: Vercel (`@astrojs/vercel`)
 - Publikacja: GitHub → repo Astro

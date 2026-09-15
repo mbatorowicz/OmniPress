@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Zmienione
+
+- **Astro 7.** Panel na `astro@7.3.2` i `@astrojs/vercel@11` (Vite 8 / Rolldown). `compressHTML: true` zostawia dotychczasowe spacje HTML; skrypty klienta nadal wychodzą do `_astro/*.js` (CSP bez `unsafe-inline`).
+
 ### Naprawione
 
 - **Twardnienie produkcji przed go-live.** Rate limit na weryfikacji MFA (TOTP nie jest już bez limitu po zalogowaniu hasłem). Panel layoutu escapuje etykiety i URL-e w `innerHTML`. Błąd PDF-viewera nie wstawia surowego `href`. `isSafeUrl` odrzuca adresy `//host`.

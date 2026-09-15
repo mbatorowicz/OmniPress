@@ -14,7 +14,7 @@ Produkcja: https://omni-press.cncsolutions.dev
 
 | Warstwa | Technologia |
 |---------|-------------|
-| Aplikacja | Astro 6 SSR, Tailwind CSS v4 |
+| Aplikacja | Astro 7 SSR, Tailwind CSS v4 |
 | Hosting | Vercel (`@astrojs/vercel`, cron worker) |
 | Baza + Auth | Supabase (PostgreSQL, RLS, Auth, Storage) |
 | Edytor | TipTap → zapis jako Markdown |

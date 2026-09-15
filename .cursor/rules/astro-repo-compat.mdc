@@ -41,7 +41,7 @@ OmniPress przy otwarciu panelu **sam** reconciluje strony statyczne i wpisy z `o
 
 ## Sanityzacja markdownu na stronie (S-2)
 
-Repo Astro nie renderuje gołego HTML z wpisu. Pipeline: `rehype-raw` → `rehype-sanitize` (`src/lib/markdown/sanitize-schema.js`) → `rehypeSafeAssetRefs` → `rehypePostAssetUrls` → `rehypeStripEmoji` → `rehypeFileLinks`. Allowlista zostawia blok `op-pdf-viewer` i względne `./`; `script` / `onclick` / `javascript:` z treści są wycinane. Emoji z treści nie trafiają do HTML (panel wycina je przy zapisie; tu zostaje siatka na stare wpisy). Viewer PDF jest w `Layout.astro` (`/omnipress/pdf-viewer.js`), nie w markdownie. Nagłówki CSP/XFO/HSTS: `src/lib/security/headers.ts`.
+Repo Astro nie renderuje gołego HTML z wpisu. Astro 7 domyślnie używa Sätteri — strona zostaje na `markdown.processor: unified({…})` z `@astrojs/markdown-remark`, bo S-2 wymaga rehype. Pipeline: `rehype-raw` → `rehype-sanitize` (`src/lib/markdown/sanitize-schema.js`) → `rehypeSafeAssetRefs` → `rehypePostAssetUrls` → `rehypeStripEmoji` → `rehypeFileLinks`. Allowlista zostawia blok `op-pdf-viewer` i względne `./`; `script` / `onclick` / `javascript:` z treści są wycinane. Emoji z treści nie trafiają do HTML (panel wycina je przy zapisie; tu zostaje siatka na stare wpisy). Viewer PDF jest w `Layout.astro` (`/omnipress/pdf-viewer.js`), nie w markdownie. Nagłówki CSP/XFO/HSTS: `src/lib/security/headers.ts`.
 
 Publikacja OmniPress nadal może dopisywać blok PDF + skrypt viewera w markdownie — strona skrypt z treści i tak odrzuci.
 
@@ -56,7 +56,7 @@ Publikacja OmniPress nadal może dopisywać blok PDF + skrypt viewera w markdown
    - Vercel: webhook po pushu na GitHub (bez czekania w panelu).
 4. **Nowe pola widgetów** — symetria parse JSON ↔ parse FormData w `parse.ts` / `parse-form.ts`; test w `parse.test.ts`.
 5. **Live API** (pogoda, CERT) — OmniPress tylko konfiguruje slot; endpointy (`/api/weather/warnings`, `/api/cert/advisories`) są w repo Astro.
-6. **Front-matter** — schematy kolekcji w repo Astro (`src/content.config.ts`) są `.strict()`; nowe pole wymaga zmiany tam **i** w lustrzanym `lib/publish/news-frontmatter-schema.ts`. Bez tego publikacja wpisu przerywa build strony.
+6. **Front-matter** — schematy kolekcji w repo Astro (`src/content.config.ts`) są `.strict()` (`z` z `astro/zod`); nowe pole wymaga zmiany tam **i** w lustrzanym `lib/publish/news-frontmatter-schema.ts`. Bez tego publikacja wpisu przerywa build strony.
 
 ## Checklist przed merge
 

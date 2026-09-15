@@ -1,7 +1,7 @@
 {
   "name": "omnipress",
   "type": "module",
-	"version": "0.15.0",
+  "version": "0.15.0",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -59,7 +59,7 @@
     "lint:ui": "node scripts/lint-ui-classes.mjs"
   },
   "dependencies": {
-    "@astrojs/vercel": "^10.0.8",
+    "@astrojs/vercel": "^11.0.10",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.107.0",
     "@tailwindcss/vite": "^4.3.0",
@@ -68,7 +68,7 @@
     "@tiptap/extension-placeholder": "^3.26.0",
     "@tiptap/pm": "^3.26.0",
     "@tiptap/starter-kit": "^3.26.0",
-    "astro": "^6.4.3",
+    "astro": "^7.3.2",
     "marked": "^18.0.5",
     "parse5": "^8.0.1",
     "pdfjs-dist": "^6.0.227",

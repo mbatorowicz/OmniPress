@@ -18,6 +18,8 @@ const appVersionLabel = getVersionLabel();
 export default defineConfig({
 	output: 'server',
 	adapter: vercel(),
+	// Astro 7: jsx-compress gubi spacje między inline; zostawiamy HTML-aware jak w v6.
+	compressHTML: true,
 	vite: {
 		plugins: [tailwindcss()],
 		build: { assetsInlineLimit },
