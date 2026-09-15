@@ -7,6 +7,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Naprawione
 
+- **Zapis szkicu nie czeka na GitHub.** Edytor strony i layoutu zapisuje tylko do bazy; import wpisów/stron z repo zostaje przy wejściu na kolejkę, listę wpisów i listę stron. Przy reconcile lista wpisów idzie jednym odczytem zamiast zapytania na każdy plik.
+
 - **PDF nie zamyka drogi powrotu na stronę.** Chrome po wejściu w plik `.pdf` w tej samej karcie podmienia historię na `chrome-extension://` (wbudowany viewer) i przycisk Wstecz nie wraca na portal. „Pobierz PDF” zapisuje plik (albo otwiera nową kartę, gdy pobranie się nie uda); pozostałe linki do PDF otwierają się w nowej karcie. Testy: `pdf-href.test.ts`, `pdf-open.test.ts`.
 
 

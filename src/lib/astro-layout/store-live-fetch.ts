@@ -26,11 +26,7 @@ export async function fetchLiveNavigationHrefCount(
 	siteId: string,
 	layout: SiteAstroLayout,
 ): Promise<number | null> {
-	const draftHash = hashLayoutFile(layout);
-	if (
-		layout.sync?.publishedLayoutHash &&
-		draftHash === layout.sync.publishedLayoutHash
-	) {
+	if (layout.sync?.publishedLayoutHash) {
 		return collectNavHrefs(getNavigationFromLayout(layout)).length;
 	}
 

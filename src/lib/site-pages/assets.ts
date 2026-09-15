@@ -44,11 +44,22 @@ export async function pageHasAssets(
 	supabase: SupabaseClient,
 	pageId: string,
 ): Promise<boolean> {
-	const { count } = await supabase
-		.from('assets')
-		.select('id', { count: 'exact', head: true })
-		.eq('page_id', pageId);
-	return (count ?? 0) > 0;
+	const ids = await pageIdsWithAssets(supabase, [pageId]);
+	return ids.has(pageId);
+}
+
+/** Jedno zapytanie zamiast N × `pageHasAssets` przy reconcile listy stron. */
+export async function pageIdsWithAssets(
+	supabase: SupabaseClient,
+	pageIds: string[],
+): Promise<Set<string>> {
+	if (pageIds.length === 0) return new Set();
+	const { data } = await supabase.from('assets').select('page_id').in('page_id', pageIds);
+	return new Set(
+		((data ?? []) as { page_id?: string | null }[])
+			.map((row) => row.page_id)
+			.filter((id): id is string => Boolean(id)),
+	);
 }
 
 export async function updatePageAssetDisplayModes(

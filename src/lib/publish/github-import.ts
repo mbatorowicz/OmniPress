@@ -8,6 +8,7 @@ import {
 	type GitHubTreeBlob,
 } from './github-api';
 import { importOnePost } from './github-import-one';
+import { loadExistingPostIndex } from './import-existing';
 
 export type ImportPostsResult =
 	| { ok: true; imported: number; updated: number; skipped: number; errors: string[] }
@@ -43,6 +44,7 @@ export async function importPublishedPostsFromGitHub(
 		blobs.map((blob) => blob.path),
 	);
 	const shaByPath = new Map(blobs.map((blob) => [blob.path, blob.sha]));
+	const index = await loadExistingPostIndex(supabase, siteId, dest.id);
 	let imported = 0;
 	let updated = 0;
 	let skipped = 0;
@@ -58,6 +60,7 @@ export async function importPublishedPostsFromGitHub(
 			authorId,
 			markdownPath,
 			shaByPath.get(markdownPath) ?? null,
+			index,
 		);
 		if (result.action === 'imported') imported += 1;
 		else if (result.action === 'updated') updated += 1;

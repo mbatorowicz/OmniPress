@@ -4,7 +4,8 @@ import { parseAstroPostFile, slugFromGitHubMarkdownPath } from './astro-post-par
 import { getGitHubFileText, type GitHubConfig } from './github-api';
 import { stripPublishedAttachments } from './import-asset-model';
 import { syncPostAssetsFromGitHub } from './import-assets';
-import { ensureSuccessPublishLog, findExistingPostId } from './import-publish-log';
+import { ensureSuccessPublishLog } from './import-publish-log';
+import { type ExistingPostIndex, resolveExistingPost } from './import-existing';
 import { formatExternalGitHubPath } from './paths';
 import type { DestinationForPublish } from './types';
 import { prepareStorageMarkdown } from '@/lib/content/prepare-markdown';
@@ -12,26 +13,6 @@ import { decideReconcile, hashPublishedContent } from '@/lib/sync/policy';
 import { toPublishAtIso } from './publish-date';
 
 export type ImportOneAction = 'imported' | 'updated' | 'skipped';
-
-type ExistingPost = {
-	id: string;
-	status: string;
-	content_md: string;
-	live_blob_sha: string | null;
-	published_content_sha: string | null;
-};
-
-async function loadExistingPost(
-	supabase: SupabaseClient,
-	postId: string,
-): Promise<ExistingPost | null> {
-	const { data } = await supabase
-		.from('posts')
-		.select('id, status, content_md, live_blob_sha, published_content_sha')
-		.eq('id', postId)
-		.maybeSingle();
-	return (data as ExistingPost | null) ?? null;
-}
 
 export async function importOnePost(
 	supabase: SupabaseClient,
@@ -42,17 +23,18 @@ export async function importOnePost(
 	authorId: string | null,
 	markdownPath: string,
 	liveBlobSha: string | null,
+	index?: ExistingPostIndex,
 ): Promise<{ action: ImportOneAction; errors: string[] }> {
 	const slug = slugFromGitHubMarkdownPath(markdownPath, cfg.contentPath, cfg.contentLayout);
 	const externalId = formatExternalGitHubPath(markdownPath);
-	const existingId = await findExistingPostId(
+	const { existingId, existing } = await resolveExistingPost(
 		supabase,
 		siteId,
 		destination.id,
 		externalId,
 		slug,
+		index,
 	);
-	const existing = existingId ? await loadExistingPost(supabase, existingId) : null;
 
 	const first = decideReconcile({
 		omniExists: Boolean(existing),

@@ -51,7 +51,10 @@ export function mountPdfThumbs(root: ParentNode = document): void {
 		'.op-pdf-thumb[data-pdf-src]:not([data-pdf-thumb-mounted])',
 	);
 	for (const el of nodes) {
-		void mountThumb(el);
+		el.setAttribute('data-pdf-thumb-mounted', '');
+		mountWhenVisible(el, (target) => {
+			void mountThumb(target);
+		});
 	}
 }
 
@@ -77,7 +80,6 @@ async function mountThumb(el: HTMLElement): Promise<void> {
 	const src = el.getAttribute('data-pdf-src');
 	if (!src) return;
 
-	el.setAttribute('data-pdf-thumb-mounted', '');
 	const title = el.getAttribute('data-pdf-title') ?? 'PDF';
 	const fallback = el.querySelector<HTMLElement>('.op-pdf-thumb-fallback');
 

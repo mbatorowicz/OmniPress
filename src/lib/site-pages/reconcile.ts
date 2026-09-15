@@ -3,7 +3,7 @@ import { getGitHubFileText, type GitHubConfig, type GitHubTreeBlob } from '@/lib
 import { formatExternalGitHubPath } from '@/lib/publish/paths';
 import { decideReconcile, hashPublishedContent, type ReconcileDecision } from '@/lib/sync/policy';
 import { listSitePages } from './access';
-import { pageHasAssets } from './assets';
+import { pageIdsWithAssets } from './assets';
 import { filterGitHubMarkdownPages, parseSitePageFile, parseSitePagePath } from './parse';
 import { applySitePagePull } from './reconcile-apply';
 import { buildSitePagePublicPath } from './url';
@@ -60,6 +60,10 @@ export async function reconcileSitePagesFromGitHub(
 	pagesRoot: string,
 ): Promise<PageReconcileResult> {
 	const pages = await listSitePages(supabase, siteId);
+	const pagesWithAssets = await pageIdsWithAssets(
+		supabase,
+		pages.map((page) => page.id),
+	);
 	let pulled = 0;
 	let kept = 0;
 
@@ -67,7 +71,7 @@ export async function reconcileSitePagesFromGitHub(
 		const fromPath = parseSitePagePath(pagesRoot, blob.path);
 		if (!fromPath) continue;
 		const existing = findExistingPage(pages, fromPath.pathPrefix, fromPath.slug, blob.path);
-		const treatAsFilled = existing ? await pageHasAssets(supabase, existing.id) : false;
+		const treatAsFilled = existing ? pagesWithAssets.has(existing.id) : false;
 		let decision = decisionFor(existing, blob.sha, undefined, treatAsFilled);
 
 		if (decision === 'inspect' || decision === 'pull') {

@@ -82,7 +82,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Dezaktywacja / usunięcie opublikowanego (withdraw z GitHub) | ✅ |
 | Bulk: akceptacja / odrzucenie (pending), anulowanie harmonogramu, dezaktywacja / usuwanie | ✅ |
 | Przypinanie wpisu na stronie głównej (`pinned`) | ✅ migracja `setup:posts-pinned` |
-| Import wpisów z GitHub | ✅ auto przy wejściu na panel (bez przycisku) |
+| Import wpisów z GitHub | ✅ auto przy wejściu na kolejkę i listę wpisów (bez przycisku) |
 | Layout Astro (menu, kategorie, sloty) + sync do repo | ✅ pasek zgodności: zgodne / szkic do publikacji / wczytaj nowszą stronę; auto-wczytanie po hashu całego layoutu |
 | Ustawienia strony (nazwa, slug, GitHub, tokeny) | ✅ `/admin/units/[id]` |
 | Strony statyczne (admin) + publikacja do repo Astro | ✅ `/admin/units/[id]/pages` — auto-pull z GitHub, publikacja nie nadpisze pustką; załączniki jak we wpisach (PDF: link / podgląd, edytowalna nazwa) |
@@ -234,7 +234,7 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 
 ## 0.11.0 — Auto-reconcile Omni ↔ GitHub
 
-- Przy wejściu na panel Omni sam wczytuje wpisy, strony statyczne i layout z `origin/main`, gdy GitHub się zmienił i nie ma niewysłanych poprawek w Omni.
+- Przy wejściu na kolejkę, listę wpisów i listę stron Omni sam wczytuje wpisy i strony z `origin/main`, gdy GitHub się zmienił i nie ma niewysłanych poprawek w Omni. Edytor szkicu nie powtarza tego importu.
 - Publikacja strony odmawia pustki/placeholdera nad bogatszą treścią w repo.
 - *Utwórz strony z menu* tworzy tylko szkice — nic nie idzie do Gita.
 - Przyciski *Importuj z GitHub* usunięte. Migracja `setup:github-reconcile`.
