@@ -35,6 +35,7 @@ export const RESERVED_REDIRECT_SOURCES = new Set([
 	...TAKE_CATEGORIES.map((c) => `/${c.slug}`),
 	'/aktualnosci',
 	'/odpady',
+	'/gospodarka-odpadami',
 	'/zarzadzenia',
 	'/kontakt',
 ]);

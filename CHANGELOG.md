@@ -9,6 +9,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 - **Jedna etykieta RODO w stopce i seedzie layoutu.** Fallback `legalLinks` i testy menu/stopki używają „RODO”, tak jak strona gminy.
 
+- **Kategoria odpady → gospodarka odpadami.** Klucz kolejności menu poziomu 1 uznaje też adres `/gospodarka-odpadami`.
+
 - **Astro 7.** Panel na `astro@7.3.2` i `@astrojs/vercel@11` (Vite 8 / Rolldown). `compressHTML: true` zostawia dotychczasowe spacje HTML; skrypty klienta nadal wychodzą do `_astro/*.js` (CSP bez `unsafe-inline`).
 
 ### Naprawione

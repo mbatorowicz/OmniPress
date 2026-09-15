@@ -6,6 +6,7 @@ export const TOP_NAV_LEVEL1_KEYS = [
 	'/aktualnosci',
 	'Gmina',
 	'Gospodarka odpadami',
+	'/gospodarka-odpadami',
 	'/ochrona-ludnosci',
 	'Kontakt',
 	'BIP',

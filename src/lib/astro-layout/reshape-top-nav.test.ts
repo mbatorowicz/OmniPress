@@ -52,7 +52,7 @@ const productionLikeNav: NavItem[] = [
 	},
 	{
 		label: 'Gospodarka odpadami',
-		children: [{ href: '/odpady/pszok', label: 'PSZOK' }],
+		children: [{ href: '/gospodarka-odpadami/pszok', label: 'PSZOK' }],
 		menuColumns: 2,
 	},
 	{ href: '/kontakt', label: 'Kontakt' },
@@ -101,7 +101,7 @@ describe('reshapeTopNav', () => {
 
 	it('nie spłaszcza grupy poziomu 1 z jednym dzieckiem', () => {
 		const odpady = next.find((item) => item.label === 'Gospodarka odpadami');
-		expect(odpady?.children).toEqual([{ href: '/odpady/pszok', label: 'PSZOK' }]);
+		expect(odpady?.children).toEqual([{ href: '/gospodarka-odpadami/pszok', label: 'PSZOK' }]);
 	});
 
 	it('dokłada Aktualności i Ochronę ludności oraz ustawia kolejność poziomu 1', () => {
