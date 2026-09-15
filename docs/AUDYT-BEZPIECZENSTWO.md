@@ -80,7 +80,7 @@ Nowe znaleziska z przeglądu go-live. Naprawione w tej sesji, o ile nie zaznaczo
 | JST-1 | ✅ | wysoka (compliance) | Pusta klauzula RODO na stronie gminy. |
 | JST-2 | ✅ | wysoka (compliance) | Deklaracja dostępności z 2021, status „zgodna” bez audytu nowej strony. |
 
-**Świadomie poza kodem (wymaga urzędu, nie agenta):** umowa powierzenia z Vercel/Supabase (art. 28 RODO); oficjalny adres IOD; e-mail dostępności `@gmina-miedzna.pl` zamiast prywatnego `@op.pl`; pełny audyt WCAG 2.1 AA; journalistyczny/prawny przegląd klauzuli przez IOD.
+**Świadomie poza kodem (wymaga urzędu, nie agenta):** umowa powierzenia z Vercel/Supabase (art. 28 RODO); e-mail dostępności `@gmina-miedzna.pl` zamiast prywatnego `@op.pl`; pełny audyt WCAG 2.1 AA; journalistyczny/prawny przegląd klauzuli przez IOD. Adres IOD na stronie pochodzi z urzędowego PDF-u opublikowanego przez gminę (`iod.rodo@epoczta.pl`).
 
 ---
 
