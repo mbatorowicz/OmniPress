@@ -162,6 +162,7 @@ Tabela opisuje **zamierzony** stan bazy. `lint-docs-setup.mjs` pilnuje zgodnośc
 | Upload: magic bytes | ✅ |
 | Anti-enumeracja resetu hasła | ✅ |
 | Sanityzacja treści (edytor + zapis + publikacja) | ✅ |
+| Rate limit MFA (TOTP) | ✅ ten sam limiter co login (`guardAuthMutationRequest`, akcja `mfa`) |
 
 ---
 

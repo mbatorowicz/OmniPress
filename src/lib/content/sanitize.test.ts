@@ -18,6 +18,7 @@ describe('isSafeUrl', () => {
 	it('odrzuca javascript: i data:', () => {
 		expect(isSafeUrl('javascript:alert(1)')).toBe(false);
 		expect(isSafeUrl('data:text/html,<script>')).toBe(false);
+		expect(isSafeUrl('//evil.example/x')).toBe(false);
 	});
 });
 

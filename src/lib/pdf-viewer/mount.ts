@@ -4,6 +4,7 @@ import { defaultPdfViewerLabels } from './default-labels';
 import { pdfDocumentOptions } from './document-options';
 import { mountWhenVisible } from './lazy-mount';
 import { bindPdfDownloadLink } from './pdf-open';
+import { renderPdfOpenError } from './status-error';
 import { PDF_VIEWER_CSS } from './styles';
 import type { PdfViewerLabels } from './types';
 
@@ -183,7 +184,7 @@ async function mountOne(el: HTMLElement): Promise<void> {
 	const showError = () => {
 		status.hidden = false;
 		canvas.hidden = true;
-		status.innerHTML = `${labels.error} <a href="${src}" target="_blank" rel="noopener noreferrer">${labels.open}</a>`;
+		renderPdfOpenError(status, src, labels.error, labels.open);
 	};
 
 	const renderPage = async () => {

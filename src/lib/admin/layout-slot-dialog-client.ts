@@ -1,5 +1,7 @@
 /** Otwieranie / zamykanie okien ustawień slotów layoutu. */
 
+import { escapeHtml } from './layout-slots-preview-read';
+
 declare global {
 	interface Window {
 		__opRefreshSlotSummary?: (slotId: string) => void;
@@ -23,7 +25,7 @@ export function refreshSlotCardSummary(slotId: string): void {
 	panel.querySelectorAll('.home-feed-categories-field input[type="checkbox"]:checked').forEach((input) => {
 		const label = input.closest('label');
 		const name = label?.querySelector('span')?.childNodes[0]?.textContent?.trim();
-		if (name) chips.push(`<span class="layout-slot-chip">Kategorie: ${name}</span>`);
+		if (name) chips.push(`<span class="layout-slot-chip">Kategorie: ${escapeHtml(name)}</span>`);
 	});
 
 	const linkType =
@@ -31,18 +33,18 @@ export function refreshSlotCardSummary(slotId: string): void {
 	if (linkType === 'category') {
 		const sel = panel.querySelector('.slot-banner-field-category select') as HTMLSelectElement | null;
 		const text = sel?.selectedOptions[0]?.textContent?.trim();
-		if (text && text !== '—') chips.push(`<span class="layout-slot-chip">Link: ${text}</span>`);
+		if (text && text !== '—') chips.push(`<span class="layout-slot-chip">Link: ${escapeHtml(text)}</span>`);
 	} else if (linkType === 'page') {
 		const sel = panel.querySelector('.slot-banner-field-page select') as HTMLSelectElement | null;
 		const val = sel?.value;
-		if (val) chips.push(`<span class="layout-slot-chip">Link: ${val}</span>`);
+		if (val) chips.push(`<span class="layout-slot-chip">Link: ${escapeHtml(val)}</span>`);
 	} else if (linkType === 'external') {
 		const url = (panel.querySelector('.slot-banner-field-external input') as HTMLInputElement | null)?.value?.trim();
-		if (url) chips.push(`<span class="layout-slot-chip">Link: ${url}</span>`);
+		if (url) chips.push(`<span class="layout-slot-chip">Link: ${escapeHtml(url)}</span>`);
 	}
 
 	const topbarText = (panel.querySelector('input[name*="topbar"]') as HTMLInputElement | null)?.value?.trim();
-	if (topbarText) chips.push(`<span class="layout-slot-chip">${topbarText}</span>`);
+	if (topbarText) chips.push(`<span class="layout-slot-chip">${escapeHtml(topbarText)}</span>`);
 
 	const tileHeight = (panel.querySelector('input[name*="tile_height"]') as HTMLInputElement | null)?.value?.trim();
 	if (tileHeight) chips.push(`<span class="layout-slot-chip">${tileHeight}px</span>`);

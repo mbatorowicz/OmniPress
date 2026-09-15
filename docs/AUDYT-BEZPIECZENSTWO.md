@@ -13,7 +13,7 @@ Oznaczenia: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | S-3 ✅ | Bucket `post-assets` prywatny + signed URL | A (+ Storage) | **wysoka** | — |
 | S-4 ✅ | Panel: escape nazw, Origin na POST, IP z hopa Vercel | A | średnia | po S-1 |
 
-**Następna sesja:** S-1–S-4 i audyt kategorii (22–25) zamknięte. Następny krok projektu: DNS cutover — tylko na wyraźną prośbę.
+**Następna sesja:** S-1–S-4 i audyt kategorii (22–25) zamknięte. Twardnienie produkcji 2026-09-15 (MFA limiter, XSS layoutu, JST: RODO + deklaracja) — w [Unreleased] CHANGELOG. Następny krok projektu: DNS cutover — tylko na wyraźną prośbę.
 
 Kategorie wpisów (AUDYT-WYKONANIE 22–25) zostają otwarte, ale **nie zaczynaj od nich**, dopóki S-1 i S-2 nie są zamknięte — XSS na stronie gminy jest ważniejszy niż flow kategorii.
 
@@ -64,6 +64,23 @@ Redaktor bez TOTP. Przejęte konto + B-1 wystarczy do podłożenia XSS (akceptac
 - `/api/search.json` — indeks opublikowanych wpisów, nie szkiców.
 - `joinContentPath` bez normalizacji `..` — slug to `[a-z0-9-]`, ścieżki destynacji ustawia admin z PAT.
 - RLS, trigger `profiles_guard`, upload magic bytes, AES-GCM na PAT, enumeracja e-maili — działają; nie „naprawiać” bez nowej evidencji.
+
+---
+
+## Produkcja 2026-09-15 (po S-4)
+
+Nowe znaleziska z przeglądu go-live. Naprawione w tej sesji, o ile nie zaznaczono inaczej.
+
+| # | Status | Waga | Opis |
+|---|--------|------|------|
+| B-9 | ✅ | średnia | Brak rate limitu na `/api/auth/mfa/verify` i `verify-enroll` — TOTP do brute-force po haśle. Teraz `guardAuthMutationRequest(..., 'mfa')`. |
+| B-10 | ✅ | średnia | DOM XSS w panelu layoutu (`innerHTML` z etykietą/URL). Escape przez `escapeHtml`. |
+| B-11 | ✅ | niska | `isSafeUrl` przepuszczał `//host` (protokół względny). |
+| B-12 | ✅ | niska | PDF viewer: `innerHTML` z `href` w ścieżce błędu — `renderPdfOpenError`. |
+| JST-1 | ✅ | wysoka (compliance) | Pusta klauzula RODO na stronie gminy. |
+| JST-2 | ✅ | wysoka (compliance) | Deklaracja dostępności z 2021, status „zgodna” bez audytu nowej strony. |
+
+**Świadomie poza kodem (wymaga urzędu, nie agenta):** umowa powierzenia z Vercel/Supabase (art. 28 RODO); oficjalny adres IOD; e-mail dostępności `@gmina-miedzna.pl` zamiast prywatnego `@op.pl`; pełny audyt WCAG 2.1 AA; journalistyczny/prawny przegląd klauzuli przez IOD.
 
 ---
 

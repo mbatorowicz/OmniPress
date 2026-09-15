@@ -2,6 +2,7 @@ import { isComponentAllowedInZone, isSingletonComponent, type LayoutZone } from 
 import type { SlotWidgetConfig } from '@/lib/astro-layout/types';
 import type { ComponentRegistryGroup } from '@/lib/admin/component-registry';
 import { bindSlotCardLabelSync } from '@/lib/admin/layout-slot-dialog-client';
+import { escapeHtml } from '@/lib/admin/layout-slots-preview-read';
 import {
 	buildDetailHtml,
 	buildSlotCardHtml,
@@ -85,18 +86,21 @@ export function buildListRowHtml(
 	component: string,
 	label = '',
 ): string {
+	const safeId = escapeHtml(id);
+	const safeLabel = escapeHtml(label);
+	const safeComponent = escapeHtml(component);
 	const isSingleton = isSingletonComponent(component);
 	const componentCell = isSingleton
-		? `<input type="hidden" name="slot_component" value="${component}" /><span class="text-sm">${config.componentLabels[component] ?? component}</span>`
+		? `<input type="hidden" name="slot_component" value="${safeComponent}" /><span class="text-sm">${escapeHtml(config.componentLabels[component] ?? component)}</span>`
 		: `<select name="slot_component" class="slot-component ui-select-compact w-48">${config.componentOptionsHtml}</select>`;
 	const idReadonly = isSingleton ? 'readonly' : '';
 	return `
-		<td class="ui-table-dense-td"><input name="slot_id" value="${id}" required ${idReadonly} class="ui-input-compact ui-input-compact--mono w-24" /></td>
-		<td class="ui-table-dense-td"><input name="slot_label" value="${label}" required class="ui-input-compact w-32 slot-row-label" /></td>
+		<td class="ui-table-dense-td"><input name="slot_id" value="${safeId}" required ${idReadonly} class="ui-input-compact ui-input-compact--mono w-24" /></td>
+		<td class="ui-table-dense-td"><input name="slot_label" value="${safeLabel}" required class="ui-input-compact w-32 slot-row-label" /></td>
 		<td class="ui-table-dense-td">${componentCell}</td>
 		<td class="ui-table-dense-td"><input name="slot_widget_order" type="number" min="0" value="${order}" class="ui-input-compact w-16 slot-row-order" /></td>
-		<td class="ui-table-dense-td text-center"><input type="checkbox" name="slot_enabled_${id}" checked class="slot-row-enabled" /></td>
-		<td class="ui-table-dense-td">${isSingleton ? '' : `<button type="button" class="remove-slot ui-btn ui-btn--link-danger">${config.removeSlotLabel}</button>`}</td>
+		<td class="ui-table-dense-td text-center"><input type="checkbox" name="slot_enabled_${safeId}" checked class="slot-row-enabled" /></td>
+		<td class="ui-table-dense-td">${isSingleton ? '' : `<button type="button" class="remove-slot ui-btn ui-btn--link-danger">${escapeHtml(config.removeSlotLabel)}</button>`}</td>
 	`;
 }
 

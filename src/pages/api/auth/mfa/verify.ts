@@ -1,11 +1,11 @@
 import type { APIRoute } from 'astro';
 import { auth, mapAuthError } from '@/i18n';
 import { getSessionUser } from '@/lib/auth';
-import { guardSameOriginPost } from '@/lib/auth/guard-request';
+import { guardAuthMutationRequest } from '@/lib/auth/guard-request';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
-	const guard = guardSameOriginPost(request);
+	const guard = await guardAuthMutationRequest(request, 'mfa');
 	if (!guard.ok) {
 		return redirect('/auth/mfa?error=' + encodeURIComponent(guard.message));
 	}

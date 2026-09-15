@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Naprawione
+
+- **Twardnienie produkcji przed go-live.** Rate limit na weryfikacji MFA (TOTP nie jest już bez limitu po zalogowaniu hasłem). Panel layoutu escapuje etykiety i URL-e w `innerHTML`. Błąd PDF-viewera nie wstawia surowego `href`. `isSafeUrl` odrzuca adresy `//host`.
+
 ### Zmienione
 
 - **Edytor nie przyjmuje emoji w treści ani tytule.** Wpis, wklejka, IME/Win+. i zapis zdejmują kalendarzyki, skarbonki i serduszka; znaczniki załączników `📄`/`📎` zostają. Testy: `strip-emoji.test.ts`, `sanitize.test.ts`, `html-markdown.test.ts`, `strip-emoji-extension.test.ts`.

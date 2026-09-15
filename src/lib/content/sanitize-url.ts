@@ -7,6 +7,7 @@ export function isSafeUrl(url: string): boolean {
 	if (DANGEROUS_URL_RE.test(trimmed)) return false;
 	if (/^[\x00-\x1f]/.test(trimmed)) return false;
 	if (trimmed.startsWith('#')) return true;
+	if (trimmed.startsWith('//')) return false;
 	if (trimmed.startsWith('./') || trimmed.startsWith('../') || trimmed.startsWith('/')) return true;
 	if (/^(https?:|mailto:|tel:)/i.test(trimmed)) return true;
 	return false;

@@ -66,7 +66,7 @@ sequenceDiagram
 
 1. **Rejestracja** — wyłączona w Supabase (`disable_signup: true` przez `npm run setup:auth-urls`). Konta tylko przez admina.
 2. **RLS profiles** — trigger `profiles_guard_self_update` blokuje zmianę `role` i `default_site_id` przez redaktora (`npm run setup:profiles-guard`).
-3. **Auth POST** — rate limit (20 / 15 min / IP, Upstash lub Supabase RPC) + odrzucenie żądań z obcym `Origin` albo bez `Origin` i bez `Sec-Fetch-Site: same-origin`. IP: na Vercel hop platformy (`x-vercel-forwarded-for`, potem pierwszy hop `X-Forwarded-For`). Goły `x-real-ip` od klienta jest ignorowany.
+3. **Auth POST** — rate limit (20 / 15 min / IP, Upstash lub Supabase RPC) + odrzucenie żądań z obcym `Origin` albo bez `Origin` i bez `Sec-Fetch-Site: same-origin`. Ten sam limiter obejmuje logowanie, reset, `establish-session` oraz **weryfikację i enrollment MFA** (`/api/auth/mfa/verify`, `/api/auth/mfa/verify-enroll`, akcja `mfa`). IP: na Vercel hop platformy (`x-vercel-forwarded-for`, potem pierwszy hop `X-Forwarded-For`). Goły `x-real-ip` od klienta jest ignorowany.
 4. **MFA admin** — TOTP obowiązkowy (AAL2); enrollment `/auth/mfa/setup`, challenge `/auth/mfa`.
 5. **CSP** — nonce per żądanie; `script-src 'self' 'nonce-…' 'wasm-unsafe-eval'` (pdf.js). Brak `unsafe-inline`, więc każdy `<script>` w HTML musi mieć nonce **albo** być osobnym plikiem — patrz [KONWENCJE.md](./KONWENCJE.md#8-skrypty-klienta-i-csp). `img-src` bez Supabase — załączniki idą z własnego origin.
 6. **Reset hasła** — zawsze ten sam komunikat sukcesu (brak enumeracji e-maili).

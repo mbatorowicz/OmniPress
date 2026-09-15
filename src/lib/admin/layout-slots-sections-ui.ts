@@ -5,6 +5,7 @@ import {
 	type LayoutComponentKind,
 	type LayoutZone,
 } from '@/lib/astro-layout/components';
+import { escapeHtml } from './layout-slots-preview-read';
 import { fa, panelCloseHtml, panelOpenHtml, slotPanelHeaderHtml } from './layout-slots-sections-panels';
 import type { SectionBuildConfig } from './layout-slots-sections-types';
 import { buildChromeDetailHtml } from './layout-slots-sections-chrome';
@@ -57,10 +58,11 @@ export function buildZoneComponentOptionsHtml(
 	selectedComponent?: string,
 ): string {
 	return getComponentsAddableInZone(zone)
-		.map(
-			(id) =>
-				`<option value="${id}"${selectedComponent === id ? ' selected' : ''}>${componentLabels[id] ?? id}</option>`,
-		)
+		.map((id) => {
+			const safeId = escapeHtml(id);
+			const label = escapeHtml(componentLabels[id] ?? id);
+			return `<option value="${safeId}"${selectedComponent === id ? ' selected' : ''}>${label}</option>`;
+		})
 		.join('');
 }
 
@@ -85,12 +87,13 @@ export function buildComponentOptionsGroupedHtml(
 		if (ids.length === 0) return '';
 		const optgroupLabel = KIND_LABELS[kind] ?? kind;
 		const optionsHtml = ids
-			.map(
-				(id) =>
-					`<option value="${id}"${options?.selectedComponent === id ? ' selected' : ''}>${componentLabels[id] ?? id}</option>`,
-			)
+			.map((id) => {
+				const safeId = escapeHtml(id);
+				const label = escapeHtml(componentLabels[id] ?? id);
+				return `<option value="${safeId}"${options?.selectedComponent === id ? ' selected' : ''}>${label}</option>`;
+			})
 			.join('');
-		return `<optgroup label="${optgroupLabel}">${optionsHtml}</optgroup>`;
+		return `<optgroup label="${escapeHtml(optgroupLabel)}">${optionsHtml}</optgroup>`;
 	}).join('');
 }
 
@@ -111,25 +114,27 @@ export function buildSlotCardHtml(
 		formId?: string;
 	},
 ): string {
-	const componentLabel = config.componentLabels[component] ?? component;
-	const safeLabel = label || id;
+	const safeId = escapeHtml(id);
+	const safeComponent = escapeHtml(component);
+	const componentLabel = escapeHtml(config.componentLabels[component] ?? component);
+	const safeLabel = escapeHtml(label || id);
 	const enabled = config.enabled !== false;
 	const order = config.order ?? 0;
 	const summary = config.summaryHtml ?? '';
 	const zoneField =
 		config.zone != null
-			? `<input type="hidden" name="slot_zone_${id}" value="${config.zone}" class="slot-card-zone-input" />`
+			? `<input type="hidden" name="slot_zone_${safeId}" value="${escapeHtml(config.zone)}" class="slot-card-zone-input" />`
 			: '';
 	const zoneBadge =
 		config.zoneLabel && config.zoneBadgePrefix
-			? `<p class="layout-slot-card__zone ui-caption text-text-muted">${config.zoneBadgePrefix}: ${config.zoneLabel}</p>`
+			? `<p class="layout-slot-card__zone ui-caption text-text-muted">${escapeHtml(config.zoneBadgePrefix)}: ${escapeHtml(config.zoneLabel)}</p>`
 			: '';
-	const dataZone = config.zone ? ` data-zone="${config.zone}"` : '';
+	const dataZone = config.zone ? ` data-zone="${escapeHtml(config.zone)}"` : '';
 	return `
-		<article class="layout-slot-card" data-slot-id="${id}" data-component="${component}"${dataZone}>
-			<input type="hidden" name="slot_id" value="${id}" />
+		<article class="layout-slot-card" data-slot-id="${safeId}" data-component="${safeComponent}"${dataZone}>
+			<input type="hidden" name="slot_id" value="${safeId}" />
 			<input type="hidden" name="slot_label" value="${safeLabel}" class="slot-card-label-input" />
-			<input type="hidden" name="slot_component" value="${component}" />
+			<input type="hidden" name="slot_component" value="${safeComponent}" />
 			${zoneField}
 			<input type="hidden" name="slot_widget_order" value="${order}" class="slot-card-order-input" />
 			<div class="layout-slot-card__main">
@@ -141,10 +146,10 @@ export function buildSlotCardHtml(
 				</div>
 				<div class="layout-slot-card__actions">
 					<label class="layout-slot-card__enabled flex items-center gap-1.5 text-sm">
-						<input type="checkbox"${fa(config)} name="slot_enabled_${id}" ${enabled ? 'checked' : ''} class="slot-card-enabled" />
-						<span>${config.enabledLabel}</span>
+						<input type="checkbox"${fa(config)} name="slot_enabled_${safeId}" ${enabled ? 'checked' : ''} class="slot-card-enabled" />
+						<span>${escapeHtml(config.enabledLabel)}</span>
 					</label>
-					<button type="button" class="slot-settings-open ui-btn ui-btn--secondary ui-btn--compact" data-dialog-id="slot-dialog-${id}" onclick="var d=document.getElementById(this.dataset.dialogId);if(d&&typeof d.showModal==='function'){try{d.showModal()}catch(e){console.error('[OmniPress] showModal:',e)}}">${config.settingsLabel}</button>
+					<button type="button" class="slot-settings-open ui-btn ui-btn--secondary ui-btn--compact" data-dialog-id="slot-dialog-${safeId}" onclick="var d=document.getElementById(this.dataset.dialogId);if(d&&typeof d.showModal==='function'){try{d.showModal()}catch(e){console.error('[OmniPress] showModal:',e)}}">${escapeHtml(config.settingsLabel)}</button>
 				</div>
 			</div>
 		</article>`;
@@ -156,12 +161,13 @@ export function buildSlotDialogShellHtml(
 	closeLabel: string,
 	panelHtml: string,
 ): string {
+	const safeId = escapeHtml(id);
 	return `
-		<dialog id="slot-dialog-${id}" class="slot-settings-dialog">
+		<dialog id="slot-dialog-${safeId}" class="slot-settings-dialog">
 			<div class="slot-settings-dialog__panel">
 				<header class="slot-settings-dialog__header">
-					<h3 class="slot-settings-dialog__title">${title}</h3>
-					<button type="button" class="slot-dialog-close ui-btn ui-btn--secondary ui-btn--compact" onclick="var d=this.closest('dialog');if(d&&typeof d.close==='function')d.close()">${closeLabel}</button>
+					<h3 class="slot-settings-dialog__title">${escapeHtml(title)}</h3>
+					<button type="button" class="slot-dialog-close ui-btn ui-btn--secondary ui-btn--compact" onclick="var d=this.closest('dialog');if(d&&typeof d.close==='function')d.close()">${escapeHtml(closeLabel)}</button>
 				</header>
 				<div class="slot-settings-dialog__body">${panelHtml}</div>
 			</div>
