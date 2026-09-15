@@ -3,6 +3,7 @@ import type { PDFDocumentProxy } from 'pdfjs-dist';
 import { defaultPdfViewerLabels } from './default-labels';
 import { pdfDocumentOptions } from './document-options';
 import { mountWhenVisible } from './lazy-mount';
+import { bindPdfDownloadLink } from './pdf-open';
 import { PDF_VIEWER_CSS } from './styles';
 import type { PdfViewerLabels } from './types';
 
@@ -145,10 +146,9 @@ async function mountOne(el: HTMLElement): Promise<void> {
 	zoomInBtn.setAttribute('aria-label', labels.zoomIn);
 
 	const downloadLink = document.createElement('a');
-	downloadLink.href = src;
 	downloadLink.textContent = labels.download;
 	downloadLink.setAttribute('aria-label', labels.download);
-	downloadLink.setAttribute('download', '');
+	bindPdfDownloadLink(downloadLink, src);
 
 	const stage = document.createElement('div');
 	stage.className = 'op-pdf-stage';
