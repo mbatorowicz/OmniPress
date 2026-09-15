@@ -82,9 +82,11 @@ export {
 	isFileAttachmentAsset,
 	type PostAssetRow,
 } from './asset-model';
+export { parseAssetFilenames } from './asset-filename';
 export {
 	loadPostAssetsForPost,
 	updatePostAssetDisplayModes,
+	updatePostAssetFilenames,
 	updateGalleryOrder,
 	updateFileAttachmentOrders,
 	nextGallerySortOrder,

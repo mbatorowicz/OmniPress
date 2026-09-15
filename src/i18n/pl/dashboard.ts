@@ -122,6 +122,7 @@ export const dashboard = {
 			empty: 'Brak plików — użyj „Dodaj plik” powyżej.',
 			displayLink: 'Link do pobrania',
 			displayEmbed: 'Podgląd PDF na stronie',
+			filename: 'Nazwa załącznika',
 		},
 		actions: {
 			save: 'Zapisz szkic',

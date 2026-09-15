@@ -47,9 +47,9 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Edytor WYSIWYG (TipTap) → Markdown | ✅ jeden renderer Markdown + ten sam odstęp akapitów w edytorze, podglądzie i na stronie |
 | Kategoria główna + dodatkowe (np. Aktualności → strona główna) | ✅ |
 | Galeria zdjęć (cover + kolejność) | ✅ miniatura i postęp uploadu od razu |
-| Załączniki PDF (link / podgląd, do 50 MB) | ✅ signed upload → Supabase Storage |
-| Załączniki DOCX (link, do 50 MB) | ✅ |
-| Pliki do pobrania (GPKG / XLSX / ZIP, do 50 MB) | ✅ `setup:storage-xlsx-zip` |
+| Załączniki PDF (link / podgląd, do 50 MB) | ✅ signed upload → Supabase Storage; edytowalna nazwa na stronie |
+| Załączniki DOCX (link, do 50 MB) | ✅ edytowalna nazwa na stronie |
+| Pliki do pobrania (GPKG / XLSX / ZIP, do 50 MB) | ✅ `setup:storage-xlsx-zip`; edytowalna nazwa |
 | Zapis szkicu, wysłanie do akceptacji | ✅ |
 | Data publikacji + godzina z listy 6:00–20:00 (czas polski); bez daty = publikacja w momencie wysłania | ✅ na stronie zostaje data pierwszej publikacji (poprawka jej nie zmienia) |
 | Usuwanie własnych wpisów (`draft` / `rejected`) wraz z plikami Storage | ✅ migracja `setup:posts-delete-own` |
@@ -85,7 +85,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Import wpisów z GitHub | ✅ auto przy wejściu na panel (bez przycisku) |
 | Layout Astro (menu, kategorie, sloty) + sync do repo | ✅ pasek zgodności: zgodne / szkic do publikacji / wczytaj nowszą stronę; auto-wczytanie po hashu całego layoutu |
 | Ustawienia strony (nazwa, slug, GitHub, tokeny) | ✅ `/admin/units/[id]` |
-| Strony statyczne (admin) + publikacja do repo Astro | ✅ `/admin/units/[id]/pages` — auto-pull z GitHub, publikacja nie nadpisze pustką; załączniki jak we wpisach (PDF: link / podgląd) |
+| Strony statyczne (admin) + publikacja do repo Astro | ✅ `/admin/units/[id]/pages` — auto-pull z GitHub, publikacja nie nadpisze pustką; załączniki jak we wpisach (PDF: link / podgląd, edytowalna nazwa) |
 | Walidacja linków menu przed sync GitHub | ✅ |
 | Ostatnie zmiany (ogłoszenia) | ✅ `/admin/units/[id]/changes` |
 | Komunikaty CERT Polska (RSS → live API na stronie Astro) | ✅ Slot `sidebar.cert_advisories`; endpoint `/api/cert/advisories` na stronie jednostki (cache 15 min) |

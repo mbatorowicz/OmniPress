@@ -42,7 +42,7 @@ export const helpFields = {
 		},
 		{
 			term: ed.pdfAttachments.heading,
-			desc: `„${ed.pdfAttachments.add}”. Do 50 MB. Możesz wybrać „${ed.pdfAttachments.displayLink}” albo „${ed.pdfAttachments.displayEmbed}”.`,
+			desc: `„${ed.pdfAttachments.add}”. Do 50 MB. Nazwę (np. „Miedzna — rejon 1”) zmienisz w polu przy pliku. Możesz wybrać „${ed.pdfAttachments.displayLink}” albo „${ed.pdfAttachments.displayEmbed}”.`,
 		},
 		{
 			term: ed.docxAttachments.heading,

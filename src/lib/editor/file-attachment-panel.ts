@@ -12,18 +12,21 @@ import {
 import { iconButtonHtml, stepButtonHtml } from '@/lib/ui/button-markup';
 import { iconSvg } from '@/lib/ui/icons';
 import { isSafeUrl } from '@/lib/content/sanitize-url';
+import { ASSET_FILENAME_MAX } from '@/lib/posts/asset-filename';
 
 export type FileAttachmentKind = 'pdf' | 'docx' | 'file';
 
 export type FileAttachmentAsset = AttachmentAsset;
 
 type FileAttachmentLabels = AttachmentPanelLabels & {
+	filename: string;
 	displayLink: string;
 	displayEmbed: string;
 };
 
 function readLabels(root: HTMLElement): FileAttachmentLabels {
 	return {
+		filename: root.dataset.labelFilename ?? '',
 		displayLink: root.dataset.labelLink ?? '',
 		displayEmbed: root.dataset.labelEmbed ?? '',
 		moveUp: root.dataset.labelMoveUp ?? '',
@@ -67,14 +70,27 @@ function renderRow(
 	const body = document.createElement('div');
 	body.className = 'min-w-0 flex-1';
 
-	const title = document.createElement('p');
-	title.className = 'ui-subheading flex items-center gap-1.5 truncate';
+	const title = document.createElement('div');
+	title.className = 'flex min-w-0 items-center gap-1.5';
 	const icon = document.createElement('span');
 	icon.className = 'inline-flex shrink-0 ui-muted pointer-events-none';
 	icon.innerHTML = iconSvg('file-text', 16);
-	const name = document.createElement('span');
-	name.className = 'truncate';
-	name.textContent = asset.filename;
+	const name = document.createElement('input');
+	name.type = 'text';
+	name.name = `asset_filename_${asset.id}`;
+	name.className = 'ui-input ui-input--filename';
+	name.value = asset.filename;
+	name.maxLength = ASSET_FILENAME_MAX;
+	name.autocomplete = 'off';
+	name.setAttribute('aria-label', labels.filename);
+	name.addEventListener('input', () => {
+		const next = name.value.trim();
+		if (next) asset.filename = next;
+	});
+	name.addEventListener('blur', () => {
+		if (!name.value.trim()) name.value = asset.filename;
+		else name.value = name.value.trim();
+	});
 	title.append(icon, name);
 
 	const link = document.createElement('a');

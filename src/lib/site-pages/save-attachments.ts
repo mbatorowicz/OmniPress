@@ -1,7 +1,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { parseAssetFilenames } from '@/lib/posts/asset-filename';
 import { parseAssetDisplayModes, parseDocxOrder, parseFileOrder, parsePdfOrder } from '@/lib/posts/asset-model';
 import { editorialPageContent } from './content';
-import { loadPageAssets, updatePageAssetDisplayModes, updatePageFileAttachmentOrders } from './assets';
+import {
+	loadPageAssets,
+	updatePageAssetDisplayModes,
+	updatePageAssetFilenames,
+	updatePageFileAttachmentOrders,
+} from './assets';
 import { resolveSitePageFields, type SitePageFields } from './access';
 import type { SitePage } from './types';
 
@@ -11,6 +17,7 @@ export async function savePageAttachmentFields(
 	form: FormData,
 ): Promise<void> {
 	await updatePageAssetDisplayModes(supabase, pageId, parseAssetDisplayModes(form));
+	await updatePageAssetFilenames(supabase, pageId, parseAssetFilenames(form));
 	await updatePageFileAttachmentOrders(
 		supabase,
 		pageId,

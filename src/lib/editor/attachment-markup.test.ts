@@ -54,6 +54,8 @@ describe('panele załączników — escape nazwy i URL', () => {
 		const link = document.querySelector('.ui-link');
 		expect(link?.getAttribute('href')).toBeNull();
 		expect(link?.textContent).toBe('');
-		expect(document.querySelector('.truncate')?.textContent).toBe(xssName);
+		const name = document.querySelector('input[name="asset_filename_a1"]');
+		expect(name).toBeInstanceOf(HTMLInputElement);
+		expect((name as HTMLInputElement).value).toBe(xssName);
 	});
 });

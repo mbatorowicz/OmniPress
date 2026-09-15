@@ -3,6 +3,7 @@
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { canDeletePostAsset, type PostAssetRow } from '@/lib/posts/asset-model';
+import { sanitizeAssetFilename } from '@/lib/posts/asset-filename';
 import type { AssetDisplayMode } from '@/lib/publish/asset-markdown';
 import type { PostAsset } from '@/lib/publish/asset-model';
 
@@ -58,6 +59,18 @@ export async function updatePageAssetDisplayModes(
 	for (const [id, mode] of Object.entries(modes)) {
 		if (mode !== 'link' && mode !== 'embed') continue;
 		await supabase.from('assets').update({ display_mode: mode }).eq('id', id).eq('page_id', pageId);
+	}
+}
+
+export async function updatePageAssetFilenames(
+	supabase: SupabaseClient,
+	pageId: string,
+	names: Record<string, string>,
+): Promise<void> {
+	for (const [id, raw] of Object.entries(names)) {
+		const filename = sanitizeAssetFilename(raw);
+		if (!filename) continue;
+		await supabase.from('assets').update({ filename }).eq('id', id).eq('page_id', pageId);
 	}
 }
 

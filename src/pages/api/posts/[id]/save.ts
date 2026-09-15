@@ -7,6 +7,7 @@ import {
 	resolvePostCategoryFields,
 	resolveUniquePostSlug,
 	parseAssetDisplayModes,
+	parseAssetFilenames,
 	parseDocxOrder,
 	parseFileOrder,
 	parseGalleryOrder,
@@ -14,6 +15,7 @@ import {
 	updateGalleryOrder,
 	updateFileAttachmentOrders,
 	updatePostAssetDisplayModes,
+	updatePostAssetFilenames,
 } from '@/lib/posts';
 import { combineScheduleDateHour, wallTimeInZoneToUtcIso } from '@/lib/posts/scheduled-publish';
 import { loadFirstPublishedAt, resolveSavedPublishAt } from '@/lib/publish/publish-date';
@@ -91,6 +93,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	}
 
 	await updatePostAssetDisplayModes(supabase, postId, parseAssetDisplayModes(form));
+	await updatePostAssetFilenames(supabase, postId, parseAssetFilenames(form));
 	await updateGalleryOrder(supabase, postId, parseGalleryOrder(form));
 	await updateFileAttachmentOrders(
 		supabase,

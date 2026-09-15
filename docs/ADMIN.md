@@ -86,7 +86,7 @@ Konta **administratorów i redaktorów** w jednym panelu (stare `/admin/editors`
 ## 5. Akceptacja wpisów
 
 1. `/admin` → sekcja *Do akceptacji* → wpis.
-2. **Popraw wpis** (opcjonalnie, przed decyzją) — przycisk nad podglądem otwiera edytor (`/admin/posts/[id]/edit`) z pełnym zestawem pól redaktora: kategoria główna i dodatkowe, tytuł, slug, data i godzina publikacji, treść, galeria (kolejność, zajawka) oraz **tryb każdego PDF-a — link do pobrania albo podgląd na stronie**. Można też dodawać i usuwać załączniki.
+2. **Popraw wpis** (opcjonalnie, przed decyzją) — przycisk nad podglądem otwiera edytor (`/admin/posts/[id]/edit`) z pełnym zestawem pól redaktora: kategoria główna i dodatkowe, tytuł, slug, data i godzina publikacji, treść, galeria (kolejność, zajawka), **nazwa załącznika** oraz **tryb każdego PDF-a — link do pobrania albo podgląd na stronie**. Można też dodawać i usuwać załączniki.
    - *Zapisz zmiany* wraca do ekranu akceptacji; **status wpisu się nie zmienia** i redaktor nie dostaje powiadomienia — korekta nie zastępuje odrzucenia z uwagami.
    - Dostępne dla statusów: *Szkic*, *Do poprawki*, *Do akceptacji*, *Zaplanowany*. Wpis w trakcie publikacji lub już na stronie wymaga *Oddaj do poprawki* / *Zdejmij ze strony*.
 3. **Zaakceptuj:** *Zaakceptuj i opublikuj* — wpis trafia do kolejki publikacji. Przy szkicu i wpisie do poprawki przycisk nazywa się *Opublikuj szkic* — patrz §5.2.
@@ -166,7 +166,7 @@ Publikacja na stronę wymaga kliknięcia **Opublikuj na stronie**.
 - **Menu (Nagłówek):** `/admin/units/[id]/navigation` — edytor drzewa nawigacji (do 3 poziomów). Typ linku ustawia dokąd prowadzi klik w etykietę; najechanie i tak rozwija podpozycje. „Bez linku” tylko rozwija. Zapis to szkic; publikacja idzie do `src/config/omnipress-layout.json`. Przed publikacją walidacja linków wewnętrznych.
 - **Kategorie:** `/admin/units/[id]/posts` — slug, nazwa i układ archiwum (stara trasa `/categories` przekierowuje tutaj). Zapis to szkic; **Opublikuj kategorie na stronie** zapisuje listę do tego samego `omnipress-layout.json`. Feedy (`home.*`) ustawiasz w **Komponentach**, pozycję w menu w **Nagłówku**.
 - **Komponenty:** `/admin/units/[id]/components` — lista slotów (`home.*`, `sidebar.weather`, `sidebar.cert_advisories`, `sidebar.recent_changes`, `sidebar.banner` itd.) w `omnipress-layout.json`. Publikacja jak przy kategoriach. Wspólne pole kolejności (`order`) dla sidebaru. `sidebar.weather` i `sidebar.cert_advisories` pobierają dane **na żywo** z API na stronie Astro — bez syncu JSON do repo. Widget CERT zawsze dopełnia listę do limitu z panelu.
-- **Strony statyczne:** `/admin/units/[id]/pages` — treści pod stałe URL; lista i edytor wczytują stan z GitHub. Załączniki (PDF, DOCX, pliki) działają jak we wpisach: upload pod edytorem, PDF ma wybór link / podgląd na stronie. Publikacja nie nadpisze istniejącej treści pustym szkicem. *Utwórz strony z menu* dodaje tylko brakujące szkice (bez commita).
+- **Strony statyczne:** `/admin/units/[id]/pages` — treści pod stałe URL; lista i edytor wczytują stan z GitHub. Załączniki (PDF, DOCX, pliki) działają jak we wpisach: upload pod edytorem, edytowalna nazwa na stronie, PDF ma wybór link / podgląd. Publikacja nie nadpisze istniejącej treści pustym szkicem. *Utwórz strony z menu* dodaje tylko brakujące szkice (bez commita).
 - **Wpisy:** przy wejściu na kolejkę / listę Omni dociąga opublikowane pliki z repo; szkice i kolejka nie są nadpisywane.
 - **Ostatnie zmiany:** `/admin/units/[id]/changes`.
 - **Bulk (kolejka `/admin` i wpisy jednostki):**

@@ -35,6 +35,13 @@
 	.ui-input-compact {
 		@apply rounded border border-border-strong px-2 py-1 text-xs;
 	}
+	.ui-input--filename {
+		@apply mt-0 min-w-0 w-full rounded-md border border-transparent bg-transparent px-1 py-0.5 text-sm font-medium text-text-emphasis;
+	}
+	.ui-input--filename:hover,
+	.ui-input--filename:focus-visible {
+		@apply border-border-strong bg-surface;
+	}
 	.ui-input-compact--mono {
 		@apply font-mono;
 	}

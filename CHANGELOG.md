@@ -7,6 +7,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Dodane
 
+- **Edytowalna nazwa załącznika.** W panelu PDF / DOCX / plików do pobrania (wpisy i strony statyczne) widać pole nazwy — np. *Miedzna — rejon 1*. Zapis ze szkicem; plik w Storage zostaje pod UUID.
+
 - **Załączniki stron statycznych jak we wpisach.** PDF ma wybór *link do pobrania* albo *podgląd na stronie*; DOCX i pliki do pobrania są w osobnych panelach. Publikacja wgrywa binaria obok `index.md`, import zdejmuje linki z treści. Migracja `setup:page-assets`.
 
 ### Naprawione

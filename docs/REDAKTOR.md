@@ -80,9 +80,9 @@ Przy wysyłaniu pojawi się potwierdzenie. Po wysłaniu **nie zmienisz już teks
 | Sekcja | Zasady |
 |--------|--------|
 | Galeria zdjęć | Pierwsze zdjęcie = zajawka na liście wpisów. Kolejność strzałkami, usuwanie krzyżykiem. JPEG, PNG, WebP, GIF — max **10 MB**. |
-| Załączniki PDF | Do **50 MB**. Link do pobrania albo podgląd na stronie. |
-| Załączniki DOCX | Pliki Word, do **50 MB**, jako link do pobrania. |
-| Pliki do pobrania | GPKG, XLSX, ZIP — do **50 MB**. Inne formaty system odrzuci. |
+| Załączniki PDF | Do **50 MB**. Link do pobrania albo podgląd na stronie. Nazwę na stronie (np. *Miedzna — rejon 1*) zmienisz w polu przy pliku — zapisze się ze szkicem. |
+| Załączniki DOCX | Pliki Word, do **50 MB**, jako link do pobrania. Nazwę zmienisz tak samo jak przy PDF. |
+| Pliki do pobrania | GPKG, XLSX, ZIP — do **50 MB**. Inne formaty system odrzuci. Nazwę zmienisz tak samo jak przy PDF. |
 
 ---
 
