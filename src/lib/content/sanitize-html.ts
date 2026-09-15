@@ -1,5 +1,6 @@
 import { parseFragment, type DefaultTreeAdapterMap } from 'parse5';
 import { PDF_VIEWER_SCRIPT_PATH } from '@/lib/pdf-viewer/types';
+import { stripEmoji } from './strip-emoji';
 import { isSafeUrl } from './sanitize-url';
 
 type ChildNode = DefaultTreeAdapterMap['childNode'];
@@ -96,7 +97,7 @@ function serializePdfDiv(el: Element, options: Required<SanitizeHtmlOptions>): s
 
 function serializeNode(node: ChildNode, options: Required<SanitizeHtmlOptions>): string {
 	if (node.nodeName === '#text') {
-		const value = (node as TextNode).value;
+		const value = stripEmoji((node as TextNode).value);
 		return options.escapeText ? escapeText(value) : value;
 	}
 	if (node.nodeName === '#comment' || node.nodeName === '#documentType') return '';

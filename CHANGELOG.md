@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Zmienione
+
+- **Edytor nie przyjmuje emoji w treści.** Wklejka i zapis zdejmują kalendarzyki, pinezki i serduszka; znaczniki załączników `📄`/`📎` zostają. Testy: `strip-emoji.test.ts`, `sanitize.test.ts`, `html-markdown.test.ts`.
+
 ### Naprawione
 
 - **Zapis szkicu nie czeka na GitHub.** Edytor strony i layoutu zapisuje tylko do bazy; import wpisów/stron z repo zostaje przy wejściu na kolejkę, listę wpisów i listę stron. Przy reconcile lista wpisów idzie jednym odczytem zamiast zapytania na każdy plik.

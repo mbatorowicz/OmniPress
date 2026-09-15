@@ -2,7 +2,8 @@ import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import StarterKit from '@tiptap/starter-kit';
 import { Editor } from '@tiptap/core';
-import { isSafeUrl } from '@/lib/content/sanitize';
+import { isSafeUrl, sanitizeEditorHtml } from '@/lib/content/sanitize';
+import { filterTypedText } from '@/lib/content/strip-emoji';
 import { unwrapHardWrappedHtml } from '@/lib/content/unwrap-html';
 
 type CreatePostEditorOptions = {
@@ -38,7 +39,14 @@ export function createPostEditor(opts: CreatePostEditorOptions): Editor {
 			attributes: {
 				class: 'min-h-[280px] px-4 py-3 focus:outline-none text-text-emphasis',
 			},
-			transformPastedHTML: (html) => unwrapHardWrappedHtml(html),
+			transformPastedText: (text) => filterTypedText(text).text,
+			transformPastedHTML: (html) => sanitizeEditorHtml(unwrapHardWrappedHtml(html)),
+			handleTextInput(view, from, to, text) {
+				const { text: next, handled } = filterTypedText(text);
+				if (!handled) return false;
+				if (next) view.dispatch(view.state.tr.insertText(next, from, to));
+				return true;
+			},
 		},
 		onUpdate: ({ editor: ed }) => {
 			opts.onChange(ed.getHTML());

@@ -51,6 +51,11 @@ describe('sanitizeEditorHtml', () => {
 		expect(sanitizeEditorHtml('<p>ok</p><iframe src="x"></iframe>')).toBe('<p>ok</p>');
 		expect(sanitizeEditorHtml('<img src="./x.png" alt="x" />')).toBe('');
 	});
+
+	it('usuwa emoji z HTML edytora', () => {
+		expect(sanitizeEditorHtml('📅 9 sierpnia')).toBe('9 sierpnia');
+		expect(sanitizeEditorHtml('💚 Razem zadbajmy')).toBe('Razem zadbajmy');
+	});
 });
 
 describe('sanitizeStorageMarkdown', () => {
@@ -74,6 +79,13 @@ describe('sanitizeStorageMarkdown', () => {
 		expect(sanitizeStorageMarkdown('przed <div onmouseover="alert(1)">po')).toBe('przed po');
 		expect(sanitizeStorageMarkdown('<a href="javascript:alert(1)">klik</a>')).toBe('klik');
 		expect(sanitizeStorageMarkdown('<div onclick="alert(1)">')).not.toContain('onclick');
+	});
+
+	it('usuwa emoji z treści, zostawia znacznik załącznika', () => {
+		expect(sanitizeStorageMarkdown('📅 9 sierpnia 2026 r. (niedziela)')).toBe(
+			'9 sierpnia 2026 r. (niedziela)',
+		);
+		expect(sanitizeStorageMarkdown('[📄 raport.pdf](./a.pdf)')).toBe('[📄 raport.pdf](./a.pdf)');
 	});
 });
 

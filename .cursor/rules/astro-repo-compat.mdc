@@ -41,7 +41,7 @@ OmniPress przy otwarciu panelu **sam** reconciluje strony statyczne i wpisy z `o
 
 ## Sanityzacja markdownu na stronie (S-2)
 
-Repo Astro nie renderuje gołego HTML z wpisu. Pipeline: `rehype-raw` → `rehype-sanitize` (`src/lib/markdown/sanitize-schema.js`) → `rehypeSafeAssetRefs` → `rehypePostAssetUrls` → `rehypeStripEmoji` → `rehypeFileLinks`. Allowlista zostawia blok `op-pdf-viewer` i względne `./`; `script` / `onclick` / `javascript:` z treści są wycinane. Emoji z treści nie trafiają do HTML (źródło MD zostaje — kafelki rozpoznają po nich meta wydarzenia). Viewer PDF jest w `Layout.astro` (`/omnipress/pdf-viewer.js`), nie w markdownie. Nagłówki CSP/XFO/HSTS: `src/lib/security/headers.ts`.
+Repo Astro nie renderuje gołego HTML z wpisu. Pipeline: `rehype-raw` → `rehype-sanitize` (`src/lib/markdown/sanitize-schema.js`) → `rehypeSafeAssetRefs` → `rehypePostAssetUrls` → `rehypeStripEmoji` → `rehypeFileLinks`. Allowlista zostawia blok `op-pdf-viewer` i względne `./`; `script` / `onclick` / `javascript:` z treści są wycinane. Emoji z treści nie trafiają do HTML (panel wycina je przy zapisie; tu zostaje siatka na stare wpisy). Viewer PDF jest w `Layout.astro` (`/omnipress/pdf-viewer.js`), nie w markdownie. Nagłówki CSP/XFO/HSTS: `src/lib/security/headers.ts`.
 
 Publikacja OmniPress nadal może dopisywać blok PDF + skrypt viewera w markdownie — strona skrypt z treści i tak odrzuci.
 
