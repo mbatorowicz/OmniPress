@@ -62,7 +62,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 - **Znak OmniPress:** favicon panelu i zdjęcie profilu bota Telegram to ten sam znak (O na belce prasy, kolor brandu), nie herb gminy i nie logo Astro. Wgranie zdjęcia: `setup:telegram-photo`.
 
-- **Kafelki wpisów:** jeden układ (miniatura 16:10 + tytuł + zajawka). Wysokość z komponentu strony głównej obowiązuje też w archiwach.
+- **Kafelki wpisów:** trzy warianty o jednej wysokości (z komponentu strony głównej, także w archiwach): zdjęcie/PDF + tekst, sam załącznik z tytułem, sama treść od góry. PDF pokazuje pierwszą stronę dokumentu.
 
 - **Dług P2-3 i P2-5:** podział wszystkich plików z prefiksem `DŁUG` w OmniPress i repo strony (baryłki zachowują dotychczasowe importy). Usunięte potwierdzone martwe klucze i18n (zakładki layoutu, `savedDraft`, `pdfTooLarge`, `alreadyConfigured` i ~40 dalszych unikalnych). Wyjątki rozmiaru: 4 uzasadnione w OmniPress, 6 arkuszy CSS w repo strony.
 

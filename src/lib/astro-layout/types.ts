@@ -44,7 +44,7 @@ export type HomeFeedWidgetConfig = FeedListWidget & {
 	sectionTitle?: string;
 	moreLink?: string;
 	pinnedOnly?: boolean;
-	/** Wysokość całego kafelka na stronie głównej (px). Puste = auto. */
+	/** Wysokość całego kafelka na stronie głównej (px). Puste = 24 rem na stronie. */
 	tileHeight?: number;
 };
 
