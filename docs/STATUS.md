@@ -29,9 +29,9 @@ Jedyny typ destynacji: **`github_astro`**.
 | Rola | Logowanie | Panel |
 |------|-----------|-------|
 | Redaktor | `/login` | `/dashboard`, `/dashboard/posts/[id]` |
-| Administrator | `/login` | `/admin`, `/admin/posts`, `/admin/sites`, `/admin/units/*`, `/admin/users/*`, `/admin/posts/[id]` |
+| Administrator | `/login` | `/admin`, `/admin/posts`, `/admin/sites`, `/admin/units/*`, `/admin/users/*`, `/admin/usage`, `/admin/posts/[id]` |
 
-Nawigacja: nagłówek z przyciskami *Administracja* / *Panel treści*; sidebar (tylko `/admin/*`): Kolejka wpisów, Wszystkie wpisy, Strony, Użytkownicy. Stare `/admin/editors/*` przekierowuje (301) na `/admin/users/*`.
+Nawigacja: nagłówek z przyciskami *Administracja* / *Panel treści*; sidebar (tylko `/admin/*`): Kolejka wpisów, Wszystkie wpisy, Strony, Użytkownicy, Baza i pliki. Stare `/admin/editors/*` przekierowuje (301) na `/admin/users/*`.
 
 Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 
@@ -46,7 +46,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Tworzenie szkicu na dozwolonej stronie | ✅ odświeżenie karty przywraca niewysłane pola |
 | Edytor WYSIWYG (TipTap) → Markdown | ✅ jeden renderer Markdown + ten sam odstęp akapitów; emoji zdejmowane przy wpisie, wklejce, tytule i zapisie |
 | Kategoria główna + dodatkowe (np. Aktualności → strona główna) | ✅ |
-| Galeria zdjęć (cover + kolejność) | ✅ miniatura i postęp uploadu od razu |
+| Galeria zdjęć (cover + kolejność) | ✅ miniatura i postęp uploadu od razu; JPEG/PNG/WebP → max 1920 px, WebP |
 | Załączniki PDF (link / podgląd, do 50 MB) | ✅ signed upload → Supabase Storage; edytowalna nazwa na stronie |
 | Załączniki DOCX (link, do 50 MB) | ✅ edytowalna nazwa na stronie |
 | Pliki do pobrania (GPKG / XLSX / ZIP, do 50 MB) | ✅ `setup:storage-xlsx-zip`; edytowalna nazwa |
@@ -67,6 +67,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Strony (jednostki) — strona + GitHub w jednym formularzu | ✅ `/admin/units/new`, `/admin/units/[id]` |
 | Lista stron jako kafelki + kafelek „+ Dodaj stronę” | ✅ `/admin/sites` |
 | Użytkownicy: admini + redaktorzy (tworzenie z rolą, ustawienia konta, hasło, usuwanie) | ✅ `/admin/users`, `/admin/users/[id]` |
+| Zużycie bazy i plików (PostgreSQL + Storage, rozkład typów, 10 największych) | ✅ `/admin/usage`; migracja `setup:usage-stats` |
 | Uprawnienia redaktora (strony + domyślna); blokada: własne konto / ostatni admin | ✅ |
 | Usunięcie konta zostawia wpisy (autor: „konto usunięte”) | ✅ migracja `setup:author-on-delete` |
 | Kolejka: do akceptacji, zaplanowane (ze znacznikiem „Publikacja…”), na stronie | ✅ `/admin` — odznaka z liczbą *pending* przy *Administracja* i *Kolejka wpisów* |
@@ -142,6 +143,7 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub (jeden commit; listing 
 | `20250902000000_github_reconcile.sql` | `setup:github-reconcile` |
 | `20250906000000_post_extra_categories.sql` | `setup:extra-categories` |
 | `20250915000000_assets_page_id.sql` | `setup:page-assets` |
+| `20250916000000_admin_usage_stats.sql` | `setup:usage-stats` |
 
 Tabela opisuje **zamierzony** stan bazy. `lint-docs-setup.mjs` pilnuje zgodności `package.json` ↔ ta tabela, ale nie sprawdza produkcji — w audycie P0-7 okazało się, że jedna migracja nigdy tam nie trafiła. Przy wątpliwościach: porównaj z bazą (triggery, polityki, kolumny), nie z tym dokumentem.
 

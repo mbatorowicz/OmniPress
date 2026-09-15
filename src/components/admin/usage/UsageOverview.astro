@@ -1,0 +1,133 @@
+---
+import Alert from '@/components/ui/feedback/Alert.astro';
+import Panel from '@/components/ui/layout/Panel.astro';
+import Table from '@/components/ui/table/Table.astro';
+import TableBody from '@/components/ui/table/TableBody.astro';
+import TableCell from '@/components/ui/table/TableCell.astro';
+import TableHead from '@/components/ui/table/TableHead.astro';
+import TableRow from '@/components/ui/table/TableRow.astro';
+import { adminUsage } from '@/i18n';
+import { formatBytes, storageShare, type UsageKind, type UsageStats } from '@/lib/admin/usage-model';
+
+interface Props {
+	stats: UsageStats | null;
+}
+
+const { stats } = Astro.props;
+const kindLabel: Record<UsageKind, string> = {
+	image: adminUsage.kinds.image,
+	pdf: adminUsage.kinds.pdf,
+	document: adminUsage.kinds.document,
+	archive: adminUsage.kinds.archive,
+	other: adminUsage.kinds.other,
+};
+const tiles = stats
+	? [
+			{ label: adminUsage.tiles.database, value: formatBytes(stats.databaseBytes) },
+			{ label: adminUsage.tiles.storage, value: formatBytes(stats.storageBytes) },
+			{ label: adminUsage.tiles.total, value: formatBytes(stats.totalBytes) },
+			{
+				label: adminUsage.tiles.files,
+				value: stats.storageCount.toLocaleString('pl-PL'),
+			},
+		]
+	: [];
+---
+
+{
+	!stats && <Alert variant="error">{adminUsage.error}</Alert>
+}
+
+{
+	stats && (
+		<>
+			<div class="ui-tile-grid mb-6">
+				{tiles.map((tile) => (
+					<div class="ui-panel">
+						<p class="ui-muted">{tile.label}</p>
+						<p class="ui-stat-value">{tile.value}</p>
+					</div>
+				))}
+			</div>
+
+			<Panel class="mb-6">
+				<h2 class="ui-heading">{adminUsage.optimize.heading}</h2>
+				<p class="ui-lead">{adminUsage.optimize.body}</p>
+			</Panel>
+
+			<Panel class="mb-6">
+				<h2 class="ui-heading">{adminUsage.kinds.heading}</h2>
+				{stats.storageCount === 0 ? (
+					<p class="ui-empty">{adminUsage.kinds.empty}</p>
+				) : (
+					<Table dense class="mt-4">
+						<TableHead dense>
+							<TableRow dense>
+								<TableCell header dense wide>
+									{adminUsage.kinds.colKind}
+								</TableCell>
+								<TableCell header dense>
+									{adminUsage.kinds.colCount}
+								</TableCell>
+								<TableCell header dense>
+									{adminUsage.kinds.colSize}
+								</TableCell>
+							</TableRow>
+						</TableHead>
+						<TableBody dense>
+							{stats.kinds
+								.filter((row) => row.count > 0)
+								.map((row) => (
+									<TableRow dense>
+										<TableCell dense wide>
+											{kindLabel[row.kind]}
+										</TableCell>
+										<TableCell dense>
+											{row.count.toLocaleString('pl-PL')}
+										</TableCell>
+										<TableCell dense>
+											{formatBytes(row.bytes)} ({storageShare(row.bytes, stats.storageBytes)})
+										</TableCell>
+									</TableRow>
+								))}
+						</TableBody>
+					</Table>
+				)}
+			</Panel>
+
+			<Panel>
+				<h2 class="ui-heading">{adminUsage.largest.heading}</h2>
+				{stats.largest.length === 0 ? (
+					<p class="ui-empty">{adminUsage.largest.empty}</p>
+				) : (
+					<Table dense class="mt-4">
+						<TableHead dense>
+							<TableRow dense>
+								<TableCell header dense wide>
+									{adminUsage.largest.colName}
+								</TableCell>
+								<TableCell header dense>
+									{adminUsage.largest.colKind}
+								</TableCell>
+								<TableCell header dense>
+									{adminUsage.largest.colSize}
+								</TableCell>
+							</TableRow>
+						</TableHead>
+						<TableBody dense>
+							{stats.largest.map((file) => (
+								<TableRow dense>
+									<TableCell dense wide>
+										{file.filename}
+									</TableCell>
+									<TableCell dense>{kindLabel[file.kind]}</TableCell>
+									<TableCell dense>{formatBytes(file.bytes)}</TableCell>
+								</TableRow>
+							))}
+						</TableBody>
+					</Table>
+				)}
+			</Panel>
+		</>
+	)
+}

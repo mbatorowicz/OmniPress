@@ -3,6 +3,9 @@ import { api } from '@/i18n';
 import { guardAuthJson, isGuardBlocked, jsonError, jsonResponse } from '@/lib/api';
 import { completePostAssetUpload, loadEditablePost } from '@/lib/posts';
 
+export const prerender = false;
+export const maxDuration = 15;
+
 export const POST: APIRoute = async ({ params, request, locals }) => {
 	const postId = params.id;
 	if (!postId) return jsonError(api.posts.missingPostId, 400);

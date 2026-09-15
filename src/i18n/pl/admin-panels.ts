@@ -8,3 +8,4 @@ export { adminLayout } from './admin-layout';
 export { adminRecentChanges } from './admin-changes';
 export { adminDestinations } from './admin-destinations';
 export { adminReview } from './admin-review';
+export { adminUsage } from './admin-usage';

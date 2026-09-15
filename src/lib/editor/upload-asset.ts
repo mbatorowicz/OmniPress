@@ -1,3 +1,4 @@
+import { prepareImageForUpload } from './prepare-image';
 import { putSignedUpload, uploadStagePercent, type UploadProgressHandler } from './upload-xhr';
 
 export type UploadKind = 'gallery' | 'pdf' | 'docx' | 'file';
@@ -42,6 +43,7 @@ export async function uploadPostAsset(
 ): Promise<UploadAssetResult> {
 	const base = apiBase || `/api/posts/${postId}`;
 	try {
+		const prepared = kind === 'gallery' ? await prepareImageForUpload(file) : file;
 		onProgress?.(uploadStagePercent('url') / 100);
 		const urlRes = await fetch(`${base}/upload-url`, {
 			method: 'POST',
@@ -50,8 +52,8 @@ export async function uploadPostAsset(
 			body: JSON.stringify({
 				kind,
 				filename: file.name,
-				size: file.size,
-				mimeType: file.type,
+				size: prepared.size,
+				mimeType: prepared.type,
 			}),
 		});
 		const urlData = (await urlRes.json()) as UploadUrlResponse;
@@ -59,7 +61,7 @@ export async function uploadPostAsset(
 			return { ok: false, error: urlData.error ?? labels.uploadFailed };
 		}
 
-		const typedFile = new File([file], file.name, { type: urlData.mime });
+		const typedFile = new File([prepared], file.name, { type: urlData.mime });
 		const body = new FormData();
 		body.append('cacheControl', '3600');
 		body.append('', typedFile, file.name);
@@ -82,7 +84,7 @@ export async function uploadPostAsset(
 				path: urlData.path,
 				filename: urlData.filename ?? file.name,
 				mime: urlData.mime,
-				size: file.size,
+				size: prepared.size,
 			}),
 		});
 		const completeData = (await completeRes.json()) as UploadCompleteResponse;

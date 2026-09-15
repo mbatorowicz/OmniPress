@@ -9,7 +9,7 @@ Operacyjny przewodnik po panelu OmniPress. Stan funkcji: [STATUS.md](./STATUS.md
 ## 0. Nawigacja panelu
 
 - **Nagłówek** (u góry): przyciski *Administracja* (`/admin`) i *Panel treści* (`/dashboard`) — lewe menu zależy od wyboru (panel treści nie ma sidebar). Gdy czekają wpisy do akceptacji, przy *Administracja* widać ich liczbę (także z `/dashboard`).
-- **Sidebar** (tylko w `/admin/*`, po lewej): *Kolejka wpisów* (`/admin`), *Wszystkie wpisy* (`/admin/posts`), *Strony* (`/admin/sites`), *Użytkownicy* (`/admin/users`). Na mobile — pozioma belka nad treścią. Przy *Kolejka wpisów* ta sama liczba oczekujących.
+- **Sidebar** (tylko w `/admin/*`, po lewej): *Kolejka wpisów* (`/admin`), *Wszystkie wpisy* (`/admin/posts`), *Strony* (`/admin/sites`), *Użytkownicy* (`/admin/users`), *Baza i pliki* (`/admin/usage`). Na mobile — pozioma belka nad treścią. Przy *Kolejka wpisów* ta sama liczba oczekujących.
 - **Breadcrumby** na każdej podstronie pokazują ścieżkę (np. `Administracja / Strony / UG Miedzna / Strony statyczne`).
 - W kontekście strony (`/admin/units/[id]/*`) zakładki pogrupowane:
   - **Wygląd strony:** *Menu* (`/navigation`), *Kategorie* (`/posts#categories`), *Komponenty* (`/components`)
@@ -80,6 +80,21 @@ Konta **administratorów i redaktorów** w jednym panelu (stare `/admin/editors`
 - **Uprawnienia:** redaktor — przypisane strony + domyślna; administrator — pełny dostęp.
 - **Usuwanie:** konto znika, wpisy zostają w systemie (autor: „konto usunięte”). Nie można usunąć własnego konta ani ostatniego administratora.
 - Redaktor widzi **tylko własne** wpisy; nie widzi tokenów.
+
+---
+
+## 4.1 Baza i pliki (`/admin/usage`)
+
+Podgląd miejsca zajmowanego przez OmniPress:
+
+| Kafelek | Co pokazuje |
+|---------|-------------|
+| Baza danych | PostgreSQL (wpisy, ustawienia, konta) |
+| Pliki | Bucket `post-assets` (zdjęcia, PDF, DOCX, XLSX, ZIP, GPKG) |
+| Razem | Suma bazy i plików |
+| Liczba plików | Ile obiektów leży w magazynie |
+
+Niżej: rozkład plików według typu oraz 10 największych. **Nowe zdjęcia** (JPEG/PNG/WebP) są zmniejszane do 1920 px i zapisywane jako WebP; GIF oraz dokumenty zostają w oryginale. Limit wgrania: zdjęcie 10 MB, pozostałe 50 MB.
 
 ---
 

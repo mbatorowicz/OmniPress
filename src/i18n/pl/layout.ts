@@ -9,6 +9,7 @@ export const layout = {
 		posts: 'Wszystkie wpisy',
 		sites: 'Strony',
 		users: 'Użytkownicy',
+		usage: 'Baza i pliki',
 	},
 	breadcrumb: {
 		admin: 'Administracja',
@@ -16,6 +17,7 @@ export const layout = {
 		help: 'Pomoc',
 		units: 'Strony',
 		users: 'Użytkownicy',
+		usage: 'Baza i pliki',
 		unitNew: 'Nowa strona',
 		unit: 'Strona',
 		layout: 'Wygląd strony',

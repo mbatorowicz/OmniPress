@@ -71,6 +71,9 @@
 	.ui-tile-title {
 		@apply text-base font-medium text-text;
 	}
+	.ui-stat-value {
+		@apply text-2xl font-semibold tabular-nums tracking-tight text-text;
+	}
 	.ui-dialog {
 		@apply m-auto w-full max-w-lg rounded-xl border border-border bg-surface p-6 shadow-xl;
 	}

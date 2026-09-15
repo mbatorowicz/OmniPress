@@ -83,6 +83,8 @@ npm run setup:profiles-guard
 
 **Załączniki stron:** `npm run setup:page-assets` — `assets.page_id` (XOR z `post_id`). PDF stron ma ten sam tryb link/podgląd co wpisy.
 
+**Zużycie bazy i plików:** `npm run setup:usage-stats` — RPC `admin_usage_stats()` dla panelu `/admin/usage` (tylko administrator).
+
 **Storage prywatny:** `npm run setup:storage-private` — bucket `post-assets` przestaje serwować pliki anonimowo. Po migracji panel pobiera załączniki wyłącznie przez `/api/posts/{id}/assets/{assetId}/file` (wpisy) albo `/api/admin/sites/{siteId}/pages/{pageId}/assets/{assetId}/file` (strony), a publikacja czyta bajty klientem Storage (worker: service role). Adresy `/object/public/post-assets/…` zwracają **400**, ale pliki pobrane wcześniej mogą jeszcze przez ~1 h odpowiadać z cache CDN Supabase (`cacheControl: 3600` z uploadu) — to nie jest oznaka nieudanej migracji. Kontrola: `select public from storage.buckets where id = 'post-assets'` musi dać `false`.
 
 ---

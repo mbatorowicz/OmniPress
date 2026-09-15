@@ -72,7 +72,7 @@ sequenceDiagram
 6. **Reset hasła** — zawsze ten sam komunikat sukcesu (brak enumeracji e-maili).
 7. **Logowanie** — generyczny komunikat błędu (`invalidCredentials`).
 8. **Nagłówki** — `X-Frame-Options`, `HSTS` (prod), `nosniff`, `Referrer-Policy`, CSP (middleware).
-9. **Upload** — weryfikacja magic bytes + limit rozmiaru (`lib/posts/upload-verify.ts`); bez surowych błędów storage w JSON.
+9. **Upload** — weryfikacja magic bytes + limit rozmiaru (`lib/posts/upload-verify.ts`); JPEG/PNG/WebP po weryfikacji: max 1920 px, WebP bez EXIF (`optimize-image.ts`). Bez surowych błędów storage w JSON.
 10. **Załączniki** — bucket `post-assets` jest prywatny (`npm run setup:storage-private`). Plik wychodzi wyłącznie przez `/api/posts/{id}/assets/{assetId}/file` albo `/api/admin/sites/{siteId}/pages/{pageId}/assets/{assetId}/file` (sesja + rola); publikacja czyta bajty klientem Storage i commituje je do repo strony. Zero adresów `/object/public/…` w panelu i w treści szkicu. Nazwa pliku i URL w panelu galerii / listy załączników idą przez `textContent` / `isSafeUrl`, nie przez `innerHTML`.
 11. **CSRF mutacji panelu** — middleware odrzuca POST/PUT/PATCH/DELETE na `/api/posts/*` i `/api/admin/*` z obcego lub brakującego `Origin` (wyjątek: `Sec-Fetch-Site: same-origin`). Worker cron (`/api/worker/*`), webhook Telegram (`/api/telegram/webhook`) i GET (proxy pliku) nie podlegają.
 12. **Webhook Telegram** — `POST /api/telegram/webhook`. Brak sesji panelu: sekret `X-Telegram-Bot-Api-Secret-Token` (HMAC-SHA256 tokenu bota) oraz `chat_id` zgodny z `TELEGRAM_CHAT_ID`. Akceptacja tylko wpisów `pending`, klientem service role.

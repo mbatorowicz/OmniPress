@@ -4,6 +4,9 @@ import { guardAdminJson, isGuardBlocked, jsonError, jsonResponse } from '@/lib/a
 import { completeAssetUpload } from '@/lib/posts';
 import { getSitePageById } from '@/lib/site-pages';
 
+export const prerender = false;
+export const maxDuration = 15;
+
 export const POST: APIRoute = async ({ params, request, locals }) => {
 	const pageId = params.pageId;
 	const siteId = params.id;

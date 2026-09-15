@@ -74,7 +74,7 @@ export const dashboard = {
 		},
 		gallery: {
 			heading: 'Galeria zdjęć',
-			hint: 'Zdjęcia pod artykułem. Pierwsze = zajawka na liście wpisów.',
+			hint: 'Zdjęcia pod artykułem. Pierwsze = zajawka. Zmniejszamy je do 1920 px (WebP); GIF bez zmian.',
 			empty: 'Brak zdjęć — kliknij „Dodaj zdjęcia”.',
 			add: '+ Dodaj zdjęcia',
 			cover: 'Zajawka',

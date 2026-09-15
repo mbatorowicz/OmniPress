@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { admin } from '@/i18n/pl/admin';
 import { adminLayout } from '@/i18n/pl/admin-layout';
-import { adminSites, adminUnit } from '@/i18n/pl/admin-panels';
+import { adminSites, adminUnit, adminUsage } from '@/i18n/pl/admin-panels';
 import { adminUsers } from '@/i18n/pl/admin-users';
 import { dashboard } from '@/i18n/pl/dashboard';
 import { layout } from '@/i18n/pl/layout';
@@ -21,6 +21,15 @@ test.describe('panel administratora', () => {
 		await expect(sidebar.getByRole('link', { name: layout.sidebar.queue })).toBeVisible();
 		await expect(sidebar.getByRole('link', { name: layout.sidebar.sites })).toBeVisible();
 		await expect(sidebar.getByRole('link', { name: layout.sidebar.users })).toBeVisible();
+		await expect(sidebar.getByRole('link', { name: layout.sidebar.usage })).toBeVisible();
+	});
+
+	test('/admin/usage pokazuje rozmiar bazy i informację o plikach', async ({ page }) => {
+		await page.goto('/admin/usage');
+		await expect(page.getByRole('heading', { name: adminUsage.title })).toBeVisible();
+		await expect(page.getByText(adminUsage.tiles.database, { exact: true })).toBeVisible();
+		await expect(page.getByText(adminUsage.tiles.storage, { exact: true })).toBeVisible();
+		await expect(page.getByRole('heading', { name: adminUsage.optimize.heading })).toBeVisible();
 	});
 
 	test('/admin/sites renderuje kafelki stron', async ({ page }) => {

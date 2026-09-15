@@ -16,6 +16,7 @@ export {
 	adminLayout,
 	adminRecentChanges,
 	adminSitePages,
+	adminUsage,
 } from './admin-panels';
 export { adminUsers } from './admin-users';
 export { api, formatUploadError } from './api';

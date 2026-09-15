@@ -40,6 +40,7 @@
     "setup:github-reconcile": "node scripts/apply-migration.mjs supabase/migrations/20250902000000_github_reconcile.sql",
     "setup:extra-categories": "node scripts/apply-migration.mjs supabase/migrations/20250906000000_post_extra_categories.sql",
     "setup:page-assets": "node scripts/apply-migration.mjs supabase/migrations/20250915000000_assets_page_id.sql",
+    "setup:usage-stats": "node scripts/apply-migration.mjs supabase/migrations/20250916000000_admin_usage_stats.sql",
     "setup:assets-delete-own": "node scripts/apply-migration.mjs supabase/migrations/20250620000000_assets_delete_own.sql",
     "setup:assets-content-sha": "node scripts/apply-migration.mjs supabase/migrations/20250718000000_assets_content_sha.sql",
     "setup:auth-rate-limits": "node scripts/apply-migration.mjs supabase/migrations/20250707000000_auth_rate_limits.sql",
@@ -72,6 +73,7 @@
     "marked": "^18.0.5",
     "parse5": "^8.0.1",
     "pdfjs-dist": "^6.0.227",
+    "sharp": "^0.35.4",
     "tailwindcss": "^4.3.0",
     "turndown": "^7.2.4"
   },

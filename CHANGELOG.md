@@ -7,6 +7,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Dodane
 
+- **Zużycie bazy i plików w panelu.** Administrator widzi na `/admin/usage` rozmiar PostgreSQL, magazynu zdjęć i załączników, rozkład typów oraz 10 największych plików.
+
+- **Optymalizacja zdjęć przy wgraniu.** JPEG/PNG/WebP zmniejszamy do 1920 px i zapisujemy jako WebP (bez EXIF/GPS). GIF i dokumenty bez zmian.
+
 - **Zdjęcia w nagłówku z panelu.** W ustawieniach *Nagłówek — logo i zdjęcia* jest lista URL-i paska obok herbu, link do galerii i etykieta dostępności. Puste pole ukrywa pasek; brak pola na stronie zostawia dotychczasowe kadry z lotu ptaka.
 
 ### Zmienione

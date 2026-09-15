@@ -9,6 +9,7 @@ import {
 	validateUploadMeta,
 	type UploadKind,
 } from '@/lib/posts/upload';
+import { replaceOptimizedStoredImage } from '@/lib/posts/optimize-stored-image';
 import { verifyUploadedFile } from '@/lib/posts/upload-verify';
 
 export type SignedUploadUrlResult =
@@ -102,6 +103,8 @@ export async function completeAssetUpload(
 		return { ok: false, status: 400, error: verified.error };
 	}
 
+	const stored = await replaceOptimizedStoredImage(supabase, input.path, meta.mime);
+
 	const sortOrder =
 		kind === 'gallery' && owner.kind === 'post'
 			? await nextGallerySortOrder(supabase, owner.id)
@@ -111,16 +114,16 @@ export async function completeAssetUpload(
 		.from('assets')
 		.insert({
 			...ownerKey,
-			storage_path: input.path,
+			storage_path: stored.path,
 			filename: input.filename,
-			mime_type: meta.mime,
+			mime_type: stored.mime,
 			sort_order: sortOrder,
 		})
 		.select('id, filename, mime_type, display_mode, sort_order')
 		.single();
 
 	if (insertError || !assetRow) {
-		await supabase.storage.from('post-assets').remove([input.path]);
+		await supabase.storage.from('post-assets').remove([stored.path]);
 		return { ok: false, status: 500, error: api.posts.uploadFailed };
 	}
 
@@ -130,7 +133,7 @@ export async function completeAssetUpload(
 			: pageAssetFileUrlFor(owner.siteId, owner.id, assetRow.id);
 	const markdown =
 		kind === 'pdf' || kind === 'docx' || kind === 'file'
-			? markdownForUploadedAsset(input.filename, fileUrl, meta.mime)
+			? markdownForUploadedAsset(input.filename, fileUrl, stored.mime)
 			: null;
 
 	return {
