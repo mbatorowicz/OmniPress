@@ -43,7 +43,7 @@ const productionLikeNav: NavItem[] = [
 			},
 			{
 				label: 'RODO',
-				children: [{ href: '/gmina/klauzula-rodo', label: 'Klauzula informacyjna' }],
+				children: [{ href: '/gmina/klauzula-rodo', label: 'RODO' }],
 			},
 			{ href: '/gmina/sms', label: 'Powiadomienia SMS' },
 		],
@@ -77,13 +77,12 @@ describe('reshapeTopNav', () => {
 		);
 	});
 
-	it('spłaszcza RODO do liścia Klauzula informacyjna', () => {
+	it('spłaszcza grupę RODO z jednym dzieckiem do liścia RODO', () => {
 		const gmina = next.find((item) => item.label === 'Gmina');
-		expect(gmina?.children?.some((child) => child.label === 'RODO')).toBe(false);
-		expect(gmina?.children).toEqual(
-			expect.arrayContaining([
-				{ href: '/gmina/klauzula-rodo', label: 'Klauzula informacyjna' },
-			]),
+		const rodo = gmina?.children?.find((child) => child.href === '/gmina/klauzula-rodo');
+		expect(rodo).toEqual({ href: '/gmina/klauzula-rodo', label: 'RODO' });
+		expect(gmina?.children?.some((child) => child.label === 'RODO' && child.children)).toBe(
+			false,
 		);
 	});
 

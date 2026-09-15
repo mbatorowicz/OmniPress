@@ -72,7 +72,7 @@ describe('parseFooterWidget — pełny edytor stopki', () => {
 		form.set(f.invoiceRecipientNip(FOOTER_ID), '824-126-13-73');
 		form.set(
 			f.legalLinks(FOOTER_ID),
-			'Deklaracja dostępności | /gmina/deklaracja-dostepnosci\nKlauzula informacyjna | /gmina/klauzula-rodo',
+			'Deklaracja dostępności | /gmina/deklaracja-dostepnosci\nRODO | /gmina/klauzula-rodo',
 		);
 		form.set(f.contactCtaLabel(FOOTER_ID), 'Przejdź do kontaktu i mapy dojazdu');
 		form.set(f.contactCtaHref(FOOTER_ID), '/kontakt');
@@ -99,7 +99,7 @@ describe('parseFooterWidget — pełny edytor stopki', () => {
 		expect(widget.invoiceData?.recipient?.name).toBe('Urząd Gminy w Miedznie');
 		expect(widget.legalLinks).toEqual([
 			{ label: 'Deklaracja dostępności', href: '/gmina/deklaracja-dostepnosci' },
-			{ label: 'Klauzula informacyjna', href: '/gmina/klauzula-rodo' },
+			{ label: 'RODO', href: '/gmina/klauzula-rodo' },
 		]);
 		expect(widget.contactCtaHref).toBe('/kontakt');
 		expect(widget.copyrightSuffix).toBe('Wszelkie prawa zastrzeżone.');
