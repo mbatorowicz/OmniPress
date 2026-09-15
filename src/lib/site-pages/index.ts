@@ -14,6 +14,8 @@ export {
 	DEFAULT_PAGES_CONTENT_PATH,
 	pagesContentPathFromConfig,
 	sitePageMarkdownPath,
+	sitePageDirFromMarkdownPath,
+	resolveSitePageFilePath,
 } from './paths';
 export {
 	listSitePages,

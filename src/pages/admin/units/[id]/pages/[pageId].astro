@@ -2,10 +2,13 @@
 import AppLayout from '@/layouts/AppLayout.astro';
 import AdminContextNav from '@/components/shell/AdminContextNav.astro';
 import PostRichEditor from '@/components/posts/PostRichEditor.astro';
+import SitePageAttachments from '@/components/admin/SitePageAttachments.astro';
 import Alert from '@/components/ui/feedback/Alert.astro';
 import Button from '@/components/ui/actions/Button.astro';
 import { adminSitePages, dashboard } from '@/i18n';
 import { getSitePageById } from '@/lib/site-pages';
+import { pageAssetsForEditor } from '@/lib/site-pages/assets';
+import { loadPageEditorAttachments } from '@/lib/site-pages/ensure-assets';
 import { pageDraftLiveStatus } from '@/lib/site-pages/sync-status';
 import { buildSitePagePublicPath } from '@/lib/site-pages/url';
 import { ensureSiteFromGitHub } from '@/lib/sync/ensure-site';
@@ -19,6 +22,8 @@ const page = await getSitePageById(Astro.locals.supabase, pageId);
 if (!page || page.site_id !== id) {
 	return Astro.redirect(`/admin/units/${id}/pages?error=not_found`);
 }
+const editorAttachments = await loadPageEditorAttachments(Astro.locals.supabase, page);
+const pageAssets = pageAssetsForEditor(editorAttachments.assets);
 
 const { data: site } = await Astro.locals.supabase
 	.from('sites')
@@ -107,10 +112,11 @@ const syncLabel =
 			<p class="ui-hint mt-0.5">{ui.fields.contentHint}</p>
 			<div class="mt-2">
 				<PostRichEditor
-					initialMarkdown={page.content_md}
+					initialMarkdown={editorAttachments.contentMd}
 					placeholder={ed.fields.contentPlaceholder}
 					toolbar={ed.richText}
 				/>
+				<SitePageAttachments siteId={id} pageId={pageId} assets={pageAssets} />
 			</div>
 		</div>
 		<div class="flex flex-wrap gap-3">

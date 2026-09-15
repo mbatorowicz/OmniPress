@@ -29,6 +29,16 @@ describe('pdfDocumentOptions', () => {
 		});
 	});
 
+	it('wymusza pełne pobranie i cookie dla załącznika strony statycznej', () => {
+		const src = '/api/admin/sites/s1/pages/p1/assets/a1/file';
+		expect(pdfDocumentOptions(src, ORIGIN)).toEqual({
+			url: src,
+			disableRange: true,
+			disableStream: true,
+			withCredentials: true,
+		});
+	});
+
 	it('rozpoznaje endpoint panelu podany pełnym URL-em tego samego origin', () => {
 		const src = `${ORIGIN}/api/posts/p1/assets/a1/file`;
 		expect(pdfDocumentOptions(src, ORIGIN).disableRange).toBe(true);

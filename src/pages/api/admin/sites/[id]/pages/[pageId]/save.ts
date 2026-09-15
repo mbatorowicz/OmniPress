@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { guardAdminRedirect, isGuardBlocked } from '@/lib/api';
-import { getSitePageById, resolveSitePageFields, updateSitePage } from '@/lib/site-pages';
-import { prepareStorageMarkdown } from '@/lib/content/prepare-markdown';
+import { getSitePageById, updateSitePage } from '@/lib/site-pages';
+import { resolvePageFormFields } from '@/lib/site-pages/save-attachments';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const auth = guardAdminRedirect(locals, redirect);
@@ -16,14 +16,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 		return redirect(`/admin/units/${siteId}/pages?error=not_found`);
 	}
 
-	const form = await request.formData();
-	const resolved = resolveSitePageFields(
-		String(form.get('title') ?? ''),
-		String(form.get('slug') ?? ''),
-		String(form.get('path_prefix') ?? ''),
-		prepareStorageMarkdown(String(form.get('content_md') ?? '')),
-		page.slug,
-	);
+	const resolved = await resolvePageFormFields(supabase, page, await request.formData());
 	if (!resolved.ok) {
 		return redirect(`/admin/units/${siteId}/pages/${pageId}?error=${resolved.error}`);
 	}

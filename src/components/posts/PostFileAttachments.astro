@@ -5,6 +5,7 @@ import { assetFileUrlFor, isDownloadFileAsset, type PostAssetRow } from '@/lib/p
 type Props = {
 	postId: string;
 	assets: PostAssetRow[];
+	assetsApi?: string;
 	labels: {
 		heading: string;
 		empty: string;
@@ -17,10 +18,10 @@ type Props = {
 	};
 };
 
-const { postId, assets, labels } = Astro.props;
+const { postId, assets, assetsApi, labels } = Astro.props;
 const fileAssets = assets.filter(isDownloadFileAsset).map((a) => ({
 	id: a.id,
-	url: assetFileUrlFor(postId, a.id),
+	url: assetsApi ? `${assetsApi}/assets/${a.id}/file` : assetFileUrlFor(postId, a.id),
 	filename: a.filename,
 }));
 const initialOrder = fileAssets.map((a) => a.id).join(',');
@@ -31,6 +32,7 @@ const ed = dashboard.editor;
 	class="ui-panel--subtle mt-4"
 	data-file-attachments
 	data-post-id={postId}
+	data-assets-api={assetsApi ?? ''}
 	data-initial-assets={JSON.stringify(fileAssets)}
 	data-label-move-up={labels.moveUp}
 	data-label-move-down={labels.moveDown}

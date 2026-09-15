@@ -13,6 +13,8 @@ export type ReconcileInput = {
 	publishedContentSha: string | null;
 	currentContentSha: string;
 	liveContentSha?: string | null;
+	/** Pusta treść, ale rekord nie jest placeholdere (np. strona tylko z załącznikami). */
+	treatAsFilled?: boolean;
 };
 
 const PROTECTED_STATUSES: ReadonlySet<string> = new Set<PostStatus>([
@@ -50,7 +52,7 @@ export function shouldRefusePublish(
 /** GitHub wygrywa przy braku rekordu / pustce; szkic i lokalne poprawki zostają. */
 export function decideReconcile(input: ReconcileInput): ReconcileDecision {
 	if (!input.omniExists) return 'pull';
-	if (isPlaceholderOrEmpty(input.omniContent)) return 'pull';
+	if (isPlaceholderOrEmpty(input.omniContent) && !input.treatAsFilled) return 'pull';
 	if (isProtectedWorkflowStatus(input.workflowStatus)) return 'keep';
 	if (input.storedLiveBlobSha && input.storedLiveBlobSha === input.liveBlobSha) {
 		return 'mark';

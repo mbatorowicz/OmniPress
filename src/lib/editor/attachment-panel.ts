@@ -59,6 +59,7 @@ export function createAttachmentPanel<A extends AttachmentAsset, L extends Attac
 ): AttachmentPanel<A> | null {
 	const postId = root.dataset.postId;
 	if (!postId) return null;
+	const apiBase = root.dataset.assetsApi || `/api/posts/${postId}`;
 
 	const { prefix, labels } = config;
 	const listSelector = config.listSelector ?? `[data-${prefix}-list]`;
@@ -89,7 +90,7 @@ export function createAttachmentPanel<A extends AttachmentAsset, L extends Attac
 		button?.setAttribute('disabled', 'true');
 
 		try {
-			const res = await fetch(`/api/posts/${postId}/assets/${assetId}`, {
+			const res = await fetch(`${apiBase}/assets/${assetId}`, {
 				method: 'DELETE',
 				credentials: 'same-origin',
 			});
@@ -150,6 +151,7 @@ export function createAttachmentPanel<A extends AttachmentAsset, L extends Attac
 
 		pending = await uploadSelectedFiles(files, pending, {
 			postId,
+			apiBase,
 			kind: config.kind,
 			multiple: config.multiple,
 			labels: {

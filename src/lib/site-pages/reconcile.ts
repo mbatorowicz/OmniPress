@@ -3,9 +3,11 @@ import { getGitHubFileText, type GitHubConfig, type GitHubTreeBlob } from '@/lib
 import { formatExternalGitHubPath } from '@/lib/publish/paths';
 import { decideReconcile, hashPublishedContent, type ReconcileDecision } from '@/lib/sync/policy';
 import { listSitePages } from './access';
+import { pageHasAssets } from './assets';
 import { filterGitHubMarkdownPages, parseSitePageFile, parseSitePagePath } from './parse';
 import { applySitePagePull } from './reconcile-apply';
 import { buildSitePagePublicPath } from './url';
+import { stripPublishedAttachments } from '@/lib/publish/import-asset-model';
 import type { SitePage } from './types';
 
 export type PageReconcileResult = { pulled: number; kept: number };
@@ -29,6 +31,7 @@ function decisionFor(
 	existing: SitePage | undefined,
 	liveBlobSha: string,
 	liveContentSha?: string,
+	treatAsFilled = false,
 ): ReconcileDecision {
 	return decideReconcile({
 		omniExists: Boolean(existing),
@@ -39,7 +42,12 @@ function decisionFor(
 		publishedContentSha: existing?.published_content_sha ?? null,
 		currentContentSha: hashPublishedContent(existing?.content_md ?? ''),
 		liveContentSha,
+		treatAsFilled,
 	});
+}
+
+function editorialShaFromRaw(raw: string): string {
+	return hashPublishedContent(stripPublishedAttachments(parseSitePageFile(raw)?.body ?? raw));
 }
 
 export async function reconcileSitePagesFromGitHub(
@@ -59,7 +67,8 @@ export async function reconcileSitePagesFromGitHub(
 		const fromPath = parseSitePagePath(pagesRoot, blob.path);
 		if (!fromPath) continue;
 		const existing = findExistingPage(pages, fromPath.pathPrefix, fromPath.slug, blob.path);
-		let decision = decisionFor(existing, blob.sha);
+		const treatAsFilled = existing ? await pageHasAssets(supabase, existing.id) : false;
+		let decision = decisionFor(existing, blob.sha, undefined, treatAsFilled);
 
 		if (decision === 'inspect' || decision === 'pull') {
 			const raw = await getGitHubFileText(cfg, token, blob.path);
@@ -68,11 +77,7 @@ export async function reconcileSitePagesFromGitHub(
 				continue;
 			}
 			if (decision === 'inspect') {
-				decision = decisionFor(
-					existing,
-					blob.sha,
-					hashPublishedContent(parseSitePageFile(raw)?.body ?? raw),
-				);
+				decision = decisionFor(existing, blob.sha, editorialShaFromRaw(raw), treatAsFilled);
 			}
 			if (decision === 'pull') {
 				if (
@@ -85,6 +90,7 @@ export async function reconcileSitePagesFromGitHub(
 						blob.sha,
 						existing,
 						raw,
+						{ cfg, token },
 					)
 				) {
 					pulled += 1;

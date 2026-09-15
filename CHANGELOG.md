@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Dodane
+
+- **Załączniki stron statycznych jak we wpisach.** PDF ma wybór *link do pobrania* albo *podgląd na stronie*; DOCX i pliki do pobrania są w osobnych panelach. Publikacja wgrywa binaria obok `index.md`, import zdejmuje linki z treści. Migracja `setup:page-assets`.
+
 ### Naprawione
 
 - **Osobna korekta językowa treści.** Po czyszczeniu artefaktów: literówki (`rozporczęciu` → `rozpoczęciu`), `w/w` → `ww.`, `i/lub` → `lub`, WFOŚiGW, cudzysłowy przy `pn.`, urwane zdania, tytuły i zajawki. Skrypt `scripts/proofread-news.mjs` + `clean-md-language*.mjs`; skaner `scan-language.mjs`. Testy: `clean-md-language.test.ts`.

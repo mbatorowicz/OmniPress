@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { pdfEmbedHtml } from '@/lib/pdf-viewer/embed-html';
 import {
 	assetLabelFromBody,
+	hasPublishedAttachments,
 	imageSortOrder,
+	isManagedAttachmentFilename,
 	mimeFromFilename,
 	pdfDisplayMode,
 	removablePaths,
@@ -114,6 +116,29 @@ describe('stripPublishedAttachments', () => {
 	it('scala puste linie po usunieciu zalacznikow', () => {
 		const body = `Akapit 1.\n\n[\u{1F4C4} a.pdf](./a.pdf)\n\n[\u{1F4C4} b.pdf](./b.pdf)\n\nAkapit 2.`;
 		expect(stripPublishedAttachments(body)).toBe('Akapit 1.\n\nAkapit 2.');
+	});
+
+	it('usuwa puste punkty listy po zdjeciu linkow stron', () => {
+		const body =
+			`Wstep.\n\n- [\u{1F4C4} Rejon 1](./a.pdf)\n- [\u{1F4C4} Rejon 2](./b.pdf)\n`;
+		expect(stripPublishedAttachments(body)).toBe('Wstep.');
+	});
+});
+
+describe('hasPublishedAttachments', () => {
+	it('wykrywa wzgledny link i blok podgladu', () => {
+		expect(hasPublishedAttachments(`[\u{1F4C4} a.pdf](./a.pdf)`)).toBe(true);
+		expect(hasPublishedAttachments(pdfEmbedHtml('./a.pdf', 'a.pdf'))).toBe(true);
+		expect(hasPublishedAttachments('Tylko tekst')).toBe(false);
+	});
+});
+
+describe('isManagedAttachmentFilename', () => {
+	it('bierze PDF/DOCX/pliki do pobrania, pomija zdjecia', () => {
+		expect(isManagedAttachmentFilename('a.pdf')).toBe(true);
+		expect(isManagedAttachmentFilename('a.docx')).toBe(true);
+		expect(isManagedAttachmentFilename('a.gpkg')).toBe(true);
+		expect(isManagedAttachmentFilename('a.jpg')).toBe(false);
 	});
 });
 

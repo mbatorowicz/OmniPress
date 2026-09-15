@@ -8,6 +8,7 @@ import { uploadPostAsset, type UploadedAsset } from './upload-asset';
 
 export type UploadLoopConfig = {
 	postId: string;
+	apiBase?: string;
 	kind: Parameters<typeof uploadPostAsset>[2];
 	multiple?: boolean;
 	labels: { uploadFailed: string; networkError: string; uploading: string };
@@ -30,10 +31,17 @@ export async function uploadSelectedFiles(
 	for (const item of items) {
 		const file = selected[items.indexOf(item)];
 		if (!file) continue;
-		const result = await uploadPostAsset(config.postId, file, config.kind, config.labels, (fraction) => {
-			item.progress = Math.round(fraction * 100);
-			patchPendingProgress(config.listRoot, item, config.labels.uploading);
-		});
+		const result = await uploadPostAsset(
+			config.postId,
+			file,
+			config.kind,
+			config.labels,
+			(fraction) => {
+				item.progress = Math.round(fraction * 100);
+				patchPendingProgress(config.listRoot, item, config.labels.uploading);
+			},
+			config.apiBase,
+		);
 		current = current.filter((p) => p.id !== item.id);
 		config.onPendingChange(current);
 

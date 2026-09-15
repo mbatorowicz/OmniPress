@@ -52,6 +52,17 @@ describe('decideReconcile', () => {
 		expect(decideReconcile({ ...base, omniContent: '' })).toBe('pull');
 	});
 
+	it('nie ciągnie pustej treści, gdy rekord ma załączniki', () => {
+		expect(
+			decideReconcile({
+				...base,
+				omniContent: '',
+				treatAsFilled: true,
+				storedLiveBlobSha: 'live-2',
+			}),
+		).toBe('mark');
+	});
+
 	it('zostawia chroniony workflow z treścią', () => {
 		expect(decideReconcile({ ...base, workflowStatus: 'draft' })).toBe('keep');
 		expect(decideReconcile({ ...base, workflowStatus: 'pending' })).toBe('keep');

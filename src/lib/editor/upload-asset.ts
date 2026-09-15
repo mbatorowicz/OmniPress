@@ -38,10 +38,12 @@ export async function uploadPostAsset(
 	kind: UploadKind,
 	labels: UploadAssetLabels,
 	onProgress?: UploadProgressHandler,
+	apiBase?: string,
 ): Promise<UploadAssetResult> {
+	const base = apiBase || `/api/posts/${postId}`;
 	try {
 		onProgress?.(uploadStagePercent('url') / 100);
-		const urlRes = await fetch(`/api/posts/${postId}/upload-url`, {
+		const urlRes = await fetch(`${base}/upload-url`, {
 			method: 'POST',
 			credentials: 'same-origin',
 			headers: { 'Content-Type': 'application/json' },
@@ -71,7 +73,7 @@ export async function uploadPostAsset(
 		}
 
 		onProgress?.(uploadStagePercent('complete') / 100);
-		const completeRes = await fetch(`/api/posts/${postId}/upload-complete`, {
+		const completeRes = await fetch(`${base}/upload-complete`, {
 			method: 'POST',
 			credentials: 'same-origin',
 			headers: { 'Content-Type': 'application/json' },

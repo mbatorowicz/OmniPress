@@ -30,6 +30,10 @@ export function assetFileUrlFor(postId: string, assetId: string): string {
 	return `/api/posts/${postId}/assets/${assetId}/file`;
 }
 
+export function pageAssetFileUrlFor(siteId: string, pageId: string, assetId: string): string {
+	return `/api/admin/sites/${siteId}/pages/${pageId}/assets/${assetId}/file`;
+}
+
 /** Ścieżka w Storage to `${postId}/${uuid}.ext` — id wpisu jest pierwszym segmentem. */
 export function postIdFromStoragePath(storagePath: string): string | null {
 	const [postId] = storagePath.split('/');

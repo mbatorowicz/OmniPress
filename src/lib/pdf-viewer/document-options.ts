@@ -8,7 +8,8 @@
  * tam potrzebuje cookie sesji.
  */
 
-const PANEL_ASSET_PATH = /^\/api\/posts\/[^/]+\/assets\/[^/]+\/file\/?$/;
+const PANEL_ASSET_PATH =
+	/^\/api\/posts\/[^/]+\/assets\/[^/]+\/file\/?$|^\/api\/admin\/sites\/[^/]+\/pages\/[^/]+\/assets\/[^/]+\/file\/?$/;
 
 export type PdfDocumentOptions = {
 	url: string;

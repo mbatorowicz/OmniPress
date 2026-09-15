@@ -62,6 +62,17 @@ describe('prepareSitePagePublish', () => {
 		expect(gh.getGitHubFile).not.toHaveBeenCalled();
 	});
 
+	it('pozwala opublikować pustą treść, gdy są lokalne załączniki', async () => {
+		gh.getGitHubFileText.mockResolvedValue('---\ntitle: Live\n---\n\n[📄 plik](./a.pdf)\n');
+		gh.getGitHubFile.mockResolvedValue({ sha: 'blob', path: 'src/content/pages/odpady/harmonogram/index.md' });
+
+		const result = await prepareSitePagePublish(cfg, 'tok', {}, page, '---\n---\n', {
+			hasAssets: true,
+		});
+
+		expect(result).toMatchObject({ ok: true, skipWrite: false });
+	});
+
 	it('pomija zapis gdy plik na origin jest identyczny', async () => {
 		const filled = { ...page, content_md: 'Harmonogram rejonów' };
 		const body = buildSanitizedPageMarkdown(filled, filled.content_md);

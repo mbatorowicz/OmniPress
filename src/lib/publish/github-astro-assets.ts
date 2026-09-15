@@ -43,6 +43,11 @@ export type CollectedAssets = {
 	shaUpdates: { id?: string; sha: string }[];
 };
 
+export type CollectAssetWritesOptions = {
+	/** Domyślnie kasuje każdy plik spoza listy assetów. Strony: tylko znane typy załączników. */
+	deleteOrphan?: (name: string) => boolean;
+};
+
 /** Pobiera zmienione assety z Storage; pomija niezmienione (porównanie Git blob SHA). */
 export async function collectPostAssetWrites(
 	supabase: SupabaseClient,
@@ -50,6 +55,7 @@ export async function collectPostAssetWrites(
 	token: string,
 	postDir: string,
 	assets: PostAsset[],
+	options?: CollectAssetWritesOptions,
 ): Promise<CollectedAssets> {
 	const map = new Map<string, string>();
 	const errors: string[] = [];
@@ -113,6 +119,7 @@ export async function collectPostAssetWrites(
 
 	const deletes = [...remoteByName.keys()]
 		.filter((name) => !keepNames.has(name))
+		.filter((name) => options?.deleteOrphan?.(name) ?? true)
 		.map((name) =>
 			cfg.contentLayout === 'folder'
 				? joinContentPath(postDir, name)

@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.13.0** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.15.0** (kod + baza + panel).
 
 Produkcja: https://omni-press.cncsolutions.dev
 
@@ -85,7 +85,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Import wpisów z GitHub | ✅ auto przy wejściu na panel (bez przycisku) |
 | Layout Astro (menu, kategorie, sloty) + sync do repo | ✅ pasek zgodności: zgodne / szkic do publikacji / wczytaj nowszą stronę; auto-wczytanie po hashu całego layoutu |
 | Ustawienia strony (nazwa, slug, GitHub, tokeny) | ✅ `/admin/units/[id]` |
-| Strony statyczne (admin) + publikacja do repo Astro | ✅ `/admin/units/[id]/pages` — auto-pull z GitHub, publikacja nie nadpisze pustką |
+| Strony statyczne (admin) + publikacja do repo Astro | ✅ `/admin/units/[id]/pages` — auto-pull z GitHub, publikacja nie nadpisze pustką; załączniki jak we wpisach (PDF: link / podgląd) |
 | Walidacja linków menu przed sync GitHub | ✅ |
 | Ostatnie zmiany (ogłoszenia) | ✅ `/admin/units/[id]/changes` |
 | Komunikaty CERT Polska (RSS → live API na stronie Astro) | ✅ Slot `sidebar.cert_advisories`; endpoint `/api/cert/advisories` na stronie jednostki (cache 15 min) |
@@ -141,6 +141,7 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub (jeden commit; listing 
 | `20250827000000_posts_pinned.sql` | `setup:posts-pinned` |
 | `20250902000000_github_reconcile.sql` | `setup:github-reconcile` |
 | `20250906000000_post_extra_categories.sql` | `setup:extra-categories` |
+| `20250915000000_assets_page_id.sql` | `setup:page-assets` |
 
 Tabela opisuje **zamierzony** stan bazy. `lint-docs-setup.mjs` pilnuje zgodności `package.json` ↔ ta tabela, ale nie sprawdza produkcji — w audycie P0-7 okazało się, że jedna migracja nigdy tam nie trafiła. Przy wątpliwościach: porównaj z bazą (triggery, polityki, kolumny), nie z tym dokumentem.
 
@@ -205,6 +206,13 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | SSO redaktorów | — |
 
 ---
+
+## 0.15.0 — Załączniki stron statycznych
+
+- Strony statyczne mają te same panele co wpisy: PDF (link albo podgląd na stronie), DOCX, pliki do pobrania.
+- Pliki idą do Storage i przy publikacji do folderu strony w repo Astro (`./plik` obok `index.md`).
+- Import z GitHub zdejmuje linki z treści i odtwarza tryb wyświetlania PDF.
+- Migracja `setup:page-assets`.
 
 ## 0.14.0 — Akceptacja z Telegrama
 

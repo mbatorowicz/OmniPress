@@ -5,6 +5,7 @@ import { assetFileUrlFor, isPdfAsset, type PostAssetRow } from '@/lib/posts/asse
 type Props = {
 	postId: string;
 	assets: PostAssetRow[];
+	assetsApi?: string;
 	labels: {
 		heading: string;
 		empty: string;
@@ -19,10 +20,10 @@ type Props = {
 	};
 };
 
-const { postId, assets, labels } = Astro.props;
+const { postId, assets, assetsApi, labels } = Astro.props;
 const pdfAssets = assets.filter(isPdfAsset).map((a) => ({
 	id: a.id,
-	url: assetFileUrlFor(postId, a.id),
+	url: assetsApi ? `${assetsApi}/assets/${a.id}/file` : assetFileUrlFor(postId, a.id),
 	filename: a.filename,
 	display_mode: a.display_mode,
 }));
@@ -34,6 +35,7 @@ const ed = dashboard.editor;
 	class="ui-panel--subtle mt-4"
 	data-pdf-attachments
 	data-post-id={postId}
+	data-assets-api={assetsApi ?? ''}
 	data-initial-assets={JSON.stringify(pdfAssets)}
 	data-label-link={labels.displayLink}
 	data-label-embed={labels.displayEmbed}

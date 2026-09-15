@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { api, formatUploadError } from '@/i18n';
 import { nextGallerySortOrder } from '@/lib/posts/assets';
-import { assetFileUrlFor } from '@/lib/publish/asset-model';
+import { assetFileUrlFor, pageAssetFileUrlFor } from '@/lib/publish/asset-model';
 import {
 	extensionForMime,
 	markdownForUploadedAsset,
@@ -39,9 +39,13 @@ export type CompleteUploadResult =
 	  }
 	| { ok: false; status: number; error: string };
 
-export async function createPostAssetSignedUpload(
+export type AssetUploadOwner =
+	| { kind: 'post'; id: string }
+	| { kind: 'page'; id: string; siteId: string };
+
+export async function createAssetSignedUpload(
 	supabase: SupabaseClient,
-	postId: string,
+	ownerId: string,
 	input: { kind: string; filename: string; size: number; mimeType: string },
 ): Promise<SignedUploadUrlResult> {
 	const kind = parseUploadKind(input.kind);
@@ -50,20 +54,10 @@ export async function createPostAssetSignedUpload(
 	const meta = validateUploadMeta(kind, input.filename, input.size, input.mimeType);
 	if ('error' in meta) return { ok: false, status: 400, error: meta.error };
 
-	const ext = extensionForMime(meta.mime);
-	const storageFilename = `${crypto.randomUUID()}.${ext}`;
-	const path = `${postId}/${storageFilename}`;
-
-	const { data, error } = await supabase.storage
-		.from('post-assets')
-		.createSignedUploadUrl(path);
-
+	const path = `${ownerId}/${crypto.randomUUID()}.${extensionForMime(meta.mime)}`;
+	const { data, error } = await supabase.storage.from('post-assets').createSignedUploadUrl(path);
 	if (error || !data) {
-		return {
-			ok: false,
-			status: 500,
-			error: formatUploadError(error?.message),
-		};
+		return { ok: false, status: 500, error: formatUploadError(error?.message) };
 	}
 
 	return {
@@ -77,21 +71,22 @@ export async function createPostAssetSignedUpload(
 	};
 }
 
-export async function completePostAssetUpload(
+export function createPostAssetSignedUpload(
 	supabase: SupabaseClient,
 	postId: string,
-	input: {
-		kind: string;
-		path: string;
-		filename: string;
-		mime: string;
-		size: number;
-	},
+	input: { kind: string; filename: string; size: number; mimeType: string },
+): Promise<SignedUploadUrlResult> {
+	return createAssetSignedUpload(supabase, postId, input);
+}
+
+export async function completeAssetUpload(
+	supabase: SupabaseClient,
+	owner: AssetUploadOwner,
+	input: { kind: string; path: string; filename: string; mime: string; size: number },
 ): Promise<CompleteUploadResult> {
 	const kind = parseUploadKind(input.kind);
 	if (!kind) return { ok: false, status: 400, error: api.posts.missingFile };
-
-	if (!input.path.startsWith(`${postId}/`) || input.path.includes('..')) {
+	if (!input.path.startsWith(`${owner.id}/`) || input.path.includes('..')) {
 		return { ok: false, status: 400, error: api.posts.missingFile };
 	}
 
@@ -107,12 +102,15 @@ export async function completePostAssetUpload(
 		return { ok: false, status: 400, error: verified.error };
 	}
 
-	const sortOrder = kind === 'gallery' ? await nextGallerySortOrder(supabase, postId) : 0;
-
+	const sortOrder =
+		kind === 'gallery' && owner.kind === 'post'
+			? await nextGallerySortOrder(supabase, owner.id)
+			: 0;
+	const ownerKey = owner.kind === 'post' ? { post_id: owner.id } : { page_id: owner.id };
 	const { data: assetRow, error: insertError } = await supabase
 		.from('assets')
 		.insert({
-			post_id: postId,
+			...ownerKey,
 			storage_path: input.path,
 			filename: input.filename,
 			mime_type: meta.mime,
@@ -126,7 +124,10 @@ export async function completePostAssetUpload(
 		return { ok: false, status: 500, error: api.posts.uploadFailed };
 	}
 
-	const fileUrl = assetFileUrlFor(postId, assetRow.id);
+	const fileUrl =
+		owner.kind === 'post'
+			? assetFileUrlFor(owner.id, assetRow.id)
+			: pageAssetFileUrlFor(owner.siteId, owner.id, assetRow.id);
 	const markdown =
 		kind === 'pdf' || kind === 'docx' || kind === 'file'
 			? markdownForUploadedAsset(input.filename, fileUrl, meta.mime)
@@ -145,4 +146,12 @@ export async function completePostAssetUpload(
 			url: fileUrl,
 		},
 	};
+}
+
+export function completePostAssetUpload(
+	supabase: SupabaseClient,
+	postId: string,
+	input: { kind: string; path: string; filename: string; mime: string; size: number },
+): Promise<CompleteUploadResult> {
+	return completeAssetUpload(supabase, { kind: 'post', id: postId }, input);
 }

@@ -3,10 +3,10 @@
  * adresy, mapowanie na render i odczyt pól formularza. Operacje na bazie:
  * `@/lib/posts/assets`.
  */
-import { assetFileUrl, assetFileUrlFor } from '@/lib/publish/asset-model';
+import { assetFileUrl, assetFileUrlFor, pageAssetFileUrlFor } from '@/lib/publish/asset-model';
 import type { AssetDisplayMode, AssetForDisplay } from '@/lib/publish/asset-markdown';
 
-export { assetFileUrl, assetFileUrlFor };
+export { assetFileUrl, assetFileUrlFor, pageAssetFileUrlFor };
 
 export type PostAssetRow = {
 	id: string;

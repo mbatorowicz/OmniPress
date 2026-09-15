@@ -73,6 +73,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | `setup:profiles-guard` | Trigger RLS — blokada eskalacji roli / site |
 | `setup:scheduled-publish` | Data publikacji wpisu + status `scheduled` |
 | `setup:site-pages` | Strony statyczne (admin) |
+| `setup:page-assets` | Załączniki stron statycznych (`assets.page_id`) |
 | `setup:author-on-delete` | Autor wpisu → NULL po usunięciu konta |
 | `setup:posts-delete-own` | Usuwanie własnych wpisów przez redaktora |
 | `setup:posts-rejected-resubmit` | Ponowne wysłanie odrzuconego wpisu |

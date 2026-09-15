@@ -60,12 +60,13 @@ export {
 	MAX_FILE_ATTACHMENT_BYTES,
 	type UploadKind,
 } from './upload';
-export { createPostAssetSignedUpload, completePostAssetUpload } from './signed-upload';
+export { createPostAssetSignedUpload, completePostAssetUpload, completeAssetUpload, createAssetSignedUpload } from './signed-upload';
 export {
 	assetsForContentRender,
 	assetsForPreviewRender,
 	assetFileUrl,
 	assetFileUrlFor,
+	pageAssetFileUrlFor,
 	parseAssetDisplayModes,
 	parseGalleryOrder,
 	parsePdfOrder,

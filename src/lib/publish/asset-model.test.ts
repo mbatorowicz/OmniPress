@@ -3,6 +3,7 @@ import {
 	assetFileUrl,
 	assetUrlKeys,
 	legacyPublicAssetUrl,
+	pageAssetFileUrlFor,
 	postIdFromStoragePath,
 	resolveAssetUrl,
 } from './asset-model';
@@ -29,6 +30,14 @@ describe('assetFileUrl', () => {
 	it('nie prowadzi do publicznego Storage', () => {
 		expect(assetFileUrl(ASSET)).toBe(`/api/posts/${POST_ID}/assets/asset-1/file`);
 		expect(assetFileUrl(ASSET)).not.toContain('object/public');
+	});
+});
+
+describe('pageAssetFileUrlFor', () => {
+	it('adresuje proxy panelu stron, nie wpisów', () => {
+		expect(pageAssetFileUrlFor('site-1', 'page-1', 'asset-1')).toBe(
+			'/api/admin/sites/site-1/pages/page-1/assets/asset-1/file',
+		);
 	});
 });
 

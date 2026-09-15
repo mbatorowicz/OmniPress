@@ -35,7 +35,9 @@ OmniPress publikuje przez GitHub API **prosto do origin**, z pominięciem kopii 
 
 **Każda praca w repo B zaczyna się od `git pull`.** Analiza stanu strony bez pulla opisuje nieaktualną rzeczywistość.
 
-OmniPress przy otwarciu panelu **sam** reconciluje strony statyczne i wpisy z `origin/main` (oraz layout, jak dotychczas). `origin/main` zostaje SSOT opublikowanego. Omni nie pcha automatycznie. Publikacja strony odmawia nadpisania niepustego pliku pustką/placeholderem. Załączniki stron (`public/page-files/`) Omni nie importuje — chroni je, wczytując markdown z linkami `./…`.
+OmniPress przy otwarciu panelu **sam** reconciluje strony statyczne i wpisy z `origin/main` (oraz layout, jak dotychczas). `origin/main` zostaje SSOT opublikowanego. Omni nie pcha automatycznie. Publikacja strony odmawia nadpisania niepustego pliku pustką/placeholderem.
+
+**Załączniki stron** (od 0.15.0) żyją w `assets` (`page_id`) tak jak załączniki wpisów: lista w panelu, `display_mode` link/embed dla PDF, publikacja dokleja `[📄 …](./basename)` albo blok `op-pdf-viewer` i wgrywa binaria obok `src/content/pages/{prefix}/{slug}/index.md`. Import zdejmuje linki z treści (`stripPublishedAttachments`) i paruje pliki po basenamie `storage_path` (istniejące human-readable nazwy zostają). `public/page-files/` to nadal artefakt buildu Astro, nie SSOT. Publikacja kasuje z folderu strony tylko zarządzane typy (PDF/DOCX/GPKG/XLSX/ZIP) spoza listy assetów — innych plików w folderze nie rusza.
 
 ## Sanityzacja markdownu na stronie (S-2)
 

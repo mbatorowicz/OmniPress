@@ -1,0 +1,21 @@
+---
+import PostPdfAttachments from '@/components/posts/PostPdfAttachments.astro';
+import PostDocxAttachments from '@/components/posts/PostDocxAttachments.astro';
+import PostFileAttachments from '@/components/posts/PostFileAttachments.astro';
+import { dashboard } from '@/i18n';
+import type { PostAssetRow } from '@/lib/posts/asset-model';
+
+type Props = {
+	siteId: string;
+	pageId: string;
+	assets: PostAssetRow[];
+};
+
+const { siteId, pageId, assets } = Astro.props;
+const assetsApi = `/api/admin/sites/${siteId}/pages/${pageId}`;
+const ed = dashboard.editor;
+---
+
+<PostPdfAttachments postId={pageId} {assetsApi} {assets} labels={ed.pdfAttachments} />
+<PostDocxAttachments postId={pageId} {assetsApi} {assets} labels={ed.docxAttachments} />
+<PostFileAttachments postId={pageId} {assetsApi} {assets} labels={ed.fileAttachments} />

@@ -14,7 +14,7 @@ export const adminSitePages = {
 		pathPrefixHint: 'Opcjonalny pierwszy segment URL. Puste = strona pod /{slug}.',
 		publicPath: 'Adres publiczny',
 		content: 'Treść',
-		contentHint: 'Edytor WYSIWYG — zapis jako Markdown w repozytorium.',
+		contentHint: 'Edytor WYSIWYG — zapis jako Markdown. Załączniki (PDF z wyborem link / podgląd) dodajesz pod treścią, tak jak we wpisach.',
 	},
 	actions: {
 		save: 'Zapisz szkic',

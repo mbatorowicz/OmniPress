@@ -28,6 +28,14 @@ export function storageBasename(storagePath: string): string {
 	return storagePath.split('/').pop() ?? storagePath;
 }
 
+const MANAGED_ATTACHMENT_MIMES = new Set([
+	'application/pdf',
+	'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+	'application/geopackage+sqlite3',
+	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+	'application/zip',
+]);
+
 export function mimeFromFilename(filename: string): string {
 	const lower = filename.toLowerCase();
 	if (lower.endsWith('.pdf')) return 'application/pdf';
@@ -44,6 +52,11 @@ export function mimeFromFilename(filename: string): string {
 	if (lower.endsWith('.webp')) return 'image/webp';
 	if (lower.endsWith('.gif')) return 'image/gif';
 	return 'application/octet-stream';
+}
+
+/** PDF / DOCX / GPKG / XLSX / ZIP — pliki panelu załączników (nie zdjęcia). */
+export function isManagedAttachmentFilename(filename: string): boolean {
+	return MANAGED_ATTACHMENT_MIMES.has(mimeFromFilename(filename));
 }
 
 export function pdfDisplayMode(body: string, filename: string): 'link' | 'embed' {
@@ -102,6 +115,14 @@ export function removablePaths(
 }
 
 /**
+ * Czy treść ma doklejone przez publikację linki `./` albo blok podglądu PDF.
+ */
+export function hasPublishedAttachments(body: string): boolean {
+	RELATIVE_FILE_LINK_RE.lastIndex = 0;
+	return RELATIVE_FILE_LINK_RE.test(body) || /data-op-pdf-src="\.\//.test(body);
+}
+
+/**
  * Usuwa z importowanej tresci to, co publikacja dokleja sama: linki do plikow
  * i bloki podgladu PDF o adresach wzglednych. Bez tego kolejna publikacja
  * dubluje liste zalacznikow pod wpisem.
@@ -112,6 +133,8 @@ export function stripPublishedAttachments(body: string): string {
 			/data-op-pdf-src="\.\//.test(block) ? '' : block,
 		)
 		.replace(RELATIVE_FILE_LINK_RE, '')
+		.replace(/^[ \t]*[-*][ \t]*$/gm, '')
+		.replace(/^[ \t]*\d+\.[ \t]*$/gm, '')
 		.replace(/[ \t]+$/gm, '')
 		.replace(/\n{3,}/g, '\n\n')
 		.trim();

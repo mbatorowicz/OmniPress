@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { isValidSlug, normalizeSlug } from '@/lib/admin/slug';
 import { isValidPathPrefix, normalizePathPrefix, buildSitePagePublicPath } from './url';
+import { removePageAssetStorage } from './assets';
 import type { SitePage } from './types';
 
 export async function listSitePages(
@@ -136,6 +137,7 @@ export async function deleteSitePage(
 	supabase: SupabaseClient,
 	pageId: string,
 ): Promise<boolean> {
+	await removePageAssetStorage(supabase, pageId);
 	const { error } = await supabase.from('site_pages').delete().eq('id', pageId);
 	return !error;
 }
