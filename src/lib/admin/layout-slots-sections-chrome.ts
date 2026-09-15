@@ -88,6 +88,9 @@ export function buildChromeDetailHtml(
 				<label class="ui-label-inline"><span class="font-medium">${l.headerBrandLogoUrl}</span><input${fa(config)} name="${f.logoUrl(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
 				<label class="ui-label-inline"><span class="font-medium">${l.headerBrandLogoAlt}</span><input${fa(config)} name="${f.logoAlt(id)}" class="ui-input-compact w-full" /></label>
 				<label class="ui-label-inline"><span class="font-medium">${l.headerBrandHomeHref}</span><input${fa(config)} name="${f.homeHref(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
+				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.headerBrandPhotos}</span><textarea${fa(config)} name="${f.photos(id)}" rows="6" class="ui-input-compact ui-input-compact--mono w-full"></textarea></label>
+				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.headerBrandPhotosHref}</span><input${fa(config)} name="${f.photosHref(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
+				<label class="ui-label-inline sm:col-span-2"><span class="font-medium">${l.headerBrandPhotosLabel}</span><input${fa(config)} name="${f.photosLabel(id)}" class="ui-input-compact w-full" /></label>
 			${panelCloseHtml()}`;
 	}
 	if (component === 'footer.main') {

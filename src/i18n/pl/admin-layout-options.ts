@@ -3,7 +3,7 @@ export const adminLayoutOptions = {
 	componentLabels: {
 		'site.meta': 'Meta strony — nazwa i SEO',
 		'topbar.tagline': 'Pasek górny — tagline',
-		'header.brand': 'Nagłówek — logo',
+		'header.brand': 'Nagłówek — logo i zdjęcia',
 		'header.navigation': 'Nagłówek — menu główne',
 		'home.pinned': 'Strona główna — przypięte',
 		'home.latest': 'Strona główna — najnowsze',

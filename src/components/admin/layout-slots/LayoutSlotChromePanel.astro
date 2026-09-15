@@ -2,6 +2,7 @@
 import { adminLayout } from '@/i18n';
 import { slotFormFields } from '@/lib/astro-layout/slot-form-fields';
 import type { DisplaySlot } from '@/lib/astro-layout/types';
+import LayoutSlotHeaderBrandFields from './LayoutSlotHeaderBrandFields.astro';
 
 interface Props {
 	formId: string;
@@ -71,20 +72,7 @@ const recipient = w.invoiceData?.recipient ?? {};
 				</label>
 			</>
 		) : component === 'header.brand' ? (
-			<>
-				<label class="ui-label-inline">
-					<span class="font-medium">{fields.headerBrandLogoUrl}</span>
-					<input form={formId} name={slotFormFields.headerBrand.logoUrl(slot.id)} value={w.logoUrl ?? ''} class="ui-input-compact ui-input-compact--mono w-full" />
-				</label>
-				<label class="ui-label-inline">
-					<span class="font-medium">{fields.headerBrandLogoAlt}</span>
-					<input form={formId} name={slotFormFields.headerBrand.logoAlt(slot.id)} value={w.logoAlt ?? ''} class="ui-input-compact w-full" />
-				</label>
-				<label class="ui-label-inline">
-					<span class="font-medium">{fields.headerBrandHomeHref}</span>
-					<input form={formId} name={slotFormFields.headerBrand.homeHref(slot.id)} value={w.homeHref ?? '/'} class="ui-input-compact ui-input-compact--mono w-full" />
-				</label>
-			</>
+			<LayoutSlotHeaderBrandFields {formId} {slot} />
 		) : component === 'footer.main' ? (
 			<>
 				<input type="hidden" form={formId} name={footer.detail(slot.id)} value="1" />

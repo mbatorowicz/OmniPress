@@ -77,6 +77,9 @@ export function buildLayoutSlotsClientScriptVars(componentOptionsHtml: string) {
 			headerBrandLogoUrl: fields.headerBrandLogoUrl,
 			headerBrandLogoAlt: fields.headerBrandLogoAlt,
 			headerBrandHomeHref: fields.headerBrandHomeHref,
+			headerBrandPhotos: fields.headerBrandPhotos,
+			headerBrandPhotosHref: fields.headerBrandPhotosHref,
+			headerBrandPhotosLabel: fields.headerBrandPhotosLabel,
 		},
 		footerFieldLabels: adminLayout.footerFields,
 	};

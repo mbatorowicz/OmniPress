@@ -99,6 +99,10 @@ export type HeaderBrandWidgetConfig = BaseSlotWidget & {
 	logoUrl?: string;
 	logoAlt?: string;
 	homeHref?: string;
+	/** Pasek zdjęć obok logo; pusta tablica ukrywa pasek. Brak pola = fallback na stronie. */
+	photos?: string[];
+	photosHref?: string;
+	photosLabel?: string;
 };
 
 export type NavigationWidgetConfig = BaseSlotWidget & {

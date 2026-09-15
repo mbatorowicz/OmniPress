@@ -74,6 +74,9 @@ export const adminLayoutFields = {
 		headerBrandLogoUrl: 'URL logo',
 		headerBrandLogoAlt: 'Alt logo',
 		headerBrandHomeHref: 'Link strony głównej',
+		headerBrandPhotos: 'Zdjęcia w nagłówku',
+		headerBrandPhotosHref: 'Link paska zdjęć',
+		headerBrandPhotosLabel: 'Etykieta dostępności paska zdjęć',
 	},
 	footerFields: {
 		contactHeading: 'Dane kontaktowe',

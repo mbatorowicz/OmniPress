@@ -1,0 +1,66 @@
+---
+import { adminLayout } from '@/i18n';
+import { slotFormFields } from '@/lib/astro-layout/slot-form-fields';
+import {
+	DEFAULT_HEADER_PHOTO_URLS,
+	DEFAULT_HEADER_PHOTOS_HREF,
+} from '@/lib/astro-layout/header-photos';
+import type { DisplaySlot } from '@/lib/astro-layout/types';
+
+interface Props {
+	formId: string;
+	slot: DisplaySlot;
+}
+
+const { formId, slot } = Astro.props;
+const w = slot.widget ?? {};
+const { fields } = adminLayout;
+const f = slotFormFields.headerBrand;
+const photosText = (w.photos ?? [...DEFAULT_HEADER_PHOTO_URLS]).join('\n');
+---
+
+<label class="ui-label-inline">
+	<span class="font-medium">{fields.headerBrandLogoUrl}</span>
+	<input
+		form={formId}
+		name={f.logoUrl(slot.id)}
+		value={w.logoUrl ?? ''}
+		class="ui-input-compact ui-input-compact--mono w-full"
+	/>
+</label>
+<label class="ui-label-inline">
+	<span class="font-medium">{fields.headerBrandLogoAlt}</span>
+	<input form={formId} name={f.logoAlt(slot.id)} value={w.logoAlt ?? ''} class="ui-input-compact w-full" />
+</label>
+<label class="ui-label-inline">
+	<span class="font-medium">{fields.headerBrandHomeHref}</span>
+	<input
+		form={formId}
+		name={f.homeHref(slot.id)}
+		value={w.homeHref ?? '/'}
+		class="ui-input-compact ui-input-compact--mono w-full"
+	/>
+</label>
+<label class="ui-label-inline sm:col-span-2">
+	<span class="font-medium">{fields.headerBrandPhotos}</span>
+	<textarea form={formId} name={f.photos(slot.id)} rows="6" class="ui-input-compact ui-input-compact--mono w-full">{photosText}</textarea>
+</label>
+<p class="ui-hint sm:col-span-2">{adminLayout.headerBrandPhotosHint}</p>
+<label class="ui-label-inline sm:col-span-2">
+	<span class="font-medium">{fields.headerBrandPhotosHref}</span>
+	<input
+		form={formId}
+		name={f.photosHref(slot.id)}
+		value={w.photosHref ?? DEFAULT_HEADER_PHOTOS_HREF}
+		class="ui-input-compact ui-input-compact--mono w-full"
+	/>
+</label>
+<label class="ui-label-inline sm:col-span-2">
+	<span class="font-medium">{fields.headerBrandPhotosLabel}</span>
+	<input
+		form={formId}
+		name={f.photosLabel(slot.id)}
+		value={w.photosLabel ?? ''}
+		class="ui-input-compact w-full"
+	/>
+</label>

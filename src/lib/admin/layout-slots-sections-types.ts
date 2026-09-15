@@ -52,6 +52,9 @@ export interface SectionFieldLabels {
 	headerBrandLogoUrl: string;
 	headerBrandLogoAlt: string;
 	headerBrandHomeHref: string;
+	headerBrandPhotos: string;
+	headerBrandPhotosHref: string;
+	headerBrandPhotosLabel: string;
 }
 
 export interface FooterFieldLabels {

@@ -1,6 +1,7 @@
 import type { RecentChangeEntry } from '@/lib/recent-changes/types';
 import { validateBannerWidget } from './banners';
 import { isLayoutComponentId } from './components';
+import { isSafeSiteHref, parsePhotoUrls } from './header-photos';
 import { readHomeTileHeight } from './home-feed';
 import { normalizeNavItems } from './parse-nav';
 import type { DisplaySlot, SlotWidgetConfig } from './types';
@@ -88,6 +89,13 @@ function parseWidget(raw: unknown): SlotWidgetConfig | undefined {
 	if (typeof w.logoUrl === 'string' && w.logoUrl.trim()) widget.logoUrl = w.logoUrl.trim();
 	if (typeof w.logoAlt === 'string' && w.logoAlt.trim()) widget.logoAlt = w.logoAlt.trim();
 	if (typeof w.homeHref === 'string' && w.homeHref.trim()) widget.homeHref = w.homeHref.trim();
+	if (Array.isArray(w.photos)) widget.photos = parsePhotoUrls(w.photos) ?? [];
+	if (typeof w.photosHref === 'string' && isSafeSiteHref(w.photosHref)) {
+		widget.photosHref = w.photosHref.trim();
+	}
+	if (typeof w.photosLabel === 'string' && w.photosLabel.trim()) {
+		widget.photosLabel = w.photosLabel.trim();
+	}
 	if (typeof w.copyrightSuffix === 'string' && w.copyrightSuffix.trim()) {
 		widget.copyrightSuffix = w.copyrightSuffix.trim();
 	}

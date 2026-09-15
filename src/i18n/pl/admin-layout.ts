@@ -93,7 +93,9 @@ const layoutText = {
 		'Tagline portalu i narzędzia ułatwień dostępu (kontrast, rozmiar czcionki). Checkbox „Wł.” wyłącza cały pasek.',
 	topbarAccessibilityToolsHint:
 		'Po wyłączeniu na stronie publicznej znikają przyciski kontrastu i zmiany czcionki (A+/A−). Tagline pozostaje widoczny.',
-	slotsZoneDescHeader: 'Logo i identyfikacja wizualna nagłówka.',
+	headerBrandPhotosHint:
+		'Jedno URL na linię, np. /img/lot-ptaka/IMG_0787.jpg. Puste pole ukrywa pasek obok logo.',
+	slotsZoneDescHeader: 'Logo, pasek zdjęć obok herbu i identyfikacja wizualna nagłówka.',
 	slotsZoneDescHome: 'Sekcje strony głównej — przypisz kategorie wpisów do każdego feedu.',
 	slotsZoneDescSidebar: 'Widgety boczne — ostrzeżenia, banery, ostatnie zmiany. Źródło treści zależy od typu elementu.',
 	slotsZoneDescFooter: 'Dane kontaktowe i linki w stopce.',

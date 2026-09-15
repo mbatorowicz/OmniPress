@@ -46,6 +46,31 @@ describe('astro-layout parse', () => {
 		expect(parsed.slots[0]?.widget?.hideWhenEmpty).toBe(true);
 	});
 
+	it('parsuje zdjęcia nagłówka ze slotu header.brand', () => {
+		const text = JSON.stringify({
+			categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],
+			slots: [
+				{
+					id: 'header_brand',
+					label: 'Logo',
+					component: 'header.brand',
+					widget: {
+						logoUrl: '/logo.svg',
+						photos: ['/img/lot-ptaka/IMG_0787.jpg', 'javascript:x', '/img/b.jpg'],
+						photosHref: '/gmina/miedzna-z-lotu-ptaka',
+						photosLabel: 'Galeria',
+					},
+				},
+			],
+		});
+		const parsed = parseCategoriesFile(text);
+		const brand = parsed.slots.find((s) => s.component === 'header.brand');
+		expect(brand?.widget?.photos).toEqual(['/img/lot-ptaka/IMG_0787.jpg', '/img/b.jpg']);
+		expect(brand?.widget?.photosHref).toBe('/gmina/miedzna-z-lotu-ptaka');
+		expect(brand?.widget?.photosLabel).toBe('Galeria');
+	});
+
+
 	it('parsuje tileHeight w slocie home feed', () => {
 		const text = JSON.stringify({
 			categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],
@@ -282,6 +307,35 @@ describe('parseLayoutFromFormData', () => {
 		if (!result.ok) return;
 		const pinned = result.layout.slots.find((s) => s.id === 'home_pinned');
 		expect(pinned?.widget?.tileHeight).toBe(360);
+	});
+
+	it('parsuje zdjęcia nagłówka z formularza header.brand', () => {
+		const form = new FormData();
+		form.set('navigation_json', '[{"label":"Kontakt","href":"/kontakt"}]');
+		form.append('category_slug', 'aktualnosci');
+		form.append('category_name', 'Aktualności');
+		form.append('slot_id', 'header_brand');
+		form.append('slot_label', 'Logo');
+		form.append('slot_component', 'header.brand');
+		form.set('slot_enabled_header_brand', 'on');
+		form.set('slot_header_brand_logo_url__header_brand', '/logo.svg');
+		form.set(
+			'slot_header_brand_photos__header_brand',
+			'/img/lot-ptaka/IMG_0787.jpg\njavascript:alert(1)\n/img/lot-ptaka/IMG_0776.jpg',
+		);
+		form.set('slot_header_brand_photos_href__header_brand', '/gmina/miedzna-z-lotu-ptaka');
+		form.set('slot_header_brand_photos_label__header_brand', 'Galeria z lotu ptaka');
+
+		const result = parseLayoutFromFormData(form, base);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		const brand = result.layout.slots.find((s) => s.component === 'header.brand');
+		expect(brand?.widget?.photos).toEqual([
+			'/img/lot-ptaka/IMG_0787.jpg',
+			'/img/lot-ptaka/IMG_0776.jpg',
+		]);
+		expect(brand?.widget?.photosHref).toBe('/gmina/miedzna-z-lotu-ptaka');
+		expect(brand?.widget?.photosLabel).toBe('Galeria z lotu ptaka');
 	});
 
 	it('parsuje archiveLayout i archiveColumns z formularza kategorii', () => {

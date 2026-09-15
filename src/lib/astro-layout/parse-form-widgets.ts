@@ -1,7 +1,8 @@
 /** Pola widgetów per rodzaj komponentu — feedy, chrome, banery, pogoda, CERT. */
 import { readHomeTileHeight } from './home-feed';
 import { slotFormFields } from './slot-form-fields';
-import { parseIntField, strField } from './parse-form-fields';
+import { multilineValues, parseIntField, strField } from './parse-form-fields';
+import { isSafeSiteHref } from './header-photos';
 import { parseFooterWidget } from './parse-form-footer';
 import type { SlotWidgetConfig } from './types';
 
@@ -63,12 +64,24 @@ export function parseChromeWidget(
 		if (url) widget.url = url;
 	}
 	if (component === 'header.brand') {
-		const logoUrl = strField(form, slotFormFields.headerBrand.logoUrl(id));
-		const logoAlt = strField(form, slotFormFields.headerBrand.logoAlt(id));
-		const homeHref = strField(form, slotFormFields.headerBrand.homeHref(id));
+		const f = slotFormFields.headerBrand;
+		const logoUrl = strField(form, f.logoUrl(id));
+		const logoAlt = strField(form, f.logoAlt(id));
+		const homeHref = strField(form, f.homeHref(id));
 		if (logoUrl) widget.logoUrl = logoUrl;
 		if (logoAlt) widget.logoAlt = logoAlt;
 		if (homeHref) widget.homeHref = homeHref;
+		if (form.has(f.photos(id))) {
+			widget.photos = multilineValues(form, f.photos(id)).filter(isSafeSiteHref);
+		}
+		if (form.has(f.photosHref(id))) {
+			const photosHref = strField(form, f.photosHref(id));
+			if (photosHref && isSafeSiteHref(photosHref)) widget.photosHref = photosHref;
+		}
+		if (form.has(f.photosLabel(id))) {
+			const photosLabel = strField(form, f.photosLabel(id));
+			if (photosLabel) widget.photosLabel = photosLabel;
+		}
 	}
 	if (component === 'footer.main') parseFooterWidget(form, id, widget);
 }

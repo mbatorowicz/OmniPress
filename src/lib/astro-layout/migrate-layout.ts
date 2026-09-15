@@ -1,4 +1,5 @@
 import type { RecentChangeEntry } from '@/lib/recent-changes/types';
+import { defaultHeaderPhotosFields } from './header-photos';
 import type {
 	CategoryDefinition,
 	CategoryDisplays,
@@ -45,6 +46,7 @@ export function defaultHeaderBrandWidget() {
 		logoUrl: '/logo.svg',
 		logoAlt: 'Herb Gminy Miedzna',
 		homeHref: '/',
+		...defaultHeaderPhotosFields(),
 	};
 }
 

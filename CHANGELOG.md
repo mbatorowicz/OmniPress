@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Dodane
+
+- **Zdjęcia w nagłówku z panelu.** W ustawieniach *Nagłówek — logo i zdjęcia* jest lista URL-i paska obok herbu, link do galerii i etykieta dostępności. Puste pole ukrywa pasek; brak pola na stronie zostawia dotychczasowe kadry z lotu ptaka.
+
 ### Zmienione
 
 - **Jedna etykieta RODO w stopce i seedzie layoutu.** Fallback `legalLinks` i testy menu/stopki używają „RODO”, tak jak strona gminy.

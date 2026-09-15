@@ -68,6 +68,9 @@ export const slotFormFields = {
 		logoUrl: (slotId: string) => field('slot_header_brand_logo_url', slotId),
 		logoAlt: (slotId: string) => field('slot_header_brand_logo_alt', slotId),
 		homeHref: (slotId: string) => field('slot_header_brand_home_href', slotId),
+		photos: (slotId: string) => field('slot_header_brand_photos', slotId),
+		photosHref: (slotId: string) => field('slot_header_brand_photos_href', slotId),
+		photosLabel: (slotId: string) => field('slot_header_brand_photos_label', slotId),
 	},
 	footer: {
 		contactCtaLabel: (slotId: string) => field('slot_footer_contact_cta_label', slotId),
