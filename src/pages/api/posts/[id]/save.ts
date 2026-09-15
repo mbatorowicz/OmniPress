@@ -20,6 +20,7 @@ import {
 import { combineScheduleDateHour, wallTimeInZoneToUtcIso } from '@/lib/posts/scheduled-publish';
 import { loadFirstPublishedAt, resolveSavedPublishAt } from '@/lib/publish/publish-date';
 import { prepareStorageMarkdown } from '@/lib/content/prepare-markdown';
+import { preparePlainTitle } from '@/lib/content/strip-emoji';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const postId = params.id;
@@ -40,7 +41,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const post = await loadEditablePost(supabase, postId, user.id, profile.role);
 	if (!post) return redirectPostError(redirect, editorPath, 'forbidden');
 
-	const title = String(form.get('title') ?? '').trim();
+	const title = preparePlainTitle(String(form.get('title') ?? ''));
 	const content_md = prepareStorageMarkdown(String(form.get('content_md') ?? ''));
 	const slugInput = String(form.get('slug') ?? '').trim();
 	const rawSlug = slugInput || (title ? normalizeSlug(title) : post.slug ?? '');

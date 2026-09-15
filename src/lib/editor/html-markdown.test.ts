@@ -20,10 +20,10 @@ describe('html-markdown', () => {
 	});
 
 	it('usuwa emoji przy zapisie z edytora', () => {
-		const md = editorHtmlToMarkdown('<p>📅 9 sierpnia 2026 r. (niedziela)</p><p>💚 Razem zadbajmy!</p>');
-		expect(md).toBe('9 sierpnia 2026 r. (niedziela)\n\nRazem zadbajmy!');
+		const md = editorHtmlToMarkdown('<p>📅 9 sierpnia 2026 r. (niedziela)</p><p>💰 sposobów na oszczędności</p>');
+		expect(md).toBe('9 sierpnia 2026 r. (niedziela)\n\nsposobów na oszczędności');
 		expect(md).not.toContain('📅');
-		expect(md).not.toContain('💚');
+		expect(md).not.toContain('💰');
 	});
 
 	it('czyści niebezpieczne linki przy zapisie', () => {

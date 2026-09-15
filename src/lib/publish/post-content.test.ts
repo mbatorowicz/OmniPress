@@ -44,4 +44,11 @@ describe('markdownToPlainExcerpt', () => {
 		const long = 'a'.repeat(250);
 		expect(markdownToPlainExcerpt(long, 200).endsWith('…')).toBe(true);
 	});
+
+	it('usuwa emoji z zajawki publikacji', () => {
+		const md = '📅 9 sierpnia. 💰 sposobów na oszczędności.';
+		expect(markdownToPlainExcerpt(md)).toBe('9 sierpnia. sposobów na oszczędności.');
+		expect(markdownToPlainExcerpt(md)).not.toContain('📅');
+		expect(markdownToPlainExcerpt(md)).not.toContain('💰');
+	});
 });

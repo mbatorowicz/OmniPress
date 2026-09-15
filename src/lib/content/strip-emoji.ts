@@ -34,3 +34,8 @@ export function filterTypedText(text: string): { text: string; handled: boolean 
 	if (next === text) return { text, handled: false };
 	return { text: next, handled: true };
 }
+
+/** Tytuł wpisu / strony — bez ozdobnych emoji, ze trimem. */
+export function preparePlainTitle(raw: string): string {
+	return stripEmoji(raw).trim();
+}

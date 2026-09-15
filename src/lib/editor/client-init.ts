@@ -1,5 +1,6 @@
 import { initPostDraftPersist, persistOpenDraft } from './draft-persist';
 import { editorHtmlToMarkdown, markdownToEditorHtml } from './html-markdown';
+import { bindPlainTextEmojiFilter } from './plain-text-emoji-filter';
 
 export type GalleryAsset = {
 	id: string;
@@ -18,6 +19,8 @@ export function initPostRichEditor(): void {
 
 	if (form instanceof HTMLFormElement) {
 		initPostDraftPersist(form);
+		const titleInput = form.querySelector('input[name="title"]');
+		if (titleInput instanceof HTMLInputElement) bindPlainTextEmojiFilter(titleInput);
 	}
 
 	const initialMarkdown = hidden.value;

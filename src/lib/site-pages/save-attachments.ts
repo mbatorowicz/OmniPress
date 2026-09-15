@@ -8,6 +8,7 @@ import {
 	updatePageAssetFilenames,
 	updatePageFileAttachmentOrders,
 } from './assets';
+import { preparePlainTitle } from '@/lib/content/strip-emoji';
 import { resolveSitePageFields, type SitePageFields } from './access';
 import type { SitePage } from './types';
 
@@ -35,7 +36,7 @@ export async function resolvePageFormFields(
 	await savePageAttachmentFields(supabase, page.id, form);
 	const assets = await loadPageAssets(supabase, page.id);
 	return resolveSitePageFields(
-		String(form.get('title') ?? ''),
+		preparePlainTitle(String(form.get('title') ?? '')),
 		String(form.get('slug') ?? ''),
 		String(form.get('path_prefix') ?? ''),
 		editorialPageContent(String(form.get('content_md') ?? ''), assets.length > 0),

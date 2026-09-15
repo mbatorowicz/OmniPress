@@ -7,7 +7,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Zmienione
 
-- **Edytor nie przyjmuje emoji w treści.** Wklejka i zapis zdejmują kalendarzyki, pinezki i serduszka; znaczniki załączników `📄`/`📎` zostają. Testy: `strip-emoji.test.ts`, `sanitize.test.ts`, `html-markdown.test.ts`.
+- **Edytor nie przyjmuje emoji w treści ani tytule.** Wpis, wklejka, IME/Win+. i zapis zdejmują kalendarzyki, skarbonki i serduszka; znaczniki załączników `📄`/`📎` zostają. Testy: `strip-emoji.test.ts`, `sanitize.test.ts`, `html-markdown.test.ts`, `strip-emoji-extension.test.ts`.
 
 ### Naprawione
 

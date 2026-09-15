@@ -44,7 +44,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Logowanie e-mail/hasło | ✅ |
 | Przypisanie do stron (`user_sites`, `default_site_id`) | ✅ |
 | Tworzenie szkicu na dozwolonej stronie | ✅ odświeżenie karty przywraca niewysłane pola |
-| Edytor WYSIWYG (TipTap) → Markdown | ✅ jeden renderer Markdown + ten sam odstęp akapitów w edytorze, podglądzie i na stronie |
+| Edytor WYSIWYG (TipTap) → Markdown | ✅ jeden renderer Markdown + ten sam odstęp akapitów; emoji zdejmowane przy wpisie, wklejce, tytule i zapisie |
 | Kategoria główna + dodatkowe (np. Aktualności → strona główna) | ✅ |
 | Galeria zdjęć (cover + kolejność) | ✅ miniatura i postęp uploadu od razu |
 | Załączniki PDF (link / podgląd, do 50 MB) | ✅ signed upload → Supabase Storage; edytowalna nazwa na stronie |

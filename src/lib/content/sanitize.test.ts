@@ -55,6 +55,8 @@ describe('sanitizeEditorHtml', () => {
 	it('usuwa emoji z HTML edytora', () => {
 		expect(sanitizeEditorHtml('📅 9 sierpnia')).toBe('9 sierpnia');
 		expect(sanitizeEditorHtml('💚 Razem zadbajmy')).toBe('Razem zadbajmy');
+		expect(sanitizeEditorHtml('&#128176; sposobów')).toBe('sposobów');
+		expect(sanitizeEditorHtml('&#x1F4B0; sposobów')).toBe('sposobów');
 	});
 });
 

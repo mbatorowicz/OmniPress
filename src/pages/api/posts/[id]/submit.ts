@@ -4,6 +4,7 @@ import { loadSubmittablePost, parseExtraCategorySlugs, resolvePostCategoryFields
 import { combineScheduleDateHour, parseScheduledPublishAtInput } from '@/lib/posts/scheduled-publish';
 import { loadFirstPublishedAt, resolveSavedPublishAt } from '@/lib/publish/publish-date';
 import { prepareStorageMarkdown } from '@/lib/content/prepare-markdown';
+import { preparePlainTitle } from '@/lib/content/strip-emoji';
 import { notifyPostSubmitted } from '@/lib/notify/review';
 
 export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
@@ -27,7 +28,7 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 	const post = await loadSubmittablePost(supabase, postId, user.id, profile.role);
 	if (!post) return redirectPostError(redirect, editorPath, 'forbidden');
 
-	const title = String(form.get('title') ?? '').trim() || post.title;
+	const title = preparePlainTitle(String(form.get('title') ?? '')) || preparePlainTitle(post.title);
 	const content_md = prepareStorageMarkdown(String(form.get('content_md') ?? post.content_md));
 	const categorySlug = String(form.get('category_slug') ?? '').trim() || post.category_slug;
 	const extraSlugs = parseExtraCategorySlugs(form);

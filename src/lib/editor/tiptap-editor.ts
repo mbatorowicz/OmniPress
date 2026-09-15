@@ -5,6 +5,7 @@ import { Editor } from '@tiptap/core';
 import { isSafeUrl, sanitizeEditorHtml } from '@/lib/content/sanitize';
 import { filterTypedText } from '@/lib/content/strip-emoji';
 import { unwrapHardWrappedHtml } from '@/lib/content/unwrap-html';
+import { StripEmoji } from './strip-emoji-extension';
 
 type CreatePostEditorOptions = {
 	element: HTMLElement;
@@ -33,8 +34,9 @@ export function createPostEditor(opts: CreatePostEditorOptions): Editor {
 				HTMLAttributes: { rel: 'noopener noreferrer' },
 			}),
 			Placeholder.configure({ placeholder: opts.placeholder }),
+			StripEmoji,
 		],
-		content: opts.initialHtml,
+		content: sanitizeEditorHtml(opts.initialHtml),
 		editorProps: {
 			attributes: {
 				class: 'min-h-[280px] px-4 py-3 focus:outline-none text-text-emphasis',
