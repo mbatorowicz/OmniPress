@@ -3,12 +3,10 @@ import type { NavItem } from './types';
 import { collectInternalNavHrefs, reshapeTopNav } from './reshape-top-nav';
 
 const LEVEL1_LEAVES: NavItem[] = [
-	{ href: '/aktualnosci', label: 'Aktualności' },
 	{ href: '/ochrona-ludnosci', label: 'Ochrona ludności' },
 ];
 
 const LEVEL1_LABELS = [
-	'Aktualności',
 	'Gmina',
 	'Gospodarka odpadami',
 	'Ochrona ludności',
@@ -104,13 +102,14 @@ describe('reshapeTopNav', () => {
 		expect(odpady?.children).toEqual([{ href: '/gospodarka-odpadami/pszok', label: 'PSZOK' }]);
 	});
 
-	it('dokłada Aktualności i Ochronę ludności oraz ustawia kolejność poziomu 1', () => {
+	it('dokłada Ochronę ludności oraz ustawia kolejność poziomu 1', () => {
 		expect(next.map((item) => item.label)).toEqual(LEVEL1_LABELS);
-		expect(next[0]).toEqual({ href: '/aktualnosci', label: 'Aktualności' });
-		expect(next[3]).toEqual({ href: '/ochrona-ludnosci', label: 'Ochrona ludności' });
+		expect(next[0]?.label).toBe('Gmina');
+		expect(next[2]).toEqual({ href: '/ochrona-ludnosci', label: 'Ochrona ludności' });
 		expect(hrefs).toEqual(
-			expect.arrayContaining(['/aktualnosci', '/ochrona-ludnosci', '/kontakt']),
+			expect.arrayContaining(['/ochrona-ludnosci', '/kontakt']),
 		);
+		expect(hrefs).not.toContain('/aktualnosci');
 	});
 
 	it('jest idempotentna', () => {

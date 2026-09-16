@@ -7,6 +7,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Zmienione
 
+- **Kolejność menu bez zakładki Aktualności.** Aktualności są na stronie głównej — klucz poziomu 1 zaczyna się od Gminy, nie od `/aktualnosci`.
+
 - **Migracja WP nie bierze już kategorii USC.** Ponowny import nie przywróci archiwum ani wpisu o kreatorze zdjęć do dowodu.
 
 ### Naprawione
