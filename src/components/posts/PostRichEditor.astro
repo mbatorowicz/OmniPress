@@ -32,7 +32,13 @@ const { initialMarkdown, placeholder, toolbar } = Astro.props;
 		<button type="button" data-editor-cmd="h3" class="ui-btn ui-btn--toolbar" title={toolbar.h3}>H3</button>
 		<button type="button" data-editor-cmd="bullet" class="ui-btn ui-btn--toolbar" title={toolbar.bulletList}>{toolbar.bulletList}</button>
 		<button type="button" data-editor-cmd="ordered" class="ui-btn ui-btn--toolbar" title={toolbar.orderedList}>{toolbar.orderedList}</button>
-		<button type="button" data-editor-cmd="link" class="ui-btn ui-btn--toolbar ui-muted" title={toolbar.link}>
+		<button
+			type="button"
+			data-editor-cmd="link"
+			class="ui-btn ui-btn--toolbar ui-muted"
+			title={toolbar.link}
+			aria-label={toolbar.link}
+		>
 			<Icon name="link" size={16} />
 		</button>
 	</div>

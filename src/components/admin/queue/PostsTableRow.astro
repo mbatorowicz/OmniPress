@@ -37,19 +37,27 @@ const siteName = (post.sites as { name: string } | null)?.name ?? '—';
 const showQuickApprove = section === 'pending' && Boolean(labels.approveQuick);
 const approveFormId = `approve-post-${post.id}`;
 const status = (post.status ?? 'draft') as PostStatus;
+const rowTitle = post.title || common.untitled;
 ---
 
 <TableRow>
 	{
 		selectable && (
 			<TableCell class="px-3">
-				<input type="checkbox" name="post_id" value={post.id} class="ui-checkbox" data-post-checkbox />
+				<input
+					type="checkbox"
+					name="post_id"
+					value={post.id}
+					class="ui-checkbox"
+					data-post-checkbox
+					aria-label={admin.postList.selectRow(rowTitle)}
+				/>
 			</TableCell>
 		)
 	}
 	<TableCell>
 		<a href={`/admin/posts/${post.id}`} class="ui-link">
-			{post.title || common.untitled}
+			{rowTitle}
 		</a>
 		<div class="mt-1 flex flex-wrap items-center gap-1.5">
 			{section !== 'pending' && post.status && <StatusBadge status={status} />}

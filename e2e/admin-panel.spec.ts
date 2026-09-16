@@ -22,6 +22,15 @@ test.describe('panel administratora', () => {
 		await expect(sidebar.getByRole('link', { name: layout.sidebar.sites })).toBeVisible();
 		await expect(sidebar.getByRole('link', { name: layout.sidebar.users })).toBeVisible();
 		await expect(sidebar.getByRole('link', { name: layout.sidebar.usage })).toBeVisible();
+
+		await expect(page.locator('main#main-content')).toBeVisible();
+		const rowCheckbox = page.locator('[data-post-checkbox]').first();
+		if ((await page.locator('[data-post-checkbox]').count()) > 0) {
+			const label = await rowCheckbox.getAttribute('aria-label');
+			const prefix = admin.postList.selectRow('__TITLE__').split('__TITLE__')[0];
+			expect(label?.startsWith(prefix)).toBe(true);
+			expect(label?.length ?? 0).toBeGreaterThan(prefix.length);
+		}
 	});
 
 	test('/admin/usage pokazuje rozmiar bazy i informację o plikach', async ({ page }) => {

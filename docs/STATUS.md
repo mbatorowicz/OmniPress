@@ -8,6 +8,8 @@ Produkcja: https://omni-press.cncsolutions.dev
 
 **Audyt bezpieczeństwa (2026-09-07):** S-1–S-4 zamknięte. **Audyt kategorii:** 22–25 zamknięte. Plan: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md).
 
+**Dostępność WCAG (2026-09-16):** plan [PLAN-DOSTEPNOSC.md](./PLAN-DOSTEPNOSC.md). Panel: D-13, D-14, D-15–D-19. Strona gminy: D-1–D-12 w toku.
+
 ---
 
 ## Stack

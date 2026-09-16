@@ -11,8 +11,8 @@ const { title = common.appName } = Astro.props;
 ---
 
 <BaseLayout title={title} bodyClass="ui-auth-shell font-sans">
-	<div class="ui-public-card">
+	<main id="main-content" class="ui-public-card" tabindex="-1">
 		<slot />
-	</div>
+	</main>
 	<VersionBadge />
 </BaseLayout>

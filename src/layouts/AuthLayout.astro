@@ -14,10 +14,10 @@ const { title, heading, lead, wide } = Astro.props;
 ---
 
 <BaseLayout title={title} bodyClass="ui-auth-shell">
-	<div class:list={['ui-auth-card', wide && 'max-w-md']}>
+	<main id="main-content" class:list={['ui-auth-card', wide && 'max-w-md']} tabindex="-1">
 		<h1 class="ui-auth-title">{heading ?? common.appName}</h1>
 		{lead && <p class="ui-muted mt-1">{lead}</p>}
 		<slot />
-	</div>
+	</main>
 	<VersionBadge />
 </BaseLayout>

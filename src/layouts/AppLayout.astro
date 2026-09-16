@@ -24,14 +24,14 @@ const pendingCount = Astro.locals.pendingCount ?? 0;
 		showSidebar ? (
 			<div class="ui-app-body">
 				<AdminSidebar pendingCount={pendingCount} />
-				<main class="ui-app-content">
+				<main id="main-content" class="ui-app-content" tabindex="-1">
 					{breadcrumbs && <Breadcrumbs items={breadcrumbs} />}
 					{heading && <h1 class="ui-page-heading">{heading}</h1>}
 					<slot />
 				</main>
 			</div>
 		) : (
-			<main class="ui-app-main">
+			<main id="main-content" class="ui-app-main" tabindex="-1">
 				{breadcrumbs && <Breadcrumbs items={breadcrumbs} />}
 				{heading && <h1 class="ui-page-heading">{heading}</h1>}
 				<slot />

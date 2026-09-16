@@ -1,6 +1,6 @@
 ---
 import '@/styles/global.css';
-import { common } from '@/i18n';
+import { common, layout } from '@/i18n';
 
 interface Props {
 	title: string;
@@ -21,6 +21,7 @@ const { title, bodyClass = '' } = Astro.props;
 		<title>{title} · {common.appName}</title>
 	</head>
 	<body class={bodyClass}>
+		<a class="ui-skip-link" href="#main-content">{layout.skipToContent}</a>
 		<slot />
 	</body>
 </html>

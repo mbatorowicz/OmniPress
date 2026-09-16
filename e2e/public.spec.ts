@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { api } from '@/i18n/pl/api';
 import { auth } from '@/i18n/pl/auth';
 import { common } from '@/i18n/pl/common';
+import { layout } from '@/i18n/pl/layout';
 
 // Strefa publiczna — bez sesji.
 test.use({ storageState: { cookies: [], origins: [] } });
@@ -20,6 +21,16 @@ test.describe('strefa publiczna', () => {
 		await expect(page.getByLabel(common.password)).toBeVisible();
 		await expect(page.getByRole('button', { name: auth.login.submitSignIn })).toBeVisible();
 		await expect(page.getByRole('link', { name: auth.login.forgotPassword })).toBeVisible();
+		await expect(page.locator('main#main-content')).toBeVisible();
+	});
+
+	test('skip-link na /login przenosi fokus do treści', async ({ page }) => {
+		await page.goto('/login');
+		await page.keyboard.press('Tab');
+		const skip = page.getByRole('link', { name: layout.skipToContent });
+		await expect(skip).toBeFocused();
+		await skip.press('Enter');
+		await expect(page.locator('#main-content')).toBeFocused();
 	});
 
 	test('/login?mode=reset renderuje formularz resetu hasła', async ({ page }) => {

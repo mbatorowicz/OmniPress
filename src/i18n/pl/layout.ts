@@ -1,4 +1,5 @@
 export const layout = {
+	skipToContent: 'Przejdź do treści',
 	navAdmin: 'Administracja',
 	navPanel: 'Panel',
 	navEditorPanel: 'Panel treści',

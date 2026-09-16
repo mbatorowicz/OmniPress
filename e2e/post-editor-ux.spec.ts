@@ -30,6 +30,7 @@ test.describe('edytor — szkic w karcie i postęp uploadu', () => {
 			await page.reload();
 			await expect(titleInput).toHaveValue(title);
 			await expect(page.getByText(ed.draftRestored)).toBeVisible();
+			await expect(page.getByRole('button', { name: ed.richText.link })).toBeVisible();
 
 			const fileInput = page.locator('[data-gallery-upload]');
 			await fileInput.setInputFiles({

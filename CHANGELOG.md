@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Naprawione
+
+- **Panel: dostępność kolejki, kontrastu i szkieletu stron.** Checkbox wiersza ma nazwę „Wybierz: {tytuł}”. Szary tekst (`ui-muted`, `ui-caption`, `ui-hint`, numer wersji) spełnia 4,5:1. Logowanie ma `<main>`, panel ma skip-link do treści, przycisk linku w edytorze ma `aria-label`, a `prefers-reduced-motion` wyłącza skalowanie przycisków.
+
 ### Dodane
 
 - **Zużycie bazy i plików w panelu.** Administrator widzi na `/admin/usage` rozmiar PostgreSQL, magazynu zdjęć i załączników, rozkład typów oraz 10 największych plików.

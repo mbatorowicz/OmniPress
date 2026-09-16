@@ -67,6 +67,7 @@ export const admin = {
 		approveQuick: 'Akceptuj',
 		approveQuickConfirm: 'Zaakceptować ten wpis?',
 		selectAll: 'Zaznacz wszystkie',
+		selectRow: (title: string) => `Wybierz: ${title}`,
 		selected: 'Zaznaczono: {n}',
 		bulkApprove: 'Zaakceptuj zaznaczone',
 		bulkReject: 'Odrzuć zaznaczone',
