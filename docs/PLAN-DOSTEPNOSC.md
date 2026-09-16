@@ -17,6 +17,7 @@ Każde **podejście** jest samodzielne: jeden zakres, weryfikacja, commit (w B: 
 | 6 | Strona: sterowanie WCAG, linki, czcionka | B | niskie | 8 | ✅ |
 | 7 | Panel: szkielet a11y (skip, main, edytor) | A | niskie | 8 | ✅ |
 | 8 | Deklaracja dostępności + ponowny skan | A+B | zerowe | — | ✅ |
+| 9 | Strona: HC żółto-czarny — reszta tekstu i swatche | B | niskie | — | ✅ |
 
 Poza zakresem tego planu: zewnętrzny audyt WCAG, dostępność archiwalnych PDF/skanów (zostaje w deklaracji), DNS cutover.
 
@@ -55,7 +56,15 @@ Identyfikatory używane w podejściach. Priorytet: P1 = blokuje AA, P2 = luka AA
 | D-18 | P3 | 1.4.3 | Numer wersji na logowaniu — za słaby kontrast |
 | D-19 | P3 | 2.3.3 | Brak `prefers-reduced-motion` w panelu |
 
-Fałszywy alarm axe (nie naprawiać jako kontrast HC): 18 trafień `color-contrast` na homepage w HC — skan w trakcie `transition: all`. Po ustabilizowaniu tytuły i A+/A− są żółte.
+### Strona — follow-up HC (2026-09-16, po podejściu 4)
+
+| ID | P | Kryterium | Problem |
+|----|---|-----------|---------|
+| D-20 | P1 | 1.4.3 | HC: `--color-primary: #000` jako kolor tekstu — „Zobacz starsze”, tytuły ogłoszeń, CERT, pogoda (czarny na czarnym) |
+| D-21 | P2 | 1.4.1 / 1.4.11 | Przyciski kontrastu identyczne: `.bg-standard` brało `--color-wcag-bg` (w HC też czarne) |
+| D-22 | P2 | 1.4.3 | HC: kremowe tła alertów (`#fffbeb`) — żółty tytuł CERT na kremie ~1:1 |
+
+Część alarmów axe `color-contrast` na homepage w HC była prawdziwa (D-20), nie tylko skan w trakcie `transition`. Tytuły kafelków i A+/A− są żółte po ustabilizowaniu; linki/widgety z `color: var(--color-primary)` ginęły.
 
 ---
 
@@ -193,6 +202,24 @@ Fałszywy alarm axe (nie naprawiać jako kontrast HC): 18 trafień `color-contra
 **Stan 2026-09-16:** D-1–D-19 naprawione w kodzie. Deklaracja nadal „częściowo zgodna” (PDF archiwalne + brak zewnętrznego audytu). Staging: 404 po polsku, HC kategorie/fokus żółte, `h1` na homepage, skip-link z fokusem, przyciski WCAG ≥ 24 px, `html` 16 px, jeden `banner`.
 
 **Commit:** B (treść deklaracji); A tylko jeśli zmienia się ten plan.
+
+---
+
+## Podejście 9 — strona: HC follow-up (D-20, D-21, D-22)
+
+**Cel:** motyw żółto-czarny rozróżnia przyciski kontrastu i nie gubi napisów poza kafelkami.
+
+**Kroki**
+
+1. `--color-primary` / `--color-secondary` w HC → `#ffff00` (to token tekstu i akcentu, nie tła menu).
+2. `--nav-bar-bg: #000` w `chrome-tokens.css`, żeby pasek menu został czarny.
+3. `--color-on-primary` (standard: biel, HC: czerń) zamiast hardcoded `color: white` na przyciskach i plakietkach.
+4. Swatche: białe kółko vs żółto-czarny gradient — bez `var(--color-wcag-bg)`; `[aria-pressed=true]` z tłem.
+5. `high-contrast.css`: alerty CERT/pogoda bez kremu; modal wyszukiwarki z żółtą ramką.
+
+**Weryfikacja:** oba kółka kontrastu różne; „Zobacz starsze”, ogłoszenia, CERT widoczne. `npm test` + `npm run build` w B.
+
+**Commit:** B (+ ten plan w A).
 
 ---
 

@@ -8,7 +8,7 @@ Produkcja: https://omni-press.cncsolutions.dev
 
 **Audyt bezpieczeństwa (2026-09-07):** S-1–S-4 zamknięte. **Audyt kategorii:** 22–25 zamknięte. Plan: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md).
 
-**Dostępność WCAG (2026-09-16):** plan [PLAN-DOSTEPNOSC.md](./PLAN-DOSTEPNOSC.md) zamknięty (D-1–D-19). Deklaracja na stronie: częściowo zgodna (PDF archiwalne, brak zewnętrznego audytu).
+**Dostępność WCAG (2026-09-16):** plan [PLAN-DOSTEPNOSC.md](./PLAN-DOSTEPNOSC.md) zamknięty (D-1–D-22). Deklaracja na stronie: częściowo zgodna (PDF archiwalne, brak zewnętrznego audytu).
 
 ---
 
