@@ -7,7 +7,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Naprawione
 
-- **Panel: dostępność kolejki, kontrastu i szkieletu stron.** Checkbox wiersza ma nazwę „Wybierz: {tytuł}”. Szary tekst (`ui-muted`, `ui-caption`, `ui-hint`, numer wersji) spełnia 4,5:1. Logowanie ma `<main>`, panel ma skip-link do treści, przycisk linku w edytorze ma `aria-label`, a `prefers-reduced-motion` wyłącza skalowanie przycisków.
+- **Panel: dostępność kolejki, kontrastu i szkieletu stron.** Checkbox wiersza ma nazwę „Wybierz: {tytuł}”. Szary tekst (`ui-muted`, `ui-caption`, `ui-hint`, numer wersji) spełnia 4,5:1. Logowanie ma `<main>`, panel ma skip-link do treści, przycisk linku w edytorze ma `aria-label`, a `prefers-reduced-motion` wyłącza skalowanie przycisków. Plan [PLAN-DOSTEPNOSC.md](docs/PLAN-DOSTEPNOSC.md) (D-1–D-19) zamknięty.
 
 ### Dodane
 

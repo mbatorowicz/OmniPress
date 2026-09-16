@@ -16,7 +16,7 @@ Każde **podejście** jest samodzielne: jeden zakres, weryfikacja, commit (w B: 
 | 5 | Strona: `h1` homepage + skip-link z fokusem | B | niskie | 8 | ✅ |
 | 6 | Strona: sterowanie WCAG, linki, czcionka | B | niskie | 8 | ✅ |
 | 7 | Panel: szkielet a11y (skip, main, edytor) | A | niskie | 8 | ✅ |
-| 8 | Deklaracja dostępności + ponowny skan | A+B | zerowe | — | |
+| 8 | Deklaracja dostępności + ponowny skan | A+B | zerowe | — | ✅ |
 
 Poza zakresem tego planu: zewnętrzny audyt WCAG, dostępność archiwalnych PDF/skanów (zostaje w deklaracji), DNS cutover.
 
@@ -189,6 +189,8 @@ Fałszywy alarm axe (nie naprawiać jako kontrast HC): 18 trafień `color-contra
 4. Ten plik: odhaczyć podejścia w tabeli na górze.
 
 **Weryfikacja:** zero P1; P2 albo naprawione, albo jawne w deklaracji. `npm test` + `npm run build` w A i B.
+
+**Stan 2026-09-16:** D-1–D-19 naprawione w kodzie. Deklaracja nadal „częściowo zgodna” (PDF archiwalne + brak zewnętrznego audytu). Staging: 404 po polsku, HC kategorie/fokus żółte, `h1` na homepage, skip-link z fokusem, przyciski WCAG ≥ 24 px, `html` 16 px, jeden `banner`.
 
 **Commit:** B (treść deklaracji); A tylko jeśli zmienia się ten plan.
 
