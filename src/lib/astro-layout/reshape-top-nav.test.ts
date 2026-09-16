@@ -55,7 +55,7 @@ const productionLikeNav: NavItem[] = [
 		menuColumns: 2,
 	},
 	{ href: '/kontakt', label: 'Kontakt' },
-	{ href: 'https://bip.gmina-miedzna.pl', label: 'BIP' },
+	{ href: 'http://www.bip.gminamiedzna.pl/', label: 'BIP' },
 ];
 
 describe('reshapeTopNav', () => {
