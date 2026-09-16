@@ -7,7 +7,7 @@ alwaysApply: true
 
 SSOT: `docs/AUDYT-BEZPIECZENSTWO.md`. Kolejność była wiążąca: **S-1 → S-2 → S-3 → S-4**. Wszystkie ✅.
 
-Gdy użytkownik prosi o kontynuację albo nie podaje scope — **nie otwieraj DNS cutover**. S-1–S-4 i [AUDYT-WYKONANIE.md](../../docs/AUDYT-WYKONANIE.md) 22–25 są zamknięte.
+S-1–S-4 i [AUDYT-WYKONANIE.md](../../docs/AUDYT-WYKONANIE.md) 22–25 są zamknięte. DNS cutover otwarty 2026-09-16 (domeny w Vercel; A rekord u Progreso) — playbook: [WDROZENIE.md](../../docs/WDROZENIE.md) §DNS cutover.
 
 - **S-1** ✅: sanityzer całego dokumentu (`sanitize.ts`).
 - **S-2** ✅: repo B — `rehype-sanitize` + CSP / XFO / HSTS.

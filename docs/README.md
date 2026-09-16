@@ -11,7 +11,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | **Operacyjne** | [ADMIN.md](./ADMIN.md), [REDAKTOR.md](./REDAKTOR.md) | Dla użytkowników panelu |
 | **Techniczne** | [AUTH.md](./AUTH.md), [WDROZENIE.md](./WDROZENIE.md) | Dev / bootstrap |
 | **Kod** | [KONWENCJE.md](./KONWENCJE.md), [ROLE_AGENT.md](./ROLE_AGENT.md) | Konwencje i proces agenta |
-| **Jakość** | [AUDYT.md](./AUDYT.md), [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md), [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md), [PLAN-DOSTEPNOSC.md](./PLAN-DOSTEPNOSC.md) | Rejestr znalezisk i kroki naprawcze. DNS cutover — na koniec projektu. Bezpieczeństwo: S-1–S-4. WCAG: D-1–D-19. |
+| **Jakość** | [AUDYT.md](./AUDYT.md), [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md), [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md), [PLAN-DOSTEPNOSC.md](./PLAN-DOSTEPNOSC.md) | Rejestr znalezisk i kroki naprawcze. DNS cutover: [WDROZENIE.md](./WDROZENIE.md). Bezpieczeństwo: S-1–S-4. WCAG: D-1–D-22. |
 
 ## Indeks plików
 

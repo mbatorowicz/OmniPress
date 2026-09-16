@@ -32,6 +32,25 @@ Hasło w `.admin-password.txt`.
 
 Strona gminy (nie ten panel) wysyła CSP / XFO / HSTS — `src/lib/security/headers.ts` + `vercel.json` w repo `gmina-miedzna.pl`. Deploy strony: push na `main` (webhook Vercel). Audyt: [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md) S-2.
 
+## DNS cutover `gmina-miedzna.pl` (2026-09-16)
+
+Panel OmniPress zostaje na `omni-press.cncsolutions.dev`. Staging strony zostaje na `gmina-miedzna.cncsolutions.dev`.
+
+**Zrobione w Vercel** (projekt `gmina-miedzna-pl`):
+
+- apex `gmina-miedzna.pl` → produkcja
+- `www.gmina-miedzna.pl` → 308 na apex
+
+**DNS zostaje u Progreso** (`d.ns1.pl` / `d.ns2.pl`). Nameserverów i MX **nie ruszamy** (poczta: `mx*.progreso.pl` + Outlook SPF). Rejestrator OVH tylko trzyma delegację.
+
+Rekordy do zmiany w [Extranet Progreso](https://panel.progreso.pl/login/) — strefa `gmina-miedzna.pl`:
+
+1. **Najpierw spłaszcz CNAME-y na apex**, żeby nie poszły za nowym A. Dziś `mail`, `bip`, `ftp`, `webmail`, `smtp`, `pop`, `imap`, `enterpriseenrollment`, `enterpriseregistration` wskazują na `gmina-miedzna.pl`. Zamień je na **A → `77.65.215.11`**. `autodiscover` (Outlook) zostaw.
+2. Apex **A**: `77.65.215.11` → **`76.76.21.21`**. `www` może zostać CNAME na apex.
+3. **Nie zmieniaj** MX, TXT (SPF / MS / CERT), `autodiscover`.
+
+TTL SOA 12 h — po zapisie poczekać na propagację, potem certyfikat SSL wystawia Vercel sam. Smoke: `https://gmina-miedzna.pl/` serwuje Vercel (CSP + herb), `https://www.gmina-miedzna.pl/` → 308 na apex, staging bez zmian.
+
 ## Vercel + Supabase
 
 1. Integracja Vercel ↔ Supabase: **pusty** Custom Prefix.

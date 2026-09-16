@@ -2,7 +2,9 @@
 
 **SSOT:** co jest zbudowane w wersji **0.15.0** (kod + baza + panel).
 
-Produkcja: https://omni-press.cncsolutions.dev
+Produkcja panelu: https://omni-press.cncsolutions.dev  
+Staging strony: https://gmina-miedzna.cncsolutions.dev  
+Cutover `gmina-miedzna.pl`: domeny w Vercel (2026-09-16); DNS A jeszcze na hostingu Progreso — [WDROZENIE.md](./WDROZENIE.md) §DNS cutover.
 
 **Audyt migracji:** podejścia 1–18 zamknięte (2026-09-03). Szczegóły: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md).
 

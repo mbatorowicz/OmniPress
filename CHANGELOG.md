@@ -7,6 +7,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Zmienione
 
+- **Cutover `gmina-miedzna.pl`.** Domeny apex i `www` są w projekcie Vercel strony; `www` schodzi 308 na apex. DNS (A/MX) zostaje u Progreso — playbook w [WDROZENIE.md](docs/WDROZENIE.md). Panel bez zmiany adresu.
+
 - **Kategorie poza menu idą do zakładki Gmina.** Publikacja layoutu i checkbox „dodaj do menu” dopisują brakujące archiwa pod Gminę, zamiast nowych pozycji na poziomie 1.
 
 - **Kolejność menu: Gmina po etykiecie albo `/gmina`.** Zakładka prowadzi do kategorii, nie na stronę główną — klucz poziomu 1 uznaje oba.
