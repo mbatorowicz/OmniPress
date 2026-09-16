@@ -4,6 +4,7 @@ import { isExternalHref, normalizeInternalHref } from './validate-nav';
 /** Klucz = href albo etykieta grupy bez href. Bez polskich znakow — SSOT i18n. */
 export const TOP_NAV_LEVEL1_KEYS = [
 	'Gmina',
+	'/gmina',
 	'Gospodarka odpadami',
 	'/gospodarka-odpadami',
 	'/ochrona-ludnosci',

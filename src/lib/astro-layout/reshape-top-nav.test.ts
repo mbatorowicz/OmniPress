@@ -16,6 +16,7 @@ const LEVEL1_LABELS = [
 
 const productionLikeNav: NavItem[] = [
 	{
+		href: '/gmina',
 		label: 'Gmina',
 		children: [
 			{ href: '/plan-ogolny-gminy-miedzna', label: 'Plan ogólny Gminy Miedzna' },
