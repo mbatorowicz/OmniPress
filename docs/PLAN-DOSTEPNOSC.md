@@ -11,10 +11,10 @@ Każde **podejście** jest samodzielne: jeden zakres, weryfikacja, commit (w B: 
 |---|-----------|------|--------|---------|--------|
 | 1 | Panel: etykiety checkboxów w kolejce | A | niskie | — | ✅ |
 | 2 | Panel: kontrast tokenów tekstu | A | niskie | — | ✅ |
-| 3 | Strona: własny 404 po polsku | B | niskie | 8 | |
-| 4 | Strona: wysoki kontrast (kategorie + fokus) | B | niskie | 8 | |
-| 5 | Strona: `h1` homepage + skip-link z fokusem | B | niskie | 8 | |
-| 6 | Strona: sterowanie WCAG, linki, czcionka | B | niskie | 8 | |
+| 3 | Strona: własny 404 po polsku | B | niskie | 8 | ✅ |
+| 4 | Strona: wysoki kontrast (kategorie + fokus) | B | niskie | 8 | ✅ |
+| 5 | Strona: `h1` homepage + skip-link z fokusem | B | niskie | 8 | ✅ |
+| 6 | Strona: sterowanie WCAG, linki, czcionka | B | niskie | 8 | ✅ |
 | 7 | Panel: szkielet a11y (skip, main, edytor) | A | niskie | 8 | ✅ |
 | 8 | Deklaracja dostępności + ponowny skan | A+B | zerowe | — | |
 

@@ -1,6 +1,22 @@
 @layer components {
 	.ui-skip-link {
-		@apply sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-20 focus:rounded-lg focus:bg-brand focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:shadow-card focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-brand;
+		position: absolute;
+		top: -100%;
+		left: 1rem;
+		z-index: 20;
+		padding: 0.5rem 1rem;
+		border-radius: 0.5rem;
+		background: var(--color-brand);
+		color: #fff;
+		font-size: 0.875rem;
+		font-weight: 500;
+		text-decoration: none;
+		box-shadow: var(--shadow-card);
+	}
+	.ui-skip-link:focus {
+		top: 1rem;
+		outline: 2px solid #fff;
+		outline-offset: 2px;
 	}
 	#main-content:focus {
 		outline: none;
