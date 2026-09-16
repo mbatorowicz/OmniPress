@@ -13,7 +13,7 @@ Oznaczenia: **A** = OmniPress, **B** = `gmina-miedzna.pl`.
 | S-3 ✅ | Bucket `post-assets` prywatny + signed URL | A (+ Storage) | **wysoka** | — |
 | S-4 ✅ | Panel: escape nazw, Origin na POST, IP z hopa Vercel | A | średnia | po S-1 |
 
-**Następna sesja:** S-1–S-4 i audyt kategorii (22–25) zamknięte. DNS cutover otwarty 2026-09-16: domeny w Vercel, A rekord jeszcze na Progreso — [WDROZENIE.md](./WDROZENIE.md) §DNS cutover.
+**Następna sesja:** S-1–S-4 i audyt kategorii (22–25) zamknięte. DNS cutover `gmina-miedzna.pl` wykonany 2026-09-16 — [WDROZENIE.md](./WDROZENIE.md).
 
 Kategorie wpisów (AUDYT-WYKONANIE 22–25) zostają otwarte, ale **nie zaczynaj od nich**, dopóki S-1 i S-2 nie są zamknięte — XSS na stronie gminy jest ważniejszy niż flow kategorii.
 
@@ -184,7 +184,7 @@ Testy: `origin`, `guard-request`, `rate-limit`, `pipeline` (CSRF), `api/worker`,
 
 ## Start kolejnego chatu
 
-Agent czyta **ten plik** (nie canvas). S-1–S-4 i [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) 22–25 są zamknięte. DNS cutover: domeny w Vercel; brakujący krok to A w Extranet Progreso ([WDROZENIE.md](./WDROZENIE.md) §DNS cutover).
+Agent czyta **ten plik** (nie canvas). S-1–S-4 i [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md) 22–25 są zamknięte. DNS cutover `gmina-miedzna.pl` wykonany 2026-09-16 ([WDROZENIE.md](./WDROZENIE.md)).
 
 ```
 PM → Architect → BE/FE → DevSecOps → QA

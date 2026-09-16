@@ -109,7 +109,7 @@ Kategorie `/aktualnosci` (najwięcej wpisów, kafelek „Więcej” na home) i `
 
 Zamknięte: skip-link, rodzice z dziećmi bez `href="#"`, Escape/klik poza zamykają hamburger, BIP z `rel` i zapowiedzią nowej karty.
 
-**DNS cutover (2026-09-16):** domeny podpięte w Vercel; A rekord produkcyjny jeszcze na starym hostingu. Playbook: [WDROZENIE.md](./WDROZENIE.md) §DNS cutover.
+**DNS cutover (2026-09-16):** apex na Vercel; poczta i wildcard na starym hostingu. Playbook: [WDROZENIE.md](./WDROZENIE.md) §DNS cutover.
 
 ### P1-1 — lokalne repo Astro rozjeżdża się z origin
 
