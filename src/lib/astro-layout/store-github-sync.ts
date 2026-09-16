@@ -15,6 +15,7 @@ import { buildLayoutRecentChangeEntry } from '@/lib/recent-changes/layout-entry'
 import { upsertRecentChange } from '@/lib/recent-changes/upsert';
 import { type LayoutSyncScope } from './layout-sync-meta';
 import { hashLayoutFile, withPublishedMeta } from './layout-sync-meta.server';
+import { ensureUnlistedCategoriesInGmina } from '@/lib/categories/gmina-menu';
 import { syncNavigationInLayout } from './migrate-layout';
 import { assertLayoutFileContract } from './layout-file-schema';
 import { buildLayoutFilePayload } from './parse';
@@ -60,7 +61,9 @@ export async function syncSiteAstroLayoutToGitHub(
 	}
 
 	const layoutPath = layout.layoutPath || layoutConfigPath(dest.config);
-	let publishLayout = syncNavigationInLayout(layout, layout.navigation);
+	let publishLayout = ensureUnlistedCategoriesInGmina(
+		syncNavigationInLayout(layout, layout.navigation),
+	);
 
 	if (includeRecentChanges) {
 		try {

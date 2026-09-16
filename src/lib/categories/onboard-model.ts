@@ -1,7 +1,8 @@
 import { isCategoryFeedComponent } from '@/lib/astro-layout/components';
 import { getNavigationFromLayout, syncNavigationInLayout } from '@/lib/astro-layout/migrate-layout';
 import type { SiteAstroLayout } from '@/lib/astro-layout/types';
-import { categoryArchiveHref, categoryInMenu } from './checklist-model';
+import { categoryInMenu } from './checklist-model';
+import { appendUnlistedCategoriesToGmina } from './gmina-menu';
 
 export const AKTUALNOSCI_SLUG = 'aktualnosci';
 
@@ -33,9 +34,8 @@ export function addSlugToHomeFeed(layout: SiteAstroLayout, slug: string): SiteAs
 
 export function addCategoryToMenu(layout: SiteAstroLayout, slug: string, name: string): SiteAstroLayout {
 	if (categoryInMenu(layout, slug)) return layout;
-	const navigation = [
-		...getNavigationFromLayout(layout),
-		{ label: name.trim() || slug, href: categoryArchiveHref(slug) },
-	];
+	const navigation = appendUnlistedCategoriesToGmina(getNavigationFromLayout(layout), [
+		{ slug, name: name.trim() || slug },
+	]);
 	return syncNavigationInLayout(layout, navigation);
 }

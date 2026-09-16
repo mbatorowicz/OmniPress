@@ -22,14 +22,22 @@ describe('onboard nowej kategorii', () => {
 		expect(next.categoryDisplays.home_pinned).toEqual(['aktualnosci']);
 	});
 
-	it('dopisuje pozycję menu i nie dubluje', () => {
+	it('dopisuje pozycję do Gminy, a bez Gminy na poziom 1', () => {
 		const layout = sampleLayout();
-		const next = addCategoryToMenu(layout, 'gospodarka-odpadami', 'Gospodarka odpadami');
-		expect(next.navigation).toEqual([
+		const asTop = addCategoryToMenu(layout, 'gospodarka-odpadami', 'Gospodarka odpadami');
+		expect(asTop.navigation).toEqual([
 			{ label: 'Aktualności', href: '/aktualnosci' },
 			{ label: 'Gospodarka odpadami', href: '/gospodarka-odpadami' },
 		]);
-		expect(addCategoryToMenu(next, 'gospodarka-odpadami', 'Gospodarka odpadami').navigation).toEqual(
+		layout.navigation = [
+			{ href: '/gmina', label: 'Gmina', children: [{ href: '/inwestycje', label: 'Inwestycje' }] },
+		];
+		const next = addCategoryToMenu(layout, 'mazowsze-bez-smogu', 'Mazowsze bez smogu');
+		expect(next.navigation[0]?.children).toEqual([
+			{ href: '/inwestycje', label: 'Inwestycje' },
+			{ href: '/mazowsze-bez-smogu', label: 'Mazowsze bez smogu' },
+		]);
+		expect(addCategoryToMenu(next, 'mazowsze-bez-smogu', 'Mazowsze bez smogu').navigation).toEqual(
 			next.navigation,
 		);
 	});

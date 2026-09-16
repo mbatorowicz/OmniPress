@@ -7,6 +7,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Zmienione
 
+- **Kategorie poza menu idą do zakładki Gmina.** Publikacja layoutu i checkbox „dodaj do menu” dopisują brakujące archiwa pod Gminę, zamiast nowych pozycji na poziomie 1.
+
 - **Kolejność menu: Gmina po etykiecie albo `/gmina`.** Zakładka prowadzi do kategorii, nie na stronę główną — klucz poziomu 1 uznaje oba.
 
 - **Migracja WP nie bierze już kategorii USC.** Ponowny import nie przywróci archiwum ani wpisu o kreatorze zdjęć do dowodu.
