@@ -65,7 +65,7 @@ export function defaultFooterWidget() {
 		},
 		bankAccounts: [
 			{ name: 'Rachunek główny', number: '41 9221 0000 0039 1111 2000 0020' },
-			{ name: 'Opłaty za odbiór odpadów', number: '63 9221 0000 0039 1111 2000 0100' },
+			{ name: 'Opłaty za odbiór odpadów', number: '63 9221 0000 0039 1111 2000 0400' },
 		],
 		officeHours: [{ day: 'Pracujemy od 7.30 do 15.30', hours: '' }],
 		invoiceData: {

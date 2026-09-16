@@ -60,7 +60,7 @@ describe('parseFooterWidget — pełny edytor stopki', () => {
 		form.set(f.eDoreczenia(FOOTER_ID), 'AE:PL-20566-32159-EIVFC-16');
 		form.set(
 			f.bankAccounts(FOOTER_ID),
-			'Rachunek główny | 41 9221 0000 0039 1111 2000 0020\nOpłaty za odbiór odpadów | 63 9221 0000 0039 1111 2000 0100',
+			'Rachunek główny | 41 9221 0000 0039 1111 2000 0020\nOpłaty za odbiór odpadów | 63 9221 0000 0039 1111 2000 0400',
 		);
 		form.set(f.officeHours(FOOTER_ID), 'Pracujemy od 7.30 do 15.30');
 		form.set(f.invoiceBuyerTitle(FOOTER_ID), 'Nabywca');
@@ -92,7 +92,7 @@ describe('parseFooterWidget — pełny edytor stopki', () => {
 		});
 		expect(widget.bankAccounts).toEqual([
 			{ name: 'Rachunek główny', number: '41 9221 0000 0039 1111 2000 0020' },
-			{ name: 'Opłaty za odbiór odpadów', number: '63 9221 0000 0039 1111 2000 0100' },
+			{ name: 'Opłaty za odbiór odpadów', number: '63 9221 0000 0039 1111 2000 0400' },
 		]);
 		expect(widget.officeHours).toEqual([{ day: 'Pracujemy od 7.30 do 15.30' }]);
 		expect(widget.invoiceData?.buyer?.nip).toBe('824-172-35-14');
