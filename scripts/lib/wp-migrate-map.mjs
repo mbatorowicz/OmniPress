@@ -4,7 +4,6 @@ export const WP = 'https://gmina-miedzna.pl';
 
 /** Kolejność = priorytet kategorii głównej (bardziej specyficzna wyżej). */
 export const TAKE_CATEGORIES = [
-	{ id: 87, slug: 'usc', name: 'USC' },
 	{ id: 141, slug: 'nieczystosci-ciekle', name: 'Nieczystości ciekłe' },
 	{ id: 86, slug: 'dzialalnosc-gospodarcza', name: 'Działalność gospodarcza' },
 	{
@@ -48,7 +47,7 @@ export const CATEGORY_ARCHIVE_REDIRECTS = {
 	'/category/panstwowy-fundusz-celowy': '/panstwowy-fundusz-celowy',
 	'/category/nieczystosci-ciekle': '/nieczystosci-ciekle',
 	'/category/dzialalnosc-gospodarcza': '/dzialalnosc-gospodarcza',
-	'/category/usc': '/usc',
+	'/category/usc': '/',
 	'/category/mazowsze-bez-smogu': '/mazowsze-bez-smogu',
 	'/category/plan-ogolny-gminy-miedzna': '/plan-ogolny-gminy-miedzna',
 };
