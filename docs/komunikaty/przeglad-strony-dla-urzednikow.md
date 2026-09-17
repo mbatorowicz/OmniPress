@@ -11,9 +11,24 @@ Przegląd dla pracowników Urzędu, kierownictwa i osób odpowiedzialnych za tre
 
 Do września 2026 roku strona gminy działała na dotychczasowym systemie (WordPress). Adres był ten sam. Łatwo było o pomyłkę przy publikowaniu: kto miał hasło, ten mógł od razu pokazać tekst mieszkańcom. Strona bywała wolna, zwłaszcza na telefonie. Ostrzeżenia pogodowe i komunikaty o zagrożeniach trzeba było wstawiać ręcznie.
 
-Od kwietnia 2026 roku powstawała nowa strona dla Gminy Miedzna. Równolegle powstał panel do artykułów. Redaktor pisze tam szkic. Na stronę publiczną treść trafia dopiero po akceptacji.
+Nowa strona to **dwa repozytoria Git**, które pracują razem:
 
-Ze starej strony przeniesiono artykuły, strony stałe, menu, zdjęcia i banery z prawej kolumny. 16 września 2026 roku adres **gmina-miedzna.pl** zaczął prowadzić do nowej strony. Poczta urzędu, BIP i pozostałe usługi zostały bez zmian.
+- **strona** (`gmina-miedzna.pl`) — Astro; to, co widzi mieszkaniec,
+- **panel** (OmniPress) — tu redaktor pisze szkic; na stronę publiczną treść trafia dopiero po akceptacji.
+
+**Jak przebiegały prace**
+
+Kalendarz: **9 kwietnia – 16 września 2026** (ok. 5 miesięcy). Faktyczny zapis kodu: **39 dni**. Łącznie **805 commitów** (kolejnych, ponumerowanych wersji w Git):
+
+| Repozytorium | Commity | Co zawiera |
+|--------------|---------|------------|
+| Panel OmniPress | 279 | logowanie, szkice, akceptacja, publikacja |
+| Strona Astro | 526 | wygląd, widgety, treści; część to publikacje wpisów z panelu |
+
+1. **Kwiecień** — pierwszy commit w repozytorium strony Astro. WordPress zostaje na produkcji; nowa strona powstaje obok.
+2. **3 czerwca** — faza 1 panelu: Astro SSR, baza Supabase, logowanie. Potem ścieżka szkic → akceptacja → commit na GitHub → wdrożenie Vercel (artykuł u mieszkańca zwykle w minutę).
+3. **Lato** — import z WordPressa (REST API): artykuły, strony stałe, menu, zdjęcia, banery. Widgety na żywo: IMGW i CERT. Czyszczenie śmieci po imporcie (shortcody, duble załączników).
+4. **Wrzesień** — audyt bezpieczeństwa, audyt WCAG 2.1 AA, twardnienie przed startem. **16 września** — cutover DNS: adres **gmina-miedzna.pl** wskazuje nową stronę. Poczta urzędu, BIP i pozostałe usługi bez zmian.
 
 Na stronie jest dziś około 98 artykułów i 38 stron stałych (władze, odpady, jednostki, druki i inne).
 
@@ -53,6 +68,8 @@ Nowa strona jest zbudowana na **Astro**. To inny sposób robienia stron niż Wor
 | Przy każdym wejściu strona składa się z bazy — bywa wolna, zwłaszcza na telefonie | Gotowa, lżejsza strona. Szybciej się otwiera |
 | Panel do logowania pod tym samym adresem co strona gminy | Mieszkaniec widzi stronę. Redaktor pracuje w osobnym panelu |
 | Kto ma hasło, ten może od razu pokazać tekst mieszkańcom | Najpierw szkic, potem akceptacja, potem strona — zwykle w minutę |
+
+Panel i strona to dwa osobne repozytoria Git. Po akceptacji panel robi commit w repozytorium strony na GitHubie; Vercel buduje nową wersję. Mieszkaniec nie loguje się nigdzie.
 
 **CERT — ochrona przed oszustwem**
 
