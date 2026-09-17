@@ -57,7 +57,7 @@ Szkoła: ten sam chrome (topbar, header, menu, karty, sidebar), inna paleta.
 Menu robocze (z stron WP, posprzątane):
 
 - **Szkoła** — o szkole, kadra, dokumenty
-- **Dla rodziców** — konsultacje, pielęgniarka, fluoryzacja, e-dziennik
+- **Dla rodziców** — druki, konsultacje, pielęgniarka, fluoryzacja, e-dziennik
 - **Uczniowie** — samorząd, biblioteka, pedagog, harcerze, przedmioty
 - **Kontakt**
 
