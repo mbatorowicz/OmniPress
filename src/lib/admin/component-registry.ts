@@ -58,6 +58,7 @@ export const SPECIAL_COMPONENT_OPTIONS = [
 	{ component: 'sidebar.waste_reminders' as const, registryGroup: 'special' as const },
 	{ component: 'sidebar.cert_advisories' as const, registryGroup: 'special' as const },
 	{ component: 'sidebar.recent_changes' as const, registryGroup: 'special' as const },
+	{ component: 'sidebar.categories' as const, registryGroup: 'special' as const },
 ];
 
 export type RegistrySlotEntry = { slot: DisplaySlot; zone: LayoutZone };

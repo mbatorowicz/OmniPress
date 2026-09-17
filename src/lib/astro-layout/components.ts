@@ -105,6 +105,13 @@ export const LAYOUT_COMPONENTS = {
 		singleton: true,
 		categoryFeed: false,
 	},
+	'sidebar.categories': {
+		kind: 'local_feed',
+		defaultZone: 'sidebar',
+		allowedZones: zoneOnly('sidebar'),
+		singleton: true,
+		categoryFeed: true,
+	},
 	'sidebar.banner': {
 		kind: 'banner',
 		defaultZone: 'sidebar',
@@ -167,7 +174,7 @@ export function getComponentsOfZone(zone: LayoutZone): LayoutComponentId[] {
 }
 
 export function isCategoryFeedComponent(component: string): boolean {
-	return getComponentKind(component) === 'home_feed';
+	return isLayoutComponentId(component) && LAYOUT_COMPONENTS[component].categoryFeed;
 }
 
 export function isSingletonComponent(component: string): boolean {

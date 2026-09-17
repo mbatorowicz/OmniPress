@@ -14,11 +14,16 @@ export function findAktualnosciFeedSlotId(
 
 	const withNews = layout.slots.find((slot) => {
 		if (!isCategoryFeedComponent(slot.component)) return false;
+		if (!slot.component.startsWith('home.')) return false;
 		return (layout.categoryDisplays[slot.id] ?? []).includes(AKTUALNOSCI_SLUG);
 	});
 	if (withNews) return withNews.id;
 
-	return layout.slots.find((slot) => isCategoryFeedComponent(slot.component))?.id ?? null;
+	return (
+		layout.slots.find(
+			(slot) => isCategoryFeedComponent(slot.component) && slot.component.startsWith('home.'),
+		)?.id ?? null
+	);
 }
 
 export function addSlugToHomeFeed(layout: SiteAstroLayout, slug: string): SiteAstroLayout {

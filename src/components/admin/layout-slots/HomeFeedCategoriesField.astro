@@ -8,14 +8,15 @@ interface Props {
 	component: string;
 	categories: CategoryDefinition[];
 	selectedSlugs: string[];
+	hint?: string;
 }
 
-const { formId, slotId, component, categories, selectedSlugs } = Astro.props;
+const { formId, slotId, component, categories, selectedSlugs, hint } = Astro.props;
 ---
 
 <fieldset class="home-feed-categories-field sm:col-span-2">
 	<legend class="font-medium">{adminLayout.homeFeedCategoriesLabel}</legend>
-	<p class="ui-hint">{adminLayout.homeFeedCategoriesHint}</p>
+	<p class="ui-hint">{hint ?? adminLayout.homeFeedCategoriesHint}</p>
 	{
 		component === 'home.pinned' ? (
 			<p class="ui-hint">{adminLayout.homeFeedPinnedHint}</p>

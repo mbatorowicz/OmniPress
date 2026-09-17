@@ -1,0 +1,53 @@
+---
+import { adminLayout } from '@/i18n';
+import { slotFormFields } from '@/lib/astro-layout/slot-form-fields';
+import type { CategoryDefinition, DisplaySlot } from '@/lib/astro-layout/types';
+import HomeFeedCategoriesField from './HomeFeedCategoriesField.astro';
+import LayoutSlotPanelHeader from './LayoutSlotPanelHeader.astro';
+
+interface Props {
+	formId: string;
+	slot: DisplaySlot;
+	categories: CategoryDefinition[];
+	selectedSlugs: string[];
+}
+
+const { formId, slot, categories, selectedSlugs } = Astro.props;
+const w = slot.widget ?? {};
+const f = slotFormFields.recentChanges;
+---
+
+<div
+	id={`slot-panel-${slot.id}`}
+	class="ui-fieldset-nested slot-config-panel slot-detail-block"
+	data-slot-id={slot.id}
+	data-component={slot.component}
+>
+	<input type="hidden" name="slot_id" value={slot.id} />
+	<input type="hidden" name="slot_label" value={slot.label} />
+	<input type="hidden" name="slot_component" value={slot.component} />
+	<input type="hidden" name="slot_widget_order" value={String(w.order ?? 0)} />
+
+	<LayoutSlotPanelHeader slot={slot} />
+	<label class="ui-label-inline">
+		<span class="font-medium">{adminLayout.fields.widgetTitle}</span>
+		<input form={formId} name={f.title(slot.id)} value={w.title ?? ''} class="ui-input-compact w-full" />
+	</label>
+	<label class="ui-label-inline flex items-center gap-2">
+		<input
+			form={formId}
+			type="checkbox"
+			name={slotFormFields.hideWhenEmpty(slot.id)}
+			checked={w.hideWhenEmpty === true}
+		/>
+		<span class="font-medium">{adminLayout.fields.widgetHideWhenEmpty}</span>
+	</label>
+	<HomeFeedCategoriesField
+		formId={formId}
+		slotId={slot.id}
+		component={slot.component}
+		categories={categories}
+		selectedSlugs={selectedSlugs}
+		hint={adminLayout.sidebarCategoriesHint}
+	/>
+</div>

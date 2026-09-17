@@ -10,6 +10,7 @@ export const adminLayoutOptions = {
 		'sidebar.weather': 'Sidebar — ostrzeżenia meteorologiczne (IMGW)',
 		'sidebar.waste_reminders': 'Sidebar — odbiór odpadów',
 		'sidebar.recent_changes': 'Sidebar — ostatnie zmiany',
+		'sidebar.categories': 'Sidebar — lista kategorii',
 		'sidebar.cert_advisories': 'Sidebar — komunikaty CERT',
 		'sidebar.banner': 'Sidebar — baner',
 		'footer.main': 'Stopka — dane kontaktowe',

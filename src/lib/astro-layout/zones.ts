@@ -85,6 +85,7 @@ const COMPONENT_ID_SUFFIX: Partial<Record<LayoutComponentId, string>> = {
 	'sidebar.waste_reminders': 'waste',
 	'sidebar.cert_advisories': 'cert',
 	'sidebar.recent_changes': 'recent_changes',
+	'sidebar.categories': 'categories',
 	'sidebar.banner': 'banner',
 	'footer.main': 'main',
 };

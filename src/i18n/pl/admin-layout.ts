@@ -18,7 +18,8 @@ const layoutText = {
 	componentsLead:
 		'Spis komponentów wg typu — specjalne widgety, feedy kategorii, linki i banery. Przy dodawaniu wybierz szablon i strefę wyświetlania (strona główna, sidebar lub stopka).',
 	registryGroupSpecial: 'Komponenty specjalne',
-	registryGroupSpecialDesc: 'Widgety na żywo i lokalne — ostrzeżenia IMGW, odbiór odpadów, CERT oraz ostatnie zmiany na stronie.',
+	registryGroupSpecialDesc:
+		'Widgety na żywo i lokalne — ostrzeżenia IMGW, odbiór odpadów, CERT, lista kategorii oraz ostatnie zmiany na stronie.',
 	registryGroupCategories: 'Komponenty kategorii',
 	registryGroupCategoriesDesc: 'Sekcje wpisów przypisane do kategorii — przypięte lub najnowsze.',
 	registryGroupLinks: 'Komponenty linków',
@@ -35,6 +36,7 @@ const layoutText = {
 	addSpecialWaste: '+ Odbiór odpadów',
 	addSpecialCert: '+ Komunikaty CERT',
 	addSpecialRecentChanges: '+ Ostatnie zmiany',
+	addSpecialCategories: '+ Lista kategorii',
 	addDialogTitle: 'Dodaj komponent',
 	addDialogZoneLabel: 'Strefa wyświetlania',
 	addDialogConfirm: 'Dodaj',
@@ -117,6 +119,7 @@ const layoutText = {
 	homeFeedCategoriesLabel: 'Kategorie wpisów w tym slocie',
 	homeFeedCategoriesHint:
 		'Zaznacz kategorie, z których wpisy mają trafiać do tej sekcji strony głównej.',
+	sidebarCategoriesHint: 'Zaznacz kategorie, które mają pojawić się jako lista w prawej kolumnie.',
 	homeFeedPinnedHint:
 		'W sekcji przypiętych wyświetlają się tylko wpisy z flagą przypięcia — sam checkbox kategorii nie wystarczy.',
 	homeFeedTileHeightHint:

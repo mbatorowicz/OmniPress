@@ -64,4 +64,19 @@ describe('kategorie spoza menu → Gmina', () => {
 		const next = ensureUnlistedCategoriesInGmina(layout);
 		expect(next.navigation[0]?.children?.at(-1)?.href).toBe('/panstwowy-fundusz-celowy');
 	});
+
+	it('kategorie z listy w sidebarze nie wracają do menu', () => {
+		const layout = emptySiteAstroLayout();
+		layout.categories = [
+			{ slug: 'aktualnosci', name: 'Aktualności' },
+			{ slug: 'rok-szkolny-2025-2026', name: 'Rok szkolny 2025/2026' },
+		];
+		layout.navigation = [{ href: '/kontakt', label: 'Kontakt' }];
+		layout.slots = [{ id: 'sidebar_categories', label: 'Kategorie', component: 'sidebar.categories' }];
+		layout.categoryDisplays = {
+			sidebar_categories: ['aktualnosci', 'rok-szkolny-2025-2026'],
+		};
+		const next = ensureUnlistedCategoriesInGmina(layout);
+		expect(next.navigation).toEqual([{ href: '/kontakt', label: 'Kontakt' }]);
+	});
 });

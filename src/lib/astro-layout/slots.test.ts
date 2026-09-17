@@ -49,8 +49,9 @@ describe('findSlotByComponent', () => {
 });
 
 describe('isCategoryFeedComponent', () => {
-	it('dotyczy tylko home.*', () => {
+	it('obejmuje feedy strony głównej i listę kategorii w sidebarze', () => {
 		expect(isCategoryFeedComponent('home.pinned')).toBe(true);
+		expect(isCategoryFeedComponent('sidebar.categories')).toBe(true);
 		expect(isCategoryFeedComponent('sidebar.banner')).toBe(false);
 	});
 });

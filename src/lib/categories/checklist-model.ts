@@ -35,6 +35,18 @@ export function categoryInHomeFeed(
 	});
 }
 
+export function categoryInSidebarList(
+	layout: Pick<SiteAstroLayout, 'slots' | 'categoryDisplays'>,
+	slug: string,
+): boolean {
+	const key = slug.trim().toLowerCase();
+	if (!key) return false;
+	return layout.slots.some((slot) => {
+		if (slot.component !== 'sidebar.categories') return false;
+		return (layout.categoryDisplays[slot.id] ?? []).some((item) => item.toLowerCase() === key);
+	});
+}
+
 export function categoryInMenu(layout: SiteAstroLayout, slug: string): boolean {
 	const target = categoryArchiveHref(slug);
 	if (target === '/') return false;

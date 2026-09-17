@@ -57,12 +57,13 @@ Szkoła: ten sam chrome (topbar, header, menu, karty, sidebar), inna paleta.
 Menu robocze (z stron WP, posprzątane):
 
 - **Szkoła** — o szkole, kadra, dokumenty
-- **Aktualności** — feed + archiwum lat szkolnych
 - **Dla rodziców** — konsultacje, pielęgniarka, fluoryzacja, e-dziennik
 - **Uczniowie** — samorząd, biblioteka, pedagog, harcerze, przedmioty
 - **Kontakt**
 
-Sidebar: ostatnie wpisy, skróty (e-dziennik, dokumenty), opcjonalny banner. Bez pogody IMGW i CERT.
+Aktualności zostają na stronie głównej; archiwum lat szkolnych jest w prawej kolumnie.
+
+Sidebar: BIP (`https://bipszkolapodstawowa.gminamiedzna.pl/`), lista kategorii (lata szkolne), skróty (e-dziennik, dokumenty), ostatnie wpisy. Bez pogody IMGW i CERT.
 
 **Makieta homepage (16:9) przed forkiem repo** — belka zielona, logo + zdjęcia w `header.brand`, karty ze zdjęciem i chipem roku, kafelki skrótów, stopka z adresem. WCAG 2.1 AA: kontrast żółtego/zieleni zmierzyć; rok szkolny także słownie, nie tylko kolorem.
 

@@ -31,12 +31,32 @@ export function buildHomeFeedDetailHtml(
 		${panelCloseHtml()}`;
 }
 
+function buildSidebarCategoriesDetailHtml(
+	id: string,
+	label: string,
+	component: string,
+	config: SectionBuildConfig,
+): string {
+	const f = slotFieldNames.recentChanges;
+	const l = config.fieldLabels;
+	return `
+		${panelOpenHtml(id, component)}
+			${slotPanelHeaderHtml(id, label, component, config)}
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetTitle}</span><input${fa(config)} name="${f.title(id)}" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline flex items-center gap-2"><input type="checkbox"${fa(config)} name="${slotFieldNames.hideWhenEmpty(id)}" /><span class="font-medium">${l.widgetHideWhenEmpty}</span></label>
+			${buildHomeFeedCategoriesHtml(id, component, config)}
+		${panelCloseHtml()}`;
+}
+
 export function buildLocalFeedDetailHtml(
 	id: string,
 	label: string,
 	component: string,
 	config: SectionBuildConfig,
 ): string {
+	if (component === 'sidebar.categories') {
+		return buildSidebarCategoriesDetailHtml(id, label, component, config);
+	}
 	const f = slotFieldNames.recentChanges;
 	const l = config.fieldLabels;
 	return `

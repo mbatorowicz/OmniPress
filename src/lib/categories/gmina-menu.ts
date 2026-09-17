@@ -2,7 +2,7 @@ import type { CategoryDefinition, NavItem, SiteAstroLayout } from '@/lib/astro-l
 import { getNavigationFromLayout, syncNavigationInLayout } from '@/lib/astro-layout/migrate-layout';
 import { collectInternalNavHrefs } from '@/lib/astro-layout/reshape-top-nav';
 import { normalizeInternalHref } from '@/lib/astro-layout/validate-nav';
-import { categoryArchiveHref } from './checklist-model';
+import { categoryArchiveHref, categoryInSidebarList } from './checklist-model';
 
 function isGminaItem(item: NavItem): boolean {
 	if (item.label === 'Gmina') return true;
@@ -46,7 +46,7 @@ export function appendUnlistedCategoriesToGmina(
 export function ensureUnlistedCategoriesInGmina(layout: SiteAstroLayout): SiteAstroLayout {
 	const navigation = appendUnlistedCategoriesToGmina(
 		getNavigationFromLayout(layout),
-		layout.categories,
+		layout.categories.filter((category) => !categoryInSidebarList(layout, category.slug)),
 	);
 	return syncNavigationInLayout(layout, navigation);
 }

@@ -3,6 +3,7 @@ import { getComponentKind } from '@/lib/astro-layout/components';
 import type { CategoryDefinition, DisplaySlot, SiteAstroLayout } from '@/lib/astro-layout/types';
 import LayoutSlotBannerPanel from './LayoutSlotBannerPanel.astro';
 import LayoutSlotChromePanel from './LayoutSlotChromePanel.astro';
+import LayoutSlotCategoriesPanel from './LayoutSlotCategoriesPanel.astro';
 import LayoutSlotHomeFeedPanel from './LayoutSlotHomeFeedPanel.astro';
 import LayoutSlotLiveFeedPanel from './LayoutSlotLiveFeedPanel.astro';
 import LayoutSlotLocalFeedPanel from './LayoutSlotLocalFeedPanel.astro';
@@ -25,6 +26,13 @@ const selectedSlugs = categoryDisplays[slot.id] ?? [];
 {
 	kind === 'home_feed' ? (
 		<LayoutSlotHomeFeedPanel formId={formId} slot={slot} categories={categories} selectedSlugs={selectedSlugs} />
+	) : slot.component === 'sidebar.categories' ? (
+		<LayoutSlotCategoriesPanel
+			formId={formId}
+			slot={slot}
+			categories={categories}
+			selectedSlugs={selectedSlugs}
+		/>
 	) : kind === 'local_feed' ? (
 		<LayoutSlotLocalFeedPanel formId={formId} slot={slot} />
 	) : kind === 'live_feed' ? (

@@ -55,7 +55,10 @@ describe('layout component kinds', () => {
 			'sidebar.waste_reminders',
 			'sidebar.cert_advisories',
 		]);
-		expect(getComponentsOfKind('local_feed')).toEqual(['sidebar.recent_changes']);
+		expect(getComponentsOfKind('local_feed')).toEqual([
+			'sidebar.recent_changes',
+			'sidebar.categories',
+		]);
 	});
 
 	it('zwraca komponenty z domyślną strefą', () => {
@@ -65,6 +68,7 @@ describe('layout component kinds', () => {
 
 	it('wyprowadza categoryFeed z home_feed', () => {
 		expect(isCategoryFeedComponent('home.latest')).toBe(true);
+		expect(isCategoryFeedComponent('sidebar.categories')).toBe(true);
 		expect(isCategoryFeedComponent('sidebar.recent_changes')).toBe(false);
 	});
 
