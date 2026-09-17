@@ -1,93 +1,78 @@
-# Nowa strona Gminy Miedzna — krótki przewodnik i przegląd
+# Nowa strona Gminy Miedzna
 
-Dla pracowników Urzędu, kierownictwa i osób, które odpowiadają za treści.
+Przegląd dla pracowników Urzędu, kierownictwa i osób odpowiedzialnych za treści.
 
-Uwagi: **mbatorowicz@gmail.com**  
-Adres strony: **https://gmina-miedzna.pl**
-
----
-
-## Co się stało
-
-W nocy z **16 na 17 września 2026** adres **gmina-miedzna.pl** zaczął prowadzić do nowej strony. Mieszkańcy wchodzą tam, gdzie zawsze — zmieniła się tylko sama strona.
-
-Stary WordPress pod tym adresem już nie działa. Poczta urzędu, BIP i pozostałe usługi zostały tam, gdzie były.
+**Adres strony:** https://gmina-miedzna.pl  
+**Uwagi:** mbatorowicz@gmail.com
 
 ---
 
-## Po co ten przegląd
+## Geneza
 
-Nowa strona nie powstała z pustej kartki. Przenieśliśmy na nią to, co było na starej: artykuły, strony stałe, menu, zdjęcia i banery z prawej kolumny.
+Do września 2026 roku strona gminy działała na dotychczasowym systemie (WordPress). Adres był ten sam. Łatwo było o pomyłkę przy publikowaniu: kto miał hasło, ten mógł od razu pokazać tekst mieszkańcom. Strona bywała wolna, zwłaszcza na telefonie. Ostrzeżenia pogodowe i komunikaty o zagrożeniach trzeba było wstawiać ręcznie.
 
-Maszyna przenosi treść. **Ludzie** wiedzą, czy treść jest aktualna, czy telefon się zgadza i czy baner z 2019 roku nadal ma sens.
+Od kwietnia 2026 roku powstawała nowa strona dla Gminy Miedzna. Równolegle powstał panel do artykułów. Redaktor pisze tam szkic. Na stronę publiczną treść trafia dopiero po akceptacji.
 
-Prosimy, żebyście w najbliższych dniach spojrzeli na **swoją** część strony i napisali, co poprawić. Nie trzeba znać się na komputerach. Wystarczy wiedzieć, jak jest w urzędzie.
+Ze starej strony przeniesiono artykuły, strony stałe, menu, zdjęcia i banery z prawej kolumny. 16 września 2026 roku adres **gmina-miedzna.pl** zaczął prowadzić do nowej strony. Poczta urzędu, BIP i pozostałe usługi zostały bez zmian.
 
----
-
-## Skąd się wzięła ta strona (w skrócie)
-
-Prace trwały od **kwietnia do września 2026** — około pięciu miesięcy. Powstały dwie rzeczy, które działają razem:
-
-- **strona dla mieszkańców** — to, co widać pod adresem gminy,
-- **panel do artykułów** — miejsce, w którym redaktor pisze tekst, a dopiero po akceptacji treść pojawia się publicznie.
-
-W tym czasie zapisano ok. **800 kolejnych wersji** strony i panelu: od pierwszej ramki, przez przeniesienie treści ze starego WordPressa, aż po przełączenie domeny. Na stronie jest dziś ok. **98 artykułów** i **38 stron stałych** (władze, odpady, jednostki, druki i inne).
-
-To nie magia i nie „gotowiec z katalogu”. To strona szyta pod tę gminę — i właśnie dlatego teraz potrzebujemy Waszego przeglądu, a nie kolejnej warstwy ozdób.
+Na stronie jest dziś około 98 artykułów i 38 stron stałych (władze, odpady, jednostki, druki i inne).
 
 ---
 
-## Co jest wygodniejsze niż stary WordPress
+## Wstęp
 
-| Na starej stronie | Na nowej |
-|-------------------|----------|
-| Redaktor publikował od razu, albo czekał na kogoś z hasłem do WordPressa | Najpierw szkic, potem akceptacja, potem strona. Mniej pomyłek na oczach mieszkańców |
-| Wtyczki, aktualizacje, „coś się zepsuło po piątku” | Brak WordPressa i wtyczek. Mniej dziur, mniej gaszenia pożarów |
-| Strona często ciężka, wolna na telefonie | Lżejsza, szybciej się otwiera |
+Treści przyszły ze starej strony w takim stanie, w jakim tam były. Czy telefon jest aktualny, godziny urzędowania właściwe, a baner nadal potrzebny — wie osoba z urzędu.
+
+Prosimy o przegląd **swojej** części strony w najbliższych dniach. Nie trzeba znać się na komputerach. Wystarczy wiedzieć, jak jest w urzędzie, i napisać, co poprawić.
+
+---
+
+## Rozwinięcie
+
+### Co się zmieniło
+
+| Dotychczas | Teraz |
+|------------|--------|
+| Redaktor mógł od razu pokazać tekst na stronie | Najpierw szkic, potem akceptacja, potem strona |
+| Częste aktualizacje systemu i dodatków | Mniej przerw związanych z aktualizacjami |
+| Strona wolno się otwierała, zwłaszcza na telefonie | Strona jest lżejsza |
 | Ostrzeżenia pogodowe i komunikaty o zagrożeniach — ręcznie albo wcale | Ostrzeżenia IMGW i komunikaty CERT pojawiają się same |
-| PDF do pobrania i nadzieja, że się otworzy | Podgląd PDF w przeglądarce |
-| Kontrast i powiększenie czcionki — jeśli wtyczka działała | Pasek u góry: kontrast i wielkość liter. Deklaracja dostępności na stronie |
-| Trudno powiedzieć, co się ostatnio zmieniło | Krótka lista „co się zmieniło na stronie” |
+| PDF tylko do pobrania | PDF można otworzyć w przeglądarce |
+| Kontrast i wielkość liter — jeśli działał dodatek | Pasek u góry: kontrast i wielkość liter. Deklaracja dostępności na stronie |
+| Trudno zobaczyć, co się ostatnio zmieniło | Krótka lista „co się zmieniło na stronie” |
 
-WordPress dobrze służył przez lata. Nowa strona ma ten sam adres i te same treści — tylko spokojniejszy sposób ich publikowania.
+Adres strony i przeniesione treści zostały bez zmian. Zmienił się sposób publikowania.
 
----
+### Jak treść trafia na stronę
 
-## Jak teraz treść trafia na stronę
+**Artykuły** (aktualności, komunikaty, zarządzenia):
 
-**Artykuły (aktualności, komunikaty, zarządzenia):**
-
-1. Redaktor loguje się do panelu i pisze szkic (tekst, zdjęcia, pliki).
+1. Redaktor loguje się do panelu i przygotowuje szkic (tekst, zdjęcia, pliki).
 2. Klika **Wyślij do akceptacji**.
-3. Osoba akceptująca sprawdza wpis i zatwierdza — albo odsyła do poprawki.
-4. Po zatwierdzeniu artykuł sam pojawia się na **https://gmina-miedzna.pl** (zwykle w ciągu minuty). Można też ustawić datę i godzinę, żeby wyszedł rano, a nie o 22:00.
+3. Osoba akceptująca zatwierdza wpis albo odsyła do poprawki.
+4. Po zatwierdzeniu artykuł pojawia się na **https://gmina-miedzna.pl** — zwykle w ciągu minuty. Można ustawić datę i godzinę publikacji.
 
-Redaktor **nie wrzuca** artykułu sam na stronę. Nie logujemy się już do WordPressa.
+Redaktor nie publikuje artykułu samodzielnie. Do starego systemu się już nie logujemy.
 
-**Strony stałe** (kontakt merytoryczny, władze, odpady, szkoła, przedszkole, GOPS, biblioteka) oraz **menu i pasek z prawej** zmienia administrator — na wniosek z urzędu.
+**Strony stałe** (kontakt, władze, odpady, szkoła, przedszkole, GOPS, biblioteka) oraz **menu i pasek z prawej** zmienia administrator — na wniosek z urzędu.
 
 Panel: **https://omni-press.cncsolutions.dev**  
 Konto zakłada administrator. Instrukcja jest w panelu, pod przyciskiem *Pomoc*.
 
----
-
-## Trzy kroki (naprawdę tylko trzy)
+### Co zrobić
 
 1. Wejdź na **https://gmina-miedzna.pl**.
-2. Obejrzyj **swoją** działkę — nie całą gminę od A do Z.
+2. Obejrzyj **swoją** działkę — nie całą stronę.
 3. Napisz **jednego** maila na **mbatorowicz@gmail.com**.
 
-Jeśli wszystko u Ciebie jest w porządku, też warto napisać jedno zdanie: „Kontakt / odpady / szkoła — sprawdziłem, jest OK”. Cisza nic nie mówi.
+Jeśli treść jest w porządku, też prosimy o jedno zdanie, na przykład: „Kontakt / odpady / szkoła — sprawdziłem, jest w porządku”.
 
----
-
-## Szablon maila z uwagą
+### Szablon wiadomości
 
 **Do:** mbatorowicz@gmail.com  
 **Temat:** Strona gminy — uwaga (np. Kontakt / odpady / pasek boczny)
 
-W treści wklej:
+W treści:
 
 ```
 Link: https://gmina-miedzna.pl/...
@@ -95,17 +80,13 @@ Co jest: (jedno zdanie)
 Jak powinno być: (jedno zdanie)
 ```
 
-Kilka spraw w jednym mailu — jak najbardziej. Każda sprawa: link + co jest + jak powinno. Literówki można zebrać w jednym wykazie. Nie trzeba 15 osobnych wiadomości.
+Kilka spraw w jednym mailu jest w porządku. Przy każdej: link, co jest, jak powinno. Literówki można zebrać w jednym wykazie. Zdjęcie ekranu pomaga, ale nie jest potrzebne.
 
-Zdjęcie ekranu pomaga, ale nie jest obowiązkowe.
-
----
-
-## Kto co ogląda
+### Kto co ogląda
 
 Nie wszyscy oglądają wszystko.
 
-**Wszyscy (5 minut)**  
+**Wszyscy (kilka minut)**  
 Strona główna, górne menu, strona [Kontakt](https://gmina-miedzna.pl/kontakt).
 
 **Kierownictwo**  
@@ -115,15 +96,11 @@ Strona główna, górne menu, strona [Kontakt](https://gmina-miedzna.pl/kontakt)
 Tylko swoje strony: gospodarka odpadami, ochrona ludności, szkoła, przedszkole, GOPS, biblioteka.
 
 **Osoby od treści na stronie**  
-Czy artykuły są we właściwej kategorii, czy nie wiszą duble, czy stare komunikaty nie wyglądają jak aktualne.
+Czy artykuły są we właściwej kategorii, czy nie wiszą powtórzenia, czy stare komunikaty nie wyglądają jak aktualne.
 
-Jeśli nie wiesz, od czego zacząć: otwórz stronę główną, potem **swoje** menu, na końcu Kontakt.
+Jeśli nie wiadomo, od czego zacząć: strona główna, potem **swoje** menu, na końcu Kontakt.
 
----
-
-## Na co zwrócić uwagę
-
-To nie test. Zaznacz w mailu to, co widzisz.
+### Na co zwrócić uwagę
 
 **Treści i strony**
 
@@ -134,7 +111,7 @@ To nie test. Zaznacz w mailu to, co widzisz.
 
 **Kontakt** — [https://gmina-miedzna.pl/kontakt](https://gmina-miedzna.pl/kontakt)
 
-Prosimy sprawdzić szczególnie:
+Prosimy sprawdzić:
 
 - adres: ul. 11 Listopada 4, 07-106 Miedzna
 - telefony: (0-25) 691-83-27, (0-25) 691-83-28
@@ -146,9 +123,9 @@ Prosimy sprawdzić szczególnie:
 
 **Pasek z prawej strony** (ok. 20 elementów)
 
-Banery przyszły ze starej strony. Które są nadal potrzebne, a które można schować? Nie musisz znać wszystkich — napisz o tych, które dotyczą Twojej działki albo których już nikt nie używa.
+Banery przyszły ze starej strony. Które są nadal potrzebne, a które można schować? Wystarczy napisać o tych, które dotyczą danej działki albo których urząd już nie używa.
 
-Dziś są m.in.: ostrzeżenia pogody, CERT, SMS, ochrona ludności, Mazowsze bez smogu, Unia Europejska, fundusze drogowe, ePUAP, KRUS, LGD, dwa podobne banery EFRR i kilka innych.
+Są tam m.in.: ostrzeżenia pogody, CERT, SMS, ochrona ludności, Mazowsze bez smogu, Unia Europejska, fundusze drogowe, ePUAP, KRUS, LGD, dwa podobne banery EFRR i kilka innych.
 
 **Kategorie artykułów** (jest ich 10)
 
@@ -156,11 +133,9 @@ Aktualności · Gmina · Gospodarka odpadami · Plan ogólny Gminy Miedzna · Za
 
 Które są na co dzień potrzebne? Które można połączyć albo zostawić jako zwykłą stronę, a nie osobną kategorię?
 
----
+### Pytania do urzędu
 
-## Kilka pytań z naszej strony (nie wyroki)
-
-Przy okazji przeglądu warto, żeby urząd sam rozstrzygnął:
+Przy okazji przeglądu urząd może rozstrzygnąć:
 
 1. **Pasek boczny jest długi.** Dwa banery EFRR wyglądają podobnie. Co zostaje, co schodzimy?
 2. **W stopce jest zapowiedź mapy dojazdu**, a na stronie Kontakt mapy nie ma. Czy dodać mapę?
@@ -169,15 +144,17 @@ Przy okazji przeglądu warto, żeby urząd sam rozstrzygnął:
 
 Odpowiedź może być krótka: „zostawić” / „usunąć” / „zmienić na…”.
 
----
+### Czego nie robić
 
-## Czego nie trzeba robić
-
-- Nie logować się do starego WordPressa — pod adresem gminy go już nie ma.
-- Nie poprawiać strony „na czuja” poza panelem. Napisz maila — wprowadzimy zmianę w odpowiednim miejscu.
-- Nie wysyłać osobnego maila na każdą literówkę. Jeden zbiorczy wykaz wystarczy.
-- Nie przeglądać całej strony, jeśli odpowiadasz za jeden wydział. Twoja działka jest ważniejsza niż „wszystko od deski do deski”.
+- Logować się do starego systemu — pod adresem gminy go już nie ma.
+- Poprawiać strony poza panelem. Wystarczy mail — zmianę wprowadzimy we właściwym miejscu.
+- Wysyłać osobnego maila na każdą literówkę. Jeden zbiorczy wykaz wystarczy.
+- Przeglądać całej strony, jeśli odpowiada się za jeden wydział.
 
 ---
 
-Dziękujemy, że na to spojrzycie. Mieszkańcy i tak wejdą na **gmina-miedzna.pl** — lepiej, żeby zobaczyli tam to, co urząd naprawdę chce powiedzieć.
+## Zakończenie
+
+Mieszkańcy korzystają już z **gmina-miedzna.pl**. Prosimy, żeby w najbliższych dniach spojrzeć na swoją część i napisać, co poprawić — albo że jest w porządku.
+
+Uwagi zbiera: **mbatorowicz@gmail.com**.
