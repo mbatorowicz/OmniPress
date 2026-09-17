@@ -51,6 +51,7 @@
     "verify:auth-mfa": "node scripts/verify-mfa-enabled.mjs",
     "env:pull": "vercel env pull .env.local --yes",
     "version": "node -e \"import('./scripts/lib/git-info.mjs').then(m=>console.log(m.getVersionLabel()))\"",
+    "migrate:sp-miedzna": "node scripts/migrate-wp-sp-miedzna.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",

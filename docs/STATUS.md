@@ -3,8 +3,9 @@
 **SSOT:** co jest zbudowane w wersji **0.15.0** (kod + baza + panel).
 
 Produkcja panelu: https://omni-press.cncsolutions.dev  
-Produkcja strony: https://gmina-miedzna.pl (cutover 2026-09-16) — gałąź `main` + publikacje OmniPress  
-Staging strony: https://gmina-miedzna.cncsolutions.dev — gałąź `staging` (kod; weryfikacja przed PR do `main`)
+Produkcja UG: https://gmina-miedzna.pl (cutover 2026-09-16) — gałąź `main` + publikacje OmniPress  
+Staging UG: https://gmina-miedzna.cncsolutions.dev — gałąź `staging`  
+Staging SP: https://sp-miedzna.cncsolutions.dev — gałąź `staging` (WordPress `sp-miedzna.pl` zostaje produkcją do cutoveru DNS)
 
 **Audyt migracji:** podejścia 1–18 zamknięte (2026-09-03). Szczegóły: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md).
 
@@ -263,4 +264,5 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 - [ADMIN.md](./ADMIN.md) — jak używać panelu admina
 - [REDAKTOR.md](./REDAKTOR.md) — jak używać panelu redaktora
 - [WDROZENIE.md](./WDROZENIE.md) — bootstrap techniczny
+- [PLAN-SP-MIEDZNA.md](./PLAN-SP-MIEDZNA.md) — destynacja SP Miedzna: repo, szablon, migracja WP, staging `sp-miedzna.cncsolutions.dev` (DNS poza zakresem)
 - [../PRD.md](../PRD.md) — opis produktu (skrót)

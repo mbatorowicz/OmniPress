@@ -31,6 +31,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | [ROLE_AGENT.md](./ROLE_AGENT.md) | Proces agenta AI |
 | [PLAN-POWIADOMIENIA.md](./PLAN-POWIADOMIENIA.md) | Plan: Telegram + odznaka przy wpisie do akceptacji |
 | [PLAN-DOSTEPNOSC.md](./PLAN-DOSTEPNOSC.md) | Plan naprawy WCAG 2.1 AA — strona (repo B) i panel (repo A); D-1–D-22, deklaracja w pełni zgodna |
+| [PLAN-SP-MIEDZNA.md](./PLAN-SP-MIEDZNA.md) | Plan: destynacja SP Miedzna (`sp-miedzna.pl`) — repo, szablon szkolny, migracja WP |
 | [../CHANGELOG.md](../CHANGELOG.md) | Historia wydań |
 | [../README.md](../README.md) | Wejście do repo |
 

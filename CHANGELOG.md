@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Dodane
+
+- **Destynacja SP Miedzna.** Druga jednostka w panelu (slug `sp-miedzna`): repo `mbatorowicz/sp-miedzna.pl`, szablon szkolny, migracja WP, staging `sp-miedzna.cncsolutions.dev`. DNS `sp-miedzna.pl` poza zakresem. Plan: [PLAN-SP-MIEDZNA.md](docs/PLAN-SP-MIEDZNA.md).
+
 ### Zmienione
 
 - **Strona gminy: kod na `staging`.** Repo `gmina-miedzna.pl` — prace kodowe na `staging` (weryfikacja `gmina-miedzna.cncsolutions.dev`). `main` zostaje produkcją i kanałem publikacji OmniPress. Szczegóły: [WDROZENIE.md](docs/WDROZENIE.md).
