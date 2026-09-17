@@ -47,12 +47,12 @@ Szkoła: ten sam chrome (topbar, header, menu, karty, sidebar), inna paleta.
 
 | Token | Propozycja |
 |-------|------------|
-| Primary | `#0f7a4b` |
-| Primary light / dark | `#1a9a62` / `#0a5233` |
+| Primary | `#2a5f47` (stonowana zieleń; było `#0f7a4b`) |
+| Primary light / dark | `#3d7358` / `#1a3d2e` |
 | Secondary (słońce) | `#f5c518` |
 | Accent (niebo) | `#2b9ed6` |
 | Chip roku | `#e85d4c` |
-| Tło | `#f7fbf8` |
+| Tło | `#f6f8f7` |
 
 Menu robocze (z stron WP, posprzątane):
 
