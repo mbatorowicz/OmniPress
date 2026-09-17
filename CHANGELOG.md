@@ -7,6 +7,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Zmienione
 
+- **Deklaracja i komunikat po badaniu WCAG 17.09.2026.** Podejście 10 w [PLAN-DOSTEPNOSC.md](docs/PLAN-DOSTEPNOSC.md): skany A4 z OCR, badanie axe na stagingu. Status nadal „częściowo zgodna” (mapy, brak PDF/UA).
+
+### Zmienione
+
 - **Cutover `gmina-miedzna.pl`.** Apex wskazuje Vercel, `www` schodzi 308 na apex, poczta i wildcard zostają na Progreso. Panel bez zmiany adresu. Szczegóły: [WDROZENIE.md](docs/WDROZENIE.md).
 
 - **Kategorie poza menu idą do zakładki Gmina.** Publikacja layoutu i checkbox „dodaj do menu” dopisują brakujące archiwa pod Gminę, zamiast nowych pozycji na poziomie 1.

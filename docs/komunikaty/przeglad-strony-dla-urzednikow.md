@@ -20,7 +20,7 @@ Pod adresem gminy nie ma już panelu logowania ani oprogramowania wymagającego 
 
 W prawej kolumnie automatycznie wyświetlane są ostrzeżenia **IMGW** (burza, upał, mróz) oraz komunikaty **CERT Polska** o próbach wyłudzeń — fałszywych wiadomościach e-mail, SMS-ach i stronach podszywających się pod urząd, bank albo e-Doręczenia. Urząd nie musi ich wprowadzać ręcznie.
 
-W górnej części strony dostępne są ustawienia kontrastu i wielkości pisma. Opublikowano [deklarację dostępności](https://gmina-miedzna.pl/gmina/deklaracja-dostepnosci). Obecny status to „częściowo zgodna”, ze względu na starsze dokumenty PDF i skany oraz brak jeszcze niezależnego badania.
+W górnej części strony dostępne są ustawienia kontrastu i wielkości pisma. Opublikowano [deklarację dostępności](https://gmina-miedzna.pl/gmina/deklaracja-dostepnosci). Status to „częściowo zgodna”: treść HTML spełnia WCAG 2.1 AA w badaniu z 17 września 2026 r.; ograniczenia dotyczą dużych map planu ogólnego i części formularzy PDF bez pełnej struktury tagów.
 
 Proszę o:
 

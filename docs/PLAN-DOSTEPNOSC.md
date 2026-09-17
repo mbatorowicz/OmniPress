@@ -18,8 +18,9 @@ Każde **podejście** jest samodzielne: jeden zakres, weryfikacja, commit (w B: 
 | 7 | Panel: szkielet a11y (skip, main, edytor) | A | niskie | 8 | ✅ |
 | 8 | Deklaracja dostępności + ponowny skan | A+B | zerowe | — | ✅ |
 | 9 | Strona: HC żółto-czarny — reszta tekstu i swatche | B | niskie | — | ✅ |
+| 10 | PDF OCR + audyt WCAG (axe, klawiatura, HC, mobile) | B | niskie | — | ✅ |
 
-Poza zakresem tego planu: zewnętrzny audyt WCAG, dostępność archiwalnych PDF/skanów (zostaje w deklaracji), DNS cutover.
+Poza zakresem tego planu: certyfikat PDF/UA / PAC 2024 dla wszystkich formularzy, DNS cutover (wykonany 2026-09-16).
 
 ---
 
@@ -199,7 +200,7 @@ Część alarmów axe `color-contrast` na homepage w HC była prawdziwa (D-20), 
 
 **Weryfikacja:** zero P1; P2 albo naprawione, albo jawne w deklaracji. `npm test` + `npm run build` w A i B.
 
-**Stan 2026-09-16:** D-1–D-19 naprawione w kodzie. Deklaracja nadal „częściowo zgodna” (PDF archiwalne + brak zewnętrznego audytu). Staging: 404 po polsku, HC kategorie/fokus żółte, `h1` na homepage, skip-link z fokusem, przyciski WCAG ≥ 24 px, `html` 16 px, jeden `banner`.
+**Stan 2026-09-17:** D-1–D-22 naprawione. Badanie WCAG 2.1 AA na stagingu (axe-core 4.10): 0 naruszeń na home, deklaracji, kontakcie, drukach, harmonogramie, aktualnościach, 404, motywie HC i mobile 390 px. Skip-link przenosi fokus do `#main-content`. 143 PDF-y: język `pl-PL` i tytuł; skany A4 z warstwą OCR. Pozostaje „częściowo zgodna” (mapy planu ogólnego, brak pełnych tagów PDF/UA).
 
 **Commit:** B (treść deklaracji); A tylko jeśli zmienia się ten plan.
 
@@ -220,6 +221,23 @@ Część alarmów axe `color-contrast` na homepage w HC była prawdziwa (D-20), 
 **Weryfikacja:** oba kółka kontrastu różne; „Zobacz starsze”, ogłoszenia, CERT widoczne. `npm test` + `npm run build` w B.
 
 **Commit:** B (+ ten plan w A).
+
+---
+
+## Podejście 10 — PDF OCR + badanie WCAG (2026-09-17)
+
+**Cel:** zdjąć z deklaracji dwa dawne ograniczenia (ślepe skany A4 i brak badania poza samooceną). Status zostaje „częściowo zgodna” przez mapy i brak PDF/UA.
+
+**Kroki**
+
+1. Inwentaryzacja 143 PDF-ów: 17 skanów (22 strony A4 + mapy QGIS), 124 z tekstem.
+2. OCR Tesseract `pol` na skanach A4 (pominięte płótna > 2000 pt — mapy planu ogólnego). Język `pl-PL` i tytuł na wszystkich.
+3. Opis słowny map w artykułach konsultacji / opiniowania (uzasadnienie i prognoza obok).
+4. Badanie staging `gmina-miedzna.cncsolutions.dev`: axe-core 4.10 (WCAG 2.1 A/AA + wybrane 2.2), klawiatura (skip), HC, mobile 390 px.
+
+**Wynik HTML:** 0 naruszeń axe na home, deklaracji, kontakcie, drukach, harmonogramie, aktualnościach, 404, motywie HC i mobile. Skip-link → `#main-content`. Przyciski WCAG ≥ 24 px, `html` 16 px, jeden `banner`, kategorie w HC żółte.
+
+**Commit:** B (PDF + deklaracja); A (ten plan, STATUS, komunikat).
 
 ---
 
