@@ -8,6 +8,7 @@ export const adminLayoutOptions = {
 		'home.pinned': 'Strona główna — przypięte',
 		'home.latest': 'Strona główna — najnowsze',
 		'sidebar.weather': 'Sidebar — ostrzeżenia meteorologiczne (IMGW)',
+		'sidebar.waste_reminders': 'Sidebar — odbiór odpadów',
 		'sidebar.recent_changes': 'Sidebar — ostatnie zmiany',
 		'sidebar.cert_advisories': 'Sidebar — komunikaty CERT',
 		'sidebar.banner': 'Sidebar — baner',
@@ -16,7 +17,7 @@ export const adminLayoutOptions = {
 	sectionTitles: {
 		home_feed: 'Feedy strony głównej',
 		recent_changes: 'Ostatnie zmiany (sidebar)',
-		live_feed: 'Widgety na żywo (CERT / IMGW)',
+		live_feed: 'Widgety na żywo (CERT / IMGW / odpady)',
 		banner: 'Banery (sidebar)',
 	},
 	navDepthLabels: ['Poziom 0', 'Poziom 1', 'Poziom 2'] as const,

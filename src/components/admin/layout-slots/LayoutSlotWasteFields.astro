@@ -1,0 +1,36 @@
+---
+import { adminLayout } from '@/i18n';
+import Label from '@/components/ui/form/Label.astro';
+import Input from '@/components/ui/form/Input.astro';
+import { slotFormFields } from '@/lib/astro-layout/slot-form-fields';
+import type { DisplaySlot } from '@/lib/astro-layout/types';
+
+interface Props {
+	formId: string;
+	slot: DisplaySlot;
+}
+
+const { formId, slot } = Astro.props;
+const w = slot.widget ?? {};
+const { fields, variants } = adminLayout;
+---
+
+<Label>
+	<span class="font-medium">{fields.widgetTitle}</span>
+	<Input form={formId} name={slotFormFields.waste.title(slot.id)} value={w.title ?? ''} />
+</Label>
+<label class="ui-label-inline flex items-center gap-2 sm:col-span-2">
+	<input form={formId} type="checkbox" name={slotFormFields.hideWhenEmpty(slot.id)} checked={w.hideWhenEmpty === true} />
+	<span class="font-medium">{fields.widgetHideWhenEmpty}</span>
+</label>
+<Label>
+	<span class="font-medium">{fields.widgetVariant}</span>
+	<select form={formId} name={slotFormFields.waste.variant(slot.id)} class="ui-select-compact w-full">
+		<option value="default" selected={w.variant !== 'alert'}>{variants.default}</option>
+		<option value="alert" selected={w.variant === 'alert'}>{variants.alert}</option>
+	</select>
+</Label>
+<Label>
+	<span class="font-medium">{fields.widgetMoreLink}</span>
+	<Input form={formId} name={slotFormFields.waste.moreLink(slot.id)} value={w.moreLink ?? ''} class="font-mono" />
+</Label>

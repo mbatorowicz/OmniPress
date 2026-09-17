@@ -121,6 +121,24 @@ export function buildWeatherDetailHtml(
 		${panelCloseHtml()}`;
 }
 
+export function buildWasteDetailHtml(
+	id: string,
+	label: string,
+	component: string,
+	config: SectionBuildConfig,
+): string {
+	const f = slotFieldNames.waste;
+	const l = config.fieldLabels;
+	return `
+		${panelOpenHtml(id, component)}
+			${slotPanelHeaderHtml(id, label, component, config)}
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetTitle}</span><input${fa(config)} name="${f.title(id)}" class="ui-input-compact w-full" /></label>
+			<label class="ui-label-inline flex items-center gap-2"><input type="checkbox"${fa(config)} name="${slotFieldNames.hideWhenEmpty(id)}" /><span class="font-medium">${l.widgetHideWhenEmpty}</span></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetVariant}</span><select${fa(config)} name="${f.variant(id)}" class="ui-select-compact w-full"><option value="default">${config.variantDefault}</option><option value="alert">${config.variantAlert}</option></select></label>
+			<label class="ui-label-inline"><span class="font-medium">${l.widgetMoreLink}</span><input${fa(config)} name="${f.moreLink(id)}" class="ui-input-compact ui-input-compact--mono w-full" /></label>
+		${panelCloseHtml()}`;
+}
+
 export function buildLiveFeedDetailHtml(
 	id: string,
 	label: string,
@@ -129,6 +147,9 @@ export function buildLiveFeedDetailHtml(
 ): string {
 	if (component === 'sidebar.cert_advisories') {
 		return buildCertDetailHtml(id, label, component, config);
+	}
+	if (component === 'sidebar.waste_reminders') {
+		return buildWasteDetailHtml(id, label, component, config);
 	}
 	return buildWeatherDetailHtml(id, label, component, config);
 }

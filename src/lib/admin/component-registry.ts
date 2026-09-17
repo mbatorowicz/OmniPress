@@ -55,6 +55,7 @@ export const COMPONENT_ADD_TEMPLATES: Record<ComponentAddTemplateId, ComponentAd
 
 export const SPECIAL_COMPONENT_OPTIONS = [
 	{ component: 'sidebar.weather' as const, registryGroup: 'special' as const },
+	{ component: 'sidebar.waste_reminders' as const, registryGroup: 'special' as const },
 	{ component: 'sidebar.cert_advisories' as const, registryGroup: 'special' as const },
 	{ component: 'sidebar.recent_changes' as const, registryGroup: 'special' as const },
 ];

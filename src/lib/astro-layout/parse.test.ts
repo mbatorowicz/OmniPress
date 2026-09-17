@@ -291,6 +291,30 @@ describe('parseLayoutFromFormData', () => {
 		expect(weather?.widget?.detailsCloseLabel).toBe('Zamknij okno');
 	});
 
+	it('parsuje ustawienia widgetu odbioru odpadów z formularza', () => {
+		const form = new FormData();
+		form.set('navigation_json', '[{"label":"Kontakt","href":"/kontakt"}]');
+		form.append('category_slug', 'gospodarka-odpadami');
+		form.append('category_name', 'Gospodarka odpadami');
+		form.append('slot_id', 'sidebar_waste');
+		form.append('slot_label', 'Odbiór odpadów');
+		form.append('slot_component', 'sidebar.waste_reminders');
+		form.set('slot_enabled_sidebar_waste', 'on');
+		form.append('slot_waste_title__sidebar_waste', 'Odbiór odpadów');
+		form.append('slot_waste_variant__sidebar_waste', 'alert');
+		form.append('slot_waste_more_link__sidebar_waste', '/gospodarka-odpadami/harmonogram');
+		form.set('slot_hide_when_empty_sidebar_waste', 'on');
+
+		const result = parseLayoutFromFormData(form, base);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		const waste = result.layout.slots.find((s) => s.component === 'sidebar.waste_reminders');
+		expect(waste?.widget?.title).toBe('Odbiór odpadów');
+		expect(waste?.widget?.variant).toBe('alert');
+		expect(waste?.widget?.moreLink).toBe('/gospodarka-odpadami/harmonogram');
+		expect(waste?.widget?.hideWhenEmpty).toBe(true);
+	});
+
 	it('parsuje tileHeight z formularza home feed', () => {
 		const form = new FormData();
 		form.set('navigation_json', '[{"label":"Kontakt","href":"/kontakt"}]');

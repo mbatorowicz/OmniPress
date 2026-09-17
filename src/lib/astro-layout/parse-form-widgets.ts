@@ -125,6 +125,16 @@ function parseWeatherWidget(form: FormData, id: string, widget: SlotWidgetConfig
 	if (detailsCloseLabel) widget.detailsCloseLabel = detailsCloseLabel;
 }
 
+function parseWasteWidget(form: FormData, id: string, widget: SlotWidgetConfig): void {
+	const title = strField(form, slotFormFields.waste.title(id));
+	if (title) widget.title = title;
+	if (form.get(slotFormFields.hideWhenEmpty(id)) === 'on') widget.hideWhenEmpty = true;
+	const variant = strField(form, slotFormFields.waste.variant(id));
+	if (variant === 'alert' || variant === 'default') widget.variant = variant;
+	const moreLink = strField(form, slotFormFields.waste.moreLink(id));
+	if (moreLink) widget.moreLink = moreLink;
+}
+
 export function parseLiveFeedWidget(
 	form: FormData,
 	id: string,
@@ -133,6 +143,7 @@ export function parseLiveFeedWidget(
 ): void {
 	if (component === 'sidebar.cert_advisories') parseCertWidget(form, id, widget);
 	else if (component === 'sidebar.weather') parseWeatherWidget(form, id, widget);
+	else if (component === 'sidebar.waste_reminders') parseWasteWidget(form, id, widget);
 }
 
 export function parseBannerWidget(form: FormData, id: string, widget: SlotWidgetConfig): void {

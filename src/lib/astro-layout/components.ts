@@ -48,6 +48,10 @@ function zoneOnly(zone: LayoutZone): readonly LayoutZone[] {
 	return [zone];
 }
 
+function liveSidebar(zones: readonly LayoutZone[]): LayoutComponentDef {
+	return { kind: 'live_feed', defaultZone: 'sidebar', allowedZones: zones, singleton: true, categoryFeed: false };
+}
+
 export const LAYOUT_COMPONENTS = {
 	'site.meta': {
 		kind: 'chrome',
@@ -91,20 +95,9 @@ export const LAYOUT_COMPONENTS = {
 		singleton: false,
 		categoryFeed: true,
 	},
-	'sidebar.weather': {
-		kind: 'live_feed',
-		defaultZone: 'sidebar',
-		allowedZones: ['sidebar', 'footer'],
-		singleton: true,
-		categoryFeed: false,
-	},
-	'sidebar.cert_advisories': {
-		kind: 'live_feed',
-		defaultZone: 'sidebar',
-		allowedZones: ['sidebar', 'footer'],
-		singleton: true,
-		categoryFeed: false,
-	},
+	'sidebar.weather': liveSidebar(['sidebar', 'footer']),
+	'sidebar.waste_reminders': liveSidebar(zoneOnly('sidebar')),
+	'sidebar.cert_advisories': liveSidebar(['sidebar', 'footer']),
 	'sidebar.recent_changes': {
 		kind: 'local_feed',
 		defaultZone: 'sidebar',

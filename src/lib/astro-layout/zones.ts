@@ -82,6 +82,7 @@ const COMPONENT_ID_SUFFIX: Partial<Record<LayoutComponentId, string>> = {
 	'home.pinned': 'pinned',
 	'home.latest': 'latest',
 	'sidebar.weather': 'weather',
+	'sidebar.waste_reminders': 'waste',
 	'sidebar.cert_advisories': 'cert',
 	'sidebar.recent_changes': 'recent_changes',
 	'sidebar.banner': 'banner',

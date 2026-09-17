@@ -18,7 +18,7 @@ const layoutText = {
 	componentsLead:
 		'Spis komponentów wg typu — specjalne widgety, feedy kategorii, linki i banery. Przy dodawaniu wybierz szablon i strefę wyświetlania (strona główna, sidebar lub stopka).',
 	registryGroupSpecial: 'Komponenty specjalne',
-	registryGroupSpecialDesc: 'Widgety na żywo i lokalne — ostrzeżenia IMGW, CERT oraz ostatnie zmiany na stronie.',
+	registryGroupSpecialDesc: 'Widgety na żywo i lokalne — ostrzeżenia IMGW, odbiór odpadów, CERT oraz ostatnie zmiany na stronie.',
 	registryGroupCategories: 'Komponenty kategorii',
 	registryGroupCategoriesDesc: 'Sekcje wpisów przypisane do kategorii — przypięte lub najnowsze.',
 	registryGroupLinks: 'Komponenty linków',
@@ -32,6 +32,7 @@ const layoutText = {
 	addTemplateStaticPage: 'Strona statyczna',
 	addTemplateBanner: 'Baner',
 	addSpecialWeather: '+ Ostrzeżenia IMGW',
+	addSpecialWaste: '+ Odbiór odpadów',
 	addSpecialCert: '+ Komunikaty CERT',
 	addSpecialRecentChanges: '+ Ostatnie zmiany',
 	addDialogTitle: 'Dodaj komponent',
@@ -57,7 +58,7 @@ const layoutText = {
 	recentChangesHint:
 		'Widget w sidebarze pokazuje ogłoszenia dodane w OmniPress (ta zakładka) oraz wpisy z publikacji.',
 	slotsOrderHint:
-		'Kolejność (order) dotyczy wszystkich komponentów sidebar.* — banery, ostrzeżenia meteo, CERT i ostatnie zmiany sortują się wspólnie. Możesz też zmieniać kolejność strzałkami w podglądzie szablonu.',
+		'Kolejność (order) dotyczy wszystkich komponentów sidebar.* — banery, ostrzeżenia meteo, odbiór odpadów, CERT i ostatnie zmiany sortują się wspólnie. Możesz też zmieniać kolejność strzałkami w podglądzie szablonu.',
 	slotsPreviewTitle: 'Podgląd szablonu',
 	slotsPreviewHint:
 		'Schemat układu strony — strefa główna i sidebar. Kliknij kartę, aby przejść do konfiguracji slotu poniżej.',
@@ -150,6 +151,8 @@ const layoutText = {
 		'Komunikaty CERT Polska (RSS) — widget na stronie woła /api/cert/advisories, cache ~15 min, bez commita do GitHub.',
 	weatherHint:
 		'Ostrzeżenia IMGW (meteo.imgw.pl) dla powiatu przypisanego do strony. Widget woła /api/weather/warnings — dane na żywo, cache ~15 min.',
+	wasteRemindersHint:
+		'Przypomnienia o odbiorze odpadów z harmonogramu na stronie. Na żywo: 2 dni wcześniej; na czas oględzin widget zostaje widoczny z najbliższym terminem.',
 	weatherMapHint:
 		'Lat/lon i zoom są opcjonalne — mapa na stronie dopasowuje widok do zasięgu ostrzeżenia. Dodatkowe powiaty służą tylko jako kontekst (szare obramowanie).',
 	weatherDetailsHint:

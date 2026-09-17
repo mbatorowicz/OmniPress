@@ -55,6 +55,11 @@ export const slotFormFields = {
 		detailsSummary: (slotId: string) => field('slot_weather_details_summary', slotId),
 		detailsCloseLabel: (slotId: string) => field('slot_weather_details_close_label', slotId),
 	},
+	waste: {
+		title: (slotId: string) => field('slot_waste_title', slotId),
+		variant: (slotId: string) => field('slot_waste_variant', slotId),
+		moreLink: (slotId: string) => field('slot_waste_more_link', slotId),
+	},
 	topbar: {
 		text: (slotId: string) => field('slot_topbar_text', slotId),
 		accessibilityTools: (slotId: string) => field('slot_topbar_accessibility_tools', slotId),

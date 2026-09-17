@@ -78,6 +78,7 @@ describe('getAvailableSpecialComponents', () => {
 		]);
 		expect(available.map((option) => option.component)).not.toContain('sidebar.weather');
 		expect(available.map((option) => option.component)).toContain('sidebar.cert_advisories');
+		expect(available.map((option) => option.component)).toContain('sidebar.waste_reminders');
 	});
 });
 

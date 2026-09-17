@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Dodane
+
+- **Widget odbioru odpadów w layoutcie.** Nowy singleton `sidebar.waste_reminders` (tytuł, wariant, link do harmonogramu, ukryj gdy pusto). Strona gminy renderuje przypomnienia z kalendarza odpadów.
+
 ### Zmienione
 
 - **Deklaracja dostępności: w pełni zgodna.** Podejście 11 w [PLAN-DOSTEPNOSC.md](docs/PLAN-DOSTEPNOSC.md): tekstowy harmonogram, mapy i archiwalne PDF-y jako wyłączenia z art. 3 ustawy. HTML: 0 naruszeń axe 2.1 AA.
