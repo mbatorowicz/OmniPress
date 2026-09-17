@@ -45,6 +45,15 @@ p {
   margin: 0.42rem 0;
 }
 
+ol {
+  margin: 0.5rem 0 0.5rem 1.25rem;
+  padding: 0;
+}
+
+ol li {
+  margin: 0.2rem 0;
+}
+
 a {
   color: #2b6cb0;
   text-decoration: none;

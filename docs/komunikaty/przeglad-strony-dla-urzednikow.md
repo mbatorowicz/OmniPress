@@ -4,30 +4,32 @@ Przegląd dla Urzędu · [gmina-miedzna.pl](https://gmina-miedzna.pl) · uwagi: 
 
 ## Geneza
 
-Pięć miesięcy — od kwietnia do września 2026. Osiemset pięć wersji strony i panelu. Tyle razy wracaliśmy do tekstu, wyglądu i bezpieczeństwa, zanim 16 września adres **gmina-miedzna.pl** zaczął prowadzić tutaj, a nie do WordPressa.
+Od kwietnia do września 2026 — pięć miesięcy pracy i 805 wersji strony i panelu. 16 września adres **gmina-miedzna.pl** zaczął prowadzić do nowej strony. WordPress pod tym adresem już nie działa. Poczta urzędu i BIP bez zmian.
 
-Mieszkańcy wchodzą tam, gdzie zawsze. Zmieniła się strona, nie adres. Poczta urzędu i BIP zostały. Ze starej strony przyszły artykuły, strony stałe, menu i banery: dziś około 98 artykułów i 38 stron (władze, odpady, szkoła, druki).
+Ze starej strony przyszły artykuły, strony stałe, menu i banery. Dziś jest ok. 98 artykułów i 38 stron (władze, odpady, szkoła, druki).
 
-To nie szablon z katalogu. Razem ze stroną powstał panel: redaktor pisze szkic, ktoś akceptuje, dopiero wtedy tekst widzą mieszkańcy.
+Przy stronie jest panel. Redaktor pisze szkic, ktoś akceptuje, dopiero wtedy tekst widzą mieszkańcy.
 
 ## Wstęp
 
-Treść jest tak aktualna, jak była w dniu przeniesienia. Czy telefon się zgadza i czy baner z 2019 roku nadal potrzebny — wie urząd, nie strona. Prosimy spojrzeć na **swoją** działkę. Nie na całą gminę. Nie trzeba znać się na komputerach.
+Treści są takie, jakie były w dniu przeniesienia. Czy telefon się zgadza i czy baner z 2019 roku nadal jest potrzebny — to wie urząd, nie strona.
+
+Proszę spojrzeć na **swoją** działkę. Nie na całą gminę. Nie trzeba znać się na komputerach.
 
 ## Rozwinięcie
 
-Nowa strona stoi na **Astro**, nie na WordPressie. Dla urzędu i mieszkańców znaczy to trzy rzeczy.
+Na adresie gminy nie ma już panelu do logowania ani wtyczek, które trzeba łatać co tydzień. Artykuł nie wychodzi, dopóki ktoś go nie zatwierdzi. Po zatwierdzeniu jest na stronie zwykle w ciągu **minuty**.
 
-Po pierwsze **bezpieczeństwo**. Na adresie gminy nie ma już panelu do logowania ani wtyczek, które trzeba łatać co tydzień. Artykuł nie wychodzi, dopóki ktoś go nie zatwierdzi. Po zatwierdzeniu jest na stronie zwykle w ciągu **minuty** — przerwa w wodzie nie czeka, aż „ktoś wejdzie w WordPressa”.
+Z prawej same wchodzą ostrzeżenia **IMGW** (burza, upał, mróz) oraz komunikaty **CERT Polska** — fałszywe maile, SMS-y i strony, które podszywają się pod urząd, bank albo e-Doręczenia. Nikt w urzędzie nie musi tego wklejać.
 
-Po drugie **ostrzeżenia, które wchodzą same**. Z prawej: **IMGW** (burza, upał, mróz) oraz **CERT Polska** — fałszywe maile, SMS-y i strony, które podszywają się pod urząd, bank albo e-Doręczenia. Taki komunikat może uchronić przed oszustwem. Nikt w urzędzie nie musi go wklejać.
+Na górze jest kontrast i wielkość liter. Na stronie jest [deklaracja dostępności](https://gmina-miedzna.pl/gmina/deklaracja-dostepnosci). Dziś status „częściowo zgodna”: stare pliki PDF i skany oraz brak jeszcze zewnętrznego badania.
 
-Po trzecie **dostępność**. **WCAG** to międzynarodowe zasady, jak robić strony także dla osób słabowidzących, niewidomych i tych, którzy obsługują komputer klawiaturą. W Polsce urzędy obowiązuje ustawa z 2019 r. Zrobiliśmy przegląd według wymaganego poziomu (WCAG 2.1 AA). Na górze jest kontrast i wielkość liter, na stronie — [deklaracja dostępności](https://gmina-miedzna.pl/gmina/deklaracja-dostepnosci). Dziś status „częściowo zgodna”: stare PDF-y i skany oraz brak jeszcze zewnętrznego badania.
+1. Wejdź na [gmina-miedzna.pl](https://gmina-miedzna.pl).
+2. Obejrzyj swoje menu, [Kontakt](https://gmina-miedzna.pl/kontakt) (telefony, godziny, ePUAP, konta, NIP-y) i pasek z prawej — które banery zostają.
+3. Napisz do mnie na **mbatorowicz@gmail.com**: link, co jest, jak powinno. Kilka spraw w jednym mailu. Jeśli jest dobrze — też jedno zdanie.
 
-Wejdź na [gmina-miedzna.pl](https://gmina-miedzna.pl). Swoje menu, [Kontakt](https://gmina-miedzna.pl/kontakt) (telefony, godziny, ePUAP, konta, NIP-y), pasek z prawej — które banery zostają. Jeden mail na **mbatorowicz@gmail.com**: link, co jest, jak powinno. Kilka spraw razem. Jeśli jest dobrze — też zdanie.
-
-Strony stałe i menu zmienia administrator, na wniosek. Panel: [omni-press.cncsolutions.dev](https://omni-press.cncsolutions.dev) (konto zakłada administrator).
+Strony stałe i menu zmienia administrator, na wniosek. Panel: [omni-press.cncsolutions.dev](https://omni-press.cncsolutions.dev). Konto zakłada administrator.
 
 ## Zakończenie
 
-Mieszkańcy już tam są. Pięć miesięcy i 805 wersji po to, żeby strona mówiła to, co urząd chce powiedzieć. Prosimy sprawdzić, czy mówi.
+Mieszkańcy już korzystają z nowej strony. Proszę w najbliższych dniach sprawdzić swoją część i napisać do mnie, co poprawić.
