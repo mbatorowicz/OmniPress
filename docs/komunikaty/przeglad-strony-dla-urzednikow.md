@@ -4,32 +4,32 @@ Przegląd dla Urzędu · [gmina-miedzna.pl](https://gmina-miedzna.pl) · uwagi: 
 
 ## Geneza
 
-Od kwietnia do września 2026 — pięć miesięcy pracy i 805 wersji strony i panelu. 16 września adres **gmina-miedzna.pl** zaczął prowadzić do nowej strony. WordPress pod tym adresem już nie działa. Poczta urzędu i BIP bez zmian.
+Nowa strona powstawała od kwietnia do września 2026 roku. W tym czasie przygotowano 805 kolejnych wersji witryny i panelu redakcyjnego. 16 września adres **gmina-miedzna.pl** zaczął prowadzić do nowej strony. Dotychczasowy system (WordPress) pod tym adresem został wyłączony. Poczta urzędu i BIP działają bez zmian.
 
-Ze starej strony przyszły artykuły, strony stałe, menu i banery. Dziś jest ok. 98 artykułów i 38 stron (władze, odpady, szkoła, druki).
+Ze starej strony przeniesiono artykuły, strony stałe, menu oraz elementy prawej kolumny. Obecnie na stronie znajduje się około 98 artykułów i 38 stron stałych, m.in. władze gminy, gospodarka odpadami, szkoła i druki.
 
-Przy stronie jest panel. Redaktor pisze szkic, ktoś akceptuje, dopiero wtedy tekst widzą mieszkańcy.
+Równolegle ze stroną publiczną działa panel redakcyjny. Redaktor przygotowuje szkic; treść ukazuje się mieszkańcom dopiero po akceptacji.
 
 ## Wstęp
 
-Treści są takie, jakie były w dniu przeniesienia. Czy telefon się zgadza i czy baner z 2019 roku nadal jest potrzebny — to wie urząd, nie strona.
-
-Proszę spojrzeć na **swoją** działkę. Nie na całą gminę. Nie trzeba znać się na komputerach.
+Materiał przeniesiono w postaci, w jakiej znajdował się w dniu zmiany adresu. Ocenę aktualności i kompletności informacji może przeprowadzić wyłącznie urząd. Proszę o sprawdzenie tej części strony, która leży w Państwa zakresie obowiązków.
 
 ## Rozwinięcie
 
-Na adresie gminy nie ma już panelu do logowania ani wtyczek, które trzeba łatać co tydzień. Artykuł nie wychodzi, dopóki ktoś go nie zatwierdzi. Po zatwierdzeniu jest na stronie zwykle w ciągu **minuty**.
+Pod adresem gminy nie ma już panelu logowania ani oprogramowania wymagającego częstych aktualizacji. Artykuł nie jest publikowany, dopóki nie zostanie zatwierdzony. Po zatwierdzeniu pojawia się na stronie zwykle w ciągu minuty.
 
-Z prawej same wchodzą ostrzeżenia **IMGW** (burza, upał, mróz) oraz komunikaty **CERT Polska** — fałszywe maile, SMS-y i strony, które podszywają się pod urząd, bank albo e-Doręczenia. Nikt w urzędzie nie musi tego wklejać.
+W prawej kolumnie automatycznie wyświetlane są ostrzeżenia **IMGW** (burza, upał, mróz) oraz komunikaty **CERT Polska** o próbach wyłudzeń — fałszywych wiadomościach e-mail, SMS-ach i stronach podszywających się pod urząd, bank albo e-Doręczenia. Urząd nie musi ich wprowadzać ręcznie.
 
-Na górze jest kontrast i wielkość liter. Na stronie jest [deklaracja dostępności](https://gmina-miedzna.pl/gmina/deklaracja-dostepnosci). Dziś status „częściowo zgodna”: stare pliki PDF i skany oraz brak jeszcze zewnętrznego badania.
+W górnej części strony dostępne są ustawienia kontrastu i wielkości pisma. Opublikowano [deklarację dostępności](https://gmina-miedzna.pl/gmina/deklaracja-dostepnosci). Obecny status to „częściowo zgodna”, ze względu na starsze dokumenty PDF i skany oraz brak jeszcze niezależnego badania.
 
-1. Wejdź na [gmina-miedzna.pl](https://gmina-miedzna.pl).
-2. Obejrzyj swoje menu, [Kontakt](https://gmina-miedzna.pl/kontakt) (telefony, godziny, ePUAP, konta, NIP-y) i pasek z prawej — które banery zostają.
-3. Napisz do mnie na **mbatorowicz@gmail.com**: link, co jest, jak powinno. Kilka spraw w jednym mailu. Jeśli jest dobrze — też jedno zdanie.
+Proszę o:
 
-Strony stałe i menu zmienia administrator, na wniosek. Panel: [omni-press.cncsolutions.dev](https://omni-press.cncsolutions.dev). Konto zakłada administrator.
+1. otwarcie strony [gmina-miedzna.pl](https://gmina-miedzna.pl),
+2. sprawdzenie menu i stron, za które Państwo odpowiadają, w tym [Kontaktu](https://gmina-miedzna.pl/kontakt) oraz prawej kolumny,
+3. przesłanie uwag na adres **mbatorowicz@gmail.com** — odnośnik do strony, krótki opis stanu obecnego i oczekiwanej zmiany. Kilka spraw można ująć w jednej wiadomości. Jeżeli poprawki nie są potrzebne, wystarczy o tym poinformować.
+
+Zmiany stron stałych i menu wprowadza administrator, na wniosek urzędu. Panel redakcyjny: [omni-press.cncsolutions.dev](https://omni-press.cncsolutions.dev). Konta zakłada administrator.
 
 ## Zakończenie
 
-Mieszkańcy już korzystają z nowej strony. Proszę w najbliższych dniach sprawdzić swoją część i napisać do mnie, co poprawić.
+Strona jest już dostępna dla mieszkańców. Będę wdzięczny za uwagi w najbliższych dniach.
