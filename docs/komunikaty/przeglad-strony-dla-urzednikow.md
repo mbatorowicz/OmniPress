@@ -29,19 +29,46 @@ Prosimy o przegląd **swojej** części strony w najbliższych dniach. Nie trzeb
 
 ## Rozwinięcie
 
-### Co się zmieniło
+### Korzyści z nowego systemu
 
-| Dotychczas | Teraz |
-|------------|--------|
-| Redaktor mógł od razu pokazać tekst na stronie | Najpierw szkic, potem akceptacja, potem strona |
-| Częste aktualizacje systemu i dodatków | Mniej przerw związanych z aktualizacjami |
-| Strona wolno się otwierała, zwłaszcza na telefonie | Strona jest lżejsza |
-| Ostrzeżenia pogodowe i komunikaty o zagrożeniach — ręcznie albo wcale | Ostrzeżenia IMGW i komunikaty CERT pojawiają się same |
-| PDF tylko do pobrania | PDF można otworzyć w przeglądarce |
-| Kontrast i wielkość liter — jeśli działał dodatek | Pasek u góry: kontrast i wielkość liter. Deklaracja dostępności na stronie |
-| Trudno zobaczyć, co się ostatnio zmieniło | Krótka lista „co się zmieniło na stronie” |
+Adres i przeniesione treści zostały. Urząd zyskuje bezpieczniejsze publikowanie, szybsze wyjście komunikatu do mieszkańców, automatyczne ostrzeżenia i narzędzia dostępności wymagane ustawą.
 
-Adres strony i przeniesione treści zostały bez zmian. Zmienił się sposób publikowania.
+**Bezpieczeństwo**
+
+Strona dla mieszkańców nie ma już panelu WordPressa pod adresem gminy. Nie ma też wtyczek, które trzeba regularnie łatać i które bywają furtką do włamania. Logowanie jest tylko w osobnym panelu, z kontem nadawanym przez administratora.
+
+Artykuł nie ukazuje się publicznie, dopóki ktoś go nie zaakceptuje. Mniej pomyłek i mniejsze ryzyko, że na stronę trafi treść nieprzeznaczona dla mieszkańców.
+
+**Szybkość reakcji**
+
+Po akceptacji artykuł pojawia się na **gmina-miedzna.pl** zwykle w ciągu minuty. Komunikat o przerwie w wodzie, odwołaniu imprezy albo pilnym ogłoszeniu nie czeka na wolny termin przy starym systemie. Można też ustawić datę i godzinę publikacji — na przykład na rano, a nie wieczorem.
+
+**Astro zamiast WordPressa**
+
+Nowa strona jest zbudowana na **Astro**. To inny sposób robienia stron niż WordPress: strona dla mieszkańców jest lekka i osobna od panelu do pisania.
+
+| WordPress | Astro |
+|-----------|--------|
+| Wtyczki i częste aktualizacje; awaria albo dziura w dodatku potrafi zatrzymać całą stronę | Bez wtyczek. Mniej okazji do ataku i do tego, że „po aktualizacji nic nie działa” |
+| Przy każdym wejściu strona składa się z bazy — bywa wolna, zwłaszcza na telefonie | Gotowa, lżejsza strona. Szybciej się otwiera |
+| Panel do logowania pod tym samym adresem co strona gminy | Mieszkaniec widzi stronę. Redaktor pracuje w osobnym panelu |
+| Kto ma hasło, ten może od razu pokazać tekst mieszkańcom | Najpierw szkic, potem akceptacja, potem strona — zwykle w minutę |
+
+**CERT — ochrona przed oszustwem**
+
+W prawej kolumnie strony głównej są komunikaty **CERT Polska** (państwowy zespół ds. cyberbezpieczeństwa). Chodzi o fałszywe maile, SMS-y i strony, które podszywają się pod urząd, bank, e-Doręczenia albo „dopłatę do odpadów”. Mieszkaniec może tam sprawdzić, czy wezwanie do zapłaty to znane oszustwo. Komunikaty wchodzą same — nikt w urzędzie nie musi ich wklejać.
+
+**IMGW — ostrzeżenia pogodowe**
+
+Moduł **IMGW** pokazuje aktualne ostrzeżenia Instytutu Meteorologii i Gospodarki Wodnej dla gminy: burze, upał, mróz, silny wiatr. Też bez ręcznego wpisywania. Przy groźnej pogodzie mieszkaniec widzi to na stronie gminy.
+
+**Dostępność — WCAG**
+
+**WCAG** (Web Content Accessibility Guidelines) to międzynarodowe wytyczne, jak robić strony tak, żeby mogły z nich korzystać także osoby słabowidzące, niewidome, starsze albo obsługujące komputer samą klawiaturą. W Polsce strony urzędów obejmuje [ustawa z 4 kwietnia 2019 r. o dostępności cyfrowej](https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20190000848).
+
+16 września 2026 r. zrobiono wewnętrzny przegląd (audyt) nowej strony i panelu według WCAG 2.1 na poziomie AA — to poziom wymagany od urzędów. Na stronie jest pasek: kontrast i wielkość liter. Jest też [deklaracja dostępności](https://gmina-miedzna.pl/gmina/deklaracja-dostepnosci).
+
+Status dziś: **częściowo zgodna**. Powód: archiwalne PDF-y i skany ze starej strony oraz brak jeszcze badania przez zewnętrzny podmiot. To wymóg ustawy.
 
 ### Jak treść trafia na stronę
 
@@ -87,7 +114,7 @@ Kilka spraw w jednym mailu jest w porządku. Przy każdej: link, co jest, jak po
 Nie wszyscy oglądają wszystko.
 
 **Wszyscy (kilka minut)**  
-Strona główna, górne menu, strona [Kontakt](https://gmina-miedzna.pl/kontakt).
+Strona główna (w tym komunikaty CERT i ostrzeżenia IMGW z prawej), górne menu, strona [Kontakt](https://gmina-miedzna.pl/kontakt).
 
 **Kierownictwo**  
 [Wójt](https://gmina-miedzna.pl/gmina/wojt), [zastępca](https://gmina-miedzna.pl/gmina/zastepca-wojta), [sekretarz](https://gmina-miedzna.pl/gmina/sekretarz), [skarbnik](https://gmina-miedzna.pl/gmina/skarbnik), [rada i radni](https://gmina-miedzna.pl/gmina/radni-2024-2029), [struktura urzędu](https://gmina-miedzna.pl/gmina/struktura).
@@ -155,6 +182,6 @@ Odpowiedź może być krótka: „zostawić” / „usunąć” / „zmienić na
 
 ## Zakończenie
 
-Mieszkańcy korzystają już z **gmina-miedzna.pl**. Prosimy, żeby w najbliższych dniach spojrzeć na swoją część i napisać, co poprawić — albo że jest w porządku.
+Mieszkańcy korzystają już z **gmina-miedzna.pl**. Nowa strona jest szybsza, bezpieczniejsza w publikowaniu i pokazuje ostrzeżenia CERT oraz IMGW. Prosimy, żeby w najbliższych dniach spojrzeć na swoją część i napisać, co poprawić — albo że jest w porządku.
 
 Uwagi zbiera: **mbatorowicz@gmail.com**.
