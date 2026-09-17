@@ -1,6 +1,6 @@
 # Mail do pracowników — przegląd nowej strony
 
-Skopiuj temat i treść do skrzynki. Załącz plik `przeglad-strony-dla-urzednikow.md` (albo wklej go do Worda i wyślij jako PDF / DOCX).
+Skopiuj temat i treść do skrzynki. Załącz plik `przeglad-strony-dla-urzednikow.pdf`.
 
 ---
 
