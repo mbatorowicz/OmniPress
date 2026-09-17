@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Zmienione
+
+- **Strona gminy: kod na `staging`.** Repo `gmina-miedzna.pl` — prace kodowe na `staging` (weryfikacja `gmina-miedzna.cncsolutions.dev`). `main` zostaje produkcją i kanałem publikacji OmniPress. Szczegóły: [WDROZENIE.md](docs/WDROZENIE.md).
+
 ### Dodane
 
 - **Widget odbioru odpadów w layoutcie.** Nowy singleton `sidebar.waste_reminders` (tytuł, wariant, link do harmonogramu, ukryj gdy pusto). Strona gminy renderuje przypomnienia z kalendarza odpadów.

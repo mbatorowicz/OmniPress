@@ -29,13 +29,21 @@ Załączniki żyją **na liście `assets`, nie w treści wpisu** — linki (`[�
 
 **Czytnik w repo Astro** (od 2026-08-27 rozbity, `load-config.ts` to barrel): typy w `config/layout-types.ts`, odczyt pliku i strefy w `config/layout-payload.ts`, nazwane sloty w `config/layout-slots.ts`, kategorie w `config/categories.ts`. Zmiana pola JSON = zmiana w `layout-types.ts` + odpowiednim czytniku.
 
-## Stan repo B — źródłem prawdy jest `origin/main`
+## Stan repo B — treść na `origin/main`, kod na `staging`
 
-OmniPress publikuje przez GitHub API **prosto do origin**, z pominięciem kopii lokalnej. Lokalne `main` nigdy nie dogania się samo (w audycie było 14 commitów w tyle).
+OmniPress publikuje przez GitHub API **prosto do origin/`main`**, z pominięciem kopii lokalnej. `origin/main` zostaje SSOT **opublikowanej treści** (wpisy, strony, layout z panelu) i produkcji `gmina-miedzna.pl`.
 
-**Każda praca w repo B zaczyna się od `git pull`.** Analiza stanu strony bez pulla opisuje nieaktualną rzeczywistość.
+**Praca kodowa w repo B idzie na `staging`, nigdy push kodu na `origin/main`.** Start sesji:
 
-OmniPress przy otwarciu panelu **sam** reconciluje strony statyczne i wpisy z `origin/main` (oraz layout, jak dotychczas). `origin/main` zostaje SSOT opublikowanego. Omni nie pcha automatycznie. Publikacja strony odmawia nadpisania niepustego pliku pustką/placeholderem.
+```
+git fetch origin
+git checkout staging
+git merge origin/main
+```
+
+Konflikty w `src/content/**` rozstrzygać na korzyść `main` (to treść z panelu). Weryfikacja na `gmina-miedzna.cncsolutions.dev`. Promocja kodu: najpierw merge `origin/main` w `staging`, potem PR `staging` → `main`. Bez `vercel --prod`.
+
+OmniPress przy otwarciu panelu **sam** reconciluje strony statyczne i wpisy z `origin/main` (oraz layout, jak dotychczas). Omni nie pcha automatycznie. Publikacja strony odmawia nadpisania niepustego pliku pustką/placeholderem.
 
 **Załączniki stron** (od 0.15.0) żyją w `assets` (`page_id`) tak jak załączniki wpisów: lista w panelu, `display_mode` link/embed dla PDF, publikacja dokleja `[📄 …](./basename)` albo blok `op-pdf-viewer` i wgrywa binaria obok `src/content/pages/{prefix}/{slug}/index.md`. Import zdejmuje linki z treści (`stripPublishedAttachments`) i paruje pliki po basenamie `storage_path` (istniejące human-readable nazwy zostają). `public/page-files/` to nadal artefakt buildu Astro, nie SSOT. Publikacja kasuje z folderu strony tylko zarządzane typy (PDF/DOCX/GPKG/XLSX/ZIP) spoza listy assetów — innych plików w folderze nie rusza.
 

@@ -149,8 +149,8 @@ Sekrety: `.env.local`, `.admin-password.txt` — **nigdy** w commicie.
 3. **PM + docs:** po fazie → STATUS + CHANGELOG + ADMIN/WDROZENIE jeśli dotyczy.
 4. **DevSecOps:** auth / wdrożenie → [AUTH.md](./AUTH.md) / [WDROZENIE.md](./WDROZENIE.md).
 5. **QA:** test + build przed commitem.
-6. **DevSecOps:** po większej zmianie — auto commit + push (`main` → Vercel).
-7. Deploy produkcyjny — push na `main` wystarczy (Vercel); ręczny deploy tylko gdy użytkownik poprosi.
+6. **DevSecOps:** po większej zmianie w **OmniPress** — auto commit + push (`main` → Vercel panelu).
+7. Deploy produkcyjny **panelu** — push na `main` OmniPress wystarczy. **Repo strony** (`gmina-miedzna.pl`): kod na `staging` (weryfikacja `gmina-miedzna.cncsolutions.dev`), na `main` tylko PR po weryfikacji. Ręczny `vercel --prod` tylko gdy użytkownik poprosi.
 
 ## Dokumentacja
 

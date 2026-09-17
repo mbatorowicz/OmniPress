@@ -3,8 +3,8 @@
 **SSOT:** co jest zbudowane w wersji **0.15.0** (kod + baza + panel).
 
 Produkcja panelu: https://omni-press.cncsolutions.dev  
-Produkcja strony: https://gmina-miedzna.pl (cutover 2026-09-16)  
-Staging strony: https://gmina-miedzna.cncsolutions.dev
+Produkcja strony: https://gmina-miedzna.pl (cutover 2026-09-16) — gałąź `main` + publikacje OmniPress  
+Staging strony: https://gmina-miedzna.cncsolutions.dev — gałąź `staging` (kod; weryfikacja przed PR do `main`)
 
 **Audyt migracji:** podejścia 1–18 zamknięte (2026-09-03). Szczegóły: [AUDYT-WYKONANIE.md](./AUDYT-WYKONANIE.md).
 
