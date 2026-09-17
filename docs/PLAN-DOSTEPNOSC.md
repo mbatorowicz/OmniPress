@@ -19,8 +19,9 @@ Każde **podejście** jest samodzielne: jeden zakres, weryfikacja, commit (w B: 
 | 8 | Deklaracja dostępności + ponowny skan | A+B | zerowe | — | ✅ |
 | 9 | Strona: HC żółto-czarny — reszta tekstu i swatche | B | niskie | — | ✅ |
 | 10 | PDF OCR + audyt WCAG (axe, klawiatura, HC, mobile) | B | niskie | — | ✅ |
+| 11 | Harmonogram tekstowy + deklaracja w pełni zgodna | A+B | niskie | — | ✅ |
 
-Poza zakresem tego planu: certyfikat PDF/UA / PAC 2024 dla wszystkich formularzy, DNS cutover (wykonany 2026-09-16).
+Poza zakresem tego planu: certyfikat PDF/UA / PAC 2024 (nie jest warunkiem WCAG 2.1 AA ani „w pełni zgodna” w ustawie), DNS cutover (wykonany 2026-09-16).
 
 ---
 
@@ -200,7 +201,7 @@ Część alarmów axe `color-contrast` na homepage w HC była prawdziwa (D-20), 
 
 **Weryfikacja:** zero P1; P2 albo naprawione, albo jawne w deklaracji. `npm test` + `npm run build` w A i B.
 
-**Stan 2026-09-17:** D-1–D-22 naprawione. Badanie WCAG 2.1 AA na stagingu (axe-core 4.10): 0 naruszeń na home, deklaracji, kontakcie, drukach, harmonogramie, aktualnościach, 404, motywie HC i mobile 390 px. Skip-link przenosi fokus do `#main-content`. 143 PDF-y: język `pl-PL` i tytuł; skany A4 z warstwą OCR. Pozostaje „częściowo zgodna” (mapy planu ogólnego, brak pełnych tagów PDF/UA).
+**Stan 2026-09-17:** D-1–D-22 naprawione. Badanie WCAG 2.1 AA na stagingu (axe-core 4.10): 0 naruszeń na home, deklaracji, kontakcie, drukach, harmonogramie, aktualnościach, 404, motywie HC i mobile 390 px. Skip-link przenosi fokus do `#main-content`. 143 PDF-y: język `pl-PL` i tytuł; skany A4 z warstwą OCR. Harmonogram ma treść tekstową. Deklaracja: **w pełni zgodna** (mapy i archiwalne dokumenty — art. 3 ustawy).
 
 **Commit:** B (treść deklaracji); A tylko jeśli zmienia się ten plan.
 
@@ -238,6 +239,22 @@ Część alarmów axe `color-contrast` na homepage w HC była prawdziwa (D-20), 
 **Wynik HTML:** 0 naruszeń axe na home, deklaracji, kontakcie, drukach, harmonogramie, aktualnościach, 404, motywie HC i mobile. Skip-link → `#main-content`. Przyciski WCAG ≥ 24 px, `html` 16 px, jeden `banner`, kategorie w HC żółte.
 
 **Commit:** B (PDF + deklaracja); A (ten plan, STATUS, komunikat).
+
+---
+
+## Podejście 11 — harmonogram tekstowy + pełna zgodność (2026-09-17)
+
+**Cel:** zdjąć pozostałe pozycje z „treści niedostępne” i ustawić deklarację na **w pełni zgodna**, bez naciągania PDF/UA.
+
+**Kroki**
+
+1. Spisać z kalendarzy PGK 2026 terminy per rejon i rodzaj odpadu; wstawić na `/gospodarka-odpadami/harmonogram` jako treść HTML (PDF zostaje kopią graficzną).
+2. Mapy planu ogólnego: art. 3 ust. 2 pkt 3 (nie są mapami nawigacyjnymi); opis w uzasadnieniu i prognozie obok.
+3. Archiwalne analizy/recykling sprzed 23.09.2018: art. 3 ust. 2 pkt 1.
+4. Formularze PDF: warstwa tekstowa, język, tytuł — WCAG 2.1 AA nie wymaga certyfikatu PDF/UA / PAC.
+5. Deklaracja: status „w pełni zgodna”; sekcja wyłączeń ustawowych zamiast „treści niedostępne”.
+
+**Commit:** B (harmonogram, deklaracja, mapy); A (ten plan, STATUS, CHANGELOG, komunikat).
 
 ---
 

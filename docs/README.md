@@ -30,7 +30,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md) | S-1–S-4 zamknięte; B-1–B-8 |
 | [ROLE_AGENT.md](./ROLE_AGENT.md) | Proces agenta AI |
 | [PLAN-POWIADOMIENIA.md](./PLAN-POWIADOMIENIA.md) | Plan: Telegram + odznaka przy wpisie do akceptacji |
-| [PLAN-DOSTEPNOSC.md](./PLAN-DOSTEPNOSC.md) | Plan naprawy WCAG 2.1 AA — strona (repo B) i panel (repo A); D-1–D-19 |
+| [PLAN-DOSTEPNOSC.md](./PLAN-DOSTEPNOSC.md) | Plan naprawy WCAG 2.1 AA — strona (repo B) i panel (repo A); D-1–D-22, deklaracja w pełni zgodna |
 | [../CHANGELOG.md](../CHANGELOG.md) | Historia wydań |
 | [../README.md](../README.md) | Wejście do repo |
 

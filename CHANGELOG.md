@@ -7,7 +7,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Zmienione
 
-- **Deklaracja i komunikat po badaniu WCAG 17.09.2026.** Podejście 10 w [PLAN-DOSTEPNOSC.md](docs/PLAN-DOSTEPNOSC.md): skany A4 z OCR, badanie axe na stagingu. Status nadal „częściowo zgodna” (mapy, brak PDF/UA).
+- **Deklaracja dostępności: w pełni zgodna.** Podejście 11 w [PLAN-DOSTEPNOSC.md](docs/PLAN-DOSTEPNOSC.md): tekstowy harmonogram, mapy i archiwalne PDF-y jako wyłączenia z art. 3 ustawy. HTML: 0 naruszeń axe 2.1 AA.
 
 ### Zmienione
 
