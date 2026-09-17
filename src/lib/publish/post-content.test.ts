@@ -37,6 +37,10 @@ describe('stripImageMarkdown', () => {
 	it('usuwa tylko obrazki markdown', () => {
 		expect(stripImageMarkdown('A\n\n![x](y.jpg)\n\nB')).toBe('A\n\nB');
 	});
+
+	it('zdejmuje osierocony nagłówek galerii', () => {
+		expect(stripImageMarkdown('A\n\n### Galeria zdjęć:\n\n![x](y.jpg)')).toBe('A');
+	});
 });
 
 describe('markdownToPlainExcerpt', () => {

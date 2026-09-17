@@ -28,4 +28,10 @@ describe('markdownToSafeHtml', () => {
 		expect(html.match(/<p>/g)?.length).toBe(1);
 		expect(html).toContain('dzięki czemu');
 	});
+
+	it('zdejmuje osierocony nagłówek galerii z podglądu', () => {
+		const html = markdownToSafeHtml('Relacja z akcji.\n\n### Galeria zdjęć:\n');
+		expect(html).toContain('Relacja z akcji.');
+		expect(html).not.toContain('Galeria zdjęć');
+	});
 });

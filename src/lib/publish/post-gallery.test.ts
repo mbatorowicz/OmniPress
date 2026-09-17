@@ -65,4 +65,10 @@ describe('prepareAstroPostFromGallery', () => {
 		expect(out.bodyMd).toBe('Tekst wpisu.');
 		expect(out.excerpt).toContain('Tekst');
 	});
+
+	it('zdejmuje osierocony nagłówek galerii z treści', () => {
+		const out = prepareAstroPostFromGallery('Tekst.\n\n### Galeria zdjęć:\n', ['./a.jpg']);
+		expect(out.bodyMd).toBe('Tekst.');
+		expect(out.bodyMd).not.toContain('Galeria');
+	});
 });

@@ -1,4 +1,5 @@
 import { stripEmoji } from '@/lib/content/strip-emoji';
+import { stripLegacyGalleryHeading } from '@/lib/content/strip-gallery-heading';
 
 const IMAGE_MD_RE = /!\[([^\]]*)\]\(([^)]+)\)/g;
 const PDF_LINK_RE = /\[📄\s*([^\]]+)\]\([^)]+\)/g;
@@ -26,10 +27,12 @@ export function parseImageRefsFromMarkdown(md: string): Array<{ alt: string; url
 }
 
 export function stripImageMarkdown(md: string): string {
-	return md
-		.replace(IMAGE_MD_RE, '')
-		.replace(/\n{3,}/g, '\n\n')
-		.trim();
+	return stripLegacyGalleryHeading(
+		md
+			.replace(IMAGE_MD_RE, '')
+			.replace(/\n{3,}/g, '\n\n')
+			.trim(),
+	);
 }
 
 export function markdownToPlainExcerpt(md: string, maxLen = 200): string {

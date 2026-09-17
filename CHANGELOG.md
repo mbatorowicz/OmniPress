@@ -35,6 +35,8 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Naprawione
 
+- **Osierocony nagłówek „Galeria zdjęć” w treści wpisu.** Zapis i publikacja zdejmują go z markdownu — szablon strony i tak renderuje ten napis nad siatką zdjęć.
+
 - **Domyślny numer konta na odpady w stopce.** Seed layoutu i test formularza stopki używają `…2000 0400`, jak na stronie gminy.
 
 - **Panel: dostępność kolejki, kontrastu i szkieletu stron.** Checkbox wiersza ma nazwę „Wybierz: {tytuł}”. Szary tekst (`ui-muted`, `ui-caption`, `ui-hint`, numer wersji) spełnia 4,5:1. Logowanie ma `<main>`, panel ma skip-link do treści, przycisk linku w edytorze ma `aria-label`, a `prefers-reduced-motion` wyłącza skalowanie przycisków. Plan [PLAN-DOSTEPNOSC.md](docs/PLAN-DOSTEPNOSC.md) (D-1–D-19) zamknięty; follow-up HC strony: D-20–D-22 (podejście 9).

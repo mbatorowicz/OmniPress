@@ -1,12 +1,13 @@
 import { marked } from 'marked';
 import { sanitizeEditorHtml, sanitizeHtml } from './sanitize';
 import { prepareStorageMarkdown } from './prepare-markdown';
+import { stripLegacyGalleryHeading } from './strip-gallery-heading';
 import { unwrapHardWrappedMarkdown } from './unwrap-paragraphs';
 
 marked.setOptions({ gfm: true, breaks: true });
 
 function renderMarkdown(md: string, sanitize: (html: string) => string, empty: string): string {
-	const normalized = unwrapHardWrappedMarkdown(md);
+	const normalized = unwrapHardWrappedMarkdown(stripLegacyGalleryHeading(md));
 	if (!normalized.trim()) return empty;
 	const html = marked.parse(normalized, { async: false }) as string;
 	return sanitize(html.trim() || empty);
