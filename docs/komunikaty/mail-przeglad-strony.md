@@ -4,7 +4,7 @@ Skopiuj temat i treść do skrzynki. Załącz plik `przeglad-strony-dla-urzednik
 
 ---
 
-**Temat:** Nowa strona gminy już pod starym adresem — prosimy o krótki przegląd
+**Temat:** Nowa strona gminy — proszę o krótki przegląd
 
 **Do:** pracownicy Urzędu, kierownictwo, osoby odpowiedzialne za treści  
 **Uwagi zbiera:** mbatorowicz@gmail.com
