@@ -30,7 +30,7 @@ Hasło w `.admin-password.txt`.
 
 ## Nagłówki strony publicznej (repo Astro)
 
-Strona gminy (nie ten panel) wysyła CSP / XFO / HSTS — `src/lib/security/headers.ts` + `vercel.json` w repo `gmina-miedzna.pl`. Produkcja (`gmina-miedzna.pl`): merge na `main` (webhook Vercel). Kod strony: gałąź `staging` → `gmina-miedzna.cncsolutions.dev`. Publikacje OmniPress zostają na `main`. Audyt: [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md) S-2.
+Strona gminy (nie ten panel) wysyła CSP / XFO / HSTS — `src/lib/security/headers.ts` + `vercel.json` w repo `gmina-miedzna.pl`. Produkcja (`gmina-miedzna.pl`): merge na `main` (webhook Vercel). Kod strony: gałąź `staging` → `gmina-miedzna.cncsolutions.dev`. Publikacje OmniPress zostają na `main`. Vercel Authentication na projekcie strony jest **wyłączone** — domena stagingowa na gałęzi preview inaczej wymusza logowanie Vercel. Audyt: [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md) S-2.
 
 ## DNS cutover `gmina-miedzna.pl` (2026-09-16) — wykonane
 
