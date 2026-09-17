@@ -23,7 +23,7 @@ To nie jest egzamin i nie trzeba przeglądać wszystkiego. Wystarczą **trzy kro
 2. Obejrzyj **swoją** działkę (władze, odpady, szkoła, kontakt — to, za co odpowiadasz).
 3. Napisz jednego maila na **mbatorowicz@gmail.com** — link, co jest nie tak, jak powinno być.
 
-Szczegóły, szablon wiadomości i listę „na co spojrzeć” znajdziecie w załączniku. Prosimy o uwagi w najbliższych dniach. Jedna zbiorcza wiadomość wystarczy.
+Szczegóły są w załączniku. Prosimy o uwagi w najbliższych dniach. Jedna zbiorcza wiadomość wystarczy.
 
 Dziękujemy — strona będzie tak dobra, jak Wasza wiedza o gminie.
 
