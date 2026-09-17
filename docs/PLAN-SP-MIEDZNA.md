@@ -1,6 +1,6 @@
 # Plan: destynacja SP Miedzna (`sp-miedzna.pl`)
 
-**Status:** kod na `main` (2026-09-17, [PR #1](https://github.com/mbatorowicz/sp-miedzna.pl/pull/1)). WordPress [sp-miedzna.pl](https://sp-miedzna.pl) zostaje produkcją do cutoveru DNS. Produkcja Vercel: [sp-miedzna-pl.vercel.app](https://sp-miedzna-pl.vercel.app). Staging: [sp-miedzna.cncsolutions.dev](https://sp-miedzna.cncsolutions.dev). Jednostka OmniPress slug `sp-miedzna`.  
+**Status:** cutover DNS wykonany 2026-09-17. Produkcja: [sp-miedzna.pl](https://sp-miedzna.pl) (`main`). Staging: [sp-miedzna.cncsolutions.dev](https://sp-miedzna.cncsolutions.dev). Jednostka OmniPress slug `sp-miedzna`. Kod na `main` od 2026-09-17 ([PR #1](https://github.com/mbatorowicz/sp-miedzna.pl/pull/1)).  
 **Role:** PM → Architect → UX → FE/BE → DevSecOps → QA
 
 Druga jednostka w tym samym panelu OmniPress. Osobne repo Astro, osobny projekt Vercel, destynacja `github_astro`. Szablon szkolny (więcej koloru niż UG), migracja całej treści WP, sanityzacja, optymalizacja zdjęć.
@@ -9,9 +9,9 @@ Poza zakresem tej destynacji: upgrade Vercel Pro, zmiana crona, przebudowa `gmin
 
 ## Stan dziś
 
-- OmniPress obsługuje jedną jednostkę: UG Miedzna → repo `mbatorowicz/gmina-miedzna.pl` → `gmina-miedzna.pl`.
+- OmniPress obsługuje dwie jednostki: UG Miedzna → `gmina-miedzna.pl`; SP Miedzna → `sp-miedzna.pl`.
 - Kreator jednostki jest gotowy: `/admin/units/new` (nazwa, slug, kanał GitHub).
-- Szkoła żyje na WordPressie. REST otwarte: `https://sp-miedzna.pl/wp-json/wp/v2/`.
+- Strona szkoły na Vercel (`sp-miedzna.pl`, cutover DNS 2026-09-17). WordPress schodzi z domeny; Google Workspace (poczta + Classroom) bez zmian.
 - Inwentarz WP (2026-09-17): ~102 wpisy (kategorie = lata szkolne 2020/21–2025/26), 19 stron, galerie (NextGEN / featured).
 
 ## Architektura docelowa
@@ -93,7 +93,7 @@ Skrypt nowy, wzorowany na [`scripts/migrate-wp-remaining-posts.mjs`](../scripts/
 5. Import stron, potem wpisów i mediów (optymalizacja w locie).
 6. Przegląd galerii i ewentualnych PDF-ów.
 7. Weryfikacja staging (desktop + mobile, axe).
-8. DNS `sp-miedzna.pl` — jak cutover gminy: apex na Vercel, poczta nienaruszona. [WDROZENIE.md](./WDROZENIE.md).
+8. DNS `sp-miedzna.pl` — **wykonane 2026-09-17**: apex na Vercel, poczta i Classroom (Google Workspace) nienaruszone. [WDROZENIE.md](./WDROZENIE.md).
 
 ## Hobby (dwie małe strony)
 

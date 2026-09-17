@@ -32,7 +32,7 @@ Hasło w `.admin-password.txt`.
 
 Strona gminy (nie ten panel) wysyła CSP / XFO / HSTS — `src/lib/security/headers.ts` + `vercel.json` w repo `gmina-miedzna.pl`. Produkcja (`gmina-miedzna.pl`): merge na `main` (webhook Vercel). Kod strony: gałąź `staging` → `gmina-miedzna.cncsolutions.dev`. Publikacje OmniPress zostają na `main`. Vercel Authentication na projekcie strony jest **wyłączone** — domena stagingowa na gałęzi preview inaczej wymusza logowanie Vercel. Audyt: [AUDYT-BEZPIECZENSTWO.md](./AUDYT-BEZPIECZENSTWO.md) S-2.
 
-Strona szkoły (repo `sp-miedzna.pl`, projekt Vercel `sp-miedzna-pl`): ten sam model — `main` na treść, `staging` na kod, SSO wyłączone. Kod na `main` od 2026-09-17 ([PR #1](https://github.com/mbatorowicz/sp-miedzna.pl/pull/1)); produkcja Vercel: [sp-miedzna-pl.vercel.app](https://sp-miedzna-pl.vercel.app). Staging: [sp-miedzna.cncsolutions.dev](https://sp-miedzna.cncsolutions.dev) (domena na gałęzi `staging`). WordPress `sp-miedzna.pl` zostaje produkcją do cutoveru DNS. Jednostka panelu: slug `sp-miedzna`.
+Strona szkoły (repo `sp-miedzna.pl`, projekt Vercel `sp-miedzna-pl`): ten sam model — `main` na treść, `staging` na kod, SSO wyłączone. Kod na `main` od 2026-09-17 ([PR #1](https://github.com/mbatorowicz/sp-miedzna.pl/pull/1)); produkcja: [sp-miedzna.pl](https://sp-miedzna.pl) (cutover DNS 2026-09-17). Staging: [sp-miedzna.cncsolutions.dev](https://sp-miedzna.cncsolutions.dev) (domena na gałęzi `staging`). Jednostka panelu: slug `sp-miedzna`.
 
 ## DNS cutover `gmina-miedzna.pl` (2026-09-16) — wykonane
 
@@ -50,6 +50,23 @@ Panel OmniPress zostaje na `omni-press.cncsolutions.dev`. Staging strony zostaje
 | MX / SPF / autodiscover | Progreso + Outlook | bez zmian |
 
 Smoke (przez IP Vercel / 8.8.8.8): `https://gmina-miedzna.pl/` → Vercel + CSP; `www` → 308; `/kontakt` 200; `/rodo` → `/gmina/klauzula-rodo`. Lokalny resolver (router) może trzymać stary A do TTL 2 h.
+
+## DNS cutover `sp-miedzna.pl` (2026-09-17) — wykonane
+
+Staging szkoły zostaje na `sp-miedzna.cncsolutions.dev`. Google Workspace (poczta + Classroom) bez zmian: MX, SPF, DKIM Progreso, `google-site-verification` i DMARC nietknięte. Classroom działa na `classroom.google.com` kontami `@sp-miedzna.pl`, nie na subdomenie WWW.
+
+**Vercel** (projekt `sp-miedzna-pl`): apex produkcja, `www` → 308 na apex, certyfikaty SSL wystawione.
+
+**DNS u Progreso** (`d.ns1.pl` / `d.ns2.pl`) — nameserverów i MX Google nie ruszaliśmy:
+
+| Rekord | Było | Jest |
+|--------|------|------|
+| apex A | `77.65.215.11` | `76.76.21.21` (Vercel) |
+| `www` | CNAME → apex | bez zmian (idzie za Vercel) |
+| `*` / `mail` / `ftp` | CNAME → apex | A `77.65.215.11` (stary hosting; `mail`/`ftp` CNAME usunięte, łapie je `*`) |
+| MX / SPF / DKIM / DMARC / `google-site-verification` | Google Workspace | bez zmian |
+
+Smoke (przez IP Vercel): `https://sp-miedzna.pl/` → Vercel + CSP; `www` → 308; `/kontakt` 200. Lokalny resolver może trzymać stary A do TTL 2 h.
 
 ## Vercel + Supabase
 

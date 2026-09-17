@@ -5,11 +5,15 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Zmienione
+
+- **Cutover `sp-miedzna.pl`.** Apex wskazuje Vercel, `www` schodzi 308 na apex. MX / SPF / DKIM / weryfikacja Google Workspace bez zmian (poczta i Classroom). WordPress schodzi z domeny. Szczegóły: [WDROZENIE.md](docs/WDROZENIE.md).
+
 ### Dodane
 
 - **Lista kategorii w prawej kolumnie.** Nowy singleton `sidebar.categories` — zaznaczone kategorie jako lista linków w sidebarze (np. lata szkolne SP). Kategorie z tej listy nie wracają do menu przy publikacji.
 
-- **Destynacja SP Miedzna.** Druga jednostka w panelu (slug `sp-miedzna`): repo `mbatorowicz/sp-miedzna.pl`, szablon szkolny, migracja WP. Kod na `main` (produkcja Vercel [sp-miedzna-pl.vercel.app](https://sp-miedzna-pl.vercel.app)), staging `sp-miedzna.cncsolutions.dev`. DNS `sp-miedzna.pl` poza zakresem (WordPress). Plan: [PLAN-SP-MIEDZNA.md](docs/PLAN-SP-MIEDZNA.md).
+- **Destynacja SP Miedzna.** Druga jednostka w panelu (slug `sp-miedzna`): repo `mbatorowicz/sp-miedzna.pl`, szablon szkolny, migracja WP. Produkcja [sp-miedzna.pl](https://sp-miedzna.pl) (cutover 2026-09-17), staging `sp-miedzna.cncsolutions.dev`. Plan: [PLAN-SP-MIEDZNA.md](docs/PLAN-SP-MIEDZNA.md).
 
 ### Zmienione
 
