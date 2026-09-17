@@ -1,6 +1,6 @@
 # Plan: destynacja SP Miedzna (`sp-miedzna.pl`)
 
-**Status:** wykonane na stagingu (2026-09-17). WordPress [sp-miedzna.pl](https://sp-miedzna.pl) zostaje produkcją do cutoveru DNS. Staging: [sp-miedzna.cncsolutions.dev](https://sp-miedzna.cncsolutions.dev). Jednostka OmniPress slug `sp-miedzna`.  
+**Status:** kod na `main` (2026-09-17, [PR #1](https://github.com/mbatorowicz/sp-miedzna.pl/pull/1)). WordPress [sp-miedzna.pl](https://sp-miedzna.pl) zostaje produkcją do cutoveru DNS. Produkcja Vercel: [sp-miedzna-pl.vercel.app](https://sp-miedzna-pl.vercel.app). Staging: [sp-miedzna.cncsolutions.dev](https://sp-miedzna.cncsolutions.dev). Jednostka OmniPress slug `sp-miedzna`.  
 **Role:** PM → Architect → UX → FE/BE → DevSecOps → QA
 
 Druga jednostka w tym samym panelu OmniPress. Osobne repo Astro, osobny projekt Vercel, destynacja `github_astro`. Szablon szkolny (więcej koloru niż UG), migracja całej treści WP, sanityzacja, optymalizacja zdjęć.

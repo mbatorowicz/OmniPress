@@ -7,7 +7,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Dodane
 
-- **Destynacja SP Miedzna.** Druga jednostka w panelu (slug `sp-miedzna`): repo `mbatorowicz/sp-miedzna.pl`, szablon szkolny, migracja WP, staging `sp-miedzna.cncsolutions.dev`. DNS `sp-miedzna.pl` poza zakresem. Plan: [PLAN-SP-MIEDZNA.md](docs/PLAN-SP-MIEDZNA.md).
+- **Destynacja SP Miedzna.** Druga jednostka w panelu (slug `sp-miedzna`): repo `mbatorowicz/sp-miedzna.pl`, szablon szkolny, migracja WP. Kod na `main` (produkcja Vercel [sp-miedzna-pl.vercel.app](https://sp-miedzna-pl.vercel.app)), staging `sp-miedzna.cncsolutions.dev`. DNS `sp-miedzna.pl` poza zakresem (WordPress). Plan: [PLAN-SP-MIEDZNA.md](docs/PLAN-SP-MIEDZNA.md).
 
 ### Zmienione
 
