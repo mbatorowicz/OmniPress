@@ -21,14 +21,19 @@ turndown.addRule('removeUnsafe', {
 	replacement: () => '',
 });
 
-/** HTML z edytora → Markdown do bazy (sanityzacja + ten sam model akapitów). */
-export function editorHtmlToMarkdown(html: string): string {
+/** HTML → MD po Turndown (bez unwrap akapitów). Poczta zdejmuje cytaty przed prepare. */
+export function editorHtmlToMarkdownSource(html: string): string {
 	const safe = unwrapHardWrappedHtml(sanitizeEditorHtml(html));
 	const cleaned = safe
 		.replace(/<p><\/p>/g, '')
 		.replace(/\s+$/g, '')
 		.trim();
 	if (!cleaned) return '';
-	const md = turndown.turndown(cleaned).trim();
-	return prepareStorageMarkdown(sanitizeMarkdownUrls(md));
+	return sanitizeMarkdownUrls(turndown.turndown(cleaned).trim());
+}
+
+/** HTML z edytora → Markdown do bazy (sanityzacja + ten sam model akapitów). */
+export function editorHtmlToMarkdown(html: string): string {
+	const md = editorHtmlToMarkdownSource(html);
+	return md ? prepareStorageMarkdown(md) : '';
 }
