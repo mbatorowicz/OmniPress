@@ -23,6 +23,12 @@ interface ImportMetaEnv {
 	readonly TELEGRAM_CHAT_ID?: string;
 	/** Sekret podpisu Svix webhooka Resend Receiving (`whsec_…`). */
 	readonly RESEND_WEBHOOK_SECRET?: string;
+	/** Allowlista From (przecinki / nowe linie). Parser: `parseAllowlist`. */
+	readonly INBOUND_ALLOWED_FROM?: string;
+	/** Slug jednostki dla szkicow z poczty (np. gmina-miedzna). */
+	readonly INBOUND_DEFAULT_SITE_SLUG?: string;
+	/** UUID profilu, gdy nadawca nie ma konta w panelu. */
+	readonly INBOUND_FALLBACK_AUTHOR_ID?: string;
 }
 
 interface ImportMeta {

@@ -6,6 +6,11 @@ export type QueryResult = { data?: unknown; error?: unknown; count?: number };
 
 /** Zwraca odpowiedz dla zapytania; undefined = { data: null }. */
 export type QueryResponder = (op: QueryOp) => QueryResult | undefined;
+export type RpcCall = { fn: string; args: Record<string, unknown> };
+export type RpcResponder = (
+	fn: string,
+	args: Record<string, unknown>,
+) => QueryResult | undefined;
 
 const CHAIN_METHODS = [
 	'select',
@@ -37,10 +42,15 @@ const TERMINAL_METHODS = ['maybeSingle', 'single'] as const;
 export type SupabaseFake = {
 	client: SupabaseClient;
 	calls: QueryOp[];
+	rpcs: RpcCall[];
 };
 
-export function createSupabaseFake(responder: QueryResponder = () => undefined): SupabaseFake {
+export function createSupabaseFake(
+	responder: QueryResponder = () => undefined,
+	rpcResponder: RpcResponder = () => undefined,
+): SupabaseFake {
 	const calls: QueryOp[] = [];
+	const rpcs: RpcCall[] = [];
 
 	const from = (table: string) => {
 		const op: QueryOp = { table, steps: [] };
@@ -67,7 +77,12 @@ export function createSupabaseFake(responder: QueryResponder = () => undefined):
 		return query;
 	};
 
-	return { client: { from } as unknown as SupabaseClient, calls };
+	const rpc = (fn: string, args: Record<string, unknown> = {}) => {
+		rpcs.push({ fn, args });
+		return Promise.resolve(rpcResponder(fn, args) ?? { data: null, error: null });
+	};
+
+	return { client: { from, rpc } as unknown as SupabaseClient, calls, rpcs };
 }
 
 /** Argumenty pierwszego kroku o danej nazwie. */

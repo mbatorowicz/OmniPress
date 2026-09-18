@@ -77,6 +77,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | `setup:site-pages` | Strony statyczne (admin) |
 | `setup:page-assets` | Załączniki stron statycznych (`assets.page_id`) |
 | `setup:usage-stats` | RPC zużycia bazy i Storage (panel admina) |
+| `setup:inbound-email` | Tabela `inbound_messages` + RPC autora szkicu z poczty |
 | `setup:author-on-delete` | Autor wpisu → NULL po usunięciu konta |
 | `setup:posts-delete-own` | Usuwanie własnych wpisów przez redaktora |
 | `setup:posts-rejected-resubmit` | Ponowne wysłanie odrzuconego wpisu |

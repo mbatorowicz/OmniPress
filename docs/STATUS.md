@@ -151,6 +151,7 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub (jeden commit; listing 
 | `20250906000000_post_extra_categories.sql` | `setup:extra-categories` |
 | `20250915000000_assets_page_id.sql` | `setup:page-assets` |
 | `20250916000000_admin_usage_stats.sql` | `setup:usage-stats` |
+| `20260918000000_inbound_messages.sql` | `setup:inbound-email` |
 
 Tabela opisuje **zamierzony** stan bazy. `lint-docs-setup.mjs` pilnuje zgodności `package.json` ↔ ta tabela, ale nie sprawdza produkcji — w audycie P0-7 okazało się, że jedna migracja nigdy tam nie trafiła. Przy wątpliwościach: porównaj z bazą (triggery, polityki, kolumny), nie z tym dokumentem.
 

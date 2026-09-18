@@ -18,6 +18,7 @@
 		"src/lib/cert/types.ts": 3,
 		"src/lib/crypto.ts": 1,
 		"src/lib/content/humanize-label.ts": 8,
+		"src/lib/inbound/strip-quotes.ts": 1,
 		"src/lib/publish/dispatch.ts": 1,
 		"src/lib/publish/github-api-commit.ts": 1,
 		"src/lib/publish/github-api-write.ts": 1,
