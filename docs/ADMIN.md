@@ -19,6 +19,7 @@ Operacyjny przewodnik po panelu OmniPress. Stan funkcji: [STATUS.md](./STATUS.md
 - `/admin/posts` to pełna lista wpisów wszystkich redaktorów (także szkiców) z filtrami — patrz §5.1.
 - `/admin` to wyłącznie kolejka wpisów — sekcje (*Do akceptacji*, *Zaplanowane / w publikacji*, *Na stronie*) mają u góry ścieżkę workflow i liczniki; wpisy w trakcie publikacji są w sekcji *Zaplanowane* ze znacznikiem **Publikacja…**; z listy można szybko zaakceptować; import z GitHub jest zwijaną sekcją na dole.
 - **Sygnał o nowym wpisie do akceptacji:** odznaka z liczbą w nagłówku i sidebarze (zawsze, gdy `count > 0`) oraz wiadomość Telegram z tytułem, linkiem i przyciskiem *Akceptuj* — gdy skonfigurowano bota ([WDROZENIE.md](./WDROZENIE.md)). Odrzucenie i przypięcie zostają w panelu. E-mail do redaktora o akceptacji/odrzuceniu w tej wersji nie wychodzi.
+- **Szkic z poczty:** mail na `wpisy@inbound.cncsolutions.dev` pojawia się na `/admin/posts` jako *Szkic*. Telegram pisze „Szkic z poczty” (bez *Akceptuj* — to nie jest jeszcze kolejka). Szczegóły: §5.3.
 
 ---
 
@@ -156,6 +157,16 @@ zostaje szkicem u redaktora. Osobne przyciski przenoszą go dalej: *Wyślij do a
 albo *Opublikuj szkic* na ekranie akceptacji (§5.2). Redaktor nie dostaje powiadomienia (brak
 e-maili w tej wersji), więc przy większych zmianach uprzedź go poza systemem.
 
+### 5.3 Szkic z poczty
+
+Adres skrzynki: **`wpisy@inbound.cncsolutions.dev`**. Technika i DNS: [WDROZENIE.md](./WDROZENIE.md).
+
+1. Temat maila = tytuł. Treść = treść szkicu. Załączniki (zdjęcia, PDF, DOCX, XLSX, ZIP, GPKG) lądują przy wpisie tak jak z panelu.
+2. Nadawca musi być na allowliście (`INBOUND_ALLOWED_FROM`). Na start: konto administratora. Obcy mail jest ignorowany — nie powstaje wpis.
+3. Szkic trafia na jednostkę domyślną (Gmina Miedzna). **Kategoria jest pusta** — bez niej nie opublikujesz.
+4. W `/admin/posts` filtr *Szkic* → *Edytuj*: uzupełnij kategorię, popraw tekst, potem *Wyślij do akceptacji* albo *Opublikuj szkic* (§5.2).
+5. Telegram (gdy bot działa) dostaje link do `/admin/posts/{id}` bez przycisku *Akceptuj*.
+
 ---
 
 ## 6. Wygląd strony, sync i bulk
@@ -203,6 +214,7 @@ Publikacja na stronę wymaga kliknięcia **Opublikuj na stronie**.
 | Worker nie działa | Vercel: `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, redeploy |
 | Brak wiadomości Telegram po submitcie | Token i chat z [WDROZENIE.md](./WDROZENIE.md); odznaka w panelu działa bez bota |
 | Przycisk Akceptuj w Telegramie nie działa | Po deployu `setup:telegram-webhook`; ten sam czat co `TELEGRAM_CHAT_ID` |
+| Mail na skrzynkę nie daje szkicu | Allowlista i DNS w [WDROZENIE.md](./WDROZENIE.md); sprawdź `/admin/posts` (zakładka *Szkic*), nie kolejkę |
 
 ---
 

@@ -47,6 +47,8 @@ kolejność. Filtry i sortowanie zapisują się w adresie, więc widok można do
 
 Jeśli nie masz przypisanej strony, zamiast przycisku zobaczysz *Brak strony docelowej* — poproś administratora o dostęp.
 
+Szkic może też powstać z maila na skrzynkę OmniPress (konfiguruje administrator). Taki wpis i tak wymaga kategorii i akceptacji, zanim trafi na stronę.
+
 ---
 
 ## Jak utworzyć nowy artykuł

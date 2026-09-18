@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Dodane
+
+- **Skrzynka inbound.** Mail na `wpisy@inbound.cncsolutions.dev` (allowlista From) zakłada szkic w panelu. Publikacja nadal wymaga akceptacji. MX tylko na `inbound.cncsolutions.dev` — poczta gminy i szkoły bez zmian. Szczegóły: [WDROZENIE.md](docs/WDROZENIE.md), [ADMIN.md](docs/ADMIN.md).
+
 ### Zmienione
 
 - **Cutover `sp-miedzna.pl`.** Apex wskazuje Vercel, `www` schodzi 308 na apex. MX / SPF / DKIM / weryfikacja Google Workspace bez zmian (poczta i Classroom). WordPress schodzi z domeny. Szczegóły: [WDROZENIE.md](docs/WDROZENIE.md).

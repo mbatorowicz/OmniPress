@@ -105,6 +105,7 @@ npm run setup:asset-display
 npm run setup:asset-sort
 npm run setup:remove-wordpress
 npm run setup:profiles-guard
+npm run setup:inbound-email
 ```
 
 Świeża baza: `setup:remote` stosuje schemat początkowy; potem pozostałe migracje w kolejności dat.
@@ -149,6 +150,10 @@ Panel OmniPress ostrzega przy teście kanału, gdy wykryje classic PAT, i pokazu
 | `VERCEL_TOKEN` | Opcjonalnie — weryfikacja buildu strony Astro |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Opcjonalnie (zalecane prod) — współdzielony rate limit auth |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Opcjonalnie — powiadomienie i przycisk *Akceptuj* po *Wyślij do akceptacji* |
+| `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET` | Skrzynka inbound — API Receiving + podpis Svix |
+| `INBOUND_ALLOWED_FROM` | Allowlista From (przecinki / nowe linie) |
+| `INBOUND_DEFAULT_SITE_SLUG` | Slug jednostki dla szkicu (produkcja: `gmina-miedzna-pl`) |
+| `INBOUND_FALLBACK_AUTHOR_ID` | UUID profilu, gdy nadawca nie ma konta |
 
 Bez `ENCRYPTION_KEY`: konfiguracja jednostki zapisze się, ale **tokeny nie** (tylko dev).
 
@@ -168,6 +173,36 @@ Przycisk *Akceptuj* publikuje wpis `pending` tak samo jak panel. *Odrzuć* i prz
 
 Cron: `vercel.json` → worker raz dziennie (backup). Publikacja startuje też **od razu po akceptacji**.
 
+### Skrzynka inbound (szkic z poczty)
+
+Adres: **`wpisy@inbound.cncsolutions.dev`**. Mail z allowlisty zakłada **szkic** na jednostce z `INBOUND_DEFAULT_SITE_SLUG`. Nic nie idzie od razu na stronę — akceptacja jak dotychczas. Webhook: `POST https://omni-press.cncsolutions.dev/api/inbound/email` (zdarzenie Resend `email.received`, podpis Svix).
+
+**Jak pisać**
+
+| Pole | Co trafia do panelu |
+|------|---------------------|
+| Temat | Tytuł szkicu (`Re:` / `Fwd:` / `Odp:` zdejmowane) |
+| Treść | `text/plain`, inaczej HTML → Markdown |
+| Załączniki | JPEG/PNG/WebP/GIF (max 10 MB), PDF/DOCX/XLSX/ZIP/GPKG (max 50 MB), do 8 plików |
+| From | Musi być na `INBOUND_ALLOWED_FROM` (dokładny adres, małe litery) |
+
+Obcy nadawca: webhook odpowiada 200 i **nie** tworzy wpisu. Zły załącznik: notatka w treści szkicu, szkic zostaje. Kategoria pusta — uzupełniasz w panelu przed publikacją. Autor: konto o tym e-mailu, inaczej `INBOUND_FALLBACK_AUTHOR_ID`. Telegram: „Szkic z poczty” + link, bez przycisku Akceptuj.
+
+**DNS — tylko `inbound.cncsolutions.dev`**
+
+MX `gmina-miedzna.pl` i `sp-miedzna.pl` zostają nietknięte. Rekordy Resend Receiving (strefa Vercel `cncsolutions.dev`):
+
+| Typ | Nazwa | Wartość | Priorytet |
+|-----|-------|---------|-----------|
+| MX | `inbound` | `inbound-smtp.us-east-1.amazonaws.com` | 10 |
+| MX | `send.inbound` | `feedback-smtp.us-east-1.amazonses.com` | 10 |
+| TXT | `send.inbound` | `v=spf1 include:amazonses.com ~all` | — |
+| TXT | `resend._domainkey.inbound` | klucz DKIM z Resend | — |
+
+Dokładną wartość MX/TXT podaje Resend po włączeniu Receiving na domenie `inbound.cncsolutions.dev`. Nie dodawaj MX na apex `cncsolutions.dev` ani na hostach CNAME panelu (`omni-press.cncsolutions.dev`).
+
+Migracja: `npm run setup:inbound-email`. Bez sekretów Resend panel działa; webhook zwraca 401 albo `{ ignored: true }`.
+
 ---
 
 ## Gdy coś nie działa
@@ -180,6 +215,7 @@ Cron: `vercel.json` → worker raz dziennie (backup). Publikacja startuje też *
 | Publikacja failed | Logi w podglądzie wpisu → Ponów publikację |
 | Worker nie działa | `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, redeploy |
 | Przycisk Akceptuj w Telegramie nie działa | `npm run setup:telegram-webhook` po deployu; `SUPABASE_SERVICE_ROLE_KEY`; czat musi być ten z `TELEGRAM_CHAT_ID` |
+| Mail na skrzynkę nie daje szkicu | Allowlista From; `RESEND_WEBHOOK_SECRET` + `RESEND_API_KEY`; MX na `inbound.cncsolutions.dev`; logi Vercel `/api/inbound/email` |
 
 ---
 

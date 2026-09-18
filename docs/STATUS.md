@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.15.0** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.16.0** (kod + baza + panel).
 
 Produkcja panelu: https://omni-press.cncsolutions.dev  
 Produkcja UG: https://gmina-miedzna.pl (cutover 2026-09-16) — gałąź `main` + publikacje OmniPress  
@@ -49,7 +49,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 |---------|--------|
 | Logowanie e-mail/hasło | ✅ |
 | Przypisanie do stron (`user_sites`, `default_site_id`) | ✅ |
-| Tworzenie szkicu na dozwolonej stronie | ✅ odświeżenie karty przywraca niewysłane pola |
+| Tworzenie szkicu na dozwolonej stronie | ✅ odświeżenie karty przywraca niewysłane pola; szkic może też powstać z maila na skrzynkę inbound |
 | Edytor WYSIWYG (TipTap) → Markdown | ✅ jeden renderer Markdown + ten sam odstęp akapitów; emoji zdejmowane przy wpisie, wklejce, tytule i zapisie |
 | Kategoria główna + dodatkowe (np. Aktualności → strona główna) | ✅ |
 | Galeria zdjęć (cover + kolejność) | ✅ miniatura i postęp uploadu od razu; JPEG/PNG/WebP → max 1920 px, WebP |
@@ -77,6 +77,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Uprawnienia redaktora (strony + domyślna); blokada: własne konto / ostatni admin | ✅ |
 | Usunięcie konta zostawia wpisy (autor: „konto usunięte”) | ✅ migracja `setup:author-on-delete` |
 | Kolejka: do akceptacji, zaplanowane (ze znacznikiem „Publikacja…”), na stronie | ✅ `/admin` — odznaka z liczbą *pending* przy *Administracja* i *Kolejka wpisów* |
+| Szkic z poczty (skrzynka inbound) | ✅ `wpisy@inbound.cncsolutions.dev`; webhook `POST /api/inbound/email`; tylko `draft`; Telegram bez przycisku Akceptuj |
 | Powiadomienie Telegram po wysłaniu do akceptacji | ✅ opcjonalne `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`; awaria bota nie blokuje submitu |
 | Akceptacja wpisu z Telegrama | ✅ przycisk *Akceptuj* w wiadomości bota; webhook `/api/telegram/webhook`; odrzucenie w panelu |
 | Wszystkie wpisy redaktorów — także szkice i wpisy do poprawki; zakładki statusów z licznikami, filtr (tytuł, status, strona, autor), sortowanie kolumn (domyślnie data publikacji), stronicowanie po 25 | ✅ `/admin/posts` |
@@ -180,7 +181,7 @@ Tabela opisuje **zamierzony** stan bazy. `lint-docs-setup.mjs` pilnuje zgodnośc
 
 | Warstwa | Narzędzie | Zakres |
 |---------|-----------|--------|
-| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 120 plików testowych obok modułów (836 testy + 22 RLS opt-in) |
+| Jednostkowe (`npm test`) | Vitest | logika `lib/` — 185 plików testowych obok modułów (1165 testów + 22 RLS opt-in) |
 | Typy (`npm run typecheck`) | `tsc --noEmit` | całe repo, zero błędów; wpięte w `npm run lint` jako bramka |
 | Integracyjne RLS (opt-in) | Vitest + `pg` | `src/lib/supabase/rls.integration.test.ts` — 22 przypadki: izolacja redaktorów, dane wrażliwe, eskalacja uprawnień |
 | E2E/UI (`npm run test:e2e`) | Playwright (`e2e/`) | produkcja: strefa publiczna, nagłówki bezpieczeństwa, CSRF, auth (logowanie/wylogowanie, błędne hasło), panel admina, lista wpisów z filtrami (`posts-browse.spec.ts`), cykl wpisu (szkic → walidacja → zapis → usunięcie) |
@@ -204,6 +205,10 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | `VERCEL_TOKEN` | opcjonalnie | Globalny token do weryfikacji buildów (alternatywa: per destynacja) |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | opcjonalnie (prod zalecane) | Współdzielony rate limit auth między instancjami Vercel |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | opcjonalnie | Powiadomienie i przycisk *Akceptuj* w Telegramie (BotFather); webhook: `setup:telegram-webhook`; zdjęcie profilu: `setup:telegram-photo` |
+| `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET` | tak (skrzynka) | Receiving: treść maila + podpis Svix webhooka `email.received` |
+| `INBOUND_ALLOWED_FROM` | tak (skrzynka) | Allowlista From (przecinki / nowe linie, dokładne adresy) |
+| `INBOUND_DEFAULT_SITE_SLUG` | tak (skrzynka) | Slug jednostki dla szkicu (produkcja: `gmina-miedzna-pl`) |
+| `INBOUND_FALLBACK_AUTHOR_ID` | tak (skrzynka) | UUID profilu, gdy nadawca nie ma konta w panelu |
 
 ---
 
@@ -217,6 +222,13 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | SSO redaktorów | — |
 
 ---
+
+## 0.16.0 — Skrzynka inbound
+
+- Mail z allowlisty na `wpisy@inbound.cncsolutions.dev` tworzy szkic (`draft`) na jednostce z env.
+- Załączniki (JPEG/PNG/WebP/GIF/PDF/DOCX/XLSX/ZIP/GPKG) idą do Storage jak z panelu; zły plik zostawia notatkę w treści, nie kasuje szkicu.
+- Telegram: „Szkic z poczty” + link do panelu, bez przycisku Akceptuj.
+- MX wyłącznie na `inbound.cncsolutions.dev`. Migracja `setup:inbound-email`.
 
 ## 0.15.0 — Załączniki stron statycznych
 
