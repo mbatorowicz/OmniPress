@@ -21,6 +21,8 @@ interface ImportMetaEnv {
 	readonly UPSTASH_REDIS_REST_TOKEN?: string;
 	readonly TELEGRAM_BOT_TOKEN?: string;
 	readonly TELEGRAM_CHAT_ID?: string;
+	/** Sekret podpisu Svix webhooka Resend Receiving (`whsec_…`). */
+	readonly RESEND_WEBHOOK_SECRET?: string;
 }
 
 interface ImportMeta {

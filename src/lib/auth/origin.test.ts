@@ -61,5 +61,6 @@ describe('isPanelMutationPath', () => {
 		expect(isPanelMutationPath('/api/worker/publish')).toBe(false);
 		expect(isPanelMutationPath('/api/auth/login')).toBe(false);
 		expect(isPanelMutationPath('/api/telegram/webhook')).toBe(false);
+		expect(isPanelMutationPath('/api/inbound/email')).toBe(false);
 	});
 });

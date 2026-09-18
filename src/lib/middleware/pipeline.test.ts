@@ -358,6 +358,15 @@ describe('CSRF mutacji panelu', () => {
 		const { next } = await run('/api/telegram/webhook', null, { method: 'POST' });
 		expect(next).toHaveBeenCalledOnce();
 	});
+
+	it('nie blokuje webhooka poczty inbound (CSRF Origin)', async () => {
+		const { next, response } = await run('/api/inbound/email', null, {
+			method: 'POST',
+			headers: crossOrigin,
+		});
+		expect(response.status).not.toBe(403);
+		expect(next).toHaveBeenCalledOnce();
+	});
 });
 
 describe('locals', () => {
