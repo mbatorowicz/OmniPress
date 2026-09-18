@@ -1,4 +1,7 @@
+import { inbound } from './inbound';
+
 export const notify = {
+	inbound,
 	review: {
 		heading: 'Wpis do akceptacji',
 		titleLabel: 'Tytuł',

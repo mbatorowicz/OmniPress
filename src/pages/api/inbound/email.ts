@@ -1,4 +1,4 @@
 import type { APIRoute } from 'astro';
-import { handleInboundEmail } from '@/lib/inbound/webhook-auth';
+import { handleInboundEmail } from '@/lib/inbound/handle';
 
 export const POST: APIRoute = async ({ request }) => handleInboundEmail(request);

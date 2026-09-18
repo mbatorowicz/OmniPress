@@ -5,7 +5,6 @@ import {
 	SVIX_SIGNATURE_HEADER,
 	SVIX_TIMESTAMP_HEADER,
 	authorizeInboundWebhook,
-	handleInboundEmail,
 } from './webhook-auth';
 
 /** Przykład z dokumentacji Svix — wektor znany, nie losowy HMAC. */
@@ -113,43 +112,5 @@ describe('authorizeInboundWebhook', () => {
 			signature: `v1,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= ${good}`,
 		});
 		expect(authorizeInboundWebhook(mixed, SVIX_EXAMPLE.body, SVIX_EXAMPLE.secret, NOW)).toBe(true);
-	});
-});
-
-describe('handleInboundEmail', () => {
-	it('zwraca 401 bez ważnego podpisu', async () => {
-		const response = await handleInboundEmail(
-			new Request('https://panel.test/api/inbound/email', {
-				method: 'POST',
-				body: SVIX_EXAMPLE.body,
-			}),
-			{ secret: SVIX_EXAMPLE.secret, nowSec: NOW },
-		);
-		expect(response.status).toBe(401);
-	});
-
-	it('zwraca 401 gdy brak sekretu w env', async () => {
-		const response = await handleInboundEmail(
-			new Request('https://panel.test/api/inbound/email', {
-				method: 'POST',
-				headers: signedHeaders(),
-				body: SVIX_EXAMPLE.body,
-			}),
-			{ secret: null, nowSec: NOW },
-		);
-		expect(response.status).toBe(401);
-	});
-
-	it('przy ważnym podpisie oddaje korytarz bez biznesu', async () => {
-		const response = await handleInboundEmail(
-			new Request('https://panel.test/api/inbound/email', {
-				method: 'POST',
-				headers: signedHeaders(),
-				body: SVIX_EXAMPLE.body,
-			}),
-			{ secret: SVIX_EXAMPLE.secret, nowSec: NOW },
-		);
-		expect(response.status).toBe(200);
-		await expect(response.json()).resolves.toEqual({ ok: true, ignored: true });
 	});
 });

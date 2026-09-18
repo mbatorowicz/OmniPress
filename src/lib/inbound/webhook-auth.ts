@@ -1,16 +1,10 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { jsonOk } from '@/lib/api/response';
 
 export const SVIX_ID_HEADER = 'svix-id';
 export const SVIX_TIMESTAMP_HEADER = 'svix-timestamp';
 export const SVIX_SIGNATURE_HEADER = 'svix-signature';
 /** Domyślna tolerancja Svix — odrzut replay poza oknem. */
 export const SVIX_TIMESTAMP_TOLERANCE_SEC = 300;
-
-export type InboundWebhookDeps = {
-	secret?: string | null;
-	nowSec?: number;
-};
 
 export function inboundWebhookSecret(): string {
 	return import.meta.env.RESEND_WEBHOOK_SECRET?.trim() ?? '';
@@ -58,16 +52,4 @@ export function authorizeInboundWebhook(
 		.update(`${id}.${timestamp}.${rawBody}`)
 		.digest();
 	return hasMatchingV1Signature(expected, signature);
-}
-
-export async function handleInboundEmail(
-	request: Request,
-	deps: InboundWebhookDeps = {},
-): Promise<Response> {
-	const secret = deps.secret !== undefined ? (deps.secret ?? '') : inboundWebhookSecret();
-	const rawBody = await request.text();
-	if (!authorizeInboundWebhook(request.headers, rawBody, secret, deps.nowSec)) {
-		return new Response('Unauthorized', { status: 401 });
-	}
-	return jsonOk({ ignored: true });
 }
