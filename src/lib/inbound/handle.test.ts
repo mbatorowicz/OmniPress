@@ -73,6 +73,7 @@ describe('handleInboundEmail', () => {
 	it('obcy From i zły typ eventu: 200 ignored bez Resend i insertu', async () => {
 		const fetchEmail = vi.fn();
 		const createDraft = vi.fn();
+		const applyAttachments = vi.fn();
 		const notify = vi.fn();
 		const deps = {
 			secret: SECRET,
@@ -80,6 +81,7 @@ describe('handleInboundEmail', () => {
 			draftConfig: DRAFT_CONFIG,
 			fetchEmail,
 			createDraft,
+			applyAttachments,
 			notify,
 		};
 
@@ -100,12 +102,14 @@ describe('handleInboundEmail', () => {
 		await expect(stranger.json()).resolves.toEqual({ ok: true, ignored: true });
 		expect(fetchEmail).not.toHaveBeenCalled();
 		expect(createDraft).not.toHaveBeenCalled();
+		expect(applyAttachments).not.toHaveBeenCalled();
 		expect(notify).not.toHaveBeenCalled();
 	});
 
 	it('happy path: treść z Resend, szkic, Telegram bez Akceptuj', async () => {
 		const fetchEmail = vi.fn().mockResolvedValue(EMAIL);
 		const createDraft = vi.fn().mockResolvedValue(CREATED);
+		const applyAttachments = vi.fn().mockResolvedValue(undefined);
 		const notify = vi.fn().mockResolvedValue(undefined);
 
 		const response = await handleInboundEmail(signedRequest(receivedEvent()), {
@@ -114,6 +118,7 @@ describe('handleInboundEmail', () => {
 			draftConfig: DRAFT_CONFIG,
 			fetchEmail,
 			createDraft,
+			applyAttachments,
 			notify,
 		});
 
@@ -128,12 +133,18 @@ describe('handleInboundEmail', () => {
 			siteSlug: 'gmina-miedzna',
 			fallbackAuthorId: DRAFT_CONFIG.fallbackAuthorId,
 		});
+		expect(applyAttachments).toHaveBeenCalledWith({
+			postId: POST_ID,
+			emailId: EMAIL_ID,
+			contentMd: 'Zapraszamy na festyn.',
+		});
 		expect(notify).toHaveBeenCalledWith(POST_ID, 'Festyn gminny');
 	});
 
 	it('idempotentny retry nie pinga Telegrama drugi raz', async () => {
 		const fetchEmail = vi.fn().mockResolvedValue(EMAIL);
 		const createDraft = vi.fn().mockResolvedValue({ ok: true, postId: POST_ID, created: false });
+		const applyAttachments = vi.fn();
 		const notify = vi.fn();
 
 		const response = await handleInboundEmail(signedRequest(receivedEvent()), {
@@ -142,12 +153,14 @@ describe('handleInboundEmail', () => {
 			draftConfig: DRAFT_CONFIG,
 			fetchEmail,
 			createDraft,
+			applyAttachments,
 			notify,
 		});
 
 		expect(response.status).toBe(200);
 		await expect(response.json()).resolves.toEqual({ ok: true, postId: POST_ID, created: false });
 		expect(createDraft).toHaveBeenCalledTimes(1);
+		expect(applyAttachments).not.toHaveBeenCalled();
 		expect(notify).not.toHaveBeenCalled();
 	});
 });

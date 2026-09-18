@@ -2,6 +2,7 @@ import { jsonError, jsonOk } from '@/lib/api/response';
 import { common } from '@/i18n';
 import { createServiceSupabase, isServiceSupabaseConfigured } from '@/lib/supabase/service';
 import { isAllowedFrom, parseAllowlist } from './allowlist';
+import { applyInboundAttachmentsLive } from './apply-attachments-live';
 import { inboundDraftConfig, type InboundDraftConfig } from './config';
 import {
 	createInboundDraft,
@@ -15,6 +16,12 @@ import { getReceivedEmail, inboundResendApiKey, type ReceivedInboundEmail } from
 import { authorizeInboundWebhook, inboundWebhookSecret } from './webhook-auth';
 import { parseEmailReceivedEvent } from './webhook-event';
 
+export type ApplyInboundAttachmentsFn = (input: {
+	postId: string;
+	emailId: string;
+	contentMd: string;
+}) => Promise<void>;
+
 export type InboundEmailDeps = {
 	secret?: string | null;
 	nowSec?: number;
@@ -22,6 +29,7 @@ export type InboundEmailDeps = {
 	draftConfig?: InboundDraftConfig | null;
 	fetchEmail?: (emailId: string) => Promise<ReceivedInboundEmail | null>;
 	createDraft?: (input: CreateInboundDraftInput) => Promise<CreateInboundDraftResult>;
+	applyAttachments?: ApplyInboundAttachmentsFn;
 	notify?: (postId: string, title: string) => Promise<void>;
 };
 
@@ -78,17 +86,23 @@ export async function handleInboundEmail(
 	if (!email) return jsonError('fetch_failed', 502);
 
 	const title = parseInboundSubject(email.subject || event.subject) || common.untitled;
+	const contentMd = parseInboundBody({ text: email.text, html: email.html });
 	const result = await (deps.createDraft ?? defaultCreateDraft)({
 		messageId: event.emailId,
 		from: email.from || event.from,
 		title,
-		contentMd: parseInboundBody({ text: email.text, html: email.html }),
+		contentMd,
 		siteSlug: draftConfig.defaultSiteSlug,
 		fallbackAuthorId: draftConfig.fallbackAuthorId,
 	});
 	if (!result.ok) return jsonError(result.error, 500);
 
 	if (result.created) {
+		await (deps.applyAttachments ?? applyInboundAttachmentsLive)({
+			postId: result.postId,
+			emailId: event.emailId,
+			contentMd,
+		});
 		await (deps.notify ?? notifyInboundDraft)(result.postId, title);
 	}
 	return jsonOk({ postId: result.postId, created: result.created });
