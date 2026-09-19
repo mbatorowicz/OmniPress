@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PDF_MIME } from '@/lib/posts/upload-mime';
-import { suggestAttachmentDisplay } from './attachment-display';
+import { applyCoverLetterDrops, suggestAttachmentDisplay } from './attachment-display';
 
 describe('suggestAttachmentDisplay', () => {
 	it('krótki PDF 1 strona albo nazwa plakat → embed', () => {
@@ -50,5 +50,33 @@ describe('suggestAttachmentDisplay', () => {
 				text: '',
 			}),
 		).toBe('embed');
+	});
+});
+
+describe('applyCoverLetterDrops', () => {
+	it('przy plakatach zdejmuje pismo z nazwy, nawet bez frazy „proszę o publikację”', () => {
+		const rows = applyCoverLetterDrops([
+			{
+				filename: 'plakat_Zaszczep_pupila.jpg',
+				suggestedDisplay: 'embed' as const,
+			},
+			{
+				filename: 'Pismo do przedstawicieli służb i samorządów — kopia.pdf',
+				suggestedDisplay: 'link' as const,
+				text: 'Szanowni Państwo, w załączeniu materiały do wiadomości.',
+			},
+		]);
+		expect(rows[0]?.suggestedDisplay).toBe('embed');
+		expect(rows[1]?.suggestedDisplay).toBe('drop');
+	});
+
+	it('samo pismo bez innych materiałów zostaje (może być treścią wpisu)', () => {
+		const rows = applyCoverLetterDrops([
+			{
+				filename: 'Pismo wójta do mieszkańców.pdf',
+				suggestedDisplay: 'link' as const,
+			},
+		]);
+		expect(rows[0]?.suggestedDisplay).toBe('link');
 	});
 });

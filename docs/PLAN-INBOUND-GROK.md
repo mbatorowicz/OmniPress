@@ -15,7 +15,7 @@ Jednostka podziału to **komunikat dla odbiorcy strony**, nie liczba plików i n
 
 - Kilka ujęć tej samej sprawy (podtytuł, strona, format) → jeden wpis, wszystkie pokazane.
 - Kilka spraw w jednym mailu → osobne wpisy, nawet gdy dziedzina jest pokrewna. Pokrewne słowo w treści nie skleja różnych nazw plików.
-- Pismo przewodnie / „proszę opublikować” / „proszę poinformować mieszkańców” → ani w treści, ani jako załącznik.
+- Pismo przewodnie / pismo do służb i urzędu przy innych materiałach na stronę / „proszę opublikować” / „proszę poinformować mieszkańców” → ani w treści, ani jako załącznik, ani jako osobny wpis.
 - Plakat, ulotka, zaproszenie → podgląd (`embed`).
 - Uchwała, regulamin, lista → link.
 - Kategoria: **Aktualności** na komunikat dla mieszkańców (plakat, sanepid, weterynaria). **Ochrona ludności** tylko na stałe materiały kryzysowe (alarmy, ewakuacja).

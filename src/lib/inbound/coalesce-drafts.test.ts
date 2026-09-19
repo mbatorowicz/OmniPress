@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { coalesceDrafts, mergeDraftTitles } from './coalesce-drafts';
+import { coalesceDrafts, mergeDraftTitles, omitCoverLetterDrafts } from './coalesce-drafts';
 import type { EnrichDraft } from './enrich-model';
 
 function draft(title: string, files: string[]): EnrichDraft {
@@ -69,5 +69,46 @@ describe('coalesceDrafts', () => {
 				{ filename: 'nabor-przedszkole.pdf', text: '', suggestedDisplay: 'embed' },
 			]),
 		).toEqual(input);
+	});
+
+	it('usuwa wpis, który jest tylko pismem przewodnim przy innych materiałach', () => {
+		const drafts = omitCoverLetterDrafts(
+			[
+				draft('Zaszczep pupila', ['plakat_Zaszczep_pupila.jpg']),
+				draft('Wścieklizna', [
+					'Plakat_wścieklizna_obszar_zagrożony.pdf',
+					'Plakat_wścieklizna_zasady_zachowania.pdf',
+				]),
+				{
+					...draft('Pismo do służb', ['Pismo do przedstawicieli służb i samorządów — kopia.pdf']),
+					attachments: [
+						{
+							filename: 'Pismo do przedstawicieli służb i samorządów — kopia.pdf',
+							display: 'link',
+						},
+					],
+				},
+			],
+			[
+				{ filename: 'plakat_Zaszczep_pupila.jpg', text: '', suggestedDisplay: 'embed' },
+				{
+					filename: 'Plakat_wścieklizna_obszar_zagrożony.pdf',
+					text: '',
+					suggestedDisplay: 'embed',
+				},
+				{
+					filename: 'Plakat_wścieklizna_zasady_zachowania.pdf',
+					text: '',
+					suggestedDisplay: 'embed',
+				},
+				{
+					filename: 'Pismo do przedstawicieli służb i samorządów — kopia.pdf',
+					text: '',
+					suggestedDisplay: 'drop',
+				},
+			],
+		);
+		expect(drafts).toHaveLength(2);
+		expect(drafts.map((row) => row.title)).toEqual(['Zaszczep pupila', 'Wścieklizna']);
 	});
 });

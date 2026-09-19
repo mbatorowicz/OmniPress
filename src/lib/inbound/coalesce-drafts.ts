@@ -51,6 +51,19 @@ function mergeDraftGroup(drafts: EnrichDraft[]): EnrichDraft {
 	};
 }
 
+export function omitCoverLetterDrafts(drafts: EnrichDraft[], files: ClusterFile[]): EnrichDraft[] {
+	const dropNames = new Set(
+		files.filter((row) => row.suggestedDisplay === 'drop').map((row) => row.filename),
+	);
+	if (dropNames.size === 0 || drafts.length <= 1) return drafts;
+	const kept = drafts.filter((draft) => {
+		const visible = draft.attachments.filter((row) => row.display !== 'drop');
+		if (visible.length === 0) return false;
+		return visible.some((row) => !dropNames.has(row.filename));
+	});
+	return kept.length > 0 ? kept : drafts;
+}
+
 /** Scala szkice, których pliki należą do tego samego komunikatu. */
 export function coalesceDrafts(drafts: EnrichDraft[], files: ClusterFile[]): EnrichDraft[] {
 	if (drafts.length <= 1) return drafts;

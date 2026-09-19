@@ -1,5 +1,5 @@
 import { MAX_FILE_ATTACHMENT_BYTES } from '@/lib/posts/upload-mime';
-import { suggestAttachmentDisplay, type AttachmentDisplay } from './attachment-display';
+import { applyCoverLetterDrops, suggestAttachmentDisplay, type AttachmentDisplay } from './attachment-display';
 import { decideAttachmentBytes, decideAttachmentMeta } from './attachment-decide';
 import { splitAttachmentLimit, type InboundAttachmentMeta } from './attachment-model';
 import {
@@ -68,7 +68,7 @@ export async function collectInboundInventory(
 		}
 		out.push(rowFromFile(decided.filename, decided.mime));
 	}
-	return out;
+	return applyCoverLetterDrops(out);
 }
 
 export async function collectExtractableAttachmentTexts(

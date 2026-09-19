@@ -6,7 +6,7 @@ export const inboundAi = {
 		'Kilka ujęć tej samej sprawy = jeden wpis z kilkoma załącznikami. Kilka spraw w jednym mailu = osobne wpisy (1–3).',
 		'Nie streszczaj kilku spraw w jednym leadzie. Osobny wpis, gdy odbiorca ma inną rzecz do zrobienia albo inną wiadomość (inny obowiązek, wydarzenie, data) — także przy pokrewnej dziedzinie.',
 		'Nie dziel dlatego, że dwa materiały mają inny podtytuł, inną stronę albo inny format tej samej akcji. Nie rób jednego wpisu na plik.',
-		'Pismo do urzędu / „proszę opublikować” / „proszę poinformować mieszkańców” / podpis / stopka: display drop — ani w treści, ani jako załącznik.',
+		'Pismo do urzędu / służb / samorządu / „proszę opublikować” / „proszę poinformować mieszkańców” / podpis / stopka: display drop — ani w treści, ani jako załącznik, ani jako osobny wpis.',
 		'Plakat, ulotka, zaproszenie, skan 1–2 stron: display embed (czytelnik widzi podgląd). Długi dokument urzędowy: display link.',
 		'Treść wpisu przy plakacie to krótki lead (co, kiedy, kto) wyłącznie z odczytanego tekstu. Nie przepisuj plakatu. Nie cytuj pisma.',
 		'Tytuł nazywa sprawę (wydarzenie, obowiązek, data). Zakaz ogólników: Plakaty, Załączniki, Informacja, Proszę o publikację.',

@@ -1,7 +1,8 @@
 import { inboundAi } from '@/i18n';
 import type { CategoryOption } from '@/lib/categories';
+import { applyCoverLetterDrops } from './attachment-display';
 import { completeInboundObject, type InboundAiComplete } from './ai-client';
-import { coalesceDrafts } from './coalesce-drafts';
+import { coalesceDrafts, omitCoverLetterDrafts } from './coalesce-drafts';
 import type { InboundFileInventory } from './collect-attachment-texts';
 import { applyEnrichment, enrichFallback, type EnrichDraft } from './enrich-model';
 import { buildInboundEnrichPrompt } from './enrich-prompt';
@@ -42,22 +43,24 @@ export async function enrichInboundDraft(
 	input: EnrichInboundInput,
 	opts: EnrichInboundOptions = {},
 ): Promise<EnrichDraft[]> {
+	const attachments = applyCoverLetterDrops(input.attachments);
+	const clustered = { ...input, attachments };
 	const fallback = enrichFallback(input.title, input.contentMd);
 	const complete = opts.complete ?? completeInboundObject;
 	const timeoutMs = opts.timeoutMs ?? INBOUND_AI_TIMEOUT_MS;
 	const model = inboundAiModel(inboundAiEnvFromMeta());
-	const clusters = countMessageClusters(input.attachments);
+	const clusters = countMessageClusters(attachments);
 	const controller = new AbortController();
 	const timer = setTimeout(() => controller.abort(), timeoutMs);
 	const started = Date.now();
-	const prompt = buildInboundEnrichPrompt(input);
+	const prompt = buildInboundEnrichPrompt(clustered);
 	try {
 		let raw = await complete({
 			system: inboundAi.system,
 			prompt,
 			signal: controller.signal,
 		});
-		let drafts = applyRaw(raw, input, fallback);
+		let drafts = omitCoverLetterDrafts(applyRaw(raw, clustered, fallback), attachments);
 		const retrySystem = enrichRetrySystem(clusters, drafts.length);
 		const remaining = timeoutMs - (Date.now() - started);
 		if (retrySystem && remaining >= RETRY_BUDGET_MS && !controller.signal.aborted) {
@@ -66,9 +69,9 @@ export async function enrichInboundDraft(
 				prompt,
 				signal: controller.signal,
 			});
-			drafts = applyRaw(raw, input, fallback);
+			drafts = omitCoverLetterDrafts(applyRaw(raw, clustered, fallback), attachments);
 		}
-		drafts = coalesceDrafts(drafts, input.attachments);
+		drafts = omitCoverLetterDrafts(coalesceDrafts(drafts, attachments), attachments);
 		logInboundAiOk(model, drafts.length, clusters);
 		return drafts;
 	} catch (error) {

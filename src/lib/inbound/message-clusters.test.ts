@@ -50,6 +50,21 @@ describe('countMessageClusters', () => {
 		expect(countMessageClusters([RABIES_AREA, RABIES_RULES])).toBe(1);
 	});
 
+	it('pismo przewodnie przy plakatach nie tworzy trzeciej sprawy', () => {
+		expect(
+			countMessageClusters([
+				VACCINE,
+				RABIES_AREA,
+				RABIES_RULES,
+				{
+					filename: 'Pismo do przedstawicieli służb i samorządów — kopia.pdf',
+					text: 'Szanowni Państwo, w załączeniu materiały.',
+					suggestedDisplay: 'drop',
+				},
+			]),
+		).toBe(2);
+	});
+
 	it('festyn i nabór bez wspólnego tematu → 2 sprawy', () => {
 		expect(
 			countMessageClusters([
