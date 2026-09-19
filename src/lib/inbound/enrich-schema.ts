@@ -1,20 +1,26 @@
 import { z } from 'zod';
 
 export const inboundEnrichAttachmentSchema = z.object({
-	filename: z.string(),
+	filename: z.string().describe('Dokładna nazwa pliku z listy załączników'),
 	display: z.enum(['embed', 'link', 'drop']),
 });
 
 export const inboundEnrichPostSchema = z.object({
-	title: z.string(),
+	title: z.string().describe('Tytuł tej jednej sprawy, nie ogólnik i nie streszczenie kilku tematów'),
 	category_slug: z.string().nullable(),
 	extra_category_slugs: z.array(z.string()).optional(),
-	content_md: z.string(),
+	content_md: z.string().describe('Krótki lead wyłącznie tej sprawy'),
 	attachments: z.array(inboundEnrichAttachmentSchema).optional(),
 });
 
 export const inboundEnrichSchema = z.object({
-	posts: z.array(inboundEnrichPostSchema).min(1).max(3),
+	posts: z
+		.array(inboundEnrichPostSchema)
+		.min(1)
+		.max(3)
+		.describe(
+			'Osobny element na każdą sprawę dla odbiorcy. Warianty tego samego plakatu razem. Różne nagłówki, obowiązki albo wydarzenia = osobne wpisy. Nie streszczaj kilku spraw w jednym leadzie.',
+		),
 });
 
 export type InboundEnrichObject = z.infer<typeof inboundEnrichSchema>;

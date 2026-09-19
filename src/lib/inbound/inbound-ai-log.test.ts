@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { logInboundAiFailed } from './inbound-ai-log';
+import { logInboundAiFailed, logInboundAiOk } from './inbound-ai-log';
 
 describe('logInboundAiFailed', () => {
 	it('loguje model i kod, bez treści maila', () => {
@@ -17,5 +17,18 @@ describe('logInboundAiFailed', () => {
 		expect(line).toContain('"status":404');
 		expect(line).not.toContain('Proszę o publikację');
 		warn.mockRestore();
+	});
+});
+
+describe('logInboundAiOk', () => {
+	it('loguje liczbę szkiców, bez treści', () => {
+		const info = vi.spyOn(console, 'info').mockImplementation(() => {});
+		logInboundAiOk('xai/grok-4.1-fast-non-reasoning', 2, 2);
+		const line = String(info.mock.calls[0]?.[0]);
+		expect(line).toContain('inbound_ai_ok');
+		expect(line).toContain('"posts":2');
+		expect(line).toContain('"clusters":2');
+		expect(line).not.toContain('wścieklizna');
+		info.mockRestore();
 	});
 });

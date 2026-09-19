@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Naprawione
+
+- **Grok sklejał spokrewnione plakaty w jeden szkic.** Lead wyliczał kilka spraw (np. wścieklizna i szczepienie pupila). Prompt zabrania streszczania; gdy nazwy i tekst układają się w kilka klastrów, jest druga tura. Obraz z maila ma sugerowane `embed`. Log `inbound_ai_ok` zapisuje liczbę szkiców, nie treść.
+
 ### Dodane
 
 - **Grok redaguje szkic z poczty jak człowiek.** Plakaty jako podgląd (nie link), pismo przewodnie poza wpisem, tytuł z tematu sprawy (nie „Plakaty”), podział na 1–3 szkice gdy w mailu jest kilka komunikatów. Jednostka z domeny, która przekazała maila do Ciebie (nie envelope From). Env: `INBOUND_SITE_BY_DOMAIN`, `INBOUND_SITE_BY_EMAIL`. Plan: [PLAN-INBOUND-GROK.md](docs/PLAN-INBOUND-GROK.md).

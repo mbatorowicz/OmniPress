@@ -14,6 +14,7 @@ export function suggestAttachmentDisplay(input: {
 	pageCount: number | null;
 	text: string;
 }): AttachmentDisplay {
+	if (input.mime.startsWith('image/')) return 'embed';
 	if (input.mime !== PDF_MIME) return 'link';
 	const text = input.text.replace(/\s+/g, ' ').trim();
 	if (COVER_LETTER.test(text) && !POSTER_NAME.test(input.filename)) return 'drop';

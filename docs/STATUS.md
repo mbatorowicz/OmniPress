@@ -227,6 +227,10 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 
 ---
 
+## 0.18.1 — Grok nie skleja spokrewnionych spraw
+
+- Gdy w mailu są osobne komunikaty (inne nagłówki / obowiązki), druga tura Groka rozdziela je na 1–3 szkice. Jeden lead nie może wyliczać kilku spraw.
+
 ## 0.18.0 — Grok: forma treści i jednostka z hopu
 
 - Grok dzieli mail na 1–3 szkice według komunikatu dla odbiorcy; plakat = podgląd; pismo przewodnie = `drop`; ogólnikowy tytuł odrzucany.

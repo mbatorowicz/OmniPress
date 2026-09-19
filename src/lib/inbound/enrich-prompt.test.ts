@@ -19,9 +19,11 @@ describe('buildInboundEnrichPrompt', () => {
 			categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],
 		});
 		expect(inboundAi.system).toContain('pismo przewodnie');
+		expect(inboundAi.system).toContain('Nie streszczaj kilku spraw');
 		expect(prompt).toContain('Proszę o publikację');
 		expect(prompt).toContain('a.pdf');
 		expect(prompt).toContain('Treść uchwały');
 		expect(prompt).toContain('aktualnosci: Aktualności');
+		expect(prompt).toContain(inboundAi.splitReminder);
 	});
 });

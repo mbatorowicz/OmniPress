@@ -41,14 +41,14 @@ describe('suggestAttachmentDisplay', () => {
 		).toBe('link');
 	});
 
-	it('obraz nie jest PDF-em do podglądu', () => {
+	it('obraz z maila to materiał do pokazania', () => {
 		expect(
 			suggestAttachmentDisplay({
-				filename: 'foto.png',
-				mime: 'image/png',
+				filename: 'plakat_Zaszczep_pupila.jpg',
+				mime: 'image/jpeg',
 				pageCount: null,
 				text: '',
 			}),
-		).toBe('link');
+		).toBe('embed');
 	});
 });

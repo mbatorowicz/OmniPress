@@ -38,5 +38,7 @@ export function buildInboundEnrichPrompt(input: EnrichPromptInput): string {
 		'',
 		`${inboundAi.categoriesLabel}:`,
 		categories,
+		'',
+		inboundAi.splitReminder,
 	].join('\n');
 }

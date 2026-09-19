@@ -5,7 +5,8 @@ import type { InboundFileInventory } from './collect-attachment-texts';
 import { applyEnrichment, enrichFallback, type EnrichDraft } from './enrich-model';
 import { buildInboundEnrichPrompt } from './enrich-prompt';
 import { inboundAiEnvFromMeta, inboundAiModel, INBOUND_AI_TIMEOUT_MS } from './inbound-ai-config';
-import { logInboundAiFailed } from './inbound-ai-log';
+import { logInboundAiFailed, logInboundAiOk } from './inbound-ai-log';
+import { countMessageClusters } from './message-clusters';
 
 export type EnrichInboundInput = {
 	title: string;
@@ -19,6 +20,22 @@ export type EnrichInboundOptions = {
 	timeoutMs?: number;
 };
 
+const RETRY_BUDGET_MS = 8_000;
+
+function applyRaw(
+	raw: unknown,
+	input: EnrichInboundInput,
+	fallback: EnrichDraft,
+): EnrichDraft[] {
+	return applyEnrichment(
+		raw,
+		input.categories,
+		fallback,
+		input.attachments.map((row) => row.filename),
+		new Map(input.attachments.map((row) => [row.filename, row.text])),
+	);
+}
+
 export async function enrichInboundDraft(
 	input: EnrichInboundInput,
 	opts: EnrichInboundOptions = {},
@@ -26,23 +43,32 @@ export async function enrichInboundDraft(
 	const fallback = enrichFallback(input.title, input.contentMd);
 	const complete = opts.complete ?? completeInboundObject;
 	const timeoutMs = opts.timeoutMs ?? INBOUND_AI_TIMEOUT_MS;
+	const model = inboundAiModel(inboundAiEnvFromMeta());
+	const clusters = countMessageClusters(input.attachments);
 	const controller = new AbortController();
 	const timer = setTimeout(() => controller.abort(), timeoutMs);
+	const started = Date.now();
+	const prompt = buildInboundEnrichPrompt(input);
 	try {
-		const raw = await complete({
+		let raw = await complete({
 			system: inboundAi.system,
-			prompt: buildInboundEnrichPrompt(input),
+			prompt,
 			signal: controller.signal,
 		});
-		return applyEnrichment(
-			raw,
-			input.categories,
-			fallback,
-			input.attachments.map((row) => row.filename),
-			new Map(input.attachments.map((row) => [row.filename, row.text])),
-		);
+		let drafts = applyRaw(raw, input, fallback);
+		const remaining = timeoutMs - (Date.now() - started);
+		if (drafts.length < clusters && remaining >= RETRY_BUDGET_MS && !controller.signal.aborted) {
+			raw = await complete({
+				system: `${inboundAi.system} ${inboundAi.splitRetry.replace('{n}', String(clusters))}`,
+				prompt,
+				signal: controller.signal,
+			});
+			drafts = applyRaw(raw, input, fallback);
+		}
+		logInboundAiOk(model, drafts.length, clusters);
+		return drafts;
 	} catch (error) {
-		logInboundAiFailed(error, inboundAiModel(inboundAiEnvFromMeta()));
+		logInboundAiFailed(error, model);
 		return [fallback];
 	} finally {
 		clearTimeout(timer);
