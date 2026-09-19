@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { resolvePostCategoryFields } from '@/lib/posts/category';
 import { extractFromEmail } from './allowlist';
 
 const UNIQUE_VIOLATION = '23505';
@@ -11,6 +12,8 @@ export type CreateInboundDraftInput = {
 	contentMd: string;
 	siteSlug: string;
 	fallbackAuthorId: string;
+	categorySlug?: string | null;
+	extraCategorySlugs?: string[];
 };
 
 export type CreateInboundDraftError =
@@ -80,6 +83,15 @@ export async function createInboundDraft(
 	const authorId = (await findAuthorId(supabase, fromEmail)) || input.fallbackAuthorId.trim();
 	if (!authorId) return { ok: false, error: 'no_author' };
 
+	const category = input.categorySlug?.trim()
+		? await resolvePostCategoryFields(
+				supabase,
+				siteId,
+				input.categorySlug,
+				input.extraCategorySlugs ?? [],
+			)
+		: null;
+
 	const { data: post, error: postError } = await supabase
 		.from('posts')
 		.insert({
@@ -88,6 +100,13 @@ export async function createInboundDraft(
 			title: input.title,
 			content_md: input.contentMd,
 			status: 'draft',
+			...(category
+				? {
+						category_slug: category.category_slug,
+						category_name: category.category_name,
+						extra_category_slugs: category.extra_category_slugs,
+					}
+				: {}),
 		})
 		.select('id')
 		.single();

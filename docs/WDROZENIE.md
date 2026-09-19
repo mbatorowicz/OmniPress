@@ -154,6 +154,8 @@ Panel OmniPress ostrzega przy teście kanału, gdy wykryje classic PAT, i pokazu
 | `INBOUND_ALLOWED_FROM` | Allowlista From (przecinki / nowe linie) |
 | `INBOUND_DEFAULT_SITE_SLUG` | Slug jednostki dla szkicu (produkcja: `gmina-miedzna-pl`) |
 | `INBOUND_FALLBACK_AUTHOR_ID` | UUID profilu, gdy nadawca nie ma konta |
+| `INBOUND_AI_MODEL` | Opcjonalnie — model AI Gateway; pusty string wyłącza Grok; brak = `xai/grok-4` |
+| `AI_GATEWAY_API_KEY` | Opcjonalnie — lokalnie; na Vercel OIDC |
 
 Bez `ENCRYPTION_KEY`: konfiguracja jednostki zapisze się, ale **tokeny nie** (tylko dev).
 
@@ -175,18 +177,18 @@ Cron: `vercel.json` → worker raz dziennie (backup). Publikacja startuje też *
 
 ### Skrzynka inbound (szkic z poczty)
 
-Adres: **`wpisy@inbound.cncsolutions.dev`**. Mail z allowlisty zakłada **szkic** na jednostce z `INBOUND_DEFAULT_SITE_SLUG`. Nic nie idzie od razu na stronę — akceptacja jak dotychczas. Webhook: `POST https://omni-press.cncsolutions.dev/api/inbound/email` (zdarzenie Resend `email.received`, podpis Svix).
+Adres: **`wpisy@inbound.cncsolutions.dev`**. Mail z allowlisty zakłada **szkic** na jednostce z `INBOUND_DEFAULT_SITE_SLUG`. Grok (Vercel AI Gateway, `xai/grok-4`) proponuje tytuł, kategorię i treść — także z PDF/DOCX, gdy mail to pismo przewodnie. Nic nie idzie od razu na stronę. Webhook: `POST https://omni-press.cncsolutions.dev/api/inbound/email` (zdarzenie Resend `email.received`, podpis Svix, `maxDuration` 60 s).
 
 **Jak pisać**
 
 | Pole | Co trafia do panelu |
 |------|---------------------|
-| Temat | Tytuł szkicu (`Re:` / `Fwd:` / `Odp:` zdejmowane) |
-| Treść | `text/plain`, inaczej HTML → Markdown |
-| Załączniki | JPEG/PNG/WebP/GIF (max 10 MB), PDF/DOCX/XLSX/ZIP/GPKG (max 50 MB), do 8 plików |
+| Temat | Punkt startowy tytułu (`Re:` / `Fwd:` / `Odp:` zdejmowane); Grok może nadać lepszy z treści / PDF |
+| Treść | `text/plain`, inaczej HTML → Markdown; Grok wycina pismo przewodnie |
+| Załączniki | JPEG/PNG/WebP/GIF (max 10 MB), PDF/DOCX/XLSX/ZIP/GPKG (max 50 MB), do 8 plików. Z PDF i DOCX Grok czyta tekst (bez OCR skanów) |
 | From | Musi być na `INBOUND_ALLOWED_FROM` (dokładny adres, małe litery) |
 
-Obcy nadawca: webhook odpowiada 200 i **nie** tworzy wpisu. Zły załącznik: notatka w treści szkicu, szkic zostaje. Kategoria pusta — uzupełniasz w panelu przed publikacją. Autor: konto o tym e-mailu, inaczej `INBOUND_FALLBACK_AUTHOR_ID`. Telegram: „Szkic z poczty” + link, bez przycisku Akceptuj.
+Obcy nadawca: webhook odpowiada 200 i **nie** tworzy wpisu. Zły załącznik: notatka w treści szkicu, szkic zostaje. Gdy Gateway padnie: temat = tytuł, treść surowa, kategoria pusta (jak 0.16.0). Autor: konto o tym e-mailu, inaczej `INBOUND_FALLBACK_AUTHOR_ID`. Telegram: „Szkic z poczty” + link, bez przycisku Akceptuj. Treść urzędowa idzie do xAI przez Gateway — nie logujemy jej.
 
 **DNS — tylko `inbound.cncsolutions.dev`**
 
@@ -216,6 +218,7 @@ Migracja: `npm run setup:inbound-email`. Bez sekretów Resend panel działa; web
 | Worker nie działa | `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, redeploy |
 | Przycisk Akceptuj w Telegramie nie działa | `npm run setup:telegram-webhook` po deployu; `SUPABASE_SERVICE_ROLE_KEY`; czat musi być ten z `TELEGRAM_CHAT_ID` |
 | Mail na skrzynkę nie daje szkicu | Allowlista From; `RESEND_WEBHOOK_SECRET` + `RESEND_API_KEY`; MX na `inbound.cncsolutions.dev`; logi Vercel `/api/inbound/email` |
+| Szkic z maila bez kategorii / surowa treść | Grok wyłączony (`INBOUND_AI_MODEL` pusty) albo błąd Gateway; sprawdź `AI_GATEWAY_API_KEY` / OIDC |
 
 ---
 

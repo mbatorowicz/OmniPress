@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.16.0** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.17.0** (kod + baza + panel).
 
 Produkcja panelu: https://omni-press.cncsolutions.dev  
 Produkcja UG: https://gmina-miedzna.pl (cutover 2026-09-16) — gałąź `main` + publikacje OmniPress  
@@ -77,7 +77,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Uprawnienia redaktora (strony + domyślna); blokada: własne konto / ostatni admin | ✅ |
 | Usunięcie konta zostawia wpisy (autor: „konto usunięte”) | ✅ migracja `setup:author-on-delete` |
 | Kolejka: do akceptacji, zaplanowane (ze znacznikiem „Publikacja…”), na stronie | ✅ `/admin` — odznaka z liczbą *pending* przy *Administracja* i *Kolejka wpisów* |
-| Szkic z poczty (skrzynka inbound) | ✅ `wpisy@inbound.cncsolutions.dev`; webhook `POST /api/inbound/email`; tylko `draft`; Telegram bez przycisku Akceptuj |
+| Szkic z poczty (skrzynka inbound) | ✅ `wpisy@inbound.cncsolutions.dev`; webhook `POST /api/inbound/email`; tylko `draft`; Grok proponuje tytuł/kategorię/treść z maila i PDF/DOCX; Telegram bez przycisku Akceptuj |
 | Powiadomienie Telegram po wysłaniu do akceptacji | ✅ opcjonalne `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`; awaria bota nie blokuje submitu |
 | Akceptacja wpisu z Telegrama | ✅ przycisk *Akceptuj* w wiadomości bota; webhook `/api/telegram/webhook`; odrzucenie w panelu |
 | Wszystkie wpisy redaktorów — także szkice i wpisy do poprawki; zakładki statusów z licznikami, filtr (tytuł, status, strona, autor), sortowanie kolumn (domyślnie data publikacji), stronicowanie po 25 | ✅ `/admin/posts` |
@@ -209,6 +209,8 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | `INBOUND_ALLOWED_FROM` | tak (skrzynka) | Allowlista From (przecinki / nowe linie, dokładne adresy) |
 | `INBOUND_DEFAULT_SITE_SLUG` | tak (skrzynka) | Slug jednostki dla szkicu (produkcja: `gmina-miedzna-pl`) |
 | `INBOUND_FALLBACK_AUTHOR_ID` | tak (skrzynka) | UUID profilu, gdy nadawca nie ma konta w panelu |
+| `INBOUND_AI_MODEL` | opcjonalnie | Model AI Gateway; pusty string wyłącza Grok; brak = `xai/grok-4` |
+| `AI_GATEWAY_API_KEY` | opcjonalnie | Klucz Gateway lokalnie; na Vercel wystarczy OIDC |
 
 ---
 
@@ -222,6 +224,12 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | SSO redaktorów | — |
 
 ---
+
+## 0.17.0 — Grok na skrzynce inbound
+
+- Mail z allowlisty: Grok czyta treść oraz PDF/DOCX i proponuje tytuł, kategorię (z listy jednostki) i posprzątaną treść wpisu.
+- Nadal tylko `draft`. Błąd / timeout Gateway = import 1:1 jak w 0.16.0 (pusta kategoria).
+- `maxDuration` webhooka 60 s. Env: `INBOUND_AI_MODEL`, `AI_GATEWAY_API_KEY` (lokalnie).
 
 ## 0.16.0 — Skrzynka inbound
 

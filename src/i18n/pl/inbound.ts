@@ -1,7 +1,7 @@
 export const inbound = {
 	heading: 'Szkic z poczty',
 	titleLabel: 'Tytuł',
-	hint: 'To szkic — otwórz w panelu, uzupełnij kategorię i wyślij do akceptacji.',
+	hint: 'To szkic — otwórz w panelu, sprawdź tytuł i kategorię, potem wyślij do akceptacji.',
 	unnamedFile: 'załącznik',
 	skippedList: 'Nie udało się pobrać listy załączników.',
 	skippedTooLarge: (name: string) => `Pominięto załącznik „${name}”: za duży plik.`,

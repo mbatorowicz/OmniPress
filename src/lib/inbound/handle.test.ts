@@ -163,4 +163,60 @@ describe('handleInboundEmail', () => {
 		expect(applyAttachments).not.toHaveBeenCalled();
 		expect(notify).not.toHaveBeenCalled();
 	});
+
+	it('Grok: posprzątany tytuł, kategoria i treść idą do szkicu', async () => {
+		const fetchEmail = vi.fn().mockResolvedValue(EMAIL);
+		const createDraft = vi.fn().mockResolvedValue(CREATED);
+		const applyAttachments = vi.fn().mockResolvedValue(undefined);
+		const notify = vi.fn().mockResolvedValue(undefined);
+		const collectAttachmentTexts = vi.fn().mockResolvedValue([
+			{ filename: 'uchwala.pdf', mime: 'application/pdf', text: 'Uchwała nr 12' },
+		]);
+		const loadCategories = vi.fn().mockResolvedValue([
+			{ slug: 'aktualnosci', name: 'Aktualności', sources: ['github_astro'] },
+		]);
+		const enrich = vi.fn().mockResolvedValue({
+			title: 'Uchwała w sprawie festynu',
+			contentMd: 'Rada Gminy organizuje festyn.',
+			categorySlug: 'aktualnosci',
+			extraCategorySlugs: [],
+		});
+
+		const response = await handleInboundEmail(signedRequest(receivedEvent()), {
+			secret: SECRET,
+			nowSec: NOW,
+			draftConfig: DRAFT_CONFIG,
+			fetchEmail,
+			createDraft,
+			applyAttachments,
+			notify,
+			collectAttachmentTexts,
+			loadCategories,
+			enrich,
+		});
+
+		expect(response.status).toBe(200);
+		expect(enrich).toHaveBeenCalledWith(
+			expect.objectContaining({
+				title: 'Festyn gminny',
+				contentMd: 'Zapraszamy na festyn.',
+			}),
+		);
+		expect(createDraft).toHaveBeenCalledWith({
+			messageId: EMAIL_ID,
+			from: FROM,
+			title: 'Uchwała w sprawie festynu',
+			contentMd: 'Rada Gminy organizuje festyn.',
+			siteSlug: 'gmina-miedzna',
+			fallbackAuthorId: DRAFT_CONFIG.fallbackAuthorId,
+			categorySlug: 'aktualnosci',
+			extraCategorySlugs: [],
+		});
+		expect(applyAttachments).toHaveBeenCalledWith({
+			postId: POST_ID,
+			emailId: EMAIL_ID,
+			contentMd: 'Rada Gminy organizuje festyn.',
+		});
+		expect(notify).toHaveBeenCalledWith(POST_ID, 'Uchwała w sprawie festynu');
+	});
 });

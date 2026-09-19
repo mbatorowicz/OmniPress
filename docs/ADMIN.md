@@ -161,10 +161,10 @@ e-maili w tej wersji), więc przy większych zmianach uprzedź go poza systemem.
 
 Adres skrzynki: **`wpisy@inbound.cncsolutions.dev`**. Technika i DNS: [WDROZENIE.md](./WDROZENIE.md).
 
-1. Temat maila = tytuł. Treść = treść szkicu. Załączniki (zdjęcia, PDF, DOCX, XLSX, ZIP, GPKG) lądują przy wpisie tak jak z panelu.
+1. Temat i treść maila to punkt startowy. Gdy w załączniku jest PDF albo DOCX, Grok czyta warstwę tekstową i na tej podstawie proponuje **tytuł**, **kategorię** (z listy jednostki) i **treść wpisu** — pismo przewodnie („proszę opublikować”) nie zostaje artykułem. Załączniki i tak lądują przy wpisie jak z panelu.
 2. Nadawca musi być na allowliście (`INBOUND_ALLOWED_FROM`). Na start: konto administratora. Obcy mail jest ignorowany — nie powstaje wpis.
-3. Szkic trafia na jednostkę domyślną (Gmina Miedzna). **Kategoria jest pusta** — bez niej nie opublikujesz.
-4. W `/admin/posts` filtr *Szkic* → *Edytuj*: uzupełnij kategorię, popraw tekst, potem *Wyślij do akceptacji* albo *Opublikuj szkic* (§5.2).
+3. Szkic trafia na jednostkę domyślną (Gmina Miedzna). Grok może uzupełnić kategorię; i tak **sprawdź** tytuł i kategorię przed publikacją. Gdy Gateway nie odpowie, kategoria zostaje pusta.
+4. W `/admin/posts` filtr *Szkic* → *Edytuj*: sprawdź propozycję, popraw jeśli trzeba, potem *Wyślij do akceptacji* albo *Opublikuj szkic* (§5.2).
 5. Telegram (gdy bot działa) dostaje link do `/admin/posts/{id}` bez przycisku *Akceptuj*.
 
 ---

@@ -7,6 +7,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Dodane
 
+- **Grok na skrzynce inbound.** Mail z pismem przewodnim i PDF/DOCX dostaje proponowany tytuł, kategorię i posprzątaną treść (model `xai/grok-4` przez Vercel AI Gateway). Szkic zostaje szkicem — publikacja jak dotychczas. Gdy Gateway nie odpowiada, działa stary import 1:1. Szczegóły: [ADMIN.md](docs/ADMIN.md) §5.3, [WDROZENIE.md](docs/WDROZENIE.md).
+
+### Dodane
+
 - **Skrzynka inbound.** Mail na `wpisy@inbound.cncsolutions.dev` (allowlista From) zakłada szkic w panelu. Publikacja nadal wymaga akceptacji. MX tylko na `inbound.cncsolutions.dev` — poczta gminy i szkoły bez zmian. Szczegóły: [WDROZENIE.md](docs/WDROZENIE.md), [ADMIN.md](docs/ADMIN.md).
 
 ### Zmienione

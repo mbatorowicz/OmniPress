@@ -31,6 +31,10 @@ interface ImportMetaEnv {
 	readonly INBOUND_DEFAULT_SITE_SLUG?: string;
 	/** UUID profilu, gdy nadawca nie ma konta w panelu. */
 	readonly INBOUND_FALLBACK_AUTHOR_ID?: string;
+	/** Model AI Gateway (pusty string = wyłącz enrichment). Domyślnie xai/grok-4. */
+	readonly INBOUND_AI_MODEL?: string;
+	/** Klucz Vercel AI Gateway — lokalnie; na Vercel wystarczy OIDC. */
+	readonly AI_GATEWAY_API_KEY?: string;
 }
 
 interface ImportMeta {

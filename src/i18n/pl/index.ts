@@ -23,4 +23,5 @@ export { api, formatUploadError } from './api';
 export { home } from './home';
 export { callbackPage } from './callback';
 export { inbound } from './inbound';
+export { inboundAi } from './inbound-ai';
 export { notify } from './notify';
