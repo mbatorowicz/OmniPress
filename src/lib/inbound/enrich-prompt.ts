@@ -9,6 +9,14 @@ export type EnrichPromptInput = {
 	categories: Pick<CategoryOption, 'slug' | 'name'>[];
 };
 
+function formatCategoryLine(category: Pick<CategoryOption, 'slug' | 'name'>): string {
+	const hint =
+		category.slug in inboundAi.categoryHints
+			? inboundAi.categoryHints[category.slug as keyof typeof inboundAi.categoryHints]
+			: undefined;
+	return hint ? `- ${category.slug}: ${category.name} — ${hint}` : `- ${category.slug}: ${category.name}`;
+}
+
 function formatAttachment(row: InboundFileInventory): string {
 	const pages = row.pageCount != null ? `, ${row.pageCount} str.` : '';
 	const chars = row.text ? `, ${row.text.length} znaków` : '';
@@ -22,7 +30,7 @@ export function buildInboundEnrichPrompt(input: EnrichPromptInput): string {
 	const categories =
 		input.categories.length === 0
 			? inboundAi.noCategories
-			: input.categories.map((c) => `- ${c.slug}: ${c.name}`).join('\n');
+			: input.categories.map(formatCategoryLine).join('\n');
 	const attachments =
 		input.attachments.length === 0
 			? inboundAi.noAttachments

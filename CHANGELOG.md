@@ -8,6 +8,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 ### Naprawione
 
 - **Grok sklejał spokrewnione plakaty w jeden szkic.** Lead wyliczał kilka spraw (np. wścieklizna i szczepienie pupila). Prompt zabrania streszczania; gdy nazwy i tekst układają się w kilka klastrów, jest druga tura. Obraz z maila ma sugerowane `embed`. Log `inbound_ai_ok` zapisuje liczbę szkiców, nie treść.
+- **Grok mylił Aktualności z Ochroną ludności.** Komunikat dla mieszkańców (plakat, sanepid, weterynaria) ma kategorię `aktualnosci`. `ochrona-ludnosci` zostaje na stałe materiały kryzysowe (alarmy, ewakuacja).
 
 ### Dodane
 

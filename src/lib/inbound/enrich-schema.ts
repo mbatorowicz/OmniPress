@@ -7,7 +7,12 @@ export const inboundEnrichAttachmentSchema = z.object({
 
 export const inboundEnrichPostSchema = z.object({
 	title: z.string().describe('Tytuł tej jednej sprawy, nie ogólnik i nie streszczenie kilku tematów'),
-	category_slug: z.string().nullable(),
+	category_slug: z
+		.string()
+		.nullable()
+		.describe(
+			'Domyślnie aktualnosci, jeśli jest na liście. Węższą kategorię tylko gdy materiał wyraźnie do niej należy.',
+		),
 	extra_category_slugs: z.array(z.string()).optional(),
 	content_md: z.string().describe('Krótki lead wyłącznie tej sprawy'),
 	attachments: z.array(inboundEnrichAttachmentSchema).optional(),

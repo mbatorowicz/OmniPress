@@ -16,14 +16,23 @@ describe('buildInboundEnrichPrompt', () => {
 					suggestedDisplay: 'link',
 				},
 			],
-			categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],
+			categories: [
+				{ slug: 'aktualnosci', name: 'Aktualności' },
+				{ slug: 'ochrona-ludnosci', name: 'Ochrona ludności' },
+				{ slug: 'rok-szkolny-2025-2026', name: 'Rok szkolny 2025/2026' },
+			],
 		});
 		expect(inboundAi.system).toContain('pismo przewodnie');
 		expect(inboundAi.system).toContain('Nie streszczaj kilku spraw');
+		expect(inboundAi.system).toContain('domyślny wybór na komunikat dla mieszkańców');
 		expect(prompt).toContain('Proszę o publikację');
 		expect(prompt).toContain('a.pdf');
 		expect(prompt).toContain('Treść uchwały');
-		expect(prompt).toContain('aktualnosci: Aktualności');
+		expect(prompt).toContain('aktualnosci: Aktualności — ');
+		expect(prompt).toContain(inboundAi.categoryHints.aktualnosci);
+		expect(prompt).toContain(inboundAi.categoryHints['ochrona-ludnosci']);
+		expect(prompt).toContain('- rok-szkolny-2025-2026: Rok szkolny 2025/2026');
+		expect(prompt).not.toContain('rok-szkolny-2025-2026: Rok szkolny 2025/2026 —');
 		expect(prompt).toContain(inboundAi.splitReminder);
 	});
 });

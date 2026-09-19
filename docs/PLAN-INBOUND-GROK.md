@@ -18,6 +18,7 @@ Jednostka podziału to **komunikat dla odbiorcy strony**, nie liczba plików i n
 - Pismo przewodnie / „proszę opublikować” / „proszę poinformować mieszkańców” → ani w treści, ani jako załącznik.
 - Plakat, ulotka, zaproszenie → podgląd (`embed`).
 - Uchwała, regulamin, lista → link.
+- Kategoria: **Aktualności** na komunikat dla mieszkańców (plakat, sanepid, weterynaria). **Ochrona ludności** tylko na stałe materiały kryzysowe (alarmy, ewakuacja).
 - Tytuł nazywa sprawę. Zakaz: `Plakaty`, `Załączniki`, `Informacja`, `Proszę o publikację`.
 - Limit 1–3 szkice z jednego maila. Nie jeden wpis na plik.
 
