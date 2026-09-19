@@ -77,7 +77,7 @@ sequenceDiagram
 10. **Załączniki** — bucket `post-assets` jest prywatny (`npm run setup:storage-private`). Plik wychodzi wyłącznie przez `/api/posts/{id}/assets/{assetId}/file` albo `/api/admin/sites/{siteId}/pages/{pageId}/assets/{assetId}/file` (sesja + rola); publikacja czyta bajty klientem Storage i commituje je do repo strony. Zero adresów `/object/public/…` w panelu i w treści szkicu. Nazwa pliku i URL w panelu galerii / listy załączników idą przez `textContent` / `isSafeUrl`, nie przez `innerHTML`.
 11. **CSRF mutacji panelu** — middleware odrzuca POST/PUT/PATCH/DELETE na `/api/posts/*` i `/api/admin/*` z obcego lub brakującego `Origin` (wyjątek: `Sec-Fetch-Site: same-origin`). Worker cron (`/api/worker/*`), webhook Telegram (`/api/telegram/webhook`), webhook inbound (`/api/inbound/email`) i GET (proxy pliku) nie podlegają.
 12. **Webhook Telegram** — `POST /api/telegram/webhook`. Brak sesji panelu: sekret `X-Telegram-Bot-Api-Secret-Token` (HMAC-SHA256 tokenu bota) oraz `chat_id` zgodny z `TELEGRAM_CHAT_ID`. Akceptacja tylko wpisów `pending`, klientem service role.
-13. **Webhook inbound** — `POST /api/inbound/email`. Brak sesji panelu: podpis Svix (`svix-id` / `svix-timestamp` / `svix-signature`) i `RESEND_WEBHOOK_SECRET`. Obcy From: 200 `{ ignored: true }`. Tylko `status: draft` (1–3 szkice). Jednostka z hopu przekazującego, nie z envelope. Nie logować treści maila (wolno: model, liczba szkiców, kod błędu). Opcjonalnie outbound do Vercel AI Gateway (Grok) — to samo: bez logowania treści; timeout / błąd = import 1:1 bez kategorii.
+13. **Webhook inbound** — `POST /api/inbound/email`. Brak sesji panelu: podpis Svix (`svix-id` / `svix-timestamp` / `svix-signature`) i `RESEND_WEBHOOK_SECRET`. Obcy From: 200 `{ ignored: true }`. Tylko `status: draft` (1–3 szkice). Jednostka z hopu przekazującego, nie z envelope. Nie logować treści maila (wolno: model, liczba szkiców, kod błędu). Opcjonalnie outbound do Vercel AI Gateway (Grok) — to samo: bez logowania treści; timeout / błąd = import 1:1 bez kategorii. Ponowny odczyt: `POST /api/admin/inbound/replay` (sesja administratora) — kasuje poprzedni szkic z tego `emailId` i redaguje od nowa; nadal bez logowania treści.
 
 ## Ochrona API
 
@@ -113,3 +113,4 @@ Trasy `/api/posts/*` i `/api/sites/*` — dostęp do wpisu w handlerze (`loadEdi
 | POST | `/api/auth/signout` | Wylogowanie |
 | POST | `/api/telegram/webhook` | Callback bota — akceptacja wpisu `pending` |
 | POST | `/api/inbound/email` | Resend Receiving — szkic z maila (`draft`) |
+| POST | `/api/admin/inbound/replay` | Admin: usuń poprzedni szkic z tego maila i puść Groka jeszcze raz |

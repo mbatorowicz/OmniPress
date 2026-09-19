@@ -16,4 +16,8 @@ export const inbound = {
 	skippedLimitMany: (count: number) =>
 		`Pominięto ${count} załączników: przekroczono limit liczby plików.`,
 	skippedStore: (name: string) => `Pominięto załącznik „${name}”: zapis nie powiódł się.`,
+	replay: {
+		missingEmail: 'Brak identyfikatora maila.',
+		fetchFailed: 'Nie udało się pobrać maila z Resend.',
+	},
 } as const;

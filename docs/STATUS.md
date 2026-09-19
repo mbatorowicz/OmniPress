@@ -231,6 +231,7 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 
 - Gdy w mailu są osobne komunikaty (inne nagłówki / obowiązki), druga tura Groka rozdziela je na 1–3 szkice. Jeden lead nie może wyliczać kilku spraw.
 - Komunikat dla mieszkańców (plakat, sanepid, weterynaria) → `aktualnosci`. `ochrona-ludnosci` zostaje na stałe materiały kryzysowe.
+- Ponowny odczyt tego samego maila: `POST /api/admin/inbound/replay` (kasuje poprzedni szkic i puszcza Groka jeszcze raz).
 
 ## 0.18.0 — Grok: forma treści i jednostka z hopu
 

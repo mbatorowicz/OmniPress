@@ -5,6 +5,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Dodane
+
+- **Ponowny odczyt maila inbound.** Administrator może skasować szkic z poczty i puścić ten sam list przez Groka jeszcze raz (`POST /api/admin/inbound/replay`).
+
 ### Naprawione
 
 - **Grok sklejał spokrewnione plakaty w jeden szkic.** Lead wyliczał kilka spraw (np. wścieklizna i szczepienie pupila). Prompt zabrania streszczania; gdy nazwy i tekst układają się w kilka klastrów, jest druga tura. Obraz z maila ma sugerowane `embed`. Log `inbound_ai_ok` zapisuje liczbę szkiców, nie treść.
