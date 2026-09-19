@@ -24,6 +24,7 @@ describe('buildInboundEnrichPrompt', () => {
 		});
 		expect(inboundAi.system).toContain('pismo przewodnie');
 		expect(inboundAi.system).toContain('Nie streszczaj kilku spraw');
+		expect(inboundAi.system).toContain('Nie rób jednego wpisu na plik');
 		expect(inboundAi.system).toContain('domyślny wybór na komunikat dla mieszkańców');
 		expect(prompt).toContain('Proszę o publikację');
 		expect(prompt).toContain('a.pdf');
@@ -34,5 +35,42 @@ describe('buildInboundEnrichPrompt', () => {
 		expect(prompt).toContain('- rok-szkolny-2025-2026: Rok szkolny 2025/2026');
 		expect(prompt).not.toContain('rok-szkolny-2025-2026: Rok szkolny 2025/2026 —');
 		expect(prompt).toContain(inboundAi.splitReminder);
+		expect(prompt).not.toContain(inboundAi.clusterHint.replace('{n}', '2'));
+	});
+
+	it('dopisuje sygnał grup plików, gdy nazwy układają się w kilka spraw', () => {
+		const prompt = buildInboundEnrichPrompt({
+			title: 'Plakaty',
+			contentMd: 'Proszę opublikować.',
+			attachments: [
+				{
+					filename: 'plakat_Zaszczep_pupila.jpg',
+					mime: 'image/jpeg',
+					text: '',
+					pageCount: null,
+					suggestedDisplay: 'embed',
+				},
+				{
+					filename: 'Plakat_wścieklizna_obszar_zagrożony.pdf',
+					mime: 'application/pdf',
+					text: 'Obszar zagrożony',
+					pageCount: 1,
+					suggestedDisplay: 'embed',
+				},
+				{
+					filename: 'Plakat_wścieklizna_zasady_zachowania.pdf',
+					mime: 'application/pdf',
+					text: 'Zasady zachowania',
+					pageCount: 1,
+					suggestedDisplay: 'embed',
+				},
+			],
+			categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],
+		});
+		expect(prompt).toContain(inboundAi.clusterHint.replace('{n}', '2'));
+		expect(prompt).toContain('1. plakat_Zaszczep_pupila.jpg');
+		expect(prompt).toContain(
+			'2. Plakat_wścieklizna_obszar_zagrożony.pdf, Plakat_wścieklizna_zasady_zachowania.pdf',
+		);
 	});
 });

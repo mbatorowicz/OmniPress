@@ -24,7 +24,7 @@ export const inboundEnrichSchema = z.object({
 		.min(1)
 		.max(3)
 		.describe(
-			'Osobny element na każdą sprawę dla odbiorcy. Warianty tego samego plakatu razem. Różne nagłówki, obowiązki albo wydarzenia = osobne wpisy. Nie streszczaj kilku spraw w jednym leadzie.',
+			'Osobny element na każdą sprawę dla odbiorcy. Ujęcia tej samej sprawy razem. Inny obowiązek albo wydarzenie = osobny wpis. Nie streszczaj kilku spraw w jednym leadzie. Nie dziel po pliku.',
 		),
 });
 

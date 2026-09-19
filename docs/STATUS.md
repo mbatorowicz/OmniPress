@@ -227,11 +227,12 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 
 ---
 
-## 0.18.1 — Grok nie skleja spokrewnionych spraw
+## 0.18.1 — Grok nie skleja spokrewnionych spraw i nie dzieli po pliku
 
-- Gdy w mailu są osobne komunikaty (inne nagłówki / obowiązki), druga tura Groka rozdziela je na 1–3 szkice. Jeden lead nie może wyliczać kilku spraw.
+- Gdy w mailu są osobne sprawy (inny obowiązek / wydarzenie), druga tura Groka rozdziela je na 1–3 szkice. Jeden lead nie może wyliczać kilku spraw.
+- Ujęcia tej samej sprawy (inny podtytuł, strona, format) zostają w jednym wpisie. Druga tura scala nadmiar; na końcu kod zlepia pliki o tym samym temacie w nazwie.
 - Komunikat dla mieszkańców (plakat, sanepid, weterynaria) → `aktualnosci`. `ochrona-ludnosci` zostaje na stałe materiały kryzysowe.
-- Ponowny odczyt tego samego maila: `POST /api/admin/inbound/replay` (kasuje poprzedni szkic i puszcza Groka jeszcze raz).
+- Ponowny odczyt tego samego maila: `POST /api/admin/inbound/replay` (kasuje poprzednie szkice z przesyłki i puszcza Groka jeszcze raz).
 
 ## 0.18.0 — Grok: forma treści i jednostka z hopu
 

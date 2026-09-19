@@ -1,4 +1,4 @@
-/** Ile osobnych spraw widać w nazwach i tekście — sygnał, nie decyzja redaktorska. */
+/** Ile osobnych spraw widać w nazwach — sygnał, nie decyzja redaktorska. */
 
 const STOPWORDS = new Set([
 	'plakat',
@@ -15,7 +15,18 @@ const STOPWORDS = new Set([
 	'publikacja',
 	'mieszkancow',
 	'załącznik',
+	'wariant',
+	'wersja',
+	'format',
+	'poziomy',
+	'pionowy',
+	'instagram',
+	'facebook',
 ]);
+
+const TOPIC_MIN = 8;
+
+export type ClusterFile = { filename: string; text: string; suggestedDisplay: string };
 
 function stripDiacritics(value: string): string {
 	return value
@@ -29,10 +40,20 @@ export function filenameStem(name: string): string {
 	return name.replace(/\.[a-z0-9]+$/i, '').replace(/[_-]+/g, ' ');
 }
 
-export function materialTokens(filename: string, text: string): Set<string> {
-	const raw = stripDiacritics(`${filenameStem(filename)} ${text.slice(0, 160)}`).toLowerCase();
-	const words = raw.split(/[^a-z0-9]+/).filter((w) => w.length >= 5 && !STOPWORDS.has(w));
+function tokensFrom(raw: string, minLength: number): Set<string> {
+	const words = stripDiacritics(raw)
+		.toLowerCase()
+		.split(/[^a-z0-9]+/)
+		.filter((w) => w.length >= minLength && !STOPWORDS.has(w));
 	return new Set(words);
+}
+
+export function materialTokens(filename: string, text: string): Set<string> {
+	return tokensFrom(`${filenameStem(filename)} ${text.slice(0, 160)}`, 5);
+}
+
+export function filenameTopicTokens(filename: string): Set<string> {
+	return tokensFrom(filenameStem(filename), TOPIC_MIN);
 }
 
 function sharesToken(a: Set<string>, b: Set<string>): boolean {
@@ -40,14 +61,20 @@ function sharesToken(a: Set<string>, b: Set<string>): boolean {
 	return false;
 }
 
-export function countMessageClusters(
-	files: { filename: string; text: string; suggestedDisplay: string }[],
-): number {
+function sameCluster(a: ClusterFile, b: ClusterFile): boolean {
+	const topicA = filenameTopicTokens(a.filename);
+	const topicB = filenameTopicTokens(b.filename);
+	if (topicA.size > 0 && topicB.size > 0) return sharesToken(topicA, topicB);
+	return sharesToken(materialTokens(a.filename, a.text), materialTokens(b.filename, b.text));
+}
+
+export function groupMessageClusters(files: ClusterFile[]): { filenames: string[] }[] {
 	const items = files.filter((row) => row.suggestedDisplay !== 'drop');
-	const useful = items
-		.map((row) => materialTokens(row.filename, row.text))
-		.filter((tokens) => tokens.size > 0);
-	if (useful.length <= 1) return Math.max(useful.length, items.length > 0 ? 1 : 0);
+	const useful = items.filter(
+		(row) => filenameTopicTokens(row.filename).size > 0 || materialTokens(row.filename, row.text).size > 0,
+	);
+	if (useful.length === 0) return [];
+	if (useful.length === 1) return [{ filenames: [useful[0]!.filename] }];
 
 	const parent = useful.map((_, i) => i);
 	const find = (i: number): number => {
@@ -62,8 +89,23 @@ export function countMessageClusters(
 	};
 	for (let i = 0; i < useful.length; i++) {
 		for (let j = i + 1; j < useful.length; j++) {
-			if (sharesToken(useful[i]!, useful[j]!)) union(i, j);
+			if (sameCluster(useful[i]!, useful[j]!)) union(i, j);
 		}
 	}
-	return new Set(useful.map((_, i) => find(i))).size;
+
+	const seen = new Set<number>();
+	const groups: { filenames: string[] }[] = [];
+	for (let i = 0; i < useful.length; i++) {
+		const root = find(i);
+		if (seen.has(root)) continue;
+		seen.add(root);
+		groups.push({
+			filenames: useful.filter((_, j) => find(j) === root).map((row) => row.filename),
+		});
+	}
+	return groups;
+}
+
+export function countMessageClusters(files: ClusterFile[]): number {
+	return groupMessageClusters(files).length;
 }

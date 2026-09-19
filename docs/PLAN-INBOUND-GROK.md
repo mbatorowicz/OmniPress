@@ -13,14 +13,14 @@ Pipeline inbound robił **jeden** szkic (`title` / `category_slug` / `content_md
 
 Jednostka podziału to **komunikat dla odbiorcy strony**, nie liczba plików i nie pokrewieństwo dziedziny.
 
-- Kilka materiałów tego samego komunikatu → jeden wpis, wszystkie pokazane.
-- Kilka komunikatów w jednym mailu → osobne wpisy, nawet gdy tematy są spokrewnione.
+- Kilka ujęć tej samej sprawy (podtytuł, strona, format) → jeden wpis, wszystkie pokazane.
+- Kilka spraw w jednym mailu → osobne wpisy, nawet gdy dziedzina jest pokrewna. Pokrewne słowo w treści nie skleja różnych nazw plików.
 - Pismo przewodnie / „proszę opublikować” / „proszę poinformować mieszkańców” → ani w treści, ani jako załącznik.
 - Plakat, ulotka, zaproszenie → podgląd (`embed`).
 - Uchwała, regulamin, lista → link.
 - Kategoria: **Aktualności** na komunikat dla mieszkańców (plakat, sanepid, weterynaria). **Ochrona ludności** tylko na stałe materiały kryzysowe (alarmy, ewakuacja).
 - Tytuł nazywa sprawę. Zakaz: `Plakaty`, `Załączniki`, `Informacja`, `Proszę o publikację`.
-- Limit 1–3 szkice z jednego maila. Nie jeden wpis na plik.
+- Limit 1–3 szkice z jednego maila. Nie jeden wpis na plik. Nie dziel po podtytule.
 
 Grok ocenia **konkretny zestaw** za każdym razem. W kodzie nie ma ścieżki „jeśli szczepienia i wścieklizna”.
 

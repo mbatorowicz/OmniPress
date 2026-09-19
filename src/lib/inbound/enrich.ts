@@ -1,9 +1,11 @@
 import { inboundAi } from '@/i18n';
 import type { CategoryOption } from '@/lib/categories';
 import { completeInboundObject, type InboundAiComplete } from './ai-client';
+import { coalesceDrafts } from './coalesce-drafts';
 import type { InboundFileInventory } from './collect-attachment-texts';
 import { applyEnrichment, enrichFallback, type EnrichDraft } from './enrich-model';
 import { buildInboundEnrichPrompt } from './enrich-prompt';
+import { enrichRetrySystem } from './enrich-retry';
 import { inboundAiEnvFromMeta, inboundAiModel, INBOUND_AI_TIMEOUT_MS } from './inbound-ai-config';
 import { logInboundAiFailed, logInboundAiOk } from './inbound-ai-log';
 import { countMessageClusters } from './message-clusters';
@@ -56,15 +58,17 @@ export async function enrichInboundDraft(
 			signal: controller.signal,
 		});
 		let drafts = applyRaw(raw, input, fallback);
+		const retrySystem = enrichRetrySystem(clusters, drafts.length);
 		const remaining = timeoutMs - (Date.now() - started);
-		if (drafts.length < clusters && remaining >= RETRY_BUDGET_MS && !controller.signal.aborted) {
+		if (retrySystem && remaining >= RETRY_BUDGET_MS && !controller.signal.aborted) {
 			raw = await complete({
-				system: `${inboundAi.system} ${inboundAi.splitRetry.replace('{n}', String(clusters))}`,
+				system: retrySystem,
 				prompt,
 				signal: controller.signal,
 			});
 			drafts = applyRaw(raw, input, fallback);
 		}
+		drafts = coalesceDrafts(drafts, input.attachments);
 		logInboundAiOk(model, drafts.length, clusters);
 		return drafts;
 	} catch (error) {

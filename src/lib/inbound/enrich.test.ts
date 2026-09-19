@@ -121,6 +121,159 @@ describe('enrichInboundDraft', () => {
 		info.mockRestore();
 	});
 
+	it('trzy wpisy na dwa komunikaty → druga tura scala ujęcia', async () => {
+		const info = vi.spyOn(console, 'info').mockImplementation(() => {});
+		const complete = vi
+			.fn()
+			.mockResolvedValueOnce({
+				posts: [
+					{
+						title: 'Zaszczep pupila',
+						category_slug: 'aktualnosci',
+						content_md: 'Obowiązek szczepienia.',
+						attachments: [{ filename: 'plakat_Zaszczep_pupila.jpg', display: 'embed' }],
+					},
+					{
+						title: 'Wścieklizna - obszar',
+						category_slug: 'aktualnosci',
+						content_md: 'Obszar zagrożony.',
+						attachments: [
+							{ filename: 'Plakat_wścieklizna_obszar_zagrożony.pdf', display: 'embed' },
+						],
+					},
+					{
+						title: 'Wścieklizna - zasady',
+						category_slug: 'aktualnosci',
+						content_md: 'Zasady zachowania.',
+						attachments: [
+							{ filename: 'Plakat_wścieklizna_zasady_zachowania.pdf', display: 'embed' },
+						],
+					},
+				],
+			})
+			.mockResolvedValueOnce({
+				posts: [
+					{
+						title: 'Zaszczep pupila',
+						category_slug: 'aktualnosci',
+						content_md: 'Obowiązek szczepienia.',
+						attachments: [{ filename: 'plakat_Zaszczep_pupila.jpg', display: 'embed' }],
+					},
+					{
+						title: 'Wścieklizna',
+						category_slug: 'aktualnosci',
+						content_md: 'Obszar zagrożony i zasady zachowania.',
+						attachments: [
+							{ filename: 'Plakat_wścieklizna_obszar_zagrożony.pdf', display: 'embed' },
+							{ filename: 'Plakat_wścieklizna_zasady_zachowania.pdf', display: 'embed' },
+						],
+					},
+				],
+			});
+		const drafts = await enrichInboundDraft(
+			{
+				title: 'Plakaty',
+				contentMd: 'Proszę o publikację.',
+				attachments: [
+					{
+						filename: 'plakat_Zaszczep_pupila.jpg',
+						mime: 'image/jpeg',
+						text: '',
+						pageCount: null,
+						suggestedDisplay: 'embed',
+					},
+					{
+						filename: 'Plakat_wścieklizna_obszar_zagrożony.pdf',
+						mime: 'application/pdf',
+						text: 'Obszar zagrożony wścieklizną',
+						pageCount: 1,
+						suggestedDisplay: 'embed',
+					},
+					{
+						filename: 'Plakat_wścieklizna_zasady_zachowania.pdf',
+						mime: 'application/pdf',
+						text: 'Zasady zachowania przy wściekliźnie',
+						pageCount: 1,
+						suggestedDisplay: 'embed',
+					},
+				],
+				categories: CATEGORIES,
+			},
+			{ complete, timeoutMs: 20_000 },
+		);
+		expect(drafts).toHaveLength(2);
+		expect(drafts.map((row) => row.title)).toEqual(['Zaszczep pupila', 'Wścieklizna']);
+		expect(drafts[1]?.attachments.map((row) => row.filename)).toEqual([
+			'Plakat_wścieklizna_obszar_zagrożony.pdf',
+			'Plakat_wścieklizna_zasady_zachowania.pdf',
+		]);
+		expect(complete).toHaveBeenCalledTimes(2);
+		expect(complete.mock.calls[1]?.[0]?.system).toContain('Za dużo wpisów (3 zamiast 2)');
+		info.mockRestore();
+	});
+
+	it('gdy druga tura nadal dzieli po pliku, scala ujęcia z nazw', async () => {
+		vi.spyOn(console, 'info').mockImplementation(() => {});
+		const three = {
+			posts: [
+				{
+					title: 'Zaszczep pupila',
+					category_slug: 'aktualnosci',
+					content_md: 'Obowiązek szczepienia.',
+					attachments: [{ filename: 'plakat_Zaszczep_pupila.jpg', display: 'embed' }],
+				},
+				{
+					title: 'Wścieklizna - obszar',
+					category_slug: 'aktualnosci',
+					content_md: 'Obszar zagrożony.',
+					attachments: [{ filename: 'Plakat_wścieklizna_obszar_zagrożony.pdf', display: 'embed' }],
+				},
+				{
+					title: 'Wścieklizna - zasady',
+					category_slug: 'aktualnosci',
+					content_md: 'Zasady zachowania.',
+					attachments: [{ filename: 'Plakat_wścieklizna_zasady_zachowania.pdf', display: 'embed' }],
+				},
+			],
+		};
+		const complete = vi.fn().mockResolvedValue(three);
+		const drafts = await enrichInboundDraft(
+			{
+				title: 'Plakaty',
+				contentMd: 'Proszę o publikację.',
+				attachments: [
+					{
+						filename: 'plakat_Zaszczep_pupila.jpg',
+						mime: 'image/jpeg',
+						text: 'Zaszczep pupila przeciw wściekliźnie',
+						pageCount: null,
+						suggestedDisplay: 'embed',
+					},
+					{
+						filename: 'Plakat_wścieklizna_obszar_zagrożony.pdf',
+						mime: 'application/pdf',
+						text: 'Obszar zagrożony wścieklizną',
+						pageCount: 1,
+						suggestedDisplay: 'embed',
+					},
+					{
+						filename: 'Plakat_wścieklizna_zasady_zachowania.pdf',
+						mime: 'application/pdf',
+						text: 'Zasady zachowania przy wściekliźnie',
+						pageCount: 1,
+						suggestedDisplay: 'embed',
+					},
+				],
+				categories: CATEGORIES,
+			},
+			{ complete, timeoutMs: 20_000 },
+		);
+		expect(drafts).toHaveLength(2);
+		expect(drafts[1]?.title).toBe('Wścieklizna');
+		expect(drafts[1]?.attachments).toHaveLength(2);
+		vi.restoreAllMocks();
+	});
+
 	it('timeout / błąd modelu → surowy temat i treść, bez kategorii', async () => {
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 		const complete = vi.fn(
