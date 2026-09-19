@@ -209,7 +209,7 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | `INBOUND_ALLOWED_FROM` | tak (skrzynka) | Allowlista From (przecinki / nowe linie, dokładne adresy) |
 | `INBOUND_DEFAULT_SITE_SLUG` | tak (skrzynka) | Slug jednostki dla szkicu (produkcja: `gmina-miedzna-pl`) |
 | `INBOUND_FALLBACK_AUTHOR_ID` | tak (skrzynka) | UUID profilu, gdy nadawca nie ma konta w panelu |
-| `INBOUND_AI_MODEL` | opcjonalnie | Model AI Gateway; pusty string wyłącza Grok; brak = `xai/grok-4` |
+| `INBOUND_AI_MODEL` | opcjonalnie | Model AI Gateway; pusty string wyłącza Grok; brak = `xai/grok-4.1-fast-non-reasoning` |
 | `AI_GATEWAY_API_KEY` | opcjonalnie | Klucz Gateway lokalnie; na Vercel wystarczy OIDC |
 
 ---
@@ -228,8 +228,8 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 ## 0.17.0 — Grok na skrzynce inbound
 
 - Mail z allowlisty: Grok czyta treść oraz PDF/DOCX i proponuje tytuł, kategorię (z listy jednostki) i posprzątaną treść wpisu.
-- Nadal tylko `draft`. Błąd / timeout Gateway = import 1:1 jak w 0.16.0 (pusta kategoria).
-- `maxDuration` webhooka 60 s. Env: `INBOUND_AI_MODEL`, `AI_GATEWAY_API_KEY` (lokalnie).
+- Nadal tylko `draft`. Błąd / timeout Gateway = import 1:1 jak w 0.16.0 (pusta kategoria). Telegram wtedy pisze, że szkic jest surowy.
+- Model domyślny: `xai/grok-4.1-fast-non-reasoning` (szybki, bez łańcucha myślenia — `xai/grok-4` zniknął z katalogu Gateway). Timeout 35 s, `maxDuration` webhooka 60 s. Env: `INBOUND_AI_MODEL`, `AI_GATEWAY_API_KEY` (lokalnie).
 
 ## 0.16.0 — Skrzynka inbound
 

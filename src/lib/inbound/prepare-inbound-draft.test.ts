@@ -20,6 +20,7 @@ describe('prepareInboundDraft', () => {
 			contentMd: 'Zapraszamy na festyn.',
 			categorySlug: null,
 			extraCategorySlugs: [],
+			aiFallback: false,
 		});
 		expect(BASE.collectTexts).not.toHaveBeenCalled();
 		expect(BASE.enrich).not.toHaveBeenCalled();
@@ -46,11 +47,23 @@ describe('prepareInboundDraft', () => {
 			enrich,
 		});
 		expect(draft.categorySlug).toBe('aktualnosci');
+		expect(draft.aiFallback).toBe(false);
 		expect(enrich).toHaveBeenCalledWith({
 			title: 'Festyn gminny',
 			contentMd: 'Zapraszamy na festyn.',
 			attachments: [{ filename: 'a.pdf', mime: 'application/pdf', text: 'Uchwała' }],
 			categories: [{ slug: 'aktualnosci', name: 'Aktualności', sources: ['github_astro'] }],
 		});
+	});
+
+	it('Grok zwraca surowy mail → aiFallback', async () => {
+		const enrich = vi.fn().mockResolvedValue({
+			title: 'Festyn gminny',
+			contentMd: 'Zapraszamy na festyn.',
+			categorySlug: null,
+			extraCategorySlugs: [],
+		});
+		const draft = await prepareInboundDraft({ ...BASE, shouldEnrich: true, enrich });
+		expect(draft.aiFallback).toBe(true);
 	});
 });

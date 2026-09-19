@@ -15,6 +15,16 @@ export function enrichFallback(title: string, contentMd: string): EnrichDraft {
 	return { title, contentMd, categorySlug: null, extraCategorySlugs: [] };
 }
 
+export function isSameEnrichDraft(a: EnrichDraft, b: EnrichDraft): boolean {
+	return (
+		a.title === b.title &&
+		a.contentMd === b.contentMd &&
+		a.categorySlug === b.categorySlug &&
+		a.extraCategorySlugs.length === b.extraCategorySlugs.length &&
+		a.extraCategorySlugs.every((slug, i) => slug === b.extraCategorySlugs[i])
+	);
+}
+
 function asCanonicalSlug(categories: CategoryOption[], slug: string | null | undefined): string | null {
 	if (!slug?.trim()) return null;
 	return findCategoryBySlug(categories, slug)?.slug ?? null;

@@ -40,6 +40,7 @@ describe('enrichInboundDraft', () => {
 	});
 
 	it('timeout / błąd modelu → surowy temat i treść, bez kategorii', async () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 		const complete = vi.fn(
 			(_input: { signal: AbortSignal }) =>
 				new Promise((_resolve, reject) => {
@@ -61,5 +62,7 @@ describe('enrichInboundDraft', () => {
 			categorySlug: null,
 			extraCategorySlugs: [],
 		});
+		expect(warn).toHaveBeenCalled();
+		warn.mockRestore();
 	});
 });

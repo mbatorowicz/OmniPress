@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CategoryOption } from '@/lib/categories';
-import { applyEnrichment, enrichFallback } from './enrich-model';
+import { applyEnrichment, enrichFallback, isSameEnrichDraft } from './enrich-model';
 
 const CATEGORIES: CategoryOption[] = [
 	{ slug: 'aktualnosci', name: 'Aktualności', sources: ['github_astro'] },
@@ -36,6 +36,12 @@ describe('applyEnrichment', () => {
 		expect(applyEnrichment('nie json', CATEGORIES, FALLBACK)).toEqual(
 			enrichFallback(FALLBACK.title, FALLBACK.contentMd),
 		);
+	});
+
+	it('isSameEnrichDraft rozpoznaje identyczny fallback', () => {
+		const a = enrichFallback('T', 'Treść');
+		expect(isSameEnrichDraft(a, enrichFallback('T', 'Treść'))).toBe(true);
+		expect(isSameEnrichDraft(a, { ...a, title: 'Inny' })).toBe(false);
 	});
 
 	it('pusta treść modelu zostawia treść maila; emoji z tytułu zdejmowane', () => {

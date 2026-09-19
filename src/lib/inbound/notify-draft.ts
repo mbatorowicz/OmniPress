@@ -17,17 +17,21 @@ export type InboundDraftNotifyInput = {
 
 export type NotifyInboundDraftOptions = {
 	configured?: boolean;
+	unprocessed?: boolean;
 	send?: (text: string, replyMarkup: TelegramReplyMarkup) => Promise<void>;
 };
 
-export function formatInboundDraftMessage(input: InboundDraftNotifyInput): string {
+export function formatInboundDraftMessage(
+	input: InboundDraftNotifyInput,
+	opts: { unprocessed?: boolean } = {},
+): string {
 	const title = resolveReviewLabel(input.title, common.untitled);
 	return [
 		notify.inbound.heading,
 		'',
 		`${notify.inbound.titleLabel}: ${title}`,
 		'',
-		notify.inbound.hint,
+		opts.unprocessed ? notify.inbound.unprocessedHint : notify.inbound.hint,
 		reviewPostUrl(input.postId),
 	].join('\n');
 }
@@ -41,7 +45,7 @@ export async function notifyInboundDraft(
 	try {
 		const configured = opts.configured ?? isTelegramConfigured();
 		if (!configured) return;
-		const text = formatInboundDraftMessage({ title, postId });
+		const text = formatInboundDraftMessage({ title, postId }, { unprocessed: opts.unprocessed });
 		const replyMarkup = reviewOpenOnlyKeyboard(postId);
 		if (opts.send) {
 			await opts.send(text, replyMarkup);

@@ -1,5 +1,6 @@
-export const DEFAULT_INBOUND_AI_MODEL = 'xai/grok-4';
-export const INBOUND_AI_TIMEOUT_MS = 20_000;
+/** Szybki Grok bez łańcucha myślenia — webhook ma 60 s. Katalog: grok-4.1-fast-non-reasoning. */
+export const DEFAULT_INBOUND_AI_MODEL = 'xai/grok-4.1-fast-non-reasoning';
+export const INBOUND_AI_TIMEOUT_MS = 35_000;
 
 export type InboundAiEnv = Record<string, string | undefined>;
 

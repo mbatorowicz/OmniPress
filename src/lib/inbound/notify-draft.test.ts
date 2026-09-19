@@ -20,6 +20,15 @@ describe('formatInboundDraftMessage', () => {
 	it('używa fallbacku tytułu', () => {
 		expect(formatInboundDraftMessage({ title: '  ', postId: POST_ID })).toContain(common.untitled);
 	});
+
+	it('przy fallbacku Groka wstawia hint o surowym mailu', () => {
+		const text = formatInboundDraftMessage(
+			{ title: 'inf. o dofinasowaniu', postId: POST_ID },
+			{ unprocessed: true },
+		);
+		expect(text).toContain(notify.inbound.unprocessedHint);
+		expect(text).not.toContain(notify.inbound.hint);
+	});
 });
 
 describe('notifyInboundDraft', () => {

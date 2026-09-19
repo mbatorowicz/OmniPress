@@ -7,7 +7,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Dodane
 
-- **Grok na skrzynce inbound.** Mail z pismem przewodnim i PDF/DOCX dostaje proponowany tytuł, kategorię i posprzątaną treść (model `xai/grok-4` przez Vercel AI Gateway). Szkic zostaje szkicem — publikacja jak dotychczas. Gdy Gateway nie odpowiada, działa stary import 1:1. Szczegóły: [ADMIN.md](docs/ADMIN.md) §5.3, [WDROZENIE.md](docs/WDROZENIE.md).
+- **Grok na skrzynce inbound.** Mail z pismem przewodnim i PDF/DOCX dostaje proponowany tytuł, kategorię i posprzątaną treść (model `xai/grok-4.1-fast-non-reasoning` przez Vercel AI Gateway). Szkic zostaje szkicem — publikacja jak dotychczas. Gdy Gateway nie odpowie, działa stary import 1:1, a Telegram pisze, że szkic jest surowy. Szczegóły: [ADMIN.md](docs/ADMIN.md) §5.3, [WDROZENIE.md](docs/WDROZENIE.md).
 
 ### Dodane
 

@@ -138,7 +138,7 @@ describe('handleInboundEmail', () => {
 			emailId: EMAIL_ID,
 			contentMd: 'Zapraszamy na festyn.',
 		});
-		expect(notify).toHaveBeenCalledWith(POST_ID, 'Festyn gminny');
+		expect(notify).toHaveBeenCalledWith(POST_ID, 'Festyn gminny', { unprocessed: false });
 	});
 
 	it('idempotentny retry nie pinga Telegrama drugi raz', async () => {
@@ -217,6 +217,34 @@ describe('handleInboundEmail', () => {
 			emailId: EMAIL_ID,
 			contentMd: 'Rada Gminy organizuje festyn.',
 		});
-		expect(notify).toHaveBeenCalledWith(POST_ID, 'Uchwała w sprawie festynu');
+		expect(notify).toHaveBeenCalledWith(POST_ID, 'Uchwała w sprawie festynu', {
+			unprocessed: false,
+		});
+	});
+
+	it('Grok bez zmian względem maila: Telegram dostaje hint o surowym szkicu', async () => {
+		const fetchEmail = vi.fn().mockResolvedValue(EMAIL);
+		const createDraft = vi.fn().mockResolvedValue(CREATED);
+		const applyAttachments = vi.fn().mockResolvedValue(undefined);
+		const notify = vi.fn().mockResolvedValue(undefined);
+		const enrich = vi.fn().mockResolvedValue({
+			title: 'Festyn gminny',
+			contentMd: 'Zapraszamy na festyn.',
+			categorySlug: null,
+			extraCategorySlugs: [],
+		});
+
+		await handleInboundEmail(signedRequest(receivedEvent()), {
+			secret: SECRET,
+			nowSec: NOW,
+			draftConfig: DRAFT_CONFIG,
+			fetchEmail,
+			createDraft,
+			applyAttachments,
+			notify,
+			enrich,
+		});
+
+		expect(notify).toHaveBeenCalledWith(POST_ID, 'Festyn gminny', { unprocessed: true });
 	});
 });

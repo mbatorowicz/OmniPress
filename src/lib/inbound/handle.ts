@@ -35,7 +35,7 @@ export type InboundEmailDeps = {
 	fetchEmail?: (emailId: string) => Promise<ReceivedInboundEmail | null>;
 	createDraft?: (input: CreateInboundDraftInput) => Promise<CreateInboundDraftResult>;
 	applyAttachments?: ApplyInboundAttachmentsFn;
-	notify?: (postId: string, title: string) => Promise<void>;
+	notify?: (postId: string, title: string, opts?: { unprocessed?: boolean }) => Promise<void>;
 	collectAttachmentTexts?: (emailId: string) => Promise<ExtractedAttachmentText[]>;
 	loadCategories?: (siteSlug: string) => Promise<CategoryOption[]>;
 	enrich?: (input: EnrichInboundInput) => Promise<EnrichDraft>;
@@ -134,7 +134,9 @@ export async function handleInboundEmail(
 			emailId: event.emailId,
 			contentMd: draft.contentMd,
 		});
-		await (deps.notify ?? notifyInboundDraft)(result.postId, draft.title);
+		await (deps.notify ?? notifyInboundDraft)(result.postId, draft.title, {
+			unprocessed: draft.aiFallback,
+		});
 	}
 	return jsonOk({ postId: result.postId, created: result.created });
 }

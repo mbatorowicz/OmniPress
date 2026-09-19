@@ -165,7 +165,7 @@ Adres skrzynki: **`wpisy@inbound.cncsolutions.dev`**. Technika i DNS: [WDROZENIE
 2. Nadawca musi być na allowliście (`INBOUND_ALLOWED_FROM`). Na start: konto administratora. Obcy mail jest ignorowany — nie powstaje wpis.
 3. Szkic trafia na jednostkę domyślną (Gmina Miedzna). Grok może uzupełnić kategorię; i tak **sprawdź** tytuł i kategorię przed publikacją. Gdy Gateway nie odpowie, kategoria zostaje pusta.
 4. W `/admin/posts` filtr *Szkic* → *Edytuj*: sprawdź propozycję, popraw jeśli trzeba, potem *Wyślij do akceptacji* albo *Opublikuj szkic* (§5.2).
-5. Telegram (gdy bot działa) dostaje link do `/admin/posts/{id}` bez przycisku *Akceptuj*.
+5. Telegram (gdy bot działa) dostaje link do `/admin/posts/{id}` bez przycisku *Akceptuj*. Gdy Grok nie przerobi maila, wiadomość mówi wprost, że szkic jest surowy — nie szukaj go w kolejce *Do akceptacji*, tylko w *Wpisy* → filtr *Szkic*.
 
 ---
 
