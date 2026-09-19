@@ -161,7 +161,7 @@ e-maili w tej wersji), więc przy większych zmianach uprzedź go poza systemem.
 
 Adres skrzynki: **`wpisy@inbound.cncsolutions.dev`**. Technika i DNS: [WDROZENIE.md](./WDROZENIE.md).
 
-1. Temat i treść maila to punkt startowy. Gdy w załączniku jest PDF albo DOCX, Grok czyta warstwę tekstową i na tej podstawie proponuje **tytuł**, **kategorię** (z listy jednostki) i **treść wpisu** — pismo przewodnie („proszę opublikować”) nie zostaje artykułem. Załączniki i tak lądują przy wpisie jak z panelu.
+1. Temat i treść maila to punkt startowy. Gdy w załączniku jest PDF albo DOCX, Grok czyta warstwę tekstową i na tej podstawie proponuje **tytuł**, **kategorię** (z listy jednostki) i **treść wpisu** — pismo przewodnie („proszę opublikować”) nie zostaje artykułem. Z DOCX **bez pieczątki i podpisu** grafiki idą do galerii (pierwsza = zajawka), a plik Word nie zostaje przy wpisie. Pismo z pieczęcią zostaje załącznikiem; duże grafiki i tak trafiają do galerii.
 2. Nadawca musi być na allowliście (`INBOUND_ALLOWED_FROM`). Na start: konto administratora. Obcy mail jest ignorowany — nie powstaje wpis.
 3. Szkic trafia na jednostkę domyślną (Gmina Miedzna). Grok może uzupełnić kategorię; i tak **sprawdź** tytuł i kategorię przed publikacją. Gdy Gateway nie odpowie, kategoria zostaje pusta.
 4. W `/admin/posts` filtr *Szkic* → *Edytuj*: sprawdź propozycję, popraw jeśli trzeba, potem *Wyślij do akceptacji* albo *Opublikuj szkic* (§5.2).

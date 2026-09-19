@@ -77,7 +77,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Uprawnienia redaktora (strony + domyślna); blokada: własne konto / ostatni admin | ✅ |
 | Usunięcie konta zostawia wpisy (autor: „konto usunięte”) | ✅ migracja `setup:author-on-delete` |
 | Kolejka: do akceptacji, zaplanowane (ze znacznikiem „Publikacja…”), na stronie | ✅ `/admin` — odznaka z liczbą *pending* przy *Administracja* i *Kolejka wpisów* |
-| Szkic z poczty (skrzynka inbound) | ✅ `wpisy@inbound.cncsolutions.dev`; webhook `POST /api/inbound/email`; tylko `draft`; Grok proponuje tytuł/kategorię/treść z maila i PDF/DOCX; Telegram bez przycisku Akceptuj |
+| Szkic z poczty (skrzynka inbound) | ✅ `wpisy@inbound.cncsolutions.dev`; webhook `POST /api/inbound/email`; tylko `draft`; Grok proponuje tytuł/kategorię/treść z maila i PDF/DOCX; DOCX bez pieczęci → grafiki jako zajawka; Telegram bez przycisku Akceptuj |
 | Powiadomienie Telegram po wysłaniu do akceptacji | ✅ opcjonalne `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`; awaria bota nie blokuje submitu |
 | Akceptacja wpisu z Telegrama | ✅ przycisk *Akceptuj* w wiadomości bota; webhook `/api/telegram/webhook`; odrzucenie w panelu |
 | Wszystkie wpisy redaktorów — także szkice i wpisy do poprawki; zakładki statusów z licznikami, filtr (tytuł, status, strona, autor), sortowanie kolumn (domyślnie data publikacji), stronicowanie po 25 | ✅ `/admin/posts` |
@@ -230,6 +230,7 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 - Mail z allowlisty: Grok czyta treść oraz PDF/DOCX i proponuje tytuł, kategorię (z listy jednostki) i posprzątaną treść wpisu.
 - Nadal tylko `draft`. Błąd / timeout Gateway = import 1:1 jak w 0.16.0 (pusta kategoria). Telegram wtedy pisze, że szkic jest surowy.
 - Model domyślny: `xai/grok-4.1-fast-non-reasoning` (szybki, bez łańcucha myślenia — `xai/grok-4` zniknął z katalogu Gateway). Timeout 35 s, `maxDuration` webhooka 60 s. Env: `INBOUND_AI_MODEL`, `AI_GATEWAY_API_KEY` (lokalnie).
+- DOCX bez pieczątki i podpisu: grafiki z `word/media` idą do galerii (pierwsza = zajawka), plik Word nie zostaje. Pieczęć EMF/WMF albo skan podpisu zostawia załącznik.
 
 ## 0.16.0 — Skrzynka inbound
 

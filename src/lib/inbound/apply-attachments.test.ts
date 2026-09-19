@@ -3,6 +3,8 @@ import { inbound } from '@/i18n';
 import { applyInboundAttachments } from './apply-attachments';
 import { appendAttachmentNotes } from './attachment-notes';
 import type { InboundAttachmentMeta } from './attachment-model';
+import { docxWithText } from './extract-fixture-docx';
+import { DOCX_MIME } from '@/lib/posts/upload-mime';
 
 const POST = '44444444-4444-4444-8444-444444444444';
 const EMAIL = '56761188-7520-42d8-8898-ff6fc54ce618';
@@ -102,5 +104,38 @@ describe('applyInboundAttachments', () => {
 		});
 		expect(result).toEqual({ stored: 0, notes: [inbound.skippedStore('foto.png')] });
 		expect(saveContent).toHaveBeenCalledWith(POST, inbound.skippedStore('foto.png'));
+	});
+
+	it('DOCX bez pieczęci: grafika do galerii, bez pliku Word', async () => {
+		const store = vi.fn().mockResolvedValue(true);
+		const saveContent = vi.fn();
+		const docx = docxWithText('Dofinansowanie');
+		const result = await applyInboundAttachments({
+			postId: POST,
+			emailId: EMAIL,
+			contentMd: 'Treść',
+			list: async () => [
+				item({
+					filename: 'info.docx',
+					contentType: DOCX_MIME,
+					size: docx.byteLength,
+				}),
+			],
+			download: async () => ({ ok: true, bytes: docx }),
+			store,
+			saveContent,
+			unpackDocx: async () => ({
+				dropDocx: true,
+				images: [{ filename: 'info.webp', mime: 'image/webp', bytes: PNG }],
+			}),
+		});
+		expect(result.stored).toBe(1);
+		expect(store).toHaveBeenCalledTimes(1);
+		expect(store.mock.calls[0]?.[0]).toMatchObject({
+			kind: 'gallery',
+			filename: 'info.webp',
+			mime: 'image/webp',
+		});
+		expect(saveContent).not.toHaveBeenCalled();
 	});
 });

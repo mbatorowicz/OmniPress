@@ -9,6 +9,8 @@ import {
 import { appendAttachmentNotes, attachmentSkipNote, overflowSkipNote } from './attachment-notes';
 import type { DownloadAttachmentResult } from './receiving-attachments';
 import type { StoreInboundAttachmentInput } from './store-attachment';
+import { unpackDocxForInbound, type UnpackDocxFn } from './unpack-docx';
+import { rowsToStore } from './apply-attachment-rows';
 
 export type ApplyInboundAttachmentsInput = {
 	postId: string;
@@ -18,6 +20,7 @@ export type ApplyInboundAttachmentsInput = {
 	download: (url: string, maxBytes: number) => Promise<DownloadAttachmentResult>;
 	store: (input: StoreInboundAttachmentInput) => Promise<boolean>;
 	saveContent: (postId: string, contentMd: string) => Promise<void>;
+	unpackDocx?: UnpackDocxFn;
 };
 
 export type ApplyInboundAttachmentsResult = { stored: number; notes: string[] };
@@ -76,15 +79,12 @@ async function applyListed(
 			notes.push(attachmentSkipNote(decided.filename, decided.reason));
 			continue;
 		}
-		const ok = await input.store({
-			postId: input.postId,
-			filename: decided.filename,
-			mime: decided.mime,
-			kind: decided.kind,
-			bytes: downloaded.bytes,
-		});
-		if (ok) stored += 1;
-		else notes.push(attachmentSkipNote(decided.filename, 'store_failed'));
+		const rows = await rowsToStore(decided, downloaded.bytes, input.unpackDocx ?? unpackDocxForInbound);
+		for (const row of rows) {
+			const ok = await input.store({ postId: input.postId, ...row });
+			if (ok) stored += 1;
+			else notes.push(attachmentSkipNote(row.filename, 'store_failed'));
+		}
 	}
 
 	await persistNotes(input, notes);

@@ -185,7 +185,7 @@ Adres: **`wpisy@inbound.cncsolutions.dev`**. Mail z allowlisty zakłada **szkic*
 |------|---------------------|
 | Temat | Punkt startowy tytułu (`Re:` / `Fwd:` / `Odp:` zdejmowane); Grok może nadać lepszy z treści / PDF |
 | Treść | `text/plain`, inaczej HTML → Markdown; Grok wycina pismo przewodnie |
-| Załączniki | JPEG/PNG/WebP/GIF (max 10 MB), PDF/DOCX/XLSX/ZIP/GPKG (max 50 MB), do 8 plików. Z PDF i DOCX Grok czyta tekst (bez OCR skanów) |
+| Załączniki | JPEG/PNG/WebP/GIF (max 10 MB), PDF/DOCX/XLSX/ZIP/GPKG (max 50 MB), do 8 plików. Z PDF i DOCX Grok czyta tekst (bez OCR skanów). Z DOCX bez pieczęci grafiki idą do galerii (zajawka), Word odpada |
 | From | Musi być na `INBOUND_ALLOWED_FROM` (dokładny adres, małe litery) |
 
 Obcy nadawca: webhook odpowiada 200 i **nie** tworzy wpisu. Zły załącznik: notatka w treści szkicu, szkic zostaje. Gdy Gateway padnie: temat = tytuł, treść surowa, kategoria pusta (jak 0.16.0). Autor: konto o tym e-mailu, inaczej `INBOUND_FALLBACK_AUTHOR_ID`. Telegram: „Szkic z poczty” + link, bez przycisku Akceptuj. Treść urzędowa idzie do xAI przez Gateway — nie logujemy jej.
