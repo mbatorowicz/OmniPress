@@ -1,15 +1,15 @@
 import { common } from '@/i18n';
 import type { CategoryOption } from '@/lib/categories';
-import type { EnrichDraft } from './enrich-model';
-import { enrichFallback, isSameEnrichDraft } from './enrich-model';
+import type { InboundFileInventory } from './collect-attachment-texts';
 import type { EnrichInboundInput } from './enrich';
-import type { ExtractedAttachmentText } from './extract-attachment-text';
+import { enrichFallback, isSameEnrichDraft, type EnrichDraft } from './enrich-model';
 import { parseInboundBody } from './parse-body';
 import { parseInboundSubject } from './parse-subject';
 
-export type PreparedInboundDraft = EnrichDraft & {
-	/** True gdy Grok był wołany i wynik = surowy mail (timeout / błąd / zły JSON). */
+export type PreparedInboundDraft = {
+	drafts: EnrichDraft[];
 	aiFallback: boolean;
+	inventory: InboundFileInventory[];
 };
 
 export type PrepareInboundDraftInput = {
@@ -19,24 +19,24 @@ export type PrepareInboundDraftInput = {
 	siteSlug: string;
 	emailId: string;
 	shouldEnrich: boolean;
-	collectTexts: (emailId: string) => Promise<ExtractedAttachmentText[]>;
+	collectInventory: (emailId: string) => Promise<InboundFileInventory[]>;
 	loadCategories: (siteSlug: string) => Promise<CategoryOption[]>;
-	enrich: (input: EnrichInboundInput) => Promise<EnrichDraft>;
+	enrich: (input: EnrichInboundInput) => Promise<EnrichDraft[]>;
 };
 
-/** Temat + treść; opcjonalnie Grok (PDF/DOCX + kategorie). */
+/** Temat + treść; opcjonalnie Grok (załączniki + kategorie). */
 export async function prepareInboundDraft(
 	input: PrepareInboundDraftInput,
 ): Promise<PreparedInboundDraft> {
 	const title = parseInboundSubject(input.subject) || common.untitled;
 	const contentMd = parseInboundBody({ text: input.text, html: input.html });
 	const fallback = enrichFallback(title, contentMd);
-	if (!input.shouldEnrich) return { ...fallback, aiFallback: false };
+	if (!input.shouldEnrich) return { drafts: [fallback], aiFallback: false, inventory: [] };
 
-	let attachments: ExtractedAttachmentText[] = [];
+	let attachments: InboundFileInventory[] = [];
 	let categories: CategoryOption[] = [];
 	try {
-		attachments = await input.collectTexts(input.emailId);
+		attachments = await input.collectInventory(input.emailId);
 	} catch {
 		attachments = [];
 	}
@@ -46,9 +46,15 @@ export async function prepareInboundDraft(
 		categories = [];
 	}
 	try {
-		const draft = await input.enrich({ title, contentMd, attachments, categories });
-		return { ...draft, aiFallback: isSameEnrichDraft(draft, fallback) };
+		const drafts = await input.enrich({ title, contentMd, attachments, categories });
+		const only = drafts[0] ?? fallback;
+		const aiFallback = drafts.length === 1 && isSameEnrichDraft(only, fallback);
+		return {
+			drafts: drafts.length > 0 ? drafts : [fallback],
+			aiFallback,
+			inventory: attachments,
+		};
 	} catch {
-		return { ...fallback, aiFallback: true };
+		return { drafts: [fallback], aiFallback: true, inventory: attachments };
 	}
 }

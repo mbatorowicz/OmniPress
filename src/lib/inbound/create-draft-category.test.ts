@@ -42,12 +42,16 @@ describe('createInboundDraft — kategoria z Groka', () => {
 			await createInboundDraft(fake.client, {
 				messageId: MESSAGE,
 				from: 'jan@urzad.pl',
-				title: 'Festyn',
-				contentMd: 'Zapraszamy.',
 				siteSlug: 'gmina-miedzna',
 				fallbackAuthorId: AUTHOR,
-				categorySlug: 'aktualnosci',
-				extraCategorySlugs: ['zarzadzenia'],
+				drafts: [
+					{
+						title: 'Festyn',
+						contentMd: 'Zapraszamy.',
+						categorySlug: 'aktualnosci',
+						extraCategorySlugs: ['zarzadzenia'],
+					},
+				],
 			}),
 		).toMatchObject({ ok: true, created: true });
 
@@ -76,11 +80,9 @@ describe('createInboundDraft — kategoria z Groka', () => {
 		await createInboundDraft(fake.client, {
 			messageId: MESSAGE,
 			from: 'jan@urzad.pl',
-			title: 'Festyn',
-			contentMd: 'Zapraszamy.',
 			siteSlug: 'gmina-miedzna',
 			fallbackAuthorId: AUTHOR,
-			categorySlug: 'haker',
+			drafts: [{ title: 'Festyn', contentMd: 'Zapraszamy.', categorySlug: 'haker' }],
 		});
 		expect(insertPayload(fake).category_slug).toBeUndefined();
 	});

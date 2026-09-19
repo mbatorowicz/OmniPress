@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { DOCX_MIME, PDF_MIME } from '@/lib/posts/upload-mime';
 import { extractAttachmentText, isExtractableMime } from './extract-attachment-text';
 import { extractDocxText } from './extract-docx-text';
-import { extractPdfText } from './extract-pdf-text';
+import { extractPdfMeta, extractPdfText } from './extract-pdf-text';
 import { docxWithText } from './extract-fixture-docx';
 import { pdfWithText } from './extract-fixture-pdf';
 
@@ -15,9 +15,10 @@ describe('isExtractableMime', () => {
 });
 
 describe('extractPdfText', () => {
-	it('czyta warstwę tekstową', async () => {
-		const text = await extractPdfText(pdfWithText('Festyn gminny 2026'));
-		expect(text).toContain('Festyn gminny 2026');
+	it('czyta warstwę tekstową i liczbę stron', async () => {
+		const bytes = pdfWithText('Festyn gminny 2026');
+		expect(await extractPdfText(bytes)).toContain('Festyn gminny 2026');
+		expect(await extractPdfMeta(bytes)).toMatchObject({ pageCount: 1 });
 	});
 
 	it('puste bajty i śmieci dają pusty string', async () => {
@@ -38,9 +39,15 @@ describe('extractDocxText', () => {
 });
 
 describe('extractAttachmentText', () => {
-	it('zwraca null dla nieobsługiwanego MIME i pustego PDF', async () => {
+	it('zwraca null dla nieobsługiwanego MIME i pustych bajtów', async () => {
 		expect(await extractAttachmentText('a.png', 'image/png', new Uint8Array([1]))).toBeNull();
 		expect(await extractAttachmentText('a.pdf', PDF_MIME, new Uint8Array())).toBeNull();
+	});
+
+	it('PDF z tekstem ma pageCount', async () => {
+		const extracted = await extractAttachmentText('a.pdf', PDF_MIME, pdfWithText('Festyn'));
+		expect(extracted?.pageCount).toBe(1);
+		expect(extracted?.text).toContain('Festyn');
 	});
 
 	it('składa filename + tekst z DOCX', async () => {

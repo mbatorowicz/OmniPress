@@ -4,7 +4,8 @@ import { applyInboundAttachments } from './apply-attachments';
 import { appendAttachmentNotes } from './attachment-notes';
 import type { InboundAttachmentMeta } from './attachment-model';
 import { docxWithText } from './extract-fixture-docx';
-import { DOCX_MIME } from '@/lib/posts/upload-mime';
+import { DOCX_MIME, PDF_MIME } from '@/lib/posts/upload-mime';
+import { pdfWithText } from './extract-fixture-pdf';
 
 const POST = '44444444-4444-4444-8444-444444444444';
 const EMAIL = '56761188-7520-42d8-8898-ff6fc54ce618';
@@ -54,6 +55,7 @@ describe('applyInboundAttachments', () => {
 			filename: 'foto.png',
 			mime: 'image/png',
 			kind: 'gallery',
+			displayMode: 'link',
 		});
 		expect(saveContent).toHaveBeenCalledWith(
 			POST,
@@ -137,5 +139,29 @@ describe('applyInboundAttachments', () => {
 			mime: 'image/webp',
 		});
 		expect(saveContent).not.toHaveBeenCalled();
+	});
+
+	it('display drop pomija zapis', async () => {
+		const store = vi.fn();
+		const saveContent = vi.fn();
+		const pdf = pdfWithText('pismo');
+		const result = await applyInboundAttachments({
+			postId: POST,
+			emailId: EMAIL,
+			contentMd: 'Treść',
+			list: async () => [
+				item({
+					filename: 'pismo.pdf',
+					contentType: PDF_MIME,
+					size: pdf.byteLength,
+				}),
+			],
+			download: async () => ({ ok: true, bytes: pdf }),
+			store,
+			saveContent,
+			decisions: new Map([['pismo.pdf', { postId: POST, display: 'drop' }]]),
+		});
+		expect(result.stored).toBe(0);
+		expect(store).not.toHaveBeenCalled();
 	});
 });

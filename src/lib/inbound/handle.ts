@@ -2,8 +2,11 @@ import { jsonError, jsonOk } from '@/lib/api/response';
 import type { CategoryOption } from '@/lib/categories';
 import { createServiceSupabase, isServiceSupabaseConfigured } from '@/lib/supabase/service';
 import { isAllowedFrom, parseAllowlist } from './allowlist';
+import { buildAttachmentDecisions } from './attachment-assign';
+import type { AttachmentDecision } from './attachment-assign';
 import { applyInboundAttachmentsLive } from './apply-attachments-live';
-import { collectExtractableAttachmentTextsLive } from './collect-attachment-texts-live';
+import { collectInboundInventoryLive } from './collect-attachment-texts-live';
+import type { InboundFileInventory } from './collect-attachment-texts';
 import { inboundDraftConfig, type InboundDraftConfig } from './config';
 import {
 	createInboundDraft,
@@ -12,8 +15,8 @@ import {
 } from './create-draft';
 import { enrichInboundDraft, type EnrichInboundInput } from './enrich';
 import type { EnrichDraft } from './enrich-model';
-import type { ExtractedAttachmentText } from './extract-attachment-text';
 import { inboundAiConfigured, inboundAiEnvFromMeta } from './inbound-ai-config';
+import { resolveInboundSiteSlug } from './inbound-site';
 import { loadInboundSiteCategories } from './load-inbound-categories';
 import { notifyInboundDraft } from './notify-draft';
 import { prepareInboundDraft } from './prepare-inbound-draft';
@@ -25,6 +28,7 @@ export type ApplyInboundAttachmentsFn = (input: {
 	postId: string;
 	emailId: string;
 	contentMd: string;
+	decisions?: Map<string, AttachmentDecision>;
 }) => Promise<void>;
 
 export type InboundEmailDeps = {
@@ -36,9 +40,9 @@ export type InboundEmailDeps = {
 	createDraft?: (input: CreateInboundDraftInput) => Promise<CreateInboundDraftResult>;
 	applyAttachments?: ApplyInboundAttachmentsFn;
 	notify?: (postId: string, title: string, opts?: { unprocessed?: boolean }) => Promise<void>;
-	collectAttachmentTexts?: (emailId: string) => Promise<ExtractedAttachmentText[]>;
+	collectInventory?: (emailId: string) => Promise<InboundFileInventory[]>;
 	loadCategories?: (siteSlug: string) => Promise<CategoryOption[]>;
-	enrich?: (input: EnrichInboundInput) => Promise<EnrichDraft>;
+	enrich?: (input: EnrichInboundInput) => Promise<EnrichDraft[]>;
 	aiConfigured?: boolean;
 };
 
@@ -63,19 +67,22 @@ async function defaultLoadCategories(siteSlug: string): Promise<CategoryOption[]
 function toCreateInput(
 	event: { emailId: string; from: string },
 	email: ReceivedInboundEmail,
-	draftConfig: InboundDraftConfig,
-	draft: EnrichDraft,
+	siteSlug: string,
+	fallbackAuthorId: string,
+	drafts: EnrichDraft[],
 ): CreateInboundDraftInput {
 	return {
 		messageId: event.emailId,
 		from: email.from || event.from,
-		title: draft.title,
-		contentMd: draft.contentMd,
-		siteSlug: draftConfig.defaultSiteSlug,
-		fallbackAuthorId: draftConfig.fallbackAuthorId,
-		...(draft.categorySlug
-			? { categorySlug: draft.categorySlug, extraCategorySlugs: draft.extraCategorySlugs }
-			: {}),
+		siteSlug,
+		fallbackAuthorId,
+		drafts: drafts.map((draft) => ({
+			title: draft.title,
+			contentMd: draft.contentMd,
+			...(draft.categorySlug
+				? { categorySlug: draft.categorySlug, extraCategorySlugs: draft.extraCategorySlugs }
+				: {}),
+		})),
 	};
 }
 
@@ -109,34 +116,48 @@ export async function handleInboundEmail(
 	const email = await fetchEmail(event.emailId);
 	if (!email) return jsonError('fetch_failed', 502);
 
+	const siteSlug = resolveInboundSiteSlug(
+		`${email.text ?? ''}\n${email.html ?? ''}`,
+		email.from || event.from,
+		draftConfig,
+	);
 	const shouldEnrich =
 		deps.enrich !== undefined || (deps.aiConfigured ?? inboundAiConfigured(inboundAiEnvFromMeta()));
-	const draft = await prepareInboundDraft({
+	const prepared = await prepareInboundDraft({
 		subject: email.subject || event.subject,
 		text: email.text,
 		html: email.html,
-		siteSlug: draftConfig.defaultSiteSlug,
+		siteSlug,
 		emailId: event.emailId,
 		shouldEnrich,
-		collectTexts: deps.collectAttachmentTexts ?? collectExtractableAttachmentTextsLive,
+		collectInventory: deps.collectInventory ?? collectInboundInventoryLive,
 		loadCategories: deps.loadCategories ?? defaultLoadCategories,
 		enrich: deps.enrich ?? enrichInboundDraft,
 	});
 
 	const result = await (deps.createDraft ?? defaultCreateDraft)(
-		toCreateInput(event, email, draftConfig, draft),
+		toCreateInput(event, email, siteSlug, draftConfig.fallbackAuthorId, prepared.drafts),
 	);
 	if (!result.ok) return jsonError(result.error, 500);
 
 	if (result.created) {
+		const decisions = buildAttachmentDecisions(
+			prepared.drafts,
+			result.postIds,
+			prepared.inventory,
+		);
 		await (deps.applyAttachments ?? applyInboundAttachmentsLive)({
 			postId: result.postId,
 			emailId: event.emailId,
-			contentMd: draft.contentMd,
+			contentMd: prepared.drafts[0]?.contentMd ?? '',
+			decisions,
 		});
-		await (deps.notify ?? notifyInboundDraft)(result.postId, draft.title, {
-			unprocessed: draft.aiFallback,
-		});
+		for (const [index, draft] of prepared.drafts.entries()) {
+			const postId = result.postIds[index] ?? result.postId;
+			await (deps.notify ?? notifyInboundDraft)(postId, draft.title, {
+				unprocessed: prepared.aiFallback,
+			});
+		}
 	}
-	return jsonOk({ postId: result.postId, created: result.created });
+	return jsonOk({ postId: result.postId, postIds: result.postIds, created: result.created });
 }

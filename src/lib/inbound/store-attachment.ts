@@ -11,6 +11,7 @@ export type StoreInboundAttachmentInput = {
 	mime: string;
 	kind: UploadKind;
 	bytes: Uint8Array;
+	displayMode?: 'link' | 'embed';
 };
 
 export async function storeInboundAttachment(
@@ -32,6 +33,7 @@ export async function storeInboundAttachment(
 		filename: input.filename,
 		mime_type: input.mime,
 		sort_order: sortOrder,
+		display_mode: input.displayMode === 'embed' ? 'embed' : 'link',
 	});
 	if (!insertError) return true;
 

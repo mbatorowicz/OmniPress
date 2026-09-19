@@ -1,13 +1,22 @@
 import { inboundAi } from '@/i18n';
 import type { CategoryOption } from '@/lib/categories';
-import type { ExtractedAttachmentText } from './extract-attachment-text';
+import type { InboundFileInventory } from './collect-attachment-texts';
 
 export type EnrichPromptInput = {
 	title: string;
 	contentMd: string;
-	attachments: ExtractedAttachmentText[];
+	attachments: InboundFileInventory[];
 	categories: Pick<CategoryOption, 'slug' | 'name'>[];
 };
+
+function formatAttachment(row: InboundFileInventory): string {
+	const pages = row.pageCount != null ? `, ${row.pageCount} str.` : '';
+	const chars = row.text ? `, ${row.text.length} znaków` : '';
+	const body = row.text.trim()
+		? row.text
+		: inboundAi.emptyAttachmentText;
+	return `--- ${row.filename} (${row.mime}${pages}${chars}, sugerowane: ${row.suggestedDisplay}) ---\n${body}`;
+}
 
 export function buildInboundEnrichPrompt(input: EnrichPromptInput): string {
 	const categories =
@@ -17,7 +26,7 @@ export function buildInboundEnrichPrompt(input: EnrichPromptInput): string {
 	const attachments =
 		input.attachments.length === 0
 			? inboundAi.noAttachments
-			: input.attachments.map((a) => `--- ${a.filename} ---\n${a.text}`).join('\n\n');
+			: input.attachments.map(formatAttachment).join('\n\n');
 	return [
 		`${inboundAi.subjectLabel}: ${input.title || inboundAi.emptySubject}`,
 		'',

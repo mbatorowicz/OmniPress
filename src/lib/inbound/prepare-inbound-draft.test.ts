@@ -7,63 +7,89 @@ const BASE = {
 	html: null,
 	siteSlug: 'gmina-miedzna',
 	emailId: 'email-1',
-	collectTexts: vi.fn().mockResolvedValue([]),
+	collectInventory: vi.fn().mockResolvedValue([]),
 	loadCategories: vi.fn().mockResolvedValue([]),
 	enrich: vi.fn(),
 };
 
 describe('prepareInboundDraft', () => {
 	it('bez AI: temat i treść, bez collect/enrich', async () => {
-		const draft = await prepareInboundDraft({ ...BASE, shouldEnrich: false });
-		expect(draft).toEqual({
-			title: 'Festyn gminny',
-			contentMd: 'Zapraszamy na festyn.',
-			categorySlug: null,
-			extraCategorySlugs: [],
+		const prepared = await prepareInboundDraft({ ...BASE, shouldEnrich: false });
+		expect(prepared).toEqual({
+			drafts: [
+				{
+					title: 'Festyn gminny',
+					contentMd: 'Zapraszamy na festyn.',
+					categorySlug: null,
+					extraCategorySlugs: [],
+					attachments: [],
+				},
+			],
 			aiFallback: false,
+			inventory: [],
 		});
-		expect(BASE.collectTexts).not.toHaveBeenCalled();
+		expect(BASE.collectInventory).not.toHaveBeenCalled();
 		expect(BASE.enrich).not.toHaveBeenCalled();
 	});
 
 	it('z AI: przekazuje załączniki i kategorie do enrich', async () => {
-		const collectTexts = vi.fn().mockResolvedValue([
-			{ filename: 'a.pdf', mime: 'application/pdf', text: 'Uchwała' },
+		const collectInventory = vi.fn().mockResolvedValue([
+			{
+				filename: 'a.pdf',
+				mime: 'application/pdf',
+				text: 'Uchwała',
+				pageCount: 2,
+				suggestedDisplay: 'link',
+			},
 		]);
 		const loadCategories = vi.fn().mockResolvedValue([
 			{ slug: 'aktualnosci', name: 'Aktualności', sources: ['github_astro'] },
 		]);
-		const enrich = vi.fn().mockResolvedValue({
-			title: 'Uchwała',
-			contentMd: 'Treść uchwały.',
-			categorySlug: 'aktualnosci',
-			extraCategorySlugs: [],
-		});
-		const draft = await prepareInboundDraft({
+		const enrich = vi.fn().mockResolvedValue([
+			{
+				title: 'Uchwała',
+				contentMd: 'Treść uchwały.',
+				categorySlug: 'aktualnosci',
+				extraCategorySlugs: [],
+				attachments: [{ filename: 'a.pdf', display: 'link' }],
+			},
+		]);
+		const prepared = await prepareInboundDraft({
 			...BASE,
 			shouldEnrich: true,
-			collectTexts,
+			collectInventory,
 			loadCategories,
 			enrich,
 		});
-		expect(draft.categorySlug).toBe('aktualnosci');
-		expect(draft.aiFallback).toBe(false);
+		expect(prepared.drafts[0]?.categorySlug).toBe('aktualnosci');
+		expect(prepared.aiFallback).toBe(false);
 		expect(enrich).toHaveBeenCalledWith({
 			title: 'Festyn gminny',
 			contentMd: 'Zapraszamy na festyn.',
-			attachments: [{ filename: 'a.pdf', mime: 'application/pdf', text: 'Uchwała' }],
+			attachments: [
+				{
+					filename: 'a.pdf',
+					mime: 'application/pdf',
+					text: 'Uchwała',
+					pageCount: 2,
+					suggestedDisplay: 'link',
+				},
+			],
 			categories: [{ slug: 'aktualnosci', name: 'Aktualności', sources: ['github_astro'] }],
 		});
 	});
 
 	it('Grok zwraca surowy mail → aiFallback', async () => {
-		const enrich = vi.fn().mockResolvedValue({
-			title: 'Festyn gminny',
-			contentMd: 'Zapraszamy na festyn.',
-			categorySlug: null,
-			extraCategorySlugs: [],
-		});
-		const draft = await prepareInboundDraft({ ...BASE, shouldEnrich: true, enrich });
-		expect(draft.aiFallback).toBe(true);
+		const enrich = vi.fn().mockResolvedValue([
+			{
+				title: 'Festyn gminny',
+				contentMd: 'Zapraszamy na festyn.',
+				categorySlug: null,
+				extraCategorySlugs: [],
+				attachments: [],
+			},
+		]);
+		const prepared = await prepareInboundDraft({ ...BASE, shouldEnrich: true, enrich });
+		expect(prepared.aiFallback).toBe(true);
 	});
 });

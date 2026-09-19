@@ -54,7 +54,7 @@ describe('collectExtractableAttachmentTexts', () => {
 		expect(texts.map((row) => row.filename)).toEqual(['uchwala.pdf', 'nabor.docx']);
 		expect(texts[0]?.text).toContain('Uchwala Rady Gminy');
 		expect(texts[1]?.text).toContain('Nabór do przedszkola');
-		expect(download).toHaveBeenCalledTimes(2);
+		expect(download).toHaveBeenCalledTimes(3);
 	});
 
 	it('pusta lista / błąd listowania → []', async () => {

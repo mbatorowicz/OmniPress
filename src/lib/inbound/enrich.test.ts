@@ -10,27 +10,41 @@ const CATEGORIES: CategoryOption[] = [
 describe('enrichInboundDraft', () => {
 	it('pismo przewodnie + PDF → tytuł i kategoria z kompletnego JSON', async () => {
 		const complete = vi.fn().mockResolvedValue({
-			title: 'Uchwała w sprawie festynu',
-			category_slug: 'aktualnosci',
-			content_md: 'Rada Gminy uchwaliła organizację festynu.',
+			posts: [
+				{
+					title: 'Uchwała w sprawie festynu',
+					category_slug: 'aktualnosci',
+					content_md: 'Rada Gminy uchwaliła organizację festynu.',
+					attachments: [{ filename: 'uchwala.pdf', display: 'link' }],
+				},
+			],
 		});
-		const draft = await enrichInboundDraft(
+		const drafts = await enrichInboundDraft(
 			{
 				title: 'Bez tytułu',
 				contentMd: 'Dzień dobry, proszę o publikację załącznika.\nPozdrawiam',
 				attachments: [
-					{ filename: 'uchwala.pdf', mime: 'application/pdf', text: 'Uchwała nr 12/2026' },
+					{
+						filename: 'uchwala.pdf',
+						mime: 'application/pdf',
+						text: 'Uchwała nr 12/2026',
+						pageCount: 4,
+						suggestedDisplay: 'link',
+					},
 				],
 				categories: CATEGORIES,
 			},
 			{ complete },
 		);
-		expect(draft).toEqual({
-			title: 'Uchwała w sprawie festynu',
-			contentMd: 'Rada Gminy uchwaliła organizację festynu.',
-			categorySlug: 'aktualnosci',
-			extraCategorySlugs: [],
-		});
+		expect(drafts).toEqual([
+			{
+				title: 'Uchwała w sprawie festynu',
+				contentMd: 'Rada Gminy uchwaliła organizację festynu.',
+				categorySlug: 'aktualnosci',
+				extraCategorySlugs: [],
+				attachments: [{ filename: 'uchwala.pdf', display: 'link' }],
+			},
+		]);
 		expect(complete).toHaveBeenCalledWith(
 			expect.objectContaining({
 				system: inboundAi.system,
@@ -47,7 +61,7 @@ describe('enrichInboundDraft', () => {
 					_input.signal.addEventListener('abort', () => reject(new Error('aborted')));
 				}),
 		);
-		const draft = await enrichInboundDraft(
+		const drafts = await enrichInboundDraft(
 			{
 				title: 'FW: proszę opublikować',
 				contentMd: 'Proszę o publikację.',
@@ -56,12 +70,15 @@ describe('enrichInboundDraft', () => {
 			},
 			{ complete, timeoutMs: 20 },
 		);
-		expect(draft).toEqual({
-			title: 'FW: proszę opublikować',
-			contentMd: 'Proszę o publikację.',
-			categorySlug: null,
-			extraCategorySlugs: [],
-		});
+		expect(drafts).toEqual([
+			{
+				title: 'FW: proszę opublikować',
+				contentMd: 'Proszę o publikację.',
+				categorySlug: null,
+				extraCategorySlugs: [],
+				attachments: [],
+			},
+		]);
 		expect(warn).toHaveBeenCalled();
 		warn.mockRestore();
 	});

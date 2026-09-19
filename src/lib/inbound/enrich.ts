@@ -1,16 +1,16 @@
 import { inboundAi } from '@/i18n';
 import type { CategoryOption } from '@/lib/categories';
 import { completeInboundObject, type InboundAiComplete } from './ai-client';
+import type { InboundFileInventory } from './collect-attachment-texts';
 import { applyEnrichment, enrichFallback, type EnrichDraft } from './enrich-model';
 import { buildInboundEnrichPrompt } from './enrich-prompt';
-import type { ExtractedAttachmentText } from './extract-attachment-text';
 import { inboundAiEnvFromMeta, inboundAiModel, INBOUND_AI_TIMEOUT_MS } from './inbound-ai-config';
 import { logInboundAiFailed } from './inbound-ai-log';
 
 export type EnrichInboundInput = {
 	title: string;
 	contentMd: string;
-	attachments: ExtractedAttachmentText[];
+	attachments: InboundFileInventory[];
 	categories: CategoryOption[];
 };
 
@@ -22,7 +22,7 @@ export type EnrichInboundOptions = {
 export async function enrichInboundDraft(
 	input: EnrichInboundInput,
 	opts: EnrichInboundOptions = {},
-): Promise<EnrichDraft> {
+): Promise<EnrichDraft[]> {
 	const fallback = enrichFallback(input.title, input.contentMd);
 	const complete = opts.complete ?? completeInboundObject;
 	const timeoutMs = opts.timeoutMs ?? INBOUND_AI_TIMEOUT_MS;
@@ -34,10 +34,16 @@ export async function enrichInboundDraft(
 			prompt: buildInboundEnrichPrompt(input),
 			signal: controller.signal,
 		});
-		return applyEnrichment(raw, input.categories, fallback);
+		return applyEnrichment(
+			raw,
+			input.categories,
+			fallback,
+			input.attachments.map((row) => row.filename),
+			new Map(input.attachments.map((row) => [row.filename, row.text])),
+		);
 	} catch (error) {
 		logInboundAiFailed(error, inboundAiModel(inboundAiEnvFromMeta()));
-		return fallback;
+		return [fallback];
 	} finally {
 		clearTimeout(timer);
 	}

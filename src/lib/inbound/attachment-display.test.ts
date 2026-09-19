@@ -1,0 +1,54 @@
+import { describe, expect, it } from 'vitest';
+import { PDF_MIME } from '@/lib/posts/upload-mime';
+import { suggestAttachmentDisplay } from './attachment-display';
+
+describe('suggestAttachmentDisplay', () => {
+	it('krótki PDF 1 strona albo nazwa plakat → embed', () => {
+		expect(
+			suggestAttachmentDisplay({
+				filename: 'skan.pdf',
+				mime: PDF_MIME,
+				pageCount: 1,
+				text: '',
+			}),
+		).toBe('embed');
+		expect(
+			suggestAttachmentDisplay({
+				filename: 'Plakat-festyn.pdf',
+				mime: PDF_MIME,
+				pageCount: 4,
+				text: 'Festyn gminny w sobotę na stadionie. Zapraszamy rodziny z dziećmi.',
+			}),
+		).toBe('embed');
+	});
+
+	it('pismo z prośbą o publikację → drop; uchwała → link', () => {
+		expect(
+			suggestAttachmentDisplay({
+				filename: 'pismo.pdf',
+				mime: PDF_MIME,
+				pageCount: 1,
+				text: 'Szanowny Panie Wójcie, proszę o publikację załączonych materiałów i poinformowanie mieszkańców.',
+			}),
+		).toBe('drop');
+		expect(
+			suggestAttachmentDisplay({
+				filename: 'uchwala.pdf',
+				mime: PDF_MIME,
+				pageCount: 12,
+				text: 'Uchwała nr XII/80/2026 Rady Gminy Miedzna w sprawie festynu. '.repeat(20),
+			}),
+		).toBe('link');
+	});
+
+	it('obraz nie jest PDF-em do podglądu', () => {
+		expect(
+			suggestAttachmentDisplay({
+				filename: 'foto.png',
+				mime: 'image/png',
+				pageCount: null,
+				text: '',
+			}),
+		).toBe('link');
+	});
+});

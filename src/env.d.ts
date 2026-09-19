@@ -33,6 +33,10 @@ interface ImportMetaEnv {
 	readonly INBOUND_FALLBACK_AUTHOR_ID?: string;
 	/** Model AI Gateway (pusty string = wyłącz enrichment). Domyślnie xai/grok-4.1-fast-non-reasoning. */
 	readonly INBOUND_AI_MODEL?: string;
+	/** Mapa email:slug — dokładny korespondent. */
+	readonly INBOUND_SITE_BY_EMAIL?: string;
+	/** Mapa domena:slug (poddomeny też). */
+	readonly INBOUND_SITE_BY_DOMAIN?: string;
 	/** Klucz Vercel AI Gateway — lokalnie; na Vercel wystarczy OIDC. */
 	readonly AI_GATEWAY_API_KEY?: string;
 }

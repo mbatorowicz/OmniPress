@@ -7,7 +7,15 @@ describe('buildInboundEnrichPrompt', () => {
 		const prompt = buildInboundEnrichPrompt({
 			title: 'Proszę o publikację',
 			contentMd: 'W załączeniu pismo.',
-			attachments: [{ filename: 'a.pdf', mime: 'application/pdf', text: 'Treść uchwały' }],
+			attachments: [
+				{
+					filename: 'a.pdf',
+					mime: 'application/pdf',
+					text: 'Treść uchwały',
+					pageCount: 1,
+					suggestedDisplay: 'link',
+				},
+			],
 			categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],
 		});
 		expect(inboundAi.system).toContain('pismo przewodnie');

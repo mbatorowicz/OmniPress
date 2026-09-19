@@ -27,9 +27,13 @@ async function closePdf(doc: { cleanup?: () => Promise<unknown> | unknown }): Pr
 	}
 }
 
-/** Warstwa tekstowa PDF (bez OCR). Pusty string przy skanie / błędzie. */
-export async function extractPdfText(bytes: Uint8Array): Promise<string> {
-	if (bytes.byteLength === 0) return '';
+export type PdfExtract = { text: string; pageCount: number };
+
+const EMPTY_PDF: PdfExtract = { text: '', pageCount: 0 };
+
+/** Warstwa tekstowa + liczba stron (bez OCR). Pusty tekst przy skanie / błędzie. */
+export async function extractPdfMeta(bytes: Uint8Array): Promise<PdfExtract> {
+	if (bytes.byteLength === 0) return EMPTY_PDF;
 	try {
 		const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
 		pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerSrc();
@@ -49,11 +53,15 @@ export async function extractPdfText(bytes: Uint8Array): Promise<string> {
 				const line = content.items.map(itemText).filter(Boolean).join(' ');
 				if (line.trim()) pages.push(line);
 			}
-			return clipText(pages.join('\n'));
+			return { text: clipText(pages.join('\n')), pageCount: doc.numPages };
 		} finally {
 			await closePdf(doc);
 		}
 	} catch {
-		return '';
+		return EMPTY_PDF;
 	}
+}
+
+export async function extractPdfText(bytes: Uint8Array): Promise<string> {
+	return (await extractPdfMeta(bytes)).text;
 }

@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.17.0** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.18.0** (kod + baza + panel).
 
 Produkcja panelu: https://omni-press.cncsolutions.dev  
 Produkcja UG: https://gmina-miedzna.pl (cutover 2026-09-16) — gałąź `main` + publikacje OmniPress  
@@ -77,7 +77,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Uprawnienia redaktora (strony + domyślna); blokada: własne konto / ostatni admin | ✅ |
 | Usunięcie konta zostawia wpisy (autor: „konto usunięte”) | ✅ migracja `setup:author-on-delete` |
 | Kolejka: do akceptacji, zaplanowane (ze znacznikiem „Publikacja…”), na stronie | ✅ `/admin` — odznaka z liczbą *pending* przy *Administracja* i *Kolejka wpisów* |
-| Szkic z poczty (skrzynka inbound) | ✅ `wpisy@inbound.cncsolutions.dev`; webhook `POST /api/inbound/email`; tylko `draft`; Grok proponuje tytuł/kategorię/treść z maila i PDF/DOCX; DOCX bez pieczęci → grafiki jako zajawka; Telegram bez przycisku Akceptuj |
+| Szkic z poczty (skrzynka inbound) | ✅ `wpisy@inbound.cncsolutions.dev`; Grok redaguje jak człowiek (podgląd plakatów, wyrzut pisma, podział komunikatów, tytuł z tematu); jednostka z hopu przekazującego; Telegram bez Akceptuj |
 | Powiadomienie Telegram po wysłaniu do akceptacji | ✅ opcjonalne `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`; awaria bota nie blokuje submitu |
 | Akceptacja wpisu z Telegrama | ✅ przycisk *Akceptuj* w wiadomości bota; webhook `/api/telegram/webhook`; odrzucenie w panelu |
 | Wszystkie wpisy redaktorów — także szkice i wpisy do poprawki; zakładki statusów z licznikami, filtr (tytuł, status, strona, autor), sortowanie kolumn (domyślnie data publikacji), stronicowanie po 25 | ✅ `/admin/posts` |
@@ -210,6 +210,8 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | `INBOUND_DEFAULT_SITE_SLUG` | tak (skrzynka) | Slug jednostki dla szkicu (produkcja: `gmina-miedzna-pl`) |
 | `INBOUND_FALLBACK_AUTHOR_ID` | tak (skrzynka) | UUID profilu, gdy nadawca nie ma konta w panelu |
 | `INBOUND_AI_MODEL` | opcjonalnie | Model AI Gateway; pusty string wyłącza Grok; brak = `xai/grok-4.1-fast-non-reasoning` |
+| `INBOUND_SITE_BY_DOMAIN` | opcjonalnie | `domena:slug` — hop, który przekazał maila do Ciebie (np. `gminamiedzna.pl:gmina-miedzna,sp-miedzna.pl:sp-miedzna`) |
+| `INBOUND_SITE_BY_EMAIL` | opcjonalnie | dokładny `email:slug`; wygrywa z domeną |
 | `AI_GATEWAY_API_KEY` | opcjonalnie | Klucz Gateway lokalnie; na Vercel wystarczy OIDC |
 
 ---
@@ -224,6 +226,12 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | SSO redaktorów | — |
 
 ---
+
+## 0.18.0 — Grok: forma treści i jednostka z hopu
+
+- Grok dzieli mail na 1–3 szkice według komunikatu dla odbiorcy; plakat = podgląd; pismo przewodnie = `drop`; ogólnikowy tytuł odrzucany.
+- Jednostka: domena hopu, który przekazał maila do Ciebie (nie envelope From, nie autor pisma). Mapa `INBOUND_SITE_BY_DOMAIN` / `INBOUND_SITE_BY_EMAIL`.
+- Nadal tylko `draft`. Plan: [PLAN-INBOUND-GROK.md](./PLAN-INBOUND-GROK.md).
 
 ## 0.17.0 — Grok na skrzynce inbound
 

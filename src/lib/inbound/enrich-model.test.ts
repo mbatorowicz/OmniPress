@@ -11,7 +11,7 @@ const FALLBACK = { title: 'Bez tytułu', contentMd: 'Proszę o publikację zał�
 
 describe('applyEnrichment', () => {
 	it('bierze tytuł i treść z załącznika, kategorię z allowlisty', () => {
-		const draft = applyEnrichment(
+		const [draft] = applyEnrichment(
 			{
 				title: '  Re: Festyn gminny  ',
 				category_slug: 'AKTUALNOSCI',
@@ -21,21 +21,25 @@ describe('applyEnrichment', () => {
 			CATEGORIES,
 			FALLBACK,
 		);
-		expect(draft.title).toBe('Festyn gminny');
-		expect(draft.contentMd).toBe('Zapraszamy na festyn w sobotę.');
-		expect(draft.categorySlug).toBe('aktualnosci');
-		expect(draft.extraCategorySlugs).toEqual(['zarzadzenia']);
+		expect(draft).toMatchObject({
+			title: 'Festyn gminny',
+			contentMd: 'Zapraszamy na festyn w sobotę.',
+			categorySlug: 'aktualnosci',
+			extraCategorySlugs: ['zarzadzenia'],
+		});
 	});
 
 	it('odrzuca nieznany slug i zły JSON — fallback', () => {
-		expect(applyEnrichment({ title: 'A', category_slug: 'haker', content_md: 'Treść.' }, CATEGORIES, FALLBACK)).toMatchObject({
+		expect(
+			applyEnrichment({ title: 'A', category_slug: 'haker', content_md: 'Treść.' }, CATEGORIES, FALLBACK)[0],
+		).toMatchObject({
 			title: 'A',
 			categorySlug: null,
 			extraCategorySlugs: [],
 		});
-		expect(applyEnrichment('nie json', CATEGORIES, FALLBACK)).toEqual(
+		expect(applyEnrichment('nie json', CATEGORIES, FALLBACK)).toEqual([
 			enrichFallback(FALLBACK.title, FALLBACK.contentMd),
-		);
+		]);
 	});
 
 	it('isSameEnrichDraft rozpoznaje identyczny fallback', () => {
@@ -45,13 +49,61 @@ describe('applyEnrichment', () => {
 	});
 
 	it('pusta treść modelu zostawia treść maila; emoji z tytułu zdejmowane', () => {
-		const draft = applyEnrichment(
+		const [draft] = applyEnrichment(
 			{ title: '📅 Festyn', category_slug: null, content_md: '   ' },
 			CATEGORIES,
 			FALLBACK,
 		);
-		expect(draft.title).toBe('Festyn');
-		expect(draft.contentMd).toBe(FALLBACK.contentMd);
-		expect(draft.categorySlug).toBeNull();
+		expect(draft?.title).toBe('Festyn');
+		expect(draft?.contentMd).toBe(FALLBACK.contentMd);
+		expect(draft?.categorySlug).toBeNull();
+	});
+
+	it('dzieli spokrewnione komunikaty, drop pisma, odrzuca nieznany plik', () => {
+		const drafts = applyEnrichment(
+			{
+				posts: [
+					{
+						title: 'Obowiązek szczepienia',
+						category_slug: 'aktualnosci',
+						content_md: 'Przypominamy o szczepieniach.',
+						attachments: [
+							{ filename: 'szczepienia.pdf', display: 'embed' },
+							{ filename: 'pismo.pdf', display: 'drop' },
+							{ filename: 'ghost.pdf', display: 'embed' },
+						],
+					},
+					{
+						title: 'Plakaty',
+						category_slug: null,
+						content_md: 'Akcja przeciw wściekliźnie.',
+						attachments: [
+							{ filename: 'wscieklizna-1.pdf', display: 'embed' },
+							{ filename: 'wscieklizna-2.pdf', display: 'embed' },
+						],
+					},
+				],
+			},
+			CATEGORIES,
+			FALLBACK,
+			['szczepienia.pdf', 'wscieklizna-1.pdf', 'wscieklizna-2.pdf', 'pismo.pdf'],
+			new Map([
+				['szczepienia.pdf', 'Szczepienie psów i kotów — obowiązek 2026'],
+				['wscieklizna-1.pdf', 'Akcja szczepień przeciw wściekliźnie'],
+				['wscieklizna-2.pdf', 'Wścieklizna — punkty szczepień'],
+				['pismo.pdf', 'Proszę o publikację'],
+			]),
+		);
+		expect(drafts).toHaveLength(2);
+		expect(drafts[0]?.title).toBe('Obowiązek szczepienia');
+		expect(drafts[0]?.attachments).toEqual([
+			{ filename: 'szczepienia.pdf', display: 'embed' },
+			{ filename: 'pismo.pdf', display: 'drop' },
+		]);
+		expect(drafts[1]?.title).toBe('Akcja szczepień przeciw wściekliźnie');
+		expect(drafts[1]?.attachments.map((row) => row.filename)).toEqual([
+			'wscieklizna-1.pdf',
+			'wscieklizna-2.pdf',
+		]);
 	});
 });

@@ -18,10 +18,9 @@ const MESSAGE = 'email_abc';
 const INPUT: CreateInboundDraftInput = {
 	messageId: ` ${MESSAGE} `,
 	from: 'Jan Kowalski <Jan.Kowalski@Urzad.PL>',
-	title: 'Festyn gminny',
-	contentMd: 'Zapraszamy.',
 	siteSlug: ' gmina-miedzna ',
 	fallbackAuthorId: FALLBACK,
+	drafts: [{ title: 'Festyn gminny', contentMd: 'Zapraszamy.' }],
 };
 
 function hasMethod(op: QueryOp, method: string): boolean {
@@ -48,6 +47,7 @@ describe('createInboundDraft', () => {
 		expect(await createInboundDraft(fake.client, INPUT)).toEqual({
 			ok: true,
 			postId: POST,
+			postIds: [POST],
 			created: true,
 		});
 		expect(insertPayload(fake, 'posts')).toEqual({
@@ -75,6 +75,7 @@ describe('createInboundDraft', () => {
 		expect(await createInboundDraft(fake.client, INPUT)).toEqual({
 			ok: true,
 			postId: EXISTING,
+			postIds: [EXISTING],
 			created: false,
 		});
 		expect(opsFor(fake, 'posts')).toHaveLength(0);
@@ -99,6 +100,7 @@ describe('createInboundDraft', () => {
 		expect(await createInboundDraft(fake.client, INPUT)).toEqual({
 			ok: true,
 			postId: EXISTING,
+			postIds: [EXISTING],
 			created: false,
 		});
 		const del = opsFor(fake, 'posts').find((op) => hasMethod(op, 'delete'));
@@ -145,5 +147,34 @@ describe('createInboundDraft', () => {
 			created: true,
 		});
 		expect(insertPayload(fake, 'posts').author_id).toBe(FALLBACK);
+	});
+
+	it('dwa szkice: dwa inserty posts, inbound wskazuje pierwszy', async () => {
+		const second = '66666666-6666-4666-8666-666666666666';
+		let posts = 0;
+		const fake = createSupabaseFake((op) => {
+			if (op.table === 'sites') return { data: { id: SITE } };
+			if (op.table === 'posts' && hasMethod(op, 'insert')) {
+				posts += 1;
+				return { data: { id: posts === 1 ? POST : second } };
+			}
+			return { data: null };
+		}, () => ({ data: AUTHOR }));
+
+		expect(
+			await createInboundDraft(fake.client, {
+				...INPUT,
+				drafts: [
+					{ title: 'Szczepienia', contentMd: 'A' },
+					{ title: 'Wścieklizna', contentMd: 'B' },
+				],
+			}),
+		).toEqual({
+			ok: true,
+			postId: POST,
+			postIds: [POST, second],
+			created: true,
+		});
+		expect(insertPayload(fake, 'inbound_messages')).toMatchObject({ post_id: POST });
 	});
 });

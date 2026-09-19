@@ -79,7 +79,21 @@ describe('storeInboundAttachment', () => {
 			filename: 'foto.png',
 			mime_type: 'image/png',
 			sort_order: 4,
+			display_mode: 'link',
 		});
+	});
+
+	it('zapisuje display_mode embed dla PDF', async () => {
+		const fake = fakeClient();
+		await storeInboundAttachment(fake.client, {
+			postId: POST,
+			filename: 'plakat.pdf',
+			mime: 'application/pdf',
+			kind: 'pdf',
+			bytes: PNG,
+			displayMode: 'embed',
+		});
+		expect(fake.inserts[0]).toMatchObject({ display_mode: 'embed' });
 	});
 
 	it('przy bledzie insertu sprząta Storage; upload fail nie insertuje', async () => {

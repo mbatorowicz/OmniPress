@@ -161,11 +161,11 @@ e-maili w tej wersji), więc przy większych zmianach uprzedź go poza systemem.
 
 Adres skrzynki: **`wpisy@inbound.cncsolutions.dev`**. Technika i DNS: [WDROZENIE.md](./WDROZENIE.md).
 
-1. Temat i treść maila to punkt startowy. Gdy w załączniku jest PDF albo DOCX, Grok czyta warstwę tekstową i na tej podstawie proponuje **tytuł**, **kategorię** (z listy jednostki) i **treść wpisu** — pismo przewodnie („proszę opublikować”) nie zostaje artykułem. Z DOCX **bez pieczątki i podpisu** grafiki idą do galerii (pierwsza = zajawka), a plik Word nie zostaje przy wpisie. Pismo z pieczęcią zostaje załącznikiem; duże grafiki i tak trafiają do galerii.
-2. Nadawca musi być na allowliście (`INBOUND_ALLOWED_FROM`). Na start: konto administratora. Obcy mail jest ignorowany — nie powstaje wpis.
-3. Szkic trafia na jednostkę domyślną (Gmina Miedzna). Grok może uzupełnić kategorię; i tak **sprawdź** tytuł i kategorię przed publikacją. Gdy Gateway nie odpowie, kategoria zostaje pusta.
+1. Temat i treść maila to punkt startowy. Grok ocenia **cały zestaw załączników** (także plakaty bez warstwy tekstowej) i redaguje jak człowiek: tytuł z tematu sprawy (nie „Plakaty”), krótki lead, pismo przewodnie poza wpisem. Plakat / ulotka idzie jako **podgląd**; uchwała — jako link. Gdy w jednej przesyłce jest kilka komunikatów, powstaje do trzech szkiców. Z DOCX **bez pieczątki i podpisu** grafiki idą do galerii (pierwsza = zajawka), a plik Word nie zostaje przy wpisie.
+2. Nadawca koperty (Ty) musi być na allowliście (`INBOUND_ALLOWED_FROM`). Obcy mail jest ignorowany. Jednostka (gmina albo szkoła) wynika z **osoby, która przekazała maila do Ciebie** — jej domeny — nie z autora pisma w środku.
+3. Grok dobiera kategorię z listy tej jednostki; i tak **sprawdź** tytuł, kategorię i podgląd załączników przed publikacją. Gdy Gateway nie odpowie, kategoria zostaje pusta, pliki lądują według heurystyki.
 4. W `/admin/posts` filtr *Szkic* → *Edytuj*: sprawdź propozycję, popraw jeśli trzeba, potem *Wyślij do akceptacji* albo *Opublikuj szkic* (§5.2).
-5. Telegram (gdy bot działa) dostaje link do `/admin/posts/{id}` bez przycisku *Akceptuj*. Gdy Grok nie przerobi maila, wiadomość mówi wprost, że szkic jest surowy — nie szukaj go w kolejce *Do akceptacji*, tylko w *Wpisy* → filtr *Szkic*.
+5. Telegram (gdy bot działa) dostaje osobny link do każdego szkicu, bez przycisku *Akceptuj*. Gdy Grok nie przerobi maila, wiadomość mówi wprost, że szkic jest surowy — nie szukaj go w kolejce *Do akceptacji*, tylko w *Wpisy* → filtr *Szkic*.
 
 ---
 

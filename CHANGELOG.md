@@ -7,6 +7,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Dodane
 
+- **Grok redaguje szkic z poczty jak człowiek.** Plakaty jako podgląd (nie link), pismo przewodnie poza wpisem, tytuł z tematu sprawy (nie „Plakaty”), podział na 1–3 szkice gdy w mailu jest kilka komunikatów. Jednostka z domeny, która przekazała maila do Ciebie (nie envelope From). Env: `INBOUND_SITE_BY_DOMAIN`, `INBOUND_SITE_BY_EMAIL`. Plan: [PLAN-INBOUND-GROK.md](docs/PLAN-INBOUND-GROK.md).
+
+### Dodane
+
 - **Grok na skrzynce inbound.** Mail z pismem przewodnim i PDF/DOCX dostaje proponowany tytuł, kategorię i posprzątaną treść (model `xai/grok-4.1-fast-non-reasoning` przez Vercel AI Gateway). Szkic zostaje szkicem — publikacja jak dotychczas. Gdy Gateway nie odpowie, działa stary import 1:1, a Telegram pisze, że szkic jest surowy. DOCX bez pieczątki i podpisu: grafiki do galerii (zajawka), bez pliku Word. Szczegóły: [ADMIN.md](docs/ADMIN.md) §5.3, [WDROZENIE.md](docs/WDROZENIE.md).
 
 ### Dodane

@@ -155,6 +155,8 @@ Panel OmniPress ostrzega przy teście kanału, gdy wykryje classic PAT, i pokazu
 | `INBOUND_DEFAULT_SITE_SLUG` | Slug jednostki dla szkicu (produkcja: `gmina-miedzna-pl`) |
 | `INBOUND_FALLBACK_AUTHOR_ID` | UUID profilu, gdy nadawca nie ma konta |
 | `INBOUND_AI_MODEL` | Opcjonalnie — model AI Gateway; pusty string wyłącza Grok; brak = `xai/grok-4.1-fast-non-reasoning` |
+| `INBOUND_SITE_BY_DOMAIN` | Opcjonalnie — `domena:slug` hopu, który przekazał maila do Ciebie |
+| `INBOUND_SITE_BY_EMAIL` | Opcjonalnie — dokładny `email:slug` |
 | `AI_GATEWAY_API_KEY` | Opcjonalnie — lokalnie; na Vercel OIDC |
 
 Bez `ENCRYPTION_KEY`: konfiguracja jednostki zapisze się, ale **tokeny nie** (tylko dev).
@@ -177,7 +179,7 @@ Cron: `vercel.json` → worker raz dziennie (backup). Publikacja startuje też *
 
 ### Skrzynka inbound (szkic z poczty)
 
-Adres: **`wpisy@inbound.cncsolutions.dev`**. Mail z allowlisty zakłada **szkic** na jednostce z `INBOUND_DEFAULT_SITE_SLUG`. Grok (Vercel AI Gateway, `xai/grok-4.1-fast-non-reasoning`) proponuje tytuł, kategorię i treść — także z PDF/DOCX, gdy mail to pismo przewodnie. Nic nie idzie od razu na stronę. Webhook: `POST https://omni-press.cncsolutions.dev/api/inbound/email` (zdarzenie Resend `email.received`, podpis Svix, `maxDuration` 60 s).
+Adres: **`wpisy@inbound.cncsolutions.dev`**. Mail z allowlisty (envelope From — zwykle administrator) zakłada **szkic**. Jednostkę wyznacza hop, który przekazał maila do Ciebie (`INBOUND_SITE_BY_DOMAIN` / `INBOUND_SITE_BY_EMAIL`); brak hopu albo nieznana domena → `INBOUND_DEFAULT_SITE_SLUG`. Grok redaguje jak człowiek: podgląd plakatów, wyrzut pisma przewodniego, podział na komunikaty, tytuł z tematu sprawy. Nic nie idzie od razu na stronę. Webhook: `POST https://omni-press.cncsolutions.dev/api/inbound/email` (zdarzenie Resend `email.received`, podpis Svix, `maxDuration` 60 s).
 
 **Jak pisać**
 
@@ -185,8 +187,8 @@ Adres: **`wpisy@inbound.cncsolutions.dev`**. Mail z allowlisty zakłada **szkic*
 |------|---------------------|
 | Temat | Punkt startowy tytułu (`Re:` / `Fwd:` / `Odp:` zdejmowane); Grok może nadać lepszy z treści / PDF |
 | Treść | `text/plain`, inaczej HTML → Markdown; Grok wycina pismo przewodnie |
-| Załączniki | JPEG/PNG/WebP/GIF (max 10 MB), PDF/DOCX/XLSX/ZIP/GPKG (max 50 MB), do 8 plików. Z PDF i DOCX Grok czyta tekst (bez OCR skanów). Z DOCX bez pieczęci grafiki idą do galerii (zajawka), Word odpada |
-| From | Musi być na `INBOUND_ALLOWED_FROM` (dokładny adres, małe litery) |
+| Załączniki | JPEG/PNG/WebP/GIF (max 10 MB), PDF/DOCX/XLSX/ZIP/GPKG (max 50 MB), do 8 plików. Plakat → podgląd; pismo przewodnie → poza wpisem; Grok może rozdzielić na 1–3 szkice. Z DOCX bez pieczęci grafiki do galerii |
+| From | Koperta: allowlista `INBOUND_ALLOWED_FROM`. Jednostka: hop, który przekazał maila do Ciebie (mapa domeny), nie autor pisma |
 
 Obcy nadawca: webhook odpowiada 200 i **nie** tworzy wpisu. Zły załącznik: notatka w treści szkicu, szkic zostaje. Gdy Gateway padnie: temat = tytuł, treść surowa, kategoria pusta (jak 0.16.0). Autor: konto o tym e-mailu, inaczej `INBOUND_FALLBACK_AUTHOR_ID`. Telegram: „Szkic z poczty” + link, bez przycisku Akceptuj. Treść urzędowa idzie do xAI przez Gateway — nie logujemy jej.
 

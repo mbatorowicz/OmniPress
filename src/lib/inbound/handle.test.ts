@@ -21,6 +21,8 @@ const DRAFT_CONFIG = {
 	allowedFrom: FROM,
 	defaultSiteSlug: 'gmina-miedzna',
 	fallbackAuthorId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+	siteByEmail: {},
+	siteByDomain: [],
 };
 
 function sign(body: string): string {
@@ -56,7 +58,12 @@ const EMAIL: ReceivedInboundEmail = {
 	html: null,
 };
 
-const CREATED: CreateInboundDraftResult = { ok: true, postId: POST_ID, created: true };
+const CREATED: CreateInboundDraftResult = {
+	ok: true,
+	postId: POST_ID,
+	postIds: [POST_ID],
+	created: true,
+};
 
 describe('handleInboundEmail', () => {
 	it('zwraca 401 bez ważnego podpisu albo bez sekretu', async () => {
@@ -123,27 +130,37 @@ describe('handleInboundEmail', () => {
 		});
 
 		expect(response.status).toBe(200);
-		await expect(response.json()).resolves.toEqual({ ok: true, postId: POST_ID, created: true });
+		await expect(response.json()).resolves.toEqual({
+			ok: true,
+			postId: POST_ID,
+			postIds: [POST_ID],
+			created: true,
+		});
 		expect(fetchEmail).toHaveBeenCalledWith(EMAIL_ID);
 		expect(createDraft).toHaveBeenCalledWith({
 			messageId: EMAIL_ID,
 			from: FROM,
-			title: 'Festyn gminny',
-			contentMd: 'Zapraszamy na festyn.',
 			siteSlug: 'gmina-miedzna',
 			fallbackAuthorId: DRAFT_CONFIG.fallbackAuthorId,
+			drafts: [{ title: 'Festyn gminny', contentMd: 'Zapraszamy na festyn.' }],
 		});
 		expect(applyAttachments).toHaveBeenCalledWith({
 			postId: POST_ID,
 			emailId: EMAIL_ID,
 			contentMd: 'Zapraszamy na festyn.',
+			decisions: expect.any(Map),
 		});
 		expect(notify).toHaveBeenCalledWith(POST_ID, 'Festyn gminny', { unprocessed: false });
 	});
 
 	it('idempotentny retry nie pinga Telegrama drugi raz', async () => {
 		const fetchEmail = vi.fn().mockResolvedValue(EMAIL);
-		const createDraft = vi.fn().mockResolvedValue({ ok: true, postId: POST_ID, created: false });
+		const createDraft = vi.fn().mockResolvedValue({
+			ok: true,
+			postId: POST_ID,
+			postIds: [POST_ID],
+			created: false,
+		});
 		const applyAttachments = vi.fn();
 		const notify = vi.fn();
 
@@ -158,7 +175,12 @@ describe('handleInboundEmail', () => {
 		});
 
 		expect(response.status).toBe(200);
-		await expect(response.json()).resolves.toEqual({ ok: true, postId: POST_ID, created: false });
+		await expect(response.json()).resolves.toEqual({
+			ok: true,
+			postId: POST_ID,
+			postIds: [POST_ID],
+			created: false,
+		});
 		expect(createDraft).toHaveBeenCalledTimes(1);
 		expect(applyAttachments).not.toHaveBeenCalled();
 		expect(notify).not.toHaveBeenCalled();
@@ -169,18 +191,27 @@ describe('handleInboundEmail', () => {
 		const createDraft = vi.fn().mockResolvedValue(CREATED);
 		const applyAttachments = vi.fn().mockResolvedValue(undefined);
 		const notify = vi.fn().mockResolvedValue(undefined);
-		const collectAttachmentTexts = vi.fn().mockResolvedValue([
-			{ filename: 'uchwala.pdf', mime: 'application/pdf', text: 'Uchwała nr 12' },
+		const collectInventory = vi.fn().mockResolvedValue([
+			{
+				filename: 'uchwala.pdf',
+				mime: 'application/pdf',
+				text: 'Uchwała nr 12',
+				pageCount: 3,
+				suggestedDisplay: 'link',
+			},
 		]);
 		const loadCategories = vi.fn().mockResolvedValue([
 			{ slug: 'aktualnosci', name: 'Aktualności', sources: ['github_astro'] },
 		]);
-		const enrich = vi.fn().mockResolvedValue({
-			title: 'Uchwała w sprawie festynu',
-			contentMd: 'Rada Gminy organizuje festyn.',
-			categorySlug: 'aktualnosci',
-			extraCategorySlugs: [],
-		});
+		const enrich = vi.fn().mockResolvedValue([
+			{
+				title: 'Uchwała w sprawie festynu',
+				contentMd: 'Rada Gminy organizuje festyn.',
+				categorySlug: 'aktualnosci',
+				extraCategorySlugs: [],
+				attachments: [{ filename: 'uchwala.pdf', display: 'link' }],
+			},
+		]);
 
 		const response = await handleInboundEmail(signedRequest(receivedEvent()), {
 			secret: SECRET,
@@ -190,7 +221,7 @@ describe('handleInboundEmail', () => {
 			createDraft,
 			applyAttachments,
 			notify,
-			collectAttachmentTexts,
+			collectInventory,
 			loadCategories,
 			enrich,
 		});
@@ -205,17 +236,22 @@ describe('handleInboundEmail', () => {
 		expect(createDraft).toHaveBeenCalledWith({
 			messageId: EMAIL_ID,
 			from: FROM,
-			title: 'Uchwała w sprawie festynu',
-			contentMd: 'Rada Gminy organizuje festyn.',
 			siteSlug: 'gmina-miedzna',
 			fallbackAuthorId: DRAFT_CONFIG.fallbackAuthorId,
-			categorySlug: 'aktualnosci',
-			extraCategorySlugs: [],
+			drafts: [
+				{
+					title: 'Uchwała w sprawie festynu',
+					contentMd: 'Rada Gminy organizuje festyn.',
+					categorySlug: 'aktualnosci',
+					extraCategorySlugs: [],
+				},
+			],
 		});
 		expect(applyAttachments).toHaveBeenCalledWith({
 			postId: POST_ID,
 			emailId: EMAIL_ID,
 			contentMd: 'Rada Gminy organizuje festyn.',
+			decisions: expect.any(Map),
 		});
 		expect(notify).toHaveBeenCalledWith(POST_ID, 'Uchwała w sprawie festynu', {
 			unprocessed: false,
@@ -227,12 +263,15 @@ describe('handleInboundEmail', () => {
 		const createDraft = vi.fn().mockResolvedValue(CREATED);
 		const applyAttachments = vi.fn().mockResolvedValue(undefined);
 		const notify = vi.fn().mockResolvedValue(undefined);
-		const enrich = vi.fn().mockResolvedValue({
-			title: 'Festyn gminny',
-			contentMd: 'Zapraszamy na festyn.',
-			categorySlug: null,
-			extraCategorySlugs: [],
-		});
+		const enrich = vi.fn().mockResolvedValue([
+			{
+				title: 'Festyn gminny',
+				contentMd: 'Zapraszamy na festyn.',
+				categorySlug: null,
+				extraCategorySlugs: [],
+				attachments: [],
+			},
+		]);
 
 		await handleInboundEmail(signedRequest(receivedEvent()), {
 			secret: SECRET,
