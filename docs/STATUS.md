@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.19.4** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.19.5** (kod + baza + panel).
 
 Produkcja panelu: https://omni-press.cncsolutions.dev  
 Produkcja UG: https://gmina-miedzna.pl (cutover 2026-09-16) — gałąź `main` + publikacje OmniPress  
@@ -227,6 +227,10 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | SSO redaktorów | — |
 
 ---
+
+## 0.19.5 — Podział sklejonych materiałów
+
+- Gdy Grok wrzuci dwa komunikaty do jednego szkicu, kod rozdziela je po klastrach (to samo, co scala warianty). Prompt bez „domyślnie jeden wpis”.
 
 ## 0.19.4 — Szybsza skrzynka
 

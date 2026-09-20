@@ -3,6 +3,7 @@ import type { CategoryOption } from '@/lib/categories';
 import { applyCoverLetterDrops } from './attachment-display';
 import { completeInboundObject, type InboundAiComplete } from './ai-client';
 import { coalesceDrafts, omitCoverLetterDrafts } from './coalesce-drafts';
+import { splitLumpedDrafts } from './split-lumped-drafts';
 import type { InboundFileInventory } from './collect-attachment-texts';
 import { enrichFallback } from './enrich-model';
 import { resolveEnrichOutcome, type EnrichOutcome } from './enrich-outcome';
@@ -31,7 +32,10 @@ function fileTexts(attachments: InboundFileInventory[]): Map<string, string> {
 function withCreateSafety(outcome: EnrichOutcome, attachments: InboundFileInventory[]): EnrichOutcome {
 	if (outcome.kind !== 'create') return outcome;
 	const drafts = omitCoverLetterDrafts(
-		coalesceDrafts(omitCoverLetterDrafts(outcome.drafts, attachments), attachments),
+		coalesceDrafts(
+			splitLumpedDrafts(omitCoverLetterDrafts(outcome.drafts, attachments), attachments),
+			attachments,
+		),
 		attachments,
 	);
 	return drafts.length > 0 ? { kind: 'create', drafts } : { kind: 'failed' };

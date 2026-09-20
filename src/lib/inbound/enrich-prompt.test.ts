@@ -23,8 +23,9 @@ describe('buildInboundEnrichPrompt', () => {
 			],
 		});
 		expect(inboundAi.system).toContain('Oglądasz treść maila');
-		expect(inboundAi.system).toContain('JEDEN wpis');
+		expect(inboundAi.system).toContain('osobny wpis');
 		expect(inboundAi.system).toContain('Kolorystyka');
+		expect(inboundAi.system).not.toContain('Trafia się rzadko');
 		expect(inboundAi.system).toContain('Nie zgaduj z nazw plików');
 		expect(inboundAi.system).not.toContain('Zaszczep pupila');
 		expect(inboundAi.system).toContain('hint musi być konkretny');
