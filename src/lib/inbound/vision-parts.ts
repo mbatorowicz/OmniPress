@@ -37,10 +37,10 @@ async function partsFromRow(row: InboundFileInventory): Promise<InboundAiFilePar
 export async function buildInboundVisionParts(
 	attachments: InboundFileInventory[],
 ): Promise<InboundAiFilePart[]> {
+	const groups = await Promise.all(attachments.map(partsFromRow));
 	const out: InboundAiFilePart[] = [];
 	let used = 0;
-	for (const row of attachments) {
-		const parts = await partsFromRow(row);
+	for (const parts of groups) {
 		for (const part of parts) {
 			if (!canAddVisionPart(out.length, used, part.data.byteLength)) continue;
 			out.push(part);

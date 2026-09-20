@@ -22,12 +22,12 @@ describe('visionPdfParts', () => {
 		expect(await visionPdfPart('a.pdf', new Uint8Array())).toBeNull();
 	});
 
-	it('wielostronicowy PDF oddaje do 8 JPEG', async () => {
+	it('wielostronicowy PDF oddaje do 2 JPEG', async () => {
 		const labels = Array.from({ length: VISION_MAX_PDF_PAGES + 1 }, (_, i) => `Strona ${i + 1}`);
 		const parts = await visionPdfParts('plakat.pdf', pdfWithPages(labels));
 		expect(parts).toHaveLength(VISION_MAX_PDF_PAGES);
 		expect(parts[0]?.filename).toBe('plakat-p1.jpg');
-		expect(parts[7]?.filename).toBe('plakat-p8.jpg');
+		expect(parts[1]?.filename).toBe('plakat-p2.jpg');
 		for (const part of parts) {
 			expect(part.mediaType).toBe('image/jpeg');
 		}

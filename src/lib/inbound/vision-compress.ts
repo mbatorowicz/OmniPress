@@ -16,7 +16,7 @@ function jpegName(filename: string): string {
 	return filename.replace(/\.[a-z0-9]+$/i, '.jpg');
 }
 
-/** JPEG/PNG/WebP → krawędź 1920 px. GIF → pierwsza klatka JPEG (Grok 4.6 bez GIF). */
+/** JPEG/PNG/WebP → krawędź 1280 px (miniatura). GIF → pierwsza klatka JPEG. */
 export async function compressVisionImage(
 	filename: string,
 	mime: string,

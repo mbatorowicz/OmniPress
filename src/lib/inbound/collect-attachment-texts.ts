@@ -51,30 +51,31 @@ export async function collectInboundInventory(
 	if (!listed) return [];
 
 	const extract = input.extract ?? extractAttachmentText;
-	const out: InboundFileInventory[] = [];
 	const { accepted } = splitAttachmentLimit(listed);
 
-	for (const item of accepted) {
-		const pre = decideAttachmentMeta(item);
-		if (pre.action === 'skip') continue;
-		let downloaded: DownloadAttachmentResult;
-		try {
-			downloaded = await input.download(item.downloadUrl, MAX_FILE_ATTACHMENT_BYTES);
-		} catch {
-			continue;
-		}
-		if (!downloaded.ok) continue;
-		const decided = decideAttachmentBytes(pre, downloaded.bytes);
-		if (decided.action === 'skip') continue;
-		if (isExtractableMime(decided.mime)) {
-			const extracted = await extract(decided.filename, decided.mime, downloaded.bytes);
-			if (extracted) out.push(rowFromExtracted(extracted, downloaded.bytes));
-			else out.push(rowFromFile(decided.filename, decided.mime, downloaded.bytes));
-			continue;
-		}
-		out.push(rowFromFile(decided.filename, decided.mime, downloaded.bytes));
-	}
-	return applyCoverLetterDrops(out);
+	const rows = await Promise.all(
+		accepted.map(async (item): Promise<InboundFileInventory | null> => {
+			const pre = decideAttachmentMeta(item);
+			if (pre.action === 'skip') return null;
+			let downloaded: DownloadAttachmentResult;
+			try {
+				downloaded = await input.download(item.downloadUrl, MAX_FILE_ATTACHMENT_BYTES);
+			} catch {
+				return null;
+			}
+			if (!downloaded.ok) return null;
+			const decided = decideAttachmentBytes(pre, downloaded.bytes);
+			if (decided.action === 'skip') return null;
+			if (isExtractableMime(decided.mime)) {
+				const extracted = await extract(decided.filename, decided.mime, downloaded.bytes);
+				return extracted
+					? rowFromExtracted(extracted, downloaded.bytes)
+					: rowFromFile(decided.filename, decided.mime, downloaded.bytes);
+			}
+			return rowFromFile(decided.filename, decided.mime, downloaded.bytes);
+		}),
+	);
+	return applyCoverLetterDrops(rows.filter((row): row is InboundFileInventory => row != null));
 }
 
 export async function collectExtractableAttachmentTexts(

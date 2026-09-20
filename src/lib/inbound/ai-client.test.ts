@@ -16,7 +16,7 @@ describe('completeInboundObject', () => {
 		generateObject.mockClear();
 	});
 
-	it('woła Grok 4.6 z myśleniem high', async () => {
+	it('woła Grok 4.6 z myśleniem medium', async () => {
 		const { completeInboundObject } = await import('./ai-client');
 		await completeInboundObject({
 			system: 'sys',
@@ -32,7 +32,7 @@ describe('completeInboundObject', () => {
 		expect(first.model).toBe(DEFAULT_INBOUND_AI_MODEL);
 		expect(first.reasoning).toBe(DEFAULT_INBOUND_AI_REASONING);
 		expect(first.model).toBe('spacexai/grok-4.6');
-		expect(first.reasoning).toBe('high');
+		expect(first.reasoning).toBe('medium');
 	});
 
 	it('wysyła JPEG jako file/image z etykietą, bez native PDF', async () => {

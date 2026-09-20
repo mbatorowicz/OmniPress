@@ -5,6 +5,13 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+## [0.19.4]
+
+### Naprawione
+
+- **Skrzynka nie trzyma połączenia HTTP na Groku.** Webhook i ponowny odczyt oddają 200 od razu, Grok liczy w tle. Klient/proxy zrywał po ~50 s, gdy czekał na pełną odpowiedź.
+- **Jedna tura Groka, mniejsze miniatury.** Bez drugiej wizji (podwajała czas). `reasoning: medium`, krawędź 1280 px, 2 strony PDF, pobieranie plików równolegle. Timeout modelu 120 s.
+
 ## [0.19.3]
 
 ### Naprawione

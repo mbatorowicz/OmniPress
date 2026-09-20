@@ -1,6 +1,14 @@
 /** Log wyniku Groka bez treści maila (AUTH.md). */
-export function logInboundAiOk(model: string, intent: string, posts: number): void {
-	console.info(JSON.stringify({ event: 'inbound_ai_ok', model, intent, posts }));
+export function logInboundAiOk(model: string, intent: string, posts: number, ms?: number): void {
+	console.info(
+		JSON.stringify({
+			event: 'inbound_ai_ok',
+			model,
+			intent,
+			posts,
+			...(ms != null ? { ms } : {}),
+		}),
+	);
 }
 
 function gatewayReason(error: unknown): string | undefined {

@@ -7,7 +7,6 @@ import type { InboundFileInventory } from './collect-attachment-texts';
 import { enrichFallback } from './enrich-model';
 import { resolveEnrichOutcome, type EnrichOutcome } from './enrich-outcome';
 import { buildInboundEnrichPrompt } from './enrich-prompt';
-import { needsSplitRetry, pickSplitRetryOutcome } from './enrich-split';
 import { inboundAiEnvFromMeta, inboundAiModel, INBOUND_AI_TIMEOUT_MS } from './inbound-ai-config';
 import { logInboundAiFailed, logInboundAiOk } from './inbound-ai-log';
 import { buildInboundVisionParts } from './vision-parts';
@@ -71,30 +70,20 @@ export async function enrichInboundDraft(
 	try {
 		const files = await buildInboundVisionParts(attachments);
 		timer = setTimeout(() => controller.abort(), timeoutMs);
+		const started = Date.now();
 		const raw = await complete({
 			system: inboundAi.system,
 			prompt,
 			files,
 			signal: controller.signal,
 		});
-		let outcome = outcomeFromRaw(raw, input, attachments, fallback);
-		if (needsSplitRetry(outcome, attachments) && !controller.signal.aborted) {
-			try {
-				const split = await complete({
-					system: inboundAi.system,
-					prompt: `${prompt}\n${inboundAi.splitRetry}`,
-					files,
-					signal: controller.signal,
-				});
-				outcome = pickSplitRetryOutcome(
-					outcome,
-					outcomeFromRaw(split, input, attachments, fallback),
-				);
-			} catch {
-				// Zostaje pierwszy odczyt — druga tura nie może skasować szkicu.
-			}
-		}
-		logInboundAiOk(model, outcome.kind, outcome.kind === 'create' ? outcome.drafts.length : 0);
+		const outcome = outcomeFromRaw(raw, input, attachments, fallback);
+		logInboundAiOk(
+			model,
+			outcome.kind,
+			outcome.kind === 'create' ? outcome.drafts.length : 0,
+			Date.now() - started,
+		);
 		return outcome;
 	} catch (error) {
 		logInboundAiFailed(error, model);

@@ -1,10 +1,10 @@
 import { DOCX_MIME, PDF_MIME } from '@/lib/posts/upload-mime';
 
-export const VISION_MAX_EDGE = 1920;
+export const VISION_MAX_EDGE = 1280;
 export const VISION_MAX_FILE_BYTES = 4 * 1024 * 1024;
-export const VISION_MAX_TOTAL_BYTES = 12 * 1024 * 1024;
-export const VISION_JPEG_QUALITY = 85;
-export const VISION_MAX_PDF_PAGES = 8;
+export const VISION_MAX_TOTAL_BYTES = 8 * 1024 * 1024;
+export const VISION_JPEG_QUALITY = 80;
+export const VISION_MAX_PDF_PAGES = 2;
 export const VISION_MAX_IMAGE_PARTS = 16;
 
 const VISION_IMAGE_MIME = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);

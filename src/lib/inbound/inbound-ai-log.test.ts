@@ -37,11 +37,12 @@ describe('logInboundAiFailed', () => {
 describe('logInboundAiOk', () => {
 	it('loguje liczbę szkiców, bez treści', () => {
 		const info = vi.spyOn(console, 'info').mockImplementation(() => {});
-		logInboundAiOk('spacexai/grok-4.6', 'create', 2);
+		logInboundAiOk('spacexai/grok-4.6', 'create', 2, 4200);
 		const line = String(info.mock.calls[0]?.[0]);
 		expect(line).toContain('inbound_ai_ok');
 		expect(line).toContain('"intent":"create"');
 		expect(line).toContain('"posts":2');
+		expect(line).toContain('"ms":4200');
 		expect(line).not.toContain('wścieklizna');
 		info.mockRestore();
 	});

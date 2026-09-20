@@ -146,7 +146,7 @@ Wątek: `In-Reply-To` / temat `Re:` + allowlista → oryginalny `message_id`, no
 Wizja + myślenie Grok 4.6 nie mieści się w starym limicie 60 s.
 
 - Po poprawnym podpisie: **200 od razu**, ingest w `waitUntil` (wzorzec `lib/publish/trigger-worker.ts`).
-- `maxDuration` **300 s** na webhooku i replay (Fluid na Hobby). Timeout `generateObject` **240 s**, start po rasterze PDF.
+- `maxDuration` **300 s** na webhooku i replay (Fluid na Hobby). Timeout `generateObject` **120 s**, start po rasterze PDF. Jedna tura, `reasoning: medium`.
 - Timeout / błąd Gateway: **nie** surowy szkic 1:1. Clarification albo Telegram: nie przerobiłem — replay w panelu (`POST /api/admin/inbound/replay`).
 - Pro / 800 s tylko jeśli po deployu Vercel obetnie 300 s albo ładunek obrazów nadal pada na czasie.
 
