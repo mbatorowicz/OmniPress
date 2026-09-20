@@ -9,6 +9,12 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 - **Grok na skrzynce: PDF, daty, nazwa gminy, niepewna podmiana.** Strony PDF idą do modelu jako JPEG (Gateway odrzuca inline PDF). Prompt uczy: przepisuj miesiąc i „Miedzna”; luźny hint podmiany = pytanie, nie zgadywanie. Matcher nie paruje ogólników z tytułem.
 
+## [0.19.1]
+
+### Zmienione
+
+- **Grok 4.6 z myśleniem na skrzynce inbound.** Domyślny model `spacexai/grok-4.6` (`reasoning: high`) zamiast szybkiego wariantu bez łańcucha. Timeout modelu 55 s, liczony po rasterze PDF. Webhook nadal `maxDuration` 60 s (Hobby).
+
 ## [0.19.0]
 
 ### Dodane

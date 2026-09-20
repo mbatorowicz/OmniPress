@@ -154,7 +154,7 @@ Panel OmniPress ostrzega przy teście kanału, gdy wykryje classic PAT, i pokazu
 | `INBOUND_ALLOWED_FROM` | Allowlista From (przecinki / nowe linie) |
 | `INBOUND_DEFAULT_SITE_SLUG` | Slug jednostki dla szkicu (produkcja: `gmina-miedzna-pl`) |
 | `INBOUND_FALLBACK_AUTHOR_ID` | UUID profilu, gdy nadawca nie ma konta |
-| `INBOUND_AI_MODEL` | Opcjonalnie — model AI Gateway; pusty string wyłącza Grok; brak = `xai/grok-4.1-fast-non-reasoning` |
+| `INBOUND_AI_MODEL` | Opcjonalnie — model AI Gateway; pusty string wyłącza Grok; brak = `spacexai/grok-4.6` (myślenie `high`) |
 | `INBOUND_SITE_BY_DOMAIN` | Opcjonalnie — `domena:slug` hopu, który przekazał maila do Ciebie |
 | `INBOUND_SITE_BY_EMAIL` | Opcjonalnie — dokładny `email:slug` |
 | `AI_GATEWAY_API_KEY` | Opcjonalnie — lokalnie; na Vercel OIDC |
@@ -179,7 +179,7 @@ Cron: `vercel.json` → worker raz dziennie (backup). Publikacja startuje też *
 
 ### Skrzynka inbound (szkic z poczty)
 
-Adres: **`wpisy@inbound.cncsolutions.dev`**. Mail z allowlisty (envelope From — zwykle administrator) idzie do Groka, który **ogląda** treść i załączniki. Skutek: szkic, podmiana w panelu albo pytanie do Ciebie. Jednostkę wyznacza hop, który przekazał maila do Ciebie (`INBOUND_SITE_BY_DOMAIN` / `INBOUND_SITE_BY_EMAIL`); brak hopu albo nieznana domena → `INBOUND_DEFAULT_SITE_SLUG`. Nic nie idzie od razu na stronę. Webhook: `POST https://omni-press.cncsolutions.dev/api/inbound/email` (zdarzenie Resend `email.received`, podpis Svix, 200 od razu, ingest w `waitUntil`, `maxDuration` 60 s, timeout modelu ok. 45 s).
+Adres: **`wpisy@inbound.cncsolutions.dev`**. Mail z allowlisty (envelope From — zwykle administrator) idzie do Groka 4.6 z myśleniem (`spacexai/grok-4.6`, `reasoning: high`), który **ogląda** treść i załączniki. Skutek: szkic, podmiana w panelu albo pytanie do Ciebie. Jednostkę wyznacza hop, który przekazał maila do Ciebie (`INBOUND_SITE_BY_DOMAIN` / `INBOUND_SITE_BY_EMAIL`); brak hopu albo nieznana domena → `INBOUND_DEFAULT_SITE_SLUG`. Nic nie idzie od razu na stronę. Webhook: `POST https://omni-press.cncsolutions.dev/api/inbound/email` (zdarzenie Resend `email.received`, podpis Svix, 200 od razu, ingest w `waitUntil`, `maxDuration` 60 s, timeout modelu ok. 55 s po rasterze PDF).
 
 **Jak pisać**
 

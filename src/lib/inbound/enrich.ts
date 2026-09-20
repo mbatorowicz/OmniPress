@@ -47,10 +47,11 @@ export async function enrichInboundDraft(
 	const timeoutMs = opts.timeoutMs ?? INBOUND_AI_TIMEOUT_MS;
 	const model = inboundAiModel(inboundAiEnvFromMeta());
 	const controller = new AbortController();
-	const timer = setTimeout(() => controller.abort(), timeoutMs);
+	let timer: ReturnType<typeof setTimeout> | undefined;
 	const prompt = buildInboundEnrichPrompt({ ...input, attachments });
 	try {
 		const files = await buildInboundVisionParts(attachments);
+		timer = setTimeout(() => controller.abort(), timeoutMs);
 		const raw = await complete({
 			system: inboundAi.system,
 			prompt,
@@ -67,6 +68,6 @@ export async function enrichInboundDraft(
 		logInboundAiFailed(error, model);
 		return { kind: 'failed' };
 	} finally {
-		clearTimeout(timer);
+		if (timer) clearTimeout(timer);
 	}
 }

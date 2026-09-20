@@ -1,5 +1,9 @@
 import { generateObject } from 'ai';
-import { inboundAiEnvFromMeta, inboundAiModel } from './inbound-ai-config';
+import {
+	DEFAULT_INBOUND_AI_REASONING,
+	inboundAiEnvFromMeta,
+	inboundAiModel,
+} from './inbound-ai-config';
 import { inboundEnrichSchema } from './enrich-schema';
 import type { InboundAiFilePart } from './vision-model';
 
@@ -30,6 +34,7 @@ export async function completeInboundObject(input: {
 }): Promise<unknown> {
 	const { object } = await generateObject({
 		model: inboundAiModel(inboundAiEnvFromMeta()),
+		reasoning: DEFAULT_INBOUND_AI_REASONING,
 		schema: inboundEnrichSchema,
 		system: input.system,
 		messages: [{ role: 'user', content: userContent(input.prompt, input.files) }],

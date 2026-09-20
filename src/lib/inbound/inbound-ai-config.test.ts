@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
 	DEFAULT_INBOUND_AI_MODEL,
+	DEFAULT_INBOUND_AI_REASONING,
 	inboundAiConfigured,
 	inboundAiModel,
 } from './inbound-ai-config';
 
 describe('inboundAiModel', () => {
-	it('domyślnie Grok; pusty string wyłącza', () => {
+	it('domyślnie Grok 4.6 z myśleniem; pusty string wyłącza', () => {
+		expect(DEFAULT_INBOUND_AI_MODEL).toBe('spacexai/grok-4.6');
+		expect(DEFAULT_INBOUND_AI_REASONING).toBe('high');
 		expect(inboundAiModel({})).toBe(DEFAULT_INBOUND_AI_MODEL);
 		expect(inboundAiModel({ INBOUND_AI_MODEL: ' xai/grok-3 ' })).toBe('xai/grok-3');
 		expect(inboundAiModel({ INBOUND_AI_MODEL: '' })).toBe('');
