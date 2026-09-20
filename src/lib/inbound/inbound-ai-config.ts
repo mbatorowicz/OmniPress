@@ -1,9 +1,11 @@
 /** Grok 4.6 z myśleniem — ID z katalogu AI Gateway. */
 export const DEFAULT_INBOUND_AI_MODEL = 'spacexai/grok-4.6';
-/** high = łańcuch myślenia (domyśl modelu). xhigh nie mieści się w Hobby 60 s. */
+/** high = łańcuch myślenia (domyśl modelu). Fluid Hobby: do 300 s. */
 export const DEFAULT_INBOUND_AI_REASONING = 'high' as const;
-/** Timeout wokół generateObject; raster PDF jest poza nim. Webhook: maxDuration 60 s. */
-export const INBOUND_AI_TIMEOUT_MS = 55_000;
+/** Webhook i replay — Fluid na Hobby pozwala do 300 s. */
+export const INBOUND_MAX_DURATION_S = 300;
+/** Timeout wokół generateObject; raster PDF jest poza nim. */
+export const INBOUND_AI_TIMEOUT_MS = 240_000;
 
 export type InboundAiEnv = Record<string, string | undefined>;
 

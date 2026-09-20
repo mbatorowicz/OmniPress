@@ -179,7 +179,7 @@ Cron: `vercel.json` → worker raz dziennie (backup). Publikacja startuje też *
 
 ### Skrzynka inbound (szkic z poczty)
 
-Adres: **`wpisy@inbound.cncsolutions.dev`**. Mail z allowlisty (envelope From — zwykle administrator) idzie do Groka 4.6 z myśleniem (`spacexai/grok-4.6`, `reasoning: high`), który **ogląda** treść i załączniki. Skutek: szkic, podmiana w panelu albo pytanie do Ciebie. Jednostkę wyznacza hop, który przekazał maila do Ciebie (`INBOUND_SITE_BY_DOMAIN` / `INBOUND_SITE_BY_EMAIL`); brak hopu albo nieznana domena → `INBOUND_DEFAULT_SITE_SLUG`. Nic nie idzie od razu na stronę. Webhook: `POST https://omni-press.cncsolutions.dev/api/inbound/email` (zdarzenie Resend `email.received`, podpis Svix, 200 od razu, ingest w `waitUntil`, `maxDuration` 60 s, timeout modelu ok. 55 s po rasterze PDF).
+Adres: **`wpisy@inbound.cncsolutions.dev`**. Mail z allowlisty (envelope From — zwykle administrator) idzie do Groka 4.6 z myśleniem (`spacexai/grok-4.6`, `reasoning: high`), który **ogląda** treść i załączniki. Skutek: szkic, podmiana w panelu albo pytanie do Ciebie. Jednostkę wyznacza hop, który przekazał maila do Ciebie (`INBOUND_SITE_BY_DOMAIN` / `INBOUND_SITE_BY_EMAIL`); brak hopu albo nieznana domena → `INBOUND_DEFAULT_SITE_SLUG`. Nic nie idzie od razu na stronę. Webhook: `POST https://omni-press.cncsolutions.dev/api/inbound/email` (zdarzenie Resend `email.received`, podpis Svix, 200 od razu, ingest w `waitUntil`, `maxDuration` 300 s, timeout modelu 240 s po rasterze PDF).
 
 **Jak pisać**
 
@@ -187,7 +187,7 @@ Adres: **`wpisy@inbound.cncsolutions.dev`**. Mail z allowlisty (envelope From �
 |------|---------------------|
 | Temat | Punkt startowy tytułu (`Re:` / `Fwd:` / `Odp:` zdejmowane); Grok nadaje tytuł ze **sprawy na materiale**, nie z ogólnika |
 | Treść | `text/plain`, inaczej HTML → Markdown; Grok wycina pismo przewodnie |
-| Załączniki | JPEG/PNG/WebP/GIF (max 10 MB), PDF/DOCX/XLSX/ZIP/GPKG (max 50 MB), do 8 plików. Grok dostaje obrazy i PDF jako pliki. Plakat → podgląd; pismo → poza wpisem. Domyślnie jeden szkic. Z DOCX bez pieczęci grafiki do galerii |
+| Załączniki | JPEG/PNG/WebP/GIF (max 10 MB), PDF/DOCX/XLSX/ZIP/GPKG (max 50 MB), do 8 plików. Grok 4.6 dostaje obrazy JPEG (strony PDF 1–8, GIF → pierwsza klatka), nie native PDF. Plakat → podgląd; pismo → poza wpisem. Domyślnie jeden szkic. Z DOCX bez pieczęci grafiki do galerii |
 | From | Koperta: allowlista `INBOUND_ALLOWED_FROM`. Jednostka: hop, który przekazał maila do Ciebie (mapa domeny), nie autor pisma |
 
 Obcy nadawca: webhook odpowiada 200 i **nie** tworzy wpisu. Zły załącznik: notatka w treści szkicu, szkic zostaje. Gdy Gateway padnie albo materiał jest nieczytelny: **brak** surowego importu 1:1 — mail do Ciebie ze skrzynki i Telegram bez Akceptuj; replay w panelu. Autor szkicu: konto o tym e-mailu, inaczej `INBOUND_FALLBACK_AUTHOR_ID`. Telegram: szkic albo podmiana + link, bez przycisku Akceptuj. Treść urzędowa idzie do xAI przez Gateway — nie logujemy jej.

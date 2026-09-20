@@ -1,7 +1,7 @@
 import { extractDocxMedia } from './extract-docx-media';
 import { compressVisionImage } from './vision-compress';
 import {
-	fitsVisionBudget,
+	canAddVisionPart,
 	isVisionDocxMime,
 	isVisionImageMime,
 	isVisionPdfMime,
@@ -42,7 +42,7 @@ export async function buildInboundVisionParts(
 	for (const row of attachments) {
 		const parts = await partsFromRow(row);
 		for (const part of parts) {
-			if (!fitsVisionBudget(used, part.data.byteLength)) continue;
+			if (!canAddVisionPart(out.length, used, part.data.byteLength)) continue;
 			out.push(part);
 			used += part.data.byteLength;
 		}

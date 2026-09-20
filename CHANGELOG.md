@@ -5,7 +5,11 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+## [0.19.2]
+
 ### Naprawione
+
+- **Grok 4.6 na skrzynce dostaje załączniki jako obrazy.** JPEG stron PDF i zdjęcia idą jako `type: image` z etykietą nazwy, nie jako `file` (Gateway 403). Raster: do 8 stron, krawędź 1920 px, max 16 obrazów, GIF → pierwsza klatka JPEG. Webhook i replay: `maxDuration` 300 s, timeout modelu 240 s po rasterze.
 
 - **Grok na skrzynce: PDF, daty, nazwa gminy, niepewna podmiana.** Strony PDF idą do modelu jako JPEG (Gateway odrzuca inline PDF). Prompt uczy: przepisuj miesiąc i „Miedzna”; luźny hint podmiany = pytanie, nie zgadywanie. Matcher nie paruje ogólników z tytułem.
 

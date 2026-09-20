@@ -23,12 +23,13 @@ export const inboundAi = {
 	noCategories: '(brak — category_slug = null)',
 	subjectLabel: 'Temat maila',
 	bodyLabel: 'Treść maila',
-	attachmentsLabel: 'Załączniki (tekst pomocniczy; obrazy i strony PDF są też plikami wejściowymi)',
+	attachmentsLabel: 'Załączniki (tekst pomocniczy; obrazy i strony PDF są też obrazami wejściowymi)',
+	visionPartLabel: 'Załącznik',
 	categoriesLabel: 'Kategorie (wybierz jeden slug albo null)',
 	siteLabel: 'Jednostka',
 	siteNameNote: 'Tę nazwę i miejscowość przepisuj dokładnie. Nie wymyślaj podobnych.',
 	visionNote:
-		'Pliki obrazu (także strony PDF) są dołączone osobno. Warstwa tekstowa to pomoc, nie jedyne źródło. Nie zgaduj z nazwy.',
+		'Obrazy (także strony PDF) są dołączone osobno, każdy z etykietą nazwy pliku. Warstwa tekstowa to pomoc, nie jedyne źródło. Nie zgaduj z nazwy.',
 	dateCheck:
 		'Miesiąc z obrazka przepisz litera po literze. październik ≠ luty. wrzesień ≠ czerwiec.',
 	charCount: 'znaków',

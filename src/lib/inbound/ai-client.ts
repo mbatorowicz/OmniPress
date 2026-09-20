@@ -1,4 +1,5 @@
 import { generateObject } from 'ai';
+import { inboundAi } from '@/i18n';
 import {
 	DEFAULT_INBOUND_AI_REASONING,
 	inboundAiEnvFromMeta,
@@ -14,16 +15,15 @@ export type InboundAiComplete = (input: {
 	signal: AbortSignal;
 }) => Promise<unknown>;
 
+function labeledImageParts(files: InboundAiFilePart[]) {
+	return files.flatMap((file) => [
+		{ type: 'text' as const, text: `${inboundAi.visionPartLabel}: ${file.filename}` },
+		{ type: 'image' as const, image: file.data, mediaType: file.mediaType },
+	]);
+}
+
 function userContent(prompt: string, files: InboundAiFilePart[]) {
-	return [
-		{ type: 'text' as const, text: prompt },
-		...files.map((file) => ({
-			type: 'file' as const,
-			data: file.data,
-			mediaType: file.mediaType,
-			filename: file.filename,
-		})),
-	];
+	return [{ type: 'text' as const, text: prompt }, ...labeledImageParts(files)];
 }
 
 export async function completeInboundObject(input: {

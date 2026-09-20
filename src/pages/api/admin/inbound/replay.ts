@@ -3,7 +3,7 @@ import { inbound } from '@/i18n';
 import { guardAdminJson, isGuardBlocked, jsonError } from '@/lib/api';
 import { parseReplayEmailId, replayInboundEmail } from '@/lib/inbound/replay';
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export const POST: APIRoute = async ({ request, locals }) => {
 	const auth = guardAdminJson(locals);

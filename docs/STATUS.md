@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.19.1** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.19.2** (kod + baza + panel).
 
 Produkcja panelu: https://omni-press.cncsolutions.dev  
 Produkcja UG: https://gmina-miedzna.pl (cutover 2026-09-16) — gałąź `main` + publikacje OmniPress  
@@ -227,6 +227,12 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | SSO redaktorów | — |
 
 ---
+
+## 0.19.2 — Grok 4.6 widzi załączniki jako obrazy
+
+- Wejście do Groka: `type: image` (JPEG stron PDF, zdjęcia, pierwsza klatka GIF), nie `type: file` — Gateway 403 na Grok 4.6 bez `file-input`.
+- Raster: do 8 stron PDF, krawędź 1920 px, jakość JPEG 85, max 16 obrazów w ładunku.
+- Timeout `generateObject` 240 s po rasterze. `maxDuration` webhooka i replay 300 s (Fluid Hobby). `xhigh` nie wpinamy.
 
 ## 0.19.1 — Grok 4.6 z myśleniem
 

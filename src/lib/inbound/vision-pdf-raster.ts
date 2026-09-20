@@ -5,12 +5,12 @@ import {
 	VISION_JPEG_QUALITY,
 	VISION_MAX_EDGE,
 	VISION_MAX_FILE_BYTES,
+	VISION_MAX_PDF_PAGES,
 	type InboundAiFilePart,
 } from './vision-model';
 import { VisionPdfCanvasFactory } from './vision-pdf-canvas';
 
 const require = createRequire(import.meta.url);
-const MAX_PAGES = 2;
 
 let workerSrc: string | null = null;
 
@@ -91,7 +91,7 @@ export async function rasterPdfPages(filename: string, bytes: Uint8Array): Promi
 		}).promise;
 		try {
 			const out: InboundAiFilePart[] = [];
-			const last = Math.min(doc.numPages, MAX_PAGES);
+			const last = Math.min(doc.numPages, VISION_MAX_PDF_PAGES);
 			for (let n = 1; n <= last; n += 1) {
 				const page = (await doc.getPage(n)) as unknown as Parameters<typeof renderPage>[0];
 				const part = await renderPage(page, n, filename);

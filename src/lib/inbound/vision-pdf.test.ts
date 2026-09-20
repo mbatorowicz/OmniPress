@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { pdfWithText } from './extract-fixture-pdf';
+import { pdfWithPages, pdfWithText } from './extract-fixture-pdf';
+import { VISION_MAX_PDF_PAGES } from './vision-model';
 import { visionPdfPart, visionPdfParts } from './vision-pdf';
 
 describe('visionPdfParts', () => {
@@ -19,5 +20,16 @@ describe('visionPdfParts', () => {
 	it('puste bajty = brak części', async () => {
 		expect(await visionPdfParts('a.pdf', new Uint8Array())).toEqual([]);
 		expect(await visionPdfPart('a.pdf', new Uint8Array())).toBeNull();
+	});
+
+	it('wielostronicowy PDF oddaje do 8 JPEG', async () => {
+		const labels = Array.from({ length: VISION_MAX_PDF_PAGES + 1 }, (_, i) => `Strona ${i + 1}`);
+		const parts = await visionPdfParts('plakat.pdf', pdfWithPages(labels));
+		expect(parts).toHaveLength(VISION_MAX_PDF_PAGES);
+		expect(parts[0]?.filename).toBe('plakat-p1.jpg');
+		expect(parts[7]?.filename).toBe('plakat-p8.jpg');
+		for (const part of parts) {
+			expect(part.mediaType).toBe('image/jpeg');
+		}
 	});
 });

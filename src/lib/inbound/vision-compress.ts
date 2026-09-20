@@ -12,20 +12,21 @@ function asPart(filename: string, mediaType: string, data: Uint8Array): InboundA
 	return { filename, mediaType, data };
 }
 
-/** JPEG/PNG/WebP → krawędź 1600 px. GIF bez zmian, gdy mieści się w limicie. */
+function jpegName(filename: string): string {
+	return filename.replace(/\.[a-z0-9]+$/i, '.jpg');
+}
+
+/** JPEG/PNG/WebP → krawędź 1920 px. GIF → pierwsza klatka JPEG (Grok 4.6 bez GIF). */
 export async function compressVisionImage(
 	filename: string,
 	mime: string,
 	bytes: Uint8Array,
 ): Promise<InboundAiFilePart | null> {
 	if (!isVisionImageMime(mime) || bytes.byteLength === 0) return null;
-	if (mime === 'image/gif') return asPart(filename, mime, bytes);
+	const forceJpeg = mime === 'image/gif';
 
 	try {
-		const image = sharp(bytes, { failOn: 'none' }).rotate();
-		const meta = await image.metadata();
-		if ((meta.pages ?? 1) > 1) return asPart(filename, mime, bytes);
-
+		const image = sharp(bytes, { failOn: 'none', pages: 1, page: 0 }).rotate();
 		const out = await image
 			.resize({
 				width: VISION_MAX_EDGE,
@@ -36,11 +37,12 @@ export async function compressVisionImage(
 			.jpeg({ quality: VISION_JPEG_QUALITY, mozjpeg: true })
 			.toBuffer();
 		const data = new Uint8Array(out);
+		if (forceJpeg) return asPart(jpegName(filename), 'image/jpeg', data);
 		if (data.byteLength > 0 && data.byteLength < bytes.byteLength) {
-			return asPart(filename.replace(/\.[a-z0-9]+$/i, '.jpg'), 'image/jpeg', data);
+			return asPart(jpegName(filename), 'image/jpeg', data);
 		}
 		return asPart(filename, mime, bytes);
 	} catch {
-		return asPart(filename, mime, bytes);
+		return forceJpeg ? null : asPart(filename, mime, bytes);
 	}
 }

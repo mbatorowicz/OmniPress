@@ -1,6 +1,6 @@
 # Plan: Grok na skrzynce — widzi materiał, intent, podmiana
 
-**Status:** wdrożone (0.19.0).  
+**Status:** wdrożone (0.19.2). Grok 4.6 dostaje załączniki jako **obrazy** (`type: image`), nie jako `file`.  
 **Role:** PM → Architect → BE → DevSecOps → QA  
 **SSOT operacyjne:** [ADMIN.md](./ADMIN.md) §5.3, [WDROZENIE.md](./WDROZENIE.md), [STATUS.md](./STATUS.md), [AUTH.md](./AUTH.md).
 
@@ -31,7 +31,7 @@ Druga tura i klastry z **nazw plików** (`enrich-retry.ts`, `message-clusters.ts
 
 Skrzynka zawsze **zakłada nowy szkic**. Nie ma ścieżki „to poprawka do istniejącego wpisu / strony”.
 
-Webhook: timeout modelu 35 s, `maxDuration` 60 s.
+Webhook (0.19.2): timeout modelu 240 s po rasterze, `maxDuration` 300 s (Fluid Hobby).
 
 ---
 
@@ -141,13 +141,14 @@ Migracja `inbound_messages`: `post_id` nullable; `status` `drafted | replaced | 
 
 Wątek: `In-Reply-To` / temat `Re:` + allowlista → oryginalny `message_id`, nowa treść, załączniki z Resend **oryginału**.
 
-### 5. Czas (Hobby, 60 s)
+### 5. Czas (Fluid Hobby, 300 s)
 
-Wizja nie zmieści się pewnie w synchronicznym webhooku z 35 s na model.
+Wizja + myślenie Grok 4.6 nie mieści się w starym limicie 60 s.
 
 - Po poprawnym podpisie: **200 od razu**, ingest w `waitUntil` (wzorzec `lib/publish/trigger-worker.ts`).
-- `maxDuration` 60 s na Hobby. Timeout Groka podnieść (ok. 45 s) kosztem fetchu.
+- `maxDuration` **300 s** na webhooku i replay (Fluid na Hobby). Timeout `generateObject` **240 s**, start po rasterze PDF.
 - Timeout / błąd Gateway: **nie** surowy szkic 1:1. Clarification albo Telegram: nie przerobiłem — replay w panelu (`POST /api/admin/inbound/replay`).
+- Pro / 800 s tylko jeśli po deployu Vercel obetnie 300 s albo ładunek obrazów nadal pada na czasie.
 
 ### 6. Bezpieczeństwo
 
