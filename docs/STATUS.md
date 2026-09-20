@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.19.2** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.19.3** (kod + baza + panel).
 
 Produkcja panelu: https://omni-press.cncsolutions.dev  
 Produkcja UG: https://gmina-miedzna.pl (cutover 2026-09-16) — gałąź `main` + publikacje OmniPress  
@@ -227,6 +227,11 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | SSO redaktorów | — |
 
 ---
+
+## 0.19.3 — Podział plakatów po wyglądzie
+
+- Grok ogląda załączniki jak miniatury: kolorystyka i klimat. Inny wygląd = osobny szkic; ten sam klimat / kolejne strony = jeden szkic ze wszystkimi tymi plikami.
+- Bez szablonu z konkretnego maila. Gdy pierwszy odczyt złoży wszystko w jeden wpis, druga tura patrzy jeszcze raz na obrazy.
 
 ## 0.19.2 — Grok 4.6 widzi załączniki jako obrazy
 

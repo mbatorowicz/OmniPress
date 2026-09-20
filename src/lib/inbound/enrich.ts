@@ -7,6 +7,7 @@ import type { InboundFileInventory } from './collect-attachment-texts';
 import { enrichFallback } from './enrich-model';
 import { resolveEnrichOutcome, type EnrichOutcome } from './enrich-outcome';
 import { buildInboundEnrichPrompt } from './enrich-prompt';
+import { needsSplitRetry, pickSplitRetryOutcome } from './enrich-split';
 import { inboundAiEnvFromMeta, inboundAiModel, INBOUND_AI_TIMEOUT_MS } from './inbound-ai-config';
 import { logInboundAiFailed, logInboundAiOk } from './inbound-ai-log';
 import { buildInboundVisionParts } from './vision-parts';
@@ -37,6 +38,24 @@ function withCreateSafety(outcome: EnrichOutcome, attachments: InboundFileInvent
 	return drafts.length > 0 ? { kind: 'create', drafts } : { kind: 'failed' };
 }
 
+function outcomeFromRaw(
+	raw: unknown,
+	input: EnrichInboundInput,
+	attachments: InboundFileInventory[],
+	fallback: { title: string; contentMd: string },
+): EnrichOutcome {
+	return withCreateSafety(
+		resolveEnrichOutcome(
+			raw,
+			input.categories,
+			fallback,
+			attachments.map((row) => row.filename),
+			fileTexts(attachments),
+		),
+		attachments,
+	);
+}
+
 export async function enrichInboundDraft(
 	input: EnrichInboundInput,
 	opts: EnrichInboundOptions = {},
@@ -58,10 +77,23 @@ export async function enrichInboundDraft(
 			files,
 			signal: controller.signal,
 		});
-		const outcome = withCreateSafety(
-			resolveEnrichOutcome(raw, input.categories, fallback, attachments.map((row) => row.filename), fileTexts(attachments)),
-			attachments,
-		);
+		let outcome = outcomeFromRaw(raw, input, attachments, fallback);
+		if (needsSplitRetry(outcome, attachments) && !controller.signal.aborted) {
+			try {
+				const split = await complete({
+					system: inboundAi.system,
+					prompt: `${prompt}\n${inboundAi.splitRetry}`,
+					files,
+					signal: controller.signal,
+				});
+				outcome = pickSplitRetryOutcome(
+					outcome,
+					outcomeFromRaw(split, input, attachments, fallback),
+				);
+			} catch {
+				// Zostaje pierwszy odczyt — druga tura nie może skasować szkicu.
+			}
+		}
 		logInboundAiOk(model, outcome.kind, outcome.kind === 'create' ? outcome.drafts.length : 0);
 		return outcome;
 	} catch (error) {

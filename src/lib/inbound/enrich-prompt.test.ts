@@ -23,8 +23,10 @@ describe('buildInboundEnrichPrompt', () => {
 			],
 		});
 		expect(inboundAi.system).toContain('Oglądasz treść maila');
-		expect(inboundAi.system).toContain('domyślnie JEDEN wpis');
+		expect(inboundAi.system).toContain('JEDEN wpis');
+		expect(inboundAi.system).toContain('Kolorystyka');
 		expect(inboundAi.system).toContain('Nie zgaduj z nazw plików');
+		expect(inboundAi.system).not.toContain('Zaszczep pupila');
 		expect(inboundAi.system).toContain('hint musi być konkretny');
 		expect(inboundAi.system).toContain('październik czytany jako luty');
 		expect(inboundAi.system).toContain('M-i-e-d-z-n-a');

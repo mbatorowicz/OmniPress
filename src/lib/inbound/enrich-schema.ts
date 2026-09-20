@@ -37,7 +37,7 @@ export const inboundEnrichSchema = z.object({
 		.max(3)
 		.default([])
 		.describe(
-			'Tylko intent create. Domyślnie jeden wpis. Dwa albo trzy tylko przy osobnych sprawach dla odbiorcy. Nie dziel po pliku.',
+			'Tylko intent create. Domyślnie jeden wpis. Dwa albo trzy gdy obrazy mają inny kolor i klimat. Ten sam wygląd, kilka stron = jeden wpis. Nie dziel po pliku.',
 		),
 	replace: inboundEnrichReplaceSchema.optional(),
 	clarification: inboundEnrichClarificationSchema.optional(),
