@@ -84,3 +84,26 @@ export function buildLayoutSlotsClientScriptVars(componentOptionsHtml: string) {
 		footerFieldLabels: adminLayout.footerFields,
 	};
 }
+
+export type LayoutSlotsClientVars = ReturnType<typeof buildLayoutSlotsClientScriptVars>;
+
+export function layoutSlotsVarsToClientConfig(
+	vars: LayoutSlotsClientVars,
+	formId: string,
+	extra?: {
+		zoneLabels?: Record<string, string>;
+		zoneBadgePrefix?: string;
+		templateLabels?: Record<string, string>;
+	},
+) {
+	return {
+		...vars,
+		formId,
+		homeFeedCategoryCheckboxesHtml: '',
+		categoryOptionsHtml: '',
+		pageOptionsHtml: '',
+		certOptionsHtml: '',
+		...extra,
+	};
+}
+

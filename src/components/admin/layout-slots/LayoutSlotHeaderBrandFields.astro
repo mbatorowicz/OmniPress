@@ -16,7 +16,7 @@ const { formId, slot } = Astro.props;
 const w = slot.widget ?? {};
 const { fields } = adminLayout;
 const f = slotFormFields.headerBrand;
-const photosText = (w.photos ?? [...DEFAULT_HEADER_PHOTO_URLS]).join('\n');
+const photosText = (Array.isArray(w.photos) ? w.photos : [...DEFAULT_HEADER_PHOTO_URLS]).join('\n');
 ---
 
 <label class="ui-label-inline">

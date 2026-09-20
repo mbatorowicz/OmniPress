@@ -1,6 +1,7 @@
 ---
 import { buildLayoutSlotsClientScriptVars } from '@/lib/admin/layout-slots-client-vars';
 import { ZONE_COMPONENTS_FORM_ID } from '@/lib/admin/layout-form-ids';
+import { toInlineJson } from '@/lib/ui/inline-json';
 import type { LayoutZone } from '@/lib/astro-layout/components';
 
 interface Props {
@@ -18,97 +19,23 @@ const {
 	includePreview = false,
 	advancedTable = false,
 } = Astro.props;
-const scriptVars = buildLayoutSlotsClientScriptVars(componentOptionsHtml);
+const payloadJson = toInlineJson({
+	...buildLayoutSlotsClientScriptVars(componentOptionsHtml),
+	includePreview,
+	advancedTable,
+	editorZone: zone ?? '',
+	zoneFormId: formId,
+});
 ---
 
-<script define:vars={{ ...scriptVars, includePreview, advancedTable, editorZone: zone ?? '', zoneFormId: formId }} nonce={Astro.locals.cspNonce}>
-	import { initLayoutSlotsTable, initLayoutSlotCardSummaries, initLayoutZoneEditor } from '@/lib/admin/layout-slots-client';
-	import { initLayoutSlotsPreview } from '@/lib/admin/layout-slots-preview-client';
-
-	if (includePreview) {
-		initLayoutSlotsPreview({
-			componentLabels,
-			moveUp,
-			moveDown,
-			disabledLabel,
-			emptyZone,
-			chipNoCategories: previewChipNoCategories,
-			chipCategoriesPrefix: previewChipCategoriesPrefix,
-			chipPinnedOnly: previewChipPinnedOnly,
-			chipLinkPrefix: previewChipLinkPrefix,
-		});
-	}
-
-	if (advancedTable) {
-		initLayoutSlotsTable(
-			{
-				formId: zoneFormId,
-				removeSlotLabel,
-				variantDefault,
-				variantAlert,
-				styleImage,
-				styleText,
-				variantBannerDefault,
-				variantBannerBlue,
-				linkCategory,
-				linkPage,
-				linkExternal,
-				componentOptionsHtml,
-				componentLabels,
-				slotPanelSectionTitleLabel,
-				homeFeedCategoriesLabel,
-				homeFeedCategoriesHint,
-				homeFeedPinnedHint,
-				homeFeedTileHeightHint,
-				singletonComponents,
-				certAllLabel,
-				weatherDetailsDisplayModal,
-				weatherDetailsDisplayInline,
-				weatherDetailsLayoutStacked,
-				weatherDetailsLayoutGrid,
-				settingsLabel,
-				closeLabel,
-				enabledLabel,
-				fieldLabels,
-				footerFieldLabels,
-				homeFeedCategoryCheckboxesHtml: '',
-			},
-			editorZone,
-		);
-	} else if (editorZone) {
-		initLayoutZoneEditor(editorZone, {
-			formId: zoneFormId,
-			removeSlotLabel,
-			variantDefault,
-			variantAlert,
-			styleImage,
-			styleText,
-			variantBannerDefault,
-			variantBannerBlue,
-			linkCategory,
-			linkPage,
-			linkExternal,
-			componentOptionsHtml,
-			componentLabels,
-			slotPanelSectionTitleLabel,
-			homeFeedCategoriesLabel,
-			homeFeedCategoriesHint,
-			homeFeedPinnedHint,
-			homeFeedTileHeightHint,
-			singletonComponents,
-			certAllLabel,
-			weatherDetailsDisplayModal,
-			weatherDetailsDisplayInline,
-			weatherDetailsLayoutStacked,
-			weatherDetailsLayoutGrid,
-			settingsLabel,
-			closeLabel,
-			enabledLabel,
-			fieldLabels,
-			footerFieldLabels,
-			homeFeedCategoryCheckboxesHtml: '',
-		});
-	}
-
-	initLayoutSlotCardSummaries();
+<script
+	type="application/json"
+	is:inline
+	nonce={Astro.locals.cspNonce}
+	data-op-layout-slots-boot
+	set:html={payloadJson}
+/>
+<script>
+	import { bootLayoutSlotsEditors } from '@/lib/admin/layout-slots-client-boot';
+	bootLayoutSlotsEditors();
 </script>

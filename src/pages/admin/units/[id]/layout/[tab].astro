@@ -31,7 +31,7 @@ try {
 		authorId: Astro.locals.user?.id ?? null,
 	});
 } catch {
-	return Astro.redirect(layoutTabHref(id, activeTab) + '?error=layout_context_failed');
+	return Astro.redirect(`/admin/units/${id}?error=layout_context_failed`);
 }
 if (!ctx) return Astro.redirect('/admin/sites');
 

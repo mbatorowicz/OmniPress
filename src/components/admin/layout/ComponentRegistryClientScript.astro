@@ -4,14 +4,12 @@ import { adminLayout } from '@/i18n';
 import { layoutZoneTitles } from '@/lib/admin/layout-editor-i18n';
 import { buildZoneComponentOptionsHtml } from '@/lib/admin/layout-slots-sections';
 import { UNIT_COMPONENTS_FORM_ID } from '@/lib/admin/layout-form-ids';
+import { toInlineJson } from '@/lib/ui/inline-json';
 
 const componentOptionsHtml = buildZoneComponentOptionsHtml('home', adminLayout.componentLabels);
-const scriptVars = buildLayoutSlotsClientScriptVars(componentOptionsHtml);
 const zoneTitles = layoutZoneTitles();
----
-
-<script define:vars={{
-	...scriptVars,
+const payloadJson = toInlineJson({
+	...buildLayoutSlotsClientScriptVars(componentOptionsHtml),
 	componentsFormId: UNIT_COMPONENTS_FORM_ID,
 	zoneLabels: {
 		home: zoneTitles.home,
@@ -25,47 +23,17 @@ const zoneTitles = layoutZoneTitles();
 		static_page: adminLayout.addTemplateStaticPage,
 		banner: adminLayout.addTemplateBanner,
 	},
-}} nonce={Astro.locals.cspNonce}>
-	import { initComponentRegistryEditor, initLayoutSlotCardSummaries } from '@/lib/admin/layout-slots-client';
-	import { initLayoutSlotDialogs } from '@/lib/admin/layout-slot-dialog-client';
+});
+---
 
-	initLayoutSlotDialogs();
-
-	initComponentRegistryEditor({
-		formId: componentsFormId,
-		removeSlotLabel,
-		variantDefault,
-		variantAlert,
-		styleImage,
-		styleText,
-		variantBannerDefault,
-		variantBannerBlue,
-		linkCategory,
-		linkPage,
-		linkExternal,
-		componentOptionsHtml,
-		componentLabels,
-		slotPanelSectionTitleLabel,
-		homeFeedCategoriesLabel,
-		homeFeedCategoriesHint,
-		homeFeedPinnedHint,
-		homeFeedTileHeightHint,
-		singletonComponents,
-		certAllLabel,
-		weatherDetailsDisplayModal,
-		weatherDetailsDisplayInline,
-		weatherDetailsLayoutStacked,
-		weatherDetailsLayoutGrid,
-		settingsLabel,
-		closeLabel,
-		fieldLabels,
-		footerFieldLabels,
-		homeFeedCategoryCheckboxesHtml: '',
-		enabledLabel,
-		zoneLabels,
-		zoneBadgePrefix,
-		templateLabels,
-	});
-
-	initLayoutSlotCardSummaries();
+<script
+	type="application/json"
+	is:inline
+	nonce={Astro.locals.cspNonce}
+	data-op-component-registry-boot
+	set:html={payloadJson}
+/>
+<script>
+	import { bootComponentRegistryEditor } from '@/lib/admin/layout-slots-client-boot';
+	bootComponentRegistryEditor();
 </script>

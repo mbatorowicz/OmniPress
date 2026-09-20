@@ -5,6 +5,12 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+## [0.19.10]
+
+### Naprawione
+
+- **Biała strona wyglądu jednostki.** Skrypt edytora slotów łączył `define:vars` z `import` — Astro zwracał pusty HTML. Dane idą w JSON z nonce, logika w osobnym bundlu.
+
 ## [0.19.9]
 
 ### Dodane

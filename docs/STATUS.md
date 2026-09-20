@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.19.9** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.19.10** (kod + baza + panel).
 
 Produkcja panelu: https://omni-press.cncsolutions.dev  
 Produkcja UG: https://gmina-miedzna.pl (cutover 2026-09-16) — gałąź `main` + publikacje OmniPress  
