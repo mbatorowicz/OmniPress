@@ -114,4 +114,63 @@ describe('replayInboundEmail', () => {
 		);
 		expect(notify).toHaveBeenCalledTimes(2);
 	});
+
+	it('przy defer kasuje szkic i oddaje 200 zanim Grok skończy', async () => {
+		const tasks: Promise<unknown>[] = [];
+		let release: () => void = () => {};
+		const gate = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		const forgetPrevious = vi.fn();
+		const createDraft = vi.fn().mockResolvedValue({
+			ok: true,
+			postId: POST_ID,
+			postIds: [POST_ID],
+			created: true,
+		});
+		const response = await replayInboundEmail(EMAIL_ID, {
+			draftConfig: DRAFT_CONFIG,
+			fetchEmail: async () => ({
+				id: EMAIL_ID,
+				from: FROM,
+				subject: 'Plakaty',
+				text: 'Proszę opublikować.',
+				html: null,
+				inReplyTo: null,
+				references: null,
+			}),
+			forgetPrevious,
+			createDraft,
+			applyAttachments: async () => undefined,
+			notify: async () => undefined,
+			enrich: async () => {
+				await gate;
+				return {
+					kind: 'create' as const,
+					drafts: [
+						{
+							title: 'Szczepienie pupila',
+							contentMd: 'Obowiązek.',
+							categorySlug: 'aktualnosci',
+							extraCategorySlugs: [],
+							attachments: [],
+						},
+					],
+				};
+			},
+			collectInventory: async () => [],
+			loadCategories: async () => [{ slug: 'aktualnosci', name: 'Aktualności', sources: [] }],
+			deferIngest: true,
+			schedule: (task) => {
+				tasks.push(task);
+			},
+		});
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toEqual({ ok: true, accepted: true });
+		expect(forgetPrevious).toHaveBeenCalledWith(EMAIL_ID);
+		expect(createDraft).not.toHaveBeenCalled();
+		release();
+		await Promise.all(tasks);
+		expect(createDraft).toHaveBeenCalled();
+	});
 });

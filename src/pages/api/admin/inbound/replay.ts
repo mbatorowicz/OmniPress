@@ -19,5 +19,5 @@ export const POST: APIRoute = async ({ request, locals }) => {
 		payload && typeof payload === 'object' ? (payload as { emailId?: unknown }).emailId : null,
 	);
 	if (!emailId) return jsonError(inbound.replay.missingEmail, 400);
-	return replayInboundEmail(emailId);
+	return replayInboundEmail(emailId, { deferIngest: true });
 };

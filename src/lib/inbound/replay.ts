@@ -6,6 +6,7 @@ import { forgetPreviousInbound } from './forget-previous';
 import type { InboundEmailDeps } from './handle-deps';
 import { ingestFetchedInbound } from './process-received';
 import { getReceivedEmail, inboundResendApiKey } from './receiving';
+import { scheduleInboundIngest } from './schedule';
 
 function readDraftConfig(deps: InboundEmailDeps): InboundDraftConfig | null {
 	return deps.draftConfig !== undefined ? deps.draftConfig : inboundDraftConfig();
@@ -37,9 +38,17 @@ export async function replayInboundEmail(
 	}
 
 	await (deps.forgetPrevious ?? forgetPreviousInbound)(emailId);
-	return ingestFetchedInbound(
+	const ingest = ingestFetchedInbound(
 		{ emailId, from: email.from, subject: email.subject },
 		email,
 		deps,
 	);
+	if (deps.deferIngest) {
+		scheduleInboundIngest(
+			ingest.catch(() => {}),
+			deps.schedule,
+		);
+		return jsonOk({ accepted: true });
+	}
+	return ingest;
 }

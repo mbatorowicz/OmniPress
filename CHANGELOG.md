@@ -9,7 +9,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Naprawione
 
-- **Grok dzieli plakaty po tym, co widać na obrazie.** Kolorystyka i klimat miniatury — jak przy rzucie oka na biurko. Inny wygląd = osobny szkic; ten sam klimat, kolejne strony = jeden szkic ze wszystkimi tymi plikami. Bez szablonu z konkretnej przesyłki. Gdy pierwszy odczyt złoży wszystko w jeden wpis, druga tura patrzy jeszcze raz na obrazy.
+- **Grok dzieli plakaty po tym, co widać na obrazie.** Kolorystyka i klimat miniatury — jak przy rzucie oka na biurko. Inny wygląd = osobny szkic; ten sam klimat, kolejne strony = jeden szkic ze wszystkimi tymi plikami. Bez szablonu z konkretnej przesyłki. Gdy pierwszy odczyt złoży wszystko w jeden wpis, druga tura patrzy jeszcze raz na obrazy. Ponowny odczyt w panelu oddaje 200 od razu (ingest w tle) — zerwanie połączenia nie kasuje szkicu bez następcy.
 
 ## [0.19.2]
 
