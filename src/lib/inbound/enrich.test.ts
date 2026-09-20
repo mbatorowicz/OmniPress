@@ -170,6 +170,58 @@ describe('enrichInboundDraft', () => {
 		vi.restoreAllMocks();
 	});
 
+	it('gdy model wypisze tylko jeden plik, drugi materiał i tak dostaje szkic', async () => {
+		vi.spyOn(console, 'info').mockImplementation(() => {});
+		const complete = vi.fn().mockResolvedValue({
+			intent: 'create',
+			posts: [
+				{
+					title: 'Zaszczep pupila – obowiązkowe szczepienia psów przeciwko wściekliźnie',
+					category_slug: 'aktualnosci',
+					content_md: 'Obowiązek szczepienia.',
+					attachments: [{ filename: 'plakat_Zaszczep_pupila.jpg', display: 'embed' }],
+				},
+			],
+		});
+		const outcome = await enrichInboundDraft(
+			{
+				title: 'Plakaty',
+				contentMd: 'Proszę o publikację.',
+				attachments: [
+					{
+						filename: 'plakat_Zaszczep_pupila.jpg',
+						mime: 'image/jpeg',
+						text: '',
+						pageCount: null,
+						suggestedDisplay: 'embed',
+					},
+					{
+						filename: 'Plakat_wścieklizna_obszar_zagrożony.pdf',
+						mime: 'application/pdf',
+						text: 'Obszar zagrożony wścieklizną',
+						pageCount: 1,
+						suggestedDisplay: 'embed',
+					},
+					{
+						filename: 'Plakat_wścieklizna_zasady_zachowania.pdf',
+						mime: 'application/pdf',
+						text: 'Zasady zachowania przy wściekliźnie',
+						pageCount: 1,
+						suggestedDisplay: 'embed',
+					},
+				],
+				categories: CATEGORIES,
+			},
+			{ complete },
+		);
+		expect(outcome.kind).toBe('create');
+		if (outcome.kind === 'create') {
+			expect(outcome.drafts).toHaveLength(2);
+			expect(outcome.drafts[1]?.attachments).toHaveLength(2);
+		}
+		vi.restoreAllMocks();
+	});
+
 	it('gdy model dzieli po pliku, coalesce scala ujęcia', async () => {
 		vi.spyOn(console, 'info').mockImplementation(() => {});
 		const complete = vi.fn().mockResolvedValue({

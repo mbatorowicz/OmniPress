@@ -3,7 +3,7 @@ import type { CategoryOption } from '@/lib/categories';
 import { applyCoverLetterDrops } from './attachment-display';
 import { completeInboundObject, type InboundAiComplete } from './ai-client';
 import { coalesceDrafts, omitCoverLetterDrafts } from './coalesce-drafts';
-import { draftsFromClusters, splitLumpedDrafts } from './split-lumped-drafts';
+import { draftsFromClusters, appendUnassignedClusterDrafts, splitLumpedDrafts } from './split-lumped-drafts';
 import type { InboundFileInventory } from './collect-attachment-texts';
 import { enrichFallback } from './enrich-model';
 import { resolveEnrichOutcome, type EnrichOutcome } from './enrich-outcome';
@@ -34,12 +34,20 @@ function defaultCategorySlug(categories: CategoryOption[]): string | null {
 	return categories[0]?.slug ?? null;
 }
 
-function withCreateSafety(outcome: EnrichOutcome, attachments: InboundFileInventory[]): EnrichOutcome {
+function withCreateSafety(
+	outcome: EnrichOutcome,
+	attachments: InboundFileInventory[],
+	categorySlug: string | null,
+): EnrichOutcome {
 	if (outcome.kind !== 'create') return outcome;
 	const drafts = omitCoverLetterDrafts(
-		coalesceDrafts(
-			splitLumpedDrafts(omitCoverLetterDrafts(outcome.drafts, attachments), attachments),
+		appendUnassignedClusterDrafts(
+			coalesceDrafts(
+				splitLumpedDrafts(omitCoverLetterDrafts(outcome.drafts, attachments), attachments),
+				attachments,
+			),
 			attachments,
+			categorySlug,
 		),
 		attachments,
 	);
@@ -59,11 +67,12 @@ function outcomeFromRaw(
 		attachments.map((row) => row.filename),
 		fileTexts(attachments),
 	);
+	const categorySlug = defaultCategorySlug(input.categories);
 	if (resolved.kind === 'clarify') {
-		const fromClusters = draftsFromClusters(attachments, defaultCategorySlug(input.categories));
-		if (fromClusters.length >= 2) return withCreateSafety({ kind: 'create', drafts: fromClusters }, attachments);
+		const fromClusters = draftsFromClusters(attachments, categorySlug);
+		if (fromClusters.length >= 2) return withCreateSafety({ kind: 'create', drafts: fromClusters }, attachments, categorySlug);
 	}
-	return withCreateSafety(resolved, attachments);
+	return withCreateSafety(resolved, attachments, categorySlug);
 }
 
 export async function enrichInboundDraft(

@@ -15,7 +15,10 @@ export const inboundEnrichPostSchema = z.object({
 		),
 	extra_category_slugs: z.array(z.string()).optional(),
 	content_md: z.string().describe('Krótki lead wyłącznie tej sprawy'),
-	attachments: z.array(inboundEnrichAttachmentSchema).optional(),
+	attachments: z
+		.array(inboundEnrichAttachmentSchema)
+		.optional()
+		.describe('Pliki wyłącznie tej sprawy. Każdy plik z maila musi trafić do któregoś wpisu.'),
 });
 
 export const inboundEnrichReplaceSchema = z.object({
@@ -37,7 +40,7 @@ export const inboundEnrichSchema = z.object({
 		.max(3)
 		.default([])
 		.describe(
-			'Tylko intent create. Domyślnie jeden wpis. Dwa albo trzy gdy obrazy mają inny kolor i klimat. Ten sam wygląd, kilka stron = jeden wpis. Nie dziel po pliku.',
+			'Tylko intent create. Jeden element posts[] na jeden materiał (inny kolor i klimat). Ten sam wygląd, kilka stron = jeden element ze wszystkimi tymi plikami. Każdy załącznik z listy musi być w którymś poscie. Nie dziel po pliku.',
 		),
 	replace: inboundEnrichReplaceSchema.optional(),
 	clarification: inboundEnrichClarificationSchema.optional(),

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { EnrichDraft } from './enrich-model';
-import { draftsFromClusters, splitLumpedDrafts, titleFromClusterFiles } from './split-lumped-drafts';
+import { draftsFromClusters, appendUnassignedClusterDrafts, splitLumpedDrafts, titleFromClusterFiles } from './split-lumped-drafts';
 
 function draft(title: string, files: string[], contentMd = `Lead: ${title}.`): EnrichDraft {
 	return {
@@ -93,6 +93,20 @@ describe('draftsFromClusters', () => {
 			'Zaszczep pupila',
 			'Wścieklizna – obszar zagrożony i zasady zachowania',
 		]);
+		expect(drafts[1]?.attachments).toHaveLength(2);
+	});
+});
+
+describe('appendUnassignedClusterDrafts', () => {
+	it('dopisuje drugi materiał, gdy Grok wypisał tylko jeden plik', () => {
+		const drafts = appendUnassignedClusterDrafts(
+			[draft('Zaszczep pupila', ['plakat_Zaszczep_pupila.jpg'])],
+			FILES,
+			'aktualnosci',
+		);
+		expect(drafts).toHaveLength(2);
+		expect(drafts[0]?.title).toBe('Zaszczep pupila');
+		expect(drafts[1]?.title).toBe('Wścieklizna – obszar zagrożony i zasady zachowania');
 		expect(drafts[1]?.attachments).toHaveLength(2);
 	});
 });

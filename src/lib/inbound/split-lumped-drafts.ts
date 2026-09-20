@@ -113,12 +113,12 @@ function asDisplay(value: string): AttachmentDisplay {
 	return 'embed';
 }
 
-/** Gdy Grok pyta zamiast zrobić wpisy — jeden szkic na klaster. */
-export function draftsFromClusters(files: ClusterFile[], categorySlug: string | null): EnrichDraft[] {
+function draftsFromFileGroups(files: ClusterFile[], categorySlug: string | null): EnrichDraft[] {
 	const groups = groupMessageClusters(files);
-	if (groups.length <= 1) return [];
+	const buckets =
+		groups.length > 0 ? groups : files.length > 0 ? [{ filenames: files.map((row) => row.filename) }] : [];
 	const byName = fileMap(files);
-	return groups.map((group) => {
+	return buckets.map((group) => {
 		const cluster = clusterFilesFor(group.filenames, byName);
 		const title = titleFromClusterFiles(cluster, group.filenames[0] ?? '');
 		return {
@@ -132,4 +132,30 @@ export function draftsFromClusters(files: ClusterFile[], categorySlug: string | 
 			})),
 		};
 	});
+}
+
+/** Gdy Grok pyta zamiast zrobić wpisy — jeden szkic na klaster. */
+export function draftsFromClusters(files: ClusterFile[], categorySlug: string | null): EnrichDraft[] {
+	if (groupMessageClusters(files).length <= 1) return [];
+	return draftsFromFileGroups(files, categorySlug);
+}
+
+/** Pliki, których Grok nie wypisał, dostają własny szkic (osobny materiał). */
+export function appendUnassignedClusterDrafts(
+	drafts: EnrichDraft[],
+	files: ClusterFile[],
+	categorySlug: string | null,
+): EnrichDraft[] {
+	const used = new Set(
+		drafts.flatMap((draft) =>
+			draft.attachments.filter((row) => row.display !== 'drop').map((row) => row.filename),
+		),
+	);
+	const leftover = files.filter((row) => row.suggestedDisplay !== 'drop' && !used.has(row.filename));
+	if (leftover.length === 0) return drafts;
+	const extras = draftsFromFileGroups(leftover, categorySlug);
+	const kept = drafts.filter((draft) =>
+		draft.attachments.some((row) => row.display !== 'drop' && used.has(row.filename)),
+	);
+	return extras.length > 0 ? [...kept, ...extras] : drafts;
 }
