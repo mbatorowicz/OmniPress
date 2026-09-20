@@ -19,6 +19,7 @@ const {
 	includePreview = false,
 	advancedTable = false,
 } = Astro.props;
+const cspNonce = Astro.locals.cspNonce;
 const payloadJson = toInlineJson({
 	...buildLayoutSlotsClientScriptVars(componentOptionsHtml),
 	includePreview,
@@ -31,7 +32,7 @@ const payloadJson = toInlineJson({
 <script
 	type="application/json"
 	is:inline
-	nonce={Astro.locals.cspNonce}
+	nonce={cspNonce}
 	data-op-layout-slots-boot
 	set:html={payloadJson}
 />

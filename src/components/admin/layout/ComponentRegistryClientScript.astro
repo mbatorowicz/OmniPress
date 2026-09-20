@@ -8,6 +8,7 @@ import { toInlineJson } from '@/lib/ui/inline-json';
 
 const componentOptionsHtml = buildZoneComponentOptionsHtml('home', adminLayout.componentLabels);
 const zoneTitles = layoutZoneTitles();
+const cspNonce = Astro.locals.cspNonce;
 const payloadJson = toInlineJson({
 	...buildLayoutSlotsClientScriptVars(componentOptionsHtml),
 	componentsFormId: UNIT_COMPONENTS_FORM_ID,
@@ -29,7 +30,7 @@ const payloadJson = toInlineJson({
 <script
 	type="application/json"
 	is:inline
-	nonce={Astro.locals.cspNonce}
+	nonce={cspNonce}
 	data-op-component-registry-boot
 	set:html={payloadJson}
 />
