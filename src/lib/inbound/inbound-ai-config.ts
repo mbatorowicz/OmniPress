@@ -1,11 +1,9 @@
-/** Grok 4.6 z myśleniem — ID z katalogu AI Gateway. */
-export const DEFAULT_INBOUND_AI_MODEL = 'spacexai/grok-4.6';
-/** medium: oględziny miniatur, nie wielominutowy łańcuch. */
-export const DEFAULT_INBOUND_AI_REASONING = 'medium' as const;
+/** Grok 4.1 Fast bez myślenia — ID z katalogu AI Gateway. */
+export const DEFAULT_INBOUND_AI_MODEL = 'spacexai/grok-4.1-fast-non-reasoning';
 /** Webhook i replay — Fluid na Hobby pozwala do 300 s. */
 export const INBOUND_MAX_DURATION_S = 300;
 /** Timeout wokół generateObject; raster PDF jest poza nim. Jedna tura. */
-export const INBOUND_AI_TIMEOUT_MS = 120_000;
+export const INBOUND_AI_TIMEOUT_MS = 60_000;
 
 export type InboundAiEnv = Record<string, string | undefined>;
 

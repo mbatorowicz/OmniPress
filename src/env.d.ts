@@ -31,7 +31,7 @@ interface ImportMetaEnv {
 	readonly INBOUND_DEFAULT_SITE_SLUG?: string;
 	/** UUID profilu, gdy nadawca nie ma konta w panelu. */
 	readonly INBOUND_FALLBACK_AUTHOR_ID?: string;
-	/** Model AI Gateway (pusty string = wyłącz enrichment). Domyślnie spacexai/grok-4.6. */
+	/** Model AI Gateway (pusty string = wyłącz enrichment). Domyślnie spacexai/grok-4.1-fast-non-reasoning. */
 	readonly INBOUND_AI_MODEL?: string;
 	/** Mapa email:slug — dokładny korespondent. */
 	readonly INBOUND_SITE_BY_EMAIL?: string;

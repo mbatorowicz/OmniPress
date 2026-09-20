@@ -1,9 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { inboundAi } from '@/i18n';
-import {
-	DEFAULT_INBOUND_AI_MODEL,
-	DEFAULT_INBOUND_AI_REASONING,
-} from './inbound-ai-config';
+import { DEFAULT_INBOUND_AI_MODEL } from './inbound-ai-config';
 
 const generateObject = vi.hoisted(() =>
 	vi.fn(async () => ({ object: { intent: 'create', posts: [] } })),
@@ -16,7 +13,7 @@ describe('completeInboundObject', () => {
 		generateObject.mockClear();
 	});
 
-	it('woła Grok 4.6 z myśleniem medium', async () => {
+	it('woła Grok 4.1 Fast bez łańcucha myślenia', async () => {
 		const { completeInboundObject } = await import('./ai-client');
 		await completeInboundObject({
 			system: 'sys',
@@ -27,12 +24,11 @@ describe('completeInboundObject', () => {
 		expect(generateObject).toHaveBeenCalledTimes(1);
 		const first = generateObject.mock.calls.at(0)?.at(0) as unknown as {
 			model: string;
-			reasoning: string;
+			reasoning?: string;
 		};
 		expect(first.model).toBe(DEFAULT_INBOUND_AI_MODEL);
-		expect(first.reasoning).toBe(DEFAULT_INBOUND_AI_REASONING);
-		expect(first.model).toBe('spacexai/grok-4.6');
-		expect(first.reasoning).toBe('medium');
+		expect(first.model).toBe('spacexai/grok-4.1-fast-non-reasoning');
+		expect(first.reasoning).toBeUndefined();
 	});
 
 	it('wysyła JPEG jako file/image z etykietą, bez native PDF', async () => {

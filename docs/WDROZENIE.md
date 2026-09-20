@@ -154,7 +154,7 @@ Panel OmniPress ostrzega przy teście kanału, gdy wykryje classic PAT, i pokazu
 | `INBOUND_ALLOWED_FROM` | Allowlista From (przecinki / nowe linie) |
 | `INBOUND_DEFAULT_SITE_SLUG` | Slug jednostki dla szkicu (produkcja: `gmina-miedzna-pl`) |
 | `INBOUND_FALLBACK_AUTHOR_ID` | UUID profilu, gdy nadawca nie ma konta |
-| `INBOUND_AI_MODEL` | Opcjonalnie — model AI Gateway; pusty string wyłącza Grok; brak = `spacexai/grok-4.6` (myślenie `high`) |
+| `INBOUND_AI_MODEL` | Opcjonalnie — model AI Gateway; pusty string wyłącza Grok; brak = `spacexai/grok-4.1-fast-non-reasoning` |
 | `INBOUND_SITE_BY_DOMAIN` | Opcjonalnie — `domena:slug` hopu, który przekazał maila do Ciebie |
 | `INBOUND_SITE_BY_EMAIL` | Opcjonalnie — dokładny `email:slug` |
 | `AI_GATEWAY_API_KEY` | Opcjonalnie — lokalnie; na Vercel OIDC |
@@ -179,7 +179,7 @@ Cron: `vercel.json` → worker raz dziennie (backup). Publikacja startuje też *
 
 ### Skrzynka inbound (szkic z poczty)
 
-Adres: **`wpisy@inbound.cncsolutions.dev`**. Mail z allowlisty (envelope From — zwykle administrator) idzie do Groka 4.6 (`spacexai/grok-4.6`, `reasoning: medium`), który **ogląda** treść i załączniki i **redaguje jeden szkic** (jeden mail = jeden wpis). Grok 4.6 wymaga **płatnych kredytów AI Gateway** (darmowe $5 / mies. tego modelu nie obejmują — objaw: `inbound_ai_failed` 403 *Free tier users do not have access*). Skutek: szkic, podmiana w panelu albo pytanie do Ciebie. Jednostkę wyznacza hop, który przekazał maila do Ciebie (`INBOUND_SITE_BY_DOMAIN` / `INBOUND_SITE_BY_EMAIL`); brak hopu albo nieznana domena → `INBOUND_DEFAULT_SITE_SLUG`. Nic nie idzie od razu na stronę. Webhook: `POST https://omni-press.cncsolutions.dev/api/inbound/email` (zdarzenie Resend `email.received`, podpis Svix, 200 od razu, ingest w `waitUntil`, `maxDuration` 300 s, timeout modelu 120 s po rasterze PDF).
+Adres: **`wpisy@inbound.cncsolutions.dev`**. Mail z allowlisty (envelope From — zwykle administrator) idzie do Groka 4.1 Fast (`spacexai/grok-4.1-fast-non-reasoning`), który **ogląda** treść i załączniki i **redaguje jeden szkic** (jeden mail = jeden wpis). Stawka tokenów jest ~10× niższa niż przy Grok 4.6 (wejście $0,20 / 1M vs $2 / 1M; wyjście $0,50 / 1M vs $6 / 1M; bez tokenów myślenia). Skutek: szkic, podmiana w panelu albo pytanie do Ciebie. Jednostkę wyznacza hop, który przekazał maila do Ciebie (`INBOUND_SITE_BY_DOMAIN` / `INBOUND_SITE_BY_EMAIL`); brak hopu albo nieznana domena → `INBOUND_DEFAULT_SITE_SLUG`. Nic nie idzie od razu na stronę. Webhook: `POST https://omni-press.cncsolutions.dev/api/inbound/email` (zdarzenie Resend `email.received`, podpis Svix, 200 od razu, ingest w `waitUntil`, `maxDuration` 300 s, timeout modelu 60 s po rasterze PDF).
 
 **Jak pisać**
 
@@ -187,7 +187,7 @@ Adres: **`wpisy@inbound.cncsolutions.dev`**. Mail z allowlisty (envelope From �
 |------|---------------------|
 | Temat | Punkt startowy tytułu (`Re:` / `Fwd:` / `Odp:` zdejmowane); Grok nadaje tytuł ze **sprawy na materiale**, nie z ogólnika |
 | Treść | `text/plain`, inaczej HTML → Markdown; Grok wycina pismo przewodnie |
-| Załączniki | JPEG/PNG/WebP/GIF (max 10 MB), PDF/DOCX/XLSX/ZIP/GPKG (max 50 MB), do 8 plików. Grok 4.6 dostaje obrazy JPEG (strony PDF 1–8, GIF → pierwsza klatka), nie native PDF. Plakat → podgląd; pismo → poza wpisem. Domyślnie jeden szkic. Z DOCX bez pieczęci grafiki do galerii |
+| Załączniki | JPEG/PNG/WebP/GIF (max 10 MB), PDF/DOCX/XLSX/ZIP/GPKG (max 50 MB), do 8 plików. Grok 4.1 Fast dostaje obrazy JPEG (strony PDF 1–2, GIF → pierwsza klatka), nie native PDF. Plakat → podgląd; pismo → poza wpisem. Jeden mail = jeden szkic. Z DOCX bez pieczęci grafiki do galerii |
 | From | Koperta: allowlista `INBOUND_ALLOWED_FROM`. Jednostka: hop, który przekazał maila do Ciebie (mapa domeny), nie autor pisma |
 
 Obcy nadawca: webhook odpowiada 200 i **nie** tworzy wpisu. Zły załącznik: notatka w treści szkicu, szkic zostaje. Gdy Gateway padnie albo materiał jest nieczytelny: **brak** surowego importu 1:1 — mail do Ciebie ze skrzynki i Telegram bez Akceptuj; replay w panelu. Autor szkicu: konto o tym e-mailu, inaczej `INBOUND_FALLBACK_AUTHOR_ID`. Telegram: szkic albo podmiana + link, bez przycisku Akceptuj. Treść urzędowa idzie do xAI przez Gateway — nie logujemy jej.

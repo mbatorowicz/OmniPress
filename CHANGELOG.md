@@ -5,6 +5,12 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+## [0.19.7]
+
+### Zmienione
+
+- **Skrzynka na Grok 4.1 Fast bez myślenia.** `spacexai/grok-4.1-fast-non-reasoning` zamiast 4.6: ~10× tańszy token wejścia, bez tokenów rozumowania, nadal ogląda załączniki. Timeout modelu 60 s.
+
 ## [0.19.6]
 
 ### Zmienione

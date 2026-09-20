@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.19.6** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.19.7** (kod + baza + panel).
 
 Produkcja panelu: https://omni-press.cncsolutions.dev  
 Produkcja UG: https://gmina-miedzna.pl (cutover 2026-09-16) — gałąź `main` + publikacje OmniPress  
@@ -210,7 +210,7 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | `INBOUND_ALLOWED_FROM` | tak (skrzynka) | Allowlista From (przecinki / nowe linie, dokładne adresy) |
 | `INBOUND_DEFAULT_SITE_SLUG` | tak (skrzynka) | Slug jednostki dla szkicu (produkcja: `gmina-miedzna-pl`) |
 | `INBOUND_FALLBACK_AUTHOR_ID` | tak (skrzynka) | UUID profilu, gdy nadawca nie ma konta w panelu |
-| `INBOUND_AI_MODEL` | opcjonalnie | Model AI Gateway; pusty string wyłącza Grok; brak = `spacexai/grok-4.6` (`reasoning: medium`) |
+| `INBOUND_AI_MODEL` | opcjonalnie | Model AI Gateway; pusty string wyłącza Grok; brak = `spacexai/grok-4.1-fast-non-reasoning` |
 | `INBOUND_SITE_BY_DOMAIN` | opcjonalnie | `domena:slug` — hop, który przekazał maila do Ciebie (np. `gminamiedzna.pl:gmina-miedzna,sp-miedzna.pl:sp-miedzna`) |
 | `INBOUND_SITE_BY_EMAIL` | opcjonalnie | dokładny `email:slug`; wygrywa z domeną |
 | `AI_GATEWAY_API_KEY` | opcjonalnie | Klucz Gateway lokalnie; na Vercel wystarczy OIDC |
@@ -227,6 +227,10 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | SSO redaktorów | — |
 
 ---
+
+## 0.19.7 — Tańszy, szybszy Grok na skrzynce
+
+- Model: `spacexai/grok-4.1-fast-non-reasoning` (wizja, bez łańcucha myślenia). Token wejścia ~10× taniej niż 4.6; bez tokenów reasoning. Timeout 60 s.
 
 ## 0.19.6 — Jeden mail, jeden szkic
 
