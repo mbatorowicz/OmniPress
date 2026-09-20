@@ -19,7 +19,10 @@ export type EnrichOutcome =
 function asNormalizedRaw(raw: unknown): unknown {
 	if (!raw || typeof raw !== 'object') return raw;
 	const rec = raw as Record<string, unknown>;
-	if (Array.isArray(rec.posts) || rec.intent || rec.replace || rec.clarification) return raw;
+	if (Array.isArray(rec.posts)) {
+		return { ...rec, posts: rec.posts.slice(0, 1) };
+	}
+	if (rec.intent || rec.replace || rec.clarification) return raw;
 	if ('content_md' in rec) return { intent: 'create', posts: [raw] };
 	return raw;
 }

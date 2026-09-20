@@ -107,7 +107,7 @@ Limit: do 8 załączników jak dziś. Do modelu nie pchać 50 MB w base64 — ob
 ### 2. Schema JSON (`enrich-schema.ts`)
 
 - `intent`: `create` | `replace` | `clarify`
-- `posts[]`: 1, rzadko 2–3 (tylko `create`)
+- `posts[]`: zawsze 1 (tylko `create`). Jeden mail = jeden wpis.
 - `replace`: `{ target: 'post' | 'page', hint: string }` — tytuł, slug, URL, nazwa pliku z maila
 - `clarification`: `{ needed: boolean, question: string }` — krótko, po polsku
 

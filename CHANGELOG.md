@@ -5,6 +5,12 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+## [0.19.6]
+
+### Zmienione
+
+- **Jeden mail = jeden szkic.** Grok redaguje tytuł i lead z załączników, nie dzieli przesyłki. Osobne sprawy — osobne maile. Schema `posts` max 1.
+
 ## [0.19.5]
 
 ### Naprawione

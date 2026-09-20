@@ -15,7 +15,7 @@ export type EnrichDraft = {
 	attachments: EnrichAttachment[];
 };
 
-const MAX_POSTS = 3;
+const MAX_POSTS = 1;
 
 export function enrichFallback(title: string, contentMd: string): EnrichDraft {
 	return { title, contentMd, categorySlug: null, extraCategorySlugs: [], attachments: [] };
@@ -93,7 +93,10 @@ function mapPost(
 }
 
 function asPostsRaw(raw: unknown): unknown {
-	if (raw && typeof raw === 'object' && Array.isArray((raw as { posts?: unknown }).posts)) return raw;
+	if (raw && typeof raw === 'object' && Array.isArray((raw as { posts?: unknown }).posts)) {
+		const rec = raw as { posts: unknown[] };
+		return { ...rec, posts: rec.posts.slice(0, MAX_POSTS) };
+	}
 	if (raw && typeof raw === 'object' && 'content_md' in raw) return { posts: [raw] };
 	return raw;
 }

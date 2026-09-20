@@ -2,8 +2,7 @@ import { inboundAi } from '@/i18n';
 import type { CategoryOption } from '@/lib/categories';
 import { applyCoverLetterDrops } from './attachment-display';
 import { completeInboundObject, type InboundAiComplete } from './ai-client';
-import { coalesceDrafts, omitCoverLetterDrafts } from './coalesce-drafts';
-import { draftsFromClusters, appendUnassignedClusterDrafts, splitLumpedDrafts } from './split-lumped-drafts';
+import { collapseToSingleDraft, omitCoverLetterDrafts } from './coalesce-drafts';
 import type { InboundFileInventory } from './collect-attachment-texts';
 import { enrichFallback } from './enrich-model';
 import { resolveEnrichOutcome, type EnrichOutcome } from './enrich-outcome';
@@ -29,28 +28,9 @@ function fileTexts(attachments: InboundFileInventory[]): Map<string, string> {
 	return new Map(attachments.map((row) => [row.filename, row.text]));
 }
 
-function defaultCategorySlug(categories: CategoryOption[]): string | null {
-	if (categories.some((row) => row.slug === 'aktualnosci')) return 'aktualnosci';
-	return categories[0]?.slug ?? null;
-}
-
-function withCreateSafety(
-	outcome: EnrichOutcome,
-	attachments: InboundFileInventory[],
-	categorySlug: string | null,
-): EnrichOutcome {
+function withCreateSafety(outcome: EnrichOutcome, attachments: InboundFileInventory[]): EnrichOutcome {
 	if (outcome.kind !== 'create') return outcome;
-	const drafts = omitCoverLetterDrafts(
-		appendUnassignedClusterDrafts(
-			coalesceDrafts(
-				splitLumpedDrafts(omitCoverLetterDrafts(outcome.drafts, attachments), attachments),
-				attachments,
-			),
-			attachments,
-			categorySlug,
-		),
-		attachments,
-	);
+	const drafts = omitCoverLetterDrafts(collapseToSingleDraft(outcome.drafts), attachments);
 	return drafts.length > 0 ? { kind: 'create', drafts } : { kind: 'failed' };
 }
 
@@ -60,19 +40,16 @@ function outcomeFromRaw(
 	attachments: InboundFileInventory[],
 	fallback: { title: string; contentMd: string },
 ): EnrichOutcome {
-	const resolved = resolveEnrichOutcome(
-		raw,
-		input.categories,
-		fallback,
-		attachments.map((row) => row.filename),
-		fileTexts(attachments),
+	return withCreateSafety(
+		resolveEnrichOutcome(
+			raw,
+			input.categories,
+			fallback,
+			attachments.map((row) => row.filename),
+			fileTexts(attachments),
+		),
+		attachments,
 	);
-	const categorySlug = defaultCategorySlug(input.categories);
-	if (resolved.kind === 'clarify') {
-		const fromClusters = draftsFromClusters(attachments, categorySlug);
-		if (fromClusters.length >= 2) return withCreateSafety({ kind: 'create', drafts: fromClusters }, attachments, categorySlug);
-	}
-	return withCreateSafety(resolved, attachments, categorySlug);
 }
 
 export async function enrichInboundDraft(

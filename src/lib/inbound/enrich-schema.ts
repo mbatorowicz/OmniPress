@@ -6,7 +6,7 @@ export const inboundEnrichAttachmentSchema = z.object({
 });
 
 export const inboundEnrichPostSchema = z.object({
-	title: z.string().describe('Tytuł tej jednej sprawy, nie ogólnik i nie streszczenie kilku tematów'),
+	title: z.string().describe('Tytuł sprawy z materiału, nie ogólnik'),
 	category_slug: z
 		.string()
 		.nullable()
@@ -14,11 +14,11 @@ export const inboundEnrichPostSchema = z.object({
 			'Domyślnie aktualnosci, jeśli jest na liście. Węższą kategorię tylko gdy materiał wyraźnie do niej należy.',
 		),
 	extra_category_slugs: z.array(z.string()).optional(),
-	content_md: z.string().describe('Krótki lead wyłącznie tej sprawy'),
+	content_md: z.string().describe('Krótki lead z odczytanego materiału'),
 	attachments: z
 		.array(inboundEnrichAttachmentSchema)
 		.optional()
-		.describe('Pliki wyłącznie tej sprawy. Każdy plik z maila musi trafić do któregoś wpisu.'),
+		.describe('Wszystkie pliki z tej przesyłki, które należą do wpisu (poza pismem).'),
 });
 
 export const inboundEnrichReplaceSchema = z.object({
@@ -37,10 +37,10 @@ export const inboundEnrichSchema = z.object({
 	intent: z.enum(['create', 'replace', 'clarify']).default('create'),
 	posts: z
 		.array(inboundEnrichPostSchema)
-		.max(3)
+		.max(1)
 		.default([])
 		.describe(
-			'Tylko intent create. Jeden element posts[] na jeden materiał (inny kolor i klimat). Ten sam wygląd, kilka stron = jeden element ze wszystkimi tymi plikami. Każdy załącznik z listy musi być w którymś poscie. Nie dziel po pliku.',
+			'Tylko intent create. Zawsze jeden element: jeden mail = jeden wpis. Wszystkie załączniki przesyłki (poza pismem) w tym elemencie. Nie dziel.',
 		),
 	replace: inboundEnrichReplaceSchema.optional(),
 	clarification: inboundEnrichClarificationSchema.optional(),

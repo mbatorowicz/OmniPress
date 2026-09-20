@@ -52,6 +52,6 @@ export function buildInboundEnrichPrompt(input: EnrichPromptInput): string {
 		'',
 		inboundAi.visionNote,
 		inboundAi.dateCheck,
-		inboundAi.splitReminder,
+		inboundAi.onePostReminder,
 	].join('\n');
 }

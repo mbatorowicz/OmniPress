@@ -2,9 +2,9 @@ export const inboundAi = {
 	system: [
 		'Oglądasz treść maila i załączniki (obrazy, strony PDF jako obrazy, grafiki z DOCX) jak redaktor, który je otworzył. Nie zgaduj z nazw plików. Nie stosuj zapamiętanego wzorca z innego maila — każdą przesyłkę oceń na świeżo.',
 		'Przygotowujesz komunikaty na stronę urzędu gminy albo szkoły w Polsce.',
-		'intent create: najpierw spójrz na miniatury jak człowiek. Kolorystyka, układ, klimat grafiki. Inny wygląd = osobny wpis. Ten sam klimat (ta sama paleta, ten sam układ, inna strona albo podtytuł) = jeden wpis, wszystkie te pliki razem. Nie dziel tylko dlatego, że są dwa pliki albo dwa formaty. Nie sklejaj różnych materiałów w jeden lead.',
+		'intent create: jeden mail = jeden wpis. Oglądasz załączniki, żeby zredagować tytuł, krótki lead i kategorię. Wszystkie pliki z tej przesyłki (poza pismem) zostają przy tym jednym wpisie. Nie dziel przesyłki na kilka posts[].',
 		'intent replace: treść prosi o wymianę załącznika w już opublikowanym wpisie albo na stronie stałej (podmień, nowa wersja, zamień plik). To nie jest nowy artykuł. hint musi być konkretny: URL, slug albo dokładny tytuł z maila. Luźne „ogłoszenie o naborze” / „ten wpis” bez adresu = clarify.',
-		'intent clarify: nieczytelny skan, nie wiadomo czy nowy wpis czy podmiana, dwa cele podmiany pasują, data albo nazwa nieczytelna — bez zgadywania. Kilka nowych plakatów w jednym mailu to create z kilkoma posts[], nie clarify. Nie dopytuj o kategorię, gdy może zostać Aktualności. Nie dopytuj przy każdej niepewności.',
+		'intent clarify: nieczytelny skan, nie wiadomo czy nowy wpis czy podmiana, dwa cele podmiany pasują, data albo nazwa nieczytelna — bez zgadywania. Kilka plików w jednym mailu to nadal jeden wpis, nie clarify i nie podział. Nie dopytuj o kategorię, gdy może zostać Aktualności.',
 		'Pismo do urzędu / służb / „proszę opublikować” / podpis / stopka: display drop — ani w treści, ani jako załącznik, ani jako osobny wpis.',
 		'Plakat, ulotka, zaproszenie, skan 1–2 stron: display embed. Długi dokument urzędowy: display link.',
 		'Treść wpisu przy plakacie to krótki lead (co, kiedy, kto) z odczytanego obrazu albo PDF. Nie przepisuj plakatu. Nie cytuj pisma.',
@@ -28,7 +28,7 @@ export const inboundAi = {
 	siteLabel: 'Jednostka',
 	siteNameNote: 'Tę nazwę i miejscowość przepisuj dokładnie. Nie wymyślaj podobnych.',
 	visionNote:
-		'Obrazy (także strony PDF) są dołączone osobno. Najpierw porównaj je wzrokiem: kolor, klimat, układ. Warstwa tekstowa i nazwa pliku to pomoc, nie decyzja.',
+		'Obrazy (także strony PDF) są dołączone osobno. Odczytaj z nich sprawę do tytułu i leadu. Warstwa tekstowa i nazwa pliku to pomoc.',
 	dateCheck:
 		'Miesiąc z obrazka przepisz litera po literze. październik ≠ luty. wrzesień ≠ czerwiec.',
 	charCount: 'znaków',
@@ -42,9 +42,7 @@ export const inboundAi = {
 		inwestycje: 'relacja z inwestycji',
 		'mazowsze-bez-smogu': 'program czystego powietrza / wymiana kotłów',
 	},
-	splitReminder:
-		'Spójrz na obrazki. Różny klimat albo kolorystyka = osobne wpisy. Ten sam wygląd, kilka stron = jeden wpis ze wszystkimi tymi załącznikami. Nie dziel po pliku. Nie pisz jednego leadu, który wylicza kilka spraw.',
-	splitRetry:
-		'Spójrz jeszcze raz na obrazy, jak na miniatury na biurku. Inny kolor i klimat = osobny wpis. Ten sam klimat, kolejne strony albo warianty = jeden wpis, wszystkie te pliki razem. Oceń tę przesyłkę, nie szablon.',
+	onePostReminder:
+		'Jeden mail = jeden wpis. Nie dziel. Wszystkie załączniki tej przesyłki (poza pismem) w tym wpisie.',
 	unclearReplace: 'Nie wiem, który wpis albo stronę wymienić. Podaj tytuł, adres albo nazwę pliku.',
 } as const;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { coalesceDrafts, mergeDraftTitles, omitCoverLetterDrafts } from './coalesce-drafts';
+import { coalesceDrafts, collapseToSingleDraft, mergeDraftTitles, omitCoverLetterDrafts } from './coalesce-drafts';
 import type { EnrichDraft } from './enrich-model';
 
 function draft(title: string, files: string[]): EnrichDraft {
@@ -110,5 +110,19 @@ describe('coalesceDrafts', () => {
 		);
 		expect(drafts).toHaveLength(2);
 		expect(drafts.map((row) => row.title)).toEqual(['Zaszczep pupila', 'Wścieklizna']);
+	});
+});
+
+describe('collapseToSingleDraft', () => {
+	it('składa kilka posts[] w jeden szkic', () => {
+		const drafts = collapseToSingleDraft([
+			draft('Festyn gminny', ['festyn-gminny.pdf']),
+			draft('Nabór do przedszkola', ['nabor-przedszkole.pdf']),
+		]);
+		expect(drafts).toHaveLength(1);
+		expect(drafts[0]?.attachments.map((row) => row.filename)).toEqual([
+			'festyn-gminny.pdf',
+			'nabor-przedszkole.pdf',
+		]);
 	});
 });

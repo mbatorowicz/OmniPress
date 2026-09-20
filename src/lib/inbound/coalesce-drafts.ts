@@ -64,6 +64,12 @@ export function omitCoverLetterDrafts(drafts: EnrichDraft[], files: ClusterFile[
 	return kept.length > 0 ? kept : drafts;
 }
 
+/** Jeden mail = jeden szkic: jeśli model odda kilka posts[], złóż je w jeden. */
+export function collapseToSingleDraft(drafts: EnrichDraft[]): EnrichDraft[] {
+	if (drafts.length <= 1) return drafts;
+	return [mergeDraftGroup(drafts)];
+}
+
 /** Scala szkice, których pliki należą do tego samego komunikatu. */
 export function coalesceDrafts(drafts: EnrichDraft[], files: ClusterFile[]): EnrichDraft[] {
 	if (drafts.length <= 1) return drafts;

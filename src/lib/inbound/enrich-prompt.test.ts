@@ -23,10 +23,8 @@ describe('buildInboundEnrichPrompt', () => {
 			],
 		});
 		expect(inboundAi.system).toContain('Oglądasz treść maila');
-		expect(inboundAi.system).toContain('osobny wpis');
-		expect(inboundAi.system).toContain('Kolorystyka');
-		expect(inboundAi.system).toContain('Kilka nowych plakatów');
-		expect(inboundAi.system).not.toContain('Trafia się rzadko');
+		expect(inboundAi.system).toContain('jeden mail = jeden wpis');
+		expect(inboundAi.system).not.toContain('Kilka nowych plakatów');
 		expect(inboundAi.system).toContain('Nie zgaduj z nazw plików');
 		expect(inboundAi.system).not.toContain('Zaszczep pupila');
 		expect(inboundAi.system).toContain('hint musi być konkretny');
@@ -40,12 +38,12 @@ describe('buildInboundEnrichPrompt', () => {
 		expect(prompt).toContain(inboundAi.categoryHints['ochrona-ludnosci']);
 		expect(prompt).toContain('- rok-szkolny-2025-2026: Rok szkolny 2025/2026');
 		expect(prompt).not.toContain('rok-szkolny-2025-2026: Rok szkolny 2025/2026 —');
-		expect(prompt).toContain(inboundAi.splitReminder);
+		expect(prompt).toContain(inboundAi.onePostReminder);
 		expect(prompt).toContain(inboundAi.visionNote);
 		expect(prompt).toContain(inboundAi.dateCheck);
 	});
 
-	it('nie dopisuje klastrów z nazw — podział jest decyzją Groka z treści', () => {
+	it('nie dopisuje klastrów z nazw', () => {
 		const prompt = buildInboundEnrichPrompt({
 			title: 'Plakaty',
 			contentMd: 'Proszę opublikować.',

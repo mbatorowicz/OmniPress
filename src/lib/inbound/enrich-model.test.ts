@@ -57,7 +57,7 @@ describe('applyEnrichment', () => {
 		expect(draft?.categorySlug).toBeNull();
 	});
 
-	it('dzieli spokrewnione komunikaty, drop pisma, odrzuca nieznany plik', () => {
+	it('bierze tylko pierwszy wpis z przesyłki, drop pisma, odrzuca nieznany plik', () => {
 		const drafts = applyEnrichment(
 			{
 				posts: [
@@ -92,16 +92,11 @@ describe('applyEnrichment', () => {
 				['pismo.pdf', 'Proszę o publikację'],
 			]),
 		);
-		expect(drafts).toHaveLength(2);
+		expect(drafts).toHaveLength(1);
 		expect(drafts[0]?.title).toBe('Obowiązek szczepienia');
 		expect(drafts[0]?.attachments).toEqual([
 			{ filename: 'szczepienia.pdf', display: 'embed' },
 			{ filename: 'pismo.pdf', display: 'drop' },
-		]);
-		expect(drafts[1]?.title).toBe('Akcja szczepień przeciw wściekliźnie');
-		expect(drafts[1]?.attachments.map((row) => row.filename)).toEqual([
-			'wscieklizna-1.pdf',
-			'wscieklizna-2.pdf',
 		]);
 	});
 });

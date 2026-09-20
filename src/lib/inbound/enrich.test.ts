@@ -61,7 +61,7 @@ describe('enrichInboundDraft', () => {
 		vi.restoreAllMocks();
 	});
 
-	it('dwie sprawy z modelu → dwa szkice, bez drugiej tury z nazw', async () => {
+	it('dwie sprawy z modelu → i tak jeden szkic', async () => {
 		vi.spyOn(console, 'info').mockImplementation(() => {});
 		const complete = vi.fn().mockResolvedValue({
 			intent: 'create',
@@ -106,192 +106,18 @@ describe('enrichInboundDraft', () => {
 		);
 		expect(outcome.kind).toBe('create');
 		if (outcome.kind === 'create') {
-			expect(outcome.drafts.map((row) => row.title)).toEqual(['Festyn gminny', 'Nabór do przedszkola']);
+			expect(outcome.drafts).toHaveLength(1);
+			expect(outcome.drafts[0]?.title).toBe('Festyn gminny');
 		}
 		expect(complete).toHaveBeenCalledTimes(1);
 		vi.restoreAllMocks();
 	});
 
-	it('gdy model sklei dwa materiały, kod je rozdziela', async () => {
-		vi.spyOn(console, 'info').mockImplementation(() => {});
-		const complete = vi.fn().mockResolvedValue({
-			intent: 'create',
-			posts: [
-				{
-					title: 'Zaszczep pupila i wścieklizna',
-					category_slug: 'aktualnosci',
-					content_md: 'Szczepienia i obszar zagrożony.',
-					attachments: [
-						{ filename: 'plakat_Zaszczep_pupila.jpg', display: 'embed' },
-						{ filename: 'Plakat_wścieklizna_obszar_zagrożony.pdf', display: 'embed' },
-						{ filename: 'Plakat_wścieklizna_zasady_zachowania.pdf', display: 'embed' },
-					],
-				},
-			],
-		});
-		const outcome = await enrichInboundDraft(
-			{
-				title: 'Plakaty',
-				contentMd: 'Proszę o publikację.',
-				attachments: [
-					{
-						filename: 'plakat_Zaszczep_pupila.jpg',
-						mime: 'image/jpeg',
-						text: 'Zaszczep pupila przeciw wściekliźnie',
-						pageCount: null,
-						suggestedDisplay: 'embed',
-					},
-					{
-						filename: 'Plakat_wścieklizna_obszar_zagrożony.pdf',
-						mime: 'application/pdf',
-						text: 'Obszar zagrożony wścieklizną',
-						pageCount: 1,
-						suggestedDisplay: 'embed',
-					},
-					{
-						filename: 'Plakat_wścieklizna_zasady_zachowania.pdf',
-						mime: 'application/pdf',
-						text: 'Zasady zachowania przy wściekliźnie',
-						pageCount: 1,
-						suggestedDisplay: 'embed',
-					},
-				],
-				categories: CATEGORIES,
-			},
-			{ complete },
-		);
-		expect(outcome.kind).toBe('create');
-		if (outcome.kind === 'create') {
-			expect(outcome.drafts).toHaveLength(2);
-			expect(outcome.drafts[0]?.title).toBe('Zaszczep pupila');
-			expect(outcome.drafts[1]?.attachments).toHaveLength(2);
-		}
-		expect(complete).toHaveBeenCalledTimes(1);
-		vi.restoreAllMocks();
-	});
-
-	it('gdy model wypisze tylko jeden plik, drugi materiał i tak dostaje szkic', async () => {
-		vi.spyOn(console, 'info').mockImplementation(() => {});
-		const complete = vi.fn().mockResolvedValue({
-			intent: 'create',
-			posts: [
-				{
-					title: 'Zaszczep pupila – obowiązkowe szczepienia psów przeciwko wściekliźnie',
-					category_slug: 'aktualnosci',
-					content_md: 'Obowiązek szczepienia.',
-					attachments: [{ filename: 'plakat_Zaszczep_pupila.jpg', display: 'embed' }],
-				},
-			],
-		});
-		const outcome = await enrichInboundDraft(
-			{
-				title: 'Plakaty',
-				contentMd: 'Proszę o publikację.',
-				attachments: [
-					{
-						filename: 'plakat_Zaszczep_pupila.jpg',
-						mime: 'image/jpeg',
-						text: '',
-						pageCount: null,
-						suggestedDisplay: 'embed',
-					},
-					{
-						filename: 'Plakat_wścieklizna_obszar_zagrożony.pdf',
-						mime: 'application/pdf',
-						text: 'Obszar zagrożony wścieklizną',
-						pageCount: 1,
-						suggestedDisplay: 'embed',
-					},
-					{
-						filename: 'Plakat_wścieklizna_zasady_zachowania.pdf',
-						mime: 'application/pdf',
-						text: 'Zasady zachowania przy wściekliźnie',
-						pageCount: 1,
-						suggestedDisplay: 'embed',
-					},
-				],
-				categories: CATEGORIES,
-			},
-			{ complete },
-		);
-		expect(outcome.kind).toBe('create');
-		if (outcome.kind === 'create') {
-			expect(outcome.drafts).toHaveLength(2);
-			expect(outcome.drafts[1]?.attachments).toHaveLength(2);
-		}
-		vi.restoreAllMocks();
-	});
-
-	it('gdy model dzieli po pliku, coalesce scala ujęcia', async () => {
-		vi.spyOn(console, 'info').mockImplementation(() => {});
-		const complete = vi.fn().mockResolvedValue({
-			intent: 'create',
-			posts: [
-				{
-					title: 'Zaszczep pupila',
-					category_slug: 'aktualnosci',
-					content_md: 'Obowiązek szczepienia.',
-					attachments: [{ filename: 'plakat_Zaszczep_pupila.jpg', display: 'embed' }],
-				},
-				{
-					title: 'Wścieklizna - obszar',
-					category_slug: 'aktualnosci',
-					content_md: 'Obszar zagrożony.',
-					attachments: [{ filename: 'Plakat_wścieklizna_obszar_zagrożony.pdf', display: 'embed' }],
-				},
-				{
-					title: 'Wścieklizna - zasady',
-					category_slug: 'aktualnosci',
-					content_md: 'Zasady zachowania.',
-					attachments: [{ filename: 'Plakat_wścieklizna_zasady_zachowania.pdf', display: 'embed' }],
-				},
-			],
-		});
-		const outcome = await enrichInboundDraft(
-			{
-				title: 'Plakaty',
-				contentMd: 'Proszę o publikację.',
-				attachments: [
-					{
-						filename: 'plakat_Zaszczep_pupila.jpg',
-						mime: 'image/jpeg',
-						text: 'Zaszczep pupila przeciw wściekliźnie',
-						pageCount: null,
-						suggestedDisplay: 'embed',
-					},
-					{
-						filename: 'Plakat_wścieklizna_obszar_zagrożony.pdf',
-						mime: 'application/pdf',
-						text: 'Obszar zagrożony wścieklizną',
-						pageCount: 1,
-						suggestedDisplay: 'embed',
-					},
-					{
-						filename: 'Plakat_wścieklizna_zasady_zachowania.pdf',
-						mime: 'application/pdf',
-						text: 'Zasady zachowania przy wściekliźnie',
-						pageCount: 1,
-						suggestedDisplay: 'embed',
-					},
-				],
-				categories: CATEGORIES,
-			},
-			{ complete },
-		);
-		expect(outcome.kind).toBe('create');
-		if (outcome.kind === 'create') {
-			expect(outcome.drafts).toHaveLength(2);
-			expect(outcome.drafts[1]?.attachments).toHaveLength(2);
-		}
-		expect(complete).toHaveBeenCalledTimes(1);
-		vi.restoreAllMocks();
-	});
-
-	it('gdy model pyta przy dwóch materiałach, i tak powstają dwa szkice', async () => {
+	it('gdy model pyta, zostaje pytanie — bez podziału na szkice', async () => {
 		vi.spyOn(console, 'info').mockImplementation(() => {});
 		const complete = vi.fn().mockResolvedValue({
 			intent: 'clarify',
-			clarification: { needed: true, question: 'Jeden wpis czy dwa?' },
+			clarification: { needed: true, question: 'Który wpis wymienić?' },
 		});
 		const outcome = await enrichInboundDraft(
 			{
@@ -299,24 +125,10 @@ describe('enrichInboundDraft', () => {
 				contentMd: 'Proszę o publikację.',
 				attachments: [
 					{
-						filename: 'plakat_Zaszczep_pupila.jpg',
+						filename: 'plakat.jpg',
 						mime: 'image/jpeg',
 						text: '',
 						pageCount: null,
-						suggestedDisplay: 'embed',
-					},
-					{
-						filename: 'Plakat_wścieklizna_obszar_zagrożony.pdf',
-						mime: 'application/pdf',
-						text: 'Obszar zagrożony wścieklizną',
-						pageCount: 1,
-						suggestedDisplay: 'embed',
-					},
-					{
-						filename: 'Plakat_wścieklizna_zasady_zachowania.pdf',
-						mime: 'application/pdf',
-						text: 'Zasady zachowania przy wściekliźnie',
-						pageCount: 1,
 						suggestedDisplay: 'embed',
 					},
 				],
@@ -324,11 +136,7 @@ describe('enrichInboundDraft', () => {
 			},
 			{ complete },
 		);
-		expect(outcome.kind).toBe('create');
-		if (outcome.kind === 'create') {
-			expect(outcome.drafts).toHaveLength(2);
-			expect(outcome.drafts[0]?.title).toBe('Zaszczep pupila');
-		}
+		expect(outcome).toEqual({ kind: 'clarify', question: 'Który wpis wymienić?' });
 		vi.restoreAllMocks();
 	});
 
