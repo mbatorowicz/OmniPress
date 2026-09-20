@@ -3,6 +3,7 @@ import { getDestinationById } from './destinations';
 import { getSiteById, getSiteDestinations } from './sites';
 import { normalizeGitHubRepo } from './github-repo';
 import { DEFAULT_LAYOUT_PATH } from '@/lib/astro-layout/types';
+import { DEFAULT_NEWS_CONTENT_PATH } from '@/lib/publish/github-api-config';
 import type { UnitFormInitial } from './unit-types';
 
 export async function loadUnitFormInitial(
@@ -25,7 +26,7 @@ export async function loadUnitFormInitial(
 				destinationId: dest.id,
 				repo: normalizeGitHubRepo(String(cfg.repo ?? '')),
 				branch: cfg.branch ?? 'main',
-				content_path: cfg.content_path ?? 'src/content/news',
+				content_path: cfg.content_path ?? DEFAULT_NEWS_CONTENT_PATH,
 				content_layout: cfg.content_layout === 'folder' ? 'folder' : 'flat',
 				layout_path:
 					typeof cfg.layout_path === 'string' && cfg.layout_path.trim()

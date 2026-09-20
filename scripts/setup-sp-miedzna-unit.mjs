@@ -68,7 +68,7 @@ async function main() {
 	const config = {
 		repo: 'mbatorowicz/sp-miedzna.pl',
 		branch: 'main',
-		content_path: 'src/content',
+		content_path: 'src/content/news',
 		content_layout: 'folder',
 		layout_path: 'src/config/omnipress-layout.json',
 		categories_path: 'src/config/omnipress-categories.json',

@@ -32,7 +32,7 @@ flowchart LR
 | Warstwa | Wartość |
 |---------|---------|
 | Panel | ten sam (`omni-press.cncsolutions.dev`) |
-| Jednostka | slug `sp-miedzna`, destynacja `github_astro` |
+| Jednostka | slug `sp-miedzna`, destynacja `github_astro` (`content_path`: `src/content/news`, układ `folder`) |
 | Repo | nowe, kontrakt jak gmina (`omnipress-layout.json`, `news`/`pages`, `rehype-sanitize`, gałąź `staging` na kod, `main` na treść) |
 | Vercel | nowy projekt; staging np. `sp-miedzna.cncsolutions.dev` |
 | Produkcja | `sp-miedzna.pl` po DNS cutover |

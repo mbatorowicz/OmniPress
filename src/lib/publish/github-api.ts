@@ -5,6 +5,7 @@
  */
 export {
 	binaryToArrayBuffer,
+	DEFAULT_NEWS_CONTENT_PATH,
 	gitBranchRefUrls,
 	httpStatusFromError,
 	isGitHubRetryable,

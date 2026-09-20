@@ -3,20 +3,22 @@ import AppLayout from '@/layouts/AppLayout.astro';
 import AdminQueueHub from '@/components/admin/queue/AdminQueueHub.astro';
 import { admin } from '@/i18n';
 import { parseAdminHubFlash } from '@/lib/admin/hub-flash';
+import { listSites } from '@/lib/admin/sites';
 import { loadAdminQueueHub } from '@/lib/admin/queue-hub';
 import { schedulePublishWorker } from '@/lib/publish/trigger-worker';
 import { ensureSitesFromGitHub } from '@/lib/sync/ensure-site';
 
 schedulePublishWorker();
 
+const sitesForSync = await listSites(Astro.locals.supabase);
+await ensureSitesFromGitHub(
+	Astro.locals.supabase,
+	sitesForSync.map((site) => site.id),
+	Astro.locals.user?.id ?? null,
+);
 const { sites, pending, scheduled, published } = await loadAdminQueueHub(
 	Astro.locals.supabase,
 	null,
-);
-await ensureSitesFromGitHub(
-	Astro.locals.supabase,
-	sites.map((site) => site.id),
-	Astro.locals.user?.id ?? null,
 );
 const flashMessages = parseAdminHubFlash(Astro.url);
 ---

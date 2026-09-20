@@ -5,6 +5,12 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+## [0.19.11]
+
+### Naprawione
+
+- **Wpisy SP Miedzna niewidoczne w panelu.** Destynacja szkoły miała `content_path: src/content`, a importer szuka `{slug}/index.md` w `src/content/news`. Domyślna ścieżka i skrypt jednostki szkoły są zgodne z gminą; kolejka i lista wpisów ładują dane po reconcile.
+
 ## [0.19.10]
 
 ### Naprawione

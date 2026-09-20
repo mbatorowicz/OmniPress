@@ -79,4 +79,23 @@ test.describe('przeglądarka wpisów', () => {
 
 		await expect(page).toHaveURL(/sort=title_asc/);
 	});
+
+	test('lista admina pokazuje wpisy SP Miedzna z produkcji', async ({ page }) => {
+		await page.goto('/admin/posts');
+		const filters = page.getByRole('form', { name: postsBrowse.filters.aria });
+		await filters
+			.getByLabel(postsBrowse.filters.site)
+			.selectOption({ label: 'Szkoła Podstawowa im. Tadeusza Kościuszki w Miedznie' });
+		await filters.getByRole('button', { name: postsBrowse.filters.apply }).click();
+
+		await expect(page).toHaveURL(/site=/);
+		await expect(page.getByText(postsBrowse.empty)).toHaveCount(0);
+		await expect(page.getByText(postsBrowse.emptyFiltered)).toHaveCount(0);
+		const summary = page.locator('.ui-pagination');
+		await expect(summary).toBeVisible();
+		const count = Number(
+			(await summary.textContent())?.match(/Wpisów:\s+(\d+)/)?.[1] ?? '0',
+		);
+		expect(count).toBeGreaterThanOrEqual(100);
+	});
 });

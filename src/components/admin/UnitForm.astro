@@ -1,6 +1,7 @@
 ---
 import { adminDestinations, adminSites, adminUnit } from '@/i18n';
 import { DEFAULT_LAYOUT_PATH } from '@/lib/astro-layout/types';
+import { DEFAULT_NEWS_CONTENT_PATH } from '@/lib/publish/github-api-config';
 import ChannelTestButton from '@/components/admin/ChannelTestButton.astro';
 import Alert from '@/components/ui/feedback/Alert.astro';
 import Button from '@/components/ui/actions/Button.astro';
@@ -123,7 +124,7 @@ const layoutPath = i?.astro?.layout_path ?? DEFAULT_LAYOUT_PATH;
 						<span>{adminDestinations.fields.contentPath}</span>
 						<input
 							name="content_path"
-							value={i?.astro?.content_path ?? 'src/content/news'}
+							value={i?.astro?.content_path ?? DEFAULT_NEWS_CONTENT_PATH}
 							class="ui-input"
 						/>
 					</label>

@@ -12,7 +12,7 @@ describe('parseGitHubRepoConfig', () => {
 			owner: 'mbatorowicz',
 			repo: 'gmina-miedzna.pl',
 			branch: 'main',
-			contentPath: 'src/content',
+			contentPath: 'src/content/news',
 			contentLayout: 'flat',
 			assetPublicBase: null,
 		});
@@ -49,7 +49,7 @@ describe('parseGitHubRepoConfig', () => {
 	it('puste wartości nie kasują domyślnych', () => {
 		expect(
 			parseGitHubRepoConfig({ repo: 'o/r', branch: '   ', content_path: '', asset_public_base: ' ' }),
-		).toMatchObject({ branch: 'main', contentPath: 'src/content', assetPublicBase: null });
+		).toMatchObject({ branch: 'main', contentPath: 'src/content/news', assetPublicBase: null });
 	});
 
 	it.each([{ repo: '' }, { repo: 'bezukosnika' }, { repo: 'owner/' }, { repo: '/repo' }, {}])(
@@ -93,6 +93,12 @@ describe('filterGitHubMarkdownPosts — układ folder', () => {
 
 	it('pomija markdown w podfolderach głębiej niż wpis', () => {
 		expect(filterGitHubMarkdownPosts(base, ['src/content/news/wpis/galeria/opis.md'])).toEqual([]);
+	});
+
+	it('nie bierze news/{slug}/index.md, gdy content_path to src/content', () => {
+		expect(
+			filterGitHubMarkdownPosts({ ...base, contentPath: 'src/content' }, blobs),
+		).toEqual([]);
 	});
 });
 

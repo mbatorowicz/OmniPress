@@ -5,6 +5,7 @@ import { normalizeGitHubRepo } from './github-repo';
 import { classifyGitHubToken } from './github-token';
 import { adminUnit } from '@/i18n/pl/admin-panels';
 import type { GitHubCredentials } from '@/lib/publish/credentials';
+import { DEFAULT_NEWS_CONTENT_PATH } from '@/lib/publish/github-api-config';
 
 export type DestinationRow = {
 	id: string;
@@ -29,7 +30,9 @@ export function buildConfig(_type: DestinationType, form: FormData): Record<stri
 	return {
 		repo: normalizeGitHubRepo(String(form.get('repo') ?? '')),
 		branch: String(form.get('branch') ?? 'main').trim() || 'main',
-		content_path: String(form.get('content_path') ?? 'src/content').trim() || 'src/content',
+		content_path:
+			String(form.get('content_path') ?? DEFAULT_NEWS_CONTENT_PATH).trim() ||
+			DEFAULT_NEWS_CONTENT_PATH,
 		content_layout: String(form.get('content_layout') ?? 'flat').trim() === 'folder' ? 'folder' : 'flat',
 		layout_path:
 			String(form.get('layout_path') ?? 'src/config/omnipress-layout.json').trim() ||

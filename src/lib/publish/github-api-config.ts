@@ -2,6 +2,9 @@
 import { normalizeGitHubRepo } from '@/lib/admin/github-repo';
 import { parseContentLayout, type ContentLayout } from './content-layout';
 
+/** Folder wpisów w repo Astro (`{slug}/index.md` przy układzie folder). */
+export const DEFAULT_NEWS_CONTENT_PATH = 'src/content/news';
+
 export type GitHubConfig = {
 	owner: string;
 	repo: string;
@@ -70,7 +73,7 @@ export function parseGitHubRepoConfig(config: Record<string, unknown>): GitHubCo
 	const contentPath =
 		typeof config.content_path === 'string' && config.content_path.trim()
 			? config.content_path.trim()
-			: 'src/content';
+			: DEFAULT_NEWS_CONTENT_PATH;
 	const assetPublicBase =
 		typeof config.asset_public_base === 'string' && config.asset_public_base.trim()
 			? config.asset_public_base.trim().replace(/^\/+|\/+$/g, '')
