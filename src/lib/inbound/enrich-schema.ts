@@ -6,7 +6,11 @@ export const inboundEnrichAttachmentSchema = z.object({
 });
 
 export const inboundEnrichPostSchema = z.object({
-	title: z.string().describe('Tytuł sprawy z materiału, nie ogólnik'),
+	title: z
+		.string()
+		.describe(
+			'Nagłówek sprawy z obrazu, jak tytuł newsa. Nie „Plakaty…”, nie „Plakat o…”, nie opis pliku.',
+		),
 	category_slug: z
 		.string()
 		.nullable()

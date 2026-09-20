@@ -5,6 +5,12 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+## [0.19.8]
+
+### Naprawione
+
+- **Tytuł szkicu z nagłówka na plakacie, nie „Plakaty o…”.** Ogólnik (także z dopiskiem) odpada; druga tura Groka bierze sprawę z obrazu.
+
 ## [0.19.7]
 
 ### Zmienione

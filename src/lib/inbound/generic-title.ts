@@ -1,10 +1,15 @@
 import { parseInboundSubject } from './parse-subject';
 
-const GENERIC_TITLE =
-	/^(plakaty|za[łl][aą]czniki?|informacja|prosz[ęe] o publikacj[ęe]|bez tytu[łl]u)$/i;
+const GENERIC_EXACT =
+	/^(informacja|prosz[ęe] o publikacj[ęe]|bez tytu[łl]u)$/i;
+/** Opis nośnika, nie sprawa: „Plakaty o wściekliźnie”, „Plakat szczepień”. */
+const GENERIC_PREFIX =
+	/^(plakaty|plakat|za[łl][aą]czniki?|ulotki?|materia[łl]y|skany?)(\b|[ :—–-])/i;
 
 export function isGenericTitle(title: string): boolean {
-	return GENERIC_TITLE.test(title.replace(/\s+/g, ' ').trim());
+	const normalized = title.replace(/\s+/g, ' ').trim();
+	if (!normalized) return true;
+	return GENERIC_EXACT.test(normalized) || GENERIC_PREFIX.test(normalized);
 }
 
 export function titleFromExcerpt(text: string): string {

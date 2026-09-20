@@ -26,6 +26,7 @@ describe('buildInboundEnrichPrompt', () => {
 		expect(inboundAi.system).toContain('jeden mail = jeden wpis');
 		expect(inboundAi.system).not.toContain('Kilka nowych plakatów');
 		expect(inboundAi.system).toContain('Nie zgaduj z nazw plików');
+		expect(inboundAi.system).toContain('jak tytuł newsa');
 		expect(inboundAi.system).not.toContain('Zaszczep pupila');
 		expect(inboundAi.system).toContain('hint musi być konkretny');
 		expect(inboundAi.system).toContain('październik czytany jako luty');

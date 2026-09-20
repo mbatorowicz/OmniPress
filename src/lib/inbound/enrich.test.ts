@@ -113,6 +113,66 @@ describe('enrichInboundDraft', () => {
 		vi.restoreAllMocks();
 	});
 
+	it('gdy tytuł to „Plakaty o…”, druga tura bierze nagłówek z obrazu', async () => {
+		vi.spyOn(console, 'info').mockImplementation(() => {});
+		const complete = vi
+			.fn()
+			.mockResolvedValueOnce({
+				intent: 'create',
+				posts: [
+					{
+						title: 'Plakaty o naborze',
+						category_slug: 'aktualnosci',
+						content_md: 'Rusza nabór.',
+						attachments: [{ filename: 'nabor.pdf', display: 'embed' }],
+					},
+				],
+			})
+			.mockResolvedValueOnce({
+				intent: 'create',
+				posts: [
+					{
+						title: 'Nabór do przedszkola',
+						category_slug: 'aktualnosci',
+						content_md: 'Rusza nabór do przedszkola.',
+						attachments: [{ filename: 'nabor.pdf', display: 'embed' }],
+					},
+				],
+			});
+		const outcome = await enrichInboundDraft(
+			{
+				title: 'Plakaty',
+				contentMd: 'Proszę o publikację.',
+				attachments: [
+					{
+						filename: 'nabor.pdf',
+						mime: 'application/pdf',
+						text: '',
+						pageCount: 1,
+						suggestedDisplay: 'embed',
+					},
+				],
+				categories: CATEGORIES,
+			},
+			{ complete },
+		);
+		expect(outcome).toEqual({
+			kind: 'create',
+			drafts: [
+				{
+					title: 'Nabór do przedszkola',
+					contentMd: 'Rusza nabór do przedszkola.',
+					categorySlug: 'aktualnosci',
+					extraCategorySlugs: [],
+					attachments: [{ filename: 'nabor.pdf', display: 'embed' }],
+				},
+			],
+		});
+		expect(complete).toHaveBeenCalledTimes(2);
+		expect(complete.mock.calls[1]?.[0]?.prompt).toContain(inboundAi.titleRetry);
+		vi.restoreAllMocks();
+	});
+
 	it('gdy model pyta, zostaje pytanie — bez podziału na szkice', async () => {
 		vi.spyOn(console, 'info').mockImplementation(() => {});
 		const complete = vi.fn().mockResolvedValue({

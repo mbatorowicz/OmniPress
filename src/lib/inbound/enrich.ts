@@ -7,6 +7,7 @@ import type { InboundFileInventory } from './collect-attachment-texts';
 import { enrichFallback } from './enrich-model';
 import { resolveEnrichOutcome, type EnrichOutcome } from './enrich-outcome';
 import { buildInboundEnrichPrompt } from './enrich-prompt';
+import { isGenericTitle } from './generic-title';
 import { inboundAiEnvFromMeta, inboundAiModel, INBOUND_AI_TIMEOUT_MS } from './inbound-ai-config';
 import { logInboundAiFailed, logInboundAiOk } from './inbound-ai-log';
 import { buildInboundVisionParts } from './vision-parts';
@@ -32,6 +33,10 @@ function withCreateSafety(outcome: EnrichOutcome, attachments: InboundFileInvent
 	if (outcome.kind !== 'create') return outcome;
 	const drafts = omitCoverLetterDrafts(collapseToSingleDraft(outcome.drafts), attachments);
 	return drafts.length > 0 ? { kind: 'create', drafts } : { kind: 'failed' };
+}
+
+function hasGenericCreateTitle(outcome: EnrichOutcome): boolean {
+	return outcome.kind === 'create' && outcome.drafts.some((row) => isGenericTitle(row.title));
 }
 
 function outcomeFromRaw(
@@ -74,7 +79,19 @@ export async function enrichInboundDraft(
 			files,
 			signal: controller.signal,
 		});
-		const outcome = outcomeFromRaw(raw, input, attachments, fallback);
+		let outcome = outcomeFromRaw(raw, input, attachments, fallback);
+		if (hasGenericCreateTitle(outcome) && !controller.signal.aborted) {
+			const retryRaw = await complete({
+				system: inboundAi.system,
+				prompt: `${prompt}\n${inboundAi.titleRetry}`,
+				files,
+				signal: controller.signal,
+			});
+			const retried = outcomeFromRaw(retryRaw, input, attachments, fallback);
+			if (retried.kind === 'create' && !hasGenericCreateTitle(retried)) {
+				outcome = retried;
+			}
+		}
 		logInboundAiOk(
 			model,
 			outcome.kind,

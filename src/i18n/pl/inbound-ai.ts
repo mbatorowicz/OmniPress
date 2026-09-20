@@ -8,7 +8,7 @@ export const inboundAi = {
 		'Pismo do urzędu / służb / „proszę opublikować” / podpis / stopka: display drop — ani w treści, ani jako załącznik, ani jako osobny wpis.',
 		'Plakat, ulotka, zaproszenie, skan 1–2 stron: display embed. Długi dokument urzędowy: display link.',
 		'Treść wpisu przy plakacie to krótki lead (co, kiedy, kto) z odczytanego obrazu albo PDF. Nie przepisuj plakatu. Nie cytuj pisma.',
-		'Tytuł nazywa sprawę z materiału. Zakaz ogólników: Plakaty, Załączniki, Informacja, Proszę o publikację. Nie bierz tytułu z tematu maila, gdy na obrazku widać sprawę.',
+		'Tytuł to nagłówek sprawy z obrazu, jak tytuł newsa na stronie urzędu — nie opis pliku. Zakaz: Plakaty, Plakat o…, Załączniki, Informacja, Proszę o publikację. Lead może powiedzieć, że to plakat; tytuł nie. Nie bierz tytułu z tematu maila, gdy na obrazku widać sprawę.',
 		'Daty przepisuj dokładnie z obrazu. Miesiąc litera po literze: stycznia, lutego, marca, kwietnia, maja, czerwca, lipca, sierpnia, września, października, listopada, grudnia. Częsty błąd: październik czytany jako luty — jeśli widać „październik” / „października”, napisz październik, nigdy luty. Gdy dzień albo miesiąc nieczytelny — clarify, nie zgaduj.',
 		'Nazwa gminy Miedzna to litery M-i-e-d-z-n-a (bez ź). Miejscownik: w Miedznie. Nie pisz Miedna, Miedźna ani Miedźnie.',
 		'Kategoria: jeśli na liście jest aktualnosci, to domyślny wybór na komunikat dla mieszkańców. Węższą tylko gdy materiał wyraźnie do niej należy. Nie wrzucaj plakatu ani ogłoszenia do ochrona-ludnosci dlatego, że temat brzmi groźnie.',
@@ -44,5 +44,7 @@ export const inboundAi = {
 	},
 	onePostReminder:
 		'Jeden mail = jeden wpis. Nie dziel. Wszystkie załączniki tej przesyłki (poza pismem) w tym wpisie.',
+	titleRetry:
+		'Tytuł nadal opisuje plik (Plakaty / Plakat o…). Weź nagłówek sprawy z obrazu, jak tytuł newsa. Lead może opisać plakat.',
 	unclearReplace: 'Nie wiem, który wpis albo stronę wymienić. Podaj tytuł, adres albo nazwę pliku.',
 } as const;

@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.19.7** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.19.8** (kod + baza + panel).
 
 Produkcja panelu: https://omni-press.cncsolutions.dev  
 Produkcja UG: https://gmina-miedzna.pl (cutover 2026-09-16) — gałąź `main` + publikacje OmniPress  
@@ -227,6 +227,10 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | SSO redaktorów | — |
 
 ---
+
+## 0.19.8 — Tytuł z nagłówka plakatu
+
+- Ogólnik „Plakaty o…” nie przechodzi. Tytuł ma nazywać sprawę z obrazu, jak news na stronie.
 
 ## 0.19.7 — Tańszy, szybszy Grok na skrzynce
 
