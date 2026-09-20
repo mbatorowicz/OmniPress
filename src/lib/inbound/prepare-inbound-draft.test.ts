@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { prepareInboundDraft } from './prepare-inbound-draft';
+import { inbound } from '@/i18n';
 
 const BASE = {
 	subject: 'Re: Festyn gminny',
@@ -16,6 +17,7 @@ describe('prepareInboundDraft', () => {
 	it('bez AI: temat i treść, bez collect/enrich', async () => {
 		const prepared = await prepareInboundDraft({ ...BASE, shouldEnrich: false });
 		expect(prepared).toEqual({
+			kind: 'create',
 			drafts: [
 				{
 					title: 'Festyn gminny',
@@ -25,7 +27,6 @@ describe('prepareInboundDraft', () => {
 					attachments: [],
 				},
 			],
-			aiFallback: false,
 			inventory: [],
 		});
 		expect(BASE.collectInventory).not.toHaveBeenCalled();
@@ -45,15 +46,18 @@ describe('prepareInboundDraft', () => {
 		const loadCategories = vi.fn().mockResolvedValue([
 			{ slug: 'aktualnosci', name: 'Aktualności', sources: ['github_astro'] },
 		]);
-		const enrich = vi.fn().mockResolvedValue([
-			{
-				title: 'Uchwała',
-				contentMd: 'Treść uchwały.',
-				categorySlug: 'aktualnosci',
-				extraCategorySlugs: [],
-				attachments: [{ filename: 'a.pdf', display: 'link' }],
-			},
-		]);
+		const enrich = vi.fn().mockResolvedValue({
+			kind: 'create',
+			drafts: [
+				{
+					title: 'Uchwała',
+					contentMd: 'Treść uchwały.',
+					categorySlug: 'aktualnosci',
+					extraCategorySlugs: [],
+					attachments: [{ filename: 'a.pdf', display: 'link' }],
+				},
+			],
+		});
 		const prepared = await prepareInboundDraft({
 			...BASE,
 			shouldEnrich: true,
@@ -61,8 +65,10 @@ describe('prepareInboundDraft', () => {
 			loadCategories,
 			enrich,
 		});
-		expect(prepared.drafts[0]?.categorySlug).toBe('aktualnosci');
-		expect(prepared.aiFallback).toBe(false);
+		expect(prepared.kind).toBe('create');
+		if (prepared.kind === 'create') {
+			expect(prepared.drafts[0]?.categorySlug).toBe('aktualnosci');
+		}
 		expect(enrich).toHaveBeenCalledWith({
 			title: 'Festyn gminny',
 			contentMd: 'Zapraszamy na festyn.',
@@ -79,17 +85,13 @@ describe('prepareInboundDraft', () => {
 		});
 	});
 
-	it('Grok zwraca surowy mail → aiFallback', async () => {
-		const enrich = vi.fn().mockResolvedValue([
-			{
-				title: 'Festyn gminny',
-				contentMd: 'Zapraszamy na festyn.',
-				categorySlug: null,
-				extraCategorySlugs: [],
-				attachments: [],
-			},
-		]);
+	it('timeout Groka → clarify, bez szkicu z tematu', async () => {
+		const enrich = vi.fn().mockResolvedValue({ kind: 'failed' });
 		const prepared = await prepareInboundDraft({ ...BASE, shouldEnrich: true, enrich });
-		expect(prepared.aiFallback).toBe(true);
+		expect(prepared).toEqual({
+			kind: 'clarify',
+			question: inbound.failedQuestion,
+			inventory: [],
+		});
 	});
 });

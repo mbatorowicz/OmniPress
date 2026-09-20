@@ -11,6 +11,7 @@ import type { AttachmentDecision } from './attachment-assign';
 import type { StoreInboundAttachmentInput } from './store-attachment';
 import { unpackDocxForInbound, type UnpackDocxFn } from './unpack-docx';
 import { rowsToStore } from './apply-attachment-rows';
+import type { DownloadAttachmentResult } from './receiving-attachments';
 
 export type ApplyInboundAttachmentsInput = {
 	postId: string;

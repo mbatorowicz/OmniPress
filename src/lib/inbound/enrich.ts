@@ -4,12 +4,12 @@ import { applyCoverLetterDrops } from './attachment-display';
 import { completeInboundObject, type InboundAiComplete } from './ai-client';
 import { coalesceDrafts, omitCoverLetterDrafts } from './coalesce-drafts';
 import type { InboundFileInventory } from './collect-attachment-texts';
-import { applyEnrichment, enrichFallback, type EnrichDraft } from './enrich-model';
+import { enrichFallback } from './enrich-model';
+import { resolveEnrichOutcome, type EnrichOutcome } from './enrich-outcome';
 import { buildInboundEnrichPrompt } from './enrich-prompt';
-import { enrichRetrySystem } from './enrich-retry';
 import { inboundAiEnvFromMeta, inboundAiModel, INBOUND_AI_TIMEOUT_MS } from './inbound-ai-config';
 import { logInboundAiFailed, logInboundAiOk } from './inbound-ai-log';
-import { countMessageClusters } from './message-clusters';
+import { buildInboundVisionParts } from './vision-parts';
 
 export type EnrichInboundInput = {
 	title: string;
@@ -23,60 +23,48 @@ export type EnrichInboundOptions = {
 	timeoutMs?: number;
 };
 
-const RETRY_BUDGET_MS = 8_000;
+function fileTexts(attachments: InboundFileInventory[]): Map<string, string> {
+	return new Map(attachments.map((row) => [row.filename, row.text]));
+}
 
-function applyRaw(
-	raw: unknown,
-	input: EnrichInboundInput,
-	fallback: EnrichDraft,
-): EnrichDraft[] {
-	return applyEnrichment(
-		raw,
-		input.categories,
-		fallback,
-		input.attachments.map((row) => row.filename),
-		new Map(input.attachments.map((row) => [row.filename, row.text])),
+function withCreateSafety(outcome: EnrichOutcome, attachments: InboundFileInventory[]): EnrichOutcome {
+	if (outcome.kind !== 'create') return outcome;
+	const drafts = omitCoverLetterDrafts(
+		coalesceDrafts(omitCoverLetterDrafts(outcome.drafts, attachments), attachments),
+		attachments,
 	);
+	return drafts.length > 0 ? { kind: 'create', drafts } : { kind: 'failed' };
 }
 
 export async function enrichInboundDraft(
 	input: EnrichInboundInput,
 	opts: EnrichInboundOptions = {},
-): Promise<EnrichDraft[]> {
+): Promise<EnrichOutcome> {
 	const attachments = applyCoverLetterDrops(input.attachments);
-	const clustered = { ...input, attachments };
 	const fallback = enrichFallback(input.title, input.contentMd);
 	const complete = opts.complete ?? completeInboundObject;
 	const timeoutMs = opts.timeoutMs ?? INBOUND_AI_TIMEOUT_MS;
 	const model = inboundAiModel(inboundAiEnvFromMeta());
-	const clusters = countMessageClusters(attachments);
 	const controller = new AbortController();
 	const timer = setTimeout(() => controller.abort(), timeoutMs);
-	const started = Date.now();
-	const prompt = buildInboundEnrichPrompt(clustered);
+	const prompt = buildInboundEnrichPrompt({ ...input, attachments });
 	try {
-		let raw = await complete({
+		const files = await buildInboundVisionParts(attachments);
+		const raw = await complete({
 			system: inboundAi.system,
 			prompt,
+			files,
 			signal: controller.signal,
 		});
-		let drafts = omitCoverLetterDrafts(applyRaw(raw, clustered, fallback), attachments);
-		const retrySystem = enrichRetrySystem(clusters, drafts.length);
-		const remaining = timeoutMs - (Date.now() - started);
-		if (retrySystem && remaining >= RETRY_BUDGET_MS && !controller.signal.aborted) {
-			raw = await complete({
-				system: retrySystem,
-				prompt,
-				signal: controller.signal,
-			});
-			drafts = omitCoverLetterDrafts(applyRaw(raw, clustered, fallback), attachments);
-		}
-		drafts = omitCoverLetterDrafts(coalesceDrafts(drafts, attachments), attachments);
-		logInboundAiOk(model, drafts.length, clusters);
-		return drafts;
+		const outcome = withCreateSafety(
+			resolveEnrichOutcome(raw, input.categories, fallback, attachments.map((row) => row.filename), fileTexts(attachments)),
+			attachments,
+		);
+		logInboundAiOk(model, outcome.kind, outcome.kind === 'create' ? outcome.drafts.length : 0);
+		return outcome;
 	} catch (error) {
 		logInboundAiFailed(error, model);
-		return [fallback];
+		return { kind: 'failed' };
 	} finally {
 		clearTimeout(timer);
 	}

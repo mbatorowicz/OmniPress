@@ -36,14 +36,6 @@ function asCanonicalSlug(categories: CategoryOption[], slug: string | null | und
 	return findCategoryBySlug(categories, slug)?.slug ?? null;
 }
 
-function asPostsRaw(raw: unknown): unknown {
-	if (raw && typeof raw === 'object' && Array.isArray((raw as { posts?: unknown }).posts)) {
-		return raw;
-	}
-	if (raw && typeof raw === 'object' && 'content_md' in raw) return { posts: [raw] };
-	return raw;
-}
-
 function canonFilename(known: Map<string, string>, name: string): string | null {
 	const trimmed = name.trim();
 	if (!trimmed) return null;
@@ -100,7 +92,13 @@ function mapPost(
 	};
 }
 
-/** Sanityzacja + allowlista kategorii. Zły JSON → fallback (mail nie ginie). */
+function asPostsRaw(raw: unknown): unknown {
+	if (raw && typeof raw === 'object' && Array.isArray((raw as { posts?: unknown }).posts)) return raw;
+	if (raw && typeof raw === 'object' && 'content_md' in raw) return { posts: [raw] };
+	return raw;
+}
+
+/** Sanityzacja + allowlista kategorii. Puste albo zły JSON → []. */
 export function applyEnrichment(
 	raw: unknown,
 	categories: CategoryOption[],
@@ -110,11 +108,11 @@ export function applyEnrichment(
 ): EnrichDraft[] {
 	const known = new Map(knownFilenames.map((name) => [name.toLowerCase(), name]));
 	const parsed = inboundEnrichSchema.safeParse(asPostsRaw(raw));
-	if (!parsed.success) return [enrichFallback(fallback.title, fallback.contentMd)];
+	if (!parsed.success) return [];
 	const drafts: EnrichDraft[] = [];
 	for (const post of parsed.data.posts.slice(0, MAX_POSTS)) {
 		const mapped = mapPost(post, categories, fallback, known, fileTexts);
 		if (mapped) drafts.push(mapped);
 	}
-	return drafts.length > 0 ? drafts : [enrichFallback(fallback.title, fallback.contentMd)];
+	return drafts;
 }

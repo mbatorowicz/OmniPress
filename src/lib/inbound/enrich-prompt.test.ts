@@ -22,10 +22,11 @@ describe('buildInboundEnrichPrompt', () => {
 				{ slug: 'rok-szkolny-2025-2026', name: 'Rok szkolny 2025/2026' },
 			],
 		});
-		expect(inboundAi.system).toContain('pismo przewodnie');
-		expect(inboundAi.system).toContain('Nie streszczaj kilku spraw');
-		expect(inboundAi.system).toContain('Nie rób jednego wpisu na plik');
-		expect(inboundAi.system).toContain('domyślny wybór na komunikat dla mieszkańców');
+		expect(inboundAi.system).toContain('Oglądasz treść maila');
+		expect(inboundAi.system).toContain('domyślnie JEDEN wpis');
+		expect(inboundAi.system).toContain('Nie zgaduj z nazw plików');
+		expect(inboundAi.system).toContain('intent replace');
+		expect(inboundAi.system).toContain('intent clarify');
 		expect(prompt).toContain('Proszę o publikację');
 		expect(prompt).toContain('a.pdf');
 		expect(prompt).toContain('Treść uchwały');
@@ -35,10 +36,10 @@ describe('buildInboundEnrichPrompt', () => {
 		expect(prompt).toContain('- rok-szkolny-2025-2026: Rok szkolny 2025/2026');
 		expect(prompt).not.toContain('rok-szkolny-2025-2026: Rok szkolny 2025/2026 —');
 		expect(prompt).toContain(inboundAi.splitReminder);
-		expect(prompt).not.toContain(inboundAi.clusterHint.replace('{n}', '2'));
+		expect(prompt).toContain(inboundAi.visionNote);
 	});
 
-	it('dopisuje sygnał grup plików, gdy nazwy układają się w kilka spraw', () => {
+	it('nie dopisuje klastrów z nazw — podział jest decyzją Groka z treści', () => {
 		const prompt = buildInboundEnrichPrompt({
 			title: 'Plakaty',
 			contentMd: 'Proszę opublikować.',
@@ -57,20 +58,11 @@ describe('buildInboundEnrichPrompt', () => {
 					pageCount: 1,
 					suggestedDisplay: 'embed',
 				},
-				{
-					filename: 'Plakat_wścieklizna_zasady_zachowania.pdf',
-					mime: 'application/pdf',
-					text: 'Zasady zachowania',
-					pageCount: 1,
-					suggestedDisplay: 'embed',
-				},
 			],
 			categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],
 		});
-		expect(prompt).toContain(inboundAi.clusterHint.replace('{n}', '2'));
-		expect(prompt).toContain('1. plakat_Zaszczep_pupila.jpg');
-		expect(prompt).toContain(
-			'2. Plakat_wścieklizna_obszar_zagrożony.pdf, Plakat_wścieklizna_zasady_zachowania.pdf',
-		);
+		expect(prompt).toContain('plakat_Zaszczep_pupila.jpg');
+		expect(prompt).not.toContain('Sygnał z nazw plików');
+		expect(prompt).not.toContain('1. plakat_Zaszczep_pupila.jpg');
 	});
 });

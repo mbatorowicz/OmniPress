@@ -29,6 +29,8 @@ describe('getReceivedEmail', () => {
 			subject: 'Festyn',
 			text: 'Zapraszamy.',
 			html: '<p>Zapraszamy.</p>',
+			inReplyTo: null,
+			references: null,
 		});
 
 		expect(fetchMock).toHaveBeenCalledTimes(1);

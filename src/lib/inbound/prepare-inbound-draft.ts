@@ -1,16 +1,33 @@
-import { common } from '@/i18n';
+import { common, inbound } from '@/i18n';
 import type { CategoryOption } from '@/lib/categories';
 import type { InboundFileInventory } from './collect-attachment-texts';
 import type { EnrichInboundInput } from './enrich';
-import { enrichFallback, isSameEnrichDraft, type EnrichDraft } from './enrich-model';
+import { enrichFallback, type EnrichDraft } from './enrich-model';
+import type { EnrichOutcome, EnrichReplace } from './enrich-outcome';
 import { parseInboundBody } from './parse-body';
 import { parseInboundSubject } from './parse-subject';
 
-export type PreparedInboundDraft = {
+export type PreparedInboundCreate = {
+	kind: 'create';
 	drafts: EnrichDraft[];
-	aiFallback: boolean;
 	inventory: InboundFileInventory[];
 };
+
+export type PreparedInboundReplace = EnrichReplace & {
+	kind: 'replace';
+	inventory: InboundFileInventory[];
+};
+
+export type PreparedInboundClarify = {
+	kind: 'clarify';
+	question: string;
+	inventory: InboundFileInventory[];
+};
+
+export type PreparedInboundDraft =
+	| PreparedInboundCreate
+	| PreparedInboundReplace
+	| PreparedInboundClarify;
 
 export type PrepareInboundDraftInput = {
 	subject: string;
@@ -21,17 +38,33 @@ export type PrepareInboundDraftInput = {
 	shouldEnrich: boolean;
 	collectInventory: (emailId: string) => Promise<InboundFileInventory[]>;
 	loadCategories: (siteSlug: string) => Promise<CategoryOption[]>;
-	enrich: (input: EnrichInboundInput) => Promise<EnrichDraft[]>;
+	enrich: (input: EnrichInboundInput) => Promise<EnrichOutcome>;
 };
 
-/** Temat + treść; opcjonalnie Grok (załączniki + kategorie). */
+function clarify(question: string, inventory: InboundFileInventory[]): PreparedInboundClarify {
+	return { kind: 'clarify', question, inventory };
+}
+
+function fromOutcome(
+	outcome: EnrichOutcome,
+	inventory: InboundFileInventory[],
+): PreparedInboundDraft {
+	if (outcome.kind === 'create') return { kind: 'create', drafts: outcome.drafts, inventory };
+	if (outcome.kind === 'replace') return { kind: 'replace', ...outcome.replace, inventory };
+	if (outcome.kind === 'clarify') return clarify(outcome.question, inventory);
+	return clarify(inbound.failedQuestion, inventory);
+}
+
+/** Temat + treść; Grok albo 1:1 gdy AI wyłączone. Timeout Groka → pytanie, nie surowy szkic. */
 export async function prepareInboundDraft(
 	input: PrepareInboundDraftInput,
 ): Promise<PreparedInboundDraft> {
 	const title = parseInboundSubject(input.subject) || common.untitled;
 	const contentMd = parseInboundBody({ text: input.text, html: input.html });
 	const fallback = enrichFallback(title, contentMd);
-	if (!input.shouldEnrich) return { drafts: [fallback], aiFallback: false, inventory: [] };
+	if (!input.shouldEnrich) {
+		return { kind: 'create', drafts: [fallback], inventory: [] };
+	}
 
 	let attachments: InboundFileInventory[] = [];
 	let categories: CategoryOption[] = [];
@@ -46,15 +79,9 @@ export async function prepareInboundDraft(
 		categories = [];
 	}
 	try {
-		const drafts = await input.enrich({ title, contentMd, attachments, categories });
-		const only = drafts[0] ?? fallback;
-		const aiFallback = drafts.length === 1 && isSameEnrichDraft(only, fallback);
-		return {
-			drafts: drafts.length > 0 ? drafts : [fallback],
-			aiFallback,
-			inventory: attachments,
-		};
+		const outcome = await input.enrich({ title, contentMd, attachments, categories });
+		return fromOutcome(outcome, attachments);
 	} catch {
-		return { drafts: [fallback], aiFallback: true, inventory: attachments };
+		return clarify(inbound.failedQuestion, attachments);
 	}
 }

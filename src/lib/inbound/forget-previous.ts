@@ -17,13 +17,18 @@ export function siblingCreatedRange(createdAt: string): { gte: string; lte: stri
 	};
 }
 
-async function findInboundPostId(supabase: SupabaseClient, emailId: string): Promise<string | null> {
+async function findInboundAnchor(
+	supabase: SupabaseClient,
+	emailId: string,
+): Promise<{ postId: string | null; status: string } | null> {
 	const { data } = await supabase
 		.from('inbound_messages')
-		.select('post_id')
+		.select('post_id, status')
 		.eq('message_id', emailId)
 		.maybeSingle();
-	return asId((data as { post_id?: unknown } | null)?.post_id);
+	if (!data) return null;
+	const rec = data as { post_id?: unknown; status?: unknown };
+	return { postId: asId(rec.post_id), status: typeof rec.status === 'string' ? rec.status : 'drafted' };
 }
 
 async function findSiblingDraftIds(supabase: SupabaseClient, postId: string): Promise<string[]> {
@@ -35,7 +40,8 @@ async function findSiblingDraftIds(supabase: SupabaseClient, postId: string): Pr
 	const row = post as
 		| { id?: unknown; author_id?: unknown; site_id?: unknown; created_at?: unknown; status?: unknown }
 		| null;
-	if (!row || row.status !== 'draft') return asId(row?.id) ? [asId(row.id)!] : [];
+	if (!row) return [];
+	if (row.status !== 'draft') return asId(row.id) ? [asId(row.id)!] : [];
 	const authorId = asId(row.author_id);
 	const siteId = asId(row.site_id);
 	const createdAt = typeof row.created_at === 'string' ? row.created_at : '';
@@ -73,8 +79,12 @@ export async function forgetPreviousInbound(
 	supabase: SupabaseClient | null = isServiceSupabaseConfigured() ? createServiceSupabase() : null,
 ): Promise<void> {
 	if (!supabase) return;
-	const postId = await findInboundPostId(supabase, emailId);
-	if (!postId) return;
-	const postIds = await findSiblingDraftIds(supabase, postId);
+	const anchor = await findInboundAnchor(supabase, emailId);
+	if (!anchor) return;
+	if (anchor.status !== 'drafted' || !anchor.postId) {
+		await supabase.from('inbound_messages').delete().eq('message_id', emailId);
+		return;
+	}
+	const postIds = await findSiblingDraftIds(supabase, anchor.postId);
 	await deletePosts(supabase, postIds);
 }

@@ -129,6 +129,7 @@ export async function createInboundDraft(
 		message_id: messageId,
 		from_email: fromEmail,
 		post_id: postIds[0],
+		status: 'drafted',
 	});
 	if (!inboundError) return { ok: true, postId: postIds[0]!, postIds, created: true };
 

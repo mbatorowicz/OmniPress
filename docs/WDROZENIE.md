@@ -179,18 +179,20 @@ Cron: `vercel.json` → worker raz dziennie (backup). Publikacja startuje też *
 
 ### Skrzynka inbound (szkic z poczty)
 
-Adres: **`wpisy@inbound.cncsolutions.dev`**. Mail z allowlisty (envelope From — zwykle administrator) zakłada **szkic**. Jednostkę wyznacza hop, który przekazał maila do Ciebie (`INBOUND_SITE_BY_DOMAIN` / `INBOUND_SITE_BY_EMAIL`); brak hopu albo nieznana domena → `INBOUND_DEFAULT_SITE_SLUG`. Grok redaguje jak człowiek: podgląd plakatów, wyrzut pisma przewodniego, podział na komunikaty, tytuł z tematu sprawy. Nic nie idzie od razu na stronę. Webhook: `POST https://omni-press.cncsolutions.dev/api/inbound/email` (zdarzenie Resend `email.received`, podpis Svix, `maxDuration` 60 s).
+Adres: **`wpisy@inbound.cncsolutions.dev`**. Mail z allowlisty (envelope From — zwykle administrator) idzie do Groka, który **ogląda** treść i załączniki. Skutek: szkic, podmiana w panelu albo pytanie do Ciebie. Jednostkę wyznacza hop, który przekazał maila do Ciebie (`INBOUND_SITE_BY_DOMAIN` / `INBOUND_SITE_BY_EMAIL`); brak hopu albo nieznana domena → `INBOUND_DEFAULT_SITE_SLUG`. Nic nie idzie od razu na stronę. Webhook: `POST https://omni-press.cncsolutions.dev/api/inbound/email` (zdarzenie Resend `email.received`, podpis Svix, 200 od razu, ingest w `waitUntil`, `maxDuration` 60 s, timeout modelu ok. 45 s).
 
 **Jak pisać**
 
 | Pole | Co trafia do panelu |
 |------|---------------------|
-| Temat | Punkt startowy tytułu (`Re:` / `Fwd:` / `Odp:` zdejmowane); Grok może nadać lepszy z treści / PDF |
+| Temat | Punkt startowy tytułu (`Re:` / `Fwd:` / `Odp:` zdejmowane); Grok nadaje tytuł ze **sprawy na materiale**, nie z ogólnika |
 | Treść | `text/plain`, inaczej HTML → Markdown; Grok wycina pismo przewodnie |
-| Załączniki | JPEG/PNG/WebP/GIF (max 10 MB), PDF/DOCX/XLSX/ZIP/GPKG (max 50 MB), do 8 plików. Plakat → podgląd; pismo przewodnie → poza wpisem; Grok może rozdzielić na 1–3 szkice. Z DOCX bez pieczęci grafiki do galerii |
+| Załączniki | JPEG/PNG/WebP/GIF (max 10 MB), PDF/DOCX/XLSX/ZIP/GPKG (max 50 MB), do 8 plików. Grok dostaje obrazy i PDF jako pliki. Plakat → podgląd; pismo → poza wpisem. Domyślnie jeden szkic. Z DOCX bez pieczęci grafiki do galerii |
 | From | Koperta: allowlista `INBOUND_ALLOWED_FROM`. Jednostka: hop, który przekazał maila do Ciebie (mapa domeny), nie autor pisma |
 
-Obcy nadawca: webhook odpowiada 200 i **nie** tworzy wpisu. Zły załącznik: notatka w treści szkicu, szkic zostaje. Gdy Gateway padnie: temat = tytuł, treść surowa, kategoria pusta (jak 0.16.0). Autor: konto o tym e-mailu, inaczej `INBOUND_FALLBACK_AUTHOR_ID`. Telegram: „Szkic z poczty” + link, bez przycisku Akceptuj. Treść urzędowa idzie do xAI przez Gateway — nie logujemy jej.
+Obcy nadawca: webhook odpowiada 200 i **nie** tworzy wpisu. Zły załącznik: notatka w treści szkicu, szkic zostaje. Gdy Gateway padnie albo materiał jest nieczytelny: **brak** surowego importu 1:1 — mail do Ciebie ze skrzynki i Telegram bez Akceptuj; replay w panelu. Autor szkicu: konto o tym e-mailu, inaczej `INBOUND_FALLBACK_AUTHOR_ID`. Telegram: szkic albo podmiana + link, bez przycisku Akceptuj. Treść urzędowa idzie do xAI przez Gateway — nie logujemy jej.
+
+Migracja: `npm run setup:inbound-email` oraz `npm run setup:inbound-intent`.
 
 **DNS — tylko `inbound.cncsolutions.dev`**
 
@@ -205,7 +207,7 @@ MX `gmina-miedzna.pl` i `sp-miedzna.pl` zostają nietknięte. Rekordy Resend Rec
 
 Dokładną wartość MX/TXT podaje Resend po włączeniu Receiving na domenie `inbound.cncsolutions.dev`. Nie dodawaj MX na apex `cncsolutions.dev` ani na hostach CNAME panelu (`omni-press.cncsolutions.dev`).
 
-Migracja: `npm run setup:inbound-email`. Bez sekretów Resend panel działa; webhook zwraca 401 albo `{ ignored: true }`.
+Bez sekretów Resend panel działa; webhook zwraca 401 albo `{ ignored: true }`.
 
 ---
 

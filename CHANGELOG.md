@@ -7,6 +7,10 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Dodane
 
+- **Grok na skrzynce ogląda załączniki.** Obrazy i PDF idą do modelu (nie tylko warstwa tekstowa). Domyślnie jeden szkic; podział z nazw plików wyłączony. Podmiana załącznika w istniejącym wpisie/stronie bez publikacji. Niepewność → mail na allowlistę, bez zgadywania z tematu. Webhook 200 + `waitUntil`. Szczegóły: [ADMIN.md](docs/ADMIN.md) §5.3, [PLAN-INBOUND-GROK.md](docs/PLAN-INBOUND-GROK.md).
+
+### Dodane
+
 - **Ponowny odczyt maila inbound.** Administrator może skasować szkic z poczty i puścić ten sam list przez Groka jeszcze raz (`POST /api/admin/inbound/replay`).
 
 ### Naprawione

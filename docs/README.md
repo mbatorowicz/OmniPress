@@ -32,7 +32,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | [PLAN-POWIADOMIENIA.md](./PLAN-POWIADOMIENIA.md) | Plan: Telegram + odznaka przy wpisie do akceptacji |
 | [PLAN-DOSTEPNOSC.md](./PLAN-DOSTEPNOSC.md) | Plan naprawy WCAG 2.1 AA — strona (repo B) i panel (repo A); D-1–D-22, deklaracja w pełni zgodna |
 | [PLAN-SP-MIEDZNA.md](./PLAN-SP-MIEDZNA.md) | Plan: destynacja SP Miedzna (`sp-miedzna.pl`) — repo, szablon szkolny, migracja WP |
-| [PLAN-INBOUND-GROK.md](./PLAN-INBOUND-GROK.md) | Plan: Grok na skrzynce — forma treści, podział szkiców, jednostka z hopu przekazującego |
+| [PLAN-INBOUND-GROK.md](./PLAN-INBOUND-GROK.md) | Plan: Grok na skrzynce — wizja załączników, jeden wpis jako norma, podmiana, mail zwrotny |
 | [../CHANGELOG.md](../CHANGELOG.md) | Historia wydań |
 | [../README.md](../README.md) | Wejście do repo |
 
@@ -79,6 +79,7 @@ Jeden indeks — szczegóły tylko w docelowym dokumencie.
 | `setup:page-assets` | Załączniki stron statycznych (`assets.page_id`) |
 | `setup:usage-stats` | RPC zużycia bazy i Storage (panel admina) |
 | `setup:inbound-email` | Tabela `inbound_messages` + RPC autora szkicu z poczty |
+| `setup:inbound-intent` | Intent inbound: `post_id` puste, status szkic/podmiana/pytanie |
 | `setup:author-on-delete` | Autor wpisu → NULL po usunięciu konta |
 | `setup:posts-delete-own` | Usuwanie własnych wpisów przez redaktora |
 | `setup:posts-rejected-resubmit` | Ponowne wysłanie odrzuconego wpisu |

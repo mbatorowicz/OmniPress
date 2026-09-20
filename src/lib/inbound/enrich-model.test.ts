@@ -37,9 +37,7 @@ describe('applyEnrichment', () => {
 			categorySlug: null,
 			extraCategorySlugs: [],
 		});
-		expect(applyEnrichment('nie json', CATEGORIES, FALLBACK)).toEqual([
-			enrichFallback(FALLBACK.title, FALLBACK.contentMd),
-		]);
+		expect(applyEnrichment('nie json', CATEGORIES, FALLBACK)).toEqual([]);
 	});
 
 	it('isSameEnrichDraft rozpoznaje identyczny fallback', () => {

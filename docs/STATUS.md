@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.18.0** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.19.0** (kod + baza + panel).
 
 Produkcja panelu: https://omni-press.cncsolutions.dev  
 Produkcja UG: https://gmina-miedzna.pl (cutover 2026-09-16) — gałąź `main` + publikacje OmniPress  
@@ -77,7 +77,7 @@ Reset hasła: `/login?mode=reset` → `/auth/reset-password`.
 | Uprawnienia redaktora (strony + domyślna); blokada: własne konto / ostatni admin | ✅ |
 | Usunięcie konta zostawia wpisy (autor: „konto usunięte”) | ✅ migracja `setup:author-on-delete` |
 | Kolejka: do akceptacji, zaplanowane (ze znacznikiem „Publikacja…”), na stronie | ✅ `/admin` — odznaka z liczbą *pending* przy *Administracja* i *Kolejka wpisów* |
-| Szkic z poczty (skrzynka inbound) | ✅ `wpisy@inbound.cncsolutions.dev`; Grok redaguje jak człowiek (podgląd plakatów, wyrzut pisma, podział komunikatów, tytuł z tematu); jednostka z hopu przekazującego; Telegram bez Akceptuj |
+| Szkic z poczty (skrzynka inbound) | ✅ `wpisy@inbound.cncsolutions.dev`; Grok **ogląda** załączniki (obraz/PDF); domyślnie jeden szkic; podmiana w panelu bez publikacji; niepewność → mail do Ciebie; jednostka z hopu; Telegram bez Akceptuj |
 | Powiadomienie Telegram po wysłaniu do akceptacji | ✅ opcjonalne `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`; awaria bota nie blokuje submitu |
 | Akceptacja wpisu z Telegrama | ✅ przycisk *Akceptuj* w wiadomości bota; webhook `/api/telegram/webhook`; odrzucenie w panelu |
 | Wszystkie wpisy redaktorów — także szkice i wpisy do poprawki; zakładki statusów z licznikami, filtr (tytuł, status, strona, autor), sortowanie kolumn (domyślnie data publikacji), stronicowanie po 25 | ✅ `/admin/posts` |
@@ -153,6 +153,7 @@ Withdraw/deactivate: batch delete plików wpisu z GitHub (jeden commit; listing 
 | `20250915000000_assets_page_id.sql` | `setup:page-assets` |
 | `20250916000000_admin_usage_stats.sql` | `setup:usage-stats` |
 | `20260918000000_inbound_messages.sql` | `setup:inbound-email` |
+| `20260920000000_inbound_intent.sql` | `setup:inbound-intent` |
 
 Tabela opisuje **zamierzony** stan bazy. `lint-docs-setup.mjs` pilnuje zgodności `package.json` ↔ ta tabela, ale nie sprawdza produkcji — w audycie P0-7 okazało się, że jedna migracja nigdy tam nie trafiła. Przy wątpliwościach: porównaj z bazą (triggery, polityki, kolumny), nie z tym dokumentem.
 
@@ -226,6 +227,14 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | SSO redaktorów | — |
 
 ---
+
+## 0.19.0 — Grok widzi załączniki, intent, podmiana
+
+- Wejście do Groka: tekst **oraz** pliki (JPG/PNG/WebP/GIF, native PDF, grafiki z DOCX). Tytuł ze sprawy na obrazku, nie z tematu „Plakaty”.
+- Domyślnie **jeden** szkic. Kod nie wymusza podziału z nazw plików. Dwa–trzy szkice tylko gdy model widzi osobne sprawy.
+- Intent `replace`: pewny cel → poprawka w panelu (wpis `draft` albo strona-szkic), produkcja bez zmian. Dwuznaczność albo nieczytelny materiał → brak wpisu, mail na allowlistę, Telegram bez Akceptuj.
+- Timeout / błąd Gateway **nie** robi surowego importu 1:1. Webhook oddaje 200 od razu (`waitUntil`). Timeout modelu 45 s. Ponowny odczyt: `POST /api/admin/inbound/replay`.
+- Migracja `setup:inbound-intent` (`post_id` puste, status `drafted | replaced | awaiting_clarification`). Plan: [PLAN-INBOUND-GROK.md](./PLAN-INBOUND-GROK.md).
 
 ## 0.18.1 — Grok nie skleja spokrewnionych spraw i nie dzieli po pliku
 

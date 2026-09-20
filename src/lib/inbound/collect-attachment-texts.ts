@@ -11,6 +11,8 @@ import type { DownloadAttachmentResult } from './receiving-attachments';
 
 export type InboundFileInventory = ExtractedAttachmentText & {
 	suggestedDisplay: AttachmentDisplay;
+	/** Bajty do wizji Groka i podmiany. Brak = tylko metadane w promptcie. */
+	bytes?: Uint8Array | null;
 };
 
 export type CollectAttachmentTextsInput = {
@@ -20,16 +22,20 @@ export type CollectAttachmentTextsInput = {
 	extract?: typeof extractAttachmentText;
 };
 
-function rowFromExtracted(extracted: ExtractedAttachmentText): InboundFileInventory {
+function rowFromExtracted(
+	extracted: ExtractedAttachmentText,
+	bytes: Uint8Array,
+): InboundFileInventory {
 	return {
 		...extracted,
 		suggestedDisplay: suggestAttachmentDisplay(extracted),
+		bytes,
 	};
 }
 
-function rowFromFile(filename: string, mime: string): InboundFileInventory {
+function rowFromFile(filename: string, mime: string, bytes: Uint8Array): InboundFileInventory {
 	const extracted = { filename, mime, text: '', pageCount: null };
-	return { ...extracted, suggestedDisplay: suggestAttachmentDisplay(extracted) };
+	return { ...extracted, suggestedDisplay: suggestAttachmentDisplay(extracted), bytes };
 }
 
 /** Wszystkie przyjęte pliki — także PDF bez tekstu i obrazy. */
@@ -62,11 +68,11 @@ export async function collectInboundInventory(
 		if (decided.action === 'skip') continue;
 		if (isExtractableMime(decided.mime)) {
 			const extracted = await extract(decided.filename, decided.mime, downloaded.bytes);
-			if (extracted) out.push(rowFromExtracted(extracted));
-			else out.push(rowFromFile(decided.filename, decided.mime));
+			if (extracted) out.push(rowFromExtracted(extracted, downloaded.bytes));
+			else out.push(rowFromFile(decided.filename, decided.mime, downloaded.bytes));
 			continue;
 		}
-		out.push(rowFromFile(decided.filename, decided.mime));
+		out.push(rowFromFile(decided.filename, decided.mime, downloaded.bytes));
 	}
 	return applyCoverLetterDrops(out);
 }

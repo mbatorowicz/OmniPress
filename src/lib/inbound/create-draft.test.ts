@@ -61,6 +61,7 @@ describe('createInboundDraft', () => {
 			message_id: MESSAGE,
 			from_email: 'jan.kowalski@urzad.pl',
 			post_id: POST,
+			status: 'drafted',
 		});
 		expect(hasEq(opsFor(fake, 'sites')[0]!, 'slug', 'gmina-miedzna')).toBe(true);
 		expect(hasEq(opsFor(fake, 'sites')[0]!, 'is_active', true)).toBe(true);

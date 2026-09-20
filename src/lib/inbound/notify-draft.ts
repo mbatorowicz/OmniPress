@@ -9,50 +9,77 @@ import {
 	sendTelegramMessage,
 	type TelegramReplyMarkup,
 } from '@/lib/notify/telegram';
+import { inboundPagePanelUrl } from './match-replace-model';
+
+export type InboundNotifyKind = 'draft' | 'replace' | 'clarify' | 'failed';
 
 export type InboundDraftNotifyInput = {
 	title: string;
-	postId: string;
+	postId?: string | null;
+	kind?: InboundNotifyKind;
+	question?: string;
+	panelUrl?: string;
+	siteId?: string;
+	pageId?: string;
 };
 
 export type NotifyInboundDraftOptions = {
 	configured?: boolean;
-	unprocessed?: boolean;
-	send?: (text: string, replyMarkup: TelegramReplyMarkup) => Promise<void>;
+	send?: (text: string, replyMarkup?: TelegramReplyMarkup) => Promise<void>;
 };
 
-export function formatInboundDraftMessage(
-	input: InboundDraftNotifyInput,
-	opts: { unprocessed?: boolean } = {},
-): string {
+function headingFor(kind: InboundNotifyKind): string {
+	if (kind === 'replace') return notify.inbound.replaceHeading;
+	if (kind === 'clarify' || kind === 'failed') return notify.inbound.clarifyHeading;
+	return notify.inbound.heading;
+}
+
+function hintFor(kind: InboundNotifyKind, question?: string): string {
+	if (kind === 'replace') return notify.inbound.replaceHint;
+	if (kind === 'failed') return notify.inbound.failedHint;
+	if (kind === 'clarify') return question?.trim() || notify.inbound.clarifyHint;
+	return notify.inbound.hint;
+}
+
+function panelUrlFor(input: InboundDraftNotifyInput): string | null {
+	if (input.panelUrl) return input.panelUrl;
+	if (input.postId) return reviewPostUrl(input.postId);
+	if (input.siteId && input.pageId) return inboundPagePanelUrl(input.siteId, input.pageId);
+	return null;
+}
+
+export function formatInboundDraftMessage(input: InboundDraftNotifyInput): string {
+	const kind = input.kind ?? 'draft';
 	const title = resolveReviewLabel(input.title, common.untitled);
+	const url = panelUrlFor(input);
 	return [
-		notify.inbound.heading,
+		headingFor(kind),
 		'',
 		`${notify.inbound.titleLabel}: ${title}`,
 		'',
-		opts.unprocessed ? notify.inbound.unprocessedHint : notify.inbound.hint,
-		reviewPostUrl(input.postId),
+		hintFor(kind, input.question),
+		...(url ? [url] : []),
 	].join('\n');
 }
 
-/** Ping Telegram o szkicu z poczty — bez klawiatury Akceptuj. */
+/** Ping Telegram o wyniku inbound — bez klawiatury Akceptuj. */
 export async function notifyInboundDraft(
-	postId: string,
+	postId: string | null,
 	title: string,
-	opts: NotifyInboundDraftOptions = {},
+	opts: NotifyInboundDraftOptions & Omit<InboundDraftNotifyInput, 'title' | 'postId'> = {},
 ): Promise<void> {
 	try {
 		const configured = opts.configured ?? isTelegramConfigured();
 		if (!configured) return;
-		const text = formatInboundDraftMessage({ title, postId }, { unprocessed: opts.unprocessed });
-		const replyMarkup = reviewOpenOnlyKeyboard(postId);
+		const payload: InboundDraftNotifyInput = { ...opts, title, postId };
+		const text = formatInboundDraftMessage(payload);
+		const replyMarkup = postId ? reviewOpenOnlyKeyboard(postId) : undefined;
 		if (opts.send) {
 			await opts.send(text, replyMarkup);
 		} else {
-			await sendTelegramMessage(text, { replyMarkup });
+			await sendTelegramMessage(text, replyMarkup ? { replyMarkup } : {});
 		}
 	} catch {
-		// Szkic już zapisany — powiadomienie nie może go cofnąć.
+		// Wynik już zapisany — powiadomienie nie może go cofnąć.
 	}
 }

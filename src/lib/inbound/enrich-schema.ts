@@ -18,14 +18,29 @@ export const inboundEnrichPostSchema = z.object({
 	attachments: z.array(inboundEnrichAttachmentSchema).optional(),
 });
 
+export const inboundEnrichReplaceSchema = z.object({
+	target: z.enum(['post', 'page']),
+	hint: z.string().describe('Tytuł, slug, URL albo nazwa pliku z maila'),
+	filename: z.string().optional(),
+	display: z.enum(['embed', 'link']).optional(),
+});
+
+export const inboundEnrichClarificationSchema = z.object({
+	needed: z.boolean(),
+	question: z.string().describe('Krótkie pytanie po polsku'),
+});
+
 export const inboundEnrichSchema = z.object({
+	intent: z.enum(['create', 'replace', 'clarify']).default('create'),
 	posts: z
 		.array(inboundEnrichPostSchema)
-		.min(1)
 		.max(3)
+		.default([])
 		.describe(
-			'Osobny element na każdą sprawę dla odbiorcy. Ujęcia tej samej sprawy razem. Inny obowiązek albo wydarzenie = osobny wpis. Nie streszczaj kilku spraw w jednym leadzie. Nie dziel po pliku.',
+			'Tylko intent create. Domyślnie jeden wpis. Dwa albo trzy tylko przy osobnych sprawach dla odbiorcy. Nie dziel po pliku.',
 		),
+	replace: inboundEnrichReplaceSchema.optional(),
+	clarification: inboundEnrichClarificationSchema.optional(),
 });
 
 export type InboundEnrichObject = z.infer<typeof inboundEnrichSchema>;

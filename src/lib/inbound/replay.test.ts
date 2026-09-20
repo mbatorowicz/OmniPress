@@ -52,22 +52,25 @@ describe('replayInboundEmail', () => {
 		});
 		const applyAttachments = vi.fn().mockResolvedValue(undefined);
 		const notify = vi.fn().mockResolvedValue(undefined);
-		const enrich = vi.fn().mockResolvedValue([
-			{
-				title: 'Szczepienie pupila',
-				contentMd: 'Obowiązek szczepienia.',
-				categorySlug: 'aktualnosci',
-				extraCategorySlugs: [],
-				attachments: [],
-			},
-			{
-				title: 'Wścieklizna — zasady',
-				contentMd: 'Obszar zagrożony.',
-				categorySlug: 'aktualnosci',
-				extraCategorySlugs: [],
-				attachments: [],
-			},
-		]);
+		const enrich = vi.fn().mockResolvedValue({
+			kind: 'create',
+			drafts: [
+				{
+					title: 'Szczepienie pupila',
+					contentMd: 'Obowiązek szczepienia.',
+					categorySlug: 'aktualnosci',
+					extraCategorySlugs: [],
+					attachments: [],
+				},
+				{
+					title: 'Wścieklizna — zasady',
+					contentMd: 'Obszar zagrożony.',
+					categorySlug: 'aktualnosci',
+					extraCategorySlugs: [],
+					attachments: [],
+				},
+			],
+		});
 
 		const response = await replayInboundEmail(EMAIL_ID, {
 			draftConfig: DRAFT_CONFIG,
@@ -77,6 +80,8 @@ describe('replayInboundEmail', () => {
 				subject: 'Plakaty',
 				text: 'Proszę opublikować.',
 				html: null,
+				inReplyTo: null,
+				references: null,
 			}),
 			forgetPrevious,
 			createDraft,

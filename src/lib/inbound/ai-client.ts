@@ -1,23 +1,38 @@
 import { generateObject } from 'ai';
 import { inboundAiEnvFromMeta, inboundAiModel } from './inbound-ai-config';
 import { inboundEnrichSchema } from './enrich-schema';
+import type { InboundAiFilePart } from './vision-model';
 
 export type InboundAiComplete = (input: {
 	system: string;
 	prompt: string;
+	files: InboundAiFilePart[];
 	signal: AbortSignal;
 }) => Promise<unknown>;
+
+function userContent(prompt: string, files: InboundAiFilePart[]) {
+	return [
+		{ type: 'text' as const, text: prompt },
+		...files.map((file) => ({
+			type: 'file' as const,
+			data: file.data,
+			mediaType: file.mediaType,
+			filename: file.filename,
+		})),
+	];
+}
 
 export async function completeInboundObject(input: {
 	system: string;
 	prompt: string;
+	files: InboundAiFilePart[];
 	signal: AbortSignal;
 }): Promise<unknown> {
 	const { object } = await generateObject({
 		model: inboundAiModel(inboundAiEnvFromMeta()),
 		schema: inboundEnrichSchema,
 		system: input.system,
-		prompt: input.prompt,
+		messages: [{ role: 'user', content: userContent(input.prompt, input.files) }],
 		abortSignal: input.signal,
 		maxRetries: 0,
 	});

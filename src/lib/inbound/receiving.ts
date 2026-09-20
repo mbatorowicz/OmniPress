@@ -1,3 +1,5 @@
+import { headerValue, parseEmailHeaders } from './receiving-headers';
+
 export const RESEND_RECEIVING_BASE = 'https://api.resend.com/emails/receiving';
 export const RESEND_TIMEOUT_MS = 8000;
 
@@ -7,6 +9,8 @@ export type ReceivedInboundEmail = {
 	subject: string;
 	text: string | null;
 	html: string | null;
+	inReplyTo: string | null;
+	references: string | null;
 };
 
 export type GetReceivedEmailOpts = {
@@ -35,12 +39,15 @@ function receivingUrl(emailId: string): string {
 function mapReceivedEmail(emailId: string, raw: unknown): ReceivedInboundEmail | null {
 	if (!raw || typeof raw !== 'object') return null;
 	const rec = raw as Record<string, unknown>;
+	const headers = parseEmailHeaders(rec.headers);
 	return {
 		id: asText(rec.id) || emailId,
 		from: asText(rec.from),
 		subject: asText(rec.subject),
 		text: asBody(rec.text),
 		html: asBody(rec.html),
+		inReplyTo: headerValue(headers, 'in-reply-to') ?? asBody(rec.in_reply_to),
+		references: headerValue(headers, 'references') ?? asBody(rec.references),
 	};
 }
 
