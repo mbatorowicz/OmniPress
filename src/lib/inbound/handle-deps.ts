@@ -34,6 +34,7 @@ export type InboundEmailDeps = {
 	notify?: InboundNotifyFn;
 	collectInventory?: (emailId: string) => Promise<InboundFileInventory[]>;
 	loadCategories?: (siteSlug: string) => Promise<CategoryOption[]>;
+	loadSiteName?: (siteSlug: string) => Promise<string>;
 	enrich?: (input: EnrichInboundInput) => Promise<EnrichOutcome>;
 	aiConfigured?: boolean;
 	forgetPrevious?: (emailId: string) => Promise<void>;

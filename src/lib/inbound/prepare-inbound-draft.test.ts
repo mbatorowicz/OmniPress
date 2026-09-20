@@ -33,7 +33,7 @@ describe('prepareInboundDraft', () => {
 		expect(BASE.enrich).not.toHaveBeenCalled();
 	});
 
-	it('z AI: przekazuje załączniki i kategorie do enrich', async () => {
+	it('z AI: przekazuje załączniki, kategorie i nazwę jednostki', async () => {
 		const collectInventory = vi.fn().mockResolvedValue([
 			{
 				filename: 'a.pdf',
@@ -58,11 +58,13 @@ describe('prepareInboundDraft', () => {
 				},
 			],
 		});
+		const loadSiteName = vi.fn().mockResolvedValue('Gmina Miedzna');
 		const prepared = await prepareInboundDraft({
 			...BASE,
 			shouldEnrich: true,
 			collectInventory,
 			loadCategories,
+			loadSiteName,
 			enrich,
 		});
 		expect(prepared.kind).toBe('create');
@@ -82,6 +84,7 @@ describe('prepareInboundDraft', () => {
 				},
 			],
 			categories: [{ slug: 'aktualnosci', name: 'Aktualności', sources: ['github_astro'] }],
+			siteName: 'Gmina Miedzna',
 		});
 	});
 

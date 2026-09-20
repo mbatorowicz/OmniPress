@@ -38,6 +38,7 @@ export type PrepareInboundDraftInput = {
 	shouldEnrich: boolean;
 	collectInventory: (emailId: string) => Promise<InboundFileInventory[]>;
 	loadCategories: (siteSlug: string) => Promise<CategoryOption[]>;
+	loadSiteName?: (siteSlug: string) => Promise<string>;
 	enrich: (input: EnrichInboundInput) => Promise<EnrichOutcome>;
 };
 
@@ -68,6 +69,7 @@ export async function prepareInboundDraft(
 
 	let attachments: InboundFileInventory[] = [];
 	let categories: CategoryOption[] = [];
+	let siteName = '';
 	try {
 		attachments = await input.collectInventory(input.emailId);
 	} catch {
@@ -79,7 +81,18 @@ export async function prepareInboundDraft(
 		categories = [];
 	}
 	try {
-		const outcome = await input.enrich({ title, contentMd, attachments, categories });
+		siteName = (await input.loadSiteName?.(input.siteSlug))?.trim() ?? '';
+	} catch {
+		siteName = '';
+	}
+	try {
+		const outcome = await input.enrich({
+			title,
+			contentMd,
+			attachments,
+			categories,
+			...(siteName ? { siteName } : {}),
+		});
 		return fromOutcome(outcome, attachments);
 	} catch {
 		return clarify(inbound.failedQuestion, attachments);

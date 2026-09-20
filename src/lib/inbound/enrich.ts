@@ -16,6 +16,7 @@ export type EnrichInboundInput = {
 	contentMd: string;
 	attachments: InboundFileInventory[];
 	categories: CategoryOption[];
+	siteName?: string;
 };
 
 export type EnrichInboundOptions = {

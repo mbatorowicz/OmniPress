@@ -22,3 +22,16 @@ export async function loadInboundSiteCategories(
 	const { categories } = await loadPublishedSiteCategories(supabase, siteId);
 	return categories;
 }
+
+export async function loadInboundSiteName(supabase: SupabaseClient, siteSlug: string): Promise<string> {
+	const slug = siteSlug.trim();
+	if (!slug) return '';
+	const { data } = await supabase
+		.from('sites')
+		.select('name')
+		.eq('slug', slug)
+		.eq('is_active', true)
+		.maybeSingle();
+	const name = (data as { name?: unknown } | null)?.name;
+	return typeof name === 'string' ? name.trim() : '';
+}

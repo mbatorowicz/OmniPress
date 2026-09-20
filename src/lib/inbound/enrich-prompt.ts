@@ -7,6 +7,7 @@ export type EnrichPromptInput = {
 	contentMd: string;
 	attachments: InboundFileInventory[];
 	categories: Pick<CategoryOption, 'slug' | 'name'>[];
+	siteName?: string;
 };
 
 function formatCategoryLine(category: Pick<CategoryOption, 'slug' | 'name'>): string {
@@ -33,9 +34,13 @@ export function buildInboundEnrichPrompt(input: EnrichPromptInput): string {
 		input.attachments.length === 0
 			? inboundAi.noAttachments
 			: input.attachments.map(formatAttachment).join('\n\n');
+	const site = input.siteName?.trim();
 	return [
 		`${inboundAi.subjectLabel}: ${input.title || inboundAi.emptySubject}`,
 		'',
+		...(site
+			? [`${inboundAi.siteLabel}: ${site}`, inboundAi.siteNameNote, '']
+			: []),
 		`${inboundAi.bodyLabel}:`,
 		input.contentMd || inboundAi.emptyBody,
 		'',
@@ -46,6 +51,7 @@ export function buildInboundEnrichPrompt(input: EnrichPromptInput): string {
 		categories,
 		'',
 		inboundAi.visionNote,
+		inboundAi.dateCheck,
 		inboundAi.splitReminder,
 	].join('\n');
 }

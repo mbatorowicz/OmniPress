@@ -230,7 +230,7 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 
 ## 0.19.0 — Grok widzi załączniki, intent, podmiana
 
-- Wejście do Groka: tekst **oraz** pliki (JPG/PNG/WebP/GIF, native PDF, grafiki z DOCX). Tytuł ze sprawy na obrazku, nie z tematu „Plakaty”.
+- Wejście do Groka: tekst **oraz** obrazy (JPG/PNG/WebP/GIF, strony PDF jako JPEG, grafiki z DOCX). Tytuł ze sprawy na obrazku, nie z tematu „Plakaty”. Daty i nazwa jednostki z materiału / linii Jednostka — bez zgadywania miesiąca.
 - Domyślnie **jeden** szkic. Kod nie wymusza podziału z nazw plików. Dwa–trzy szkice tylko gdy model widzi osobne sprawy.
 - Intent `replace`: pewny cel → poprawka w panelu (wpis `draft` albo strona-szkic), produkcja bez zmian. Dwuznaczność albo nieczytelny materiał → brak wpisu, mail na allowlistę, Telegram bez Akceptuj.
 - Timeout / błąd Gateway **nie** robi surowego importu 1:1. Webhook oddaje 200 od razu (`waitUntil`). Timeout modelu 45 s. Ponowny odczyt: `POST /api/admin/inbound/replay`.

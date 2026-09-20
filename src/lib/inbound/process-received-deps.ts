@@ -8,7 +8,7 @@ import {
 import type { EnrichDraft } from './enrich-model';
 import type { InboundEmailDeps } from './handle-deps';
 import { findInboundMessage, recordInboundMessage } from './inbound-message';
-import { loadInboundSiteCategories } from './load-inbound-categories';
+import { loadInboundSiteCategories, loadInboundSiteName } from './load-inbound-categories';
 import { parseInboundThreadEmailId } from './mailbox';
 import type { ReceivedInboundEmail } from './receiving';
 
@@ -22,6 +22,11 @@ export async function defaultCreateDraft(
 export async function defaultLoadCategories(siteSlug: string): Promise<CategoryOption[]> {
 	if (!isServiceSupabaseConfigured()) return [];
 	return loadInboundSiteCategories(createServiceSupabase(), siteSlug);
+}
+
+export async function defaultLoadSiteName(siteSlug: string): Promise<string> {
+	if (!isServiceSupabaseConfigured()) return '';
+	return loadInboundSiteName(createServiceSupabase(), siteSlug);
 }
 
 export function defaultFind(messageId: string) {

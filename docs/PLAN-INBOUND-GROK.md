@@ -90,7 +90,7 @@ Odpowiedź na ten mail (wątek) wraca na `wpisy@` z **tymi samymi załącznikami
 Zostaje Vercel AI Gateway i ten sam model (env `INBOUND_AI_MODEL` jak dziś). Wejście: `messages` z częścią tekstową **oraz** `file`:
 
 - obraz: `mediaType` `image/jpeg` | `image/png` | `image/webp` | `image/gif`
-- PDF: `mediaType` `application/pdf` (native file input Gateway)
+- PDF: **nie** native `application/pdf` (Gateway/xAI → 400 na inline bajtach). Strony 1–2 jako JPEG (`pdfjs` + `@napi-rs/canvas` + Sharp).
 
 Kompresja JPG/PNG: istniejący Sharp (`lib/posts/optimize-image.ts`), krawędź ok. 1600 px — czas i rozmiar żądania.
 
@@ -100,7 +100,7 @@ XLSX / ZIP / GPKG: nie jako wizja — nazwa w tekście; plik ląduje przy szkicu
 
 Inwentarz (`InboundFileInventory`) **trzyma bajty** do wizji. Warstwa tekstowa PDF zostaje w promptcie jako pomoc, nie zamiast obrazu.
 
-Gdy Gateway odrzuci PDF dla modelu: raster pierwszej strony (pdfjs + Sharp). Najpierw native PDF.
+Gdy Gateway odrzuci PDF: raster stron 1–2 do JPEG. Native PDF nie wysyłamy.
 
 Limit: do 8 załączników jak dziś. Do modelu nie pchać 50 MB w base64 — obciąć / skompresować ładunek wizji.
 

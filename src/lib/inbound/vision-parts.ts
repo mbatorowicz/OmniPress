@@ -7,7 +7,7 @@ import {
 	isVisionPdfMime,
 	type InboundAiFilePart,
 } from './vision-model';
-import { visionPdfPart } from './vision-pdf';
+import { visionPdfParts } from './vision-pdf';
 import type { InboundFileInventory } from './collect-attachment-texts';
 
 async function partsFromDocx(filename: string, bytes: Uint8Array): Promise<InboundAiFilePart[]> {
@@ -28,10 +28,7 @@ async function partsFromRow(row: InboundFileInventory): Promise<InboundAiFilePar
 		const part = await compressVisionImage(row.filename, row.mime, bytes);
 		return part ? [part] : [];
 	}
-	if (isVisionPdfMime(row.mime)) {
-		const part = await visionPdfPart(row.filename, bytes);
-		return part ? [part] : [];
-	}
+	if (isVisionPdfMime(row.mime)) return visionPdfParts(row.filename, bytes);
 	if (isVisionDocxMime(row.mime)) return partsFromDocx(row.filename, bytes);
 	return [];
 }

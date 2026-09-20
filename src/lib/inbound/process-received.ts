@@ -14,6 +14,7 @@ import {
 	defaultCreateDraft,
 	defaultFind,
 	defaultLoadCategories,
+	defaultLoadSiteName,
 	defaultRecord,
 	inventoryEmailId,
 	toCreateInput,
@@ -59,6 +60,7 @@ export async function ingestFetchedInbound(
 		shouldEnrich,
 		collectInventory: deps.collectInventory ?? collectInboundInventoryLive,
 		loadCategories: deps.loadCategories ?? defaultLoadCategories,
+		loadSiteName: deps.loadSiteName ?? defaultLoadSiteName,
 		enrich: deps.enrich ?? enrichInboundDraft,
 	});
 

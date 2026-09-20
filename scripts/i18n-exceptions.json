@@ -22,6 +22,7 @@
 		"src/lib/inbound/attachment-display.ts": 1,
 		"src/lib/inbound/enrich-schema.ts": 7,
 		"src/lib/inbound/generic-title.ts": 1,
+		"src/lib/inbound/match-replace-model.ts": 1,
 		"src/lib/inbound/message-clusters.ts": 4,
 		"src/lib/publish/dispatch.ts": 1,
 		"src/lib/publish/github-api-commit.ts": 1,

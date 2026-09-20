@@ -25,8 +25,9 @@ describe('buildInboundEnrichPrompt', () => {
 		expect(inboundAi.system).toContain('Oglądasz treść maila');
 		expect(inboundAi.system).toContain('domyślnie JEDEN wpis');
 		expect(inboundAi.system).toContain('Nie zgaduj z nazw plików');
-		expect(inboundAi.system).toContain('intent replace');
-		expect(inboundAi.system).toContain('intent clarify');
+		expect(inboundAi.system).toContain('hint musi być konkretny');
+		expect(inboundAi.system).toContain('październik czytany jako luty');
+		expect(inboundAi.system).toContain('M-i-e-d-z-n-a');
 		expect(prompt).toContain('Proszę o publikację');
 		expect(prompt).toContain('a.pdf');
 		expect(prompt).toContain('Treść uchwały');
@@ -37,6 +38,7 @@ describe('buildInboundEnrichPrompt', () => {
 		expect(prompt).not.toContain('rok-szkolny-2025-2026: Rok szkolny 2025/2026 —');
 		expect(prompt).toContain(inboundAi.splitReminder);
 		expect(prompt).toContain(inboundAi.visionNote);
+		expect(prompt).toContain(inboundAi.dateCheck);
 	});
 
 	it('nie dopisuje klastrów z nazw — podział jest decyzją Groka z treści', () => {
@@ -64,5 +66,17 @@ describe('buildInboundEnrichPrompt', () => {
 		expect(prompt).toContain('plakat_Zaszczep_pupila.jpg');
 		expect(prompt).not.toContain('Sygnał z nazw plików');
 		expect(prompt).not.toContain('1. plakat_Zaszczep_pupila.jpg');
+	});
+
+	it('dopisuje nazwę jednostki do przepisania', () => {
+		const prompt = buildInboundEnrichPrompt({
+			title: 'Plakaty',
+			contentMd: 'Proszę opublikować.',
+			attachments: [],
+			categories: [{ slug: 'aktualnosci', name: 'Aktualności' }],
+			siteName: 'Gmina Miedzna',
+		});
+		expect(prompt).toContain(`${inboundAi.siteLabel}: Gmina Miedzna`);
+		expect(prompt).toContain(inboundAi.siteNameNote);
 	});
 });

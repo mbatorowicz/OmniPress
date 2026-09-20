@@ -7,6 +7,7 @@ import {
 	pathSegments,
 	sameFilename,
 	storageBasename,
+	titleLooksSpecific,
 } from './match-replace-model';
 import { APP } from '@/config/app';
 
@@ -33,6 +34,14 @@ describe('match-replace-model', () => {
 			]).status,
 		).toBe('ambiguous');
 		expect(decideReplaceMatch([]).status).toBe('none');
+	});
+
+	it('luźny hint nie jest wystarczająco konkretny do częściowego tytułu', () => {
+		expect(titleLooksSpecific('ogłoszenie o naborze')).toBe(false);
+		expect(titleLooksSpecific('ten wpis')).toBe(false);
+		expect(titleLooksSpecific('Festyn 20')).toBe(true);
+		expect(titleLooksSpecific('Harmonogram odbioru odpadów 2026')).toBe(true);
+		expect(titleLooksSpecific('https://gmina-miedzna.cncsolutions.dev/aktualnosci/x')).toBe(true);
 	});
 
 	it('składa link panelu', () => {

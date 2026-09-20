@@ -5,6 +5,12 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+### Naprawione
+
+- **Grok na skrzynce: PDF, daty, nazwa gminy, niepewna podmiana.** Strony PDF idą do modelu jako JPEG (Gateway odrzuca inline PDF). Prompt uczy: przepisuj miesiąc i „Miedzna”; luźny hint podmiany = pytanie, nie zgadywanie. Matcher nie paruje ogólników z tytułem.
+
+## [0.19.0]
+
 ### Dodane
 
 - **Grok na skrzynce ogląda załączniki.** Obrazy i PDF idą do modelu (nie tylko warstwa tekstowa). Domyślnie jeden szkic; podział z nazw plików wyłączony. Podmiana załącznika w istniejącym wpisie/stronie bez publikacji. Niepewność → mail na allowlistę, bez zgadywania z tematu. Webhook 200 + `waitUntil`. Szczegóły: [ADMIN.md](docs/ADMIN.md) §5.3, [PLAN-INBOUND-GROK.md](docs/PLAN-INBOUND-GROK.md).

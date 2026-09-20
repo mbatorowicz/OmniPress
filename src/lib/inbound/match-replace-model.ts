@@ -68,7 +68,15 @@ export function isUuid(value: string): boolean {
 }
 
 export function titleLooksSpecific(hint: string): boolean {
-	return hint.replace(/\s+/g, ' ').trim().length >= 8;
+	const t = hint.replace(/\s+/g, ' ').trim();
+	if (!t || t.length < 8) return false;
+	if (extractPublicPath(t)) return true;
+	if (/\.(pdf|png|jpe?g|webp|gif|docx)$/i.test(t)) return true;
+	const words = t.split(' ').filter(Boolean);
+	if (/^(ogłoszenie|nabor|wpis|załącznik|plik|komunikat|artykuł|ten|ta|to)\b/i.test(t) && words.length <= 4) {
+		return false;
+	}
+	return true;
 }
 
 export function decideReplaceMatch(hits: ReplaceCandidate[]): ReplaceMatch {
