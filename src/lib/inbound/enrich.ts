@@ -3,7 +3,7 @@ import type { CategoryOption } from '@/lib/categories';
 import { applyCoverLetterDrops } from './attachment-display';
 import { completeInboundObject, type InboundAiComplete } from './ai-client';
 import { coalesceDrafts, omitCoverLetterDrafts } from './coalesce-drafts';
-import { splitLumpedDrafts } from './split-lumped-drafts';
+import { draftsFromClusters, splitLumpedDrafts } from './split-lumped-drafts';
 import type { InboundFileInventory } from './collect-attachment-texts';
 import { enrichFallback } from './enrich-model';
 import { resolveEnrichOutcome, type EnrichOutcome } from './enrich-outcome';
@@ -29,6 +29,11 @@ function fileTexts(attachments: InboundFileInventory[]): Map<string, string> {
 	return new Map(attachments.map((row) => [row.filename, row.text]));
 }
 
+function defaultCategorySlug(categories: CategoryOption[]): string | null {
+	if (categories.some((row) => row.slug === 'aktualnosci')) return 'aktualnosci';
+	return categories[0]?.slug ?? null;
+}
+
 function withCreateSafety(outcome: EnrichOutcome, attachments: InboundFileInventory[]): EnrichOutcome {
 	if (outcome.kind !== 'create') return outcome;
 	const drafts = omitCoverLetterDrafts(
@@ -47,16 +52,18 @@ function outcomeFromRaw(
 	attachments: InboundFileInventory[],
 	fallback: { title: string; contentMd: string },
 ): EnrichOutcome {
-	return withCreateSafety(
-		resolveEnrichOutcome(
-			raw,
-			input.categories,
-			fallback,
-			attachments.map((row) => row.filename),
-			fileTexts(attachments),
-		),
-		attachments,
+	const resolved = resolveEnrichOutcome(
+		raw,
+		input.categories,
+		fallback,
+		attachments.map((row) => row.filename),
+		fileTexts(attachments),
 	);
+	if (resolved.kind === 'clarify') {
+		const fromClusters = draftsFromClusters(attachments, defaultCategorySlug(input.categories));
+		if (fromClusters.length >= 2) return withCreateSafety({ kind: 'create', drafts: fromClusters }, attachments);
+	}
+	return withCreateSafety(resolved, attachments);
 }
 
 export async function enrichInboundDraft(

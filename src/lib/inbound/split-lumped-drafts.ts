@@ -1,4 +1,5 @@
 import { humanizeLabel } from '@/lib/content/humanize-label';
+import type { AttachmentDisplay } from './attachment-display';
 import { mergeDraftTitles } from './coalesce-drafts';
 import type { EnrichAttachment, EnrichDraft } from './enrich-model';
 import { filenameStem, filenameTopicTokens, groupMessageClusters, type ClusterFile } from './message-clusters';
@@ -105,4 +106,30 @@ export function splitLumpedDrafts(drafts: EnrichDraft[], files: ClusterFile[]): 
 	});
 	const byName = fileMap(files);
 	return drafts.flatMap((draft) => splitOneDraft(draft, fileToGroup, groups, byName));
+}
+
+function asDisplay(value: string): AttachmentDisplay {
+	if (value === 'link' || value === 'drop') return value;
+	return 'embed';
+}
+
+/** Gdy Grok pyta zamiast zrobić wpisy — jeden szkic na klaster. */
+export function draftsFromClusters(files: ClusterFile[], categorySlug: string | null): EnrichDraft[] {
+	const groups = groupMessageClusters(files);
+	if (groups.length <= 1) return [];
+	const byName = fileMap(files);
+	return groups.map((group) => {
+		const cluster = clusterFilesFor(group.filenames, byName);
+		const title = titleFromClusterFiles(cluster, group.filenames[0] ?? '');
+		return {
+			title,
+			contentMd: `${title}.`,
+			categorySlug,
+			extraCategorySlugs: [],
+			attachments: cluster.map((row) => ({
+				filename: row.filename,
+				display: asDisplay(row.suggestedDisplay),
+			})),
+		};
+	});
 }

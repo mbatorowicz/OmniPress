@@ -230,7 +230,7 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 
 ## 0.19.5 — Podział sklejonych materiałów
 
-- Gdy Grok wrzuci dwa komunikaty do jednego szkicu, kod rozdziela je po klastrach (to samo, co scala warianty). Prompt bez „domyślnie jeden wpis”.
+- Gdy Grok wrzuci dwa komunikaty do jednego szkicu albo zapyta zamiast je rozdzielić, kod rozdziela je po klastrach. Prompt bez „domyślnie jeden wpis”.
 
 ## 0.19.4 — Szybsza skrzynka
 

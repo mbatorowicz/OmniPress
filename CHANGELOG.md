@@ -9,7 +9,7 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ### Naprawione
 
-- **Skrzynka rozdziela sklejone materiały.** Gdy Grok wrzuci dwa komunikaty do jednego szkicu, kod tnie je tak samo, jak scala warianty tego samego plakatu. Prompt nie mówi już „domyślnie jeden wpis”.
+- **Skrzynka rozdziela sklejone materiały.** Gdy Grok wrzuci dwa komunikaty do jednego szkicu albo zapyta zamiast je rozdzielić, kod tnie je tak samo, jak scala warianty tego samego plakatu. Prompt nie mówi już „domyślnie jeden wpis”.
 
 ## [0.19.4]
 

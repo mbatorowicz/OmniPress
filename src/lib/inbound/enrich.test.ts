@@ -235,6 +235,51 @@ describe('enrichInboundDraft', () => {
 		vi.restoreAllMocks();
 	});
 
+	it('gdy model pyta przy dwóch materiałach, i tak powstają dwa szkice', async () => {
+		vi.spyOn(console, 'info').mockImplementation(() => {});
+		const complete = vi.fn().mockResolvedValue({
+			intent: 'clarify',
+			clarification: { needed: true, question: 'Jeden wpis czy dwa?' },
+		});
+		const outcome = await enrichInboundDraft(
+			{
+				title: 'Plakaty',
+				contentMd: 'Proszę o publikację.',
+				attachments: [
+					{
+						filename: 'plakat_Zaszczep_pupila.jpg',
+						mime: 'image/jpeg',
+						text: '',
+						pageCount: null,
+						suggestedDisplay: 'embed',
+					},
+					{
+						filename: 'Plakat_wścieklizna_obszar_zagrożony.pdf',
+						mime: 'application/pdf',
+						text: 'Obszar zagrożony wścieklizną',
+						pageCount: 1,
+						suggestedDisplay: 'embed',
+					},
+					{
+						filename: 'Plakat_wścieklizna_zasady_zachowania.pdf',
+						mime: 'application/pdf',
+						text: 'Zasady zachowania przy wściekliźnie',
+						pageCount: 1,
+						suggestedDisplay: 'embed',
+					},
+				],
+				categories: CATEGORIES,
+			},
+			{ complete },
+		);
+		expect(outcome.kind).toBe('create');
+		if (outcome.kind === 'create') {
+			expect(outcome.drafts).toHaveLength(2);
+			expect(outcome.drafts[0]?.title).toBe('Zaszczep pupila');
+		}
+		vi.restoreAllMocks();
+	});
+
 	it('timeout / błąd modelu → failed, bez szkicu z tematu', async () => {
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 		const complete = vi.fn(
