@@ -230,9 +230,10 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 
 ## 0.19.2 — Grok 4.6 widzi załączniki jako obrazy
 
-- Wejście do Groka: `type: image` (JPEG stron PDF, zdjęcia, pierwsza klatka GIF), nie `type: file` — Gateway 403 na Grok 4.6 bez `file-input`.
+- Wejście do Groka: JPEG stron PDF i zdjęcia jako `type: file` + `mediaType: image/jpeg` z etykietą nazwy (SDK 7; przestarzałe `type: image` Gateway odrzuca). Native PDF i GIF nie idą do modelu.
 - Raster: do 8 stron PDF, krawędź 1920 px, jakość JPEG 85, max 16 obrazów w ładunku.
-- Timeout `generateObject` 240 s po rasterze. `maxDuration` webhooka i replay 300 s (Fluid Hobby). `xhigh` nie wpinamy.
+- Timeout `generateObject` 240 s po rasterze. `maxDuration` webhooka i replay 300 s (Fluid Hobby).
+- Grok 4.6 na AI Gateway jest poza darmowym $5 — 403 „Free tier users do not have access to this model”, dopóki zespół nie ma płatnych kredytów Gateway.
 
 ## 0.19.1 — Grok 4.6 z myśleniem
 

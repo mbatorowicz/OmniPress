@@ -18,7 +18,7 @@ export type InboundAiComplete = (input: {
 function labeledImageParts(files: InboundAiFilePart[]) {
 	return files.flatMap((file) => [
 		{ type: 'text' as const, text: `${inboundAi.visionPartLabel}: ${file.filename}` },
-		{ type: 'image' as const, image: file.data, mediaType: file.mediaType },
+		{ type: 'file' as const, data: file.data, mediaType: file.mediaType },
 	]);
 }
 
