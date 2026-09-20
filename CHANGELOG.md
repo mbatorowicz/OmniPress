@@ -5,6 +5,12 @@ Wersja: **SSOT → `package.json`**. Build: **git commit** w etykiecie `semver+c
 
 ## [Unreleased]
 
+## [0.19.9]
+
+### Dodane
+
+- **Reset panelu do produkcji.** `scripts/reset-omni-to-live.ts` wciąga wpisy, strony i layout z `origin/main`, kasuje szkice których nie ma na stronie i zamyka kolejkę publikacji. Zero zapisu na GitHub.
+
 ## [0.19.8]
 
 ### Naprawione

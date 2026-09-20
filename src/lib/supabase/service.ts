@@ -1,10 +1,10 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { resolveSupabaseUrl } from './resolve-env';
+import { resolveServiceRoleKey, resolveSupabaseUrl } from './resolve-env';
 
 /** Klient service role — tylko worker / skrypty serwerowe, nigdy w UI. */
 export function createServiceSupabase(): SupabaseClient {
 	const url = resolveSupabaseUrl();
-	const key = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+	const key = resolveServiceRoleKey();
 	if (!url || !key) {
 		throw new Error('Brak SUPABASE_URL lub SUPABASE_SERVICE_ROLE_KEY (worker)');
 	}
@@ -12,5 +12,5 @@ export function createServiceSupabase(): SupabaseClient {
 }
 
 export function isServiceSupabaseConfigured(): boolean {
-	return Boolean(resolveSupabaseUrl() && import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
+	return Boolean(resolveSupabaseUrl() && resolveServiceRoleKey());
 }

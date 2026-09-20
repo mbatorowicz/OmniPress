@@ -11,13 +11,20 @@ export type GitHubCredentials = {
 export async function decryptDestinationCredentials(
 	destination: DestinationForPublish,
 ): Promise<GitHubCredentials | null> {
-	if (!destination.encrypted_credentials) return null;
-	try {
-		const plain = await decryptSecret(destination.encrypted_credentials);
-		return JSON.parse(plain) as GitHubCredentials;
-	} catch {
-		return null;
+	if (destination.encrypted_credentials) {
+		try {
+			const plain = await decryptSecret(destination.encrypted_credentials);
+			return JSON.parse(plain) as GitHubCredentials;
+		} catch {
+			/* local script without ENCRYPTION_KEY */
+		}
 	}
+	const envToken =
+		typeof process !== 'undefined'
+			? (process.env.GITHUB_TOKEN?.trim() || process.env.GH_TOKEN?.trim() || '')
+			: '';
+	if (envToken) return { token: envToken };
+	return null;
 }
 
 export function isGitHubCredentials(

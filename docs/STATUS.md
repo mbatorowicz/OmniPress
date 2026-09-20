@@ -1,6 +1,6 @@
 # Stan implementacji OmniPress
 
-**SSOT:** co jest zbudowane w wersji **0.19.8** (kod + baza + panel).
+**SSOT:** co jest zbudowane w wersji **0.19.9** (kod + baza + panel).
 
 Produkcja panelu: https://omni-press.cncsolutions.dev  
 Produkcja UG: https://gmina-miedzna.pl (cutover 2026-09-16) — gałąź `main` + publikacje OmniPress  
@@ -227,6 +227,10 @@ Wspólne narzędzia testowe: `src/lib/testing/supabase-fake.ts` (klient Supabase
 | SSO redaktorów | — |
 
 ---
+
+## 0.19.9 — Panel = produkcja
+
+- Reset Omni z `origin/main`: szkice spoza strony znikają, wpisy i strony wracają jako opublikowane, layout ze strony. GitHub tylko do odczytu. Skrypt: `scripts/reset-omni-to-live.ts`.
 
 ## 0.19.8 — Tytuł z nagłówka plakatu
 

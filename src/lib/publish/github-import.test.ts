@@ -180,4 +180,44 @@ describe('importOnePost', () => {
 			live_blob_sha: 'new-blob',
 		});
 	});
+
+	it('force wciąga szkic z origin jako published', async () => {
+		deps.findExistingPostId.mockResolvedValue('post-1');
+		deps.getGitHubFileText.mockResolvedValue(liveMd);
+		const fake = createSupabaseFake((op) => {
+			if (op.table === 'posts' && hasEq(op, 'id', 'post-1') && !op.steps.some((s) => s.method === 'update')) {
+				return {
+					data: {
+						id: 'post-1',
+						status: 'draft',
+						content_md: 'Podmiana inbound',
+						live_blob_sha: 'old',
+						published_content_sha: hashPublishedContent('Stara treść'),
+					},
+				};
+			}
+			if (op.table === 'posts' && op.steps.some((step) => step.method === 'update')) {
+				return { data: { id: 'post-1' } };
+			}
+			return { data: null };
+		});
+
+		const { importOnePost } = await import('./github-import-one');
+		const result = await importOnePost(
+			fake.client,
+			cfg,
+			'tok',
+			dest,
+			'site-1',
+			'user-1',
+			'src/content/news/wpis/index.md',
+			'live-blob',
+			undefined,
+			true,
+		);
+
+		expect(result).toEqual({ action: 'updated', errors: [] });
+		expect(deps.getGitHubFileText).toHaveBeenCalled();
+		expect(deps.syncPostAssetsFromGitHub).toHaveBeenCalled();
+	});
 });

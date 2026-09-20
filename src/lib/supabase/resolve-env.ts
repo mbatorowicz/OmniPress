@@ -3,18 +3,28 @@
  * Nie musisz ręcznie dublować PUBLIC_* po podłączeniu integracji Vercel ↔ Supabase.
  */
 
+function metaEnv(): Record<string, unknown> {
+	return ((import.meta as { env?: Record<string, unknown> }).env ?? {}) as Record<string, unknown>;
+}
+
 function pickEnv(...keys: string[]): string | undefined {
 	for (const key of keys) {
-		const value = import.meta.env[key];
-		if (typeof value === 'string' && value.trim()) {
-			return value.trim();
-		}
+		const fromMeta = metaEnv()[key];
+		if (typeof fromMeta === 'string' && fromMeta.trim()) return fromMeta.trim();
+		const fromProc = typeof process !== 'undefined' ? process.env[key] : undefined;
+		if (typeof fromProc === 'string' && fromProc.trim()) return fromProc.trim();
 	}
 	return undefined;
 }
 
 function scanEnv(predicate: (key: string, value: string) => boolean): string | undefined {
-	for (const [key, value] of Object.entries(import.meta.env)) {
+	for (const [key, value] of Object.entries(metaEnv())) {
+		if (typeof value === 'string' && value.trim() && predicate(key, value.trim())) {
+			return value.trim();
+		}
+	}
+	if (typeof process === 'undefined') return undefined;
+	for (const [key, value] of Object.entries(process.env)) {
 		if (typeof value === 'string' && value.trim() && predicate(key, value.trim())) {
 			return value.trim();
 		}

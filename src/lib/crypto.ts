@@ -6,7 +6,10 @@
 // Parametr generyczny jest wymagany: WebCrypto przyjmuje BufferSource nad ArrayBuffer,
 // a goły `Uint8Array` domyślnie obejmuje też SharedArrayBuffer.
 function getKeyBytes(): Uint8Array<ArrayBuffer> | null {
-	const raw = import.meta.env.ENCRYPTION_KEY;
+	const fromMeta = (import.meta as { env?: { ENCRYPTION_KEY?: string } }).env?.ENCRYPTION_KEY;
+	const raw =
+		(typeof fromMeta === 'string' && fromMeta.trim() ? fromMeta.trim() : '') ||
+		(typeof process !== 'undefined' ? process.env.ENCRYPTION_KEY : undefined);
 	if (!raw) return null;
 	const bytes = Uint8Array.from(atob(raw), (c) => c.charCodeAt(0));
 	if (bytes.length !== 32) {

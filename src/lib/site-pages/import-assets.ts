@@ -1,6 +1,6 @@
 /**
  * Import załączników strony z folderu GitHub → Storage + `assets.page_id`.
- * Tylko upsert — nie kasuje lokalnych szkiców, których jeszcze nie ma na origin.
+ * Domyślnie upsert. `pruneStale` (reset do produkcji) zdejmuje lokalne pliki spoza origin.
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { gitBlobShaFromBytes } from '@/lib/publish/git-blob';
@@ -16,6 +16,7 @@ import {
 	isManagedAttachmentFilename,
 	mimeFromFilename,
 	pdfDisplayMode,
+	removablePaths,
 	storageBasename,
 } from '@/lib/publish/import-asset-model';
 import { sitePageDirFromMarkdownPath, sitePageMarkdownPath } from './paths';
@@ -89,6 +90,7 @@ export async function importPageAssetsFromGitHub(
 	pageId: string,
 	markdownPath: string,
 	body: string,
+	pruneStale = false,
 ): Promise<void> {
 	const folder = sitePageDirFromMarkdownPath(markdownPath);
 	let remoteBlobs: GitHubDirBlob[] = [];
@@ -106,6 +108,23 @@ export async function importPageAssetsFromGitHub(
 	for (const blob of remoteBlobs) {
 		await upsertPageAsset(supabase, cfg, token, pageId, blob, body, localByName.get(blob.name));
 	}
+
+	if (!pruneStale) return;
+	const remoteNames = new Set(remoteBlobs.map((blob) => blob.name));
+	const stale = local.filter((asset) => !remoteNames.has(storageBasename(asset.storage_path)));
+	if (stale.length === 0) return;
+	const kept = remoteBlobs.map(
+		(blob) => localByName.get(blob.name)?.storage_path ?? `${pageId}/${blob.name}`,
+	);
+	const paths = removablePaths(
+		stale.map((asset) => asset.storage_path),
+		kept,
+	);
+	if (paths.length > 0) await supabase.storage.from(BUCKET).remove(paths);
+	await supabase.from('assets').delete().in(
+		'id',
+		stale.map((asset) => asset.id),
+	);
 }
 
 export function pageMarkdownPathFor(

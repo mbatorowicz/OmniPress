@@ -16,7 +16,7 @@ export async function applySitePagePull(
 	liveBlobSha: string,
 	existing: SitePage | undefined,
 	raw: string,
-	github?: { cfg: GitHubConfig; token: string },
+	github?: { cfg: GitHubConfig; token: string; pruneStale?: boolean },
 ): Promise<boolean> {
 	const parsed = parseSitePageFile(raw);
 	const fromPath = parseSitePagePath(pagesRoot, filePath);
@@ -59,6 +59,7 @@ export async function applySitePagePull(
 			pageId,
 			filePath,
 			parsed.body,
+			Boolean(github.pruneStale),
 		);
 	}
 	return true;

@@ -24,6 +24,7 @@ export async function importOnePost(
 	markdownPath: string,
 	liveBlobSha: string | null,
 	index?: ExistingPostIndex,
+	force = false,
 ): Promise<{ action: ImportOneAction; errors: string[] }> {
 	const slug = slugFromGitHubMarkdownPath(markdownPath, cfg.contentPath, cfg.contentLayout);
 	const externalId = formatExternalGitHubPath(markdownPath);
@@ -44,6 +45,7 @@ export async function importOnePost(
 		storedLiveBlobSha: existing?.live_blob_sha ?? null,
 		publishedContentSha: existing?.published_content_sha ?? null,
 		currentContentSha: hashPublishedContent(existing?.content_md ?? ''),
+		forcePull: force,
 	});
 	if (first === 'keep' || first === 'mark') {
 		if (first === 'mark' && existing && liveBlobSha) {
@@ -79,6 +81,7 @@ export async function importOnePost(
 			publishedContentSha: existing.published_content_sha,
 			currentContentSha: hashPublishedContent(existing.content_md),
 			liveContentSha: hashPublishedContent(stripPublishedAttachments(parsed.body)),
+			forcePull: force,
 		});
 		if (next !== 'pull') return { action: 'skipped', errors: [] };
 	}

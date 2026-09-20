@@ -14,12 +14,13 @@ export type ImportPostsResult =
 	| { ok: true; imported: number; updated: number; skipped: number; errors: string[] }
 	| { ok: false; error: string };
 
-/** Importuje opublikowane wpisy z GitHub (auto-reconcile; nie rusza szkiców). */
+/** Importuje opublikowane wpisy z GitHub (auto-reconcile; `force` nadpisuje szkice). */
 export async function importPublishedPostsFromGitHub(
 	supabase: SupabaseClient,
 	siteId: string,
 	authorId: string | null,
 	treeBlobs?: GitHubTreeBlob[],
+	options?: { force?: boolean },
 ): Promise<ImportPostsResult> {
 	const dest = await loadSiteAstroDestination(supabase, siteId);
 	if (!dest?.is_active) return { ok: false, error: 'no_astro_destination' };
@@ -61,6 +62,7 @@ export async function importPublishedPostsFromGitHub(
 			markdownPath,
 			shaByPath.get(markdownPath) ?? null,
 			index,
+			Boolean(options?.force),
 		);
 		if (result.action === 'imported') imported += 1;
 		else if (result.action === 'updated') updated += 1;

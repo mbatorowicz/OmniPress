@@ -68,6 +68,17 @@ describe('decideReconcile', () => {
 		expect(decideReconcile({ ...base, workflowStatus: 'pending' })).toBe('keep');
 	});
 
+	it('forcePull ciągnie szkic i lokalne poprawki', () => {
+		expect(decideReconcile({ ...base, workflowStatus: 'draft', forcePull: true })).toBe('pull');
+		expect(
+			decideReconcile({
+				...base,
+				currentContentSha: hashPublishedContent('Poprawka w Omni'),
+				forcePull: true,
+			}),
+		).toBe('pull');
+	});
+
 	it('ciągnie placeholder nawet przy statusie draft', () => {
 		expect(
 			decideReconcile({

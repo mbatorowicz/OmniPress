@@ -32,6 +32,7 @@ function decisionFor(
 	liveBlobSha: string,
 	liveContentSha?: string,
 	treatAsFilled = false,
+	force = false,
 ): ReconcileDecision {
 	return decideReconcile({
 		omniExists: Boolean(existing),
@@ -43,6 +44,7 @@ function decisionFor(
 		currentContentSha: hashPublishedContent(existing?.content_md ?? ''),
 		liveContentSha,
 		treatAsFilled,
+		forcePull: force,
 	});
 }
 
@@ -58,6 +60,7 @@ export async function reconcileSitePagesFromGitHub(
 	token: string,
 	blobs: GitHubTreeBlob[],
 	pagesRoot: string,
+	force = false,
 ): Promise<PageReconcileResult> {
 	const pages = await listSitePages(supabase, siteId);
 	const pagesWithAssets = await pageIdsWithAssets(
@@ -72,7 +75,7 @@ export async function reconcileSitePagesFromGitHub(
 		if (!fromPath) continue;
 		const existing = findExistingPage(pages, fromPath.pathPrefix, fromPath.slug, blob.path);
 		const treatAsFilled = existing ? pagesWithAssets.has(existing.id) : false;
-		let decision = decisionFor(existing, blob.sha, undefined, treatAsFilled);
+		let decision = decisionFor(existing, blob.sha, undefined, treatAsFilled, force);
 
 		if (decision === 'inspect' || decision === 'pull') {
 			const raw = await getGitHubFileText(cfg, token, blob.path);
@@ -81,7 +84,7 @@ export async function reconcileSitePagesFromGitHub(
 				continue;
 			}
 			if (decision === 'inspect') {
-				decision = decisionFor(existing, blob.sha, editorialShaFromRaw(raw), treatAsFilled);
+				decision = decisionFor(existing, blob.sha, editorialShaFromRaw(raw), treatAsFilled, force);
 			}
 			if (decision === 'pull') {
 				if (
@@ -94,7 +97,7 @@ export async function reconcileSitePagesFromGitHub(
 						blob.sha,
 						existing,
 						raw,
-						{ cfg, token },
+						{ cfg, token, pruneStale: force },
 					)
 				) {
 					pulled += 1;
